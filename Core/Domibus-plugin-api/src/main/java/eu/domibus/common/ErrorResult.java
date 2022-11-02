@@ -1,6 +1,7 @@
 
 package eu.domibus.common;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 
 
@@ -10,6 +11,7 @@ import java.util.Date;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@JsonDeserialize(as = ErrorResultImpl.class)
 public interface ErrorResult {
 
     /**

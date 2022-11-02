@@ -20,15 +20,6 @@ public class ErrorResultImpl implements ErrorResult {
     public ErrorResultImpl() {
     }
 
-    public ErrorResultImpl(ErrorResult v) {
-        this.setErrorCode(v.getErrorCode());
-        this.setErrorDetail(v.getErrorDetail());
-        this.setMessageInErrorId(v.getMessageInErrorId());
-        this.setMshRole(v.getMshRole());
-        this.setNotified(v.getNotified());
-        this.setTimestamp(v.getTimestamp());
-    }
-
     @Override
     public MSHRole getMshRole() {
         return mshRole;
