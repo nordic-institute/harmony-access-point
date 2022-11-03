@@ -29,13 +29,13 @@ public enum EventType {
     PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
     PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class),
 
-    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, QuerySelectors.PASSWORD_EXPIRATION, PasswordExpirationEventProperties.class, true,
+    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, QuerySelectors.PASSWORD_EXPIRATION, PasswordExpirationEventProperties.class, true,
+    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, QuerySelectors.PASSWORD_EXPIRATION, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, QuerySelectors.PASSWORD_EXPIRATION, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
     PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, null, DomibusMessageCode.PLUGIN_DEFAULT),
 
@@ -53,13 +53,12 @@ public enum EventType {
     private DomibusMessageCode securityMessageCode;
     List<String> properties;
 
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
-              boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, securityMessageCode);
     }
 
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
-        setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, null);
+    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+        setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, securityMessageCode);
     }
 
     EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
@@ -68,6 +67,10 @@ public enum EventType {
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
+    }
+
+    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
+        setParams(defaultAlertType, null, propertiesEnumClass, false, securityMessageCode);
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass) {
@@ -118,7 +121,11 @@ public enum EventType {
 
     private void setParams(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         this.defaultAlertType = defaultAlertType;
-        this.queueSelector = queueSelector == null ? QuerySelectors.DEFAULT : queueSelector;
+        if (queueSelector == null) {
+            this.queueSelector = defaultAlertType.isRepetitive() ? QuerySelectors.REPETITIVE : QuerySelectors.DEFAULT;
+        } else {
+            this.queueSelector = queueSelector;
+        }
         this.securityMessageCode = securityMessageCode;
         this.propertiesEnumClass = propertiesEnumClass;
         this.userRelated = isUserRelated;
@@ -126,18 +133,20 @@ public enum EventType {
 
     public static class QuerySelectors {
         public static final String DEFAULT = "defaultSelector";
-        public static final String MESSAGE = "message";
-        public static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
-        public static final String CERTIFICATE_EXPIRED = "certificateExpired";
+        public static final String REPETITIVE = "repetitiveSelector";
+
+//        public static final String MESSAGE = "message";
+//        public static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
+//        public static final String CERTIFICATE_EXPIRED = "certificateExpired";
         public static final String CONNECTION_MONITORING_FAILURE = "connectionMonitoringFailure";
-        public static final String LOGIN_FAILURE = "loginFailure";
-        public static final String ACCOUNT_DISABLED = "accountDisabled";
-        public static final String ACCOUNT_ENABLED = "accountEnabled";
-        public static final String PASSWORD_EXPIRATION = "PASSWORD_EXPIRATION";
+//        public static final String LOGIN_FAILURE = "loginFailure";
+//        public static final String ACCOUNT_DISABLED = "accountDisabled";
+//        public static final String ACCOUNT_ENABLED = "accountEnabled";
+//        public static final String PASSWORD_EXPIRATION = "PASSWORD_EXPIRATION";
         public static final String PLUGIN_EVENT = "PLUGIN_EVENT";
-        public static final String ARCHIVING_NOTIFICATION_FAILED = "ARCHIVING_NOTIFICATION_FAILED";
-        public static final String ARCHIVING_MESSAGES_NON_FINAL = "ARCHIVING_MESSAGES_NON_FINAL";
-        public static final String ARCHIVING_START_DATE_STOPPED = "ARCHIVING_START_DATE_STOPPED";
+//        public static final String ARCHIVING_NOTIFICATION_FAILED = "ARCHIVING_NOTIFICATION_FAILED";
+//        public static final String ARCHIVING_MESSAGES_NON_FINAL = "ARCHIVING_MESSAGES_NON_FINAL";
+//        public static final String ARCHIVING_START_DATE_STOPPED = "ARCHIVING_START_DATE_STOPPED";
         public static final String PARTITION_CHECK = "PARTITION_CHECK";
     }
 

@@ -54,12 +54,14 @@ public enum AlertType {
     }
 
     private String template;
+
     private String configurationProperty;
+
     private boolean repetitive;
+
     private Class configurationManagerClass;
 
     private AlertConfigurationManager configurationManager;
-    private DomibusPropertyChangeListener propertyChangeListener;
 
     AlertType(String template) {
         setParams(template, null, false, configurationManagerClass);
@@ -97,6 +99,10 @@ public enum AlertType {
         return this.name();
     }
 
+    public boolean isRepetitive() {
+        return repetitive;
+    }
+
     public AlertModuleConfiguration getConfiguration() {
         AlertConfigurationManager confMan = getConfigurationManager();
         return confMan.getConfiguration();
@@ -124,7 +130,7 @@ public enum AlertType {
             }
         }
 
-        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
+        DomibusPropertyChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
 
         return configurationManager;
     }

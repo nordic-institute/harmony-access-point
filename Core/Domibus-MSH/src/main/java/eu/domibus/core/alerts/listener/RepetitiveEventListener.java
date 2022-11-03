@@ -43,13 +43,13 @@ public class RepetitiveEventListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector = 'RepetitiveEventListener'")
+            selector = "selector = '" + EventType.QuerySelectors.REPETITIVE + "'")
     @Transactional
     public void onEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
-        saveEventAndTriggerAlert(event, domain);
+        triggerAlert(event, domain);
     }
 
-    private void saveEventAndTriggerAlert(Event event, final String domain) {
+    private void triggerAlert(Event event, final String domain) {
         if (StringUtils.isNotEmpty(domain)) {
             domainContextProvider.setCurrentDomain(domain);
             LOG.debug("Event:[{}] for domain:[{}]", event, domain);
