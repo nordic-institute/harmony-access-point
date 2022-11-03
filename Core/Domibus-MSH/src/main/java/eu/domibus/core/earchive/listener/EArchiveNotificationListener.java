@@ -75,6 +75,10 @@ public class EArchiveNotificationListener implements MessageListener {
         earchivingClientApi = (ArchiveWebhookApi) applicationContext.getBean(EARCHIVING_CLIENT_BEAN);
     }
 
+    void setEarchivingClientApi(ArchiveWebhookApi earchivingClientApi) {
+        this.earchivingClientApi = earchivingClientApi;
+    }
+
     @Override
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
