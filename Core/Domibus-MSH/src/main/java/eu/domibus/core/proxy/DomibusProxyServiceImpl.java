@@ -3,6 +3,8 @@ package eu.domibus.core.proxy;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.proxy.DomibusProxy;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;

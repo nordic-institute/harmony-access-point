@@ -1,4 +1,4 @@
-package eu.domibus.core.property;
+package eu.domibus.api.property;
 
 public class DomibusGeneralConstants {
     public static final int DOMIBUS_MAX_ATTACHMENT_COUNT = 28;

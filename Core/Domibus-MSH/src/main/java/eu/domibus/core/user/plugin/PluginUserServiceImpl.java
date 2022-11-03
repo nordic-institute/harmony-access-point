@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.core.property.DomibusGeneralConstants.*;
+import static eu.domibus.api.property.DomibusGeneralConstants.*;
 
 /**
  * @author Ion Perpegel, Catalin Enache

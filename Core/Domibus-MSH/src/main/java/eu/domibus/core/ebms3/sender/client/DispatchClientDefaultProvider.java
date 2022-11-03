@@ -4,7 +4,7 @@ import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

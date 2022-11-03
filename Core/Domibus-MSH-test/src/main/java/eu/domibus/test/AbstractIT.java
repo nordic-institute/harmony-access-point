@@ -7,7 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;

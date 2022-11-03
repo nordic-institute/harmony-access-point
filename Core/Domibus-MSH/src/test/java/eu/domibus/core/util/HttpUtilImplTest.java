@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
