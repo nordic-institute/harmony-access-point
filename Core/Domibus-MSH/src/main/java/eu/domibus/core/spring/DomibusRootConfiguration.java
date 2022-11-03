@@ -26,11 +26,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_H
         basePackages = "eu.domibus",
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.web\\..*"),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.ext\\.rest\\..*")/*,
-                //eArchive client beans
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.archive\\.client\\.api\\..*"),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.archive\\.client\\.invoker\\..*"),
-                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.archive\\.client\\.model\\..*")*/
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.ext\\.rest\\..*")
         }
 )
 @EnableJms
