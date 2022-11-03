@@ -13,11 +13,9 @@ import java.util.List;
  */
 public enum EventType {
 
-    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED,
-            Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
+    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
 
-    CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, QuerySelectors.CONNECTION_MONITORING_FAILURE,
-            Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION")),
+    CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, true, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION")),
 
     CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, CertificateEvent.class),
     CERT_EXPIRED(AlertType.CERT_EXPIRED, CertificateEvent.class),
@@ -29,14 +27,15 @@ public enum EventType {
     PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
     PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class),
 
-    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, PasswordExpirationEventProperties.class, true,
+    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, true, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class, true,
+    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, true, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, true, PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, true, PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
+
     PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, null, DomibusMessageCode.PLUGIN_DEFAULT),
 
     ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, ArchivingEventProperties.class),
@@ -47,18 +46,26 @@ public enum EventType {
 
 
     private AlertType defaultAlertType;
+
+    private boolean hasFrequency;
+
     private String queueSelector;
+
     private Class<? extends Enum> propertiesEnumClass;
+
     private boolean userRelated;
+
     private DomibusMessageCode securityMessageCode;
+
     List<String> properties;
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, securityMessageCode);
     }
 
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+    EventType(AlertType defaultAlertType, boolean hasFrequency, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, securityMessageCode);
+        this.hasFrequency = hasFrequency;
     }
 
     EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
@@ -69,8 +76,9 @@ public enum EventType {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
     }
 
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
+    EventType(AlertType defaultAlertType, boolean hasFrequency, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, null, propertiesEnumClass, false, securityMessageCode);
+        this.hasFrequency = hasFrequency;
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass) {
@@ -81,9 +89,10 @@ public enum EventType {
         setParams(defaultAlertType, null, propertiesEnumClass, false, null);
     }
 
-    EventType(AlertType defaultAlertType, String queueSelector, List<String> properties) {
-        this(defaultAlertType, queueSelector, null, false, null);
+    EventType(AlertType defaultAlertType, boolean hasFrequency, List<String> properties) {
+        this(defaultAlertType, null, null, false, null);
         this.properties = properties;
+        this.hasFrequency = hasFrequency;
     }
 
     EventType(AlertType defaultAlertType, List<String> properties) {
@@ -122,7 +131,7 @@ public enum EventType {
     private void setParams(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         this.defaultAlertType = defaultAlertType;
         if (queueSelector == null) {
-            this.queueSelector = defaultAlertType.isRepetitive() ? QuerySelectors.REPETITIVE : QuerySelectors.DEFAULT;
+            this.queueSelector = hasFrequency ? QuerySelectors.REPETITIVE : QuerySelectors.DEFAULT;
         } else {
             this.queueSelector = queueSelector;
         }
@@ -135,16 +144,16 @@ public enum EventType {
         public static final String DEFAULT = "defaultSelector";
         public static final String REPETITIVE = "repetitiveSelector";
 
-//        public static final String MESSAGE = "message";
+        //        public static final String MESSAGE = "message";
 //        public static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
 //        public static final String CERTIFICATE_EXPIRED = "certificateExpired";
         public static final String CONNECTION_MONITORING_FAILURE = "connectionMonitoringFailure";
-//        public static final String LOGIN_FAILURE = "loginFailure";
+        //        public static final String LOGIN_FAILURE = "loginFailure";
 //        public static final String ACCOUNT_DISABLED = "accountDisabled";
 //        public static final String ACCOUNT_ENABLED = "accountEnabled";
 //        public static final String PASSWORD_EXPIRATION = "PASSWORD_EXPIRATION";
         public static final String PLUGIN_EVENT = "PLUGIN_EVENT";
-//        public static final String ARCHIVING_NOTIFICATION_FAILED = "ARCHIVING_NOTIFICATION_FAILED";
+        //        public static final String ARCHIVING_NOTIFICATION_FAILED = "ARCHIVING_NOTIFICATION_FAILED";
 //        public static final String ARCHIVING_MESSAGES_NON_FINAL = "ARCHIVING_MESSAGES_NON_FINAL";
 //        public static final String ARCHIVING_START_DATE_STOPPED = "ARCHIVING_START_DATE_STOPPED";
         public static final String PARTITION_CHECK = "PARTITION_CHECK";
