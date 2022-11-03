@@ -29,6 +29,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*;
 
 @Configuration
@@ -40,9 +41,9 @@ public class EArchiveConfiguration {
     private final DomibusProxyService domibusProxyService;
     private final ObjectMapper objectMapper;
 
-    public static final String JSON_MAPPER_BEAN = "domibusJsonMapper";          //TODO duplicates DomibusGeneralConstants
-
-    public EArchiveConfiguration(DomibusPropertyProvider domibusPropertyProvider, DomibusProxyService domibusProxyService, @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
+    public EArchiveConfiguration(DomibusPropertyProvider domibusPropertyProvider,
+                                 DomibusProxyService domibusProxyService,
+                                 @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
         this.objectMapper = objectMapper;
@@ -53,7 +54,8 @@ public class EArchiveConfiguration {
     @Primary
     public ArchiveWebhookApi getEarchivingClientApi() {
         String restUrl = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
-        if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE) && StringUtils.isBlank(restUrl)) {
+        Boolean isEarchiveActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isTrue(isEarchiveActive) && StringUtils.isBlank(restUrl)) {
             throw new DomibusEArchiveException("eArchive client endpoint not configured");
         }
         LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);

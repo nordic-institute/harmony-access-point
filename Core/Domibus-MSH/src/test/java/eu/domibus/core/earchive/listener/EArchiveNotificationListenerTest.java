@@ -160,30 +160,4 @@ public class EArchiveNotificationListenerTest {
         };
 
     }
-
-//    @Test
-//    public void initializeEarchivingClientApi() {
-//        new Expectations() {{
-//            domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
-//            result = "url";
-//
-//            domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
-//            result = "username";
-//
-//            domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
-//            result = "password";
-//        }};
-//
-//        ArchiveWebhookApi archiveWebhookApi = eArchiveNotificationListener.getEarchivingClientApi();
-//
-//        HttpBasicAuth basicAuth = (HttpBasicAuth) archiveWebhookApi
-//                .getApiClient()
-//                .getAuthentications()
-//                .values()
-//                .stream()
-//                .findFirst()
-//                .orElseThrow(() -> new IllegalStateException("No Authentication found"));
-//        Assert.assertEquals("username", basicAuth.getUsername());
-//        Assert.assertEquals("password", basicAuth.getPassword());
-//    }
 }

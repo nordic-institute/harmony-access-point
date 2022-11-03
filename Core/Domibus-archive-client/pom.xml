@@ -48,6 +48,17 @@
     </build>
 
     <dependencies>
+        <!--Domibus dependencies-->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--Spring dependencies-->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -57,7 +68,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <!--End Spring dependencies-->
 
         <!--Jackson dependencies-->
         <dependency>
@@ -68,29 +78,21 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        <!--End Jackson dependencies-->
 
         <!--Swagger dependencies-->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
+
+        <!--Test dependencies-->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
-            <version>5.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
-            <version>5.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
-            <scope>compile</scope>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
         </dependency>
     </dependencies>
 </project>

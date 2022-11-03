@@ -266,7 +266,8 @@ public class EArchivingJobService {
         Integer property = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
 
         if (property == null || continuousLastUpdatedDate == null) {
-            LOG.error("The configuration is incorrect: either [{}] is undefined or the continuous job start date is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            LOG.error("The configuration is incorrect: " +
+                    (property==null ? "[{}] is undefined" : "the continuous job start date is undefined"), DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             eArchivingEventService.sendEventStartDateStopped();
             return;
         }
