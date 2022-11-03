@@ -15,6 +15,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_ALERT;
 import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
 
 /**
@@ -38,7 +39,7 @@ public class EventMessageListener {
     @Autowired
     private DatabaseUtil databaseUtil;
 
-    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
             selector = "selector = '" + EventType.QuerySelectors.MESSAGE + "'")
     @Transactional
     public void onMessageEvent(final Event event, @Header(name = "DOMAIN") String domain) {
