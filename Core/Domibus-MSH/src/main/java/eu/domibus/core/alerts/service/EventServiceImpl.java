@@ -132,6 +132,7 @@ public class EventServiceImpl implements EventService {
 
         enqueueEvent(event);
     }
+
 //    @Override
 //    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {
 //        Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
