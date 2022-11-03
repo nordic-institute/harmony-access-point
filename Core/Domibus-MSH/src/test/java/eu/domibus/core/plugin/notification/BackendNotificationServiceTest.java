@@ -381,7 +381,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -439,7 +439,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -496,7 +496,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -536,7 +536,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerifications() {{
-            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }

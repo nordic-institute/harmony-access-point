@@ -13,7 +13,7 @@ import java.util.List;
  */
 public enum EventType {
 
-    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, QuerySelectors.MESSAGE,
+    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED,
             Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
 
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, QuerySelectors.CONNECTION_MONITORING_FAILURE,
@@ -41,7 +41,7 @@ public enum EventType {
 
     ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, ArchivingEventProperties.class),
     ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, MessageEvent.class),
-    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, null),
+    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, (Class<? extends Enum>) null),
 
     PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK, PartitionCheckEvent.class);
 
@@ -66,8 +66,7 @@ public enum EventType {
         setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, null);
     }
 
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
-              DomibusMessageCode securityMessageCode) {
+    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
     }
 
@@ -83,6 +82,12 @@ public enum EventType {
         this(defaultAlertType, queueSelector, null, false, null);
         this.properties = properties;
     }
+
+    EventType(AlertType defaultAlertType, List<String> properties) {
+        this(defaultAlertType, null, null, false, null);
+        this.properties = properties;
+    }
+
 
     public AlertType geDefaultAlertType() {
         return this.defaultAlertType;
