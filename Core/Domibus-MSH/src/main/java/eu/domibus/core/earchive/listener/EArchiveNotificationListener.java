@@ -17,8 +17,9 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -38,7 +39,7 @@ import static eu.domibus.archive.client.configuration.EArchiveConfiguration.EARC
  * @since 5.0
  */
 @Component
-public class EArchiveNotificationListener implements MessageListener {
+public class EArchiveNotificationListener implements MessageListener, ApplicationContextAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListener.class);
 
@@ -54,7 +55,6 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
-    @Autowired
     private ApplicationContext applicationContext;
 
     public EArchiveNotificationListener(
@@ -153,4 +153,8 @@ public class EArchiveNotificationListener implements MessageListener {
     }
 
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

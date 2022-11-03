@@ -32,13 +32,22 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*;
 
+/**
+ * @author maierga
+ * @since 5.1
+ */
 @Configuration
 public class EArchiveConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveConfiguration.class);
+
     public static final String EARCHIVING_CLIENT_BEAN = "earchivingClientApi";
+
     public static final String EARCHIVING_REST_TEMPLATE_BEAN = "earchivingRestTemplate";
+
     private final DomibusPropertyProvider domibusPropertyProvider;
+
     private final DomibusProxyService domibusProxyService;
+
     private final ObjectMapper objectMapper;
 
     public EArchiveConfiguration(DomibusPropertyProvider domibusPropertyProvider,
@@ -68,9 +77,9 @@ public class EArchiveConfiguration {
         earchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
         if (StringUtils.isNotBlank(username)) {
             earchivingClientApi.getApiClient().setUsername(username);
+            String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
             earchivingClientApi.getApiClient().setPassword(password);
         }
         return earchivingClientApi;
