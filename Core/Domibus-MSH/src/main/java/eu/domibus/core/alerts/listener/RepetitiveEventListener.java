@@ -9,6 +9,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -49,8 +50,13 @@ public class RepetitiveEventListener {
     }
 
     private void saveEventAndTriggerAlert(Event event, final String domain) {
-        LOG.debug("Event received:[{}]", event);
-        domainContextProvider.setCurrentDomain(domain);
+        if (StringUtils.isNotEmpty(domain)) {
+            domainContextProvider.setCurrentDomain(domain);
+            LOG.debug("Event:[{}] for domain:[{}]", event, domain);
+        } else {
+            domainContextProvider.clearCurrentDomain();
+            LOG.debug("Event:[{}] for super user.", event);
+        }
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());

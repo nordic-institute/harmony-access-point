@@ -19,8 +19,8 @@ public enum EventType {
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, QuerySelectors.CONNECTION_MONITORING_FAILURE,
             Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION")),
 
-    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QuerySelectors.CERTIFICATE_IMMINENT_EXPIRATION, CertificateEvent.class),
-    CERT_EXPIRED(AlertType.CERT_EXPIRED, QuerySelectors.CERTIFICATE_EXPIRED, CertificateEvent.class),
+    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, CertificateEvent.class),
+    CERT_EXPIRED(AlertType.CERT_EXPIRED, CertificateEvent.class),
 
     USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, QuerySelectors.LOGIN_FAILURE, UserLoginFailedEventProperties.class, true),
     USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, QuerySelectors.ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class, true),
@@ -44,33 +44,33 @@ public enum EventType {
     PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK, PartitionCheckEvent.class);
 
 
-    private final AlertType defaultAlertType;
-    private final String queueSelector;
-    private final Class<? extends Enum> propertiesEnumClass;
-    private final boolean userRelated;
-    private final DomibusMessageCode securityMessageCode;
+    private AlertType defaultAlertType;
+    private String queueSelector;
+    private Class<? extends Enum> propertiesEnumClass;
+    private boolean userRelated;
+    private DomibusMessageCode securityMessageCode;
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
               boolean isUserRelated, DomibusMessageCode securityMessageCode) {
-        this.defaultAlertType = defaultAlertType;
-        this.queueSelector = queueSelector;
-        this.securityMessageCode = securityMessageCode;
-        this.propertiesEnumClass = propertiesEnumClass;
-        this.userRelated = isUserRelated;
+        setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, securityMessageCode);
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
               boolean isUserRelated) {
-        this(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, null);
+        setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, null);
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
               DomibusMessageCode securityMessageCode) {
-        this(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
+        setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass) {
-        this(defaultAlertType, queueSelector, propertiesEnumClass, false, null);
+        setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, null);
+    }
+
+    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass) {
+        setParams(defaultAlertType, null, propertiesEnumClass, false, null);
     }
 
     List<String> properties;
@@ -107,7 +107,16 @@ public enum EventType {
         return this.userRelated;
     }
 
+    private void setParams(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+        this.defaultAlertType = defaultAlertType;
+        this.queueSelector = queueSelector == null ? QuerySelectors.DEFAULT : queueSelector;
+        this.securityMessageCode = securityMessageCode;
+        this.propertiesEnumClass = propertiesEnumClass;
+        this.userRelated = isUserRelated;
+    }
+
     public static class QuerySelectors {
+        public static final String DEFAULT = "defaultSelector";
         public static final String MESSAGE = "message";
         public static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
         public static final String CERTIFICATE_EXPIRED = "certificateExpired";
@@ -122,4 +131,5 @@ public enum EventType {
         public static final String ARCHIVING_START_DATE_STOPPED = "ARCHIVING_START_DATE_STOPPED";
         public static final String PARTITION_CHECK = "PARTITION_CHECK";
     }
+
 }
