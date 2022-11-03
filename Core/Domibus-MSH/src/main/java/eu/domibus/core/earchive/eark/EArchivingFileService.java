@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 

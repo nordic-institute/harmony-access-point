@@ -18,7 +18,7 @@ import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.DomibusProxyServiceImpl;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.core.util.DomibusX509TrustManager;

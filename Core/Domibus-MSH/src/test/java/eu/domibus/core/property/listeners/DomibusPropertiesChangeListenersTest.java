@@ -33,7 +33,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
 import eu.domibus.core.property.GatewayConfigurationValidator;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;

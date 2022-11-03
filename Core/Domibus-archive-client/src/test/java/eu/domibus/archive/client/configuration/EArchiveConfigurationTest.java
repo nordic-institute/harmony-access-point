@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.archive.client.api.ArchiveWebhookApi;
 import eu.domibus.archive.client.invoker.auth.HttpBasicAuth;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxyService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 
-import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 
 /**
  * @author Cosmin Baciu

@@ -5,8 +5,8 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.archive.client.api.ArchiveWebhookApi;
 import eu.domibus.archive.client.invoker.ApiClient;
-import eu.domibus.core.proxy.DomibusProxy;
-import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.api.proxy.DomibusProxy;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -29,7 +29,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*;
 
 @Configuration

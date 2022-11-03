@@ -12,7 +12,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.property.DomibusGeneralConstants;
+import eu.domibus.api.property.DomibusGeneralConstants;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.*;

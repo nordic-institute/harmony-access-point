@@ -1,5 +1,7 @@
 package eu.domibus.core.proxy;
 
+import eu.domibus.api.proxy.DomibusProxy;
+import eu.domibus.api.proxy.DomibusProxyService;
 import mockit.*;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.transport.http.HTTPConduit;
