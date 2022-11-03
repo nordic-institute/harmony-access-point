@@ -117,8 +117,7 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        AlertType archivingNotificationFailed = AlertType.CERT_EXPIRED;
-        AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
+        AlertModuleConfiguration conf = AlertType.CERT_EXPIRED.getConfiguration();
 
         ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration)AlertType.CONNECTION_MONITORING_FAILED.getConfiguration();
 

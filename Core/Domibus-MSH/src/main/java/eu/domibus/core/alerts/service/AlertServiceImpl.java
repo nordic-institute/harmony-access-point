@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,7 +98,8 @@ public class AlertServiceImpl implements AlertService {
                             AlertConfigurationService alertConfigurationService,
                             ServerInfoService serverInfoService,
                             CommonConfigurationManager alertConfigurationManager,
-                            ReprogrammableService reprogrammableService) {
+                            ReprogrammableService reprogrammableService,
+                            ApplicationContext applicationContext) {
         this.eventDao = eventDao;
         this.alertDao = alertDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -108,6 +110,8 @@ public class AlertServiceImpl implements AlertService {
         this.serverInfoService = serverInfoService;
         this.alertConfigurationManager = alertConfigurationManager;
         this.reprogrammableService = reprogrammableService;
+
+        AlertType.setApplicationContext(applicationContext);
     }
 
     /**

@@ -42,8 +42,16 @@ public enum AlertType {
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX,
             ConnectionMonitoringFailedConfigurationManager.class);
 
-    //    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
-    public static ApplicationContext applicationContext;
+    private static ApplicationContext applicationContext;
+
+    public static void setApplicationContext(ApplicationContext applicationContextParam) {
+        applicationContext = applicationContextParam;
+    }
+
+    //in the future an alert will not have one to one mapping.
+    public static AlertType getByEventType(EventType eventType) {
+        return eventType.geDefaultAlertType();
+    }
 
     private String template;
     private String configurationProperty;
@@ -71,11 +79,6 @@ public enum AlertType {
 
     AlertType(String template, String configurationProperty, boolean repetitive, Class configurationManagerClass) {
         setParams(template, configurationProperty, repetitive, configurationManagerClass);
-    }
-
-    //in the future an alert will not have one to one mapping.
-    public static AlertType getByEventType(EventType eventType) {
-        return eventType.geDefaultAlertType();
     }
 
     public List<EventType> getSourceEvents() {
@@ -121,13 +124,9 @@ public enum AlertType {
             }
         }
 
-        //where to create this?
         propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
 
         return configurationManager;
     }
-//        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
-//            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
-//        }
 
 }

@@ -48,8 +48,8 @@ public class ConnectionMonitoringFailedEventListener {
     // todo all these listener classes seem to fall into 2 categories, so a base class could be foreseen (or the use of the same listener for more than one event)
     // EDELIVERY-9241 Ion Perpegel 16/09/22
     private void saveEventAndTriggerAlert(Event event, final String domain) {
-        LOG.debug("Connection Monitoring Falure event received:[{}]", event);
-        domainContextProvider.setCurrentDomain(domain);
+        LOG.debug("Connection Monitoring Failure event received:[{}]", event);
+        domainContextProvider.setCurrentDomain(domain); 
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());
