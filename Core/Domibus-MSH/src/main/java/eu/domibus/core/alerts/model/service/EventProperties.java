@@ -7,7 +7,7 @@ package eu.domibus.core.alerts.model.service;
 public class EventProperties {
     Object[] properties;
 
-    public EventProperties(String... properties) {
+    public EventProperties(Object... properties) {
         this.properties = properties;
     }
 

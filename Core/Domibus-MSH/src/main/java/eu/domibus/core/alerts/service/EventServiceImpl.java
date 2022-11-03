@@ -122,18 +122,18 @@ public class EventServiceImpl implements EventService {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
-        Event event = new Event(EventType.MSG_STATUS_CHANGED);
-        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
-        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
-        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        event.addStringKeyValue(ROLE.name(), role.name());
-
-        enrichMessageEvent(event);
-
-        enqueueEvent(event);
-    }
+//    @Override
+//    public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
+//        Event event = new Event(EventType.MSG_STATUS_CHANGED);
+//        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
+//        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
+//        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+//        event.addStringKeyValue(ROLE.name(), role.name());
+//
+//        enrichMessageEvent(event);
+//
+//        enqueueEvent(event);
+//    }
 
 //    @Override
 //    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {

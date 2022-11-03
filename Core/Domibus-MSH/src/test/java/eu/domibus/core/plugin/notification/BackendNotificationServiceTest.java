@@ -17,6 +17,8 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.BackendConnectorHelper;
@@ -381,7 +383,8 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
+//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -439,7 +442,8 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
+//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -496,7 +500,8 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
+//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -536,7 +541,8 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerifications() {{
-            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
+//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
