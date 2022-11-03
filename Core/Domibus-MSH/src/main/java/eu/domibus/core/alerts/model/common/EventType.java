@@ -22,12 +22,12 @@ public enum EventType {
     CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, CertificateEvent.class),
     CERT_EXPIRED(AlertType.CERT_EXPIRED, CertificateEvent.class),
 
-    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, QuerySelectors.LOGIN_FAILURE, UserLoginFailedEventProperties.class, true),
-    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, QuerySelectors.ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class, true),
-    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, QuerySelectors.ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class, true),
-    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, QuerySelectors.LOGIN_FAILURE, UserLoginFailedEventProperties.class),
-    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, QuerySelectors.ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
-    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, QuerySelectors.ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class),
+    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class, true),
+    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class, true),
+    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class, true),
+    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class),
+    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
+    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class),
 
     PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, QuerySelectors.PASSWORD_EXPIRATION, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
@@ -51,15 +51,19 @@ public enum EventType {
     private Class<? extends Enum> propertiesEnumClass;
     private boolean userRelated;
     private DomibusMessageCode securityMessageCode;
+    List<String> properties;
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
               boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, securityMessageCode);
     }
 
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
-              boolean isUserRelated) {
+    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
         setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, null);
+    }
+
+    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
+        setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, null);
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,
@@ -74,8 +78,6 @@ public enum EventType {
     EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass) {
         setParams(defaultAlertType, null, propertiesEnumClass, false, null);
     }
-
-    List<String> properties;
 
     EventType(AlertType defaultAlertType, String queueSelector, List<String> properties) {
         this(defaultAlertType, queueSelector, null, false, null);

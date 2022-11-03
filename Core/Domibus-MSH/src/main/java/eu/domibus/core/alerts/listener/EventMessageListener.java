@@ -46,7 +46,7 @@ public class EventMessageListener {
         LOG.debug("Message event received:[{}]", event);
         domainContextProvider.setCurrentDomain(domain);
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
-        eventService.enrichMessageEvent(event);
+        eventService.enrichMessageEvent(event); // move this elsewhere???
         eventService.persistEvent(event);
 
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
