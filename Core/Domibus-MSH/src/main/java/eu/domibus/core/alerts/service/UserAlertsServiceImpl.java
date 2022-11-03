@@ -7,6 +7,7 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
@@ -72,10 +73,12 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 //        final LoginFailureModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         DefaultAlertConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         LOG.debug("loginFailureConfiguration.isActive : [{}]", loginFailureConfiguration.isActive());
+        EventType loginFailEventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
         switch (userLoginErrorReason) {
             case BAD_CREDENTIALS:
                 if (loginFailureConfiguration.isActive()) {
-                    eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), false);
+//                    eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), false);
+                    eventService.enqueueEvent(loginFailEventType, new EventProperties(userName, getUserType().getName(), new Date(), Boolean.FALSE.toString()));
                 }
                 break;
             case INACTIVE:
@@ -83,9 +86,12 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
                 final AccountDisabledModuleConfiguration accountDisabledConfiguration = getAccountDisabledConfiguration();
                 if (accountDisabledConfiguration.isActive()) {
                     if (BooleanUtils.isTrue(accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin())) {
-                        eventService.enqueueAccountDisabledEvent(getUserType(), userName, new Date());
+//                        eventService.enqueueAccountDisabledEvent(getUserType(), userName, new Date());
+                        EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
+                        eventService.enqueueEvent(eventType, new EventProperties(getUserType().getName(), userName, new Date(), Boolean.TRUE.toString()));
                     } else if (loginFailureConfiguration.isActive()) {
-                        eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), true);
+//                        eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), true);
+                        eventService.enqueueEvent(loginFailEventType, new EventProperties(userName, getUserType().getName(), new Date(), Boolean.TRUE.toString()));
                     }
                 }
                 break;
@@ -99,7 +105,9 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         final AccountDisabledModuleConfiguration accountDisabledConfiguration = getAccountDisabledConfiguration();
         if (accountDisabledConfiguration.isActive()) {
             LOG.debug("Sending account disabled event for user:[{}]", user.getUserName());
-            eventService.enqueueAccountDisabledEvent(getUserType(), user.getUserName(), new Date());
+            EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
+            eventService.enqueueEvent(eventType, new EventProperties(getUserType().getName(), user.getUserName(), new Date(), Boolean.TRUE.toString()));
+//            eventService.enqueueAccountDisabledEvent(getUserType(), user.getUserName(), new Date());
         }
     }
 
@@ -108,7 +116,9 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         final AlertModuleConfigurationBase accountEnabledConfiguration = getAccountEnabledConfiguration();
         if (accountEnabledConfiguration.isActive()) {
             LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
-            eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());
+//            eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());
+            EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
+            eventService.enqueueEvent(eventType, new EventProperties(getUserType().getName(), user.getUserName(), new Date(), Boolean.TRUE.toString()));
         }
     }
 

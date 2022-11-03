@@ -20,12 +20,15 @@ public enum EventType {
     CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, CertificateEvent.class),
     CERT_EXPIRED(AlertType.CERT_EXPIRED, CertificateEvent.class),
 
-    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class, true),
-    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class, true),
-    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class, true),
-    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class),
-    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
-    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, UserAccountEnabledEventProperties.class),
+    //    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class, true),
+    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED"), true),
+    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED"), true),
+    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED"), true),
+    //    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, UserLoginFailedEventProperties.class),
+    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED")),
+    //    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, UserAccountDisabledEventProperties.class),
+    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED")),
+    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED")),
 
     PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, true, PasswordExpirationEventProperties.class, true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
@@ -70,6 +73,11 @@ public enum EventType {
 
     EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
         setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, null);
+    }
+
+    EventType(AlertType defaultAlertType, List<String> properties, boolean isUserRelated) {
+        setParams(defaultAlertType, null, null, isUserRelated, null);
+        this.properties = properties;
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
