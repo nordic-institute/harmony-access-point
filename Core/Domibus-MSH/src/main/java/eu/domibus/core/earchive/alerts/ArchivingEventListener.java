@@ -35,7 +35,7 @@ public class ArchivingEventListener {
         this.domainContextProvider = domainContextProvider;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'ARCHIVING_MESSAGES_NON_FINAL' " +
                     "or selector = 'ARCHIVING_NOTIFICATION_FAILED' " +
                     "or selector = 'ARCHIVING_START_DATE_STOPPED'")

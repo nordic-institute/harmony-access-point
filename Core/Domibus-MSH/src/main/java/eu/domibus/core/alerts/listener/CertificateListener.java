@@ -14,6 +14,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -35,7 +37,7 @@ public class CertificateListener {
     @Autowired
     private DatabaseUtil databaseUtil;
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.CERTIFICATE_IMMINENT_EXPIRATION
                     + "' or selector = '" + EventType.QuerySelectors.CERTIFICATE_EXPIRED + "'")
     public void onCertificateEvent(final Event event, @Header(name = "DOMAIN") String domain) {

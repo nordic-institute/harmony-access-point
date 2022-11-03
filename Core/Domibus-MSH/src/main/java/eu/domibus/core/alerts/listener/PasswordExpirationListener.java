@@ -14,6 +14,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -35,7 +37,7 @@ public class PasswordExpirationListener {
     @Autowired
     private DatabaseUtil databaseUtil;
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.PASSWORD_EXPIRATION + "'")
     // Intentionally used just one selector value for all 4 types of events
     public void onPasswordEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {

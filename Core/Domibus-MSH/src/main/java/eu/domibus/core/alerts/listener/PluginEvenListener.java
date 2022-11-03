@@ -14,6 +14,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * Listener to handle plugin event and create alert
  *
@@ -43,7 +45,7 @@ public class PluginEvenListener {
         this.databaseUtil = databaseUtil;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.PLUGIN_EVENT + "'")
     @Transactional
     public void onPluginEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {

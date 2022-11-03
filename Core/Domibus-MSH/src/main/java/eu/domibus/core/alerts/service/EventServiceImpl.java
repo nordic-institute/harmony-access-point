@@ -50,6 +50,8 @@ public class EventServiceImpl implements EventService {
 
     private static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
+    public static final String ALERT_JMS_LISTENER_CONTAINER_FACTORY = "alertJmsListenerContainerFactory";
+
     @Autowired
     private EventDao eventDao;
 

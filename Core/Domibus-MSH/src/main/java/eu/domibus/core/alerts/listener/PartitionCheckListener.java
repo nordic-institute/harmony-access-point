@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author idragusa
  * @since 5.0
@@ -46,7 +48,7 @@ public class PartitionCheckListener {
         this.partitionsConfigurationManager = partitionsConfigurationManager;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector ='" + EventType.QuerySelectors.PARTITION_CHECK + "'")
     public void onDeleteExpiredPartitionEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);

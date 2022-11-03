@@ -11,6 +11,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -34,7 +36,7 @@ public class AlertListener {
         this.databaseUtil = databaseUtil;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'alert'")
     public void onAlert(final Alert alert, @Header(name = "DOMAIN", required = false) String domain) {
         if (StringUtils.isNotEmpty(domain)) {

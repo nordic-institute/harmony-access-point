@@ -14,6 +14,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author Ion Perpegel
  * @since 5.1
@@ -38,7 +40,7 @@ public class ConnectionMonitoringFailedEventListener {
         this.eventDao = eventDao;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.CONNECTION_MONITORING_FAILURE + "'")
     @Transactional
     public void onEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
@@ -49,7 +51,7 @@ public class ConnectionMonitoringFailedEventListener {
     // EDELIVERY-9241 Ion Perpegel 16/09/22
     private void saveEventAndTriggerAlert(Event event, final String domain) {
         LOG.debug("Connection Monitoring Failure event received:[{}]", event);
-        domainContextProvider.setCurrentDomain(domain); 
+        domainContextProvider.setCurrentDomain(domain);
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());

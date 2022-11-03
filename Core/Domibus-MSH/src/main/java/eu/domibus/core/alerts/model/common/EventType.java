@@ -44,10 +44,10 @@ public enum EventType {
     PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK, PartitionCheckEvent.class);
 
 
-    private AlertType defaultAlertType;
+    private final AlertType defaultAlertType;
     private final String queueSelector;
-    private Class<? extends Enum> propertiesEnumClass;
-    private boolean userRelated;
+    private final Class<? extends Enum> propertiesEnumClass;
+    private final boolean userRelated;
     private final DomibusMessageCode securityMessageCode;
 
     EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass,

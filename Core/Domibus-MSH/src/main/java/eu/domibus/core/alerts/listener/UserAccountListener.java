@@ -16,6 +16,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -37,7 +39,7 @@ public class UserAccountListener {
     @Autowired
     private DatabaseUtil databaseUtil;
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.LOGIN_FAILURE
                     + "' or selector = '" + EventType.QuerySelectors.ACCOUNT_DISABLED
                     + "' or selector = '" + EventType.QuerySelectors.ACCOUNT_ENABLED + "'")
