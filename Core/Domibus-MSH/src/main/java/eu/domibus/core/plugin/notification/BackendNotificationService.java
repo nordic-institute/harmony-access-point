@@ -349,9 +349,9 @@ public class BackendNotificationService {
 
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
-            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED,
-                    new EventProperties(userMessage.getMessageId(), messageLog.getMessageStatus().name(), newStatus.name(), userMessage.getMshRole().getRole().name()));
-//            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
+//            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED,
+//                    new EventProperties(userMessage.getMessageId(), messageLog.getMessageStatus().name(), newStatus.name(), userMessage.getMshRole().getRole().name()));
+            eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
         }
 
         handleMDC(userMessage);

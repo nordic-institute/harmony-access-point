@@ -383,8 +383,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
-//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -442,8 +441,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
-//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -500,8 +498,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
-//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
@@ -541,8 +538,7 @@ public class BackendNotificationServiceTest {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
         new FullVerifications() {{
-            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, previousStatus.name(), status.name(), role.name()));
-//            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
+            eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }

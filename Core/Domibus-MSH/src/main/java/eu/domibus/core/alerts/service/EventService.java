@@ -29,7 +29,7 @@ public interface EventService {
      * @param newStatus the new status of the message.
      * @param role      the role of the access point.
      */
-//    void enqueueMessageStatusChangedEvent(String messageId, MessageStatus oldStatus, MessageStatus newStatus, MSHRole role);
+    void enqueueMessageStatusChangedEvent(String messageId, MessageStatus oldStatus, MessageStatus newStatus, MSHRole role);
 
     /**
      * Will create a connection monitoring failed event with the given parameters and enqueue it to the alert/event monitoring queue.
