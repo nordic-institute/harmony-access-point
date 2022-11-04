@@ -8,9 +8,11 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
+//import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
+//import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
@@ -62,7 +64,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected PartitionService partitionService;
 
-    protected PartitionsConfigurationManager partitionsConfigurationManager;
+//    protected PartitionsConfigurationManager partitionsConfigurationManager;
 
 
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
@@ -75,8 +77,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomibusConfigurationService domibusConfigurationService,
                                              DomainService domainService,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
-                                             PartitionService partitionService,
-                                             PartitionsConfigurationManager partitionsConfigurationManager) {
+                                             PartitionService partitionService
+//                                             PartitionsConfigurationManager partitionsConfigurationManager
+    ) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -87,7 +90,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
-        this.partitionsConfigurationManager = partitionsConfigurationManager;
+//        this.partitionsConfigurationManager = partitionsConfigurationManager;
     }
 
     @Override
@@ -148,8 +151,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
-        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-        if (partitionsModuleConfiguration.isActive()) {
+//        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
+        FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration)AlertType.PARTITION_CHECK.getConfiguration();
+        if (partitionsModuleConfiguration.isActive()) { // it is always active!!
             eventService.enqueuePartitionCheckEvent(partitionName);
         }
     }

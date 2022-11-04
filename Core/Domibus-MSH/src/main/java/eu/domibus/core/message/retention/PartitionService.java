@@ -2,9 +2,9 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,18 +35,19 @@ public class PartitionService {
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    protected PartitionsConfigurationManager partitionsConfigurationManager;
+//    protected PartitionsConfigurationManager partitionsConfigurationManager;
 
     public PartitionService(UserMessageDao userMessageDao,
                             EventService eventService,
                             DateUtil dateUtil,
-                            DomibusPropertyProvider domibusPropertyProvider,
-                            PartitionsConfigurationManager partitionsConfigurationManager) {
+                            DomibusPropertyProvider domibusPropertyProvider
+//                            PartitionsConfigurationManager partitionsConfigurationManager
+    ) {
         this.userMessageDao = userMessageDao;
         this.eventService = eventService;
         this.dateUtil = dateUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.partitionsConfigurationManager = partitionsConfigurationManager;
+//        this.partitionsConfigurationManager = partitionsConfigurationManager;
     }
 
     public void verifyPartitionsInAdvance() {
@@ -57,7 +58,8 @@ public class PartitionService {
         Boolean partitionExists = userMessageDao.checkPartitionExists(partitionName);
         if (BooleanUtils.isFalse(partitionExists)) {
             LOG.warn("Throw partition creation warning, this partition was expected to exist but could not be found [{}]", partitionName);
-            PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
+//            PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
+            FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration) AlertType.PARTITION_CHECK.getConfiguration();
             if (partitionsModuleConfiguration.isActive()) {
                 eventService.enqueuePartitionCheckEvent(partitionName);
             }

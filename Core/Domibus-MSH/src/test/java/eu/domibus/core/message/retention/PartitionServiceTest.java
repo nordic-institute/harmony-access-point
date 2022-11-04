@@ -2,7 +2,8 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
+//import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import mockit.Expectations;
@@ -35,8 +36,8 @@ public class PartitionServiceTest {
     @Injectable
     DateUtil dateUtil;
 
-    @Injectable
-    PartitionsConfigurationManager partitionsConfigurationManager;
+//    @Injectable
+//    PartitionsConfigurationManager partitionsConfigurationManager;
 
     @Test
     public void verifyPartitionsInAdvance() {
@@ -61,7 +62,8 @@ public class PartitionServiceTest {
             userMessageDao.checkPartitionExists(anyString);
             result = false;
 
-            partitionsConfigurationManager.getConfiguration().isActive();
+//            partitionsConfigurationManager.getConfiguration().isActive();
+            AlertType.PARTITION_CHECK.getConfiguration().isActive();
             result = true;
         }};
 

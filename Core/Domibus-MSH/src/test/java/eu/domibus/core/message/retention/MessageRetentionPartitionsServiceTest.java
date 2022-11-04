@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
+//import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -64,8 +64,8 @@ public class MessageRetentionPartitionsServiceTest {
     @Injectable
     PartitionService partitionService;
 
-    @Injectable
-    PartitionsConfigurationManager partitionsConfigurationManager;
+//    @Injectable
+//    PartitionsConfigurationManager partitionsConfigurationManager;
 
     @Test
     public void deleteExpiredMessagesTest() {
