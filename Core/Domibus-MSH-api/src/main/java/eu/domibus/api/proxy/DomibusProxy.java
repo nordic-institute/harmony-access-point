@@ -1,4 +1,4 @@
-package eu.domibus.core.proxy;
+package eu.domibus.api.proxy;
 
 
 import eu.domibus.logging.DomibusLogger;

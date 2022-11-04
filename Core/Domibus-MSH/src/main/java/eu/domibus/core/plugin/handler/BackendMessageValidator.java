@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 import static eu.domibus.api.util.DomibusStringUtil.*;
-import static eu.domibus.core.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
+import static eu.domibus.api.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
 import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
