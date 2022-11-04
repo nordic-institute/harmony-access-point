@@ -123,7 +123,7 @@ public interface EventService {
      * @param maxPasswordAgeInDays the number of days the password is not expired
      * @param frequency            the period in days to send another alert
      */
-    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency);
+    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays);
 
 
     /**

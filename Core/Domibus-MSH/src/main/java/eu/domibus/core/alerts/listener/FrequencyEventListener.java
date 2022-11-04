@@ -8,6 +8,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -62,15 +63,16 @@ public class FrequencyEventListener {
 
         FrequencyAlertConfiguration configuration = (FrequencyAlertConfiguration) event.getType().geDefaultAlertType().getConfiguration();
 
-        eu.domibus.core.alerts.model.persist.Event persistedEvent = eventService.getPersistedEvent(event);
-        if (!eventService.shouldCreateAlert(persistedEvent, configuration.getFrequency())) {
+        String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
+        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
+        if (!eventService.shouldCreateAlert(entity, configuration.getFrequency())) {
             return;
         }
-        event.setLastAlertDate(LocalDate.now());
 
-        LOG.debug("Partition expiration event:[{}] for domain:[{}]", event, domain);
+        event.setLastAlertDate(LocalDate.now());
         eventService.persistEvent(event);
 
+        // todo combine
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
         alertService.enqueueAlert(alertOnEvent);
     }

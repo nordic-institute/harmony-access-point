@@ -12,6 +12,7 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -79,6 +80,7 @@ public class EventServiceImpl implements EventService {
     protected MpcService mpcService;
 
     @Override
+    // de sters??
     public void enqueueEvent(EventType eventType, EventProperties eventProperties) {
         Event event = createEvent(eventType, eventProperties);
         enqueueEvent(event);
@@ -86,11 +88,29 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
+        Event event = getEvent(eventType, eventIdentifier, eventProperties);
+        if (event == null) return;
+
+        enqueueEvent(event);
+    }
+
+    private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEvent(eventType, eventProperties);
         event.setReportingTime(new Date());
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
-        enqueueEvent(event);
+        AlertType alertType = eventType.geDefaultAlertType();
+        if (alertType.getCategory() == AlertCategory.REPETITIVE) {
+            eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
+            RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertType.getConfiguration();
+            if (!shouldCreateAlert(entity, configuration.getFrequency())) {
+                return null;
+            }
+
+            entity.setLastAlertDate(LocalDate.now());
+            eventDao.update(entity);
+        }
+        return event;
     }
 
 //    @Override
@@ -293,18 +313,27 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency) {
-        Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
+        String eventIdentifier = getUniqueIdentifier(user);
+        LocalDate expDate = user.getPasswordChangeDate().plusDays(maxPasswordAgeInDays).toLocalDate();
+        EventProperties eventProperties = new EventProperties(user.getUserName(), user.getType().getName(), expDate);
 
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
-        if (!shouldCreateAlert(entity, frequency)) {
-            return;
-        }
+        Event event = getEvent(eventType, eventIdentifier, eventProperties);
+        if (event == null) return;
 
-        entity.setLastAlertDate(LocalDate.now());
-        eventDao.update(entity);
+//        Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
+//
+//        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
+//        if (!shouldCreateAlert(entity, frequency)) {
+//            return;
+//        }
+//
+//        entity.setLastAlertDate(LocalDate.now());
+//        eventDao.update(entity);
+//
+//        jmsManager.convertAndSendToQueue(event, alertMessageQueue, eventType.getQueueSelector());
 
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, eventType.getQueueSelector());
+        enqueueEvent(event);
 
         LOG.securityInfo(eventType.getSecurityMessageCode(), user.getUserName(), event.findOptionalProperty(PasswordExpirationEventProperties.EXPIRATION_DATE.name()));
     }
