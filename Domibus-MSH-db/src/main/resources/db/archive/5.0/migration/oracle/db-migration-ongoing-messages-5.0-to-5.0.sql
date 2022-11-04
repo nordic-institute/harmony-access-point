@@ -843,7 +843,24 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
                     SELECT ID_PK
                     FROM TB_D_MESSAGE_STATUS
                     WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
-                ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate);
+                ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate)
+            OR ID_PK IN (
+                SELECT SOURCE_MESSAGE_ID_FK
+                FROM TB_SJ_MESSAGE_GROUP
+                WHERE ID_PK IN (
+                    SELECT GROUP_ID_FK
+                    FROM TB_SJ_MESSAGE_FRAGMENT
+                    WHERE ID_PK IN (
+                        SELECT ID_PK
+                        FROM TB_USER_MESSAGE
+                        WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                          AND ID_PK IN (
+                            SELECT ID_PK
+                            FROM TB_USER_MESSAGE_LOG
+                            WHERE MESSAGE_STATUS_ID_FK IN (
+                                SELECT ID_PK
+                                FROM TB_D_MESSAGE_STATUS
+                                WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT'))))));
 
         TYPE T_USER_MESSAGE IS TABLE OF c_user_message%ROWTYPE;
         user_message T_USER_MESSAGE;
@@ -1199,18 +1216,21 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
             WHERE ID_PK IN (
                 SELECT ID_PK
                 FROM TB_SJ_MESSAGE_GROUP
-                WHERE SOURCE_MESSAGE_ID_FK IN (
-                    SELECT ID_PK
-                    FROM TB_USER_MESSAGE
-                    WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
-                      AND ID_PK IN (
+                WHERE ID_PK IN (
+                    SELECT GROUP_ID_FK
+                    FROM TB_SJ_MESSAGE_FRAGMENT
+                    WHERE ID_PK IN (
                         SELECT ID_PK
-                        FROM TB_USER_MESSAGE_LOG
-                        WHERE MESSAGE_STATUS_ID_FK IN (
+                        FROM TB_USER_MESSAGE
+                        WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                          AND ID_PK IN (
                             SELECT ID_PK
-                            FROM TB_D_MESSAGE_STATUS
-                            WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
-                        ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+                            FROM TB_USER_MESSAGE_LOG
+                            WHERE MESSAGE_STATUS_ID_FK IN (
+                                SELECT ID_PK
+                                FROM TB_D_MESSAGE_STATUS
+                                WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+                            ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate))));
 
         TYPE T_SJ_MESSAGE_HEADER IS TABLE OF c_sj_message_header%ROWTYPE;
         sj_message_header T_SJ_MESSAGE_HEADER;
@@ -1238,18 +1258,21 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
         CURSOR c_sj_message_group IS
             SELECT ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, SOURCE_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY
             FROM TB_SJ_MESSAGE_GROUP
-            WHERE SOURCE_MESSAGE_ID_FK IN (
-                SELECT ID_PK
-                FROM TB_USER_MESSAGE
-                WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
-                  AND ID_PK IN (
+            WHERE ID_PK IN (
+                SELECT GROUP_ID_FK
+                FROM TB_SJ_MESSAGE_FRAGMENT
+                WHERE ID_PK IN (
                     SELECT ID_PK
-                    FROM TB_USER_MESSAGE_LOG
-                    WHERE MESSAGE_STATUS_ID_FK IN (
+                    FROM TB_USER_MESSAGE
+                    WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                      AND ID_PK IN (
                         SELECT ID_PK
-                        FROM TB_D_MESSAGE_STATUS
-                        WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
-                    ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate));
+                        FROM TB_USER_MESSAGE_LOG
+                        WHERE MESSAGE_STATUS_ID_FK IN (
+                            SELECT ID_PK
+                            FROM TB_D_MESSAGE_STATUS
+                            WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+                        ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate)));
 
         TYPE T_SJ_MESSAGE_GROUP IS TABLE OF c_sj_message_group%ROWTYPE;
         sj_message_group T_SJ_MESSAGE_GROUP;
@@ -1889,10 +1912,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
         migrate_signal_message_log(db_link, migration);
         migrate_user_message_raw(db_link, migration);
         migrate_signal_message_raw(db_link, migration);
-        -- EDELIVERY-10134: postpone split and join migration until v5.1
-        --migrate_sj_message_header(db_link, migration);
-        --migrate_sj_message_group(db_link, migration);
-        --migrate_sj_message_fragment(db_link, migration);
+        migrate_sj_message_header(db_link, migration);
+        migrate_sj_message_group(db_link, migration);
+        migrate_sj_message_fragment(db_link, migration);
         migrate_ws_plg_msg_log(db_link, migration);
         migrate_ws_plg_backend_msg_log(db_link, migration);
         migrate_message_properties(db_link, migration);
