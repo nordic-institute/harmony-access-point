@@ -19,7 +19,7 @@ public interface EventService {
 
     void enqueueEvent(EventType eventType, EventProperties eventProperties);
 
-    void enqueueEvent(EventType eventType, String eventIdentifier, int alertFrequency, EventProperties eventProperties);
+    void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties);
 
     /**
      * Will create a message status change event with the given parameter and enqueue it to the alert/event monitoring queue.
@@ -147,4 +147,6 @@ public interface EventService {
      * Will create an earchiving start date stopped event and enqueue it to the alert/event monitoring queue.
      */
     void enqueueEArchivingStartDateStopped();
+
+    eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event);
 }

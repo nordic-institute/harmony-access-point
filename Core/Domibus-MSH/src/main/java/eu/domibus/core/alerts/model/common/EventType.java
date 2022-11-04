@@ -1,7 +1,5 @@
 package eu.domibus.core.alerts.model.common;
 
-import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
-import eu.domibus.core.earchive.alerts.RepetitiveAlertConfigurationManager;
 import eu.domibus.logging.DomibusMessageCode;
 
 import java.util.ArrayList;
@@ -16,8 +14,6 @@ import java.util.List;
 public enum EventType {
 
     MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
-
-    CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION")),
 
     CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QuerySelectors.DEFAULT, CertificateEvent.class),
     CERT_EXPIRED(AlertType.CERT_EXPIRED, QuerySelectors.DEFAULT, CertificateEvent.class),
@@ -44,7 +40,8 @@ public enum EventType {
     ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, MessageEvent.class),
     ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, (Class<? extends Enum>) null),
 
-    PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK, PartitionCheckEvent.class);
+    PARTITION_CHECK(AlertType.PARTITION_CHECK, Arrays.asList("PARTITION_NAME")),
+    CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION"));
 
 
     private AlertType defaultAlertType;

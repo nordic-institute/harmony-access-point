@@ -153,7 +153,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected void enqueuePartitionCheckEvent(String partitionName) {
 //        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
         FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration)AlertType.PARTITION_CHECK.getConfiguration();
-        if (partitionsModuleConfiguration.isActive()) { // it is always active!!
+        if (partitionsModuleConfiguration.isActive()) {
             eventService.enqueuePartitionCheckEvent(partitionName);
         }
     }

@@ -107,7 +107,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
             String fromParty = userMessage.getPartyInfo().getFromParty();
             String toParty = userMessage.getPartyInfo().getToParty();
             if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
-                eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty, connMonitorConfig.getFrequency(),
+                eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
                         new EventProperties(userMessage.getMessageId(), messageLog.getMshRole().getRole().name(), messageLog.getMessageStatus().name(), fromParty, toParty));
 //                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(),
 //                        messageLog.getMessageStatus(), fromParty, toParty, connMonitorConfig.getFrequency());

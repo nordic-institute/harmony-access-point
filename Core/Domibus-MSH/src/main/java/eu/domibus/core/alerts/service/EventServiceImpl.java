@@ -48,7 +48,7 @@ public class EventServiceImpl implements EventService {
 
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
-    private static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
+    public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
     public static final String ALERT_JMS_LISTENER_CONTAINER_FACTORY = "alertJmsListenerContainerFactory";
 
@@ -85,21 +85,30 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueueEvent(EventType eventType, String eventIdentifier, int frequency, EventProperties eventProperties) {
+    public void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEvent(eventType, eventProperties);
         event.setReportingTime(new Date());
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
-        if (!shouldCreateAlert(entity, frequency)) {
-            return;
-        }
-
-        entity.setLastAlertDate(LocalDate.now());
-        eventDao.update(entity);
-
         enqueueEvent(event);
     }
+
+//    @Override
+//    public void enqueueEvent(EventType eventType, String eventIdentifier, int frequency, EventProperties eventProperties) {
+//        Event event = createEvent(eventType, eventProperties);
+//        event.setReportingTime(new Date());
+//        event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
+//
+//        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
+//        if (!shouldCreateAlert(entity, frequency)) {
+//            return;
+//        }
+//
+//        entity.setLastAlertDate(LocalDate.now());
+//        eventDao.update(entity);
+//
+//        enqueueEvent(event);
+//    }
 
     private Event createEvent(EventType eventType, EventProperties eventProperties) {
         Event event = new Event(eventType);
@@ -346,7 +355,8 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event) {
+    @Override
+    public eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event) {
         String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
         if (entity == null) {
