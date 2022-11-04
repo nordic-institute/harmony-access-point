@@ -3,6 +3,8 @@ package eu.domibus.core.earchive.listener;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -74,7 +76,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
 
         LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
-        eventService.enqueueEArchivingEvent(batchId, notificationType);
+        eventService.enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED, new EventProperties(batchId, notificationType.name()));
     }
 
 }

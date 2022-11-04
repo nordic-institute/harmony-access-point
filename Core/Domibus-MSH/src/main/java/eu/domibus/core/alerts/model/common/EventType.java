@@ -2,10 +2,7 @@ package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.logging.DomibusMessageCode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -25,20 +22,20 @@ public enum EventType {
     PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED")),
     PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED")),
 
-    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, PasswordExpirationEventProperties.class, true,
+    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"), true,
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class, true,
+    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"), true,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"),
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, PasswordExpirationEventProperties.class,
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"),
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
 
     PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, null, DomibusMessageCode.PLUGIN_DEFAULT),
 
-    ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, ArchivingEventProperties.class),
-    ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, MessageEvent.class),
-    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, (Class<? extends Enum>) null),
+    ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, Arrays.asList("BATCH_ID", "BATCH_STATUS")),
+    ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, Arrays.asList("MESSAGE_ID", "OLD_STATUS")),
+    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, Collections.emptyList()),
 
     PARTITION_CHECK(AlertType.PARTITION_CHECK, Arrays.asList("PARTITION_NAME")),
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION"));
@@ -91,6 +88,16 @@ public enum EventType {
 
     EventType(AlertType defaultAlertType, List<String> properties) {
         this(defaultAlertType, null, null, false, null);
+        this.properties = properties;
+    }
+
+    EventType(AlertType defaultAlertType, List<String> properties, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+        this(defaultAlertType, null, null, isUserRelated, securityMessageCode);
+        this.properties = properties;
+    }
+
+    EventType(AlertType defaultAlertType, List<String> properties, DomibusMessageCode securityMessageCode) {
+        this(defaultAlertType, null, null, false, securityMessageCode);
         this.properties = properties;
     }
 

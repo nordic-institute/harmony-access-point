@@ -99,7 +99,7 @@ public interface EventService {
      * @param batchId     the id of the batch that could not be notified to the e-archiving client
      * @param batchStatus the status of the batch that could not be notified to the e-archiving client
      */
-    void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus);
+//    void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus);
 
     /**
      * Save an event.
@@ -141,12 +141,12 @@ public interface EventService {
      * @param messageId the messageId of the message with a status not final
      * @param status    the status of the message that is not final
      */
-    void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
+//    void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
 
     /**
      * Will create an earchiving start date stopped event and enqueue it to the alert/event monitoring queue.
      */
-    void enqueueEArchivingStartDateStopped();
+//    void enqueueEArchivingStartDateStopped();
 
-    eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event);
+    eu.domibus.core.alerts.model.persist.Event getOrCreatePersistedEvent(Event event);
 }

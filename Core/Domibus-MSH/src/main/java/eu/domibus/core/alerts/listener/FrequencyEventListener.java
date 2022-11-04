@@ -63,6 +63,7 @@ public class FrequencyEventListener {
 
         FrequencyAlertConfiguration configuration = (FrequencyAlertConfiguration) event.getType().geDefaultAlertType().getConfiguration();
 
+        // need to review
         String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
         if (!eventService.shouldCreateAlert(entity, configuration.getFrequency())) {
@@ -70,6 +71,7 @@ public class FrequencyEventListener {
         }
 
         event.setLastAlertDate(LocalDate.now());
+        // need to review - always create??
         eventService.persistEvent(event);
 
         // todo combine
