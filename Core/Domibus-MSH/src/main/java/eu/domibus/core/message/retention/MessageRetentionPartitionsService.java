@@ -8,9 +8,9 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-//import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
-//import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.core.message.UserMessageDao;
@@ -152,9 +152,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
 //        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-        FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration)AlertType.PARTITION_CHECK.getConfiguration();
+        FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration) AlertType.PARTITION_CHECK.getConfiguration();
         if (partitionsModuleConfiguration.isActive()) {
-            eventService.enqueuePartitionCheckEvent(partitionName);
+//            eventService.enqueuePartitionCheckEvent(partitionName);
+            eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         }
     }
 

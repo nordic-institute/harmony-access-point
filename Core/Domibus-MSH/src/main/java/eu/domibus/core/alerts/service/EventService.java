@@ -50,14 +50,14 @@ public interface EventService {
      * @param loginTime       the login failure time.
      * @param accountDisabled whether the account has been disable or not.
      */
-    void enqueueLoginFailureEvent(UserEntityBase.Type type, String userName, Date loginTime, boolean accountDisabled);
+//    void enqueueLoginFailureEvent(UserEntityBase.Type type, String userName, Date loginTime, boolean accountDisabled);
 
     /**
      * Will create partition expiration event and enqueue it to the alert/event monitoring queue.
      *
      * @param partitionName the partition name that could not be deleted
      */
-    void enqueuePartitionCheckEvent(String partitionName);
+//    void enqueuePartitionCheckEvent(String partitionName);
 
     /**
      * Will create a account disabled event and enqueue it to the alert/event monitoring queue.
@@ -65,7 +65,7 @@ public interface EventService {
      * @param userName            the user name that had a failure login
      * @param accountDisabledTime the account disabled time.
      */
-    void enqueueAccountDisabledEvent(UserEntityBase.Type type, String userName, Date accountDisabledTime);
+//    void enqueueAccountDisabledEvent(UserEntityBase.Type type, String userName, Date accountDisabledTime);
 
     /**
      * Will create a account enabled event and enqueue it to the alert/event monitoring queue.
@@ -73,7 +73,7 @@ public interface EventService {
      * @param userName           the user name enabled
      * @param accountEnabledTime the account enabled time.
      */
-    void enqueueAccountEnabledEvent(UserEntityBase.Type type, String userName, Date accountEnabledTime);
+//    void enqueueAccountEnabledEvent(UserEntityBase.Type type, String userName, Date accountEnabledTime);
 
     /**
      * Will create a certificate imminent expiration event and enqueue it to the alert/event monitoring queue.

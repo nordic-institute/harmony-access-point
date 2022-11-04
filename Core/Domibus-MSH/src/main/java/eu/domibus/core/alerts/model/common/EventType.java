@@ -9,29 +9,24 @@ import java.util.*;
  * @since 4.0
  */
 public enum EventType {
-
     MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
 
-    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QuerySelectors.DEFAULT, CertificateEvent.class),
-    CERT_EXPIRED(AlertType.CERT_EXPIRED, QuerySelectors.DEFAULT, CertificateEvent.class),
+    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QuerySelectors.DEFAULT, Constants.CERTIFICATE_PROPS),
+    CERT_EXPIRED(AlertType.CERT_EXPIRED, QuerySelectors.DEFAULT, Constants.CERTIFICATE_PROPS),
 
-    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED"), true),
-    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED"), true),
-    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED"), true),
-    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED")),
-    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED")),
-    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED")),
+    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, Constants.USER_ACCOUNT_DISABLED_PROPS, true),
+    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, Constants.USER_ACCOUNT_DISABLED_PROPS, true),
+    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, Constants.USER_ACCOUNT_ENABLED_PROPS, true),
+    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, Constants.USER_ACCOUNT_DISABLED_PROPS),
+    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, Constants.USER_ACCOUNT_DISABLED_PROPS),
+    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, Constants.USER_ACCOUNT_ENABLED_PROPS),
 
-    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"), true,
-            DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"), true,
-            DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"),
-            DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE"),
-            DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
+    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, Constants.PASSWORD_EXPIRATION_PROPS, true, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
+    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, Constants.PASSWORD_EXPIRATION_PROPS, true, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
+    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, Constants.PASSWORD_EXPIRATION_PROPS, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, Constants.PASSWORD_EXPIRATION_PROPS, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
 
-    PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, null, DomibusMessageCode.PLUGIN_DEFAULT),
+    PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, Collections.emptyList(), DomibusMessageCode.PLUGIN_DEFAULT),
 
     ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, Arrays.asList("BATCH_ID", "BATCH_STATUS")),
     ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, Arrays.asList("MESSAGE_ID", "OLD_STATUS")),
@@ -45,60 +40,34 @@ public enum EventType {
 
     private String queueSelector;
 
-    private Class<? extends Enum> propertiesEnumClass;
-
     private boolean userRelated;
 
     private DomibusMessageCode securityMessageCode;
 
     List<String> properties;
 
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
-        setParams(defaultAlertType, queueSelector, propertiesEnumClass, isUserRelated, securityMessageCode);
-    }
-
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
-        setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, securityMessageCode);
-    }
-
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated) {
-        setParams(defaultAlertType, null, propertiesEnumClass, isUserRelated, null);
-    }
-
     EventType(AlertType defaultAlertType, List<String> properties, boolean isUserRelated) {
-        setParams(defaultAlertType, null, null, isUserRelated, null);
-        this.properties = properties;
-    }
-
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
-        setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, securityMessageCode);
-    }
-
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass, DomibusMessageCode securityMessageCode) {
-        setParams(defaultAlertType, null, propertiesEnumClass, false, securityMessageCode);
-    }
-
-    EventType(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass) {
-        setParams(defaultAlertType, queueSelector, propertiesEnumClass, false, null);
-    }
-
-    EventType(AlertType defaultAlertType, Class<? extends Enum> propertiesEnumClass) {
-        setParams(defaultAlertType, null, propertiesEnumClass, false, null);
+        setParams(defaultAlertType, properties,null, isUserRelated, null);
     }
 
     EventType(AlertType defaultAlertType, List<String> properties) {
-        this(defaultAlertType, null, null, false, null);
-        this.properties = properties;
+        setParams(defaultAlertType, properties, null, false, null);
     }
 
     EventType(AlertType defaultAlertType, List<String> properties, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
-        this(defaultAlertType, null, null, isUserRelated, securityMessageCode);
-        this.properties = properties;
+        setParams(defaultAlertType, properties, null, isUserRelated, securityMessageCode);
     }
 
     EventType(AlertType defaultAlertType, List<String> properties, DomibusMessageCode securityMessageCode) {
-        this(defaultAlertType, null, null, false, securityMessageCode);
-        this.properties = properties;
+        setParams(defaultAlertType, properties, null, false, securityMessageCode);
+    }
+
+    EventType(AlertType defaultAlertType, String queueSelector, List<String> properties) {
+        setParams(defaultAlertType, properties, queueSelector, false, null);
+    }
+
+    EventType(AlertType defaultAlertType, String queueSelector, List<String> properties, DomibusMessageCode securityMessageCode) {
+        setParams(defaultAlertType, properties, queueSelector, false, null);
     }
 
 
@@ -107,14 +76,16 @@ public enum EventType {
     }
 
     public List<String> getProperties() {
-        if (properties != null) {
-            return properties;
-        }
-        ArrayList<String> list = new ArrayList<>();
-        if (this.propertiesEnumClass != null) {
-            EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));
-        }
-        return list;
+        return properties;
+
+//        if (properties != null) {
+//            return properties;
+//        }
+//        ArrayList<String> list = new ArrayList<>();
+//        if (this.propertiesEnumClass != null) {
+//            EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));
+//        }
+//        return list;
     }
 
     public String getQueueSelector() {
@@ -129,8 +100,9 @@ public enum EventType {
         return this.userRelated;
     }
 
-    private void setParams(AlertType defaultAlertType, String queueSelector, Class<? extends Enum> propertiesEnumClass, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
+    private void setParams(AlertType defaultAlertType, List<String> properties, String queueSelector, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         this.defaultAlertType = defaultAlertType;
+        this.properties = properties;
         if (queueSelector == null) {
             if (defaultAlertType.getCategory() == AlertCategory.DEFAULT) {
                 this.queueSelector = QuerySelectors.DEFAULT;
@@ -143,7 +115,6 @@ public enum EventType {
             this.queueSelector = queueSelector;
         }
         this.securityMessageCode = securityMessageCode;
-        this.propertiesEnumClass = propertiesEnumClass;
         this.userRelated = isUserRelated;
     }
 
@@ -153,7 +124,12 @@ public enum EventType {
         public static final String FREQUENCY = "frequencySelector";
 
         public static final String PLUGIN_EVENT = "PLUGIN_EVENT";
-        public static final String PARTITION_CHECK = "PARTITION_CHECK";
     }
 
+    private static class Constants {
+        public static final List<String> USER_ACCOUNT_DISABLED_PROPS = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED");
+        public static final List<String> USER_ACCOUNT_ENABLED_PROPS = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED");
+        public static final List<String> CERTIFICATE_PROPS = Arrays.asList("ACCESS_POINT", "ALIAS", "EXPIRATION_DATE");
+        public static final List<String> PASSWORD_EXPIRATION_PROPS = Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE");
+    }
 }

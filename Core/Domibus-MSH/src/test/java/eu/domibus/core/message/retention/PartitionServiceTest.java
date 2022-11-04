@@ -4,6 +4,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 //import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import mockit.Expectations;
@@ -50,7 +52,8 @@ public class PartitionServiceTest {
         partitionsService.verifyPartitionsInAdvance();
 
         new Verifications() {{
-            eventService.enqueuePartitionCheckEvent(anyString);
+//            eventService.enqueuePartitionCheckEvent(anyString);
+            eventService.enqueueEvent(EventType.PARTITION_CHECK, anyString, new EventProperties(anyString));
             times = 0;
         }};
     }
@@ -70,7 +73,8 @@ public class PartitionServiceTest {
         partitionsService.verifyPartitionsInAdvance();
 
         new Verifications() {{
-            eventService.enqueuePartitionCheckEvent(anyString);
+//            eventService.enqueuePartitionCheckEvent(anyString);
+            eventService.enqueueEvent(EventType.PARTITION_CHECK, anyString, new EventProperties(anyString));
             times = 1;
         }};
     }
