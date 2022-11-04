@@ -21,6 +21,8 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected Long messageEntityId;
 
+    public MessageSendFailedEvent(){} //needed by jackson deserializer
+
     public MessageSendFailedEvent(Long messageEntityId, String messageId) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;

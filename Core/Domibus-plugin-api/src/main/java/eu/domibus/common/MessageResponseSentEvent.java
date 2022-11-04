@@ -19,6 +19,8 @@ public class MessageResponseSentEvent implements Serializable, MessageEvent {
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;
 
+    public MessageResponseSentEvent() {}  //needed by jackson deserializer
+
     public MessageResponseSentEvent(String messageId) {
         this.messageId = messageId;
     }
