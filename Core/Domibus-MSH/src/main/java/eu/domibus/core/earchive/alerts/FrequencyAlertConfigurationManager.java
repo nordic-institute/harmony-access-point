@@ -16,26 +16,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RepetitiveAlertConfigurationManager
-        extends BaseConfigurationManager<RepetitiveAlertConfiguration>
+public class FrequencyAlertConfigurationManager
+        extends BaseConfigurationManager<FrequencyAlertConfiguration>
         implements AlertConfigurationManager {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(RepetitiveAlertConfigurationManager.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(FrequencyAlertConfigurationManager.class);
 
-    public RepetitiveAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public FrequencyAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
     }
 
-    public RepetitiveAlertConfiguration readConfiguration() {
-        RepetitiveAlertConfiguration config = super.readConfiguration();
+    public FrequencyAlertConfiguration readConfiguration() {
+        FrequencyAlertConfiguration config = super.readConfiguration();
         if (!config.isActive()) {
             return config;
         }
 
         try {
-            final Integer delay = domibusPropertyProvider.getIntegerProperty(getDelayPropertyName());
-            config.setDelay(delay);
-
             final Integer frequency = domibusPropertyProvider.getIntegerProperty(getFrequencyPropertyName());
             config.setFrequency(frequency);
 
@@ -47,16 +44,12 @@ public class RepetitiveAlertConfigurationManager
         }
     }
 
-    protected String getDelayPropertyName() {
-        return domibusPropertiesPrefix + ".delay_days";
-    }
-
     protected String getFrequencyPropertyName() {
         return domibusPropertiesPrefix + ".frequency_days";
     }
 
     @Override
-    protected RepetitiveAlertConfiguration createAlertConfiguration(AlertType alertType) {
-        return new RepetitiveAlertConfiguration(alertType);
+    protected FrequencyAlertConfiguration createAlertConfiguration(AlertType alertType) {
+        return new FrequencyAlertConfiguration(alertType);
     }
 }

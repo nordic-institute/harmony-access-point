@@ -921,8 +921,8 @@ public class CertificateServiceImpl implements CertificateService {
             return;
         }
         final String accessPoint = getAccessPointName();
-        final Integer revokedDuration = configuration.getEventDelay();
-        final Integer revokedFrequency = configuration.getEventFrequency();
+        final Integer revokedDuration = configuration.getDelay();
+        final Integer revokedFrequency = configuration.getFrequency();
         Date endNotification = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant());
         Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant());
 
@@ -966,8 +966,8 @@ public class CertificateServiceImpl implements CertificateService {
             return;
         }
         final String accessPoint = getAccessPointName();
-        final Integer imminentExpirationDelay = configuration.getEventDelay();
-        final Integer imminentExpirationFrequency = configuration.getEventFrequency();
+        final Integer imminentExpirationDelay = configuration.getDelay();
+        final Integer imminentExpirationFrequency = configuration.getFrequency();
 
         final Date today = Date.from(ZonedDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant());
         final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());

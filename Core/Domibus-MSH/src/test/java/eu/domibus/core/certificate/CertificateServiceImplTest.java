@@ -562,10 +562,10 @@ public class CertificateServiceImplTest {
             imminentExpirationCertificateConfiguration.isActive();
             result = true;
 
-            imminentExpirationCertificateConfiguration.getEventDelay();
+            imminentExpirationCertificateConfiguration.getDelay();
             result = imminentExpirationDelay;
 
-            imminentExpirationCertificateConfiguration.getEventFrequency();
+            imminentExpirationCertificateConfiguration.getFrequency();
             result = imminentExpirationFrequency;
 
             certificateDao.findImminentExpirationToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), today, withArgThat(new GreaterThan<>(maxDate)));
@@ -619,10 +619,10 @@ public class CertificateServiceImplTest {
             expiredCertificateConfiguration.isActive();
             result = true;
 
-            expiredCertificateConfiguration.getEventDelay();
+            expiredCertificateConfiguration.getDelay();
             result = revokedDuration;
 
-            expiredCertificateConfiguration.getEventFrequency();
+            expiredCertificateConfiguration.getFrequency();
             result = revokedFrequency;
 
             certificateDao.findExpiredToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), withArgThat(new GreaterThan<>(endNotification)));

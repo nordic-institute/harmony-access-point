@@ -90,7 +90,7 @@ public class EventServiceImpl implements EventService {
         event.setReportingTime(new Date());
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
         if (!shouldCreateAlert(entity, frequency)) {
             return;
         }
@@ -287,7 +287,7 @@ public class EventServiceImpl implements EventService {
     public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
 
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
         if (!shouldCreateAlert(entity, frequency)) {
             return;
         }
@@ -346,10 +346,9 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event, String identifier) {
-        String id = event.findStringProperty(identifier).orElse("");
-        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), identifier, id);
-
+    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event) {
+        String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
+        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
         if (entity == null) {
             entity = this.persistEvent(event);
         }

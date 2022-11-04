@@ -154,7 +154,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
             return;
         }
 
-        final Integer duration = alertConfiguration.getEventDelay();
+        final Integer duration = alertConfiguration.getDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
@@ -171,7 +171,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         List<UserEntityBase> eligibleUsers = getUserDao().findWithPasswordChangedBetween(from, to, usersWithDefaultPassword);
         LOG.debug("[{}]: Found [{}] eligible {} users", eventType, eligibleUsers.size(), (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY));
 
-        eligibleUsers.forEach(user -> eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration.getEventFrequency()));
+        eligibleUsers.forEach(user -> eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration.getFrequency()));
     }
 
 }

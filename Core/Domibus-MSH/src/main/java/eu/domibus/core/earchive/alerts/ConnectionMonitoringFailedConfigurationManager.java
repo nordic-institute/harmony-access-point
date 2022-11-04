@@ -15,7 +15,7 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS;
 
 /**
- * Default alert config manager generated automatically for an alert type ( if not overridden)
+ * Default alert config manager generated automatically for an alert type (if not overridden)
  *
  * @author Ion Perpegel
  * @since 5.1
@@ -23,10 +23,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ConnectionMonitoringFailedConfigurationManager
-        extends BaseConfigurationManager<ConnectionMonitoringModuleConfiguration>
+        extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
-
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringFailedConfigurationManager.class);
 
     public ConnectionMonitoringFailedConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
@@ -34,21 +32,17 @@ public class ConnectionMonitoringFailedConfigurationManager
 
     @Override
     protected Boolean isAlertActive() {
-        List<String> enabledParties = getEnabledParties();
-        return !CollectionUtils.isEmpty(enabledParties);
+        return !CollectionUtils.isEmpty(getEnabledParties());
     }
 
     @Override
     public ConnectionMonitoringModuleConfiguration readConfiguration() {
-        ConnectionMonitoringModuleConfiguration conf = super.readConfiguration();
+        ConnectionMonitoringModuleConfiguration conf = (ConnectionMonitoringModuleConfiguration) super.readConfiguration();
         if (!conf.isActive()) {
             return conf;
         }
 
         conf.setEnabledParties(getEnabledParties());
-
-        final int frequency = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS);
-        conf.setFrequency(frequency);
 
         return conf;
     }

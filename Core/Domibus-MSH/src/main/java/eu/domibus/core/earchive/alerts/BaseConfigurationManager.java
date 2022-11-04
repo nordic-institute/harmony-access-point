@@ -70,10 +70,10 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
             AC config = createAlertConfiguration(alertType);
             config.setActive(true);
 
-            final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".level"));
+            final AlertLevel alertLevel = getAlertLevel();
             config.setAlertLevel(alertLevel);
 
-            final String mailSubject = domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".mail.subject");
+            final String mailSubject = getMailSubject();
             config.setMailSubject(mailSubject);
 
             return config;
@@ -81,6 +81,14 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].", alertType, currentDomain, ex);
             return createAlertConfiguration(alertType);
         }
+    }
+
+    protected String getMailSubject() {
+        return domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".mail.subject");
+    }
+
+    protected AlertLevel getAlertLevel() {
+        return AlertLevel.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".level"));
     }
 
     protected Boolean isAlertActive() {
