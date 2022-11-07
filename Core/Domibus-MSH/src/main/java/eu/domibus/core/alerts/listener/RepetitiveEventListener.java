@@ -43,7 +43,7 @@ public class RepetitiveEventListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector = '" + EventType.QuerySelectors.REPETITIVE + "'")
+            selector = "selector = '" + EventType.QueueSelectors.REPETITIVE + "'")
     @Transactional
     public void onEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         triggerAlert(event, domain);

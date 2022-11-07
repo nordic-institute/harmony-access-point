@@ -44,7 +44,7 @@ public class DefaultEventListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${" + DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector = '" + EventType.QuerySelectors.DEFAULT + "'")
+            selector = "selector = '" + EventType.QueueSelectors.DEFAULT + "'")
     public void onEvent(final Event event, @Header(name = "DOMAIN") String domain) {
         saveEventAndTriggerAlert(event, domain);
     }

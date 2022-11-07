@@ -5,28 +5,29 @@ import eu.domibus.logging.DomibusMessageCode;
 import java.util.*;
 
 /**
- * @author Thomas Dussart, Ion Perpegel
+ * @author Thomas Dussart,
+ * @author Ion Perpegel
  * @since 4.0
  */
 public enum EventType {
     MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
 
-    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QuerySelectors.DEFAULT, Constants.CERTIFICATE_PROPS),
-    CERT_EXPIRED(AlertType.CERT_EXPIRED, QuerySelectors.DEFAULT, Constants.CERTIFICATE_PROPS),
+    CERT_IMMINENT_EXPIRATION(AlertType.CERT_IMMINENT_EXPIRATION, QueueSelectors.DEFAULT, EventProperties.CERTIFICATE),
+    CERT_EXPIRED(AlertType.CERT_EXPIRED, QueueSelectors.DEFAULT, EventProperties.CERTIFICATE),
 
-    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, Constants.USER_ACCOUNT_DISABLED_PROPS, true),
-    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, Constants.USER_ACCOUNT_DISABLED_PROPS, true),
-    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, Constants.USER_ACCOUNT_ENABLED_PROPS, true),
-    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, Constants.USER_ACCOUNT_DISABLED_PROPS),
-    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, Constants.USER_ACCOUNT_DISABLED_PROPS),
-    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, Constants.USER_ACCOUNT_ENABLED_PROPS),
+    USER_LOGIN_FAILURE(AlertType.USER_LOGIN_FAILURE, EventProperties.USER_ACCOUNT_DISABLED, true),
+    USER_ACCOUNT_DISABLED(AlertType.USER_ACCOUNT_DISABLED, EventProperties.USER_ACCOUNT_DISABLED, true),
+    USER_ACCOUNT_ENABLED(AlertType.USER_ACCOUNT_ENABLED, EventProperties.USER_ACCOUNT_ENABLED, true),
+    PLUGIN_USER_LOGIN_FAILURE(AlertType.PLUGIN_USER_LOGIN_FAILURE, EventProperties.USER_ACCOUNT_DISABLED),
+    PLUGIN_USER_ACCOUNT_DISABLED(AlertType.PLUGIN_USER_ACCOUNT_DISABLED, EventProperties.USER_ACCOUNT_DISABLED),
+    PLUGIN_USER_ACCOUNT_ENABLED(AlertType.PLUGIN_USER_ACCOUNT_ENABLED, EventProperties.USER_ACCOUNT_ENABLED),
 
-    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, Constants.PASSWORD_EXPIRATION_PROPS, true, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, Constants.PASSWORD_EXPIRATION_PROPS, true, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, Constants.PASSWORD_EXPIRATION_PROPS, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, Constants.PASSWORD_EXPIRATION_PROPS, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
+    PASSWORD_EXPIRED(AlertType.PASSWORD_EXPIRED, EventProperties.PASSWORD_EXPIRATION, true, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
+    PASSWORD_IMMINENT_EXPIRATION(AlertType.PASSWORD_IMMINENT_EXPIRATION, EventProperties.PASSWORD_EXPIRATION, true, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
+    PLUGIN_PASSWORD_EXPIRED(AlertType.PLUGIN_PASSWORD_EXPIRED, EventProperties.PASSWORD_EXPIRATION, DomibusMessageCode.SEC_PASSWORD_EXPIRED),
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, EventProperties.PASSWORD_EXPIRATION, DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
 
-    PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, Collections.emptyList(), DomibusMessageCode.PLUGIN_DEFAULT),
+    PLUGIN(AlertType.PLUGIN, QueueSelectors.PLUGIN_EVENT, Collections.emptyList(), DomibusMessageCode.PLUGIN_DEFAULT),
 
     ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, Arrays.asList("BATCH_ID", "BATCH_STATUS")),
     ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, Arrays.asList("MESSAGE_ID", "OLD_STATUS")),
@@ -103,22 +104,27 @@ public enum EventType {
     private void setParams(AlertType defaultAlertType, List<String> properties, String queueSelector, boolean isUserRelated, DomibusMessageCode securityMessageCode) {
         this.defaultAlertType = defaultAlertType;
         this.properties = properties;
+        this.securityMessageCode = securityMessageCode;
+        this.userRelated = isUserRelated;
+
+        setQueueSelector(defaultAlertType, queueSelector);
+    }
+
+    private void setQueueSelector(AlertType defaultAlertType, String queueSelector) {
         if (queueSelector == null) {
             if (defaultAlertType.getCategory() == AlertCategory.DEFAULT) {
-                this.queueSelector = QuerySelectors.DEFAULT;
+                this.queueSelector = QueueSelectors.DEFAULT;
             } else if (defaultAlertType.getCategory() == AlertCategory.REPETITIVE) {
-                this.queueSelector = QuerySelectors.REPETITIVE;
+                this.queueSelector = QueueSelectors.REPETITIVE;
             } else {
-                this.queueSelector = QuerySelectors.FREQUENCY;
+                this.queueSelector = QueueSelectors.FREQUENCY;
             }
         } else {
             this.queueSelector = queueSelector;
         }
-        this.securityMessageCode = securityMessageCode;
-        this.userRelated = isUserRelated;
     }
 
-    public static class QuerySelectors {
+    public static class QueueSelectors {
         public static final String DEFAULT = "defaultSelector";
         public static final String REPETITIVE = "repetitiveSelector";
         public static final String FREQUENCY = "frequencySelector";
@@ -126,10 +132,10 @@ public enum EventType {
         public static final String PLUGIN_EVENT = "PLUGIN_EVENT";
     }
 
-    private static class Constants {
-        public static final List<String> USER_ACCOUNT_DISABLED_PROPS = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED");
-        public static final List<String> USER_ACCOUNT_ENABLED_PROPS = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED");
-        public static final List<String> CERTIFICATE_PROPS = Arrays.asList("ACCESS_POINT", "ALIAS", "EXPIRATION_DATE");
-        public static final List<String> PASSWORD_EXPIRATION_PROPS = Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE");
+    private static class EventProperties {
+        public static final List<String> USER_ACCOUNT_DISABLED = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED");
+        public static final List<String> USER_ACCOUNT_ENABLED = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED");
+        public static final List<String> CERTIFICATE = Arrays.asList("ACCESS_POINT", "ALIAS", "EXPIRATION_DATE");
+        public static final List<String> PASSWORD_EXPIRATION = Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE");
     }
 }

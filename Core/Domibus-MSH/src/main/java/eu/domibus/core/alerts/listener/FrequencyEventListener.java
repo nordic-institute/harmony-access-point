@@ -46,7 +46,7 @@ public class FrequencyEventListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${" + DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector ='" + EventType.QuerySelectors.FREQUENCY + "'")
+            selector = "selector ='" + EventType.QueueSelectors.FREQUENCY + "'")
     public void onEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
@@ -64,15 +64,17 @@ public class FrequencyEventListener {
         FrequencyAlertConfiguration configuration = (FrequencyAlertConfiguration) event.getType().geDefaultAlertType().getConfiguration();
 
         // need to review
-        String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
-        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
+//        String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");
+//        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EventServiceImpl.EVENT_IDENTIFIER, id);
+        eu.domibus.core.alerts.model.persist.Event entity = eventService.getOrCreatePersistedEvent(event);
         if (!eventService.shouldCreateAlert(entity, configuration.getFrequency())) {
             return;
         }
 
         event.setLastAlertDate(LocalDate.now());
         // need to review - always create??
-        eventService.persistEvent(event);
+//        eventService.persistEvent(event);
+        eventDao.update(entity);
 
         // todo combine
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);

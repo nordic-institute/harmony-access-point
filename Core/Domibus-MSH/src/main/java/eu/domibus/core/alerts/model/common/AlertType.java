@@ -55,7 +55,7 @@ public enum AlertType {
         applicationContext = applicationContextParam;
     }
 
-    //in the future an alert will not have one to one mapping.
+    //in the future an alert might not have one to one mapping.
     public static AlertType getByEventType(EventType eventType) {
         return eventType.geDefaultAlertType();
     }
@@ -71,15 +71,15 @@ public enum AlertType {
     private AlertConfigurationManager configurationManager;
 
     AlertType(String template) {
-        setParams(template, null, null, configurationManagerClass);
+        setParams(template, null, null, null);
     }
 
     AlertType(String template, String configurationProperty) {
-        setParams(template, configurationProperty, null, configurationManagerClass);
+        setParams(template, configurationProperty, null, null);
     }
 
     AlertType(String template, String configurationProperty, AlertCategory category) {
-        setParams(template, configurationProperty, category, configurationManagerClass);
+        setParams(template, configurationProperty, category, null);
     }
 
     AlertType(String template, String configurationProperty, Class configurationManagerClass) {
@@ -123,6 +123,7 @@ public enum AlertType {
         this.configurationManagerClass = configurationManagerClass;
     }
 
+    // set conf manager from outside, ex: alert config class???
     public AlertConfigurationManager getConfigurationManager() {
         if (configurationManager != null) {
             return configurationManager;
@@ -140,6 +141,7 @@ public enum AlertType {
             }
         }
 
+        // just creates the bean
         DomibusPropertyChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
 
         return configurationManager;

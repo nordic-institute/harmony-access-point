@@ -47,7 +47,7 @@ public class PluginEvenListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector = '" + EventType.QuerySelectors.PLUGIN_EVENT + "'")
+            selector = "selector = '" + EventType.QueueSelectors.PLUGIN_EVENT + "'")
     @Transactional
     public void onPluginEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
