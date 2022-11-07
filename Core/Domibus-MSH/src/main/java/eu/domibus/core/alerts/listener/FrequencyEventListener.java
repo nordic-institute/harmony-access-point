@@ -79,8 +79,6 @@ public class FrequencyEventListener {
 //        eventService.persistEvent(event);
         eventDao.update(entity);
 
-        // todo combine
-        final Alert alertOnEvent = alertService.createAlertOnEvent(event);
-        alertService.enqueueAlert(alertOnEvent);
+        alertService.createAndEnqueueAlertOnEvent(event);
     }
 }

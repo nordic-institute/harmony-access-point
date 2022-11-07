@@ -85,4 +85,6 @@ public interface AlertService {
      * @param alerts list of alerts to be deleted
      */
     void deleteAlerts(List<Alert> alerts);
+
+    void createAndEnqueueAlertOnEvent(Event event);
 }

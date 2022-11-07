@@ -112,14 +112,13 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
                 alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType, configurationProperty);
             }
         }
-//        LOG.debug("Configuration manager [{}] created for alert type [{}]", configurationManager, this);
+        LOG.debug("Configuration manager [{}] created for alert type [{}]", alertConfigurationManager, alertType);
         return alertConfigurationManager;
     }
 
 //    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         // an alert type is allowed to lack a AlertConfigurationManager
 //        return alertConfigurationManagers.get(alertType);
-
 //        return alertConfigurationManagers.stream()
 //                .filter(el -> el.getAlertType() == alertType)
 //                .findFirst()

@@ -364,6 +364,12 @@ public class AlertServiceImpl implements AlertService {
                 .forEach(this::deleteAlert);
     }
 
+    @Override
+    public void createAndEnqueueAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
+        final eu.domibus.core.alerts.model.service.Alert alertOnEvent = createAlertOnEvent(event);
+        enqueueAlert(alertOnEvent);
+    }
+
     private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {
         return eventDao.read(event.getEntityId());
     }

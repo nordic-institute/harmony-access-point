@@ -1,9 +1,6 @@
 package eu.domibus.core.alerts.model.common;
 
-import eu.domibus.core.alerts.service.AlertServiceImpl;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,8 +37,6 @@ public enum EventType {
 
     PARTITION_CHECK(AlertType.PARTITION_CHECK, Arrays.asList("PARTITION_NAME")),
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION"));
-
-//    private static final Logger LOG = DomibusLoggerFactory.getLogger(EventType.class);
 
     private AlertType defaultAlertType;
 
@@ -133,7 +128,6 @@ public enum EventType {
         } else {
             queueSelector = QueueSelectors.FREQUENCY;
         }
-//        LOG.debug("Created queue selector [{}] for alert type [{}]", queueSelector, alertType);
         return queueSelector;
     }
 

@@ -61,8 +61,7 @@ public class RepetitiveEventListener {
 
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());
         if (entity != null) {
-            final Alert alertOnEvent = alertService.createAlertOnEvent(event);
-            alertService.enqueueAlert(alertOnEvent);
+            alertService.createAndEnqueueAlertOnEvent(event);
         }
     }
 

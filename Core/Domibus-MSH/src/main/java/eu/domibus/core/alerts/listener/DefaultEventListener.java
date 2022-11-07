@@ -61,8 +61,7 @@ public class DefaultEventListener {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eventService.persistEvent(event);
-        final Alert alertOnEvent = alertService.createAlertOnEvent(event);
-        alertService.enqueueAlert(alertOnEvent);
+        alertService.createAndEnqueueAlertOnEvent(event);
     }
 
 }

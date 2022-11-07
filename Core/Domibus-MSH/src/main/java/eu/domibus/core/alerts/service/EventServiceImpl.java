@@ -385,7 +385,11 @@ public class EventServiceImpl implements EventService {
                 event.addStringKeyValue(prop, (String) propValue);
             } else if (propValue instanceof Date) {
                 event.addDateKeyValue(prop, (Date) propValue);
-            } //.....
+            } else if (propValue instanceof Boolean) {
+                event.addStringKeyValue(prop, Boolean.toString((Boolean) propValue));
+            } else {
+                LOG.warn("Unsupported parameter [{}] value [{}] for event [{}]", prop, propValue, event);
+            }
         }
         return event;
     }

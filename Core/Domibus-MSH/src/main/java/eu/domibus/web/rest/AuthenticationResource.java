@@ -7,6 +7,8 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -120,7 +122,7 @@ public class AuthenticationResource {
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
         AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
-        eventService.enqueueImminentCertificateExpirationEvent("accessPointOrAlias", "alias", new Date());
+        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, "userType/userName/1", new EventProperties("userName", "getUserType", new Date(), false));
         int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
