@@ -6,9 +6,9 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,16 +33,19 @@ public class FrequencyEventListener {
     private final AlertService alertService;
     private final DomainContextProvider domainContextProvider;
     private final EventDao eventDao;
-    private DatabaseUtil databaseUtil;
+    private final DatabaseUtil databaseUtil;
     private final EventService eventService;
+    private final AlertConfigurationService alertConfigurationService;
 
     public FrequencyEventListener(AlertService alertService, DomainContextProvider domainContextProvider,
-                                  EventDao eventDao, DatabaseUtil databaseUtil, EventService eventService) {
+                                  EventDao eventDao, DatabaseUtil databaseUtil, EventService eventService,
+                                  AlertConfigurationService alertConfigurationService) {
         this.alertService = alertService;
         this.domainContextProvider = domainContextProvider;
         this.eventDao = eventDao;
         this.databaseUtil = databaseUtil;
         this.eventService = eventService;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${" + DOMIBUS_JMS_QUEUE_ALERT + "}",
@@ -61,7 +64,7 @@ public class FrequencyEventListener {
         }
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
-        FrequencyAlertConfiguration configuration = (FrequencyAlertConfiguration) event.getType().geDefaultAlertType().getConfiguration();
+        FrequencyAlertConfiguration configuration = (FrequencyAlertConfiguration) alertConfigurationService.getConfiguration(event.getType().geDefaultAlertType());
 
         // need to review
 //        String id = event.findStringProperty(EventServiceImpl.EVENT_IDENTIFIER).orElse("");

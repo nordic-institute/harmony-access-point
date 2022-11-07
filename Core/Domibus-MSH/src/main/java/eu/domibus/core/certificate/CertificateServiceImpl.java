@@ -18,6 +18,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
@@ -120,6 +121,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final DomibusCoreMapper coreMapper;
 
+    private final AlertConfigurationService alertConfigurationService;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -133,7 +136,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   PasswordEncryptionService passwordEncryptionService,
-                                  DomainContextProvider domainContextProvider, DomibusCoreMapper coreMapper) {
+                                  DomainContextProvider domainContextProvider, DomibusCoreMapper coreMapper, AlertConfigurationService alertConfigurationService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -149,6 +152,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.passwordEncryptionService = passwordEncryptionService;
         this.domainContextProvider = domainContextProvider;
         this.coreMapper = coreMapper;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -913,7 +917,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected void sendCertificateExpiredAlerts() {
 //        final ExpiredCertificateModuleConfiguration configuration = expiredCertificateConfigurationManager.getConfiguration();
-        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) AlertType.CERT_EXPIRED.getConfiguration();
+        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
         final boolean activeModule = configuration.isActive();
         LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
         if (!activeModule) {
@@ -958,7 +962,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected void sendCertificateImminentExpirationAlerts() {
 //        final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
-        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) AlertType.CERT_IMMINENT_EXPIRATION.getConfiguration();
+        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
         final Boolean activeModule = configuration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
         if (BooleanUtils.isNotTrue(activeModule)) {

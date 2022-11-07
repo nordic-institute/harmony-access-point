@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 
@@ -17,7 +18,9 @@ public interface AlertConfigurationService {
      * @param alertType the alert type.
      * @return the configuration object.
      */
-    AlertModuleConfiguration getModuleConfiguration(AlertType alertType);
+    AlertModuleConfiguration getConfiguration(AlertType alertType);
+
+    AlertConfigurationManager getConfigurationManager(AlertType alertType);
 
     /**
      * Return the mail subject base on the alert type.

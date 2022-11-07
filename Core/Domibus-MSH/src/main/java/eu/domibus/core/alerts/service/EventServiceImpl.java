@@ -68,10 +68,12 @@ public class EventServiceImpl implements EventService {
 
     protected final MpcService mpcService;
 
+    private final AlertConfigurationService alertConfigurationService;
+
     public EventServiceImpl(EventDao eventDao, PModeProvider pModeProvider, UserMessageDao userMessageDao,
                             ErrorLogService errorLogService, EventMapper eventMapper, JMSManager jmsManager,
                             @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
-                            MpcService mpcService) {
+                            MpcService mpcService, AlertConfigurationService alertConfigurationService) {
         this.eventDao = eventDao;
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
@@ -80,6 +82,7 @@ public class EventServiceImpl implements EventService {
         this.jmsManager = jmsManager;
         this.alertMessageQueue = alertMessageQueue;
         this.mpcService = mpcService;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
 //    @Override
@@ -358,7 +361,7 @@ public class EventServiceImpl implements EventService {
         AlertType alertType = eventType.geDefaultAlertType();
         if (alertType.getCategory() == AlertCategory.REPETITIVE) {
             eu.domibus.core.alerts.model.persist.Event entity = getOrCreatePersistedEvent(event);
-            RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertType.getConfiguration();
+            RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(alertType);
             if (!shouldCreateAlert(entity, configuration.getFrequency())) {
                 return null;
             }

@@ -52,13 +52,12 @@ public enum AlertType {
             ConnectionMonitoringFailedConfigurationManager.class);
 
 
-//    private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertType.class);
 
-    private static ApplicationContext applicationContext;
-
-    public static void setApplicationContext(ApplicationContext applicationContextParam) {
-        applicationContext = applicationContextParam;
-    }
+//    private static ApplicationContext applicationContext;
+//
+//    public static void setApplicationContext(ApplicationContext applicationContextParam) {
+//        applicationContext = applicationContextParam;
+//    }
 
     //in the future an alert might not have one to one mapping.
     public static AlertType getByEventType(EventType eventType) {
@@ -118,10 +117,14 @@ public enum AlertType {
         return Arrays.stream(EventType.values()).filter(el -> el.geDefaultAlertType() == this).collect(Collectors.toList());
     }
 
-    public AlertModuleConfiguration getConfiguration() {
-        AlertConfigurationManager confMan = getConfigurationManager();
-        return confMan.getConfiguration();
+    public Class getConfigurationManagerClass() {
+        return configurationManagerClass;
     }
+
+//    public AlertModuleConfiguration getConfiguration() {
+//        AlertConfigurationManager confMan = getConfigurationManager();
+//        return confMan.getConfiguration();
+//    }
 
     private void setParams(String template, String configurationProperty, AlertCategory category, Class configurationManagerClass) {
         this.template = template;
@@ -131,33 +134,32 @@ public enum AlertType {
     }
 
     // we can do this from Alert config service for ex, but it would not be lazy/on demand, like it is now.
-    public AlertConfigurationManager getConfigurationManager() {
-        if (configurationManager != null) {
-            return configurationManager;
-        }
+//    public AlertConfigurationManager getConfigurationManager() {
+//        if (configurationManager != null) {
+//            return configurationManager;
+//        }
+//
+//        configurationManager = createConfigurationManager();
+//
+//        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
+//
+//        return configurationManager;
+//    }
 
-        configurationManager = createConfigurationManager();
-
-        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
-
-        return configurationManager;
-    }
-
-    private AlertConfigurationManager createConfigurationManager() {
-        AlertConfigurationManager alertConfigurationManager = null;
-        if (configurationManagerClass != null) {
-            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, this, configurationProperty);
-        } else if (StringUtils.isNotBlank(configurationProperty)) {
-            if (category == AlertCategory.DEFAULT) {
-                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
-            } else if (category == AlertCategory.REPETITIVE) {
-                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, this, configurationProperty);
-            } else {
-                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, this, configurationProperty);
-            }
-        }
-//        LOG.debug("Configuration manager [{}] created for alert type [{}]", configurationManager, this);
-        return alertConfigurationManager;
-    }
+//    private AlertConfigurationManager createConfigurationManager() {
+//        AlertConfigurationManager alertConfigurationManager = null;
+//        if (configurationManagerClass != null) {
+//            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, this, configurationProperty);
+//        } else if (StringUtils.isNotBlank(configurationProperty)) {
+//            if (category == AlertCategory.DEFAULT) {
+//                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
+//            } else if (category == AlertCategory.REPETITIVE) {
+//                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, this, configurationProperty);
+//            } else {
+//                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, this, configurationProperty);
+//            }
+//        }
+//        return alertConfigurationManager;
+//    }
 
 }

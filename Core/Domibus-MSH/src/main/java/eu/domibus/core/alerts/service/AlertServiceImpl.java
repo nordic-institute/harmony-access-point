@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,7 +116,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getModuleConfiguration(AlertType.getByEventType(event.getType()));
+        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getConfiguration(AlertType.getByEventType(event.getType()));
         return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());
     }
 

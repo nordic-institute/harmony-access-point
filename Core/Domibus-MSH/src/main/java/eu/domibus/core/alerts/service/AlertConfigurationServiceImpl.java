@@ -4,15 +4,22 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfigurationChangeListener;
+import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
+import eu.domibus.core.earchive.alerts.DefaultFrequencyAlertConfigurationManager;
+import eu.domibus.core.earchive.alerts.DefaultRepetitiveAlertConfigurationManager;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -30,7 +37,11 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
+    private final ApplicationContext applicationContext;
+
 //    protected List<AlertConfigurationManager> alertConfigurationManagers;
+
+    Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
 
     protected final CommonConfigurationManager commonConfigurationManager;
 
@@ -41,8 +52,9 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         this.domibusPropertyProvider = domibusPropertyProvider;
 //        this.alertConfigurationManagers = alertConfigurationManagers;
         this.commonConfigurationManager = commonConfigurationManager;
+        this.applicationContext = applicationContext;
 
-        AlertType.setApplicationContext(applicationContext);
+//        AlertType.setApplicationContext(applicationContext);
         // or maybe call setConfManager for all alert types here
     }
 
@@ -51,14 +63,14 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         LOG.debug("Resetting all alert configurations.");
         commonConfigurationManager.reset();
         Arrays.stream(AlertType.values())
-                .map(this::getModuleConfigurationManager)
+                .map(this::getConfigurationManager)
                 .filter(Objects::nonNull)
                 .forEach(AlertConfigurationManager::reset);
     }
 
     @Override
     public String getMailSubject(AlertType alertType) {
-        return getModuleConfiguration(alertType).getMailSubject();
+        return getConfiguration(alertType).getMailSubject();
     }
 
     @Override
@@ -72,16 +84,48 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     @Override
-    public AlertModuleConfiguration getModuleConfiguration(AlertType alertType) {
-        return getModuleConfigurationManager(alertType).getConfiguration();
+    public AlertModuleConfiguration getConfiguration(AlertType alertType) {
+        return getConfigurationManager(alertType).getConfiguration();
+//        return getModuleConfigurationManager(alertType).getConfiguration();
     }
 
-    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
+    @Override
+    public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
+        if (!alertConfigurationManagers.containsKey(alertType)) {
+            AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
+            DefaultAlertConfigurationChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+            alertConfigurationManagers.put(alertType, configurationManager);
+        }
+        return alertConfigurationManagers.get(alertType);
+    }
+
+    private AlertConfigurationManager createConfigurationManager(AlertType alertType) {
+        AlertConfigurationManager alertConfigurationManager = null;
+        String configurationProperty = alertType.getConfigurationProperty();
+        Class configurationManagerClass = alertType.getConfigurationManagerClass();
+        if (configurationManagerClass != null) {
+            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType, configurationProperty);
+        } else if (StringUtils.isNotBlank(configurationProperty)) {
+            AlertCategory alertCategory = alertType.getCategory();
+            if (alertCategory == AlertCategory.DEFAULT) {
+                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
+            } else if (alertCategory == AlertCategory.REPETITIVE) {
+                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType, configurationProperty);
+            } else {
+                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType, configurationProperty);
+            }
+        }
+//        LOG.debug("Configuration manager [{}] created for alert type [{}]", configurationManager, this);
+        return alertConfigurationManager;
+    }
+
+//    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         // an alert type is allowed to lack a AlertConfigurationManager
-        return alertType.getConfigurationManager();
+//        return alertConfigurationManagers.get(alertType);
+
 //        return alertConfigurationManagers.stream()
 //                .filter(el -> el.getAlertType() == alertType)
 //                .findFirst()
 //                .orElse(null);
-    }
+//    }
 }

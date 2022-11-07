@@ -9,6 +9,7 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.earchive.alerts.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import eu.domibus.logging.DomibusLogger;
@@ -43,6 +44,12 @@ import static org.springframework.jms.support.converter.MessageType.TEXT;
 public class AlertContextConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(AlertContextConfiguration.class);
+
+    @Autowired
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
 
     @Bean("jackson2MessageConverter")
     public MappingJackson2MessageConverter jackson2MessageConverter() {
@@ -108,13 +115,10 @@ public class AlertContextConfiguration {
         return new DefaultConfigurationManager(alertType, domibusPropertiesPrefix);
     }
 
-    @Autowired
-    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
-
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultAlertConfigurationChangeListener defaultAlertConfigurationChangeListener(AlertType alertType) {
-        DefaultAlertConfigurationChangeListener res = new DefaultAlertConfigurationChangeListener(alertType);
+        DefaultAlertConfigurationChangeListener res = new DefaultAlertConfigurationChangeListener(alertType, alertConfigurationService);
         domibusPropertyChangeNotifier.addListener(res);
         return res;
     }
