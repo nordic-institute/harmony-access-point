@@ -98,8 +98,7 @@ public class AlertServiceImpl implements AlertService {
                             AlertConfigurationService alertConfigurationService,
                             ServerInfoService serverInfoService,
                             CommonConfigurationManager alertConfigurationManager,
-                            ReprogrammableService reprogrammableService,
-                            ApplicationContext applicationContext) {
+                            ReprogrammableService reprogrammableService) {
         this.eventDao = eventDao;
         this.alertDao = alertDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -110,8 +109,6 @@ public class AlertServiceImpl implements AlertService {
         this.serverInfoService = serverInfoService;
         this.alertConfigurationManager = alertConfigurationManager;
         this.reprogrammableService = reprogrammableService;
-
-        AlertType.setApplicationContext(applicationContext);
     }
 
     /**

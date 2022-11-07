@@ -7,6 +7,7 @@ import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,8 @@ import java.util.Objects;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
- * @author Thomas Dussart, Ion Perpegel
+ * @author Thomas Dussart,
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -28,23 +30,27 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected List<AlertConfigurationManager> alertConfigurationManagers;
+//    protected List<AlertConfigurationManager> alertConfigurationManagers;
 
     protected final CommonConfigurationManager commonConfigurationManager;
 
     public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                                         @Lazy List<AlertConfigurationManager> alertConfigurationManagers,
-                                         @Lazy CommonConfigurationManager commonConfigurationManager) {
+//                                         @Lazy List<AlertConfigurationManager> alertConfigurationManagers,
+                                         @Lazy CommonConfigurationManager commonConfigurationManager,
+                                         ApplicationContext applicationContext) {
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.alertConfigurationManagers = alertConfigurationManagers;
+//        this.alertConfigurationManagers = alertConfigurationManagers;
         this.commonConfigurationManager = commonConfigurationManager;
+
+        AlertType.setApplicationContext(applicationContext);
+        // or maybe call setConfManager for all alert types here
     }
 
     @Override
     public void resetAll() {
-        LOG.debug("Resetting all configurations.");
+        LOG.debug("Resetting all alert configurations.");
         commonConfigurationManager.reset();
-        Arrays.asList(AlertType.values()).stream()
+        Arrays.stream(AlertType.values())
                 .map(this::getModuleConfigurationManager)
                 .filter(Objects::nonNull)
                 .forEach(AlertConfigurationManager::reset);
@@ -72,9 +78,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
         // an alert type is allowed to lack a AlertConfigurationManager
-        return alertConfigurationManagers.stream()
-                .filter(el -> el.getAlertType() == alertType)
-                .findFirst()
-                .orElse(null);
+        return alertType.getConfigurationManager();
+//        return alertConfigurationManagers.stream()
+//                .filter(el -> el.getAlertType() == alertType)
+//                .findFirst()
+//                .orElse(null);
     }
 }

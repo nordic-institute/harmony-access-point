@@ -130,7 +130,7 @@ public enum AlertType {
         this.configurationManagerClass = configurationManagerClass;
     }
 
-    // we can do this from Alert service for ex, but it would not be lazy/on demand, like it is now.
+    // we can do this from Alert config service for ex, but it would not be lazy/on demand, like it is now.
     public AlertConfigurationManager getConfigurationManager() {
         if (configurationManager != null) {
             return configurationManager;
