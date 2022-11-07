@@ -189,24 +189,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     private List<InternalJmsMessage> getInternalJmsMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destinationType) {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
         if (InternalJMSConstants.QUEUE.equals(destinationType)) {
-            Map<String, Object> criteria = new HashMap<>();
-            if (jmsType != null) {
-                criteria.put("JMSType", jmsType);
-            }
-            if (fromDate != null) {
-                criteria.put("JMSTimestamp_from", fromDate.getTime());
-            }
-            if (toDate != null) {
-                criteria.put("JMSTimestamp_to", toDate.getTime());
-            }
-            if (selectorClause != null) {
-                criteria.put("selectorClause", selectorClause);
-            }
-
-            String selector = jmsSelectorUtil.getSelector(criteria);
-            if (StringUtils.isEmpty(selector)) {
-                selector = "true";
-            }
+            String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
             try {
                 QueueViewMBean queue = domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
                 CompositeData[] browse = queue.browse(selector);
@@ -218,6 +201,28 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             throw new InternalJMSException("Unrecognized destination type [" + destinationType + "]");
         }
         return internalJmsMessages;
+    }
+
+    private String getSelector(String jmsType, Date fromDate, Date toDate, String selectorClause) {
+        Map<String, Object> criteria = new HashMap<>();
+        if (jmsType != null) {
+            criteria.put("JMSType", jmsType);
+        }
+        if (fromDate != null) {
+            criteria.put("JMSTimestamp_from", fromDate.getTime());
+        }
+        if (toDate != null) {
+            criteria.put("JMSTimestamp_to", toDate.getTime());
+        }
+        if (selectorClause != null) {
+            criteria.put("selectorClause", selectorClause);
+        }
+
+        String selector = jmsSelectorUtil.getSelector(criteria);
+        if (StringUtils.isEmpty(selector)) {
+            selector = "true";
+        }
+        return selector;
     }
 
     protected List<InternalJmsMessage> convertCompositeData(CompositeData[] browse) {
@@ -295,6 +300,18 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             return queue.moveMatchingMessagesTo(jmsSelectorUtil.getSelector(messageIds), destination);
         } catch (Exception e) {
             throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + Arrays.toString(messageIds), e);
+        }
+    }
+
+    @Override
+    public int moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destination){
+        String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
+        try {
+            QueueViewMBean queue = domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
+            return queue.moveMatchingMessagesTo(selector, destination);
+        } catch (Exception e) {
+
+            throw new InternalJMSException(String.format("Failed to move messages from source [%s] to destination [%s] with selector [%s]", source, destination, selector), e);
         }
     }
 
