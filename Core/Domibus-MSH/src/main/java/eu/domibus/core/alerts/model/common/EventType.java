@@ -41,7 +41,7 @@ public enum EventType {
     PARTITION_CHECK(AlertType.PARTITION_CHECK, Arrays.asList("PARTITION_NAME")),
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION"));
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(EventType.class);
+//    private static final Logger LOG = DomibusLoggerFactory.getLogger(EventType.class);
 
     private AlertType defaultAlertType;
 
@@ -133,7 +133,7 @@ public enum EventType {
         } else {
             queueSelector = QueueSelectors.FREQUENCY;
         }
-        LOG.debug("Created queue selector [{}] for alert type [{}]", queueSelector, alertType);
+//        LOG.debug("Created queue selector [{}] for alert type [{}]", queueSelector, alertType);
         return queueSelector;
     }
 

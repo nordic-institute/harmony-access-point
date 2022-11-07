@@ -99,23 +99,6 @@ public class EventServiceImpl implements EventService {
         enqueueEvent(event);
     }
 
-//    @Override
-//    public void enqueueEvent(EventType eventType, String eventIdentifier, int frequency, EventProperties eventProperties) {
-//        Event event = createEvent(eventType, eventProperties);
-//        event.setReportingTime(new Date());
-//        event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
-//
-//        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
-//        if (!shouldCreateAlert(entity, frequency)) {
-//            return;
-//        }
-//
-//        entity.setLastAlertDate(LocalDate.now());
-//        eventDao.update(entity);
-//
-//        enqueueEvent(event);
-//    }
-
     @Override
     public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
         Event event = createEventWithProperties(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, oldStatus.name(), newStatus.name(), role.name()));

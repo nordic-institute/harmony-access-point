@@ -5,11 +5,10 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,6 +18,7 @@ import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountStatusException;
@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
@@ -73,7 +74,7 @@ public class AuthenticationResource {
         this.authenticationService = authenticationService;
         this.domainContextProvider = domainContextProvider;
         this.userDomainService = userDomainService;
-        this.domainService= domainService;
+        this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.errorHandlerService = errorHandlerService;
         this.sas = sas;
@@ -117,14 +118,15 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        AlertModuleConfiguration conf = AlertType.PARTITION_CHECK.getConfiguration();
-
-//        ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration)AlertType.CONNECTION_MONITORING_FAILED.getConfiguration();
-
-        int i =1;
+        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) AlertType.CERT_IMMINENT_EXPIRATION.getConfiguration();
+        eventService.enqueueImminentCertificateExpirationEvent("accessPointOrAlias", "alias", new Date());
+        int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
     }
+
+    @Autowired
+    EventService eventService;
 
     @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {

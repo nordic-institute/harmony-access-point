@@ -52,7 +52,7 @@ public enum AlertType {
             ConnectionMonitoringFailedConfigurationManager.class);
 
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertType.class);
+//    private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertType.class);
 
     private static ApplicationContext applicationContext;
 
@@ -151,12 +151,12 @@ public enum AlertType {
             if (category == AlertCategory.DEFAULT) {
                 alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
             } else if (category == AlertCategory.REPETITIVE) {
-                alertConfigurationManager = applicationContext.getBean(RepetitiveAlertConfigurationManager.class, this, configurationProperty);
+                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, this, configurationProperty);
             } else {
-                alertConfigurationManager = applicationContext.getBean(FrequencyAlertConfigurationManager.class, this, configurationProperty);
+                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, this, configurationProperty);
             }
         }
-        LOG.debug("Configuration manager [{}] created for alert type [{}]", configurationManager, this);
+//        LOG.debug("Configuration manager [{}] created for alert type [{}]", configurationManager, this);
         return alertConfigurationManager;
     }
 
