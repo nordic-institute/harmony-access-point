@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
  * @author Ion Perpegel
  * @since 5.1
  */
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class FrequencyAlertConfigurationManager
         extends BaseConfigurationManager<FrequencyAlertConfiguration>
         implements AlertConfigurationManager {

@@ -22,8 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ConnectionMonitoringFailedConfigurationManager
-        extends FrequencyAlertConfigurationManager
+public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
     public ConnectionMonitoringFailedConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {

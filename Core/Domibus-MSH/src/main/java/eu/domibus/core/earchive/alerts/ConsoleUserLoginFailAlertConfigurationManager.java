@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ConsoleUserLoginFailAlertConfigurationManager extends DefaultConfigurationManager
+public class ConsoleUserLoginFailAlertConfigurationManager extends BaseConfigurationManager<AlertModuleConfigurationBase>
         implements AlertConfigurationManager {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConsoleUserLoginFailAlertConfigurationManager.class);
@@ -29,6 +29,11 @@ public class ConsoleUserLoginFailAlertConfigurationManager extends DefaultConfig
 
     public ConsoleUserLoginFailAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
+    }
+
+    @Override
+    protected AlertModuleConfigurationBase createAlertConfiguration(AlertType alertType) {
+        return new AlertModuleConfigurationBase(alertType);
     }
 
     @Override

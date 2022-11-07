@@ -1,6 +1,5 @@
 package eu.domibus.core.earchive.alerts;
 
-import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -15,30 +14,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PartitionConfigurationManager extends FrequencyAlertConfigurationManager
+public class DefaultFrequencyAlertConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public PartitionConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public DefaultFrequencyAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
     }
 
-    @Override
-    protected FrequencyAlertConfiguration createAlertConfiguration(AlertType alertType) {
-        return new FrequencyAlertConfiguration(alertType);
-    }
-
-    @Override
-    protected Boolean isAlertActive() {
-        return true;
-    }
-
-    @Override
-    protected AlertLevel getAlertLevel() {
-        return AlertLevel.HIGH;
-    }
-
-    @Override
-    protected String getMailSubject() {
-        return null;
-    }
 }

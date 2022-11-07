@@ -14,15 +14,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CertificateExpiredAlertConfigurationManager extends RepetitiveAlertConfigurationManager
+public class DefaultRepetitiveAlertConfigurationManager extends RepetitiveAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public CertificateExpiredAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public DefaultRepetitiveAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
     }
 
-    @Override
-    protected String getDelayPropertyName() {
-        return domibusPropertiesPrefix + ".duration_days";
-    }
 }

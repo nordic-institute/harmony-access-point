@@ -2,8 +2,6 @@ package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CertificateExpiredAlertConfigurationManager extends RepetitiveAlertConfigurationManager
         implements AlertConfigurationManager {
-
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(CertificateExpiredAlertConfigurationManager.class);
 
     public CertificateExpiredAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);

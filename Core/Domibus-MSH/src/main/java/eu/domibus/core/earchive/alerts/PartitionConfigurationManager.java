@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PartitionConfigurationManager
-        extends FrequencyAlertConfigurationManager
+public class PartitionConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
     public PartitionConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {

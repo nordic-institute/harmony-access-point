@@ -25,6 +25,7 @@ public class DefaultConfigurationManager
         super(alertType, domibusPropertiesPrefix);
     }
 
+    @Override
     protected AlertModuleConfigurationBase createAlertConfiguration(AlertType alertType) {
         return new AlertModuleConfigurationBase(alertType);
     }
