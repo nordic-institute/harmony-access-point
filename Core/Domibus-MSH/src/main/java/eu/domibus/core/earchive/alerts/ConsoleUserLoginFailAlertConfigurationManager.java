@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class ConsoleUserLoginFailAlertConfigurationManager extends DefaultConfig
     }
 
     @Override
-    public DefaultAlertConfiguration readConfiguration() {
+    public AlertModuleConfigurationBase readConfiguration() {
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", alertType.getTitle());
             return createAlertConfiguration(alertType);

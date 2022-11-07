@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public interface EventService {
 
-    void enqueueEvent(EventType eventType, EventProperties eventProperties);
+//    void enqueueEvent(EventType eventType, EventProperties eventProperties);
 
     void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties);
 

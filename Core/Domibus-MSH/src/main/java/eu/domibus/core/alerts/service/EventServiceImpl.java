@@ -38,6 +38,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -69,7 +70,7 @@ public class EventServiceImpl implements EventService {
 
     public EventServiceImpl(EventDao eventDao, PModeProvider pModeProvider, UserMessageDao userMessageDao,
                             ErrorLogService errorLogService, EventMapper eventMapper, JMSManager jmsManager,
-                            @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
+                            @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
                             MpcService mpcService) {
         this.eventDao = eventDao;
         this.pModeProvider = pModeProvider;
@@ -81,17 +82,19 @@ public class EventServiceImpl implements EventService {
         this.mpcService = mpcService;
     }
 
-    @Override
-    // de sters??
-    public void enqueueEvent(EventType eventType, EventProperties eventProperties) {
-        Event event = createEventWithProperties(eventType, eventProperties);
-        enqueueEvent(event);
-    }
+//    @Override
+//    // de sters?? param de identif default???
+//    public void enqueueEvent(EventType eventType, EventProperties eventProperties) {
+//        Event event = createEventWithProperties(eventType, eventProperties);
+//        enqueueEvent(event);
+//    }
 
     @Override
     public void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = getEvent(eventType, eventIdentifier, eventProperties);
-        if (event == null) return;
+        if (event == null) {
+            return;
+        }
 
         enqueueEvent(event);
     }
@@ -113,9 +116,6 @@ public class EventServiceImpl implements EventService {
 //        enqueueEvent(event);
 //    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
         Event event = createEventWithProperties(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, oldStatus.name(), newStatus.name(), role.name()));
@@ -153,43 +153,28 @@ public class EventServiceImpl implements EventService {
 //
 //        enqueueEvent(event);
 //    }
-
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
 //        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
 //        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), loginTime, Boolean.toString(accountDisabled), AccountEventKey.ACCOUNT_DISABLED));
 //    }
-
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
 //        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
 //        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountDisabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_DISABLED));
 //    }
-
 //    @Override
 //    public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
 //        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
 //        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountEnabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_ENABLED));
 //    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
         Event event = prepareCertificateEvent(EventType.CERT_IMMINENT_EXPIRATION, accessPoint, alias, expirationDate);
         enqueueEvent(event);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
         Event event = prepareCertificateEvent(EventType.CERT_EXPIRED, accessPoint, alias, expirationDate);
@@ -198,12 +183,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
-        String eventIdentifier = getUniqueIdentifier(user);
         LocalDate expDate = user.getPasswordChangeDate().plusDays(maxPasswordAgeInDays).toLocalDate();
         EventProperties eventProperties = new EventProperties(user.getUserName(), user.getType().getName(), expDate);
+        String eventIdentifier = getUniqueIdentifier(user);
 
         Event event = getEvent(eventType, eventIdentifier, eventProperties);
-        if (event == null) return;
+        if (event == null) {
+            return;
+        }
 
 //        Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
 //
@@ -222,19 +209,12 @@ public class EventServiceImpl implements EventService {
         LOG.securityInfo(eventType.getSecurityMessageCode(), user.getUserName(), event.findOptionalProperty("EXPIRATION_DATE"));
     }
 
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueuePartitionCheckEvent(String partitionName) {
 //        Event event = new Event(EventType.PARTITION_CHECK);
 //        event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
 //        enqueueEvent(event);
 //    }
-
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus) {
 //        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
@@ -243,9 +223,6 @@ public class EventServiceImpl implements EventService {
 //        enqueueEvent(event);
 //    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = eventMapper.eventServiceToEventPersist(event);
@@ -256,10 +233,6 @@ public class EventServiceImpl implements EventService {
         return eventEntity;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-//    @Override
     private void enrichMessageEvent(final Event event) {
         final Optional<String> messageIdProperty = event.findStringProperty(MESSAGE_ID.name());
         final Optional<String> roleProperty = event.findStringProperty(ROLE.name());
@@ -377,14 +350,6 @@ public class EventServiceImpl implements EventService {
 //
 //        return event;
 //    }
-
-    private String getUniqueIdentifier(UserEntityBase user) {
-        return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueueEArchivingMessageNonFinalEvent(final String messageId, final MessageStatus status) {
 //        Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
@@ -392,15 +357,16 @@ public class EventServiceImpl implements EventService {
 //        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
 //        enqueueEvent(event);
 //    }
-
-    /**
-     * {@inheritDoc}
-     */
 //    @Override
 //    public void enqueueEArchivingStartDateStopped() {
 //        Event event = new Event(EventType.ARCHIVING_START_DATE_STOPPED);
 //        enqueueEvent(event);
 //    }
+
+    private String getUniqueIdentifier(UserEntityBase user) {
+        return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
+    }
+
     private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEventWithProperties(eventType, eventProperties);
         event.setReportingTime(new Date());

@@ -70,6 +70,8 @@ public enum AlertType {
 
     private AlertConfigurationManager configurationManager;
 
+    private DomibusPropertyChangeListener propertyChangeListener;
+
     AlertType(String template) {
         setParams(template, null, null, null);
     }
@@ -123,7 +125,7 @@ public enum AlertType {
         this.configurationManagerClass = configurationManagerClass;
     }
 
-    // set conf manager from outside, ex: alert config class???
+    // we can do this from Alert service for ex but it would not be lazy/on demand, like it is now.
     public AlertConfigurationManager getConfigurationManager() {
         if (configurationManager != null) {
             return configurationManager;
@@ -141,8 +143,7 @@ public enum AlertType {
             }
         }
 
-        // just creates the bean
-        DomibusPropertyChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
+        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
 
         return configurationManager;
     }

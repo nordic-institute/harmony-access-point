@@ -5,8 +5,6 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
-import eu.domibus.core.earchive.alerts.PluginAccountDisabledConfigurationManager;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
@@ -98,8 +96,8 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
 //    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-    protected DefaultAlertConfiguration getLoginFailureConfiguration() {
-        return (DefaultAlertConfiguration) AlertType.PLUGIN_USER_LOGIN_FAILURE.getConfiguration();
+    protected AlertModuleConfigurationBase getLoginFailureConfiguration() {
+        return (AlertModuleConfigurationBase) AlertType.PLUGIN_USER_LOGIN_FAILURE.getConfiguration();
 //        return pluginLoginFailConfigurationManager.getConfiguration();
     }
 
