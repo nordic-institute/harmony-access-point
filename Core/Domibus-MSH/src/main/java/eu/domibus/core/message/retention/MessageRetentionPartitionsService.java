@@ -12,8 +12,8 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
@@ -45,25 +45,27 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
-    protected PModeProvider pModeProvider;
+    protected final PModeProvider pModeProvider;
 
-    protected UserMessageDao userMessageDao;
+    protected final UserMessageDao userMessageDao;
 
-    protected UserMessageLogDao userMessageLogDao;
+    protected final UserMessageLogDao userMessageLogDao;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected EventService eventService;
+    protected final EventService eventService;
 
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final DomibusConfigurationService domibusConfigurationService;
 
-    protected DomainService domainService;
+    protected final DomainService domainService;
 
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    protected DateUtil dateUtil;
+    protected final DateUtil dateUtil;
 
-    protected PartitionService partitionService;
+    protected final PartitionService partitionService;
+
+    protected final AlertConfigurationService alertConfigurationService;
 
 //    protected PartitionsConfigurationManager partitionsConfigurationManager;
 
@@ -78,9 +80,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomibusConfigurationService domibusConfigurationService,
                                              DomainService domainService,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
-                                             PartitionService partitionService
+                                             PartitionService partitionService,
 //                                             PartitionsConfigurationManager partitionsConfigurationManager
-    ) {
+                                             AlertConfigurationService alertConfigurationService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -92,6 +94,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
 //        this.partitionsConfigurationManager = partitionsConfigurationManager;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -153,7 +156,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
 //        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-        AlertModuleConfiguration partitionsModuleConfiguration =AlertType.PARTITION_CHECK.getConfiguration();
+        AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
         if (partitionsModuleConfiguration.isActive()) {
 //            eventService.enqueuePartitionCheckEvent(partitionName);
             eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));

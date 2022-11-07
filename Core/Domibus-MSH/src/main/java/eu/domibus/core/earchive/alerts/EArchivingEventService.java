@@ -2,10 +2,10 @@ package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -21,21 +21,24 @@ public class EArchivingEventService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(EArchivingEventService.class);
 
     //    private final ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager;
-//    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
+    //    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
     private final EventService eventService;
+
+    private final AlertConfigurationService alertConfigurationService;
 
     public EArchivingEventService(
 //            ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager,
 //                                  ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedConfigurationManager,
-            EventService eventService) {
+            EventService eventService, AlertConfigurationService alertConfigurationService) {
 //        this.archivingMessagesNonFinalStatusConfigurationManager = archivingMessagesNonFinalStatusConfigurationManager;
 //        this.archivingStartDateStoppedModuleConfiguration = archivingStartDateStoppedConfigurationManager;
         this.eventService = eventService;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     public void sendEventMessageNotFinal(String messageId, MessageStatus messageStatus) {
 //        ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
-        AlertModuleConfiguration alertConfiguration = AlertType.ARCHIVING_MESSAGES_NON_FINAL.getConfiguration();
+        AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_MESSAGES_NON_FINAL);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
             return;
@@ -47,7 +50,7 @@ public class EArchivingEventService {
 
     public void sendEventStartDateStopped() {
 //        ArchivingStartDateStoppedModuleConfiguration alertConfiguration = archivingStartDateStoppedModuleConfiguration.getConfiguration();
-        AlertModuleConfiguration alertConfiguration = AlertType.ARCHIVING_START_DATE_STOPPED.getConfiguration();
+        AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_START_DATE_STOPPED);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
             return;

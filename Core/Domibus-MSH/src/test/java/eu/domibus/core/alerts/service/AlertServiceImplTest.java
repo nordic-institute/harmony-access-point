@@ -99,7 +99,7 @@ public class AlertServiceImplTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
+            alertConfigurationService.getConfiguration(AlertType.MSG_STATUS_CHANGED);
             result = config;
 
             config.isActive();

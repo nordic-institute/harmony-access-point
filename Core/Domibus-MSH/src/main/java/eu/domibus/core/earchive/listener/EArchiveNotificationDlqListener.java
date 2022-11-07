@@ -6,6 +6,7 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -38,17 +39,20 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     private final EventService eventService;
 
+    private final AlertConfigurationService alertConfigurationService;
+
     public EArchiveNotificationDlqListener(
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
             JmsUtil jmsUtil,
 //            ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager,
-            EventService eventService) {
+            EventService eventService, AlertConfigurationService alertConfigurationService) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
 //        this.archivingNotificationFailedConfigurationManager = archivingNotificationFailedConfigurationManager;
         this.eventService = eventService;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
 //        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
-        AlertModuleConfiguration alertConfiguration = AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
+        AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_NOTIFICATION_FAILED);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
             return;

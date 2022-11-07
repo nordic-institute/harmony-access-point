@@ -53,9 +53,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 //        this.alertConfigurationManagers = alertConfigurationManagers;
         this.commonConfigurationManager = commonConfigurationManager;
         this.applicationContext = applicationContext;
-
-//        AlertType.setApplicationContext(applicationContext);
-        // or maybe call setConfManager for all alert types here
     }
 
     @Override

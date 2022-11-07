@@ -51,8 +51,6 @@ public enum AlertType {
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX, AlertCategory.WITH_FREQUENCY,
             ConnectionMonitoringFailedConfigurationManager.class);
 
-
-
 //    private static ApplicationContext applicationContext;
 //
 //    public static void setApplicationContext(ApplicationContext applicationContextParam) {
@@ -121,11 +119,6 @@ public enum AlertType {
         return configurationManagerClass;
     }
 
-//    public AlertModuleConfiguration getConfiguration() {
-//        AlertConfigurationManager confMan = getConfigurationManager();
-//        return confMan.getConfiguration();
-//    }
-
     private void setParams(String template, String configurationProperty, AlertCategory category, Class configurationManagerClass) {
         this.template = template;
         this.configurationProperty = configurationProperty;
@@ -133,6 +126,10 @@ public enum AlertType {
         this.configurationManagerClass = configurationManagerClass;
     }
 
+//    public AlertModuleConfiguration getConfiguration() {
+//        AlertConfigurationManager confMan = getConfigurationManager();
+//        return confMan.getConfiguration();
+//    }
     // we can do this from Alert config service for ex, but it would not be lazy/on demand, like it is now.
 //    public AlertConfigurationManager getConfigurationManager() {
 //        if (configurationManager != null) {
@@ -145,7 +142,6 @@ public enum AlertType {
 //
 //        return configurationManager;
 //    }
-
 //    private AlertConfigurationManager createConfigurationManager() {
 //        AlertConfigurationManager alertConfigurationManager = null;
 //        if (configurationManagerClass != null) {

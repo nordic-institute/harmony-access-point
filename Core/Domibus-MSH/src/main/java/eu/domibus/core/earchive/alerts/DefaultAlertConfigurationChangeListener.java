@@ -2,10 +2,8 @@ package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Ion Perpegel
@@ -16,8 +14,11 @@ import org.springframework.stereotype.Component;
 public class DefaultAlertConfigurationChangeListener implements DomibusPropertyChangeListener {
     AlertType alertType;
 
-    public DefaultAlertConfigurationChangeListener(AlertType alertType) {
+    AlertConfigurationService alertConfigurationService;
+
+    public DefaultAlertConfigurationChangeListener(AlertType alertType, AlertConfigurationService alertConfigurationService) {
         this.alertType = alertType;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -27,6 +28,6 @@ public class DefaultAlertConfigurationChangeListener implements DomibusPropertyC
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        alertType.getConfigurationManager().reset();
+        alertConfigurationService.getConfigurationManager(alertType).reset();
     }
 }

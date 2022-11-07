@@ -5,10 +5,11 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -118,12 +119,15 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) AlertType.CERT_IMMINENT_EXPIRATION.getConfiguration();
+        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
         eventService.enqueueImminentCertificateExpirationEvent("accessPointOrAlias", "alias", new Date());
         int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
     }
+
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
 
     @Autowired
     EventService eventService;

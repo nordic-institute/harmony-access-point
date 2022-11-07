@@ -6,6 +6,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import mockit.Expectations;
@@ -38,6 +39,9 @@ public class PartitionServiceTest {
     @Injectable
     DateUtil dateUtil;
 
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
+
 //    @Injectable
 //    PartitionsConfigurationManager partitionsConfigurationManager;
 
@@ -66,7 +70,7 @@ public class PartitionServiceTest {
             result = false;
 
 //            partitionsConfigurationManager.getConfiguration().isActive();
-            AlertType.PARTITION_CHECK.getConfiguration().isActive();
+            alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK).isActive();
             result = true;
         }};
 
