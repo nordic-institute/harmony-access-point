@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -17,14 +18,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DefaultConfigurationManager
-        extends BaseConfigurationManager<DefaultAlertConfiguration>
+        extends BaseConfigurationManager<AlertModuleConfigurationBase>
         implements AlertConfigurationManager {
 
     public DefaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
     }
 
-    protected DefaultAlertConfiguration createAlertConfiguration(AlertType alertType) {
-        return new DefaultAlertConfiguration(alertType);
+    protected AlertModuleConfigurationBase createAlertConfiguration(AlertType alertType) {
+        return new AlertModuleConfigurationBase(alertType);
     }
 }

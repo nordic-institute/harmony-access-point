@@ -11,10 +11,8 @@ import org.springframework.stereotype.Component;
  * @author Ion Perpegel
  * @since 5.1
  * <p>
- * General bean that handles the change of alert properties
+ * Generic bean that handles the change of alert properties based on Alert type
  */
-//@Component
-//@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DefaultAlertConfigurationChangeListener implements DomibusPropertyChangeListener {
     AlertType alertType;
 

@@ -22,24 +22,8 @@ public class AlertModuleConfigurationBase implements AlertModuleConfiguration {
 
     private String mailSubject;
 
-    private AlertModuleConfigurationBase(AlertType alertType, boolean isActive) {
-        this.alertType = alertType;
-        this.active = isActive;
-    }
-
     public AlertModuleConfigurationBase(AlertType alertType) {
-        this(alertType, false);
-    }
-
-    public AlertModuleConfigurationBase(AlertType alertType, AlertLevel alertLevel, String emailSubject) {
-        this(alertType, true);
-
-        this.alertLevel = alertLevel;
-        this.mailSubject = emailSubject;
-    }
-
-    public AlertModuleConfigurationBase(AlertType alertType, String emailSubject) {
-        this(alertType, null, emailSubject);
+        this.alertType = alertType;
     }
 
     @Override

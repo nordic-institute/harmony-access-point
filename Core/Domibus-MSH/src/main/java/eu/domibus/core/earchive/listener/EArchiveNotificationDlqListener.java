@@ -2,13 +2,13 @@ package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
-import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -67,7 +67,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
 //        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
-        DefaultAlertConfiguration alertConfiguration = (DefaultAlertConfiguration)AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
+        AlertModuleConfiguration alertConfiguration = AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
             return;
@@ -76,7 +76,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
 
         LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
-        eventService.enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED, new EventProperties(batchId, notificationType.name()));
+        eventService.enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED, batchId, new EventProperties(batchId, notificationType.name()));
     }
 
 }
