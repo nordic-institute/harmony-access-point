@@ -2,6 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
@@ -61,7 +62,7 @@ public class PartitionService {
         if (BooleanUtils.isFalse(partitionExists)) {
             LOG.warn("Throw partition creation warning, this partition was expected to exist but could not be found [{}]", partitionName);
 //            PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-            FrequencyAlertConfiguration partitionsModuleConfiguration = (FrequencyAlertConfiguration) AlertType.PARTITION_CHECK.getConfiguration();
+            AlertModuleConfiguration partitionsModuleConfiguration = AlertType.PARTITION_CHECK.getConfiguration();
             if (partitionsModuleConfiguration.isActive()) {
 //                eventService.enqueuePartitionCheckEvent(partitionName);
                 eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));            }

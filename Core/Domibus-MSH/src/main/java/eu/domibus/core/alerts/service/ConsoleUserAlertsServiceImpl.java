@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -90,15 +91,15 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
 //    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-        return (AlertModuleConfigurationBase) AlertType.USER_ACCOUNT_ENABLED.getConfiguration();
+    protected AlertModuleConfiguration getAccountEnabledConfiguration() {
+        return AlertType.USER_ACCOUNT_ENABLED.getConfiguration();
 //        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
 //    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-    protected AlertModuleConfigurationBase getLoginFailureConfiguration() {
-        return (AlertModuleConfigurationBase) AlertType.USER_LOGIN_FAILURE.getConfiguration();
+    protected AlertModuleConfiguration getLoginFailureConfiguration() {
+        return AlertType.USER_LOGIN_FAILURE.getConfiguration();
 //        return consoleLoginFailConfigurationManager.getConfiguration();
     }
 

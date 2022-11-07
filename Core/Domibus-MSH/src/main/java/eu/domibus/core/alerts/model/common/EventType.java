@@ -1,8 +1,13 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.core.alerts.service.AlertServiceImpl;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Thomas Dussart,
@@ -36,6 +41,7 @@ public enum EventType {
     PARTITION_CHECK(AlertType.PARTITION_CHECK, Arrays.asList("PARTITION_NAME")),
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, Arrays.asList("MESSAGE_ID", "ROLE", "STATUS", "FROM_PARTY", "TO_PARTY", "DESCRIPTION"));
 
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(EventType.class);
 
     private AlertType defaultAlertType;
 
@@ -48,7 +54,7 @@ public enum EventType {
     List<String> properties;
 
     EventType(AlertType defaultAlertType, List<String> properties, boolean isUserRelated) {
-        setParams(defaultAlertType, properties,null, isUserRelated, null);
+        setParams(defaultAlertType, properties, null, isUserRelated, null);
     }
 
     EventType(AlertType defaultAlertType, List<String> properties) {
@@ -112,16 +118,23 @@ public enum EventType {
 
     private void setQueueSelector(AlertType defaultAlertType, String queueSelector) {
         if (queueSelector == null) {
-            if (defaultAlertType.getCategory() == AlertCategory.DEFAULT) {
-                this.queueSelector = QueueSelectors.DEFAULT;
-            } else if (defaultAlertType.getCategory() == AlertCategory.REPETITIVE) {
-                this.queueSelector = QueueSelectors.REPETITIVE;
-            } else {
-                this.queueSelector = QueueSelectors.FREQUENCY;
-            }
+            this.queueSelector = getQueueSelector(defaultAlertType);
         } else {
             this.queueSelector = queueSelector;
         }
+    }
+
+    private String getQueueSelector(AlertType alertType) {
+        String queueSelector;
+        if (alertType.getCategory() == AlertCategory.DEFAULT) {
+            queueSelector = QueueSelectors.DEFAULT;
+        } else if (alertType.getCategory() == AlertCategory.REPETITIVE) {
+            queueSelector = QueueSelectors.REPETITIVE;
+        } else {
+            queueSelector = QueueSelectors.FREQUENCY;
+        }
+        LOG.debug("Created queue selector [{}] for alert type [{}]", queueSelector, alertType);
+        return queueSelector;
     }
 
     public static class QueueSelectors {

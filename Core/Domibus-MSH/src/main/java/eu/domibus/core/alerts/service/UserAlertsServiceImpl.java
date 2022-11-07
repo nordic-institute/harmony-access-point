@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -58,10 +59,10 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
 
-    protected abstract AlertModuleConfigurationBase getAccountEnabledConfiguration();
+    protected abstract AlertModuleConfiguration getAccountEnabledConfiguration();
 
     //    protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
-    protected abstract AlertModuleConfigurationBase getLoginFailureConfiguration();
+    protected abstract AlertModuleConfiguration getLoginFailureConfiguration();
 
     protected abstract RepetitiveAlertConfiguration getExpiredAlertConfiguration();
 
@@ -70,7 +71,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
 //        final LoginFailureModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
-        AlertModuleConfigurationBase loginFailureConfiguration = getLoginFailureConfiguration();
+        AlertModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         LOG.debug("loginFailureConfiguration.isActive : [{}]", loginFailureConfiguration.isActive());
         EventType loginFailEventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
         switch (userLoginErrorReason) {
@@ -116,7 +117,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerEnabledEvent(UserBase user) {
-        final AlertModuleConfigurationBase accountEnabledConfiguration = getAccountEnabledConfiguration();
+        final AlertModuleConfiguration accountEnabledConfiguration = getAccountEnabledConfiguration();
         if (accountEnabledConfiguration.isActive()) {
             LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
 //            eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());
