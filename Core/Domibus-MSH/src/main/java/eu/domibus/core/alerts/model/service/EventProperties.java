@@ -11,7 +11,7 @@ public class EventProperties {
         this.properties = properties;
     }
 
-    public Object[] getProperties() {
+    public Object[] get() {
         return properties;
     }
 

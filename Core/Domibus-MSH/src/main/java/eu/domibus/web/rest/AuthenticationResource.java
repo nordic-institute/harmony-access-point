@@ -121,8 +121,7 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
-        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, "userType/userName/1", new EventProperties("userName", "getUserType", new Date(), false));
+        eventService.enqueueEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, "userType/userName/1", new EventProperties("userName", "getUserType", new Date(), false));
         int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());

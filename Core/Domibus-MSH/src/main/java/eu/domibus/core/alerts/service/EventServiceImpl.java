@@ -7,6 +7,8 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.DomibusAlertException;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -14,7 +16,6 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -354,10 +356,9 @@ public class EventServiceImpl implements EventService {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
     }
 
-    // revise and rename
+    // revise and rename??
     private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEventWithProperties(eventType, eventProperties);
-//        event.setReportingTime(new Date());
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
         AlertType alertType = eventType.geDefaultAlertType();
@@ -378,12 +379,17 @@ public class EventServiceImpl implements EventService {
     private Event createEventWithProperties(EventType eventType, EventProperties eventProperties) {
         Event event = new Event(eventType);
 
-        if (eventType.getProperties().size() != eventProperties.getProperties().length) {
-            LOG.warn("");
+        if (eventType.getProperties().size() != eventProperties.get().length) {
+            throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
+                    Arrays.toString(eventProperties.get()), eventType.getProperties()));
         }
         for (int i = 0; i < eventType.getProperties().size(); i++) {
             String prop = eventType.getProperties().get(i);
-            Object propValue = eventProperties.getProperties()[i];
+            Object propValue = eventProperties.get()[i];
+            if (propValue == null) {
+                LOG.info("Property [{}] is null; skipping", prop);
+                continue;
+            }
             if (propValue instanceof String) {
                 event.addStringKeyValue(prop, (String) propValue);
             } else if (propValue instanceof Date) {
@@ -391,7 +397,8 @@ public class EventServiceImpl implements EventService {
             } else if (propValue instanceof Boolean) {
                 event.addStringKeyValue(prop, Boolean.toString((Boolean) propValue));
             } else {
-                LOG.warn("Unsupported parameter [{}] value [{}] for event [{}]", prop, propValue, event);
+                LOG.info("Unexpected parameter [{}] value [{}] for event [{}]; stringify-ing it.", prop, propValue, event);
+                event.addStringKeyValue(prop, propValue.toString());
             }
         }
         return event;
