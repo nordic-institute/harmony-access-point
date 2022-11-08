@@ -359,7 +359,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        JMSDestination jmsDestination = getJmsDestination(destination);
+        JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateMessagesMove(source, jmsDestination, messageIds);
 
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
@@ -379,7 +379,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination) {
-        JMSDestination jmsDestination = getJmsDestination(destination);
+        JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateSourceAndDestination(source, jmsDestination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
 
@@ -391,7 +391,7 @@ public class JMSManagerImpl implements JMSManager {
             LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
                     "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messagesToMove.size());
         }
-        LOG.debug("{} Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
         List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
         final String domainCode = domainContextProvider.getCurrentDomain().getCode();
@@ -430,7 +430,12 @@ public class JMSManagerImpl implements JMSManager {
         }
     }
 
-    protected JMSDestination getJmsDestination(String destination) {
+    /**
+     * @param destination
+     * @return a JMSDestination with the name equal to the parameter
+     * @throws RequestValidationException if no such destination queue is found
+     */
+    protected JMSDestination getValidJmsDestination(String destination) {
         Map<String, JMSDestination> destinations = getDestinations();
         JMSDestination jmsDestination = destinations.values().stream()
                 .filter(dest -> StringUtils.equals(destination, dest.getName()))
