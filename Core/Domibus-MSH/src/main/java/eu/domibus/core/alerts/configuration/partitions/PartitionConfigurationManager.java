@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 public class PartitionConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public PartitionConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public PartitionConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

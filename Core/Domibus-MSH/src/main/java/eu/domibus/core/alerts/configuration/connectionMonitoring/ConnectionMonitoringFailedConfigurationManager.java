@@ -21,8 +21,8 @@ import java.util.List;
 public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public ConnectionMonitoringFailedConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public ConnectionMonitoringFailedConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

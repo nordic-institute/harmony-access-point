@@ -18,8 +18,8 @@ public class RepetitiveAlertConfigurationManager
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(RepetitiveAlertConfigurationManager.class);
 
-    public RepetitiveAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public RepetitiveAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     public RepetitiveAlertConfiguration readConfiguration() {

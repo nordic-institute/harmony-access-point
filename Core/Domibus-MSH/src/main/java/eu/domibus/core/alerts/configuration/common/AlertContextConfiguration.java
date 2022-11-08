@@ -108,8 +108,8 @@ public class AlertContextConfiguration {
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultConfigurationManager defaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        return new DefaultConfigurationManager(alertType, domibusPropertiesPrefix);
+    public DefaultConfigurationManager defaultConfigurationManager(AlertType alertType) {
+        return new DefaultConfigurationManager(alertType);
     }
 
     @Bean(autowireCandidate = false)

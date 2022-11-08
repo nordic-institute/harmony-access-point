@@ -99,15 +99,15 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         String configurationProperty = alertType.getConfigurationProperty();
         Class configurationManagerClass = alertType.getConfigurationManagerClass();
         if (configurationManagerClass != null) {
-            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType, configurationProperty);
+            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType);
         } else if (StringUtils.isNotBlank(configurationProperty)) {
             AlertCategory alertCategory = alertType.getCategory();
             if (alertCategory == AlertCategory.DEFAULT) {
-                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
+                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, alertType);
             } else if (alertCategory == AlertCategory.REPETITIVE) {
-                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType, configurationProperty);
+                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
             } else {
-                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType, configurationProperty);
+                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
             }
         }
         LOG.debug("Configuration manager [{}] created for alert type [{}]", alertConfigurationManager, alertType);

@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 public class DefaultFrequencyAlertConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public DefaultFrequencyAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public DefaultFrequencyAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
 }

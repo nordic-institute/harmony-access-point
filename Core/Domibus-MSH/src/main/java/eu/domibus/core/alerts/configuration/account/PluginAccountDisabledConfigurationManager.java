@@ -22,8 +22,8 @@ public class PluginAccountDisabledConfigurationManager
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PluginAccountDisabledConfigurationManager.class);
 
-    public PluginAccountDisabledConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public PluginAccountDisabledConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

@@ -18,8 +18,8 @@ public class FrequencyAlertConfigurationManager
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(FrequencyAlertConfigurationManager.class);
 
-    public FrequencyAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public FrequencyAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     public FrequencyAlertConfiguration readConfiguration() {

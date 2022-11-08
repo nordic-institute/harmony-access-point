@@ -28,7 +28,7 @@ public class ConsoleAccountDisabledConfigurationManager
     private DomibusConfigurationService domibusConfigurationService;
 
     public ConsoleAccountDisabledConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+        super(alertType);
     }
 
     @Override

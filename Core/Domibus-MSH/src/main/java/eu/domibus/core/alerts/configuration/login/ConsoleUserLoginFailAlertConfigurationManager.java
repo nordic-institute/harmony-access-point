@@ -28,8 +28,8 @@ public class ConsoleUserLoginFailAlertConfigurationManager extends BaseConfigura
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    public ConsoleUserLoginFailAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public ConsoleUserLoginFailAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 public class DefaultRepetitiveAlertConfigurationManager extends RepetitiveAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public DefaultRepetitiveAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public DefaultRepetitiveAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
 }

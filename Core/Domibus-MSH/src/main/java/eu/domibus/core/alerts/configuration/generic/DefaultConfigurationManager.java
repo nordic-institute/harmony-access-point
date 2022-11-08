@@ -20,8 +20,8 @@ public class DefaultConfigurationManager
         extends BaseConfigurationManager<AlertModuleConfigurationBase>
         implements AlertConfigurationManager {
 
-    public DefaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public DefaultConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

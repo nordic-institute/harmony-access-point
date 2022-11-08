@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 public class CertificateExpiredAlertConfigurationManager extends RepetitiveAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public CertificateExpiredAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public CertificateExpiredAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override

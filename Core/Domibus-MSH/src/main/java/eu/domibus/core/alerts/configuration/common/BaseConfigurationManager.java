@@ -39,9 +39,9 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
 
     protected String domibusPropertiesPrefix;
 
-    public BaseConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public BaseConfigurationManager(AlertType alertType) {
         this.alertType = alertType;
-        this.domibusPropertiesPrefix = domibusPropertiesPrefix;
+        this.domibusPropertiesPrefix = alertType.getConfigurationProperty();
     }
 
     @Override

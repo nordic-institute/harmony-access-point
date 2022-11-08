@@ -28,8 +28,8 @@ public class ConsoleUserPasswordExpirationAlertConfigurationManager extends Repe
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    public ConsoleUserPasswordExpirationAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
-        super(alertType, domibusPropertiesPrefix);
+    public ConsoleUserPasswordExpirationAlertConfigurationManager(AlertType alertType) {
+        super(alertType);
     }
 
     @Override
