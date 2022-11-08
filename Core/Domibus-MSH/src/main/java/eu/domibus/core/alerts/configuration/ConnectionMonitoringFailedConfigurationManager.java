@@ -1,18 +1,13 @@
-package eu.domibus.core.earchive.alerts;
+package eu.domibus.core.alerts.configuration;
 
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS;
 
 /**
  * Default alert config manager generated automatically for an alert type (if not overridden)

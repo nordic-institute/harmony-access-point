@@ -1,10 +1,7 @@
-package eu.domibus.core.earchive.alerts;
+package eu.domibus.core.alerts.configuration;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

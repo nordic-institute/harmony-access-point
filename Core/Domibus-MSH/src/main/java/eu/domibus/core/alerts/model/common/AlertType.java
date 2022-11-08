@@ -1,13 +1,7 @@
 package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.earchive.alerts.*;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.springframework.context.ApplicationContext;
+import eu.domibus.core.alerts.configuration.*;
 
 import java.util.Arrays;
 import java.util.List;

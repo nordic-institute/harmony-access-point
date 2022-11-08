@@ -1,8 +1,8 @@
-package eu.domibus.core.alerts.configuration.connectionMonitpring;
+package eu.domibus.core.alerts.configuration.connectionMonitoring;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.earchive.alerts.FrequencyAlertConfiguration;
+import eu.domibus.core.alerts.configuration.FrequencyAlertConfiguration;
 
 import java.util.List;
 

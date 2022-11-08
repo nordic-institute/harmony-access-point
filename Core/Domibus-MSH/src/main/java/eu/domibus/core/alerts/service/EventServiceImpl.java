@@ -13,7 +13,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -353,6 +353,7 @@ public class EventServiceImpl implements EventService {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
     }
 
+    // revise and rename
     private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEventWithProperties(eventType, eventProperties);
         event.setReportingTime(new Date());
@@ -363,6 +364,7 @@ public class EventServiceImpl implements EventService {
             eu.domibus.core.alerts.model.persist.Event entity = getOrCreatePersistedEvent(event);
             RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(alertType);
             if (!shouldCreateAlert(entity, configuration.getFrequency())) {
+                LOG.debug("Based on alert configuration [{}], the repetitive alert [{}] identified by event [{}] should not be fired now.", configuration, alertType, eventIdentifier);
                 return null;
             }
 

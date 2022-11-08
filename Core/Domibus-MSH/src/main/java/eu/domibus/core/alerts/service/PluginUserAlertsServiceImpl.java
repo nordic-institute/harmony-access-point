@@ -5,7 +5,7 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import org.springframework.stereotype.Service;

@@ -1,10 +1,11 @@
-package eu.domibus.core.earchive.alerts;
+package eu.domibus.core.alerts.configuration;
 
+import eu.domibus.core.alerts.configuration.FrequencyAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  */
 public class RepetitiveAlertConfiguration extends FrequencyAlertConfiguration {
 
