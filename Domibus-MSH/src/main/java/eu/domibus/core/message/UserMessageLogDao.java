@@ -423,7 +423,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countMessagesNotArchivedOnPartition(String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND archived IS NULL";
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                            "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
+                            "INNER JOIN TB_USER_MESSAGE um ON TB_USER_MESSAGE_LOG.ID_PK=um.ID_PK" +
+                            "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND um.TEST_MESSAGE=0 AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         final Query countQuery = em.createNativeQuery(sqlString);
         try {
