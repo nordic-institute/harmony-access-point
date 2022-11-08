@@ -688,41 +688,43 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
      */
     @Override
     public List<InternalJmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause) {
-        if (StringUtils.isNotEmpty(selectorClause)) {
-            try {
-                BooleanExpression selectorExpression =  SelectorParser.parse(selectorClause);
-            } catch (InvalidSelectorException e) {
-                throw new InternalJMSException("Invalid selector [" + source + "]", e);
-            }
-        }
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
         InternalJMSDestination destination = getInternalJMSDestination(removeJmsModule(source));
         String destinationType = destination.getType();
-        if (InternalJMSConstants.QUEUE.equals(destinationType)) {
-            Map<String, Object> criteria = new HashMap<>();
-            if (jmsType != null) {
-                criteria.put(JMS_TYPE, jmsType);
-            }
-            if (fromDate != null) {
-                criteria.put("JMSTimestamp_from", fromDate.getTime());
-            }
-            if (toDate != null) {
-                criteria.put("JMSTimestamp_to", toDate.getTime());
-            }
-            if (selectorClause != null) {
-                criteria.put("selectorClause", selectorClause);
-            }
-            String selector = jmsSelectorUtil.getSelector(criteria);
-            try {
-                ObjectName jmsDestination = destination.getProperty(PROPERTY_OBJECT_NAME);
-                internalJmsMessages.addAll(getMessagesFromDestination(jmsDestination, selector));
-            } catch (Exception e) {
-                throw new InternalJMSException("Error getting messages for [" + source + "] with selector [" + selector + "]", e);
-            }
-        } else {
+        if (!InternalJMSConstants.QUEUE.equals(destinationType)) {
             throw new InternalJMSException("Unrecognized destination type [" + destinationType + "]");
         }
+
+        try {
+            String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
+            ObjectName jmsDestination = destination.getProperty(PROPERTY_OBJECT_NAME);
+            internalJmsMessages.addAll(getMessagesFromDestination(jmsDestination, selector));
+        } catch (InvalidSelectorException e) {
+            throw new InternalJMSException("Invalid selector [" + source + "]", e);
+        } catch (Exception e) {
+            throw new InternalJMSException("Error getting messages for [" + source + "] with selector [" + selectorClause + "]", e);
+        }
         return internalJmsMessages;
+    }
+
+    private String getSelector(String jmsType, Date fromDate, Date toDate, String selectorClause) throws InvalidSelectorException {
+        if (StringUtils.isNotEmpty(selectorClause)) {
+            SelectorParser.parse(selectorClause);
+        }
+        Map<String, Object> criteria = new HashMap<>();
+        if (jmsType != null) {
+            criteria.put(JMS_TYPE, jmsType);
+        }
+        if (fromDate != null) {
+            criteria.put("JMSTimestamp_from", fromDate.getTime());
+        }
+        if (toDate != null) {
+            criteria.put("JMSTimestamp_to", toDate.getTime());
+        }
+        if (selectorClause != null) {
+            criteria.put("selectorClause", selectorClause);
+        }
+        return jmsSelectorUtil.getSelector(criteria);
     }
 
     protected int deleteMessages(final ObjectName destination, final String selector) {
@@ -751,6 +753,18 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         ObjectName toDestination = getMessageDestinationName(removeJmsModule(sourceTo));
         String selector = jmsSelectorUtil.getSelector(messageIds);
         return moveMessages(fromDestination, toDestination, selector);
+    }
+
+    @Override
+    public int moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destination) {
+        ObjectName fromDestination = getMessageDestinationName(removeJmsModule(source));
+        ObjectName toDestination = getMessageDestinationName(removeJmsModule(destination));
+        try {
+            String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
+            return moveMessages(fromDestination, toDestination, selector);
+        } catch (InvalidSelectorException e) {
+            throw new InternalJMSException("Invalid selector [" + source + "]", e);
+        }
     }
 
     protected int moveMessages(final ObjectName from, final ObjectName to, final String selector) {
