@@ -110,13 +110,8 @@ public class AlertServiceImpl implements AlertService {
         this.alertConfigurationManager = alertConfigurationManager;
         this.reprogrammableService = reprogrammableService;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
+    
+    protected eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
         AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getConfiguration(AlertType.getByEventType(event.getType()));
         return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());
     }
@@ -366,6 +361,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
+    @Transactional
     public void createAndEnqueueAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
         final eu.domibus.core.alerts.model.service.Alert alertOnEvent = createAlertOnEvent(event);
         enqueueAlert(alertOnEvent);

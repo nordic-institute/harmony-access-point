@@ -20,7 +20,7 @@ public interface AlertService {
      * @param event the event.
      * @return the created alert.
      */
-    Alert createAlertOnEvent(Event event);
+//    Alert createAlertOnEvent(Event event);
 
     /***
      * Decides whether or not an alert should be created based on an event from a plugin.
