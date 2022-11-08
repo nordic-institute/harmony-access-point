@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

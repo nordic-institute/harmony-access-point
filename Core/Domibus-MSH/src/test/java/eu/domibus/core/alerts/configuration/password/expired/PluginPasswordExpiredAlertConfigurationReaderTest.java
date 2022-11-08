@@ -5,7 +5,7 @@
 //import eu.domibus.api.property.DomibusPropertyProvider;
 //import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationReader;
 //import eu.domibus.core.alerts.model.common.AlertType;
-//import eu.domibus.core.alerts.service.AlertConfigurationService;
+//import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 //import mockit.Injectable;
 //import mockit.Tested;
 //import mockit.integration.junit4.JMockit;

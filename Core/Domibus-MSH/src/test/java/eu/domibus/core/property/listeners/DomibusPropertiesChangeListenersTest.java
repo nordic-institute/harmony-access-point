@@ -22,7 +22,7 @@
 //import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 //import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
 //import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-//import eu.domibus.core.alerts.service.AlertConfigurationService;
+//import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 //import eu.domibus.core.cache.DomibusCacheService;
 //import eu.domibus.core.certificate.crl.CRLService;
 //import eu.domibus.core.jms.MessageListenerContainerInitializer;

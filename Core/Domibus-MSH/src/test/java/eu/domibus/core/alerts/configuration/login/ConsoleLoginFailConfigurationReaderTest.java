@@ -7,7 +7,7 @@
 //import eu.domibus.api.alerts.AlertLevel;
 //import eu.domibus.core.alerts.model.common.EventType;
 //import eu.domibus.core.alerts.model.service.Event;
-//import eu.domibus.core.alerts.service.AlertConfigurationService;
+//import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 //import mockit.Expectations;
 //import mockit.Injectable;
 //import mockit.Tested;

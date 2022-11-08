@@ -9,7 +9,6 @@ import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.alerts.configuration.generic.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.alerts.configuration.generic.DefaultConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.cache.ClassTemplateLoader;

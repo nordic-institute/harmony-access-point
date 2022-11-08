@@ -5,7 +5,7 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;

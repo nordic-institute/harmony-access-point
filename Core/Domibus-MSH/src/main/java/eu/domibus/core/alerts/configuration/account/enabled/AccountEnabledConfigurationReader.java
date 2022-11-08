@@ -7,7 +7,7 @@
 //import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 //import eu.domibus.api.alerts.AlertLevel;
 //import eu.domibus.core.alerts.model.common.AlertType;
-//import eu.domibus.core.alerts.service.AlertConfigurationService;
+//import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 //import eu.domibus.logging.DomibusLoggerFactory;
 //import org.slf4j.Logger;
 //import org.springframework.beans.factory.annotation.Autowired;

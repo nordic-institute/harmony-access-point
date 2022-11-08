@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;

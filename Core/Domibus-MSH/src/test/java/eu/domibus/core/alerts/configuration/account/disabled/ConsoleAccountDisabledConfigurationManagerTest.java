@@ -4,7 +4,7 @@
 //import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationReader;
 //import eu.domibus.core.alerts.model.common.AlertType;
 //import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-//import eu.domibus.core.alerts.service.ConfigurationReader;
+//import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 //import mockit.*;
 //import mockit.integration.junit4.JMockit;
 //import org.junit.Test;

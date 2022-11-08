@@ -2,7 +2,7 @@ package eu.domibus.core.alerts.configuration.generic;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 
 /**

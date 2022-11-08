@@ -1,8 +1,6 @@
-package eu.domibus.core.alerts.service;
+package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -33,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class AlertConfigurationServiceImpl implements AlertConfigurationService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertConfigurationServiceImpl.class);
 
-    static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
+    public static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
