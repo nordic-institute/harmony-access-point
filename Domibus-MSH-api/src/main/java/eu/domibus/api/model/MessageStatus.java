@@ -97,9 +97,21 @@ public enum MessageStatus {
                         SEND_ENQUEUED,
                         WAITING_FOR_RECEIPT,
                         SEND_ATTEMPT_FAILED,
-                        SEND_FAILURE,
                         NOT_FOUND,
                         WAITING_FOR_RETRY);
+        }
+
+        // Messages with status SEND_FAILURE or DELETED are not archived
+        public static List<MessageStatus> getNonArchivableStates() {
+                return Arrays.asList(
+                        SEND_FAILURE,
+                        DELETED);
+        }
+
+        public static List<String> getNonArchivableStatesAsString(){
+                List<String> messageStatusNames = new ArrayList<>();
+                getNonArchivableStates().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
+                return messageStatusNames;
         }
 
         public static List<MessageStatus> getFinalStatesForDroppingPartition(){

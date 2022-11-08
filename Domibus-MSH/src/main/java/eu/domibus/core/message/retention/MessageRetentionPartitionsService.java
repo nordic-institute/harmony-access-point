@@ -179,10 +179,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             }
             LOG.debug("The property [{}] is set to true, partitions containing unarchived messages will not be dropped.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
         }
-        LOG.info("Verify if all messages are archived on partition [{}]", partitionName);
-        int count = userMessageLogDao.countUnarchivedMessagesOnPartition(partitionName);
+        LOG.info("Verify if all successful messages are archived on partition [{}]", partitionName);
+        int count = userMessageLogDao.countMessagesNotArchivedOnPartition(partitionName);
         if (count != 0) {
-            LOG.info("There are [{}] messages not archived on partition [{}]", count, partitionName);
+            LOG.info("There are [{}] successful messages not archived on partition [{}]", count, partitionName);
             return false;
         }
         LOG.info("All messages are archived on partition [{}]", partitionName);
