@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public enum MessageStatus {
         /**
@@ -109,9 +110,8 @@ public enum MessageStatus {
         }
 
         public static List<String> getNonArchivableStatesAsString(){
-                List<String> messageStatusNames = new ArrayList<>();
-                getNonArchivableStates().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
-                return messageStatusNames;
+                return getNonArchivableStates().stream().map(messageStatus -> messageStatus.name()).collect(Collectors.toList());
+
         }
 
         public static List<MessageStatus> getFinalStatesForDroppingPartition(){
@@ -124,8 +124,6 @@ public enum MessageStatus {
         }
 
         public static List<String> getFinalStatesForDroppingPartitionAsString(){
-                List<String> messageStatusNames = new ArrayList<>();
-                getFinalStatesForDroppingPartition().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
-                return messageStatusNames;
+                return getFinalStatesForDroppingPartition().stream().map(messageStatus -> messageStatus.name()).collect(Collectors.toList());
         }
 }
