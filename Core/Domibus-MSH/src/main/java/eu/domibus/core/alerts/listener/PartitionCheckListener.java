@@ -10,7 +10,7 @@
 //import eu.domibus.core.alerts.model.service.Event;
 //import eu.domibus.core.alerts.service.AlertService;
 //import eu.domibus.core.alerts.service.EventService;
-//import eu.domibus.core.alerts.configuration.FrequencyAlertConfiguration;
+//import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
 //import eu.domibus.logging.DomibusLogger;
 //import eu.domibus.logging.DomibusLoggerFactory;
 //import org.springframework.jms.annotation.JmsListener;

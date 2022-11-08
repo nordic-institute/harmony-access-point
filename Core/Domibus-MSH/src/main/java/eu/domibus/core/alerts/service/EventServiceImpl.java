@@ -13,7 +13,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;

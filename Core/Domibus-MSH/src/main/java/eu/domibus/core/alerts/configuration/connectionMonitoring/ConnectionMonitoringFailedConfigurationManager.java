@@ -1,8 +1,7 @@
 package eu.domibus.core.alerts.configuration.connectionMonitoring;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.FrequencyAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;

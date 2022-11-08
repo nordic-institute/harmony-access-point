@@ -8,7 +8,7 @@ import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModu
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.logging.DomibusLogger;

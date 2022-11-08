@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.listener;
+package eu.domibus.core.alerts.listener.generic;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
@@ -8,7 +8,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.configuration.FrequencyAlertConfiguration;
+import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

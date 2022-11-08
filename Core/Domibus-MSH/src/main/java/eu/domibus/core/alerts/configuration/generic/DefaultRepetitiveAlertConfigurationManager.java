@@ -1,24 +1,23 @@
-package eu.domibus.core.alerts.configuration;
+package eu.domibus.core.alerts.configuration.generic;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.FrequencyAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Default alert config manager generated automatically for an alert type (if not overridden)
+ * Custom manager for certificate expired alert because the delay property name is different
  *
  * @author Ion Perpegel
  * @since 5.1
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DefaultFrequencyAlertConfigurationManager extends FrequencyAlertConfigurationManager
+public class DefaultRepetitiveAlertConfigurationManager extends RepetitiveAlertConfigurationManager
         implements AlertConfigurationManager {
 
-    public DefaultFrequencyAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public DefaultRepetitiveAlertConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
         super(alertType, domibusPropertiesPrefix);
     }
 

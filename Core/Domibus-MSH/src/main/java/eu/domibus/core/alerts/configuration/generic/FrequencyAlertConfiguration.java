@@ -1,5 +1,6 @@
-package eu.domibus.core.alerts.configuration;
+package eu.domibus.core.alerts.configuration.generic;
 
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 
 /**

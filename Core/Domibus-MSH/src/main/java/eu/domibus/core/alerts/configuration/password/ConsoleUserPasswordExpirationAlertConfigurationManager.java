@@ -2,8 +2,8 @@ package eu.domibus.core.alerts.configuration.password;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
-import eu.domibus.core.alerts.configuration.RepetitiveAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;

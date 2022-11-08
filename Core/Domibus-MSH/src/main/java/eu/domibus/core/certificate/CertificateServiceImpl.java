@@ -25,7 +25,7 @@ import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
-import eu.domibus.core.alerts.configuration.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;

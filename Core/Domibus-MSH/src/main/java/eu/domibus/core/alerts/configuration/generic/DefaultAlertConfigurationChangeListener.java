@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration;
+package eu.domibus.core.alerts.configuration.generic;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.model.common.AlertType;
