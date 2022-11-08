@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_PRIORITY;
 
@@ -74,12 +75,7 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
 
     @Override
     public List<UserMessagePriorityConfiguration> getConfiguredRulesWithConcurrency(Domain domain) throws UserMessageException {
-        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY);
-
-        if (CollectionUtils.isEmpty(priorityRuleNames)) {
-            LOG.debug("No dispatcher priority rules defined");
-            return null;
-        }
+        List<String> priorityRuleNames = getPriorityRuleNames(domain);
 
         List<UserMessagePriorityConfiguration> result = new ArrayList<>();
         for (String priorityRuleName : priorityRuleNames) {
@@ -91,6 +87,20 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
             }
         }
         return result;
+    }
+
+    protected List<String> getPriorityRuleNames(Domain domain) {
+        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY).stream()
+                .filter(property -> StringUtils.containsNone(property, "."))
+                .collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(priorityRuleNames)) {
+            LOG.debug("No dispatcher priority rules were defined");
+            return null;
+        }
+        LOG.debug("The following dispatcher priority rules were defined: [{}]", priorityRuleNames);
+
+        return priorityRuleNames;
     }
 
     protected UserMessagePriorityConfiguration getPriorityConfiguration(Domain domain, String priorityRuleName) throws UserMessageException {
@@ -254,5 +264,8 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     protected String getPriorityPropertyName(String propertyPrefix, String priorityRuleName, String suffix) {
         return propertyPrefix + "." + priorityRuleName + "." + suffix;
     }
+//    protected String getPriorityPropertyName(String propertyPrefix, String priorityRuleName) {
+//        return propertyPrefix + "." + priorityRuleName;
+//    }
 
 }
