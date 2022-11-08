@@ -44,6 +44,7 @@ public class JmsQueueCountSetScheduler {
     protected boolean registerQueues() {
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if (BooleanUtils.isFalse(monitorJMSQueues)) {
+            LOG.info("Metrics monitoring on queue is disabled.");
             return true;
         }
         if (isQueueMetricsRegistered()) {
@@ -66,6 +67,7 @@ public class JmsQueueCountSetScheduler {
     public void init() {
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if(BooleanUtils.isFalse(monitorJMSQueues)){
+            LOG.info("Metrics monitoring on queue is disabled.");
             return;
         }
         LOG.info("Context initialized.");
