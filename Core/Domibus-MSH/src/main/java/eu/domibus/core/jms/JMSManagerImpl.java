@@ -383,15 +383,15 @@ public class JMSManagerImpl implements JMSManager {
         validateSourceAndDestination(source, jmsDestination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
 
-        int movedMessages = internalJmsManager.moveAllMessages(source, jmsType,  fromDate, toDate, selector, destination);
-        if (movedMessages == 0) {
-            throw new IllegalStateException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
+        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType,  fromDate, toDate, selector, destination);
+        if (movedMessageCount == 0) {
+            throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
         }
-        if (movedMessages != messagesToMove.size()) {
+        if (movedMessageCount != messagesToMove.size()) {
             LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", source, destination, movedMessages, messagesToMove.size());
+                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messagesToMove.size());
         }
-        LOG.debug("{} Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessages, source, destination);
+        LOG.debug("{} Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
         List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
         final String domainCode = domainContextProvider.getCurrentDomain().getCode();
@@ -419,10 +419,10 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     private void validateSourceAndDestination(String source, JMSDestination destinationQueue) {
-        if(destinationQueue==null){
+        if(destinationQueue == null){
             throw new RequestValidationException("Destination cannot be null.");
         }
-        if(source==null){
+        if(source == null){
             throw new RequestValidationException("Source cannot be null.");
         }
         if (StringUtils.equals(destinationQueue.getName(), source)) {
