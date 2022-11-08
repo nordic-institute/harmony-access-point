@@ -185,7 +185,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             LOG.info("There are [{}] successful messages not archived on partition [{}]", count, partitionName);
             return false;
         }
-        LOG.info("All messages are archived on partition [{}]", partitionName);
+        LOG.info("All successful messages are archived on partition [{}]", partitionName);
         return true;
     }
 
