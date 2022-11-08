@@ -110,7 +110,7 @@ public class AlertServiceImpl implements AlertService {
         this.alertConfigurationManager = alertConfigurationManager;
         this.reprogrammableService = reprogrammableService;
     }
-    
+
     protected eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
         AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getConfiguration(AlertType.getByEventType(event.getType()));
         return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());

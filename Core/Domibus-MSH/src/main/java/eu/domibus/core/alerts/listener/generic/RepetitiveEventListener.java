@@ -8,6 +8,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -44,7 +45,7 @@ public class RepetitiveEventListener {
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
             selector = "selector = '" + EventType.QueueSelectors.REPETITIVE + "'")
     @Transactional
-    public void onEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
+    public void onEvent(final Event event, final @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
         triggerAlert(event, domain);
     }
 

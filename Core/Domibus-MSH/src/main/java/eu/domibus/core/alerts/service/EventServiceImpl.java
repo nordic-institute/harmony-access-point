@@ -357,7 +357,7 @@ public class EventServiceImpl implements EventService {
     // revise and rename
     private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
         Event event = createEventWithProperties(eventType, eventProperties);
-        event.setReportingTime(new Date());
+//        event.setReportingTime(new Date());
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
         AlertType alertType = eventType.geDefaultAlertType();

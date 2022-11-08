@@ -11,6 +11,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -49,7 +50,7 @@ public class FrequencyEventListener {
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${" + DOMIBUS_JMS_QUEUE_ALERT + "}",
             selector = "selector ='" + EventType.QueueSelectors.FREQUENCY + "'")
-    public void onEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
+    public void onEvent(final Event event, @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
 
