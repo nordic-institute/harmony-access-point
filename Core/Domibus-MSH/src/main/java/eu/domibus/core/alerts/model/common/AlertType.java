@@ -2,6 +2,13 @@ package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.configuration.*;
+import eu.domibus.core.alerts.configuration.account.ConsoleAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.CertificateExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringFailedConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.ConsoleUserLoginFailAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.partitions.PartitionConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.ConsoleUserPasswordExpirationAlertConfigurationManager;
 
 import java.util.Arrays;
 import java.util.List;

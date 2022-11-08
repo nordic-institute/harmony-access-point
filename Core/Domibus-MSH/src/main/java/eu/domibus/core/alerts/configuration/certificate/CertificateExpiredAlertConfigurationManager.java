@@ -1,5 +1,7 @@
-package eu.domibus.core.alerts.configuration;
+package eu.domibus.core.alerts.configuration.certificate;
 
+import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.RepetitiveAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
