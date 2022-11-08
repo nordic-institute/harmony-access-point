@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.common;
+package eu.domibus.core.alerts.configuration.global;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;

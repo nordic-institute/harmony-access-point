@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.configuration.password;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;

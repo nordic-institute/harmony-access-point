@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;

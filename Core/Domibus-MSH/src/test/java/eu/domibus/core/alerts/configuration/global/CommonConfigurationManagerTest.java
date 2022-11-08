@@ -1,9 +1,11 @@
-package eu.domibus.core.alerts.configuration.common;
+package eu.domibus.core.alerts.configuration.global;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
+import eu.domibus.core.alerts.configuration.global.CommonConfiguration;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;

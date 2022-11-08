@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.configuration;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.common.AlertContextConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

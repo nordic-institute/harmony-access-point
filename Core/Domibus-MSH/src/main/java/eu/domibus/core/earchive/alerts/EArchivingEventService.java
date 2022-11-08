@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
