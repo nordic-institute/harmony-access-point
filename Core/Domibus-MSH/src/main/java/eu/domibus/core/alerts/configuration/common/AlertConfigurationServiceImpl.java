@@ -1,13 +1,13 @@
 package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
-import eu.domibus.core.alerts.model.common.AlertCategory;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.configuration.generic.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.alerts.configuration.generic.DefaultConfigurationManager;
 import eu.domibus.core.alerts.configuration.generic.DefaultFrequencyAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.generic.DefaultRepetitiveAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertCategory;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -80,7 +80,8 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     @Override
     public AlertModuleConfiguration getConfiguration(AlertType alertType) {
-        return getConfigurationManager(alertType).getConfiguration();
+        AlertConfigurationManager configurationManager = getConfigurationManager(alertType);
+        return configurationManager != null ? configurationManager.getConfiguration() : null;
 //        return getModuleConfigurationManager(alertType).getConfiguration();
     }
 
@@ -88,34 +89,43 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
         if (!alertConfigurationManagers.containsKey(alertType)) {
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
-            DefaultAlertConfigurationChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+            if (configurationManager != null) {
+                LOG.debug("Created configuration manager for alert [{}]", alertType);
+                DefaultAlertConfigurationChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+            }
             alertConfigurationManagers.put(alertType, configurationManager);
         }
         return alertConfigurationManagers.get(alertType);
     }
 
     private AlertConfigurationManager createConfigurationManager(AlertType alertType) {
-        AlertConfigurationManager alertConfigurationManager = null;
         String configurationProperty = alertType.getConfigurationProperty();
         Class configurationManagerClass = alertType.getConfigurationManagerClass();
         if (configurationManagerClass != null) {
-            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType);
-        } else if (StringUtils.isNotBlank(configurationProperty)) {
+            return (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType);
+        }
+        if (StringUtils.isNotBlank(configurationProperty)) {
             AlertCategory alertCategory = alertType.getCategory();
+            if (alertCategory == null) {
+                LOG.info("Could not create a configuration manager for alert [{}] cause the category is not specified.", alertType);
+                return null;
+            }
             if (alertCategory == AlertCategory.DEFAULT) {
-                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, alertType);
-            } else if (alertCategory == AlertCategory.REPETITIVE) {
-                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
-            } else {
-                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
+                return applicationContext.getBean(DefaultConfigurationManager.class, alertType);
+            }
+            if (alertCategory == AlertCategory.REPETITIVE) {
+                return applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
+            }
+            if (alertCategory == AlertCategory.WITH_FREQUENCY) {
+                return applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
             }
         }
-        LOG.debug("Configuration manager [{}] created for alert type [{}]", alertConfigurationManager, alertType);
-        return alertConfigurationManager;
+        LOG.info("Could not create a configuration manager for alert [{}]: no configurationManagerClass or configurationProperty is specified.", alertType);
+        return null;
     }
 
 //    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
-        // an alert type is allowed to lack a AlertConfigurationManager
+    // an alert type is allowed to lack a AlertConfigurationManager
 //        return alertConfigurationManagers.get(alertType);
 //        return alertConfigurationManagers.stream()
 //                .filter(el -> el.getAlertType() == alertType)
