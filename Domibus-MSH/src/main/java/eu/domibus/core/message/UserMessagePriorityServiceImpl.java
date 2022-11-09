@@ -78,7 +78,6 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
         List<String> priorityRuleNames = getPriorityRuleNames(domain);
 
         if (CollectionUtils.isEmpty(priorityRuleNames)) {
-            LOG.debug("No dispatcher priority rules were defined");
             return null;
         }
 
