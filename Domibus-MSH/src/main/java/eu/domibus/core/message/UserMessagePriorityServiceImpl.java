@@ -276,8 +276,5 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     protected String getPriorityPropertyName(String propertyPrefix, String priorityRuleName, String suffix) {
         return propertyPrefix + "." + priorityRuleName + "." + suffix;
     }
-//    protected String getPriorityPropertyName(String propertyPrefix, String priorityRuleName) {
-//        return propertyPrefix + "." + priorityRuleName;
-//    }
 
 }
