@@ -4,8 +4,8 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1
+ * @author Ion Perpegel
+ * @since 5.1
  */
 public class DomibusAlertException extends DomibusCoreException {
 

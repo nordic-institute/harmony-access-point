@@ -12,6 +12,8 @@ import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -121,7 +123,8 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        eventService.enqueueEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, "userType/userName/1", new EventProperties("userName", "getUserType", new Date(), false));
+        User user = userDao.loadUserByUsername(loginRO.getUsername());
+        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, user, 10);
         int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
@@ -132,6 +135,9 @@ public class AuthenticationResource {
 
     @Autowired
     EventService eventService;
+
+    @Autowired
+    UserDao userDao;
 
     @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {

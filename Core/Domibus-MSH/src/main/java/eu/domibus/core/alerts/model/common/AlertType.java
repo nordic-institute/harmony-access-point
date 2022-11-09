@@ -52,11 +52,6 @@ public enum AlertType {
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX, AlertCategory.WITH_FREQUENCY,
             ConnectionMonitoringFailedConfigurationManager.class);
 
-//    private static ApplicationContext applicationContext;
-//
-//    public static void setApplicationContext(ApplicationContext applicationContextParam) {
-//        applicationContext = applicationContextParam;
-//    }
 
     //in the future an alert might not have one to one mapping.
     public static AlertType getByEventType(EventType eventType) {
@@ -126,37 +121,5 @@ public enum AlertType {
         this.category = category == null ? AlertCategory.DEFAULT : category;
         this.configurationManagerClass = configurationManagerClass;
     }
-
-//    public AlertModuleConfiguration getConfiguration() {
-//        AlertConfigurationManager confMan = getConfigurationManager();
-//        return confMan.getConfiguration();
-//    }
-    // we can do this from Alert config service for ex, but it would not be lazy/on demand, like it is now.
-//    public AlertConfigurationManager getConfigurationManager() {
-//        if (configurationManager != null) {
-//            return configurationManager;
-//        }
-//
-//        configurationManager = createConfigurationManager();
-//
-//        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
-//
-//        return configurationManager;
-//    }
-//    private AlertConfigurationManager createConfigurationManager() {
-//        AlertConfigurationManager alertConfigurationManager = null;
-//        if (configurationManagerClass != null) {
-//            alertConfigurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, this, configurationProperty);
-//        } else if (StringUtils.isNotBlank(configurationProperty)) {
-//            if (category == AlertCategory.DEFAULT) {
-//                alertConfigurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
-//            } else if (category == AlertCategory.REPETITIVE) {
-//                alertConfigurationManager = applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, this, configurationProperty);
-//            } else {
-//                alertConfigurationManager = applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, this, configurationProperty);
-//            }
-//        }
-//        return alertConfigurationManager;
-//    }
 
 }

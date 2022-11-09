@@ -121,7 +121,7 @@ public interface EventService {
      * @param eventType            the specific type of expiration event: expired and imminent expiration for console or plugin users
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
-     * @param frequency            the period in days to send another alert
+//     * @param frequency            the period in days to send another alert
      */
     void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays);
 

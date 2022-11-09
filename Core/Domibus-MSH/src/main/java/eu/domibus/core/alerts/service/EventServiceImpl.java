@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.DomibusAlertException;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -358,15 +359,22 @@ public class EventServiceImpl implements EventService {
 
     // revise and rename??
     private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
+        AlertType alertType = eventType.geDefaultAlertType();
+        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
+        if (!configuration.isActive()) {
+            LOG.info("Alert [{}] in not active; exiting", alertType);
+            return null;
+        }
+
         Event event = createEventWithProperties(eventType, eventProperties);
         event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
-        AlertType alertType = eventType.geDefaultAlertType();
         if (alertType.getCategory() == AlertCategory.REPETITIVE) {
             eu.domibus.core.alerts.model.persist.Event entity = getOrCreatePersistedEvent(event);
-            RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(alertType);
-            if (!shouldCreateAlert(entity, configuration.getFrequency())) {
-                LOG.debug("Based on alert configuration [{}], the repetitive alert [{}] identified by event [{}] should not be fired now.", configuration, alertType, eventIdentifier);
+            RepetitiveAlertConfiguration repetitiveConfiguration = (RepetitiveAlertConfiguration) configuration;
+            if (!shouldCreateAlert(entity, repetitiveConfiguration.getFrequency())) {
+                LOG.debug("Based on alert configuration [{}], the repetitive alert [{}] identified by event [{}] should not be fired now.",
+                        configuration, alertType, eventIdentifier);
                 return null;
             }
 
