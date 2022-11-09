@@ -22,12 +22,10 @@ public class ConsoleAccountDisabledConfigurationManager
         extends AccountDisabledConfigurationManager
         implements AlertConfigurationManager {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConsoleAccountDisabledConfigurationManager.class);
-
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    public ConsoleAccountDisabledConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public ConsoleAccountDisabledConfigurationManager(AlertType alertType) {
         super(alertType);
     }
 
