@@ -1,6 +1,8 @@
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors
+- Added a timer in order to load drop wizard queue metrics after application initialization.
+- Default value of domibus.metrics.monitor.jms.queues.refresh.period changed to 10
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
 - Filter out TEST messages from earchived messages
