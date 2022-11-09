@@ -108,13 +108,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
-        Event event = createEventWithProperties(EventType.MSG_STATUS_CHANGED, new EventProperties(messageId, oldStatus.name(), newStatus.name(), role.name()));
-
-//        Event event = new Event(EventType.MSG_STATUS_CHANGED);
-//        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
-//        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
-//        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-//        event.addStringKeyValue(ROLE.name(), role.name());
+        Event event = new Event(EventType.MSG_STATUS_CHANGED);
+        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
+        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
+        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+        event.addStringKeyValue(ROLE.name(), role.name());
 
         enrichMessageEvent(event);
 
@@ -391,7 +389,7 @@ public class EventServiceImpl implements EventService {
             throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
                     Arrays.toString(eventProperties.get()), eventType.getProperties()));
         }
-        for (int i = 0; i < eventType.getProperties().size(); i++) {
+        for (int i = 0; i < eventProperties.get().length; i++) {
             String prop = eventType.getProperties().get(i);
             Object propValue = eventProperties.get()[i];
             if (propValue == null) {
