@@ -136,7 +136,9 @@ public class CertificateServiceImpl implements CertificateService {
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   PasswordEncryptionService passwordEncryptionService,
-                                  DomainContextProvider domainContextProvider, DomibusCoreMapper coreMapper, AlertConfigurationService alertConfigurationService) {
+                                  DomainContextProvider domainContextProvider,
+                                  DomibusCoreMapper coreMapper,
+                                  AlertConfigurationService alertConfigurationService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;

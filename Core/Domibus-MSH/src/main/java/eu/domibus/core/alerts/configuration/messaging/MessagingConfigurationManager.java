@@ -84,6 +84,7 @@ public class MessagingConfigurationManager
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
 
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
+            messagingConfiguration.setActive(true);
             IntStream.
                     range(0, trimmedStates.length).
                     mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(trimmedStates[i]), AlertLevel.valueOf(trimmedLevels[eachStatusHasALevel ? i : 0]))).
