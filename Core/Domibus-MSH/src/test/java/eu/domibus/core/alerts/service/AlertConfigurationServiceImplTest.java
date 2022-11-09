@@ -12,6 +12,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class AlertConfigurationServiceImplTest {
 
     @Tested
-    private AlertConfigurationServiceImpl configurationService;
+    private AlertConfigurationServiceImpl alertConfigurationService;
 
 
     @Injectable
@@ -34,46 +35,46 @@ public class AlertConfigurationServiceImplTest {
     private CommonConfigurationManager commonConfigurationManager;
 
     @Injectable
-    AlertConfigurationService alertConfigurationService;
+    ApplicationContext applicationContext;
 
     @Test
     public void resetAll(@Mocked AlertConfigurationManager alertConfigurationManager) {
-        new Expectations(configurationService) {{
-            configurationService.getConfigurationManager((AlertType) any);
+        new Expectations(alertConfigurationService) {{
+            alertConfigurationService.getConfigurationManager((AlertType) any);
             result = alertConfigurationManager;
         }};
 
-        configurationService.resetAll();
+        alertConfigurationService.resetAll();
 
         new Verifications() {{
             commonConfigurationManager.reset();
-            configurationService.getConfigurationManager((AlertType) any).reset();
+            alertConfigurationService.getConfigurationManager((AlertType) any).reset();
             times = AlertType.values().length;
         }};
     }
 
     @Test
     public void getMailSubject(@Mocked AlertType alertType, @Mocked AlertModuleConfiguration alertModuleConfiguration) {
-        new Expectations(configurationService) {{
-            configurationService.getConfiguration(alertType);
+        new Expectations(alertConfigurationService) {{
+            alertConfigurationService.getConfiguration(alertType);
             result = alertModuleConfiguration;
             alertModuleConfiguration.getMailSubject();
             result = "email subject";
         }};
 
-        String res = configurationService.getMailSubject(alertType);
+        String res = alertConfigurationService.getMailSubject(alertType);
 
         Assert.assertTrue(res.equals("email subject"));
     }
 
     @Test
     public void isAlertModuleEnabled() {
-        new Expectations(configurationService) {{
+        new Expectations(alertConfigurationService) {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
         }};
 
-        boolean res = configurationService.isAlertModuleEnabled();
+        boolean res = alertConfigurationService.isAlertModuleEnabled();
 
         Assert.assertTrue(res);
     }
@@ -83,14 +84,14 @@ public class AlertConfigurationServiceImplTest {
                                        @Mocked AlertConfigurationManager alertConfigurationManager,
                                        @Mocked AlertModuleConfiguration alertModuleConfiguration) {
 
-        new Expectations(configurationService) {{
-            configurationService.getConfigurationManager(alertType);
+        new Expectations(alertConfigurationService) {{
+            alertConfigurationService.getConfigurationManager(alertType);
             result = alertConfigurationManager;
             alertConfigurationManager.getConfiguration();
             result = alertModuleConfiguration;
         }};
 
-        AlertModuleConfiguration res = configurationService.getConfiguration(alertType);
+        AlertModuleConfiguration res = alertConfigurationService.getConfiguration(alertType);
 
         Assert.assertTrue(res == alertModuleConfiguration);
     }

@@ -123,21 +123,21 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        User user = userDao.loadUserByUsername(loginRO.getUsername());
-        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, user, 10);
-        int i = 1;
+//        User user = userDao.loadUserByUsername(loginRO.getUsername());
+//        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, user, 10);
+//        int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
     }
 
-    @Autowired
-    AlertConfigurationService alertConfigurationService;
-
-    @Autowired
-    EventService eventService;
-
-    @Autowired
-    UserDao userDao;
+//    @Autowired
+//    AlertConfigurationService alertConfigurationService;
+//
+//    @Autowired
+//    EventService eventService;
+//
+//    @Autowired
+//    UserDao userDao;
 
     @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {

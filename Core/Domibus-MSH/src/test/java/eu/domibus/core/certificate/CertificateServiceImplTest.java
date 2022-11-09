@@ -15,6 +15,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 //import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
 //import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 //import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -129,6 +130,9 @@ public class CertificateServiceImplTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

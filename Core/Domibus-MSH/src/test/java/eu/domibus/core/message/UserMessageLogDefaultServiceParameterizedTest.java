@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -53,6 +54,9 @@ public class UserMessageLogDefaultServiceParameterizedTest {
 
     @Injectable
     EventService eventService;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
 
     @Parameterized.Parameter(0)
     public String service;
