@@ -77,6 +77,11 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     public List<UserMessagePriorityConfiguration> getConfiguredRulesWithConcurrency(Domain domain) throws UserMessageException {
         List<String> priorityRuleNames = getPriorityRuleNames(domain);
 
+        if (CollectionUtils.isEmpty(priorityRuleNames)) {
+            LOG.debug("No dispatcher priority rules were defined");
+            return null;
+        }
+
         List<UserMessagePriorityConfiguration> result = new ArrayList<>();
         for (String priorityRuleName : priorityRuleNames) {
             UserMessagePriorityConfiguration priorityConfiguration = getPriorityConfiguration(domain, priorityRuleName);
