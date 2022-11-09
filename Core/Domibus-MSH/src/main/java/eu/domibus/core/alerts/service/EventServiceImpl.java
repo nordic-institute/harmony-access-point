@@ -221,7 +221,7 @@ public class EventServiceImpl implements EventService {
         return eventEntity;
     }
 
-    private void enrichMessageEvent(final Event event) {
+    protected void enrichMessageEvent(final Event event) {
         final Optional<String> messageIdProperty = event.findStringProperty(MESSAGE_ID.name());
         final Optional<String> roleProperty = event.findStringProperty(ROLE.name());
         if (!messageIdProperty.isPresent() || !roleProperty.isPresent()) {
