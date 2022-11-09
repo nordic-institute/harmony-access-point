@@ -11,7 +11,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 /**
- * Default alert config manager generated automatically for an alert type (if not overridden)
+ * Custom alert config manager for connection monitoring alerts
  *
  * @author Ion Perpegel
  * @since 5.1
@@ -43,7 +43,7 @@ public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAle
     }
 
     @Override
-    protected ConnectionMonitoringModuleConfiguration createAlertConfiguration(AlertType alertType) {
+    protected ConnectionMonitoringModuleConfiguration createNewInstance(AlertType alertType) {
         return new ConnectionMonitoringModuleConfiguration();
     }
 

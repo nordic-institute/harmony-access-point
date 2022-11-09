@@ -25,7 +25,7 @@ public class DefaultConfigurationManager
     }
 
     @Override
-    protected AlertModuleConfigurationBase createAlertConfiguration(AlertType alertType) {
+    protected AlertModuleConfigurationBase createNewInstance(AlertType alertType) {
         return new AlertModuleConfigurationBase(alertType);
     }
 }

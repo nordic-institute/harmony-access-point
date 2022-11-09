@@ -33,7 +33,7 @@ public class ConsoleUserLoginFailAlertConfigurationManager extends BaseConfigura
     }
 
     @Override
-    protected AlertModuleConfigurationBase createAlertConfiguration(AlertType alertType) {
+    protected AlertModuleConfigurationBase createNewInstance(AlertType alertType) {
         return new AlertModuleConfigurationBase(alertType);
     }
 
@@ -41,7 +41,7 @@ public class ConsoleUserLoginFailAlertConfigurationManager extends BaseConfigura
     public AlertModuleConfigurationBase readConfiguration() {
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", alertType.getTitle());
-            return createAlertConfiguration(alertType);
+            return createNewInstance(alertType);
         }
 
         return super.readConfiguration();

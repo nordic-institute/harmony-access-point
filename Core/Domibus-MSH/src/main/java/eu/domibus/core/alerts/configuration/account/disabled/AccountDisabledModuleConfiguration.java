@@ -16,11 +16,6 @@ public class AccountDisabledModuleConfiguration extends AlertModuleConfiguration
         super(alertType);
     }
 
-//    public AccountDisabledModuleConfiguration(AlertType alertType, AlertLevel alertLevel, AccountDisabledMoment moment, String mailSubject) {
-//        super(alertType, alertLevel, mailSubject);
-//        this.accountDisabledMoment = moment;
-//    }
-
     public Boolean shouldTriggerAccountDisabledAtEachLogin() {
         return isActive() && moment == AccountDisabledMoment.AT_LOGON;
     }

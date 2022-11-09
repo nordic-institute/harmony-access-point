@@ -39,7 +39,7 @@ public class RepetitiveAlertConfigurationManager
         } catch (Exception ex) {
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].",
                     alertType, domainContextProvider.getCurrentDomainSafely(), ex);
-            return createAlertConfiguration(alertType);
+            return createNewInstance(alertType);
         }
     }
 
@@ -52,7 +52,7 @@ public class RepetitiveAlertConfigurationManager
     }
 
     @Override
-    protected RepetitiveAlertConfiguration createAlertConfiguration(AlertType alertType) {
+    protected RepetitiveAlertConfiguration createNewInstance(AlertType alertType) {
         return new RepetitiveAlertConfiguration(alertType);
     }
 }

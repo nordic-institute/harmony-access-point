@@ -36,7 +36,7 @@ public class ConsoleUserPasswordExpirationAlertConfigurationManager extends Repe
     public RepetitiveAlertConfiguration readConfiguration() {
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", getAlertType().getTitle());
-            return createAlertConfiguration(getAlertType());
+            return createNewInstance(getAlertType());
         }
 
         return super.readConfiguration();

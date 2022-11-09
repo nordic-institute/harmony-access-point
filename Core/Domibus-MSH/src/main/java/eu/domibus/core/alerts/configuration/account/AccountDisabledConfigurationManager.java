@@ -33,7 +33,7 @@ public abstract class AccountDisabledConfigurationManager
     public AccountDisabledModuleConfiguration readConfiguration() {
         if (checkingAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", alertType.getTitle());
-            return createAlertConfiguration(alertType);
+            return createNewInstance(alertType);
         }
 
         AccountDisabledModuleConfiguration conf = super.readConfiguration();
@@ -47,7 +47,7 @@ public abstract class AccountDisabledConfigurationManager
     protected abstract boolean checkingAuthProviderEnabled();
 
     @Override
-    protected AccountDisabledModuleConfiguration createAlertConfiguration(AlertType alertType) {
+    protected AccountDisabledModuleConfiguration createNewInstance(AlertType alertType) {
         return new AccountDisabledModuleConfiguration(alertType);
     }
 }

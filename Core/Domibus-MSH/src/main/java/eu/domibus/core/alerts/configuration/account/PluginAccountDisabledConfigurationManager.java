@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Default alert config manager generated automatically for an alert type ( if not overridden)
+ * Custom alert config manager for plugin account disabled alerts
  *
  * @author Ion Perpegel
  * @since 5.1
@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 public class PluginAccountDisabledConfigurationManager
         extends AccountDisabledConfigurationManager
         implements AlertConfigurationManager {
-
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(PluginAccountDisabledConfigurationManager.class);
 
     public PluginAccountDisabledConfigurationManager(AlertType alertType) {
         super(alertType);

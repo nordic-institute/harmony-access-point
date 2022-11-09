@@ -36,7 +36,7 @@ public class FrequencyAlertConfigurationManager
         } catch (Exception ex) {
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].",
                     alertType, domainContextProvider.getCurrentDomainSafely(), ex);
-            return createAlertConfiguration(alertType);
+            return createNewInstance(alertType);
         }
     }
 
@@ -45,7 +45,7 @@ public class FrequencyAlertConfigurationManager
     }
 
     @Override
-    protected FrequencyAlertConfiguration createAlertConfiguration(AlertType alertType) {
+    protected FrequencyAlertConfiguration createNewInstance(AlertType alertType) {
         return new FrequencyAlertConfiguration(alertType);
     }
 }

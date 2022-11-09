@@ -25,7 +25,7 @@ public class PartitionConfigurationManager extends FrequencyAlertConfigurationMa
     }
 
     @Override
-    protected FrequencyAlertConfiguration createAlertConfiguration(AlertType alertType) {
+    protected FrequencyAlertConfiguration createNewInstance(AlertType alertType) {
         return new FrequencyAlertConfiguration(alertType);
     }
 

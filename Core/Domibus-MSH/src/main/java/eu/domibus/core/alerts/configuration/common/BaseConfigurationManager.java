@@ -60,10 +60,10 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
             final Boolean alertsModuleActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             final Boolean thisAlertActive = isAlertActive();
             if (BooleanUtils.isNotTrue(alertsModuleActive) || BooleanUtils.isNotTrue(thisAlertActive)) {
-                return createAlertConfiguration(alertType);
+                return createNewInstance(alertType);
             }
 
-            AC config = createAlertConfiguration(alertType);
+            AC config = createNewInstance(alertType);
             config.setActive(true);
 
             final AlertLevel alertLevel = getAlertLevel();
@@ -75,7 +75,7 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
             return config;
         } catch (Exception ex) {
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].", alertType, currentDomain, ex);
-            return createAlertConfiguration(alertType);
+            return createNewInstance(alertType);
         }
     }
 
@@ -91,7 +91,7 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
         return domibusPropertyProvider.getBooleanProperty(domibusPropertiesPrefix + ".active");
     }
 
-    protected AC createAlertConfiguration(AlertType alertType) {
+    protected AC createNewInstance(AlertType alertType) {
         return null;
     }
 }
