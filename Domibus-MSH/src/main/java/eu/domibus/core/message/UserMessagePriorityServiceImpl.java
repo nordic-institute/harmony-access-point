@@ -90,12 +90,19 @@ public class UserMessagePriorityServiceImpl implements UserMessagePriorityServic
     }
 
     protected List<String> getPriorityRuleNames(Domain domain) {
-        List<String> priorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY).stream()
+        List<String> completePriorityRuleNames = domibusPropertyProvider.getNestedProperties(domain, DOMIBUS_DISPATCHER_PRIORITY);
+
+        if (CollectionUtils.isEmpty(completePriorityRuleNames)) {
+            LOG.debug("No dispatcher priority rules were defined");
+            return null;
+        }
+
+        List<String> priorityRuleNames = completePriorityRuleNames.stream()
                 .filter(property -> StringUtils.containsNone(property, "."))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(priorityRuleNames)) {
-            LOG.debug("No dispatcher priority rules were defined");
+            LOG.debug("Dispatcher priority rules were incorrectly defined");
             return null;
         }
         LOG.debug("The following dispatcher priority rules were defined: [{}]", priorityRuleNames);
