@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserEntityBase;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;

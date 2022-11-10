@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;

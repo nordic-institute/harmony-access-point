@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.account.disabled;
+package eu.domibus.core.alerts.configuration.account;
 
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;

@@ -2,7 +2,6 @@ package eu.domibus.core.alerts.configuration.account;
 
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.common.BaseConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.logging.DomibusLoggerFactory;
