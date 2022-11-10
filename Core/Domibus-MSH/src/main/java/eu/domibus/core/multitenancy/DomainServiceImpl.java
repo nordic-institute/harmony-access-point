@@ -126,25 +126,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
      */
     @Override
     public String getDatabaseSchema(Domain domain) {
-        String domainSchema = domainSchemas.get(domain);
-        if (domainSchema == null) {
-            synchronized (domainSchemas) {
-                domainSchema = domainSchemas.get(domain);
-                if (domainSchema == null) {
-                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
-                    if (value == null) {
-                        LOG.warn("Database schema for domain [{}] was null, removing from cache", domain);
-                        domainSchemas.remove(domain);
-                    } else {
-                        LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
-                        domainSchemas.put(domain, value);
-                    }
-                    domainSchema = value;
-                }
-            }
-        }
-
-        return domainSchema;
+        return dbSchemaUtil.getDatabaseSchema(domain);
     }
 
     /**

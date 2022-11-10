@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +29,14 @@ public class DbSchemaUtilImplTest {
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
     @Mock
-    private DomainService domainService;
-
-    @Mock
     private DomibusConfigurationService domibusConfigurationService;
 
     @Mock
     private EntityManagerFactory entityManagerFactory;
 
+    @Mock
+    DomibusPropertyProvider domibusPropertyProvider;
+    
     @Mock
     private EntityManager entityManager;
 
@@ -48,7 +49,7 @@ public class DbSchemaUtilImplTest {
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(domainService, domibusConfigurationService, entityManagerFactory);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(domibusConfigurationService, entityManagerFactory, domibusPropertyProvider);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class DbSchemaUtilImplTest {
         Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(dbSchemaUtilImpl.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -112,7 +113,7 @@ public class DbSchemaUtilImplTest {
         Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(dbSchemaUtilImpl.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.H2);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("SET SCHEMA " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -128,7 +129,7 @@ public class DbSchemaUtilImplTest {
         Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(dbSchemaUtilImpl.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("ALTER SESSION SET CURRENT_SCHEMA = " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -144,7 +145,7 @@ public class DbSchemaUtilImplTest {
         Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(dbSchemaUtilImpl.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);

@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
@@ -16,6 +17,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
+
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
  *
@@ -24,22 +30,53 @@ import javax.persistence.Query;
  */
 @Service
 public class DbSchemaUtilImpl implements DbSchemaUtil {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
+
+    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
     private final EntityManager entityManager;
 
-    private final DomainService domainService;
-
     private final DomibusConfigurationService domibusConfigurationService;
 
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public DbSchemaUtilImpl(DomainService domainService,
-                            DomibusConfigurationService domibusConfigurationService,
-                            EntityManagerFactory entityManagerFactory) {
+    public DbSchemaUtilImpl(DomibusConfigurationService domibusConfigurationService,
+                            EntityManagerFactory entityManagerFactory,
+                            DomibusPropertyProvider domibusPropertyProvider) {
 
-        this.domainService = domainService;
         this.domibusConfigurationService = domibusConfigurationService;
         entityManager = entityManagerFactory.createEntityManager();
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
+
+    /**
+     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     *
+     * @param domain the domain for which the db schema is retrieved
+     * @return database schema name
+     */
+    @Override
+    public String getDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            synchronized (domainSchemas) {
+                domainSchema = domainSchemas.get(domain);
+                if (domainSchema == null) {
+                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+                    if (value == null) {
+                        LOG.warn("Database schema for domain [{}] was null, removing from cache", domain);
+                        domainSchemas.remove(domain);
+                    } else {
+                        LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
+                        domainSchemas.put(domain, value);
+                    }
+                    domainSchema = value;
+                }
+            }
+        }
+
+        return domainSchema;
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
@@ -60,7 +97,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         try {
             //set corresponding db schema
             entityManager.getTransaction().begin();
-            databaseSchema = domainService.getDatabaseSchema(domain);
+            databaseSchema = getDatabaseSchema(domain);
             String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
             Query q = entityManager.createNativeQuery(schemaChangeSQL);
             //check if the domain's database schema can be accessed

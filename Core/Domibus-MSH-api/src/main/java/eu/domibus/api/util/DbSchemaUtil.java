@@ -10,6 +10,8 @@ import eu.domibus.api.multitenancy.Domain;
  */
 public interface DbSchemaUtil {
 
+    String getDatabaseSchema(Domain domain);
+
     /**
      * Checks if the database schema associated to the domain can be accessed
      * @param domain - the domain for which the schema is checked

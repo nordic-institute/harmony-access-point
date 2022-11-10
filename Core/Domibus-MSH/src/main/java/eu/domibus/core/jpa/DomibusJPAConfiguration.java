@@ -58,7 +58,6 @@ public class DomibusJPAConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
-                                                                       DomibusConfigurationService domibusConfigurationService,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
