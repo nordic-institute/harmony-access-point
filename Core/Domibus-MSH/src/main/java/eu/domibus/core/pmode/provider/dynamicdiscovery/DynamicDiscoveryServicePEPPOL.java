@@ -99,6 +99,11 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         return trim(domibusPropertyProvider.getProperty(propertyName));
     }
 
+    @Override
+    protected String getSecurityProfilesPriorityProperty() {
+        return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
+    }
+
     protected String getPartyIdTypePropertyName() {
         return DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE;
     }
@@ -145,7 +150,6 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
             final ProcessIdentifier processIdentifier = getProcessIdentifier(processId);
             LOG.debug("Getting the ServiceMetadata");
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
-
 
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             LOG.debug("Get the Endpoint from ServiceMetadata with transport profile [{}]", transportProfileAS4);

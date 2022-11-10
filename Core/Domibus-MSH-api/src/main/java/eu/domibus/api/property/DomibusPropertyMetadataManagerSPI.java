@@ -39,6 +39,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX = "domibus.alert.plugin_password.imminent_expiration"; //NOSONAR
     String DOMIBUS_SECURITY_KEYSTORE_PREFIX = "domibus.security.keystore.";
     String DOMIBUS_SECURITY_TRUSTSTORE_PREFIX = "domibus.security.truststore.";
+    String DOMIBUS_SECURITY_PROFILE_ORDER = "domibus.security.profile.order";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";

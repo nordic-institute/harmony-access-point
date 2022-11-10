@@ -1,12 +1,15 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_PROFILE_ORDER;
 
 /**
  * Abstract class implement common methods for Peppol and Oasis dynamic discovery
@@ -30,6 +33,37 @@ public abstract class AbstractDynamicDiscoveryService {
      * @return value for given domibus property name
      */
     protected abstract String getTrimmedDomibusProperty(String propertyName);
+
+    /**
+     * Returns the Domibus property for the Security Profiles priority order
+     *
+     * @return the String value of the priority list for Security Profiles property
+     */
+    protected abstract String getSecurityProfilesPriorityProperty();
+
+    /**
+     * Returns a list of Security Profile names in the priority order specified in the properties file
+     *
+     * @return a list of ordered Security Profile names
+     */
+    protected List<SecurityProfile> getSecurityProfilesPriorityList() {
+        String priorityString = getSecurityProfilesPriorityProperty();
+        if (priorityString == null) {
+            getLogger().warn("The property {} was not specified in the properties file", DOMIBUS_SECURITY_PROFILE_ORDER);
+            return null;
+        }
+        return Arrays.stream(priorityString.split(","))
+                .map(p -> {
+                    try {
+                        return SecurityProfile.valueOf(p.trim());
+                    } catch (IllegalArgumentException e) {
+                        getLogger().warn("Invalid Security profile specified in the property [{}]", DOMIBUS_SECURITY_PROFILE_ORDER);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
     /**
      * Get Default Discovery partyId type specific to implementation of the dynamic discovery service

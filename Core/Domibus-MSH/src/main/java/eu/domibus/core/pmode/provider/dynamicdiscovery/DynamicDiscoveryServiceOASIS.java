@@ -5,10 +5,11 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
@@ -31,8 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,6 +59,13 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
+
+    protected static final Map<SecurityProfile, String> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP = new HashMap<>();
+
+    static {
+        SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.RSA, "bdxr-transport-ebms3-as4-v1p0");
+        SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.ECC, "bdxr-transport-ebms3-as4-EC-sample");
+    }
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -142,6 +149,11 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     @Override
+    protected String getSecurityProfilesPriorityProperty() {
+        return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
+    }
+
+    @Override
     protected String getPartyIdTypePropertyName() {
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE;
     }
@@ -181,15 +193,20 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
-            String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
-            LOG.debug("Get the endpoint for [{}]", transportProfileAS4);
+
             List<ProcessType> processes = serviceMetadata.getOriginalServiceMetadata().getServiceMetadata().getServiceInformation().getProcessList().getProcess();
 
-            final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProfileAS4);
-            LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProfileAS4, endpoint);
+            List<String> transportProfiles = retrieveTransportProfilesFromProcesses(processes);
+
+            //retrieve the transport profile available for the highest ranking Security Profile
+            String transportProtocol = getAvailableTransportProfileForHighestRankingSecurityProfile(transportProfiles);
+            LOG.debug("Get the endpoint for [{}]", transportProtocol);
+
+            final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProtocol);
+            LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProtocol, endpoint);
             if (endpoint == null || endpoint.getEndpointURI() == null) {
                 throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
-                        " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfileAS4);
+                        " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProtocol);
             }
 
             X509Certificate certificate = getCertificateFromEndpoint(endpoint, documentId, processId);
@@ -201,6 +218,63 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             LOG.error(msg, exc);
             throw new ConfigurationException(msg, exc);
         }
+    }
+
+    /**
+     * Returns the list of Transport Profiles that are extracted from the Processes list
+     *
+     * @return a list of Transport profiles
+     */
+    protected List<String> retrieveTransportProfilesFromProcesses(List<ProcessType> processes) {
+        List<String> transportProfiles = new ArrayList<>();
+        processes.stream().forEach(
+                p -> p.getServiceEndpointList().getEndpoint().stream().forEach(e -> transportProfiles.add(e.getTransportProfile())));
+
+        if (transportProfiles.size() == 0) {
+            List<String> processIds = processes.stream().map(p -> p.getProcessIdentifier().getValue()).collect(Collectors.toList());
+            throw new ConfigurationException("Metadata for processIds: " + Arrays.toString(processIds.toArray()) + " does not contain transport profile info");
+        }
+
+        return transportProfiles;
+    }
+
+    /**
+     * Returns the available Transport Profile matching the highest ranking priority Security Profile.
+     * The Security Profiles priority list is defined in the properties file.
+     * If the priority list is not defined the transport profile value defined in the property file will be read.
+     *
+     * @param transportProfiles list of available transport profiles that are received from the SMP endpoint
+     * @return the available Transport Profile matching the highest ranking priority Security Profile
+     */
+    protected String getAvailableTransportProfileForHighestRankingSecurityProfile(List<String> transportProfiles) {
+        List<SecurityProfile> securityProfilesPriorities = getSecurityProfilesPriorityList();
+         if (securityProfilesPriorities == null) {
+            return domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
+        }
+
+        //find the Security Profile with the highest priority ranking that matches an available Transport Profile
+        SecurityProfile matchingSecurityProfile = securityProfilesPriorities.stream()
+                .filter(securityProfile -> transportProfiles.contains(getTransportProfileMatchingSecurityProfile(securityProfile, transportProfiles)))
+                .findFirst()
+                .orElse(null);
+
+        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.get(matchingSecurityProfile);
+    }
+
+    /**
+     * Returns the Transport Profile matching a specific Security Profile according to the SECURITY_PROFILE_TRANSPORT_PROFILE_MAP
+     * If no match is found it returns null.
+     *
+     * @param securityProfile the Security Profile for which the matching Transport Profile is retrieved
+     * @param transportProfiles list of available transport profiles returned by SMP
+     *
+     * @return the matching Security Profile
+     */
+    protected String getTransportProfileMatchingSecurityProfile(SecurityProfile securityProfile, List<String> transportProfiles) {
+        return transportProfiles.stream()
+                .filter(transportProfile -> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.get(securityProfile).equalsIgnoreCase(transportProfile))
+                .findFirst()
+                .orElse(null);
     }
 
     protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
@@ -287,7 +361,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     public EndpointType getEndpoint(List<ProcessType> processes, String processId, String processIdScheme, String transportProfile) {
 
         if (StringUtils.isBlank(transportProfile)) {
-            throw new ConfigurationException("Unable to find endpoint information for null transport profile. Please check if property [" + DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 + "] is set!");
+            throw new ConfigurationException("Unable to find endpoint information for null transport profile");
         }
 
         if (StringUtils.isBlank(processId)) {
