@@ -78,7 +78,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomainService domainService,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
                                              PartitionService partitionService,
-//                                             PartitionsConfigurationManager partitionsConfigurationManager
                                              AlertConfigurationService alertConfigurationService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
@@ -90,7 +89,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
-//        this.partitionsConfigurationManager = partitionsConfigurationManager;
         this.alertConfigurationService = alertConfigurationService;
     }
 

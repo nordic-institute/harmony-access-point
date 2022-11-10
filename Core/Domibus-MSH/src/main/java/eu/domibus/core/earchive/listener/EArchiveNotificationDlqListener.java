@@ -45,12 +45,10 @@ public class EArchiveNotificationDlqListener implements MessageListener {
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
             JmsUtil jmsUtil,
-//            ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager,
             EventService eventService, AlertConfigurationService alertConfigurationService) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
-//        this.archivingNotificationFailedConfigurationManager = archivingNotificationFailedConfigurationManager;
         this.eventService = eventService;
         this.alertConfigurationService = alertConfigurationService;
     }
@@ -70,7 +68,6 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
-//        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
         AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_NOTIFICATION_FAILED);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
