@@ -273,7 +273,8 @@ public class EventServiceImpl implements EventService {
     private Event createEventWithProperties(EventType eventType, EventProperties eventProperties) {
         Event event = new Event(eventType);
 
-        if (eventType.getProperties().size() != eventProperties.get().length) {
+        if (eventProperties == null || eventProperties.get() == null
+                || eventType.getProperties().size() != eventProperties.get().length) {
             throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
                     Arrays.toString(eventProperties.get()), eventType.getProperties()));
         }

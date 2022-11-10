@@ -36,6 +36,9 @@ public abstract class AccountDisabledConfigurationManager
         }
 
         AccountDisabledModuleConfiguration conf = super.readConfiguration();
+        if (!conf.isActive()) {
+            return conf;
+        }
 
         final AccountDisabledMoment moment = AccountDisabledMoment.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".moment"));
         conf.setMoment(moment);

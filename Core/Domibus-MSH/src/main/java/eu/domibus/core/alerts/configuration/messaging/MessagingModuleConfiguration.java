@@ -24,7 +24,7 @@ public class MessagingModuleConfiguration extends AlertModuleConfigurationBase {
     protected Map<MessageStatus, AlertLevel> messageStatusLevels = new EnumMap<>(MessageStatus.class);
 
     public MessagingModuleConfiguration(final String mailSubject) {
-        super(AlertType.MSG_STATUS_CHANGED);
+        this();
         this.setMailSubject(mailSubject);
     }
 

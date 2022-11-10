@@ -69,7 +69,7 @@ public enum EventType {
     }
 
     EventType(AlertType defaultAlertType, String queueSelector, List<String> properties, DomibusMessageCode securityMessageCode) {
-        setParams(defaultAlertType, properties, queueSelector, false, null);
+        setParams(defaultAlertType, properties, queueSelector, false, securityMessageCode);
     }
 
 
