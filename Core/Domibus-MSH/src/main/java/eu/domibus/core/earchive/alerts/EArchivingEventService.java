@@ -20,24 +20,16 @@ public class EArchivingEventService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(EArchivingEventService.class);
 
-    //    private final ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager;
-    //    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
     private final EventService eventService;
 
     private final AlertConfigurationService alertConfigurationService;
 
-    public EArchivingEventService(
-//            ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager,
-//                                  ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedConfigurationManager,
-            EventService eventService, AlertConfigurationService alertConfigurationService) {
-//        this.archivingMessagesNonFinalStatusConfigurationManager = archivingMessagesNonFinalStatusConfigurationManager;
-//        this.archivingStartDateStoppedModuleConfiguration = archivingStartDateStoppedConfigurationManager;
+    public EArchivingEventService(EventService eventService, AlertConfigurationService alertConfigurationService) {
         this.eventService = eventService;
         this.alertConfigurationService = alertConfigurationService;
     }
 
     public void sendEventMessageNotFinal(String messageId, MessageStatus messageStatus) {
-//        ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
         AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_MESSAGES_NON_FINAL);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
@@ -49,7 +41,6 @@ public class EArchivingEventService {
     }
 
     public void sendEventStartDateStopped() {
-//        ArchivingStartDateStoppedModuleConfiguration alertConfiguration = archivingStartDateStoppedModuleConfiguration.getConfiguration();
         AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_START_DATE_STOPPED);
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
