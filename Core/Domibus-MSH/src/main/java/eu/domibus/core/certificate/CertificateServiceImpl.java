@@ -101,10 +101,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final PModeProvider pModeProvider;
 
-//    private final ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-//
-//    private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
     private final CertificateHelper certificateHelper;
 
     protected final DomainService domainService;
@@ -128,8 +124,6 @@ public class CertificateServiceImpl implements CertificateService {
                                   CertificateDao certificateDao,
                                   EventService eventService,
                                   PModeProvider pModeProvider,
-//                                  ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
-//                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager,
                                   CertificateHelper certificateHelper,
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
@@ -144,8 +138,6 @@ public class CertificateServiceImpl implements CertificateService {
         this.certificateDao = certificateDao;
         this.eventService = eventService;
         this.pModeProvider = pModeProvider;
-//        this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
-//        this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
         this.certificateHelper = certificateHelper;
         this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
