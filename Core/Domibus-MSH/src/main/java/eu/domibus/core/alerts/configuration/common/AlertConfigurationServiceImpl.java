@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.configuration.common;
 
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.generic.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.alerts.configuration.generic.DefaultConfigurationManager;
@@ -11,6 +12,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
     private final ApplicationContext applicationContext;
-
-//    protected List<AlertConfigurationManager> alertConfigurationManagers;
 
     Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
 
@@ -82,13 +82,16 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         return configurationManager != null ? configurationManager.getConfiguration() : null;
     }
 
+    @Autowired
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+
     @Override
     public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
         if (!alertConfigurationManagers.containsKey(alertType)) {
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
             if (configurationManager != null) {
                 LOG.debug("Created configuration manager for alert [{}]", alertType);
-                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, domibusPropertyChangeNotifier);
             }
             alertConfigurationManagers.put(alertType, configurationManager);
         }

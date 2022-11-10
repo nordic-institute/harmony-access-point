@@ -9,9 +9,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
@@ -58,6 +55,7 @@ public abstract class BaseConfigurationManager<AC extends AlertModuleConfigurati
             final Boolean alertsModuleActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             final Boolean thisAlertActive = isAlertActive();
             if (BooleanUtils.isNotTrue(alertsModuleActive) || BooleanUtils.isNotTrue(thisAlertActive)) {
+                LOG.debug("Alert [{}] is inactive, returning;", alertType);
                 return createNewInstance(alertType);
             }
 

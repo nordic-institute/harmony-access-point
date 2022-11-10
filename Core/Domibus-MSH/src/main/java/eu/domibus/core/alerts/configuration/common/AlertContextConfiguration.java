@@ -44,11 +44,7 @@ public class AlertContextConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(AlertContextConfiguration.class);
 
     @Autowired
-    @Lazy
-    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
-
-    @Autowired
-    AlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Bean("jackson2MessageConverter")
     public MappingJackson2MessageConverter jackson2MessageConverter() {
@@ -116,7 +112,7 @@ public class AlertContextConfiguration {
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultAlertConfigurationChangeListener defaultAlertConfigurationChangeListener(AlertType alertType) {
+    public DefaultAlertConfigurationChangeListener defaultAlertConfigurationChangeListener(AlertType alertType, DomibusPropertyChangeNotifier domibusPropertyChangeNotifier) {
         DefaultAlertConfigurationChangeListener res = new DefaultAlertConfigurationChangeListener(alertType, alertConfigurationService);
         domibusPropertyChangeNotifier.addListener(res);
         return res;
