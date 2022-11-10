@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
@@ -36,6 +37,9 @@ public class AlertConfigurationServiceImplTest {
 
     @Injectable
     ApplicationContext applicationContext;
+
+    @Injectable
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     @Test
     public void resetAll(@Mocked AlertConfigurationManager alertConfigurationManager) {

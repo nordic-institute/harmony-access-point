@@ -12,7 +12,6 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -35,20 +34,24 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     public static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
+    Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
+
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
     private final ApplicationContext applicationContext;
 
-    Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
-
     protected final CommonConfigurationManager commonConfigurationManager;
+
+    protected final DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
                                          @Lazy CommonConfigurationManager commonConfigurationManager,
-                                         ApplicationContext applicationContext) {
+                                         ApplicationContext applicationContext,
+                                         DomibusPropertyChangeNotifier domibusPropertyChangeNotifier) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.commonConfigurationManager = commonConfigurationManager;
         this.applicationContext = applicationContext;
+        this.domibusPropertyChangeNotifier = domibusPropertyChangeNotifier;
     }
 
     @Override
@@ -82,8 +85,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         return configurationManager != null ? configurationManager.getConfiguration() : null;
     }
 
-    @Autowired
-    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
 
     @Override
     public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
