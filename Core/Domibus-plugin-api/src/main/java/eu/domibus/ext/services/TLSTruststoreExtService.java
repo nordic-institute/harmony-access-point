@@ -8,30 +8,34 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * All operations related to truststore files
+ * All operations related to TLS truststore files
+ *
  * @author Soumya Chandran
  * @since5.1
  */
-public interface TruststoreExtService {
+public interface TLSTruststoreExtService {
 
     /**
-     * Download the truststore file
+     * Download the TLS truststore file
+     *
      * @return ResponseEntity<ByteArrayResource>
      */
-    ResponseEntity<ByteArrayResource> downloadTruststoreContent();
+    ResponseEntity<ByteArrayResource> downloadTLSTruststoreContent();
 
     /**
-     * Returns PMode current file information
+     * Returns TLS truststore files information
+     *
      * @return list of {@code TrustStoreDTO}
      */
-    List<TrustStoreDTO> getTrustStoreEntries();
+    List<TrustStoreDTO> getTLSTrustStoreEntries();
 
     /**
      * Upload a new version of the truststore file
-     * @param file     truststore file wrapping class
-     * @param password of the truststore uploaded
+     *
+     * @param file     TLS truststore file wrapping class
+     * @param password of the TLS truststore uploaded
      * @return String as error
      */
-    String uploadTruststoreFile(MultipartFile file, String password);
+    String uploadTLSTruststoreFile(MultipartFile file, String password);
 }
 
