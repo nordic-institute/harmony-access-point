@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
+import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -123,21 +124,28 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-//        User user = userDao.loadUserByUsername(loginRO.getUsername());
-//        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, user, 10);
-//        int i = 1;
+        User user = userDao.loadUserByUsername(loginRO.getUsername());
+//        eventService.enqueueEvent(EventType.PLUGIN_USER_ACCOUNT_DISABLED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date(), true));
+//        eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, "toParty",
+//                new EventProperties("getMessageId", "getRole", "getMessageStatus", "fromParty", "toParty"));
+//        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, user.getUniqueIdentifier(),
+//                new EventProperties(UserEntityBase.Type.CONSOLE, "user1", new Date(), true));
+//        eventService.enqueueEvent(EventType.PARTITION_CHECK, "partitionName", new EventProperties("partitionName"));
+//        eventService.enqueueEvent(EventType.PASSWORD_EXPIRED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date()));
+        eventService.enqueueEvent(EventType.PLUGIN_PASSWORD_EXPIRED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date()));
+        int i = 1;
 
         return createUserRO(principal, loginRO.getUsername());
     }
 
-//    @Autowired
-//    AlertConfigurationService alertConfigurationService;
-//
-//    @Autowired
-//    EventService eventService;
-//
-//    @Autowired
-//    UserDao userDao;
+    @Autowired
+    AlertConfigurationService alertConfigurationService;
+
+    @Autowired
+    EventService eventService;
+
+    @Autowired
+    UserDao userDao;
 
     @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {

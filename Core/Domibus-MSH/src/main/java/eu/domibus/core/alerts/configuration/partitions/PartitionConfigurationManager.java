@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Default alert config manager generated automatically for an alert type (if not overridden)
+ * Custom alert config manager for partition alerts that derives from frequency manager and rewrites the active and level
  *
  * @author Ion Perpegel
  * @since 5.1

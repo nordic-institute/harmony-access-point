@@ -79,15 +79,6 @@ public enum EventType {
 
     public List<String> getProperties() {
         return properties;
-
-//        if (properties != null) {
-//            return properties;
-//        }
-//        ArrayList<String> list = new ArrayList<>();
-//        if (this.propertiesEnumClass != null) {
-//            EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));
-//        }
-//        return list;
     }
 
     public String getQueueSelector() {
