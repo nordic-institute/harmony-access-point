@@ -12,7 +12,7 @@ import org.slf4j.Logger;
  * @author Ion Perpegel
  * @since 5.1
  */
-public class RepetitiveAlertConfigurationManager
+public abstract class RepetitiveAlertConfigurationManager
         extends BaseConfigurationManager<RepetitiveAlertConfiguration>
         implements AlertConfigurationManager {
 

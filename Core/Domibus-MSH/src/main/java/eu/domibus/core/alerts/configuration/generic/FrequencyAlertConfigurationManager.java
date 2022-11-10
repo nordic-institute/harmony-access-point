@@ -12,7 +12,7 @@ import org.slf4j.Logger;
  * @author Ion Perpegel
  * @since 5.1
  */
-public class FrequencyAlertConfigurationManager
+public abstract class FrequencyAlertConfigurationManager
         extends BaseConfigurationManager<FrequencyAlertConfiguration>
         implements AlertConfigurationManager {
 

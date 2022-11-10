@@ -21,9 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 5.1
  */
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
+public abstract class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
         extends ReaderMethodAlertConfigurationManager<AC>
         implements AlertConfigurationManager {
 
