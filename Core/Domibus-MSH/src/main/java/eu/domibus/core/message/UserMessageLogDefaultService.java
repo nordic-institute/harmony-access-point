@@ -46,9 +46,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected final NotificationStatusDao notificationStatusDao;
 
-//    @Autowired
-//    protected ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
-
     protected final EventService eventService;
 
     private final AlertConfigurationService alertConfigurationService;
@@ -111,15 +108,12 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         } else {
-//            final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
             final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
             String fromParty = userMessage.getPartyInfo().getFromParty();
             String toParty = userMessage.getPartyInfo().getToParty();
             if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
                 eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
                         new EventProperties(userMessage.getMessageId(), messageLog.getMshRole().getRole().name(), messageLog.getMessageStatus().name(), fromParty, toParty));
-//                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(),
-//                        messageLog.getMessageStatus(), fromParty, toParty, connMonitorConfig.getFrequency());
             }
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);

@@ -41,9 +41,6 @@ public class PartitionServiceTest {
     @Injectable
     AlertConfigurationService alertConfigurationService;
 
-//    @Injectable
-//    PartitionsConfigurationManager partitionsConfigurationManager;
-
     @Test
     public void verifyPartitionsInAdvance() {
 
@@ -55,7 +52,6 @@ public class PartitionServiceTest {
         partitionsService.verifyPartitionsInAdvance();
 
         new Verifications() {{
-//            eventService.enqueuePartitionCheckEvent(anyString);
             eventService.enqueueEvent(EventType.PARTITION_CHECK, anyString, new EventProperties(anyString));
             times = 0;
         }};

@@ -40,19 +40,15 @@ public class PartitionService {
 
     private final AlertConfigurationService alertConfigurationService;
 
-//    protected PartitionsConfigurationManager partitionsConfigurationManager;
-
     public PartitionService(UserMessageDao userMessageDao,
                             EventService eventService,
                             DateUtil dateUtil,
                             DomibusPropertyProvider domibusPropertyProvider,
-//                            PartitionsConfigurationManager partitionsConfigurationManager
                             AlertConfigurationService alertConfigurationService) {
         this.userMessageDao = userMessageDao;
         this.eventService = eventService;
         this.dateUtil = dateUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
-//        this.partitionsConfigurationManager = partitionsConfigurationManager;
         this.alertConfigurationService = alertConfigurationService;
     }
 
@@ -64,10 +60,8 @@ public class PartitionService {
         Boolean partitionExists = userMessageDao.checkPartitionExists(partitionName);
         if (BooleanUtils.isFalse(partitionExists)) {
             LOG.warn("Throw partition creation warning, this partition was expected to exist but could not be found [{}]", partitionName);
-//            PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
             AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
             if (partitionsModuleConfiguration.isActive()) {
-//                eventService.enqueuePartitionCheckEvent(partitionName);
                 eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
             }
             return;

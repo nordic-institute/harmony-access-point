@@ -60,7 +60,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract AlertModuleConfiguration getAccountEnabledConfiguration();
 
-    //    protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
     protected abstract AlertModuleConfiguration getLoginFailureConfiguration();
 
     protected abstract RepetitiveAlertConfiguration getExpiredAlertConfiguration();
@@ -76,7 +75,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         switch (userLoginErrorReason) {
             case BAD_CREDENTIALS:
                 if (loginFailureConfiguration.isActive()) {
-//                    eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), false);
                     eventService.enqueueEvent(loginFailEventType, getEventId(userName), new EventProperties(userName, getUserType().getName(), new Date(), false));
                 }
                 break;
@@ -85,11 +83,9 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
                 final AccountDisabledModuleConfiguration accountDisabledConfiguration = getAccountDisabledConfiguration();
                 if (accountDisabledConfiguration.isActive()) {
                     if (BooleanUtils.isTrue(accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin())) {
-//                        eventService.enqueueAccountDisabledEvent(getUserType(), userName, new Date());
                         EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
                         eventService.enqueueEvent(eventType, getEventId(userName), new EventProperties(getUserType().getName(), userName, new Date(), true));
                     } else if (loginFailureConfiguration.isActive()) {
-//                        eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), true);
                         eventService.enqueueEvent(loginFailEventType, getEventId(userName), new EventProperties(userName, getUserType().getName(), new Date(), true));
                     }
                 }
@@ -110,7 +106,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
             LOG.debug("Sending account disabled event for user:[{}]", user.getUserName());
             EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
             eventService.enqueueEvent(eventType, getEventId(user.getUserName()),new EventProperties(getUserType().getName(), user.getUserName(), new Date(), true));
-//            eventService.enqueueAccountDisabledEvent(getUserType(), user.getUserName(), new Date());
         }
     }
 
@@ -119,7 +114,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         final AlertModuleConfiguration accountEnabledConfiguration = getAccountEnabledConfiguration();
         if (accountEnabledConfiguration.isActive()) {
             LOG.debug("Sending account enabled event for user:[{}]", user.getUserName());
-//            eventService.enqueueAccountEnabledEvent(getUserType(), user.getUserName(), new Date());
             EventType eventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
             eventService.enqueueEvent(eventType, getEventId(user.getUserName()), new EventProperties(getUserType().getName(), user.getUserName(), new Date(), true));
         }

@@ -67,9 +67,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected final AlertConfigurationService alertConfigurationService;
 
-//    protected PartitionsConfigurationManager partitionsConfigurationManager;
-
-
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
@@ -155,10 +152,8 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
-//        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
         AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
         if (partitionsModuleConfiguration.isActive()) {
-//            eventService.enqueuePartitionCheckEvent(partitionName);
             eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         }
     }
