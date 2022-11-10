@@ -35,8 +35,6 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
-//    private final ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
-
     private final EventService eventService;
 
     private final AlertConfigurationService alertConfigurationService;

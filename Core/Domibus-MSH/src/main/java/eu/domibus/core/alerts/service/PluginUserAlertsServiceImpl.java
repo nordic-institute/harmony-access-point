@@ -33,21 +33,6 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
         this.alertConfigurationService = alertConfigurationService;
     }
 
-//    @Autowired
-//    private PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
-
-//    @Autowired
-//    private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
-
-//    @Autowired
-//    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
-
-//    @Autowired
-//    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
-
-//    @Autowired
-//    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
-
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
         return MAXIMUM_DEFAULT_PASSWORD_AGE;
@@ -91,32 +76,26 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return (AccountDisabledModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_USER_ACCOUNT_DISABLED);
-//        return pluginAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
     protected AlertModuleConfiguration getAccountEnabledConfiguration() {
         return alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
-//        return pluginAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
-//    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
     protected AlertModuleConfiguration getLoginFailureConfiguration() {
         return alertConfigurationService.getConfiguration(AlertType.PLUGIN_USER_LOGIN_FAILURE);
-//        return pluginLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
         return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED);
-//        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
         return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION);
-//        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }

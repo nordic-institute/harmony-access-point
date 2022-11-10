@@ -910,7 +910,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected void sendCertificateExpiredAlerts() {
-//        final ExpiredCertificateModuleConfiguration configuration = expiredCertificateConfigurationManager.getConfiguration();
         RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
         final boolean activeModule = configuration.isActive();
         LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
@@ -955,7 +954,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected void sendCertificateImminentExpirationAlerts() {
-//        final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
         RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
         final Boolean activeModule = configuration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);

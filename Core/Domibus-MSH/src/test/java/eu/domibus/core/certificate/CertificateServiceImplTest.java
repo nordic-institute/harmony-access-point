@@ -107,12 +107,6 @@ public class CertificateServiceImplTest {
     @Injectable
     private PModeProvider pModeProvider;
 
-//    @Injectable
-//    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-//    @Injectable
-//    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
     @Injectable
     CertificateHelper certificateHelper;
 
@@ -617,9 +611,6 @@ public class CertificateServiceImplTest {
             pModeProvider.getGatewayParty().getName();
             result = accesPoint;
 
-//            expiredCertificateConfigurationManager.getConfiguration();
-//            result = expiredCertificateConfiguration;
-
             expiredCertificateConfiguration.isActive();
             result = true;
 
@@ -651,12 +642,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked RepetitiveAlertConfiguration expiredCertificateConfiguration,
-                                                           @Mocked final Certificate certificate) {
-        new Expectations() {{
-//            expiredCertificateConfigurationManager.getConfiguration().isActive();
-//            result = false;
-        }};
+    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked RepetitiveAlertConfiguration expiredCertificateConfiguration) {
         certificateService.sendCertificateExpiredAlerts();
         new VerificationsInOrder() {{
             pModeProvider.isConfigurationLoaded();
@@ -665,13 +651,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Injectable RepetitiveAlertConfiguration expiredCertificateConfiguration,
-                                                                      @Injectable RepetitiveAlertConfiguration imminentExpirationCertificateModuleConfiguration,
-                                                                      @Injectable final Certificate certificate) {
+    public void sendCertificateImminentExpirationAlertsModuleInactive(@Injectable RepetitiveAlertConfiguration imminentExpirationCertificateModuleConfiguration) {
         new Expectations() {{
-//            imminentExpirationCertificateConfigurationManager.getConfiguration();
-//            result = imminentExpirationCertificateModuleConfiguration;
-
             imminentExpirationCertificateModuleConfiguration.isActive();
             result = false;
         }};
