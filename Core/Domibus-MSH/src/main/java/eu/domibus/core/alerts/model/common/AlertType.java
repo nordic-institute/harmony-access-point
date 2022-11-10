@@ -66,10 +66,6 @@ public enum AlertType {
 
     private Class configurationManagerClass;
 
-    private AlertConfigurationManager configurationManager;
-
-    private DomibusPropertyChangeListener propertyChangeListener;
-
     AlertType(String template) {
         setParams(template, null, null, null);
     }

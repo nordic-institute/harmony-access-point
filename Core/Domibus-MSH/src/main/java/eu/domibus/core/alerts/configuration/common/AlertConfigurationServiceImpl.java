@@ -44,11 +44,9 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     protected final CommonConfigurationManager commonConfigurationManager;
 
     public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-//                                         @Lazy List<AlertConfigurationManager> alertConfigurationManagers,
                                          @Lazy CommonConfigurationManager commonConfigurationManager,
                                          ApplicationContext applicationContext) {
         this.domibusPropertyProvider = domibusPropertyProvider;
-//        this.alertConfigurationManagers = alertConfigurationManagers;
         this.commonConfigurationManager = commonConfigurationManager;
         this.applicationContext = applicationContext;
     }
@@ -82,7 +80,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     public AlertModuleConfiguration getConfiguration(AlertType alertType) {
         AlertConfigurationManager configurationManager = getConfigurationManager(alertType);
         return configurationManager != null ? configurationManager.getConfiguration() : null;
-//        return getModuleConfigurationManager(alertType).getConfiguration();
     }
 
     @Override
@@ -91,7 +88,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
             if (configurationManager != null) {
                 LOG.debug("Created configuration manager for alert [{}]", alertType);
-                DefaultAlertConfigurationChangeListener propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
             }
             alertConfigurationManagers.put(alertType, configurationManager);
         }
@@ -107,7 +104,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         if (StringUtils.isNotBlank(configurationProperty)) {
             AlertCategory alertCategory = alertType.getCategory();
             if (alertCategory == null) {
-                LOG.info("Could not create a configuration manager for alert [{}] cause the category is not specified.", alertType);
+                LOG.info("Could not create a configuration manager for alert [{}] because the category is not specified.", alertType);
                 return null;
             }
             if (alertCategory == AlertCategory.DEFAULT) {
@@ -124,12 +121,4 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         return null;
     }
 
-//    protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
-    // an alert type is allowed to lack a AlertConfigurationManager
-//        return alertConfigurationManagers.get(alertType);
-//        return alertConfigurationManagers.stream()
-//                .filter(el -> el.getAlertType() == alertType)
-//                .findFirst()
-//                .orElse(null);
-//    }
 }

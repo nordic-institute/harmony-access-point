@@ -33,21 +33,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
         this.alertConfigurationService = alertConfigurationService;
     }
 
-//    @Autowired
-//    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
-
-//    @Autowired
-//    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
-
-//    @Autowired
-//    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
-
-//    @Autowired
-//    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-//
-//    @Autowired
-//    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
-
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
         return MAXIMUM_DEFAULT_PASSWORD_AGE;
@@ -91,33 +76,26 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return (AccountDisabledModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
-//        return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
-//    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
     protected AlertModuleConfiguration getAccountEnabledConfiguration() {
         return alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
-//        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override
-//    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
     protected AlertModuleConfiguration getLoginFailureConfiguration() {
         return alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
-//        return consoleLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
         return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
-//        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
         return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION);
-//        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }
