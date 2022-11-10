@@ -62,7 +62,7 @@ public class TruststoreExtResource {
     @Operation(summary = "Get truststore entries", description = "Get the truststore details",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = {"/entries"})
-    public List<TrustStoreDTO> getTLSTruststoreEntries() {
+    public List<TrustStoreDTO> getTruststoreEntries() {
         return truststoreExtService.getTrustStoreEntries();
     }
 
