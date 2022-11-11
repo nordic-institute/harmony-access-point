@@ -57,7 +57,7 @@ public class DynamicDiscoveryUtil {
                     try {
                         return SecurityProfile.valueOf(p.trim());
                     } catch (IllegalArgumentException e) {
-                        LOG.warn("Invalid Security profile specified in the property [{}]", DOMIBUS_SECURITY_PROFILE_ORDER);
+                        LOG.warn("Invalid Security Profile: [{}] specified in the property [{}], exception is: {}", p, DOMIBUS_SECURITY_PROFILE_ORDER, e.getMessage());
                     }
                     return null;
                 })
