@@ -6,8 +6,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
-import eu.domibus.core.alerts.service.ConfigurationReader;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -64,8 +64,8 @@ public class MessagingConfigurationManagerTest {
         final String messageCommunicationStates = "SEND_FAILURE,,,SEND_FAILURE,	SEND_ENQUEUED	,	ACKNOWLEDGED";
         final String messageCommunicationLevels = "HIGH, MEDIUM, HIGH,,,LOW";
         final String[] states = new String[2];
-        new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
+        new Expectations(configurationManager) {{
+            configurationManager.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -95,8 +95,8 @@ public class MessagingConfigurationManagerTest {
     @Test
     public void readConfigurationEachMessagetStatusHasTheSameAlertLevel() {
         final String mailSubject = "Messsage status changed";
-        new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
+        new Expectations(configurationManager) {{
+            configurationManager.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -118,8 +118,8 @@ public class MessagingConfigurationManagerTest {
 
     @Test
     public void readConfigurationIncorrectProperty() {
-        new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
+        new Expectations(configurationManager) {{
+            configurationManager.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
@@ -135,8 +135,8 @@ public class MessagingConfigurationManagerTest {
     @Test
     public void readMessageConfigurationActiveFalse() {
         final String mailSubject = "Messsage status changed";
-        new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
+        new Expectations(configurationManager) {{
+            configurationManager.isAlertModuleEnabled();
             this.result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = false;
@@ -149,8 +149,8 @@ public class MessagingConfigurationManagerTest {
 
     @Test
     public void readMessageConfigurationEmptyStatus() {
-        new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
+        new Expectations(configurationManager) {{
+            configurationManager.isAlertModuleEnabled();
             this.result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;

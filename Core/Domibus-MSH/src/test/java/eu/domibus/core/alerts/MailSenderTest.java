@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -68,14 +68,12 @@ public class MailSenderTest {
 
     @Test
     public void initMailSender_disabled1() {
+        new Expectations(mailSender) {{
 
-
-        new Expectations() {{
-
-            alertConfigurationService.isAlertModuleEnabled();
+            mailSender.isAlertModuleEnabled();
             result = false;
 
-            alertConfigurationService.isSendEmailActive();
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;
         }};
 
@@ -88,12 +86,12 @@ public class MailSenderTest {
     @Test
     public void initMailSender_disabled2() {
 
-        new Expectations() {{
+        new Expectations(mailSender) {{
 
-            alertConfigurationService.isAlertModuleEnabled();
+            mailSender.isAlertModuleEnabled();
             result = true;
 
-            alertConfigurationService.isSendEmailActive();
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = false;
 
         }};
@@ -111,12 +109,12 @@ public class MailSenderTest {
         dynamicPropertySet.add(dynamicPropertyName);
         dynamicPropertySet.add(timeoutPropertyName);
 
-        new Expectations() {{
+        new Expectations(mailSender) {{
 
-            alertConfigurationService.isAlertModuleEnabled();
+            mailSender.isAlertModuleEnabled();
             result = true;
 
-            alertConfigurationService.isSendEmailActive();
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;
 
 
