@@ -5,16 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
-import eu.domibus.api.user.UserEntityBase;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.user.ui.User;
-import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,7 +15,6 @@ import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountStatusException;
@@ -42,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
@@ -124,28 +113,8 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-//        User user = userDao.loadUserByUsername(loginRO.getUsername());
-//        eventService.enqueueEvent(EventType.PLUGIN_USER_ACCOUNT_DISABLED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date(), true));
-//        eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, "toParty",
-//                new EventProperties("getMessageId", "getRole", "getMessageStatus", "fromParty", "toParty"));
-//        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, user.getUniqueIdentifier(),
-//                new EventProperties(UserEntityBase.Type.CONSOLE, "user1", new Date(), true));
-//        eventService.enqueueEvent(EventType.PARTITION_CHECK, "partitionName", new EventProperties("partitionName"));
-//        eventService.enqueueEvent(EventType.PASSWORD_EXPIRED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date()));
-//        eventService.enqueueEvent(EventType.PLUGIN_PASSWORD_EXPIRED, user.getUniqueIdentifier(), new EventProperties(user.getUserName(), user.getType(), new Date()));
-//        int i = 1;
-
         return createUserRO(principal, loginRO.getUsername());
     }
-
-//    @Autowired
-//    AlertConfigurationService alertConfigurationService;
-//
-//    @Autowired
-//    EventService eventService;
-//
-//    @Autowired
-//    UserDao userDao;
 
     @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
