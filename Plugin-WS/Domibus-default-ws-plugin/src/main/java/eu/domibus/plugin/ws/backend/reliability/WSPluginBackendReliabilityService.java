@@ -94,19 +94,20 @@ public class WSPluginBackendReliabilityService {
     }
 
     protected String getEmailBody(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule, String body) {
-        body = StringUtils.replace(body, "{rule.name}", rule.getRuleName());
-        body = StringUtils.replace(body, "{rule.recipient}", rule.getRecipient());
-        body = StringUtils.replace(body, "{rule.endpoint}", rule.getEndpoint());
-        body = StringUtils.replace(body, "{rule.retry}", rule.getRetry());
-        body = StringUtils.replace(body, "{rule.types}", rule.getTypes().toString());
-        body = StringUtils.replace(body, "{message.messageId}", backendMessage.getMessageId());
-        body = StringUtils.replace(body, "{message.originalSender}", backendMessage.getOriginalSender());
+        HashMap<String, String> emailBodyVariables = new HashMap<>();
+        emailBodyVariables.put("{rule.name}", rule.getRuleName());
+        emailBodyVariables.put("{rule.recipient}", rule.getRecipient());
+        emailBodyVariables.put("{rule.endpoint}", rule.getEndpoint());
+        emailBodyVariables.put("{rule.retry}", rule.getRetry());
+        emailBodyVariables.put("{rule.types}", rule.getTypes().toString());
+        emailBodyVariables.put("{message.messageId}", backendMessage.getMessageId());
+        emailBodyVariables.put("{message.originalSender}", backendMessage.getOriginalSender());
         if (backendMessage.getMessageStatus() != null) {
-            body = StringUtils.replace(body, "{message.messageStatus}", backendMessage.getMessageStatus().name());
+            emailBodyVariables.put("{message.messageStatus}", backendMessage.getMessageStatus().name());
         }
-        body = StringUtils.replace(body, "{message.type}", backendMessage.getType().name());
+        emailBodyVariables.put("{message.type}", backendMessage.getType().name());
 
-        return body;
+        return StringUtils.replaceEach(body, emailBodyVariables.keySet().toArray(), emailBodyVariables.values().toArray());
     }
 
     /**
