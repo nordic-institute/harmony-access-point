@@ -1,6 +1,5 @@
 package eu.domibus.core.alerts.configuration.common;
 
-import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.generic.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.alerts.configuration.generic.DefaultConfigurationManager;
@@ -42,16 +41,12 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     protected final CommonConfigurationManager commonConfigurationManager;
 
-    protected final DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
-
     public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                                         @Lazy CommonConfigurationManager commonConfigurationManager,
-                                         ApplicationContext applicationContext,
-                                         DomibusPropertyChangeNotifier domibusPropertyChangeNotifier) {
+                                         CommonConfigurationManager commonConfigurationManager,
+                                         ApplicationContext applicationContext) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.commonConfigurationManager = commonConfigurationManager;
         this.applicationContext = applicationContext;
-        this.domibusPropertyChangeNotifier = domibusPropertyChangeNotifier;
     }
 
     @Override
@@ -70,16 +65,6 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     @Override
-    public Boolean isAlertModuleEnabled() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-    }
-
-    @Override
-    public Boolean isSendEmailActive() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
-    }
-
-    @Override
     public AlertModuleConfiguration getConfiguration(AlertType alertType) {
         AlertConfigurationManager configurationManager = getConfigurationManager(alertType);
         return configurationManager != null ? configurationManager.getConfiguration() : null;
@@ -92,7 +77,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
             if (configurationManager != null) {
                 LOG.debug("Created configuration manager for alert [{}]", alertType);
-                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, domibusPropertyChangeNotifier);
+                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
             }
             alertConfigurationManagers.put(alertType, configurationManager);
         }

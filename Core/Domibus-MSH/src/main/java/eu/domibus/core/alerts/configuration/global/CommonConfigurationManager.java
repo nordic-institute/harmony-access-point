@@ -38,9 +38,6 @@ public class CommonConfigurationManager {
     @Autowired
     private ConfigurationLoader<CommonConfiguration> loader;
 
-    @Autowired
-    private AlertConfigurationService configurationService;
-
     public CommonConfiguration getConfiguration() {
         return loader.getConfiguration(this::readConfiguration);
     }
@@ -50,7 +47,7 @@ public class CommonConfigurationManager {
     }
 
     protected CommonConfiguration readConfiguration() {
-        final boolean emailActive = configurationService.isSendEmailActive();
+        final boolean emailActive = isSendEmailActive();
         final Integer alertLifeTimeInDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CLEANER_ALERT_LIFETIME);
 
         if (!emailActive) {
@@ -58,6 +55,10 @@ public class CommonConfigurationManager {
         }
 
         return readDomainEmailConfiguration(alertLifeTimeInDays);
+    }
+
+    private Boolean isSendEmailActive() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
     }
 
     protected CommonConfiguration readDomainEmailConfiguration(Integer alertLifeTimeInDays) {

@@ -72,18 +72,6 @@ public class AlertConfigurationServiceImplTest {
     }
 
     @Test
-    public void isAlertModuleEnabled() {
-        new Expectations(alertConfigurationService) {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-            result = true;
-        }};
-
-        boolean res = alertConfigurationService.isAlertModuleEnabled();
-
-        Assert.assertTrue(res);
-    }
-
-    @Test
     public void getModuleConfiguration(@Mocked AlertType alertType,
                                        @Mocked AlertConfigurationManager alertConfigurationManager,
                                        @Mocked AlertModuleConfiguration alertModuleConfiguration) {

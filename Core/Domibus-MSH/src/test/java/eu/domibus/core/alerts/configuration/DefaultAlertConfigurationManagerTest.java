@@ -50,8 +50,8 @@ public class DefaultAlertConfigurationManagerTest {
     public void readLoginFailureConfigurationMainModuleInactive() {
 
         new Expectations() {{
-            alertConfigurationService.isAlertModuleEnabled();
-            result = false;
+//            alertConfigurationService.isAlertModuleEnabled();
+//            result = false;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
             result = true;
         }};
@@ -66,8 +66,8 @@ public class DefaultAlertConfigurationManagerTest {
     public void readLoginFailureConfigurationModuleInactive() {
         new Expectations() {
             {
-                alertConfigurationService.isAlertModuleEnabled();
-                result = true;
+//                alertConfigurationService.isAlertModuleEnabled();
+//                result = true;
                 domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
                 result = false;
             }
@@ -82,8 +82,8 @@ public class DefaultAlertConfigurationManagerTest {
         final String mailSubject = "Login failure";
         new Expectations() {
             {
-                alertConfigurationService.isAlertModuleEnabled();
-                result = true;
+//                alertConfigurationService.isAlertModuleEnabled();
+//                result = true;
                 domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
                 result = true;
                 domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_LEVEL);
@@ -105,8 +105,8 @@ public class DefaultAlertConfigurationManagerTest {
 
         new Expectations() {
             {
-                alertConfigurationService.isAlertModuleEnabled();
-                result = true;
+//                alertConfigurationService.isAlertModuleEnabled();
+//                result = true;
                 domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
                 result = true;
                 domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_LEVEL);

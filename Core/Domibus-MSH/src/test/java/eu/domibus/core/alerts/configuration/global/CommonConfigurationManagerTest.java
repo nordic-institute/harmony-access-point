@@ -60,7 +60,7 @@ public class CommonConfigurationManagerTest {
         final String sender = "thomas.dussart@ec.eur.europa.com";
         final String receiver = "f.f@f.com";
         new Expectations() {{
-            configurationService.isSendEmailActive();
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
             result = true;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
             result = sender;

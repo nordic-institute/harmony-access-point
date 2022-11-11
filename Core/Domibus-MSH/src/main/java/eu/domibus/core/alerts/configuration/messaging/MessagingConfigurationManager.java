@@ -41,9 +41,6 @@ public class MessagingConfigurationManager
     @Autowired
     private DomainContextProvider domainContextProvider;
 
-    @Autowired
-    AlertConfigurationService alertConfigurationService;
-
     @Override
     public AlertType getAlertType() {
         return AlertType.MSG_STATUS_CHANGED;
@@ -57,7 +54,7 @@ public class MessagingConfigurationManager
     protected MessagingModuleConfiguration readConfiguration() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
+            final Boolean alertActive = isAlertModuleEnabled();
             final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
 
@@ -96,5 +93,9 @@ public class MessagingConfigurationManager
             return new MessagingModuleConfiguration();
         }
 
+    }
+
+    protected Boolean isAlertModuleEnabled() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
     }
 }

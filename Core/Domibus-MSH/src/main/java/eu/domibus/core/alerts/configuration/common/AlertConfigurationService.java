@@ -31,20 +31,6 @@ public interface AlertConfigurationService {
     String getMailSubject(AlertType alertType);
 
     /**
-     * Check if the alert module is enabled.
-     *
-     * @return whether the module is active or not.
-     */
-    Boolean isAlertModuleEnabled();
-
-    /**
-     * Check if the mail sending for alerts is enabled.
-     *
-     * @return whether the mail sending is active or not.
-     */
-    Boolean isSendEmailActive();
-
-    /**
      * Clears/removes all configurations so that new ones will be created when calls to them are made;used when changing general alert enabling
      */
     void resetAll();
