@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -20,8 +21,6 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * @author Cosmin Baciu
@@ -51,22 +50,22 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private final DomibusCacheService domibusCacheService;
 
-    private final AuthenticationService authenticationService;
-
     private final DbSchemaUtil dbSchemaUtil;
+
+    private final AuthUtils authUtils;
 
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
                              DomibusConfigurationService domibusConfigurationService,
                              DomainDao domainDao,
                              DomibusCacheService domibusCacheService,
-                             @Lazy AuthenticationService authenticationService,
-                             @Lazy DbSchemaUtil dbSchemaUtil) {
+                             @Lazy DbSchemaUtil dbSchemaUtil,
+                             AuthUtils authUtils) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
-        this.authenticationService = authenticationService;
         this.dbSchemaUtil = dbSchemaUtil;
+        this.authUtils = authUtils;
     }
 
     @PostConstruct
@@ -78,6 +77,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     public synchronized List<Domain> getDomains() {
         LOG.debug("Getting active domains.");
 
+        // move in initialize and add domain
         domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
 
         return domains;
@@ -180,7 +180,8 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
 
-        authenticationService.addDomainCode(domain.getCode());
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
+
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
@@ -198,7 +199,8 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         }
         domains.remove(domain);
 
-        authenticationService.removeDomainCode(domain.getCode());
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domainCode));
+
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }

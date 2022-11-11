@@ -14,9 +14,5 @@ public interface AuthenticationService {
 
     void changePassword(String currentPassword, String newPassword);
 
-    void addDomainCode(String domainCode);
-
-    void removeDomainCode(String domainCode);
-
     DomibusUserDetails getLoggedUser();
 }

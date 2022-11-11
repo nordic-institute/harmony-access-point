@@ -38,7 +38,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
     private UserService userManagementService;
 
     @Autowired
-    private AuthUtils authUtils;
+    protected AuthUtils authUtils;
 
     /**
      * Set the domain in the current security context
@@ -65,16 +65,6 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
     }
 
-    @Override
-    public void addDomainCode(String domainCode) {
-        executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domainCode));
-    }
-
-    @Override
-    public void removeDomainCode(String domainCode) {
-        executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domainCode));
-    }
-
     /**
      * It will return the Principal from {@link SecurityContextHolder}
      * if different from {@link AnonymousAuthenticationToken}
@@ -87,25 +77,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
     }
 
     protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        executeOnLoggedUser(consumer, authentication);
-    }
-
-    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer, Authentication authentication) {
-        if (authentication == null) {
-            LOG.debug("Authentication is missing from the security context");
-            return;
-        }
-        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
-        if (securityUser == null) {
-            LOG.debug("User details are missing from the authentication");
-            return;
-        }
-
-        consumer.accept(securityUser);
-
-        SecurityContextHolder.clearContext();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        authUtils.executeOnLoggedUser(consumer);
     }
 
     UserService getUserService() {

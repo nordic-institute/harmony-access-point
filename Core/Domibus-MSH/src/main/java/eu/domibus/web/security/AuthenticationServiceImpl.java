@@ -58,7 +58,8 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
         }
 
         userService.handleCorrectAuthentication(username);
-        executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
+//        executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
 
         return (DomibusUserDetailsImpl) authentication.getPrincipal();
     }

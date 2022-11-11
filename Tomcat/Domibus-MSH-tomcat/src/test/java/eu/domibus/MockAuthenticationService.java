@@ -23,16 +23,6 @@ public class MockAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public void addDomainCode(String domainCode) {
-
-    }
-
-    @Override
-    public void removeDomainCode(String domainCode) {
-
-    }
-
-    @Override
     public DomibusUserDetailsImpl getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
