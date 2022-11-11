@@ -6,10 +6,14 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_ALERT;
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
 
 /**
  * @author Thomas Dussart
@@ -34,9 +38,9 @@ public class AlertListener {
         this.databaseUtil = databaseUtil;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
             selector = "selector = 'alert'")
-    public void onAlert(final Alert alert, @Header(name = "DOMAIN", required = false) String domain) {
+    public void onAlert(final Alert alert, @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
         if (StringUtils.isNotEmpty(domain)) {
             domainContextProvider.setCurrentDomain(domain);
             LOG.debug("Alert received:[{}] for domain:[{}]", alert, domain);

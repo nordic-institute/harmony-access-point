@@ -1,20 +1,14 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.user.UserEntityBase;
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.ui.UserDao;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION;
@@ -30,23 +24,14 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     public static final String MAXIMUM_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_EXPIRATION; //NOSONAR
     public static final String MAXIMUM_DEFAULT_PASSWORD_AGE = DOMIBUS_PASSWORD_POLICY_DEFAULT_PASSWORD_EXPIRATION; //NOSONAR
 
-    @Autowired
-    protected UserDao userDao;
+    protected final UserDao userDao;
 
-    @Autowired
-    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+    protected final AlertConfigurationService alertConfigurationService;
 
-    @Autowired
-    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
-
-    @Autowired
-    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
-
-    @Autowired
-    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-
-    @Autowired
-    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
+    public ConsoleUserAlertsServiceImpl(UserDao userDao, AlertConfigurationService alertConfigurationService) {
+        this.userDao = userDao;
+        this.alertConfigurationService = alertConfigurationService;
+    }
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -90,27 +75,27 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return consoleAccountDisabledConfigurationManager.getConfiguration();
+        return (AccountDisabledModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
     }
 
     @Override
-    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-        return consoleAccountEnabledConfigurationManager.getConfiguration();
+    protected AlertModuleConfiguration getAccountEnabledConfiguration() {
+        return alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
     }
 
     @Override
-    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return consoleLoginFailConfigurationManager.getConfiguration();
+    protected AlertModuleConfiguration getLoginFailureConfiguration() {
+        return alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
     }
 
     @Override
-    protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
-        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
+        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
     }
 
     @Override
-    protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
-        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
+        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION);
     }
 
 }
