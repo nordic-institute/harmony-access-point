@@ -61,10 +61,10 @@ public class DomainResource {
      */
     @GetMapping(value = "")
     public List<DomainRO> getDomains(@Valid Boolean active) {
-        List<Domain> domains = Arrays.asList();
-        if (active == null) {
-            domains = domainService.getAllDomains();
-        } else if (active) {
+        List<Domain> domains;
+        if (active == null || !active) {
+            domains = domainService.getAllValidDomains();
+        } else {
             domains = domainService.getDomains();
         }
         return coreMapper.domainListToDomainROList(domains);

@@ -18,7 +18,7 @@ public interface DomainService {
 
     List<Domain> getDomains();
 
-    List<Domain> getAllDomains();
+    List<Domain> getAllValidDomains();
 
     Domain getDomain(String code);
 

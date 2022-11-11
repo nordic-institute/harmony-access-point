@@ -11,10 +11,8 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -66,23 +64,28 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     @PostConstruct
     public void initialize() {
-        domains = domainDao.findAll();
+        domains = getAllValidDomains();
     }
 
     @Override
     public synchronized List<Domain> getDomains() {
         LOG.debug("Getting active domains.");
 
-        // move in initialize and add domain
-        domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
-
         return domains;
     }
 
     @Override
-    public List<Domain> getAllDomains() {
-        LOG.debug("Getting all potential domains.");
-        return domainDao.findAll();
+    public List<Domain> getAllValidDomains() {
+        LOG.debug("Getting all potential domains that have a valid database schema.");
+        List<Domain> domains = domainDao.findAll();
+        domains.removeIf(domain -> {
+            boolean isValid = !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
+            if (!isValid) {
+                LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
+            }
+            return isValid;
+        });
+        return domains;
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)

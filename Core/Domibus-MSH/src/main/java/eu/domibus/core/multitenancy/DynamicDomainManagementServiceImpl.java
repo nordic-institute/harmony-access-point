@@ -206,9 +206,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     protected void internalAddDomain(Domain domain) {
-        domibusPropertyProvider.loadProperties(domain);
-
         validateDomainSchema(domain.getCode());
+
+        domibusPropertyProvider.loadProperties(domain);
 
         domainService.addDomain(domain);
 
