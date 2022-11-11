@@ -10,13 +10,13 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,18 +35,24 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
-    private final EntityManager entityManager;
+    protected final Object generalSchemaLock = new Object();
+
+    protected volatile String generalSchema;
+
+    private EntityManager entityManager;
+
+    private final EntityManagerFactory entityManagerFactory;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public DbSchemaUtilImpl(DomibusConfigurationService domibusConfigurationService,
-                            EntityManagerFactory entityManagerFactory,
+    public DbSchemaUtilImpl(@Lazy EntityManagerFactory entityManagerFactory,
+                            DomibusConfigurationService domibusConfigurationService,
                             DomibusPropertyProvider domibusPropertyProvider) {
+        this.entityManagerFactory = entityManagerFactory;
 
         this.domibusConfigurationService = domibusConfigurationService;
-        entityManager = entityManagerFactory.createEntityManager();
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
@@ -79,11 +85,27 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return domainSchema;
     }
 
+    /**
+     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     */
+    @Override
+    public String getGeneralSchema() {
+        if (generalSchema == null) {
+            synchronized (generalSchemaLock) {
+                if (generalSchema == null) {
+                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+                    LOG.debug("Caching general schema [{}]", generalSchema);
+                }
+            }
+        }
+        return generalSchema;
+    }
+
     @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
 
         //in single tenancy the schema validity check is not needed
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.info("Domain's database schema validity check is not needed in single tenancy");
             return true;
         }
@@ -93,6 +115,9 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
+        if (entityManager == null) {
+            entityManager = entityManagerFactory.createEntityManager();
+        }
         String databaseSchema = null;
         try {
             //set corresponding db schema

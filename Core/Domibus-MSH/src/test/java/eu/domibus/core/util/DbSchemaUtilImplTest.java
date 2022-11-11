@@ -49,7 +49,7 @@ public class DbSchemaUtilImplTest {
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(domibusConfigurationService, entityManagerFactory, domibusPropertyProvider);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(entityManagerFactory, domibusConfigurationService, domibusPropertyProvider);
     }
 
     @Test

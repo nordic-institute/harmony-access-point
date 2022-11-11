@@ -24,10 +24,6 @@ public interface DomainService {
 
     Domain getDomainForScheduler(String schedulerName);
 
-    String getDatabaseSchema(Domain domain);
-
-    String getGeneralSchema();
-
     String getSchedulerName(Domain domain);
 
     void removeDomain(String domainCode);

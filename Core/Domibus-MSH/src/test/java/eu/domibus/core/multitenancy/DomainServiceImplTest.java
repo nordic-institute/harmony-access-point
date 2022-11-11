@@ -54,79 +54,80 @@ public class DomainServiceImplTest {
     @Injectable
     private DbSchemaUtil dbSchemaUtil;
 
-    @Test
-    public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
-        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
-        domainService.domainSchemas = domainSchemas;
+//    @Test
+//    public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
+//        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
+//        domainService.domainSchemas = domainSchemas;
+//
+//        new Expectations() {{
+//            domainSchemas.get(defaultDomain);
+//            result = "defaultSchema";
+//        }};
+//
+//        domainService.getDatabaseSchema(defaultDomain);
+//
+//        new Verifications() {{
+//            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+//            times = 0;
+//        }};
+//    }
 
-        new Expectations() {{
-            domainSchemas.get(defaultDomain);
-            result = "defaultSchema";
-        }};
+//    @Test
+//    public void getDatabaseSchema() {
+//        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
+//        Map<Domain, String> domainSchemas = new HashMap<>();
+//        domainService.domainSchemas = domainSchemas;
+//        String defaultSchema = "defaultSchema";
+//
+//        new Expectations() {{
+//            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+//            result = defaultSchema;
+//        }};
+//
+//        //first call puts the schema in the cache
+//        Assert.assertEquals(defaultSchema, domainService.getDatabaseSchema(defaultDomain));
+//
+//        //second call retrieves the schema in the cache
+//        Assert.assertEquals(defaultSchema, domainService.getDatabaseSchema(defaultDomain));
+//
+//        new Verifications() {{
+//            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+//            times = 1;
+//        }};
+//    }
 
-        domainService.getDatabaseSchema(defaultDomain);
+//    @Test
+//    public void getGeneralSchemaWhenItIsAlreadyCached() {
+//        String generalSchema = "generalSchema";
+//        domainService.generalSchema = generalSchema;
+//
+//        domainService.getGeneralSchema();
+//
+//        new Verifications() {{
+//            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+//            times = 0;
+//        }};
+//    }
+//
+//    @Test
+//    public void getGeneralSchema() {
+//        String generalSchema = "generalSchema";
+//
+//        new Expectations() {{
+//            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+//            result = generalSchema;
+//        }};
+//
+//        //first call puts the schema in the cache
+//        Assert.assertEquals(generalSchema, domainService.getGeneralSchema());
+//
+//        //second call retrieves the schema in the cache
+//        Assert.assertEquals(generalSchema, domainService.getGeneralSchema());
+//
+//        new Verifications() {{
+//            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+//            times = 1;
+//        }};
+//    }
 
-        new Verifications() {{
-            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void getDatabaseSchema() {
-        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
-        Map<Domain, String> domainSchemas = new HashMap<>();
-        domainService.domainSchemas = domainSchemas;
-        String defaultSchema = "defaultSchema";
-
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
-            result = defaultSchema;
-        }};
-
-        //first call puts the schema in the cache
-        Assert.assertEquals(defaultSchema, domainService.getDatabaseSchema(defaultDomain));
-
-        //second call retrieves the schema in the cache
-        Assert.assertEquals(defaultSchema, domainService.getDatabaseSchema(defaultDomain));
-
-        new Verifications() {{
-            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void getGeneralSchemaWhenItIsAlreadyCached() {
-        String generalSchema = "generalSchema";
-        domainService.generalSchema = generalSchema;
-
-        domainService.getGeneralSchema();
-
-        new Verifications() {{
-            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void getGeneralSchema() {
-        String generalSchema = "generalSchema";
-
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
-            result = generalSchema;
-        }};
-
-        //first call puts the schema in the cache
-        Assert.assertEquals(generalSchema, domainService.getGeneralSchema());
-
-        //second call retrieves the schema in the cache
-        Assert.assertEquals(generalSchema, domainService.getGeneralSchema());
-
-        new Verifications() {{
-            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
-            times = 1;
-        }};
-    }
 }

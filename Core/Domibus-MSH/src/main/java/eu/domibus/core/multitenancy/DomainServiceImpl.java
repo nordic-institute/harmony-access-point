@@ -34,10 +34,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
-    protected final Object generalSchemaLock = new Object();
-
-    protected volatile String generalSchema;
-
     protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
     private List<Domain> domains;
@@ -58,7 +54,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
                              DomibusConfigurationService domibusConfigurationService,
                              DomainDao domainDao,
                              DomibusCacheService domibusCacheService,
-                             @Lazy DbSchemaUtil dbSchemaUtil,
+                             DbSchemaUtil dbSchemaUtil,
                              AuthUtils authUtils) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
@@ -116,33 +112,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             return DomainService.DEFAULT_DOMAIN;
         }
         return getDomain(schedulerName);
-    }
-
-    /**
-     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
-     *
-     * @param domain the domain for which the db schema is retrieved
-     * @return database schema name
-     */
-    @Override
-    public String getDatabaseSchema(Domain domain) {
-        return dbSchemaUtil.getDatabaseSchema(domain);
-    }
-
-    /**
-     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
-     */
-    @Override
-    public String getGeneralSchema() {
-        if (generalSchema == null) {
-            synchronized (generalSchemaLock) {
-                if (generalSchema == null) {
-                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
-                    LOG.debug("Caching general schema [{}]", generalSchema);
-                }
-            }
-        }
-        return generalSchema;
     }
 
     @Override

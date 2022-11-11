@@ -25,4 +25,6 @@ public interface DbSchemaUtil {
      * @return sql for schema change
      */
     String getSchemaChangeSQL(String databaseSchema);
+
+    String getGeneralSchema();
 }
