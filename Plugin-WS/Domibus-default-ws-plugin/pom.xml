@@ -193,11 +193,6 @@
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!--        START TEST        -->
         <dependency>
             <groupId>eu.domibus</groupId>
