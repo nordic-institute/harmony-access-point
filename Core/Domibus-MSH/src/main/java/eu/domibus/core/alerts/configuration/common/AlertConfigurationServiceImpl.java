@@ -77,7 +77,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
             if (configurationManager != null) {
                 LOG.debug("Created configuration manager for alert [{}]", alertType);
-                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType);
+                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, this);
             }
             alertConfigurationManagers.put(alertType, configurationManager);
         }
