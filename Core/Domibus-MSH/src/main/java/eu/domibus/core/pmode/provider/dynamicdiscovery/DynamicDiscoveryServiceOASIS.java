@@ -221,24 +221,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     /**
-     * Returns the list of Transport Profiles that are extracted from the Processes list
-     *
-     * @return a list of Transport profiles
-     */
-    protected List<String> retrieveTransportProfilesFromProcesses(List<ProcessType> processes) {
-        List<String> transportProfiles = new ArrayList<>();
-        processes.stream().forEach(
-                p -> p.getServiceEndpointList().getEndpoint().stream().forEach(e -> transportProfiles.add(e.getTransportProfile())));
-
-        if (transportProfiles.size() == 0) {
-            List<String> processIds = processes.stream().map(p -> p.getProcessIdentifier().getValue()).collect(Collectors.toList());
-            throw new ConfigurationException("Metadata for processIds: " + Arrays.toString(processIds.toArray()) + " does not contain transport profile info");
-        }
-
-        return transportProfiles;
-    }
-
-    /**
      * Returns the available Transport Profile matching the highest ranking priority Security Profile.
      * The Security Profiles priority list is defined in the properties file.
      * If the priority list is not defined the transport profile value defined in the property file will be read.
@@ -361,7 +343,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     public EndpointType getEndpoint(List<ProcessType> processes, String processId, String processIdScheme, String transportProfile) {
 
         if (StringUtils.isBlank(transportProfile)) {
-            throw new ConfigurationException("Unable to find endpoint information for null transport profile");
+            throw new ConfigurationException("Unable to find endpoint information: transport profile not found or empty");
         }
 
         if (StringUtils.isBlank(processId)) {

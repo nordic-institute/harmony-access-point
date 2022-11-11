@@ -1,9 +1,11 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +65,24 @@ public abstract class AbstractDynamicDiscoveryService {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the list of Transport Profiles that are extracted from the Processes list
+     *
+     * @return a list of Transport profiles
+     */
+    protected List<String> retrieveTransportProfilesFromProcesses(List<ProcessType> processes) {
+        List<String> transportProfiles = new ArrayList<>();
+        processes.stream().forEach(
+                p -> p.getServiceEndpointList().getEndpoint().stream().forEach(e -> transportProfiles.add(e.getTransportProfile())));
+
+        if (transportProfiles.size() == 0) {
+            List<String> processIds = processes.stream().map(p -> p.getProcessIdentifier().getValue()).collect(Collectors.toList());
+            throw new ConfigurationException("Metadata for processIds: " + Arrays.toString(processIds.toArray()) + " does not contain transport profile info");
+        }
+
+        return transportProfiles;
     }
 
     /**
