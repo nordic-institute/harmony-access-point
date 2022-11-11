@@ -1,4 +1,5 @@
 Domibus 5.1
+- Replaced old Backend interface from the WS plugin distribution with the new wsplugin interface (wsdl and xsds)
 - Simplified the creation of alerts: no need for custom property change listener, event queue listener, enqueue method or module configuration class
 - Added two internal API to resend selected failed messages and resend all failed messages as batches from the admin console.
 - Added property domibus.earchive.batch.size.payload to specify a total payload size limit of all archived messages in a batch
