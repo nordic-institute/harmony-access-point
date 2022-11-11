@@ -199,14 +199,14 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             List<String> transportProfiles = retrieveTransportProfilesFromProcesses(processes);
 
             //retrieve the transport profile available for the highest ranking Security Profile
-            String transportProtocol = getAvailableTransportProfileForHighestRankingSecurityProfile(transportProfiles);
-            LOG.debug("Get the endpoint for [{}]", transportProtocol);
+            String transportProfile = getAvailableTransportProfileForHighestRankingSecurityProfile(transportProfiles);
+            LOG.debug("Get the endpoint for [{}]", transportProfile);
 
-            final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProtocol);
-            LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProtocol, endpoint);
+            final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProfile);
+            LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProfile, endpoint);
             if (endpoint == null || endpoint.getEndpointURI() == null) {
                 throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
-                        " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProtocol);
+                        " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfile);
             }
 
             X509Certificate certificate = getCertificateFromEndpoint(endpoint, documentId, processId);
