@@ -10,8 +10,7 @@ import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_PROFILE_ORDER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Abstract class implement common methods for Peppol and Oasis dynamic discovery
@@ -37,11 +36,11 @@ public abstract class AbstractDynamicDiscoveryService {
     protected abstract String getTrimmedDomibusProperty(String propertyName);
 
     /**
-     * Returns the Domibus property for the Security Profiles priority order
+     * Retrieves the map containing the mappings between Security Profiles and Transport Profiles
      *
-     * @return the String value of the priority list for Security Profiles property
+     * @return map of Security Profiles and Transport Profiles
      */
-    protected abstract String getSecurityProfilesPriorityProperty();
+    protected abstract Map<SecurityProfile, String> getSecurityProfileTransportProfileMap();
 
     /**
      * Returns a list of Security Profile names in the priority order specified in the properties file
@@ -49,7 +48,7 @@ public abstract class AbstractDynamicDiscoveryService {
      * @return a list of ordered Security Profile names
      */
     protected List<SecurityProfile> getSecurityProfilesPriorityList() {
-        String priorityString = getSecurityProfilesPriorityProperty();
+        String priorityString = getTrimmedDomibusProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
         if (priorityString == null) {
             getLogger().warn("The property {} was not specified in the properties file", DOMIBUS_SECURITY_PROFILE_ORDER);
             return null;
@@ -83,6 +82,45 @@ public abstract class AbstractDynamicDiscoveryService {
         }
 
         return transportProfiles;
+    }
+
+    /**
+     * Returns the available Transport Profile matching the highest ranking priority Security Profile.
+     * The Security Profiles priority list is defined in the properties file.
+     * If the priority list is not defined the transport profile value defined in the property file will be read.
+     *
+     * @param transportProfiles list of available transport profiles that are received from the SMP endpoint
+     * @return the available Transport Profile matching the highest ranking priority Security Profile
+     */
+    protected String getAvailableTransportProfileForHighestRankingSecurityProfile(List<String> transportProfiles) {
+        List<SecurityProfile> securityProfilesPriorities = getSecurityProfilesPriorityList();
+        if (securityProfilesPriorities == null) {
+            return getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
+        }
+
+        //find the Security Profile with the highest priority ranking that matches an available Transport Profile
+        SecurityProfile matchingSecurityProfile = securityProfilesPriorities.stream()
+                .filter(securityProfile -> transportProfiles.contains(getTransportProfileMatchingSecurityProfile(securityProfile, transportProfiles)))
+                .findFirst()
+                .orElse(null);
+
+        return getSecurityProfileTransportProfileMap().get(matchingSecurityProfile);
+    }
+
+    /**
+     * Returns the Transport Profile matching a specific Security Profile according to the SECURITY_PROFILE_TRANSPORT_PROFILE_MAP
+     * If no match is found it returns null.
+     *
+     * @param securityProfile the Security Profile for which the matching Transport Profile is retrieved
+     * @param transportProfiles list of available transport profiles returned by SMP
+     *
+     * @return the matching Security Profile
+     */
+    protected String getTransportProfileMatchingSecurityProfile(SecurityProfile securityProfile, List<String> transportProfiles) {
+        return transportProfiles.stream()
+                .filter(transportProfile -> getSecurityProfileTransportProfileMap().get(securityProfile).equalsIgnoreCase(transportProfile))
+                .findFirst()
+                .orElse(null);
     }
 
     /**

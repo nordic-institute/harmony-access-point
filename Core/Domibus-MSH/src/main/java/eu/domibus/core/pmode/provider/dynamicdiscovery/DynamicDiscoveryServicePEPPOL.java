@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -25,7 +26,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
@@ -45,6 +48,12 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
+
+    protected static final Map<SecurityProfile, String> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP = new HashMap<>();
+
+    static {
+        SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.RSA, "peppol-transport-as4-v2_0");
+    }
 
     public static final String SCHEME_DELIMITER = "::";
 
@@ -100,8 +109,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
     }
 
     @Override
-    protected String getSecurityProfilesPriorityProperty() {
-        return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
+    protected Map<SecurityProfile, String> getSecurityProfileTransportProfileMap() {
+        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP;
     }
 
     protected String getPartyIdTypePropertyName() {

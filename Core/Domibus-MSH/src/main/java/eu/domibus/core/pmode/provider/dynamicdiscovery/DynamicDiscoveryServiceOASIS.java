@@ -58,14 +58,14 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
-
     protected static final Map<SecurityProfile, String> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP = new HashMap<>();
 
     static {
         SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.RSA, "bdxr-transport-ebms3-as4-v1p0");
         SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.ECC, "bdxr-transport-ebms3-as4-EC-sample");
     }
+
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -149,11 +149,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     @Override
-    protected String getSecurityProfilesPriorityProperty() {
-        return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
-    }
-
-    @Override
     protected String getPartyIdTypePropertyName() {
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE;
     }
@@ -161,6 +156,11 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     @Override
     protected String getPartyIdResponderRolePropertyName() {
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
+    }
+
+    @Override
+    protected Map<SecurityProfile, String> getSecurityProfileTransportProfileMap() {
+        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP;
     }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
@@ -218,45 +218,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             LOG.error(msg, exc);
             throw new ConfigurationException(msg, exc);
         }
-    }
-
-    /**
-     * Returns the available Transport Profile matching the highest ranking priority Security Profile.
-     * The Security Profiles priority list is defined in the properties file.
-     * If the priority list is not defined the transport profile value defined in the property file will be read.
-     *
-     * @param transportProfiles list of available transport profiles that are received from the SMP endpoint
-     * @return the available Transport Profile matching the highest ranking priority Security Profile
-     */
-    protected String getAvailableTransportProfileForHighestRankingSecurityProfile(List<String> transportProfiles) {
-        List<SecurityProfile> securityProfilesPriorities = getSecurityProfilesPriorityList();
-         if (securityProfilesPriorities == null) {
-            return domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
-        }
-
-        //find the Security Profile with the highest priority ranking that matches an available Transport Profile
-        SecurityProfile matchingSecurityProfile = securityProfilesPriorities.stream()
-                .filter(securityProfile -> transportProfiles.contains(getTransportProfileMatchingSecurityProfile(securityProfile, transportProfiles)))
-                .findFirst()
-                .orElse(null);
-
-        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.get(matchingSecurityProfile);
-    }
-
-    /**
-     * Returns the Transport Profile matching a specific Security Profile according to the SECURITY_PROFILE_TRANSPORT_PROFILE_MAP
-     * If no match is found it returns null.
-     *
-     * @param securityProfile the Security Profile for which the matching Transport Profile is retrieved
-     * @param transportProfiles list of available transport profiles returned by SMP
-     *
-     * @return the matching Security Profile
-     */
-    protected String getTransportProfileMatchingSecurityProfile(SecurityProfile securityProfile, List<String> transportProfiles) {
-        return transportProfiles.stream()
-                .filter(transportProfile -> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.get(securityProfile).equalsIgnoreCase(transportProfile))
-                .findFirst()
-                .orElse(null);
     }
 
     protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
