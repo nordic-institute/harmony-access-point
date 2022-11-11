@@ -249,10 +249,10 @@ public class WSPluginMessageBuilderTest {
     @Test(expected = WSPluginException.class)
     public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
-            messageLogEntity.getEntityId();
-            result = ENTITY_ID;
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
 
-            wsPlugin.browseMessage(ENTITY_ID, (UserMessage) any);
+            wsPlugin.browseMessage(MESSAGE_ID, (UserMessage) any);
             result = new MessageNotFoundException();
         }};
 
