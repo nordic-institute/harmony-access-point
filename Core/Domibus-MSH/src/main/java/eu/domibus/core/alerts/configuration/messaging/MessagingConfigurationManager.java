@@ -5,11 +5,11 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
-import eu.domibus.core.alerts.service.ConfigurationReader;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,9 +41,6 @@ public class MessagingConfigurationManager
     @Autowired
     private DomainContextProvider domainContextProvider;
 
-    @Autowired
-    AlertConfigurationService alertConfigurationService;
-
     @Override
     public AlertType getAlertType() {
         return AlertType.MSG_STATUS_CHANGED;
@@ -57,7 +54,7 @@ public class MessagingConfigurationManager
     protected MessagingModuleConfiguration readConfiguration() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
+            final Boolean alertActive = isAlertModuleEnabled();
             final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
 
@@ -84,6 +81,7 @@ public class MessagingConfigurationManager
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
 
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
+            messagingConfiguration.setActive(true);
             IntStream.
                     range(0, trimmedStates.length).
                     mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(trimmedStates[i]), AlertLevel.valueOf(trimmedLevels[eachStatusHasALevel ? i : 0]))).
@@ -95,5 +93,9 @@ public class MessagingConfigurationManager
             return new MessagingModuleConfiguration();
         }
 
+    }
+
+    protected Boolean isAlertModuleEnabled() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
     }
 }
