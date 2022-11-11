@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.listener;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.dao.EventDao;
+import eu.domibus.core.alerts.listener.generic.RepetitiveEventListener;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -18,7 +19,7 @@ import org.junit.runner.RunWith;
 public class PasswordEventsListenerTest {
 
     @Tested
-    private PasswordExpirationListener passwordEventsListener;
+    private RepetitiveEventListener passwordEventsListener;
 
     @Injectable
     private AlertService alertService;
@@ -35,7 +36,7 @@ public class PasswordEventsListenerTest {
     @Test
     public void testPasswordEvent() throws Exception {
         setExpectations();
-        passwordEventsListener.onPasswordEvent(new Event(), "default");
+        passwordEventsListener.onEvent(new Event(), "default");
         setVerifications();
     }
 
@@ -48,7 +49,7 @@ public class PasswordEventsListenerTest {
 
     void setVerifications() {
         new VerificationsInOrder() {{
-            alertService.enqueueAlert((Alert) any);
+            alertService.createAndEnqueueAlertOnEvent((Event) any);
             times = 1;
         }};
     }

@@ -2,8 +2,11 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -11,7 +14,6 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,29 +34,35 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
+    protected final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    protected SignalMessageLogDao signalMessageLogDao;
+    protected final SignalMessageLogDao signalMessageLogDao;
 
-    @Autowired
-    protected BackendNotificationService backendNotificationService;
+    protected final BackendNotificationService backendNotificationService;
 
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
+    protected final MessageStatusDao messageStatusDao;
 
-    @Autowired
-    protected MshRoleDao mshRoleDao;
+    protected final MshRoleDao mshRoleDao;
 
-    @Autowired
-    protected NotificationStatusDao notificationStatusDao;
+    protected final NotificationStatusDao notificationStatusDao;
 
-    @Autowired
-    protected ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
+    protected final EventService eventService;
 
-    @Autowired
-    protected EventService eventService;
+    private final AlertConfigurationService alertConfigurationService;
+
+    public UserMessageLogDefaultService(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
+                                        BackendNotificationService backendNotificationService, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao,
+                                        NotificationStatusDao notificationStatusDao, EventService eventService,
+                                        AlertConfigurationService alertConfigurationService) {
+        this.userMessageLogDao = userMessageLogDao;
+        this.signalMessageLogDao = signalMessageLogDao;
+        this.backendNotificationService = backendNotificationService;
+        this.messageStatusDao = messageStatusDao;
+        this.mshRoleDao = mshRoleDao;
+        this.notificationStatusDao = notificationStatusDao;
+        this.eventService = eventService;
+        this.alertConfigurationService = alertConfigurationService;
+    }
 
     public UserMessageLog findById(Long entityId) {
         return userMessageLogDao.findById(entityId);
@@ -100,12 +108,12 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         } else {
-            final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
+            final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
             String fromParty = userMessage.getPartyInfo().getFromParty();
             String toParty = userMessage.getPartyInfo().getToParty();
             if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
-                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(),
-                        messageLog.getMessageStatus(), fromParty, toParty, connMonitorConfig.getFrequency());
+                eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
+                        new EventProperties(userMessage.getMessageId(), messageLog.getMshRole().getRole().name(), messageLog.getMessageStatus().name(), fromParty, toParty));
             }
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);

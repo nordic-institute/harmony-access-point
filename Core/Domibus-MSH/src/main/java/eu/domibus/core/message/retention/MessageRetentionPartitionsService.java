@@ -8,8 +8,11 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -42,28 +45,27 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
-    protected PModeProvider pModeProvider;
+    protected final PModeProvider pModeProvider;
 
-    protected UserMessageDao userMessageDao;
+    protected final UserMessageDao userMessageDao;
 
-    protected UserMessageLogDao userMessageLogDao;
+    protected final UserMessageLogDao userMessageLogDao;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected EventService eventService;
+    protected final EventService eventService;
 
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final DomibusConfigurationService domibusConfigurationService;
 
-    protected DomainService domainService;
+    protected final DomainService domainService;
 
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    protected DateUtil dateUtil;
+    protected final DateUtil dateUtil;
 
-    protected PartitionService partitionService;
+    protected final PartitionService partitionService;
 
-    protected PartitionsConfigurationManager partitionsConfigurationManager;
-
+    protected final AlertConfigurationService alertConfigurationService;
 
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
@@ -76,7 +78,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomainService domainService,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
                                              PartitionService partitionService,
-                                             PartitionsConfigurationManager partitionsConfigurationManager) {
+                                             AlertConfigurationService alertConfigurationService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -87,7 +89,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
-        this.partitionsConfigurationManager = partitionsConfigurationManager;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -148,9 +150,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
-        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
+        AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
         if (partitionsModuleConfiguration.isActive()) {
-            eventService.enqueuePartitionCheckEvent(partitionName);
+            eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         }
     }
 
