@@ -116,8 +116,8 @@ public class DynamicDiscoveryUtil {
      */
     public List<String> retrieveTransportProfilesFromProcesses(List<ProcessType> processes) {
         List<String> transportProfiles = new ArrayList<>();
-        processes.forEach(
-                p -> p.getServiceEndpointList().getEndpoint().forEach(e -> transportProfiles.add(e.getTransportProfile())));
+        processes.stream().forEach(
+                p -> p.getServiceEndpointList().getEndpoint().stream().forEach(e -> transportProfiles.add(e.getTransportProfile())));
 
         return transportProfiles;
     }
