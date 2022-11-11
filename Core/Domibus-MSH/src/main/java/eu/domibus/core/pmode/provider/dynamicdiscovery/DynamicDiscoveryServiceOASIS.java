@@ -32,7 +32,10 @@ import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,6 +104,8 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     private final ObjectProvider<EndpointInfo> endpointInfos;
 
+    private final DynamicDiscoveryUtil dynamicDiscoveryUtil;
+
     public DynamicDiscoveryServiceOASIS(DomibusPropertyProvider domibusPropertyProvider,
                                         DomainContextProvider domainProvider,
                                         MultiDomainCryptoService multiDomainCertificateProvider,
@@ -117,7 +122,8 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
                                         ObjectProvider<DefaultURLFetcher> urlFetchers,
                                         ObjectProvider<DefaultBDXRReader> bdxrReaders,
                                         ObjectProvider<DefaultSignatureValidator> signatureValidators,
-                                        ObjectProvider<EndpointInfo> endpointInfos) {
+                                        ObjectProvider<EndpointInfo> endpointInfos,
+                                        DynamicDiscoveryUtil dynamicDiscoveryUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainProvider = domainProvider;
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
@@ -135,6 +141,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         this.bdxrReaders = bdxrReaders;
         this.signatureValidators = signatureValidators;
         this.endpointInfos = endpointInfos;
+        this.dynamicDiscoveryUtil = dynamicDiscoveryUtil;
     }
 
 
@@ -144,8 +151,8 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     @Override
-    protected String getTrimmedDomibusProperty(String propertyName) {
-        return trim(domibusPropertyProvider.getProperty(propertyName));
+    protected DynamicDiscoveryUtil getDynamicDiscoveryUtil() {
+        return dynamicDiscoveryUtil;
     }
 
     @Override
@@ -156,11 +163,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     @Override
     protected String getPartyIdResponderRolePropertyName() {
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
-    }
-
-    @Override
-    protected Map<SecurityProfile, String> getSecurityProfileTransportProfileMap() {
-        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP;
     }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
@@ -196,10 +198,10 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
             List<ProcessType> processes = serviceMetadata.getOriginalServiceMetadata().getServiceMetadata().getServiceInformation().getProcessList().getProcess();
 
-            List<String> transportProfiles = retrieveTransportProfilesFromProcesses(processes);
+            List<String> transportProfiles = dynamicDiscoveryUtil.retrieveTransportProfilesFromProcesses(processes);
 
             //retrieve the transport profile available for the highest ranking Security Profile
-            String transportProfile = getAvailableTransportProfileForHighestRankingSecurityProfile(transportProfiles);
+            String transportProfile = dynamicDiscoveryUtil.getAvailableTransportProfileForHighestRankingSecurityProfile(transportProfiles, SECURITY_PROFILE_TRANSPORT_PROFILE_MAP);
             LOG.debug("Get the endpoint for [{}]", transportProfile);
 
             final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProfile);

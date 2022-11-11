@@ -32,7 +32,6 @@ import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
-import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * Service to query the SMP to extract the required information about the unknown receiver AP.
@@ -77,6 +76,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
 
     private final ObjectProvider<EndpointInfo> endpointInfos;
 
+    private final DynamicDiscoveryUtil dynamicDiscoveryUtil;
+
     public DynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider,
                                          MultiDomainCryptoService multiDomainCertificateProvider,
                                          DomainContextProvider domainProvider,
@@ -86,7 +87,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
                                          ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
                                          ObjectProvider<BusdoxLocator> busdoxLocators,
                                          ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
-                                         ObjectProvider<EndpointInfo> endpointInfos) {
+                                         ObjectProvider<EndpointInfo> endpointInfos,
+                                         DynamicDiscoveryUtil dynamicDiscoveryUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
@@ -98,19 +100,16 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         this.busdoxLocators = busdoxLocators;
         this.domibusApacheFetchers = domibusApacheFetchers;
         this.endpointInfos = endpointInfos;
+        this.dynamicDiscoveryUtil = dynamicDiscoveryUtil;
     }
 
     protected DomibusLogger getLogger() {
         return LOG;
     }
 
-    protected String getTrimmedDomibusProperty(String propertyName) {
-        return trim(domibusPropertyProvider.getProperty(propertyName));
-    }
-
     @Override
-    protected Map<SecurityProfile, String> getSecurityProfileTransportProfileMap() {
-        return SECURITY_PROFILE_TRANSPORT_PROFILE_MAP;
+    protected DynamicDiscoveryUtil getDynamicDiscoveryUtil() {
+        return dynamicDiscoveryUtil;
     }
 
     protected String getPartyIdTypePropertyName() {
