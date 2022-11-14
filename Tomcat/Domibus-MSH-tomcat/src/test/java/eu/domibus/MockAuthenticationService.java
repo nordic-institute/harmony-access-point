@@ -1,5 +1,6 @@
 package eu.domibus;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -23,16 +24,6 @@ public class MockAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public void addDomainCode(String domainCode) {
-
-    }
-
-    @Override
-    public void removeDomainCode(String domainCode) {
-
-    }
-
-    @Override
     public DomibusUserDetailsImpl getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -46,5 +37,15 @@ public class MockAuthenticationService implements AuthenticationService {
             }
         }
         return null;
+    }
+
+    @Override
+    public void onDomainAdded(Domain domain) {
+
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+
     }
 }

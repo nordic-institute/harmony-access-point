@@ -4,6 +4,11 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +18,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * @author Lucian FURCA
@@ -28,13 +37,13 @@ public class DbSchemaUtilImplTest {
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
     @Mock
-    private DomainService domainService;
-
-    @Mock
     private DomibusConfigurationService domibusConfigurationService;
 
     @Mock
     private EntityManagerFactory entityManagerFactory;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Mock
     private EntityManager entityManager;
@@ -45,10 +54,13 @@ public class DbSchemaUtilImplTest {
     @Mock
     private Query query;
 
+    @Mock
+    Map<Domain, String> domainSchemas;
+
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(domainService, domibusConfigurationService, entityManagerFactory);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(entityManagerFactory, domibusConfigurationService, domibusPropertyProvider);
     }
 
     @Test
@@ -61,7 +73,7 @@ public class DbSchemaUtilImplTest {
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = "+ databaseSchema, actual);
+        Assert.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema, actual);
     }
 
     @Test
@@ -92,11 +104,11 @@ public class DbSchemaUtilImplTest {
 
     @Test
     public void givenDomainWithValidDbSchemaWhenTestingOnMySqlValidityTrueShouldBeReturned() {
-        //given
-        Domain domain = new Domain(DOMAIN,DOMAIN);
+        Domain domain = new Domain(DOMAIN, DOMAIN);
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -108,11 +120,11 @@ public class DbSchemaUtilImplTest {
 
     @Test
     public void givenDomainWithValidDbSchemaWhenTestingOnH2ValidityTrueShouldBeReturned() {
-        //given
-        Domain domain = new Domain(DOMAIN,DOMAIN);
+        Domain domain = new Domain(DOMAIN, DOMAIN);
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.H2);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("SET SCHEMA " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -125,10 +137,11 @@ public class DbSchemaUtilImplTest {
     @Test
     public void givenDomainWithValidDbSchemaWhenTestingOnOracleValidityTrueShouldBeReturned() {
         //given
-        Domain domain = new Domain(DOMAIN,DOMAIN);
+        Domain domain = new Domain(DOMAIN, DOMAIN);
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("ALTER SESSION SET CURRENT_SCHEMA = " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -140,11 +153,11 @@ public class DbSchemaUtilImplTest {
 
     @Test
     public void givenDomainWithFaultyDbSchemaWhenTestingValidityFalseShouldBeReturned() {
-        //given
-        Domain domain = new Domain(DOMAIN,DOMAIN);
+        Domain domain = new Domain(DOMAIN, DOMAIN);
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
+        Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
@@ -155,4 +168,80 @@ public class DbSchemaUtilImplTest {
         Assert.assertFalse(actualResult);
     }
 
+
+    @Test
+    public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
+        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
+
+        new Expectations() {{
+            domainSchemas.get(defaultDomain);
+            result = "defaultSchema";
+        }};
+
+        dbSchemaUtilImpl.getDatabaseSchema(defaultDomain);
+
+        new Verifications() {{
+            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void getDatabaseSchema() {
+        Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
+        Map<Domain, String> domainSchemas = new HashMap<>();
+        dbSchemaUtilImpl.domainSchemas = domainSchemas;
+        String defaultSchema = "defaultSchema";
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+            result = defaultSchema;
+        }};
+
+        //first call puts the schema in the cache
+        Assert.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
+
+        //second call retrieves the schema in the cache
+        Assert.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
+
+        new Verifications() {{
+            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getGeneralSchemaWhenItIsAlreadyCached() {
+        String generalSchema = "generalSchema";
+        dbSchemaUtilImpl.generalSchema = generalSchema;
+
+        dbSchemaUtilImpl.getGeneralSchema();
+
+        new Verifications() {{
+            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void getGeneralSchema() {
+        String generalSchema = "generalSchema";
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+            result = generalSchema;
+        }};
+
+        //first call puts the schema in the cache
+        Assert.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
+
+        //second call retrieves the schema in the cache
+        Assert.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
+
+        new Verifications() {{
+            domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+            times = 1;
+        }};
+    }
 }

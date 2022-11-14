@@ -2,6 +2,9 @@ package eu.domibus.api.security;
 
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+import org.springframework.security.core.Authentication;
+
+import java.util.function.Consumer;
 
 /**
  * @author Cosmin Baciu
@@ -122,5 +125,8 @@ public interface AuthUtils {
 
     <R> R runFunctionWithDomibusSecurityContext(AuthenticatedFunction function, AuthRole authRole, boolean forceSecurityContext);
 
+    void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer);
+
+    void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer, Authentication authentication);
 }
 

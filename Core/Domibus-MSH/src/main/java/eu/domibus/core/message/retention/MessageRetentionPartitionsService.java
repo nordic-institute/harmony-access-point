@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -57,7 +58,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected final DomibusConfigurationService domibusConfigurationService;
 
-    protected final DomainService domainService;
+    protected final DbSchemaUtil dbSchemaUtil;
 
     protected final DomainContextProvider domainContextProvider;
 
@@ -75,7 +76,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomibusPropertyProvider domibusPropertyProvider,
                                              EventService eventService,
                                              DomibusConfigurationService domibusConfigurationService,
-                                             DomainService domainService,
+                                             DbSchemaUtil dbSchemaUtil,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
                                              PartitionService partitionService,
                                              AlertConfigurationService alertConfigurationService) {
@@ -85,7 +86,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.eventService = eventService;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.domainService = domainService;
+        this.dbSchemaUtil = dbSchemaUtil;
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
@@ -160,7 +161,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         List<String> partitionNames;
         if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
-            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, domainService.getDatabaseSchema(currentDomain));
+            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, dbSchemaUtil.getDatabaseSchema(currentDomain));
         } else {
             partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
         }
