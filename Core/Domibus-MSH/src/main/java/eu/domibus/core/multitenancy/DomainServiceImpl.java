@@ -183,7 +183,6 @@ public class DomainServiceImpl implements DomainService {
     private void clearCaches(Domain domain) {
         dbSchemaUtil.removeCachedDatabaseSchema(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
 }

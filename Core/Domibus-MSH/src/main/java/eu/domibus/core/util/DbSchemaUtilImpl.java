@@ -101,7 +101,6 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return generalSchema;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
 
         //in single tenancy the schema validity check is not needed
