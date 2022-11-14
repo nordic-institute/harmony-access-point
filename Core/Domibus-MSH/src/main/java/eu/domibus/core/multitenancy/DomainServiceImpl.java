@@ -28,7 +28,7 @@ import java.util.Map;
  * @since 4.0
  */
 @Service
-public class DomainServiceImpl implements DomainService, DomainsAware {
+public class DomainServiceImpl implements DomainService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
@@ -149,6 +149,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authUtils.executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
 
+        dbSchemaUtil.removeDatabaseSchema(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
@@ -168,6 +169,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authUtils.executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domainCode));
 
+        dbSchemaUtil.removeDatabaseSchema(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
@@ -190,16 +192,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
         return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
-    }
-
-    @Override
-    public void onDomainAdded(Domain domain) {
-        dbSchemaUtil.removeDatabaseSchema(domain);
-    }
-
-    @Override
-    public void onDomainRemoved(Domain domain) {
-        dbSchemaUtil.removeDatabaseSchema(domain);
     }
 
 }
