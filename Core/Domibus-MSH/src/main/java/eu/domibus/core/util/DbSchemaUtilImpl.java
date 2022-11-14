@@ -57,7 +57,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     /**
-     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     * Get database schema name for the domain. Uses a local cache.
      *
      * @param domain the domain for which the db schema is retrieved
      * @return database schema name
@@ -86,7 +86,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     /**
-     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     * Get the configured general schema. Uses a local cache.
      */
     @Override
     public String getGeneralSchema() {

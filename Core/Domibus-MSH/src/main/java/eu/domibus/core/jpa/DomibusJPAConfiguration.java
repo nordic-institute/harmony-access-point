@@ -1,8 +1,6 @@
 package eu.domibus.core.jpa;
 
 import eu.domibus.api.datasource.DataSourceConstants;
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
@@ -20,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -30,7 +27,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
@@ -97,7 +93,7 @@ public class DomibusJPAConfiguration {
             }
             String relativePath = StringUtils.substringAfter(resource.getURL().getPath(), CONFIG_DOMIBUS_ORM);
             LOG.debug("setMappingResources [{}]", relativePath);
-            if(StringUtils.isBlank(relativePath)){
+            if (StringUtils.isBlank(relativePath)) {
                 return relativePath;
             }
             return CONFIG_DOMIBUS_ORM + relativePath;
