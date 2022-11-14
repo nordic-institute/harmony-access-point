@@ -10,13 +10,13 @@ import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.security.AuthenticationService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,9 +62,11 @@ public class DomainResource {
     @GetMapping(value = "")
     public List<DomainRO> getDomains(@Valid Boolean active) {
         List<Domain> domains;
-        if (active == null || !active) {
+        if (BooleanUtils.isNotTrue(active)) {
+            LOG.debug("Getting all valid domains.");
             domains = domainService.getAllValidDomains();
         } else {
+            LOG.debug("Getting active domains.");
             domains = domainService.getDomains();
         }
         return coreMapper.domainListToDomainROList(domains);

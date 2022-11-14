@@ -1,7 +1,7 @@
 # Domibus upgrade information
 
   ## Domibus 5.1 (from 5.0.2)
-
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
   ### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
