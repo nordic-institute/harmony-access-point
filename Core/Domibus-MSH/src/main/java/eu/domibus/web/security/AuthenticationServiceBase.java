@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * @author Catalin Enache
  * @since 4.1
  */
-public abstract class AuthenticationServiceBase implements AuthenticationService, DomainsAware {
+public abstract class AuthenticationServiceBase implements AuthenticationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceBase.class);
 
@@ -64,7 +64,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         DomibusUserDetails loggedUser = getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), currentPassword, newPassword);
-        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
+        executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
     }
 
     /**
@@ -80,12 +80,16 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
 
     @Override
     public void onDomainAdded(Domain domain) {
-        authUtils.executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
+        executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        authUtils.executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domain.getCode()));
+        executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domain.getCode()));
+    }
+
+    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
+        authUtils.executeOnLoggedUser(consumer);
     }
 
     UserService getUserService() {
