@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -25,11 +26,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
-import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * Service to query the SMP to extract the required information about the unknown receiver AP.
@@ -45,6 +47,12 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
+
+    protected static final Map<SecurityProfile, String> SECURITY_PROFILE_TRANSPORT_PROFILE_MAP = new HashMap<>();
+
+    static {
+        SECURITY_PROFILE_TRANSPORT_PROFILE_MAP.put(SecurityProfile.RSA, "peppol-transport-as4-v2_0");
+    }
 
     public static final String SCHEME_DELIMITER = "::";
 
@@ -68,6 +76,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
 
     private final ObjectProvider<EndpointInfo> endpointInfos;
 
+    private final DynamicDiscoveryUtil dynamicDiscoveryUtil;
+
     public DynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider,
                                          MultiDomainCryptoService multiDomainCertificateProvider,
                                          DomainContextProvider domainProvider,
@@ -77,7 +87,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
                                          ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
                                          ObjectProvider<BusdoxLocator> busdoxLocators,
                                          ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
-                                         ObjectProvider<EndpointInfo> endpointInfos) {
+                                         ObjectProvider<EndpointInfo> endpointInfos,
+                                         DynamicDiscoveryUtil dynamicDiscoveryUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
@@ -89,14 +100,16 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         this.busdoxLocators = busdoxLocators;
         this.domibusApacheFetchers = domibusApacheFetchers;
         this.endpointInfos = endpointInfos;
+        this.dynamicDiscoveryUtil = dynamicDiscoveryUtil;
     }
 
     protected DomibusLogger getLogger() {
         return LOG;
     }
 
-    protected String getTrimmedDomibusProperty(String propertyName) {
-        return trim(domibusPropertyProvider.getProperty(propertyName));
+    @Override
+    protected DynamicDiscoveryUtil getDynamicDiscoveryUtil() {
+        return dynamicDiscoveryUtil;
     }
 
     protected String getPartyIdTypePropertyName() {
@@ -145,7 +158,6 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
             final ProcessIdentifier processIdentifier = getProcessIdentifier(processId);
             LOG.debug("Getting the ServiceMetadata");
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
-
 
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             LOG.debug("Get the Endpoint from ServiceMetadata with transport profile [{}]", transportProfileAS4);
