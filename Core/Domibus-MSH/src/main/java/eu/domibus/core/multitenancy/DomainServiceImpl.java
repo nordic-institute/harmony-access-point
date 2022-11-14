@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -53,28 +53,26 @@ public class DomainServiceImpl implements DomainService {
         this.dbSchemaUtil = dbSchemaUtil;
     }
 
-    @PostConstruct
-    public void initialize() {
-        domains = getAllValidDomains();
-    }
-
     @Override
     public synchronized List<Domain> getDomains() {
+        if (domains == null) {
+            domains = getAllValidDomains();
+        }
         return domains;
     }
 
     @Override
     public List<Domain> getAllValidDomains() {
         LOG.debug("Getting all potential domains that have a valid database schema.");
-        List<Domain> domains = domainDao.findAll();
-        domains.removeIf(domain -> {
-            boolean isInvalid = !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
-            if (isInvalid) {
-                LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
-            }
-            return isInvalid;
-        });
-        return domains;
+        return domainDao.findAll().stream()
+                .filter(domain -> {
+                    boolean valid = dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
+                    if (!valid) {
+                        LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
+                    }
+                    return valid;
+                })
+                .collect(Collectors.toList());
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
