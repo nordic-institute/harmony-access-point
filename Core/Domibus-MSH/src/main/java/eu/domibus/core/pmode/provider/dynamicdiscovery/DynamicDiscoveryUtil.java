@@ -2,6 +2,8 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 public class DynamicDiscoveryUtil {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryUtil.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -46,6 +50,11 @@ public class DynamicDiscoveryUtil {
      */
     public List<SecurityProfile> getSecurityProfilesPriorityList() {
         List<String> profilesList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_PROFILE_ORDER);
+
+        if (profilesList.size() == 0) {
+            LOG.warn("The property {} was not specified in the properties file", DOMIBUS_SECURITY_PROFILE_ORDER);
+            return null;
+        }
 
         return profilesList.stream()
                 .map(SecurityProfile::valueOf)
