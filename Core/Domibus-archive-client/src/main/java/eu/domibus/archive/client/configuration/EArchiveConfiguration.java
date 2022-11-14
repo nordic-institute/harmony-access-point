@@ -40,9 +40,9 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*
 public class EArchiveConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveConfiguration.class);
 
-    public static final String EARCHIVING_CLIENT_BEAN = "earchivingClientApi";
+    public static final String EARCHIVING_CLIENT_BEAN = "eArchiveClientApi";
 
-    public static final String EARCHIVING_REST_TEMPLATE_BEAN = "earchivingRestTemplate";
+    public static final String EARCHIVING_REST_TEMPLATE_BEAN = "eArchiveRestTemplate";
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 

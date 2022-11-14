@@ -106,7 +106,7 @@ public class EArchiveListenerTest {
             result = entityId;
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
-            result = new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
+            result = new DomibusEArchiveException("eArchive batch not found for batchId: [" + entityId + "]");
         }};
 
         eArchiveListener.onMessage(message);
