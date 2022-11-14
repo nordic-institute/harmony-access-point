@@ -69,8 +69,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     @Override
     public synchronized List<Domain> getDomains() {
-        LOG.debug("Getting active domains.");
-
         return domains;
     }
 
@@ -79,11 +77,11 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         LOG.debug("Getting all potential domains that have a valid database schema.");
         List<Domain> domains = domainDao.findAll();
         domains.removeIf(domain -> {
-            boolean isValid = !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
-            if (!isValid) {
+            boolean isInvalid = !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
+            if (isInvalid) {
                 LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
             }
-            return isValid;
+            return isInvalid;
         });
         return domains;
     }
