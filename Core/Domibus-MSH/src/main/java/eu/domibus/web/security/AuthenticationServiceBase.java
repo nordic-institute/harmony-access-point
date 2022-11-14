@@ -1,7 +1,9 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserService;
@@ -22,7 +24,7 @@ import java.util.function.Consumer;
  * @author Catalin Enache
  * @since 4.1
  */
-public abstract class AuthenticationServiceBase implements AuthenticationService {
+public abstract class AuthenticationServiceBase implements AuthenticationService, DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceBase.class);
 
@@ -54,7 +56,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
             throw new DomainTaskException("Could not set current domain: unknown domain (" + domainCode + ")");
         }
 
-        executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
     }
 
     @Override
@@ -62,7 +64,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         DomibusUserDetails loggedUser = getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), currentPassword, newPassword);
-        executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
     }
 
     /**
@@ -76,8 +78,14 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         return authUtils.getUserDetails();
     }
 
-    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
-        authUtils.executeOnLoggedUser(consumer);
+    @Override
+    public void onDomainAdded(Domain domain) {
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domain.getCode()));
     }
 
     UserService getUserService() {
