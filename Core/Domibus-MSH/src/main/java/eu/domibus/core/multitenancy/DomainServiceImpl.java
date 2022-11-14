@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -180,6 +179,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     private void clearCaches(Domain domain) {
+        LOG.info("Clear db schema, domain by code and domain validity caches for domain [{}]", domain);
         dbSchemaUtil.removeCachedDatabaseSchema(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
