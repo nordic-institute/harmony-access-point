@@ -137,14 +137,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     private DocumentIdentifier documentIdentifier;
 
     @Injectable
-    private ProcessIdentifier processIdentifier;
-
-    @Injectable
     private DefaultBDXRReader defaultBDXRReader;
-
-    @Injectable
-//    private TransportProfile transportProfile;
-    private String transportProfile;
 
     @Injectable
     private EndpointInfo endpointInfo;
