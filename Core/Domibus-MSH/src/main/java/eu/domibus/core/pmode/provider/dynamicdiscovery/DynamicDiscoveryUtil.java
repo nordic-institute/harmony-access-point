@@ -2,12 +2,12 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.SecurityProfile;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4;
@@ -22,8 +22,6 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 public class DynamicDiscoveryUtil {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryUtil.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -47,21 +45,10 @@ public class DynamicDiscoveryUtil {
      * @return a list of ordered Security Profile names
      */
     public List<SecurityProfile> getSecurityProfilesPriorityList() {
-        String priorityString = getTrimmedDomibusProperty(DOMIBUS_SECURITY_PROFILE_ORDER);
-        if (priorityString == null) {
-            LOG.warn("The property {} was not specified in the properties file", DOMIBUS_SECURITY_PROFILE_ORDER);
-            return null;
-        }
-        return Arrays.stream(priorityString.split(","))
-                .map(p -> {
-                    try {
-                        return SecurityProfile.valueOf(p.trim());
-                    } catch (IllegalArgumentException e) {
-                        LOG.warn("Invalid Security Profile: [{}] specified in the property [{}], exception is: {}", p, DOMIBUS_SECURITY_PROFILE_ORDER, e.getMessage());
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
+        List<String> profilesList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_PROFILE_ORDER);
+
+        return profilesList.stream()
+                .map(SecurityProfile::valueOf)
                 .collect(Collectors.toList());
     }
 
