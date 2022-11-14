@@ -5,12 +5,11 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.FetcherResponse;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.impl.DefaultURLFetcher;
@@ -24,6 +23,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceMetadataType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.SignedServiceMetadataType;
@@ -36,6 +36,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
@@ -142,10 +143,14 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     private DefaultBDXRReader defaultBDXRReader;
 
     @Injectable
-    private TransportProfile transportProfile;
+//    private TransportProfile transportProfile;
+    private String transportProfile;
 
     @Injectable
     private EndpointInfo endpointInfo;
+
+    @Injectable
+    private DynamicDiscoveryUtil dynamicDiscoveryUtil;
 
     @Tested
     private DynamicDiscoveryServiceOASIS dynamicDiscoveryServiceOASIS;
@@ -181,14 +186,17 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
         new Expectations() {{
 
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
-            result = "bdxr-transport-ebms3-as4-v1p0";
-
             endpointInfo.getAddress();
             result = ADDRESS;
 
             smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             result = buildServiceMetadata();
+
+            dynamicDiscoveryUtil.retrieveTransportProfilesFromProcesses((List<ProcessType>) any);
+            result = Arrays.asList("ECC","RSA");
+
+            dynamicDiscoveryUtil.getAvailableTransportProfileForHighestRankingSecurityProfile(Arrays.asList("ECC","RSA"), (Map<SecurityProfile, String>) any);
+            result = "bdxr-transport-ebms3-as4-v1p0";
 
             endpointInfos.getObject(anyString, any);
             result = endpointInfo;
@@ -210,20 +218,15 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test
     public void testLookupInformationProcessNotExits(@Injectable DynamicDiscovery smpClient) throws Exception {
+        //given
         setupBasicLookupConditions();
-
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
-            result = "bdxr-transport-ebms3-as4-v1p0";
-
-        }};
 
         //when
         ConfigurationException exception = assertThrows(ConfigurationException.class,
                 () -> dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, "SomeService", TEST_SERVICE_TYPE));
 
         // then
-        assertEquals("Could not fetch metadata for: urn:romania:ncpb ehealth-actorid-qns ehealth-resid-qns:urn::epsos##services:extended:epsos::107 SomeService ehealth-procid-qns using the AS4 Protocol bdxr-transport-ebms3-as4-v1p0", exception.getMessage());
+        assertEquals("Unable to find endpoint information: transport profile not found or empty", exception.getMessage());
     }
 
     @Test
@@ -269,9 +272,6 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     public void testLookupInformationNotFound(final @Capturing DynamicDiscovery smpClient) throws Exception {
         setupBasicLookupConditions();
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
-            result = "bdxr-transport-ebms3-as4-v1p0";
-
             smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             result = buildServiceMetadata();
         }};
@@ -280,8 +280,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         ConfigurationException exception = assertThrows(ConfigurationException.class,
                 () -> dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_INVALID_SERVICE_VALUE, TEST_SERVICE_TYPE));
         // then
-        assertEquals("Could not fetch metadata for: urn:romania:ncpb ehealth-actorid-qns ehealth-resid-qns:urn::epsos##services:extended:epsos::107 invalidServiceValue ehealth-procid-qns using the AS4 Protocol bdxr-transport-ebms3-as4-v1p0", exception.getMessage());
-
+        assertEquals("Unable to find endpoint information: transport profile not found or empty", exception.getMessage());
     }
 
     private ServiceMetadata buildServiceMetadata() throws Exception {
@@ -430,12 +429,12 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         Assert.assertNull(defaultProxy);
     }
 
-
     @Test
     public void getPartyIdTypeTestForNull() {
         final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
+            dynamicDiscoveryUtil.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
+
             result = URN_TYPE_VALUE;
             times = 1;
         }};
@@ -446,7 +445,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     @Test
     public void getPartyIdTypeTestForEmpty() {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
+            dynamicDiscoveryUtil.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
             result = "";
             times = 1;
         }};
@@ -459,7 +458,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
+            dynamicDiscoveryUtil.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
             result = DEFAULT_RESPONDER_ROLE;
             times = 1;
         }};
