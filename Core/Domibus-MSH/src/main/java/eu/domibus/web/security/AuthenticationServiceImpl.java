@@ -1,5 +1,6 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
@@ -59,8 +60,8 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
 
         userService.handleCorrectAuthentication(username);
         authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
-//        executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
 
         return (DomibusUserDetailsImpl) authentication.getPrincipal();
     }
+
 }

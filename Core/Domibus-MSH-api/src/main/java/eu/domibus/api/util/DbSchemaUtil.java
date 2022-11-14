@@ -27,4 +27,6 @@ public interface DbSchemaUtil {
     String getSchemaChangeSQL(String databaseSchema);
 
     String getGeneralSchema();
+
+    void removeCachedDatabaseSchema(Domain domain);
 }

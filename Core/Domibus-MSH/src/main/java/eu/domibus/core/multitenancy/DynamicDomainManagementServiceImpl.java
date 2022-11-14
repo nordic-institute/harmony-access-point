@@ -59,7 +59,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                                               List<DomainsAwareExt> externalDomainsAwareList,
                                               DomibusCoreMapper coreMapper,
                                               DomibusConfigurationService domibusConfigurationService,
-                                              DbSchemaUtil dbSchemaUtil, BackendConnectorService backendConnectorService) {
+                                              DbSchemaUtil dbSchemaUtil,
+                                              BackendConnectorService backendConnectorService) {
 
         this.domainService = domainService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -83,7 +84,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         internalAddDomain(domain);
 
-        if(notifyClusterNodes) {
+        if (notifyClusterNodes) {
             notifyClusterNodesOfAddition(domainCode);
         }
 
@@ -102,7 +103,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfRemoval(domain);
 
-        if(notifyClusterNodes && domibusConfigurationService.isClusterDeployment()) {
+        if (notifyClusterNodes && domibusConfigurationService.isClusterDeployment()) {
             notifyClusterNodesOfRemoval(domainCode);
         }
 

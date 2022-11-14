@@ -151,7 +151,6 @@
         <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
-        <commons-text.version>1.10.0</commons-text.version>
         <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
@@ -631,11 +630,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>${commons-text.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>

@@ -1,7 +1,9 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserService;
@@ -54,7 +56,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
             throw new DomainTaskException("Could not set current domain: unknown domain (" + domainCode + ")");
         }
 
-        executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
     }
 
     @Override
@@ -74,6 +76,16 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
     @Override
     public DomibusUserDetails getLoggedUser() {
         return authUtils.getUserDetails();
+    }
+
+    @Override
+    public void onDomainAdded(Domain domain) {
+        executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+        executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domain.getCode()));
     }
 
     protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
