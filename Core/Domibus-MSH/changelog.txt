@@ -1,6 +1,6 @@
-Domibus 5.0.2
-- Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 Domibus 5.1
+- Replaced old Backend interface from the WS plugin distribution with the new wsplugin interface (wsdl and xsds)
+- Simplified the creation of alerts: no need for custom property change listener, event queue listener, enqueue method or module configuration class
 - Added two internal API to resend selected failed messages and resend all failed messages as batches from the admin console.
 - Added property domibus.earchive.batch.size.payload to specify a total payload size limit of all archived messages in a batch
 - Added properties for the party ID type and responder role that are specific to Oasis and Peppol
@@ -12,6 +12,8 @@ Domibus 5.1
 - Files can be sent to WS Plugin as references to the filesystem
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Added Security Profiles in order to support different security certificates for signing and encryption
+Domibus 5.0.2
+- Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
 - Filter out TEST messages from earchived messages

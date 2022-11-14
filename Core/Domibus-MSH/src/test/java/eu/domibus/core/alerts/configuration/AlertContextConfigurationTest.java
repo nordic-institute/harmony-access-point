@@ -1,7 +1,10 @@
 package eu.domibus.core.alerts.configuration;
 
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertContextConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -29,6 +32,12 @@ public class AlertContextConfigurationTest {
 
     @Mocked
     DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory;
+
+    @Injectable
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
 
     @Test
     public void alertJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,

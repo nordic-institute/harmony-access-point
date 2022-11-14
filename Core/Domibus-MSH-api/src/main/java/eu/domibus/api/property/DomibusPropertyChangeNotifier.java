@@ -16,4 +16,6 @@ public interface DomibusPropertyChangeNotifier {
      * @param broadcast whether the other cluster nodes need to be notified
      */
     void signalPropertyValueChanged(String domainCode, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
+
+    void addListener(DomibusPropertyChangeListener domibusPropertyChangeListener);
 }
