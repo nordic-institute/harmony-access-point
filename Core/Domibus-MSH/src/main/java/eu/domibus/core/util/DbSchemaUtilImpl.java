@@ -161,4 +161,20 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         return result;
     }
+
+    @Override
+    public void removeDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
+            return;
+        }
+        synchronized (domainSchemas) {
+            domainSchema = domainSchemas.get(domain);
+            if (domainSchema != null) {
+                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
+                domainSchemas.remove(domain);
+            }
+        }
+    }
 }

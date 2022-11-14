@@ -34,8 +34,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
-    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
-
     private List<Domain> domains;
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
@@ -196,26 +194,12 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     @Override
     public void onDomainAdded(Domain domain) {
-        removeCachedSchema(domain);
+        dbSchemaUtil.removeDatabaseSchema(domain);
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        removeCachedSchema(domain);
+        dbSchemaUtil.removeDatabaseSchema(domain);
     }
 
-    private void removeCachedSchema(Domain domain) {
-        String domainSchema = domainSchemas.get(domain);
-        if (domainSchema == null) {
-            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
-            return;
-        }
-        synchronized (domainSchemas) {
-            domainSchema = domainSchemas.get(domain);
-            if (domainSchema != null) {
-                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
-                domainSchemas.remove(domain);
-            }
-        }
-    }
 }
