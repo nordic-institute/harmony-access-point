@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
+import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
@@ -195,7 +196,8 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         try {
             List<String> lines = Files.readAllLines(new File(propertiesFilePath).toPath());
             String dbSchemaLine = lines.stream().filter(line -> line.startsWith(lineToSearch)).findFirst().orElse("");
-            return StringUtils.trim(dbSchemaLine.substring(dbSchemaLine.indexOf("=") + 1));
+            String propValue = StringUtils.trim(dbSchemaLine.substring(dbSchemaLine.indexOf(PROPERTY_VALUE_DELIMITER) + 1));
+            return propValue;
         } catch (IOException e) {
             LOG.warn("Could not read lines from file [{}] to get the database schema name.", propertiesFilePath);
             return null;
