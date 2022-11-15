@@ -470,7 +470,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         if (selectorClause != null) {
             criteria.put("selectorClause", selectorClause);
         }
-        String selector = jmsSelectorUtil.getSelector(criteria);
+        return jmsSelectorUtil.getSelector(criteria);
         return selector;
     }
 
