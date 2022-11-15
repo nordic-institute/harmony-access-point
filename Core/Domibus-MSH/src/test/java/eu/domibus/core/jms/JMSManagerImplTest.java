@@ -224,7 +224,7 @@ public class JMSManagerImplTest {
         jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
         new Expectations(jmsManager) {{
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
 
             jmsManager.getJMSMessageDomain(source, messageIds);
             result = jmsMessageIDDomains;
@@ -514,11 +514,13 @@ public class JMSManagerImplTest {
     public void testValidateMesaageMove_BlankAndNullIds() {
         String source = "src";
         String destination = "dest1";
+        JMSDestination jmsDestination = new JMSDestination();
+        jmsDestination.setName(destination);
         String[] messageIds = {"", null};
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsDestination, messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing
@@ -532,11 +534,13 @@ public class JMSManagerImplTest {
     public void testValidateMesaageMove_NoIds() {
         String source = "src";
         String destination = "dest1";
+        JMSDestination jmsDestination = new JMSDestination();
+        jmsDestination.setName(destination);
         String[] messageIds = {};
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsDestination, messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing
@@ -551,10 +555,12 @@ public class JMSManagerImplTest {
         String source = "src";
         String destination = "src";
         String[] messageIds = {"id1"};
+        JMSDestination jmsDestination = new JMSDestination();
+        jmsDestination.setName(destination);
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsDestination, messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing
@@ -589,7 +595,7 @@ public class JMSManagerImplTest {
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing
@@ -623,7 +629,7 @@ public class JMSManagerImplTest {
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing
@@ -667,7 +673,7 @@ public class JMSManagerImplTest {
 
         // When
         try {
-            jmsManager.validateMessagesMove(source, destination, messageIds);
+            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
             Assert.fail();
         } catch (RequestValidationException e) {
             //do nothing

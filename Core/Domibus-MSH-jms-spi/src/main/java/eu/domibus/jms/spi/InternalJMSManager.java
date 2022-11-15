@@ -36,6 +36,8 @@ public interface InternalJMSManager {
 
     int moveMessages(String source, String destination, String[] messageIds);
 
+    int moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destination);
+
     InternalJmsMessage getMessage(String source, String messageId);
 
     List<InternalJmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector);
