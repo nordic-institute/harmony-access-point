@@ -419,7 +419,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     private void validateSourceAndDestination(String source, JMSDestination destinationQueue) {
-        if(destinationQueue == null){
+        if (destinationQueue == null) {
             throw new RequestValidationException("Destination cannot be null.");
         }
         if(source == null){
