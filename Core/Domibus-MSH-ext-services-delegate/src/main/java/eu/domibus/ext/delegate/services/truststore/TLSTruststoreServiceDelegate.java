@@ -15,10 +15,6 @@ import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.services.TLSTruststoreExtService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,8 +26,6 @@ import java.util.List;
  */
 @Service
 public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
-
-    public static final String ERROR_MESSAGE_EMPTY_TLS_TRUSTSTORE_PASSWORD = "Failed to upload the TLS truststoreFile file since its password was empty."; //NOSONAR
 
     public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
@@ -60,28 +54,17 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
         this.domibusExtMapper = domibusExtMapper;
     }
 
-
     @Override
-    public ResponseEntity<ByteArrayResource> downloadTLSTruststoreContent() {
+    public byte[] downloadTLSTruststoreContent() {
         TrustStoreContentDTO content;
         try {
             content = certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
+            return content.getContent();
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-        ByteArrayResource resource = new ByteArrayResource(content.getContent());
-
-        HttpStatus status = HttpStatus.OK;
-        if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;
+            throw new TruststoreExtException("Could not find truststore entity with name: " + TLS_TRUSTSTORE_NAME);
         }
 
-        return ResponseEntity.status(status)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + "tlsTruststore" + ".jks")
-                .body(resource);
     }
-
 
     @Override
     public List<TrustStoreDTO> getTLSTrustStoreEntries() {
@@ -98,17 +81,11 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
         }
     }
 
-
     @Override
-    public String uploadTLSTruststoreFile(MultipartFile truststoreFile, String password) {
+    public void uploadTLSTruststoreFile(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-
-        if (StringUtils.isBlank(password)) {
-            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TLS_TRUSTSTORE_PASSWORD);
-        }
         certificateService.replaceStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
-        return "TLS truststore file has been successfully replaced.";
     }
 
     protected void resetTLSTruststore() {
@@ -116,6 +93,20 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
         String domainCode = domain != null ? domain.getCode() : null;
         tlsReaderService.reset(domainCode);
         signalService.signalTLSTrustStoreUpdate(domain);
+    }
+
+    public void addTLSCertificate(MultipartFile certificateFile, String alias) throws RequestValidationException {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        certificateService.addCertificate(TLS_TRUSTSTORE_NAME, fileContent, alias, true);
+    }
+
+    public void removeTLSCertificate(String alias) throws RequestValidationException {
+        certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
     }
 }
 

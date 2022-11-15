@@ -12,10 +12,6 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.TruststoreExtService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,8 +23,6 @@ import java.util.List;
  */
 @Service
 public class TruststoreServiceDelegate implements TruststoreExtService {
-
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
     public static final String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
 
@@ -55,21 +49,10 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
 
     @Override
-    public ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
+    public byte[] downloadTruststoreContent() {
         TrustStoreContentDTO content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
-        ByteArrayResource resource = new ByteArrayResource(content.getContent());
-
-        HttpStatus status = HttpStatus.OK;
-        if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return ResponseEntity.status(status)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + "truststore" + ".jks")
-                .body(resource);
+        return content.getContent();
     }
-
 
     @Override
     public List<TrustStoreDTO> getTrustStoreEntries() {
@@ -77,18 +60,27 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
         return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
     }
 
-
     @Override
-    public String uploadTruststoreFile(MultipartFile truststoreFile, String password) {
+    public void uploadTruststoreFile(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-
-        if (StringUtils.isBlank(password)) {
-            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
-        }
-
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.replaceTrustStore(currentDomain, truststoreFile.getOriginalFilename(), truststoreFileContent, password);
-        return "Truststore file has been successfully replaced.";
+    }
+
+    @Override
+    public void addCertificate(MultipartFile certificateFile, String alias) throws RequestValidationException {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        certificateService.addCertificate(DOMIBUS_TRUSTSTORE_NAME, fileContent, alias, true);
+    }
+
+    @Override
+    public void removeCertificate(String alias) throws RequestValidationException {
+        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, alias);
     }
 }
 
