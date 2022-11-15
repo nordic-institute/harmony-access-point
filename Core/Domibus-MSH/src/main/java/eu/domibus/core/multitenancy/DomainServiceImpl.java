@@ -65,9 +65,6 @@ public class DomainServiceImpl implements DomainService {
         LOG.debug("Getting all potential domains that have a valid database schema.");
         return domainDao.findAll().stream()
                 .filter(domain -> {
-                    if (domains != null && !domains.contains(domain)) {
-                        domibusPropertyProvider.loadProperties(domain);
-                    }
                     boolean valid = dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
                     if (!valid) {
                         LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
@@ -140,13 +137,13 @@ public class DomainServiceImpl implements DomainService {
             return;
         }
 
+        clearCaches(domain);
         if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domain));
         }
 
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
-        clearCaches(domain);
     }
 
     @Override

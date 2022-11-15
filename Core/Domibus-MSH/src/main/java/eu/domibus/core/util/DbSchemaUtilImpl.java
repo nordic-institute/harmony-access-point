@@ -6,10 +6,9 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
@@ -69,7 +72,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             synchronized (domainSchemas) {
                 domainSchema = domainSchemas.get(domain);
                 if (domainSchema == null) {
-                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+                    String value = getDBSchemaFromPropertyFile(domain);
                     if (value == null) {
                         LOG.warn("Database schema for domain [{}] was null, removing from cache", domain);
                         domainSchemas.remove(domain);
@@ -136,7 +139,23 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    public String getSchemaChangeSQL(String databaseSchema) {
+    @Override
+    public void removeCachedDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
+            return;
+        }
+        synchronized (domainSchemas) {
+            domainSchema = domainSchemas.get(domain);
+            if (domainSchema != null) {
+                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
+                domainSchemas.remove(domain);
+            }
+        }
+    }
+
+    protected String getSchemaChangeSQL(String databaseSchema) {
         final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
         String result;
 
@@ -160,19 +179,26 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
-    @Override
-    public void removeCachedDatabaseSchema(Domain domain) {
-        String domainSchema = domainSchemas.get(domain);
-        if (domainSchema == null) {
-            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
-            return;
+    private String getDBSchemaFromPropertyFile(Domain domain) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
         }
-        synchronized (domainSchemas) {
-            domainSchema = domainSchemas.get(domain);
-            if (domainSchema != null) {
-                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
-                domainSchemas.remove(domain);
-            }
+
+        if (domain == null) {
+            LOG.warn("Cannot get the database schema name since the domain provided is null.");
+            return null;
+        }
+
+        String propertiesFilePath = domibusConfigurationService.getConfigLocation() + File.separator
+                + domibusConfigurationService.getConfigurationFileName(domain);
+        String lineToSearch = domain.getCode() + "." + DOMIBUS_DATABASE_SCHEMA + "=";
+        try {
+            List<String> lines = Files.readAllLines(new File(propertiesFilePath).toPath());
+            String dbSchemaLine = lines.stream().filter(line -> line.startsWith(lineToSearch)).findFirst().orElse("");
+            return StringUtils.trim(dbSchemaLine.substring(dbSchemaLine.indexOf("=") + 1));
+        } catch (IOException e) {
+            LOG.warn("Could not read lines from file [{}] to get the database schema name.", propertiesFilePath);
+            return null;
         }
     }
 }

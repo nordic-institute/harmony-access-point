@@ -196,9 +196,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     protected void internalAddDomain(Domain domain) {
-        domibusPropertyProvider.loadProperties(domain);
-
         domainService.addDomain(domain);
+
+        domibusPropertyProvider.loadProperties(domain);
 
         // we need to notify plugins so early because they will load their properties, including Enabled,
         // which will tell domibus to create or not the resources for these plugins( queues and cron jobs)
