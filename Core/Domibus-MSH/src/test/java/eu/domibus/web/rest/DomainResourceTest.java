@@ -63,7 +63,7 @@ public class DomainResourceTest {
         // GIVEN
         final Boolean activeFlag = null;
         new Expectations() {{
-            domainService.getAllDomains();
+            domainService.getAllValidDomains();
             result = domainEntries;
 
             coreMapper.domainListToDomainROList(domainEntries);

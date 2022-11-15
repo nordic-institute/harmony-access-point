@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -52,25 +52,26 @@ public class DomainServiceImpl implements DomainService {
         this.dbSchemaUtil = dbSchemaUtil;
     }
 
-    @PostConstruct
-    public void initialize() {
-        domains = domainDao.findAll();
-    }
-
     @Override
     public synchronized List<Domain> getDomains() {
-        LOG.debug("Getting active domains.");
-
-        // move in initialize and add domain
-        domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
-
+        if (domains == null) {
+            domains = getAllValidDomains();
+        }
         return domains;
     }
 
     @Override
-    public List<Domain> getAllDomains() {
-        LOG.debug("Getting all potential domains.");
-        return domainDao.findAll();
+    public List<Domain> getAllValidDomains() {
+        LOG.debug("Getting all potential domains that have a valid database schema.");
+        return domainDao.findAll().stream()
+                .filter(domain -> {
+                    boolean valid = dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
+                    if (!valid) {
+                        LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
+                    }
+                    return valid;
+                })
+                .collect(Collectors.toList());
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
@@ -136,9 +137,13 @@ public class DomainServiceImpl implements DomainService {
             return;
         }
 
+        clearCaches(domain);
+        if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domain));
+        }
+
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
-        clearCaches(domain);
     }
 
     @Override
@@ -179,10 +184,9 @@ public class DomainServiceImpl implements DomainService {
     }
 
     private void clearCaches(Domain domain) {
-        LOG.info("Clear db schema, domain by code and domain validity caches for domain [{}]", domain);
+        LOG.info("Clear db schema and domain by code caches for domain [{}]", domain);
         dbSchemaUtil.removeCachedDatabaseSchema(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
 }
