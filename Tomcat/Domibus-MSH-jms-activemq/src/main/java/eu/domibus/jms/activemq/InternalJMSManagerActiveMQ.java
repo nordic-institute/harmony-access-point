@@ -310,7 +310,6 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             QueueViewMBean queue = domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             return queue.moveMatchingMessagesTo(selector, destination);
         } catch (Exception e) {
-
             throw new InternalJMSException(String.format("Failed to move messages from source [%s] to destination [%s] with selector [%s]", source, destination, selector), e);
         }
     }
