@@ -75,6 +75,9 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
 
@@ -3030,14 +3033,6 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
-    </changeSet>
-
-    <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
-        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
     </changeSet>
 
 </databaseChangeLog>
