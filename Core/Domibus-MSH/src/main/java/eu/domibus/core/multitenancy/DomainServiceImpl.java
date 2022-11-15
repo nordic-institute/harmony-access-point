@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,6 +65,9 @@ public class DomainServiceImpl implements DomainService {
         LOG.debug("Getting all potential domains that have a valid database schema.");
         return domainDao.findAll().stream()
                 .filter(domain -> {
+                    if (domains != null && !domains.contains(domain)) {
+                        domibusPropertyProvider.loadProperties(domain);
+                    }
                     boolean valid = dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
                     if (!valid) {
                         LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
@@ -136,6 +138,10 @@ public class DomainServiceImpl implements DomainService {
         if (domain == null) {
             LOG.info("Could not add a null domain.");
             return;
+        }
+
+        if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domain));
         }
 
         LOG.debug("Adding domain [{}]", domain);

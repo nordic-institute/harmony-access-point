@@ -142,7 +142,6 @@ public class DynamicDomainManagementServiceImplTest {
         });
 
         new Expectations(dynamicDomainManagementService) {{
-            dynamicDomainManagementService.validateDomainSchema(anyString);
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 

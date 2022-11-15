@@ -102,7 +102,6 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
-
         //in single tenancy the schema validity check is not needed
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.info("Domain's database schema validity check is not needed in single tenancy");

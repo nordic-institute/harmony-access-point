@@ -47,8 +47,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final DbSchemaUtil dbSchemaUtil;
-
     private final BackendConnectorService backendConnectorService;
 
     public DynamicDomainManagementServiceImpl(DomainService domainService,
@@ -59,7 +57,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                                               List<DomainsAwareExt> externalDomainsAwareList,
                                               DomibusCoreMapper coreMapper,
                                               DomibusConfigurationService domibusConfigurationService,
-                                              DbSchemaUtil dbSchemaUtil,
                                               BackendConnectorService backendConnectorService) {
 
         this.domainService = domainService;
@@ -70,7 +67,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         this.externalDomainsAwareList = externalDomainsAwareList;
         this.coreMapper = coreMapper;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.dbSchemaUtil = dbSchemaUtil;
         this.backendConnectorService = backendConnectorService;
     }
 
@@ -199,16 +195,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
     }
 
-    protected void validateDomainSchema(String domainCode) {
-        Domain domain = new Domain(domainCode, domainCode);
-        if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
-            throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domainCode));
-        }
-    }
-
     protected void internalAddDomain(Domain domain) {
-        validateDomainSchema(domain.getCode());
-
         domibusPropertyProvider.loadProperties(domain);
 
         domainService.addDomain(domain);
