@@ -57,6 +57,7 @@ export class JmsComponent extends mix(BaseListComponent)
   request: MessagesRequestRO;
 
   private _selectedSource: any;
+  private dlqQueue: any;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -200,6 +201,7 @@ export class JmsComponent extends mix(BaseListComponent)
     }
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
+    this.dlqQueue =  matching;
     const toSelect = matching != null ? matching : this.queues.length[0];
 
     this.selectedSource = toSelect;

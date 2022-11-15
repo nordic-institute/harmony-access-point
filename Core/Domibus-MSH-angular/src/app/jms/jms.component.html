@@ -32,6 +32,13 @@
                             #timestampControl="ngModel">
             </md2-datepicker>
 
+            <mat-select  *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.destination"
+                         placeholder="Source Queue" name="sourceQueue" id="sourceQueue_id" style="width:40%" >
+              <mat-option *ngFor="let queue of queues" [value]="queue" style="width:95%">
+                {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+              </mat-option>
+            </mat-select>
+
             <mat-form-field id="jmsSelector">
               <input id="jmsSelectorinput" name="selector" matInput placeholder="Selector" [(ngModel)]="filter.selector">
             </mat-form-field>
