@@ -26,6 +26,8 @@ import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.OpenDataException;
 import java.util.*;
 
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -93,7 +95,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     protected long getMessagesTotalCount(QueueViewMBean queueMbean) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
-            return InternalJMSConstants.NB_MESSAGES_ADMIN;
+            return NB_MESSAGES_ADMIN;
         }
         return queueMbean.getQueueSize();
     }
@@ -188,7 +190,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     private List<InternalJmsMessage> getInternalJmsMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destinationType) {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
-        if (InternalJMSConstants.QUEUE.equals(destinationType)) {
+        if (QUEUE.equals(destinationType)) {
             String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
             try {
                 QueueViewMBean queue = domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
@@ -206,16 +208,16 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     private String getSelector(String jmsType, Date fromDate, Date toDate, String selectorClause) {
         Map<String, Object> criteria = new HashMap<>();
         if (jmsType != null) {
-            criteria.put("JMSType", jmsType);
+            criteria.put(CRITERIA_JMS_TYPE, jmsType);
         }
         if (fromDate != null) {
-            criteria.put("JMSTimestamp_from", fromDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_FROM, fromDate.getTime());
         }
         if (toDate != null) {
-            criteria.put("JMSTimestamp_to", toDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_TO, toDate.getTime());
         }
         if (selectorClause != null) {
-            criteria.put("selectorClause", selectorClause);
+            criteria.put(CRITERIA_SELECTOR_CLAUSE, selectorClause);
         }
 
         String selector = jmsSelectorUtil.getSelector(criteria);
@@ -251,7 +253,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     protected InternalJmsMessage convertCompositeData(CompositeData data) {
         InternalJmsMessage result = new InternalJmsMessage();
-        String jmsType = getCompositeValue(data, "JMSType");
+        String jmsType = getCompositeValue(data, CRITERIA_JMS_TYPE);
         result.setType(jmsType);
         Date jmsTimestamp = getCompositeValue(data, "JMSTimestamp");
         result.setTimestamp(jmsTimestamp);
@@ -260,10 +262,10 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
         Map<String, String> properties = new HashMap<>();
 
-        Integer priority = getCompositeValue(data, InternalJMSConstants.JMS_PRIORITY);
+        Integer priority = getCompositeValue(data, JMS_PRIORITY);
         result.setPriority(priority);
         if (priority != null) {
-            properties.put(InternalJMSConstants.JMS_PRIORITY, String.valueOf(priority));
+            properties.put(JMS_PRIORITY, String.valueOf(priority));
         }
 
         String textValue = getCompositeValue(data, "Text");

@@ -58,8 +58,6 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected static final String PROPERTY_JNDI_NAME = "Jndi";
 
-    private static final String JMS_TYPE = "JMSType";
-
     private static final String FAILED_TO_BUILD_JMS_DEST_MAP = "Failed to build JMS destination map";
 
     /**
@@ -713,16 +711,16 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
         Map<String, Object> criteria = new HashMap<>();
         if (jmsType != null) {
-            criteria.put(JMS_TYPE, jmsType);
+            criteria.put(CRITERIA_JMS_TYPE, jmsType);
         }
         if (fromDate != null) {
-            criteria.put("JMSTimestamp_from", fromDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_FROM, fromDate.getTime());
         }
         if (toDate != null) {
-            criteria.put("JMSTimestamp_to", toDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_TO, toDate.getTime());
         }
         if (selectorClause != null) {
-            criteria.put("selectorClause", selectorClause);
+            criteria.put(CRITERIA_SELECTOR_CLAUSE, selectorClause);
         }
         return jmsSelectorUtil.getSelector(criteria);
     }
@@ -834,11 +832,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         String timestamp = jmsTimestamp.getTextContent();
         message.setTimestamp(new Date(Long.parseLong(timestamp)));
         message.getProperties().put("JMSTimestamp", timestamp);
-        Element jmsType = getChildElement(header, JMS_TYPE);
+        Element jmsType = getChildElement(header, CRITERIA_JMS_TYPE);
         if (jmsType != null) {
             String type = jmsType.getTextContent();
             message.setType(type);
-            message.getProperties().put(JMS_TYPE, type);
+            message.getProperties().put(CRITERIA_JMS_TYPE, type);
         }
         Element jmsPriority = getChildElement(header, JMS_PRIORITY);
         if (jmsPriority != null) {

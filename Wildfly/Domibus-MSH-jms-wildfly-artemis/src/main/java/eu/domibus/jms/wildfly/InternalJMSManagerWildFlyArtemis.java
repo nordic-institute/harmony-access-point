@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION;
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
@@ -459,19 +460,18 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     private String getSelector(String jmsType, Date fromDate, Date toDate, String selectorClause) {
         Map<String, Object> criteria = new HashMap<>();
         if (jmsType != null) {
-            criteria.put("JMSType", jmsType);
+            criteria.put(CRITERIA_JMS_TYPE, jmsType);
         }
         if (fromDate != null) {
-            criteria.put("JMSTimestamp_from", fromDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_FROM, fromDate.getTime());
         }
         if (toDate != null) {
-            criteria.put("JMSTimestamp_to", toDate.getTime());
+            criteria.put(CRITERIA_JMS_TIMESTAMP_TO, toDate.getTime());
         }
         if (selectorClause != null) {
-            criteria.put("selectorClause", selectorClause);
+            criteria.put(CRITERIA_SELECTOR_CLAUSE, selectorClause);
         }
         return jmsSelectorUtil.getSelector(criteria);
-        return selector;
     }
 
     private List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws NamingException {
