@@ -194,8 +194,8 @@ public class DbSchemaUtilImplTest {
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
         String defaultSchema = "defaultSchema";
 
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+        new Expectations(dbSchemaUtilImpl) {{
+            dbSchemaUtilImpl.getDBSchemaFromPropertyFile(defaultDomain);
             result = defaultSchema;
         }};
 
@@ -206,7 +206,7 @@ public class DbSchemaUtilImplTest {
         Assert.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
 
         new Verifications() {{
-            domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_DATABASE_SCHEMA);
+            dbSchemaUtilImpl.getDBSchemaFromPropertyFile(defaultDomain);
             times = 1;
         }};
     }

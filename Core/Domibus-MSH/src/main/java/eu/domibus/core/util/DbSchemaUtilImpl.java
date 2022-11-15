@@ -17,11 +17,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
@@ -180,7 +182,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
-    private String getDBSchemaFromPropertyFile(Domain domain) {
+    protected String getDBSchemaFromPropertyFile(Domain domain) {
         if (domibusConfigurationService.isSingleTenantAware()) {
             return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
         }
@@ -192,14 +194,12 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         String propertiesFilePath = domibusConfigurationService.getConfigLocation() + File.separator
                 + domibusConfigurationService.getConfigurationFileName(domain);
-        String lineToSearch = domain.getCode() + "." + DOMIBUS_DATABASE_SCHEMA + "=";
-        try {
-            List<String> lines = Files.readAllLines(new File(propertiesFilePath).toPath());
-            String dbSchemaLine = lines.stream().filter(line -> line.startsWith(lineToSearch)).findFirst().orElse("");
-            String propValue = StringUtils.trim(dbSchemaLine.substring(dbSchemaLine.indexOf(PROPERTY_VALUE_DELIMITER) + 1));
-            return propValue;
-        } catch (IOException e) {
-            LOG.warn("Could not read lines from file [{}] to get the database schema name.", propertiesFilePath);
+        try (FileInputStream fis = new FileInputStream(propertiesFilePath)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            return properties.getProperty(domain.getCode() + "." + DOMIBUS_DATABASE_SCHEMA);
+        } catch (IOException ex) {
+            LOG.warn("Could not properties from file [{}] to get the database schema name.", propertiesFilePath);
             return null;
         }
     }
