@@ -101,8 +101,8 @@ public class WSPluginBackendScheduleRetryService {
     }
 
     @Transactional
-    public void schedule(String messageId, Map<String, String> props, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageId, messageType, props, rule);
+    public void schedule(String messageId, long messageEntityId, Map<String, String> props, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageId, messageEntityId, messageType, props, rule);
         wsBackendMessageLogDao.create(backendMessage);
         scheduleBackendMessage(backendMessage);
     }
@@ -133,10 +133,11 @@ public class WSPluginBackendScheduleRetryService {
 
     protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(
             String messageId,
-            WSBackendMessageType messageType,
+            long messageEntityId, WSBackendMessageType messageType,
             Map<String, String> props,
             WSPluginDispatchRule rule) {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = createWsBackendMessageLogEntity(messageId, messageType, props.get(MessageConstants.FINAL_RECIPIENT), rule);
+        wsBackendMessageLogEntity.setMessageEntityId(messageEntityId);
         wsBackendMessageLogEntity.setOriginalSender(props.get(MessageConstants.ORIGINAL_SENDER));
         String messageStatus = props.get(MessageConstants.STATUS_TO);
         if (StringUtils.isNotBlank(messageStatus)) {
