@@ -8,9 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -23,8 +20,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class EArchiveFileStorage {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorage.class);
