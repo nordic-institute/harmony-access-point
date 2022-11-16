@@ -1,6 +1,7 @@
 package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.web.rest.TruststoreResource;
@@ -14,12 +15,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class TruststoreResourceIT extends AbstractIT {
 
@@ -28,6 +35,9 @@ public class TruststoreResourceIT extends AbstractIT {
 
     @Autowired
     private TruststoreDao truststoreDao;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
     public void before() {
@@ -76,6 +86,29 @@ public class TruststoreResourceIT extends AbstractIT {
         Assert.assertTrue(entries.size() != newEntries.size());
     }
 
+    @Test
+    public void isChangedOnDisk() throws IOException {
+        createTrustStore();
+
+        boolean changedOnDisk = truststoreResource.isChangedOnDisk();
+        Assert.assertFalse(changedOnDisk);
+
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
+        String newLoc = location.replace("gateway_truststore.jks", "gateway_truststore2.jks");
+        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
+        Files.copy(Paths.get(newLoc), Paths.get(location), REPLACE_EXISTING);
+
+        changedOnDisk = truststoreResource.isChangedOnDisk();
+        Assert.assertTrue(changedOnDisk);
+
+        Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
+        changedOnDisk = truststoreResource.isChangedOnDisk();
+        Assert.assertFalse(changedOnDisk);
+
+        Files.delete(Paths.get(back));
+    }
+
     private void removeStore(String domibusKeystoreName) {
         if (truststoreDao.existsWithName(domibusKeystoreName)) {
             TruststoreEntity trust = truststoreDao.findByName(domibusKeystoreName);
@@ -96,10 +129,11 @@ public class TruststoreResourceIT extends AbstractIT {
         domibusTruststoreEntity.setName(domibusKeystoreName);
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-        byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
-        domibusTruststoreEntity.setContent(trustStoreBytes);
-        truststoreDao.create(domibusTruststoreEntity);
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+            domibusTruststoreEntity.setContent(trustStoreBytes);
+            truststoreDao.create(domibusTruststoreEntity);
+        }
     }
 
 }
