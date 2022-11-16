@@ -500,5 +500,5 @@ export class JmsComponent extends mix(BaseListComponent)
       && this.filter.originalQueue != null
       && this.isFiltered();
   }
-  
+
 }

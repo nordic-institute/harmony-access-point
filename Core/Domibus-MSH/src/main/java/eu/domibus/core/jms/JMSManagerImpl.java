@@ -392,13 +392,13 @@ public class JMSManagerImpl implements JMSManager {
         String completeSelector = getSelector(selector, destination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
 
-        int max = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
-        if (max > 0) {
-            messagesToMove = messagesToMove.stream().limit(max).collect(Collectors.toList());
-            LOG.info("Maximum number of messages to move limited to [{}]", max);
+        int maxLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
+        if (maxLimit > 0 && messagesToMove.size() > maxLimit) {
+            messagesToMove = messagesToMove.stream().limit(maxLimit).collect(Collectors.toList());
+            LOG.info("Maximum number of messages to move limited to [{}]", maxLimit);
         }
 
-        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, selector, destination);
+        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, completeSelector, destination);
         if (movedMessageCount == 0) {
             throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
         }
