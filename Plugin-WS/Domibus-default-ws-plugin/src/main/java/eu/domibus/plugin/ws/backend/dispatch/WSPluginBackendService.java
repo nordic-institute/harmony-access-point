@@ -55,6 +55,7 @@ public class WSPluginBackendService {
             return false;
         }
         String messageId = messageEvent.getMessageId();
+        long messageEntityId = messageEvent.getMessageEntityId();
         String finalRecipient = messageEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
         if (StringUtils.isBlank(finalRecipient)) {
             LOG.warn("No recipient found for messageId: [{}]", messageEvent.getMessageId());
@@ -70,7 +71,7 @@ public class WSPluginBackendService {
         for (WSPluginDispatchRule rule : rules) {
             if (rule.getTypes().contains(messageType)) {
                 LOG.debug("Rule [{}] found for recipient [{}] and messageType [{}]", rule.getRuleName(), finalRecipient, messageType);
-                scheduleService.schedule(messageId, messageEvent.getProps(), rule, messageType);
+                scheduleService.schedule(messageId, messageEntityId, messageEvent.getProps(), rule, messageType);
                 return true;
             }
         }

@@ -40,6 +40,7 @@ public class WSPluginBackendServiceTest {
     public static final String FINAL_RECIPIENT3 = "finalRecipient3";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
+    public static final long MESSAGE_ENTITY_ID = 555;
     public static final String RULE_NAME = "ruleName";
 
     @Tested
@@ -79,7 +80,7 @@ public class WSPluginBackendServiceTest {
         wsPluginBackendService.send(messageSendSuccessEvent, SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.schedule(MESSAGE_ID, messageSendSuccessEvent.getProps(), wsPluginDispatchRule, SEND_SUCCESS);
+            retryService.schedule(MESSAGE_ID, MESSAGE_ENTITY_ID , messageSendSuccessEvent.getProps(), wsPluginDispatchRule, SEND_SUCCESS);
             times = 1;
         }};
     }
@@ -90,7 +91,7 @@ public class WSPluginBackendServiceTest {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
         properties.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
-        return new MessageSendSuccessEvent(123L, MESSAGE_ID, properties);
+        return new MessageSendSuccessEvent(MESSAGE_ENTITY_ID, MESSAGE_ID, properties);
     }
 
     private void testSend(String knownProperty) {
