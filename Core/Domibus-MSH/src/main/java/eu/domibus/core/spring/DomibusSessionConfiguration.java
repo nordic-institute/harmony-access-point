@@ -1,6 +1,7 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.property.PropertyUtils;
 import eu.domibus.core.security.configuration.SecurityInternalAuthProviderCondition;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -99,15 +100,8 @@ public class DomibusSessionConfiguration {
     }
 
     private String parseJvmRoutePropertyValue(String jvmRoute) {
-        String environment = System.getenv(jvmRoute);
-        if (StringUtils.isNotBlank(environment)) {
-            LOG.debug("Found an environment variable having the name of [{}]", environment);
-            return environment;
-        }
-
-        String propertyValue = System.getProperty(jvmRoute);
+        String propertyValue = PropertyUtils.getPropertyValue(jvmRoute);
         if (StringUtils.isNotBlank(propertyValue)) {
-            LOG.debug("Found a system property having the name of [{}]", propertyValue);
             return propertyValue;
         }
 
