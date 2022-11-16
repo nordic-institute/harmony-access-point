@@ -40,6 +40,8 @@ import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -380,16 +382,6 @@ public class JMSManagerImpl implements JMSManager {
         }
 
         logAndAudit(source, destination, Arrays.asList(messageIds), movedMessageCount);
-
-//        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
-//        if (movedMessageCount != messageIds.length) {
-//            LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
-//                    "Actual: [{}], Expected [{}]", messageIds, source, destination, movedMessageCount, messageIds.length);
-//        }
-//        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, messageIds, source, destination);
-//        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-//        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
-//                source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
     @Override
@@ -399,6 +391,12 @@ public class JMSManagerImpl implements JMSManager {
 
         String completeSelector = getSelector(selector, destination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
+
+        int max = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
+        if (max > 0) {
+            messagesToMove = messagesToMove.stream().limit(max).collect(Collectors.toList());
+            LOG.info("Maximum number of messages to move limited to [{}]", max);
+        }
 
         int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, selector, destination);
         if (movedMessageCount == 0) {
