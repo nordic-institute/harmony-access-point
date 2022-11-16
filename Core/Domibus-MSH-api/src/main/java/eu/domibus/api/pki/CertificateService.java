@@ -226,7 +226,7 @@ public interface CertificateService {
     void removeTruststore(String domibusTruststoreName, Domain domain);
 
     /**
-     * Chacks if the database saved store is different that the one on the disk
+     * Checks if the database saved store is different that the one on the disk
      * @param domibusTruststoreName the truststore or keystore
      * @return true if they are different
      */
