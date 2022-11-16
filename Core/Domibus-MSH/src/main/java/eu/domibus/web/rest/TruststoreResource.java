@@ -67,10 +67,14 @@ public class TruststoreResource extends TruststoreResourceBase {
         multiDomainCertificateProvider.resetTrustStore(currentDomain);
     }
 
-
     @GetMapping(value = {"/list"})
     public List<TrustStoreRO> trustStoreEntries() {
         return getTrustStoreEntries();
+    }
+
+    @GetMapping(value = "/changedOnDisk")
+    public boolean isChangedOnDisk() {
+        return certificateService.isChangedOnDisk(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")

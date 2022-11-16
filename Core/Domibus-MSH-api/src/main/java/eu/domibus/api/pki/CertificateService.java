@@ -224,4 +224,6 @@ public interface CertificateService {
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
     void removeTruststore(String domibusTruststoreName, Domain domain);
+
+    boolean isChangedOnDisk(String domibusTruststoreName);
 }
