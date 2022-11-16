@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,24 +29,24 @@ public class EArchiveFileStorage {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorage.class);
 
-    private File storageDirectory = null;
+    private volatile File storageDirectory;
 
-    private Object storageDirectoryLock = new Object();
+    private final Object storageDirectoryLock = new Object();
 
-    private Domain domain;
+    private final Domain domain;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-    @Autowired
-    protected FileSystemUtil fileSystemUtil;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    public EArchiveFileStorage(Domain domain) {
+    private final FileSystemUtil fileSystemUtil;
+
+    public EArchiveFileStorage(Domain domain, DomibusPropertyProvider domibusPropertyProvider, FileSystemUtil fileSystemUtil) {
         this.domain = domain;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.fileSystemUtil = fileSystemUtil;
     }
 
     @PostConstruct
     public void init() {
-
         final String eArchiveActive = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             return;

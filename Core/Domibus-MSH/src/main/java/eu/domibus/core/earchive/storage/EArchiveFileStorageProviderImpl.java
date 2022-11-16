@@ -23,13 +23,13 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageProviderImpl.class);
 
-    protected final EArchiveFileStorageFactory storageFactory;
+    private final EArchiveFileStorageFactory storageFactory;
 
-    protected final DomainService domainService;
+    private final DomainService domainService;
 
-    protected final DomainContextProvider domainContextProvider;
+    private final DomainContextProvider domainContextProvider;
 
-    protected Map<Domain, EArchiveFileStorage> instances = new HashMap<>();
+    private final Map<Domain, EArchiveFileStorage> instances = new HashMap<>();
 
     public EArchiveFileStorageProviderImpl(EArchiveFileStorageFactory storageFactory,
                                            DomainService domainService,
@@ -41,8 +41,7 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     @PostConstruct
     public void init() {
-        final List<Domain> domains = domainService.getDomains();
-        createStorage(domains);
+        createStorages();
     }
 
     @Override
@@ -61,11 +60,11 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
             return;
         }
         instances.remove(domain);
-        LOG.info("EArchiving Storage removed for domain [{}]", domain);
+        LOG.info("eArchiving Storage removed for domain [{}]", domain);
     }
 
-    private void createStorage(List<Domain> domains) {
-        for (Domain domain : domains) {
+    private void createStorages() {
+        for (Domain domain : domainService.getDomains()) {
             createStorage(domain);
         }
     }
@@ -73,7 +72,7 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     private void createStorage(Domain domain) {
         EArchiveFileStorage instance = storageFactory.create(domain);
         instances.put(domain, instance);
-        LOG.info("EArchiving Storage initialized for domain [{}]", domain);
+        LOG.info("eArchiving Storage initialized for domain [{}]", domain);
     }
 
     @Override

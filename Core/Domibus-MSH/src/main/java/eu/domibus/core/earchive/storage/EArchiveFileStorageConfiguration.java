@@ -1,6 +1,8 @@
 package eu.domibus.core.earchive.storage;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.util.FileSystemUtil;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +15,10 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class EArchiveFileStorageConfiguration {
 
-    @Bean(name = "eArchiveStorage")
+    @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public EArchiveFileStorage storage(Domain domain) {
-        return new EArchiveFileStorage(domain);
+    public EArchiveFileStorage storage(Domain domain, DomibusPropertyProvider domibusPropertyProvider, FileSystemUtil fileSystemUtil) {
+        return new EArchiveFileStorage(domain, domibusPropertyProvider, fileSystemUtil);
     }
 
 }

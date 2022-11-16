@@ -17,15 +17,15 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
-import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -73,8 +73,9 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -1065,6 +1066,22 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public void removeTruststore(String truststoreName, Domain domain) {
         domainTaskExecutor.submit(() -> doRemoveTruststore(truststoreName, domain), domain);
+    }
+
+    @Override
+    public boolean isChangedOnDisk(String storeName) {
+        String location;
+        if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
+            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        } else if (DOMIBUS_KEYSTORE_NAME.equals(storeName)) {
+            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+        } else {
+            throw new DomibusCertificateException("Invalid store name provided " + storeName);
+        }
+
+        byte[] contentOnDisk = getTruststoreContentFromFile(location);
+        TruststoreEntity entity = getTruststoreEntitySafely(storeName);
+        return !Arrays.equals(entity.getContent(), contentOnDisk);
     }
 
     private void doRemoveTruststore(String truststoreName, Domain domain) {

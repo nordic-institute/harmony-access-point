@@ -134,7 +134,7 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
 
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         if (BooleanUtils.isNotTrue(isNotificationWithStartAndEndDate)) {
-            LOG.debug("EArchive client with batch Id [{}] needs to receive notifications without message start date and end date [{}]", eArchiveBatch.getBatchId(), isNotificationWithStartAndEndDate);
+            LOG.debug("eArchive client with batch Id [{}] needs to receive notifications without message start date and end date [{}]", eArchiveBatch.getBatchId(), isNotificationWithStartAndEndDate);
             return batchNotification;
         }
         List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
@@ -147,7 +147,7 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
             batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
             batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
         }
-        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, eArchiveBatch.getBatchId());
+        LOG.debug("eArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, eArchiveBatch.getBatchId());
 
         return batchNotification;
     }
