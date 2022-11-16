@@ -89,7 +89,7 @@ public class EArchiveBatchDispatcherService {
                 break;
             }
             newLastEntityIdProcessed = batchAndEnqueue.getLastPkUserMessage();
-            LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
+            LOG.debug("eArchive created with last entity [{}]", lastEntityIdProcessed);
         }
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, maxEntityIdToArchived);
@@ -102,7 +102,7 @@ public class EArchiveBatchDispatcherService {
             if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_EARCHIVE_EXPORT_EMPTY)) && eArchiveRequestType == EArchiveRequestType.CONTINUOUS) {
                 // create empty batch!
                 EArchiveBatchEntity eArchiveBatchWithoutMessages = createBatchAndEnqueue(lastEntityIdProcessed, domain, EArchiveRequestType.CONTINUOUS, new ArrayList<>());
-                LOG.debug("EArchive [{}] created with no messages", eArchiveBatchWithoutMessages.getBatchId());
+                LOG.debug("eArchive [{}] created with no messages", eArchiveBatchWithoutMessages.getBatchId());
             }
         }
     }

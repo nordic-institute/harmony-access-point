@@ -138,7 +138,7 @@ public class DomibusEArchiveExtResource {
 
         BatchDTO batch = domibusEArchiveExtService.getBatch(batchId);
         if (batch == null) {
-            throw new DomibusEArchiveExtException(new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]"));
+            throw new DomibusEArchiveExtException(new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "eArchive batch not found batchId: [" + batchId + "]"));
         }
         LOG.trace("Return exported batch with batchId: [{}] -> [{}]", batchId, batch);
         return batch;
