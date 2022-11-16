@@ -53,9 +53,10 @@ public interface JMSManager {
      * @param fromDate starting date
      * @param toDate   ending date
      * @param selector selector
+     * @param originalQueue
      * @return a list of JmsMessage
      */
-    List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector);
+    List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String originalQueue);
 
     void sendMessageToQueue(JmsMessage message, String destination);
 

@@ -57,7 +57,7 @@ public class JmsResource extends BaseResource {
     @GetMapping(value = {"/messages"})
     public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
         LOG.info("Getting JMS messages from the source: {}", request.getSource());
-        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector());
+        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue());
         customizeProperties(messages);
         final MessagesResponseRO response = new MessagesResponseRO();
         response.setMessages(messages);
@@ -71,10 +71,10 @@ public class JmsResource extends BaseResource {
 
         List<String> messageIds = request.getSelectedMessages();
         String[] ids = (messageIds != null ? messageIds.toArray(new String[0]) : new String[0]);
-        if(request.getAction() == null){
+        if (request.getAction() == null) {
             throw new RequestValidationException("No action specified. Valid actions are " + Arrays.toString(Action.values()));
         }
-        switch (request.getAction()){
+        switch (request.getAction()) {
             case MOVE:
                 LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
                 jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
@@ -84,7 +84,7 @@ public class JmsResource extends BaseResource {
                 jmsManager.moveAllMessages(request.getSource(), request.getJmsType(),
                         request.getFromDate(), request.getToDate(), request.getSelector(), request.getDestination());
                 break;
-            case  REMOVE:
+            case REMOVE:
                 LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
                 jmsManager.deleteMessages(request.getSource(), ids);
                 break;
@@ -110,7 +110,7 @@ public class JmsResource extends BaseResource {
 
         // get list of messages
         final List<JmsMessage> jmsMessageList = jmsManager
-                .browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector())
+                .browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue())
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 

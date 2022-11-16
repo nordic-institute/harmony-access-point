@@ -85,7 +85,7 @@ public class JmsResourceTest {
             times = 1;
             requestRO.getSelector();
             times = 1;
-            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
+            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString, null);
             result = jmsMessageList;
         }};
 
@@ -218,7 +218,7 @@ public class JmsResourceTest {
         String mockCsvResult = "csv";
 
         new Expectations(jmsResource) {{
-            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
+            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector, null);
             result = jmsMessageList;
             csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
             result = mockCsvResult;

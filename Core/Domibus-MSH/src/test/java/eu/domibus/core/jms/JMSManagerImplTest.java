@@ -129,7 +129,7 @@ public class JMSManagerImplTest {
             result = internalJmsMessage;
         }};
 
-        jmsManager.browseMessages(source, jmsType, fromDate, toDate, selector);
+        jmsManager.browseMessages(source, jmsType, fromDate, toDate, selector, null);
 
         new Verifications() {{
             jmsMessageMapper.convert(internalJmsMessage);

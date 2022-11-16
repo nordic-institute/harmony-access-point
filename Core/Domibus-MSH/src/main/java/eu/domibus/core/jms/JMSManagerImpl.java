@@ -158,9 +158,16 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector) {
-
-        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
+    public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String originalQueue) {
+        String domainSelector = getDomainSelector(selector);
+        if (StringUtils.isNotBlank(originalQueue)) {
+            if (StringUtils.isBlank(domainSelector)) {
+                domainSelector = "originalQueue='" + originalQueue + "'";
+            } else {
+                domainSelector += " AND originalQueue='" + originalQueue + "'";
+            }
+        }
+        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, domainSelector);
         LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
         return jmsMessageMapper.convert(messagesSPI);
     }
@@ -383,7 +390,7 @@ public class JMSManagerImpl implements JMSManager {
         validateSourceAndDestination(source, jmsDestination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
 
-        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType,  fromDate, toDate, selector, destination);
+        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, selector, destination);
         if (movedMessageCount == 0) {
             throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
         }
@@ -422,7 +429,7 @@ public class JMSManagerImpl implements JMSManager {
         if (destinationQueue == null) {
             throw new RequestValidationException("Destination cannot be null.");
         }
-        if(source == null){
+        if (source == null) {
             throw new RequestValidationException("Source cannot be null.");
         }
         if (StringUtils.equals(destinationQueue.getName(), source)) {
