@@ -189,6 +189,15 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   protected onSetFilters() {
   }
 
+  protected isFiltered() {
+    for (const key of Object.keys(this.filter)) {
+      if (this.filter[key] != this.activeFilter[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   clone(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || 'object' != typeof obj) {

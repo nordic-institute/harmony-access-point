@@ -500,13 +500,5 @@ export class JmsComponent extends mix(BaseListComponent)
       && this.filter.originalQueue != null
       && this.isFiltered();
   }
-
-  private isFiltered() {
-    for (const key of Object.keys(this.filter)) {
-      if (this.filter[key] != this.activeFilter[key]) {
-        return false;
-      }
-    }
-    return true;
-  }
+  
 }
