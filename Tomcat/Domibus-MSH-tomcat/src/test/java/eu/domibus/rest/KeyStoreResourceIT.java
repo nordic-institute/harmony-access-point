@@ -73,10 +73,11 @@ public class KeyStoreResourceIT extends AbstractIT {
         domibusTruststoreEntity.setName(domibusKeystoreName);
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-        byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
-        domibusTruststoreEntity.setContent(trustStoreBytes);
-        truststoreDao.create(domibusTruststoreEntity);
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+            domibusTruststoreEntity.setContent(trustStoreBytes);
+            truststoreDao.create(domibusTruststoreEntity);
+        }
     }
 
     private void removeStore(String domibusKeystoreName) {

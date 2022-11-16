@@ -76,14 +76,15 @@ public class TruststoreResourceIT extends AbstractIT {
 
         List<TrustStoreRO> entries = truststoreResource.trustStoreEntries();
 
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks");
-        MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
-                "octetstream", IOUtils.toByteArray(resourceAsStream));
-        truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
+            MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
+                    "octetstream", IOUtils.toByteArray(resourceAsStream));
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
 
-        List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
+            List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
-        Assert.assertTrue(entries.size() != newEntries.size());
+            Assert.assertTrue(entries.size() != newEntries.size());
+        }
     }
 
     @Test
