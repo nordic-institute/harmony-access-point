@@ -9,6 +9,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-truststore',
@@ -20,8 +21,8 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
+              fileUploadValidatorService: FileUploadValidatorService, dialogsService: DialogsService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService, dialogsService);
 
     this.BASE_URL = 'rest/truststore';
     this.CSV_URL = this.BASE_URL + '/csv';
@@ -32,8 +33,9 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
     this.showResetOperation = true;
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
+
+    this.checkModifiedOnDisk();
   }
-  
 }

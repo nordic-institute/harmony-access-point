@@ -11,6 +11,7 @@ import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 import {ComponentType} from 'angular-md2';
 import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-tls-truststore',
@@ -22,8 +23,8 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
+              fileUploadValidatorService: FileUploadValidatorService, dialogsService: DialogsService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService, dialogsService);
 
     this.BASE_URL = 'rest/tlstruststore';
     this.CSV_URL = this.BASE_URL + '/entries/csv';
