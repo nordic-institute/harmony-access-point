@@ -1070,16 +1070,18 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean isChangedOnDisk(String storeName) {
-        String location = null;
+        String location;
         if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
             location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         } else if (DOMIBUS_KEYSTORE_NAME.equals(storeName)) {
             location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+        } else {
+            throw new DomibusCertificateException("Invaid store name provided " + storeName);
         }
+
         byte[] contentOnDisk = getTruststoreContentFromFile(location);
         TruststoreEntity entity = getTruststoreEntitySafely(storeName);
-        boolean isChanged = !Arrays.equals(entity.getContent(), contentOnDisk);
-        return isChanged;
+        return !Arrays.equals(entity.getContent(), contentOnDisk);
     }
 
     private void doRemoveTruststore(String truststoreName, Domain domain) {
