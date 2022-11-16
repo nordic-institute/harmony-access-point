@@ -90,8 +90,11 @@ export class ConnectionsMonitorService {
     // remove old parties that are no longer testable:
     enabledParties = enabledParties.filter(ep => ep.split('>').every(p => testableParties.includes(p)));
 
+    let value = senderPartyId + '>' + partyId;
     if (enabled) {
-      enabledParties.push(senderPartyId + '>' + partyId);
+      enabledParties.push(value);
+    } else {
+      enabledParties = enabledParties.filter(el => el != value);
     }
     prop.value = enabledParties.join(',');
     await this.propertiesService.updateProperty(prop);
