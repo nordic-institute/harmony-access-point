@@ -201,7 +201,7 @@ export class JmsComponent extends mix(BaseListComponent)
     }
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
-    this.dlqQueue =  matching;
+    this.dlqQueue = matching;
     const toSelect = matching != null ? matching : this.queues.length[0];
 
     this.selectedSource = toSelect;
@@ -281,7 +281,13 @@ export class JmsComponent extends mix(BaseListComponent)
         .afterClosed().subscribe(result => {
         if (result && result.destination) {
           const messageIds = elements.map((message) => message.id);
-          this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
+          let payload = {
+            source: this.currentSearchSelectedSource.name,
+            destination: result.destination,
+            selectedMessages: messageIds,
+            action: 'MOVE'
+          };
+          this.serverMoveSelected(payload);
         }
       });
     } catch (ex) {
@@ -388,33 +394,25 @@ export class JmsComponent extends mix(BaseListComponent)
     super.selected = [];
   }
 
-  serverMove(source: string, destination: string, messageIds: Array<any>) {
+  async serverMoveSelected(payload: MessagesRequestRO) {
     super.isSaving = true;
-    this.http.post('rest/jms/messages/action', {
-      source: source,
-      destination: destination,
-      selectedMessages: messageIds,
-      action: 'MOVE'
-    }).subscribe(
-      () => {
-        this.alertService.success('The operation \'move messages\' completed successfully.');
+    try {
+      await this.http.post('rest/jms/messages/action', payload).toPromise();
+      // refresh destinations
+      this.refreshDestinations().subscribe(res => {
+        this.setDefaultQueue(this.currentSearchSelectedSource.name);
+      });
 
-        // refresh destinations
-        this.refreshDestinations().subscribe(res => {
-          this.setDefaultQueue(this.currentSearchSelectedSource.name);
-        });
+      // remove the selected rows
+      this.deleteElements(this.selected);
+      this.markedForDeletionMessages = [];
 
-        // remove the selected rows
-        this.deleteElements(this.selected);
-        this.markedForDeletionMessages = [];
-
-        super.isSaving = false;
-      },
-      error => {
-        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
-        super.isSaving = false;
-      }
-    )
+      this.alertService.success('The operation \'move messages\' completed successfully.');
+    } catch (error) {
+      this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
+    } finally {
+      super.isSaving = false;
+    }
   }
 
   async serverRemove(source: string, messageIds: Array<any>): Promise<void> {
@@ -483,5 +481,32 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.selected.length > 0;
   }
 
+  moveAll() {
+    let payload: MessagesRequestRO = {
+      source: this.currentSearchSelectedSource.name,
+      destination: this.filter.originalQueue,
+      action: 'MOVE_ALL',
+      jmsType: this.filter.jmsType,
+      fromDate: this.filter.fromDate,
+      toDate: this.filter.toDate,
+      selector: this.filter.selector
+    };
+    this.serverMoveSelected(payload);
+  }
 
+  canMoveAll() {
+    return this.selectedSource == this.dlqQueue
+      && this.rows.length
+      && this.filter.originalQueue != null
+      && this.isFiltered();
+  }
+
+  private isFiltered() {
+    for (const key of Object.keys(this.filter)) {
+      if (this.filter[key] != this.activeFilter[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

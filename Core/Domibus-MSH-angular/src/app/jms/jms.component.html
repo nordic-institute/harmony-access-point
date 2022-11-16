@@ -32,9 +32,10 @@
                             #timestampControl="ngModel">
             </md2-datepicker>
 
-            <mat-select  *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.destination"
+            <mat-select *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.originalQueue"
                          placeholder="Source Queue" name="sourceQueue" id="sourceQueue_id" style="width:40%" >
-              <mat-option *ngFor="let queue of queues" [value]="queue" style="width:95%">
+              <mat-option value=""></mat-option>
+              <mat-option *ngFor="let queue of queues" [value]="queue.name" style="width:95%">
                 {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
               </mat-option>
             </mat-select>
@@ -89,6 +90,11 @@
               button-click-behaviour>
         <mat-icon>move_to_inbox</mat-icon>
         <span>Move</span>
+      </button>
+      <button id="jmsMoveAll" mat-raised-button color="primary" (click)="moveAll()" [disabled]="!canMoveAll()"
+                button-click-behaviour style="margin-left: 10px;">
+        <mat-icon>move_to_inbox</mat-icon>
+        <span>Move All</span>
       </button>
       <button id="jmsDeleteAllButton" mat-raised-button color="primary" (click)="deleteAll()" [disabled]="!canDeleteAll()"
              button-click-behaviour style="margin-left: 10px;">
