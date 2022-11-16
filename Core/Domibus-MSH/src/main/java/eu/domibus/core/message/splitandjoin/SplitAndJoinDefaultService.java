@@ -195,7 +195,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
-        final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
+        final UserMessage dbUserMessage = userMessageDao.findByMessageId(userMessage.getMessageId());
         messageGroupEntity.setSourceMessage(dbUserMessage);
 
         MessageExchangeConfiguration userMessageExchangeConfiguration;
