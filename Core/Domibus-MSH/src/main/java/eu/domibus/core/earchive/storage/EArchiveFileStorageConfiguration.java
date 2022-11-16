@@ -17,7 +17,7 @@ public class EArchiveFileStorageConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public EArchiveFileStorage storage(Domain domain, DomibusPropertyProvider domibusPropertyProvider, FileSystemUtil fileSystemUtil) {
+    public EArchiveFileStorage eArchiveFileStorage(Domain domain, DomibusPropertyProvider domibusPropertyProvider, FileSystemUtil fileSystemUtil) {
         return new EArchiveFileStorage(domain, domibusPropertyProvider, fileSystemUtil);
     }
 
