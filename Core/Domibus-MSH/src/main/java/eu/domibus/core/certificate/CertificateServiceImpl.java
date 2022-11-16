@@ -1076,7 +1076,7 @@ public class CertificateServiceImpl implements CertificateService {
         } else if (DOMIBUS_KEYSTORE_NAME.equals(storeName)) {
             location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         } else {
-            throw new DomibusCertificateException("Invaid store name provided " + storeName);
+            throw new DomibusCertificateException("Invalid store name provided " + storeName);
         }
 
         byte[] contentOnDisk = getTruststoreContentFromFile(location);
