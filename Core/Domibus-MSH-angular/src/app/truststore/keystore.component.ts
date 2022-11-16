@@ -9,6 +9,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-keystore',
@@ -20,19 +21,21 @@ export class KeystoreComponent extends BaseTruststoreComponent implements OnInit
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
+              fileUploadValidatorService: FileUploadValidatorService, dialogsService: DialogsService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService, dialogsService);
 
     this.BASE_URL = 'rest/keystore';
     this.CSV_URL = this.BASE_URL + '/csv';
     this.DOWNLOAD_URL = this.BASE_URL + '/download';
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
-    
+
     this.showResetOperation = true;
   }
 
   ngOnInit(): void {
     super.ngOnInit();
+
+    this.checkModifiedOnDisk();
   }
 }

@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
@@ -83,6 +84,11 @@ public class KeystoreResource extends TruststoreResourceBase {
     @GetMapping(value = {"/list"})
     public List<TrustStoreRO> listEntries() {
         return getTrustStoreEntries();
+    }
+
+    @GetMapping(value = "/changedOnDisk")
+    public boolean isChangedOnDisk() {
+        return certificateService.isChangedOnDisk(DOMIBUS_KEYSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")
