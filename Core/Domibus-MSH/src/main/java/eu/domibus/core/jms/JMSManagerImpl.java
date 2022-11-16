@@ -159,6 +159,13 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String originalQueue) {
+        String domainSelector = getSelector(selector, originalQueue);
+        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, domainSelector);
+        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
+        return jmsMessageMapper.convert(messagesSPI);
+    }
+
+    private String getSelector(String selector, String originalQueue) {
         String domainSelector = getDomainSelector(selector);
         if (StringUtils.isNotBlank(originalQueue)) {
             if (StringUtils.isBlank(domainSelector)) {
@@ -167,9 +174,7 @@ public class JMSManagerImpl implements JMSManager {
                 domainSelector += " AND originalQueue='" + originalQueue + "'";
             }
         }
-        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, domainSelector);
-        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
-        return jmsMessageMapper.convert(messagesSPI);
+        return domainSelector;
     }
 
     @Override
@@ -369,41 +374,52 @@ public class JMSManagerImpl implements JMSManager {
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateMessagesMove(source, jmsDestination, messageIds);
 
-        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
-        int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
-        if (moveMessages == 0) {
+        int movedMessageCount = internalJmsManager.moveMessages(source, destination, messageIds);
+        if (movedMessageCount == 0) {
             throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
         }
-        if (moveMessages != messageIds.length) {
-            LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", messageIds, source, destination, moveMessages, messageIds.length);
-        }
-        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", moveMessages, messageIds, source, destination);
-        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
-                source, destination, jmsMessageDomainDTO.getDomainCode()));
+
+        logAndAudit(source, destination, Arrays.asList(messageIds), movedMessageCount);
+
+//        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+//        if (movedMessageCount != messageIds.length) {
+//            LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
+//                    "Actual: [{}], Expected [{}]", messageIds, source, destination, movedMessageCount, messageIds.length);
+//        }
+//        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, messageIds, source, destination);
+//        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
+//        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+//                source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
     @Override
     public void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination) {
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateSourceAndDestination(source, jmsDestination);
-        List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
+
+        String completeSelector = getSelector(selector, destination);
+        List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
 
         int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, selector, destination);
         if (movedMessageCount == 0) {
             throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
         }
-        if (movedMessageCount != messagesToMove.size()) {
-            LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messagesToMove.size());
-        }
-        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+
         List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
-        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
+        logAndAudit(source, destination, messageIds, movedMessageCount);
+    }
+
+    private void logAndAudit(String source, String destination, List<String> messageIdsToMove, int movedMessageCount) {
+        if (movedMessageCount != messageIdsToMove.size()) {
+            LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
+                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messageIdsToMove.size());
+        }
+
+        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIdsToMove, source, destination);
+
         final String domainCode = domainContextProvider.getCurrentDomain().getCode();
-        messagesToMove.forEach(jmsMessage -> auditService.addJmsMessageMovedAudit(jmsMessage.getId(),
-                source, destination, domainCode));
+        messageIdsToMove.forEach(jmsMessageId -> auditService.addJmsMessageMovedAudit(jmsMessageId, source, destination, domainCode));
     }
 
     protected void validateMessagesMove(String source, JMSDestination destinationQueue, String[] jmsMessageIds) {

@@ -14,12 +14,17 @@ public class MessagesActionRequestRO {
 
     @CustomWhiteListed(permitted = ".@!/")
     private String source;
+
     private String type;
+
     private String content;
+
     @CustomWhiteListed(permitted = ".@!/")
     private String destination;
+
     @CustomWhiteListed(permitted = "<>.:-")
     private List<String> selectedMessages;
+
     private Action action;
 
     private String jmsType;

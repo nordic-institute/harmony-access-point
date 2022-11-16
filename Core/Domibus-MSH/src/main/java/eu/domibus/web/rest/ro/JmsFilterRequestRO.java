@@ -18,9 +18,10 @@ public class JmsFilterRequestRO {
     private String originalQueue;
 
     private String jmsType;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date fromDate;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
 
