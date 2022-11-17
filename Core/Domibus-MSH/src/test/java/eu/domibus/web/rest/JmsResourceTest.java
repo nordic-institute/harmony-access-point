@@ -4,7 +4,9 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.jms.MessagesActionRequest;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -34,6 +36,9 @@ public class JmsResourceTest {
     @Mocked
     private MessagesActionRequestRO messagesActionRequestRO;
 
+    @Mocked
+    private MessagesActionRequest messagesActionRequest;
+
     @Tested
     private JmsResource jmsResource;
 
@@ -48,6 +53,9 @@ public class JmsResourceTest {
 
     @Injectable
     private ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    DomibusCoreMapper coreMapper;
 
     @Test
     public void testDestinations() {
@@ -73,6 +81,9 @@ public class JmsResourceTest {
     public void testAction_wrongAction() {
         // Given
         new Expectations() {{
+            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
+            result = messagesActionRequest;
+
             messagesActionRequestRO.getSelectedMessages();
             result = new ArrayList<>();
             times = 1;
@@ -98,6 +109,9 @@ public class JmsResourceTest {
                                   final @Mocked JMSDestination queue2) {
         // Given
         new Expectations() {{
+            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
+            result = messagesActionRequest;
+
             messagesActionRequestRO.getSelectedMessages();
             result = MESSAGES_IDS;
 
@@ -127,6 +141,9 @@ public class JmsResourceTest {
     public void testActionRemove() {
         // Given
         new Expectations() {{
+            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
+            result = messagesActionRequest;
+
             messagesActionRequestRO.getSelectedMessages();
             result = MESSAGES_IDS;
 
@@ -154,6 +171,9 @@ public class JmsResourceTest {
     public void testActionRemove_InternalJMSException() {
         // Given
         new Expectations() {{
+            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
+            result = messagesActionRequest;
+
             messagesActionRequestRO.getSelectedMessages();
             result = Arrays.asList("message1", "message2");
 

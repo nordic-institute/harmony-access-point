@@ -2,10 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.jms.JMSDestination;
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.jms.JmsFilterRequest;
-import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.jms.*;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLogger;
@@ -63,7 +60,6 @@ public class JmsResource extends BaseResource {
     public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
         LOG.info("Getting JMS messages from the source: {}", request.getSource());
         JmsFilterRequest req = coreMapper.jmsFilterRequestToJmsFilterRequestRO(request);
-//        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue());
         List<JmsMessage> messages = jmsManager.browseMessages(req);
         customizeProperties(messages);
         final MessagesResponseRO response = new MessagesResponseRO();
@@ -73,6 +69,7 @@ public class JmsResource extends BaseResource {
 
     @PostMapping(value = {"/messages/action"})
     public MessagesActionResponseRO action(@RequestBody @Valid MessagesActionRequestRO request) {
+        MessagesActionRequest req = coreMapper.messagesActionRequestROT0MessagesActionRequest(request);
 
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
 
@@ -88,8 +85,7 @@ public class JmsResource extends BaseResource {
                 break;
             case MOVE_ALL:
                 LOG.info("Starting to move all JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
-                jmsManager.moveAllMessages(request.getSource(), request.getJmsType(),
-                        request.getFromDate(), request.getToDate(), request.getSelector(), request.getDestination());
+                jmsManager.moveAllMessages(req);
                 break;
             case REMOVE:
                 LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());

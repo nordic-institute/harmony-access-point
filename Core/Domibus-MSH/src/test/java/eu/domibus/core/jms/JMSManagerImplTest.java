@@ -194,13 +194,15 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testMoveMessages_ok(@Injectable final Queue queue) {
+    public void testMoveMessages_ok() {
         final String source = "myqueue";
         final String destination = "destinationQueue";
         final String[] messageIds = new String[]{"1", "2"};
         List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
-        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
-        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
+        final String domain1 = "domain1";
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", domain1));
+        final String domain2 = "domain2";
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", domain2));
 
         new Expectations(jmsManager) {{
             jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
@@ -219,9 +221,9 @@ public class JMSManagerImplTest {
             internalJmsManager.moveMessages(source, destination, messageIds);
             String actualDomain;
             auditService.addJmsMessageMovedAudit("1", source, destination, actualDomain = withCapture());
-            Assert.assertEquals("domain1", actualDomain);
+            Assert.assertEquals(domain1, actualDomain);
             auditService.addJmsMessageMovedAudit("2", source, destination, actualDomain = withCapture());
-            Assert.assertEquals("domain2", actualDomain);
+            Assert.assertEquals(domain2, actualDomain);
         }};
     }
 
