@@ -1,5 +1,6 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
@@ -41,7 +42,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the domain code of the user
      */
-    @Cacheable(value = DomibusCacheService.USER_DOMAIN_CACHE, key = "#user")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.USER_DOMAIN_CACHE, key = "#user")
     @Override
     public String getDomainForUser(String user) {
         LOG.debug("Searching domain for user [{}]", user);
@@ -56,7 +57,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the code of the preferred domain of a super user
      */
-    @Cacheable(value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
     @Override
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);

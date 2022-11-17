@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
@@ -96,7 +97,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         createWSServiceDispatcher("http://localhost:8080");
     }
 
-    @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);

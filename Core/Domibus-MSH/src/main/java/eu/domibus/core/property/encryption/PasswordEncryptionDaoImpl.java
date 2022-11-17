@@ -1,5 +1,6 @@
 package eu.domibus.core.property.encryption;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
@@ -32,7 +33,7 @@ public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
         this.encryptionUtil = encryptionUtil;
     }
 
-    @Cacheable(value = "encryptionKey", key = "#encryptedKeyFile.getCanonicalPath()")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "encryptionKey", key = "#encryptedKeyFile.getCanonicalPath()")
     @Override
     public PasswordEncryptionSecret getSecret(File encryptedKeyFile) {
         LOG.debug("Getting the secret key from file [{}]", encryptedKeyFile);

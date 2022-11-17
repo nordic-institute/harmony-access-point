@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.audit.envers.RevisionLogicalName;
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
@@ -104,7 +105,7 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable("auditTarget")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "auditTarget")
     @Transactional(readOnly = true)
     public List<String> listAuditTarget() {
         Set<Class<?>> typesAnnotatedWith = getFiltereAuditTargets();

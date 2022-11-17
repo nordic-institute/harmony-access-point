@@ -1,5 +1,6 @@
 package eu.domibus.weblogic.cluster;
 
+import eu.domibus.api.cluster.ClusterDeploymentCondition;
 import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;

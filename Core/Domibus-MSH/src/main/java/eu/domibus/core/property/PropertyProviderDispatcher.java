@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -47,7 +48,7 @@ public class PropertyProviderDispatcher {
         this.propertyProviderHelper = propertyProviderHelper;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
 
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);

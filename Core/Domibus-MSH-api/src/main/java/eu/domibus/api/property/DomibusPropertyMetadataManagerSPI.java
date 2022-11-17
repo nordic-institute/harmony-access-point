@@ -418,4 +418,14 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
 
+    //Start distributed cache properties
+    String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
+    String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT = "domibus.cache.distributed.port";
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT = "domibus.cache.distributed.port.autoincrement";
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
+    String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
+    String DOMIBUS_DISTRIBUTED_CACHE_REST_API_ENABLED = "domibus.cache.distributed.rest.enabled";
+    String DOMIBUS_DISTRIBUTED_CACHE_REST_API_GROUPS = "domibus.cache.distributed.rest.groups";
+    //End distributed cache properties
 }

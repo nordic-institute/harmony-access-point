@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
@@ -182,7 +183,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    @Cacheable(value = CERT_VALIDATION_BY_ALIAS, key = "#domain.code + #alias")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = CERT_VALIDATION_BY_ALIAS, key = "#domain.code + #alias")
     public boolean isCertificateChainValid(Domain domain, String alias) throws DomibusCertificateException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.isCertificateChainValid(alias);

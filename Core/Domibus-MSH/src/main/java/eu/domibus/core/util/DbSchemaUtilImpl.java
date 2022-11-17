@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
@@ -42,7 +43,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         entityManager = entityManagerFactory.createEntityManager();
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
 
         //in single tenancy the schema validity check is not needed

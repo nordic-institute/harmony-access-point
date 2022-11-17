@@ -1,5 +1,6 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
@@ -89,7 +90,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         return domainDao.findAll();
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
         LOG.trace("Getting domain with code [{}]", code);
@@ -109,7 +110,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         return null;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
     @Override
     public Domain getDomainForScheduler(String schedulerName) {
         if (DEFAULT_QUARTZ_SCHEDULER_NAME.equalsIgnoreCase(schedulerName)) {

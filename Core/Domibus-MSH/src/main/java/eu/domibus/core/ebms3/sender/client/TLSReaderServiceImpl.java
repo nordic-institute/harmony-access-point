@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -57,7 +58,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         this.domibusConfigurationService = domibusConfigurationService;
     }
 
-    @Cacheable(value = TLS_CACHE, key = "#domainCode")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
     @Override
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
