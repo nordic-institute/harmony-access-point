@@ -169,9 +169,6 @@ public interface JMSManager {
      */
     long getDestinationSize(JMSDestination jmsDestination);
 
-
-    String getDomainSelector(String selector);
-
     /**
      * Lists all messages pending for download by the backend
      *

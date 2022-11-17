@@ -167,38 +167,6 @@ public class JMSManagerImpl implements JMSManager {
         return jmsMessageMapper.convert(messagesSPI);
     }
 
-    private String getSelector(String selector, String originalQueue) {
-        String domainSelector = getDomainSelector(selector);
-        if (StringUtils.isNotBlank(originalQueue)) {
-            if (StringUtils.isBlank(domainSelector)) {
-                domainSelector = "originalQueue='" + originalQueue + "'";
-            } else {
-                domainSelector += " AND originalQueue='" + originalQueue + "'";
-            }
-        }
-        return domainSelector;
-    }
-
-    @Override
-    public String getDomainSelector(String selector) {
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            return selector;
-        }
-        if (authUtils.isSuperAdmin()) {
-            return selector;
-        }
-        final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        String domainClause = "DOMAIN ='" + currentDomain.getCode() + "'";
-
-        String result;
-        if (StringUtils.isBlank(selector)) {
-            result = domainClause;
-        } else {
-            result = selector + " AND " + domainClause;
-        }
-        return result;
-    }
-
     @Override
     public List<JmsMessage> browseClusterMessages(String source, String selector) {
         LOG.debug("browseClusterMessages using selector [{}]", selector);
@@ -625,5 +593,36 @@ public class JMSManagerImpl implements JMSManager {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
 
+    }
+
+    private String getSelector(String selector, String originalQueue) {
+        String domainSelector = getDomainSelector(selector);
+        if (StringUtils.isNotBlank(originalQueue)) {
+            if (StringUtils.isBlank(domainSelector)) {
+                domainSelector = "originalQueue='" + originalQueue + "'";
+            } else {
+                domainSelector += " AND originalQueue='" + originalQueue + "'";
+            }
+        }
+        return domainSelector;
+    }
+
+    protected String getDomainSelector(String selector) {
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            return selector;
+        }
+        if (authUtils.isSuperAdmin()) {
+            return selector;
+        }
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+        String domainClause = "DOMAIN ='" + currentDomain.getCode() + "'";
+
+        String result;
+        if (StringUtils.isBlank(selector)) {
+            result = domainClause;
+        } else {
+            result = selector + " AND " + domainClause;
+        }
+        return result;
     }
 }
