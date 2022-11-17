@@ -6,12 +6,16 @@
       <mat-card-content>
         <div class="panel">
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
-            <mat-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
-                        id="jmsQueueSelector" style="width:40%;">
-              <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
-                {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
-              </mat-option>
-            </mat-select>
+
+            <mat-form-field class="domibus" style="width:40%">
+              <mat-select class="searchField" placeholder="Source Queue" [(ngModel)]="selectedSource" name="jmsQueueSelector"
+                          id="jmsQueueSelector" style="width:100%;">
+                <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
+                  {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
             <md2-datepicker id="jmsFromDatePicker" appClearInvalid
                             placeholder="Received From:"
                             [(ngModel)]="filter.fromDate"
@@ -21,6 +25,7 @@
                             (change)='onTimestampFromChange($event)'
                             #timestampControl="ngModel">
             </md2-datepicker>
+
             <md2-datepicker id="jmsToDatePicker" appClearInvalid
                             placeholder="Received Up To:"
                             [(ngModel)]="filter.toDate"
@@ -32,13 +37,15 @@
                             #timestampControl="ngModel">
             </md2-datepicker>
 
-            <mat-select *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.originalQueue"
-                         placeholder="Source Queue" name="sourceQueue" id="sourceQueue_id" style="width:40%" >
-              <mat-option value=""></mat-option>
-              <mat-option *ngFor="let queue of queues" [value]="queue.name" style="width:95%">
-                {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
-              </mat-option>
-            </mat-select>
+            <mat-form-field class="domibus" style="width:40%">
+              <mat-select *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.originalQueue"
+                           placeholder="Original Queue" name="sourceQueue" id="sourceQueue_id" style="width:100%">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let queue of queues" [value]="queue.name" style="width:95%">
+                  {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
 
             <mat-form-field id="jmsSelector">
               <input id="jmsSelectorinput" name="selector" matInput placeholder="Selector" [(ngModel)]="filter.selector">

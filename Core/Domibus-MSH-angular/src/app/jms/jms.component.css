@@ -3,3 +3,8 @@
   width: auto;
   min-width: 90%;
 }
+
+::ng-deep .domibus.mat-form-field-appearance-legacy .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
