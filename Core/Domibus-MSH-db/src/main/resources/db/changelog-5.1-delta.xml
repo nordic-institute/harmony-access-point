@@ -195,7 +195,7 @@
     <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
         <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
             <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </addColumn>
     </changeSet>
