@@ -1,5 +1,7 @@
 package eu.domibus.core.jms;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.*;
 import eu.domibus.api.messaging.MessageNotFoundException;
@@ -342,12 +344,14 @@ public class JMSManagerImpl implements JMSManager {
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateMessagesMove(source, jmsDestination, messageIds);
 
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+
         int movedMessageCount = internalJmsManager.moveMessages(source, destination, messageIds);
         if (movedMessageCount == 0) {
             throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
         }
 
-        logAndAudit(source, destination, Arrays.asList(messageIds), movedMessageCount);
+        logAndAudit(source, destination, Arrays.asList(messageIds), movedMessageCount, jmsMessageDomains);
     }
 
     @Override
@@ -361,13 +365,16 @@ public class JMSManagerImpl implements JMSManager {
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateSourceAndDestination(source, jmsDestination);
 
+
         String completeSelector = getCompleteSelector(req.getSelector(), destination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
 
+        List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds.toArray(new String[0]));
+
         int maxLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
         if (maxLimit > 0 && messagesToMove.size() > maxLimit) {
-            messagesToMove = messagesToMove.stream().limit(maxLimit).collect(Collectors.toList());
-            LOG.info("Maximum number of messages to move limited to [{}]", maxLimit);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Number of messages to move exceeds the limit of " + maxLimit);
         }
 
         int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, completeSelector, destination);
@@ -375,11 +382,10 @@ public class JMSManagerImpl implements JMSManager {
             throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, completeSelector));
         }
 
-        List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
-        logAndAudit(source, destination, messageIds, movedMessageCount);
+        logAndAudit(source, destination, messageIds, movedMessageCount, jmsMessageDomains);
     }
 
-    private void logAndAudit(String source, String destination, List<String> messageIdsToMove, int movedMessageCount) {
+    private void logAndAudit(String source, String destination, List<String> messageIdsToMove, int movedMessageCount, List<JMSMessageDomainDTO> jmsMessageDomains) {
         if (movedMessageCount != messageIdsToMove.size()) {
             LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
                     "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messageIdsToMove.size());
@@ -388,12 +394,8 @@ public class JMSManagerImpl implements JMSManager {
         LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIdsToMove, source, destination);
 
-        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIdsToMove.toArray(new String[0]));
         jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
                 source, destination, jmsMessageDomainDTO.getDomainCode()));
-
-//        final String domainCode = domainContextProvider.getCurrentDomain().getCode();
-//        messageIdsToMove.forEach(jmsMessageId -> auditService.addJmsMessageMovedAudit(jmsMessageId, source, destination, domainCode));
     }
 
     protected void validateMessagesMove(String source, JMSDestination destinationQueue, String[] jmsMessageIds) {
