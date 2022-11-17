@@ -26,4 +26,8 @@
         </sql>
     </changeSet>
 
+    <changeSet author="Razvan Cretu" id="EDELIVERY-10284-make-notnull">
+        <addNotNullConstraint columnDataType="BIGINT" defaultNullValue="${default_id_pk}" columnName="MESSAGE_ENTITY_ID"  tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" />
+    </changeSet>
+
 </databaseChangeLog>
