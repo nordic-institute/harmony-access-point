@@ -37,8 +37,8 @@
                             #timestampControl="ngModel">
             </md2-datepicker>
 
-            <mat-form-field class="domibus" style="width:40%">
-              <mat-select *ngIf="selectedSource == dlqQueue" [(ngModel)]="filter.originalQueue"
+            <mat-form-field *ngIf="selectedSource == dlqQueue" class="domibus" style="width:40%">
+              <mat-select [(ngModel)]="filter.originalQueue"
                            placeholder="Original Queue" name="sourceQueue" id="sourceQueue_id" style="width:100%">
                 <mat-option value=""></mat-option>
                 <mat-option *ngFor="let queue of queues" [value]="queue.name" style="width:95%">
