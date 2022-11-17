@@ -38,6 +38,7 @@ public class OpenApiConfig {
 
     /**
      * Configuration of the OPEN API document
+     *
      * @return spring property configurer
      */
     @Bean
@@ -51,7 +52,8 @@ public class OpenApiConfig {
     }
 
     /**
-     *  Open api document configuration. For setting up OpenAPI info modify method below,
+     * Open api document configuration. For setting up OpenAPI info modify method below,
+     *
      * @return
      */
     @Bean
@@ -72,7 +74,8 @@ public class OpenApiConfig {
     }
 
     /**
-     *  Object mapper needed by the springdoc to serialize the  OpenAPI document to JSON.
+     * Object mapper needed by the springdoc to serialize the  OpenAPI document to JSON.
+     *
      * @return ObjectMapper
      */
     @Bean
@@ -153,5 +156,15 @@ public class OpenApiConfig {
     @Bean
     public DateExtService dateExtService() {
         return Mockito.mock(DateExtService.class);
+    }
+
+    @Bean
+    public TLSTruststoreExtService tlsTruststoreExtService() {
+        return Mockito.mock(TLSTruststoreExtService.class);
+    }
+
+    @Bean
+    public TruststoreExtService truststoreExtService() {
+        return Mockito.mock(TruststoreExtService.class);
     }
 }
