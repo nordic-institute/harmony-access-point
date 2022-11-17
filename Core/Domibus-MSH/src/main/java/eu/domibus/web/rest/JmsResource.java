@@ -69,15 +69,14 @@ public class JmsResource extends BaseResource {
 
     @PostMapping(value = {"/messages/action"})
     public MessagesActionResponseRO action(@RequestBody @Valid MessagesActionRequestRO request) {
-        MessagesActionRequest req = coreMapper.messagesActionRequestROT0MessagesActionRequest(request);
 
-        final MessagesActionResponseRO response = new MessagesActionResponseRO();
-
-        List<String> messageIds = request.getSelectedMessages();
-        String[] ids = (messageIds != null ? messageIds.toArray(new String[0]) : new String[0]);
         if (request.getAction() == null) {
             throw new RequestValidationException("No action specified. Valid actions are " + Arrays.toString(Action.values()));
         }
+
+        List<String> messageIds = request.getSelectedMessages();
+        String[] ids = (messageIds != null ? messageIds.toArray(new String[0]) : new String[0]);
+
         switch (request.getAction()) {
             case MOVE:
                 LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
@@ -85,6 +84,7 @@ public class JmsResource extends BaseResource {
                 break;
             case MOVE_ALL:
                 LOG.info("Starting to move all JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
+                MessagesActionRequest req = coreMapper.messagesActionRequestROT0MessagesActionRequest(request);
                 jmsManager.moveAllMessages(req);
                 break;
             case REMOVE:
@@ -99,6 +99,8 @@ public class JmsResource extends BaseResource {
                 throw new RequestValidationException("Invalid action specified. Valid actions are " + Arrays.toString(Action.values()));
         }
         LOG.info("The action was successfully done.");
+
+        final MessagesActionResponseRO response = new MessagesActionResponseRO();
         response.setOutcome("Success");
         return response;
     }

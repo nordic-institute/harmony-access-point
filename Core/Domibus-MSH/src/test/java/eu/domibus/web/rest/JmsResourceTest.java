@@ -81,9 +81,6 @@ public class JmsResourceTest {
     public void testAction_wrongAction() {
         // Given
         new Expectations() {{
-            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
-            result = messagesActionRequest;
-
             messagesActionRequestRO.getSelectedMessages();
             result = new ArrayList<>();
             times = 1;
@@ -109,9 +106,6 @@ public class JmsResourceTest {
                                   final @Mocked JMSDestination queue2) {
         // Given
         new Expectations() {{
-            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
-            result = messagesActionRequest;
-
             messagesActionRequestRO.getSelectedMessages();
             result = MESSAGES_IDS;
 
@@ -141,9 +135,6 @@ public class JmsResourceTest {
     public void testActionRemove() {
         // Given
         new Expectations() {{
-            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
-            result = messagesActionRequest;
-
             messagesActionRequestRO.getSelectedMessages();
             result = MESSAGES_IDS;
 
@@ -171,9 +162,6 @@ public class JmsResourceTest {
     public void testActionRemove_InternalJMSException() {
         // Given
         new Expectations() {{
-            coreMapper.messagesActionRequestROT0MessagesActionRequest(messagesActionRequestRO);
-            result = messagesActionRequest;
-
             messagesActionRequestRO.getSelectedMessages();
             result = Arrays.asList("message1", "message2");
 
