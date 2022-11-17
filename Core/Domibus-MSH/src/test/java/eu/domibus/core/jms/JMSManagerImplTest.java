@@ -116,27 +116,6 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testBrowseMessages() {
-        final String source = "source";
-        final String jmsType = "jmsType";
-        final Date fromDate = new Date();
-        final Date toDate = new Date();
-        final String selector = "myselector";
-        final List<InternalJmsMessage> internalJmsMessage = new ArrayList<>();
-
-        new Expectations() {{
-            internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, (String) any);
-            result = internalJmsMessage;
-        }};
-
-        jmsManager.browseMessages(source, jmsType, fromDate, toDate, selector, null);
-
-        new Verifications() {{
-            jmsMessageMapper.convert(internalJmsMessage);
-        }};
-    }
-
-    @Test
     public void testSendMessageToQueue() {
         final JmsMessage message = new JmsMessage();
         final InternalJmsMessage messageSPI = new InternalJmsMessage();

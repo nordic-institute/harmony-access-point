@@ -56,8 +56,9 @@ export class JmsComponent extends mix(BaseListComponent)
 
   request: MessagesRequestRO;
 
+  dlqQueue: any;
+  
   private _selectedSource: any;
-  private dlqQueue: any;
 
   get selectedSource(): any {
     return this._selectedSource;

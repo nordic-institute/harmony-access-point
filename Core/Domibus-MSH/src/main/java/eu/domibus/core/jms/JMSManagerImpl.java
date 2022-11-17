@@ -3,6 +3,7 @@ package eu.domibus.core.jms;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsFilterRequest;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.Domain;
@@ -160,10 +161,10 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String originalQueue) {
-        String domainSelector = getSelector(selector, originalQueue);
-        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, domainSelector);
-        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
+    public List<JmsMessage> browseMessages(JmsFilterRequest req) {
+        String selector = getCompleteSelector(req.getSelector(), req.getOriginalQueue());
+        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(req.getSource(), req.getJmsType(), req.getFromDate(), req.getToDate(), selector);
+        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", req.getSource(), selector);
         return jmsMessageMapper.convert(messagesSPI);
     }
 
@@ -357,7 +358,7 @@ public class JMSManagerImpl implements JMSManager {
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateSourceAndDestination(source, jmsDestination);
 
-        String completeSelector = getSelector(selector, destination);
+        String completeSelector = getCompleteSelector(selector, destination);
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
 
         int maxLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
@@ -595,7 +596,7 @@ public class JMSManagerImpl implements JMSManager {
 
     }
 
-    private String getSelector(String selector, String originalQueue) {
+    private String getCompleteSelector(String selector, String originalQueue) {
         String domainSelector = getDomainSelector(selector);
         if (StringUtils.isNotBlank(originalQueue)) {
             if (StringUtils.isBlank(domainSelector)) {

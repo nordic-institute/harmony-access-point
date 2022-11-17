@@ -1,5 +1,6 @@
 package eu.domibus.core.converter;
 
+import eu.domibus.api.jms.JmsFilterRequest;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -12,6 +13,7 @@ import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.web.rest.ro.DomainRO;
+import eu.domibus.web.rest.ro.JmsFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import org.mapstruct.Mapper;
@@ -65,4 +67,6 @@ public interface DomibusCoreMapper {
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
     TruststoreInfo truststoreEntityToTruststoreInfo(TruststoreEntity entity);
+
+    JmsFilterRequest jmsFilterRequestToJmsFilterRequestRO(JmsFilterRequestRO request);
 }

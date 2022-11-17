@@ -47,17 +47,8 @@ public interface JMSManager {
 
     /**
      * Operation to browse a JMS source with restrictions given by the parameters.
-     *
-     * @param source   queue or topic
-     * @param jmsType  type of the JMS message
-     * @param fromDate starting date
-     * @param toDate   ending date
-     * @param selector selector
-     * @param originalQueue
      * @return a list of JmsMessage
      */
-    List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String originalQueue);
-
     void sendMessageToQueue(JmsMessage message, String destination);
 
     /**
@@ -183,4 +174,6 @@ public interface JMSManager {
      * @throws MessageNotFoundException if the message is not pending
      */
     void removeFromPending(String queueName, String messageId) throws MessageNotFoundException;
+
+    List<JmsMessage> browseMessages(JmsFilterRequest req);
 }

@@ -70,36 +70,6 @@ public class JmsResourceTest {
     }
 
     @Test
-    public void testMessages(final @Mocked JmsFilterRequestRO requestRO) {
-        // Given
-        final List<JmsMessage> jmsMessageList = new ArrayList<>();
-
-        new Expectations() {{
-            requestRO.getSource();
-            times = 2;
-            requestRO.getJmsType();
-            times = 1;
-            requestRO.getFromDate();
-            times = 1;
-            requestRO.getToDate();
-            times = 1;
-            requestRO.getSelector();
-            times = 1;
-            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString, null);
-            result = jmsMessageList;
-        }};
-
-        // When
-        MessagesResponseRO messages = jmsResource.messages(requestRO);
-
-        // Then
-        Assert.assertNotNull(messages);
-        Assert.assertEquals(jmsMessageList, messages.getMessages());
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void testAction_wrongAction() {
         // Given
         new Expectations() {{
@@ -206,34 +176,6 @@ public class JmsResourceTest {
         // Then
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testGetCsv(@Injectable JmsMessage jmsMessage) {
-        // Given
-        String source = "source";
-        String jmsType = null;
-        String selector = "selector";
-        List<JmsMessage> jmsMessageList = new ArrayList<>();
-        String mockCsvResult = "csv";
-
-        new Expectations(jmsResource) {{
-            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector, null);
-            result = jmsMessageList;
-            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
-            result = mockCsvResult;
-        }};
-
-        // When
-        final ResponseEntity<String> csv = jmsResource.getCsv(new JmsFilterRequestRO() {{
-            setSource(source);
-            setSelector(selector);
-            setJmsType(jmsType);
-        }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals(mockCsvResult, csv.getBody());
     }
 
 }

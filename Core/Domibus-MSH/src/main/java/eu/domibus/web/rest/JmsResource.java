@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsFilterRequest;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,15 +30,18 @@ import java.util.stream.Collectors;
 @Validated
 public class JmsResource extends BaseResource {
 
-    private JMSManager jmsManager;
+    private final JMSManager jmsManager;
 
-    private ErrorHandlerService errorHandlerService;
+    private final ErrorHandlerService errorHandlerService;
+
+    private final DomibusCoreMapper coreMapper;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsResource.class);
 
-    public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService) {
+    public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService, DomibusCoreMapper coreMapper) {
         this.jmsManager = jmsManager;
         this.errorHandlerService = errorHandlerService;
+        this.coreMapper = coreMapper;
     }
 
     @ExceptionHandler({InternalJMSException.class})
@@ -57,7 +62,9 @@ public class JmsResource extends BaseResource {
     @GetMapping(value = {"/messages"})
     public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
         LOG.info("Getting JMS messages from the source: {}", request.getSource());
-        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue());
+        JmsFilterRequest req = coreMapper.jmsFilterRequestToJmsFilterRequestRO(request);
+//        List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue());
+        List<JmsMessage> messages = jmsManager.browseMessages(req);
         customizeProperties(messages);
         final MessagesResponseRO response = new MessagesResponseRO();
         response.setMessages(messages);
@@ -107,10 +114,10 @@ public class JmsResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
+        JmsFilterRequest req = coreMapper.jmsFilterRequestToJmsFilterRequestRO(request);
 
         // get list of messages
-        final List<JmsMessage> jmsMessageList = jmsManager
-                .browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector(), request.getOriginalQueue())
+        final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(req)
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
