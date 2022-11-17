@@ -81,9 +81,6 @@ public class JmsResourceTest {
     public void testAction_wrongAction() {
         // Given
         new Expectations() {{
-            messagesActionRequestRO.getSelectedMessages();
-            result = new ArrayList<>();
-            times = 1;
             messagesActionRequestRO.getAction();
             result = null;
         }};
