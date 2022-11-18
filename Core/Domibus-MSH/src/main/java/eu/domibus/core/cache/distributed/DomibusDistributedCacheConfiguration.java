@@ -124,6 +124,14 @@ public class DomibusDistributedCacheConfiguration {
         final Integer maxIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE);
         LOG.info("Setting default max idle for distributed cache to [{}]", maxIdle);
         mapConfig.setMaxIdleSeconds(maxIdle);
+
+        final EvictionConfig evictionConfig = mapConfig.getEvictionConfig();
+        evictionConfig.setEvictionPolicy(EvictionPolicy.LRU);
+        //TODO get from domibus.properties
+        evictionConfig.setSize(5000);
+        evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
+
+
         return mapConfig;
     }
 }
