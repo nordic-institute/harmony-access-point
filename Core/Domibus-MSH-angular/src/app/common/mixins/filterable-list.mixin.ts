@@ -190,12 +190,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   protected isFiltered() {
-    for (const key of Object.keys(this.filter)) {
-      if (this.filter[key] != this.activeFilter[key]) {
-        return false;
-      }
-    }
-    return true;
+    return Object.keys(this.filter).every(key => this.filter[key] == this.activeFilter[key]);
   }
 
   clone(obj) {

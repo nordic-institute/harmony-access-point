@@ -44,11 +44,7 @@ public interface JMSManager {
      * @return a list of JmsMessage
      */
     List<JmsMessage> browseClusterMessages(String source, String selector);
-
-    /**
-     * Operation to browse a JMS source with restrictions given by the parameters.
-     * @return a list of JmsMessage
-     */
+    
     void sendMessageToQueue(JmsMessage message, String destination);
 
     /**
