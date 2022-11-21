@@ -4,12 +4,14 @@ import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,5 +65,26 @@ public class FinalRecipientService {
 
     public void clearFinalRecipientAccessPointUrls() {
         finalRecipientAccessPointUrls.clear();
+    }
+
+    @Transactional
+    public void deleteFinalRecipients(List<FinalRecipientEntity> finalRecipients){
+        if(CollectionUtils.isEmpty(finalRecipients)){
+            LOG.debug("There are no FinalRecipients to delete");
+            return;
+        }
+        finalRecipientDao.deleteAll(finalRecipients);
+        for (FinalRecipientEntity finalRecipient : finalRecipients) {
+            finalRecipientAccessPointUrls.remove(finalRecipient.getFinalRecipient());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<FinalRecipientEntity> getFinalRecipientsOlderThan(int numberOfDays) {
+        if(numberOfDays < 0){
+            LOG.debug("The number of days after which FinalRecipients are deleted should be a positive number (numberOfDays=[{}])", numberOfDays);
+            return null;
+        }
+        return finalRecipientDao.findFinalRecipientsOlderThan(numberOfDays);
     }
 }

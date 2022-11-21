@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -69,7 +70,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
-    private Object configurationLock = new Object();
+    private final Object configurationLock = new Object();
 
     public CachingPModeProvider(Domain domain) {
         this.domain = domain;
@@ -710,10 +711,11 @@ public class CachingPModeProvider extends PModeProvider {
         return receiverPartyEndpoint;
     }
 
-    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+    public void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
         LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-
-        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
+        synchronized (configurationLock) {
+            finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
+        }
     }
 
     @Override
@@ -1229,5 +1231,14 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays){
+        List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
+        synchronized (configurationLock) {
+            finalRecipientService.deleteFinalRecipients(oldFinalRecipients);
+        }
+        return oldFinalRecipients;
     }
 }

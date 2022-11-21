@@ -418,5 +418,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED = "domibus.earchive.notification.details.enabled";
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
-
+    String DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON = "domibus.finalRecipient.cleanup.cron";
+    String DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN = "domibus.finalRecipient.cleanup.olderThan.days";
 }

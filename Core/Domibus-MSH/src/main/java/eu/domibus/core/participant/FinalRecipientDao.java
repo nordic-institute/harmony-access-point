@@ -6,11 +6,14 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -41,5 +44,12 @@ public class FinalRecipientDao extends BasicDao<FinalRecipientEntity> {
         }
         //create
         create(finalRecipientEntity);
+    }
+
+    public List<FinalRecipientEntity> findFinalRecipientsOlderThan(int numberOfDays) {
+        Date dateLimit = DateUtils.addDays(new Date(), numberOfDays  * -1);
+        final TypedQuery<FinalRecipientEntity> query = em.createNamedQuery("FinalRecipientEntity.findFinalRecipientsModifiedBefore", FinalRecipientEntity.class);
+        query.setParameter("MODIFICATION_DATE", dateLimit);
+        return query.getResultList();
     }
 }
