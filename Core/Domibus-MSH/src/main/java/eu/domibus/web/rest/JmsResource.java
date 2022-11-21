@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
+import eu.domibus.web.rest.ro.MessagesActionRequestRO.Action;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -70,18 +71,29 @@ public class JmsResource extends BaseResource {
 
         List<String> messageIds = request.getSelectedMessages();
         String[] ids = (messageIds != null ? messageIds.toArray(new String[0]) : new String[0]);
-
-        if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
-            LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
-            jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-        } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
-            LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
-            jmsManager.deleteMessages(request.getSource(), ids);
-        } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
-            LOG.info("Starting to delete all JMS messages from the source: {}", request.getSource());
-            jmsManager.deleteAllMessages(request.getSource());
-        } else {
-            throw new RequestValidationException("Invalid action specified. Valid actions are 'move', 'remove' and 'remove all'");
+        if(request.getAction() == null){
+            throw new RequestValidationException("No action specified. Valid actions are " + Arrays.toString(Action.values()));
+        }
+        switch (request.getAction()){
+            case MOVE:
+                LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
+                jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
+                break;
+            case MOVE_ALL:
+                LOG.info("Starting to move all JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
+                jmsManager.moveAllMessages(request.getSource(), request.getJmsType(),
+                        request.getFromDate(), request.getToDate(), request.getSelector(), request.getDestination());
+                break;
+            case  REMOVE:
+                LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
+                jmsManager.deleteMessages(request.getSource(), ids);
+                break;
+            case REMOVE_ALL:
+                LOG.info("Starting to delete all JMS messages from the source: {}", request.getSource());
+                jmsManager.deleteAllMessages(request.getSource());
+                break;
+            default:
+                throw new RequestValidationException("Invalid action specified. Valid actions are " + Arrays.toString(Action.values()));
         }
         LOG.info("The action was successfully done.");
         response.setOutcome("Success");

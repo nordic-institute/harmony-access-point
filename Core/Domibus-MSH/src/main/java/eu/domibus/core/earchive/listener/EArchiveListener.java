@@ -129,7 +129,7 @@ public class EArchiveListener implements MessageListener {
         String batchId = eArchiveBatchByBatchId.getBatchId();
 
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
-        LOG.debug("EArchive client with batch Id [{}] needs to receive notifications with message start date and end date: [{}]", batchId, isNotificationWithStartAndEndDate);
+        LOG.debug("eArchive client with batch Id [{}] needs to receive notifications with message start date and end date: [{}]", batchId, isNotificationWithStartAndEndDate);
 
         Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
         Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
@@ -137,7 +137,7 @@ public class EArchiveListener implements MessageListener {
             messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
             messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
         }
-        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, batchId);
+        LOG.debug("eArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, batchId);
 
         eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
@@ -152,7 +152,7 @@ public class EArchiveListener implements MessageListener {
                 batchUserMessages, messageStartDate, messageEndDate);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("EArchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
+            LOG.debug("eArchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
         return eArkSipStructure.getManifestChecksum();
     }

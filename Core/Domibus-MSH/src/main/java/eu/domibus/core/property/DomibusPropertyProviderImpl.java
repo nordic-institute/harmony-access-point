@@ -185,11 +185,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void loadProperties(Domain domain) {
-        loadProperties(domain, domibusConfigurationService.getConfigurationFileName(domain));
-
-        //need this eviction since the load properties puts an empty value to domain title
-        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
-        domain.setName(getDomainTitle(domain));
+        String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+        loadProperties(domain, configurationFileName);
     }
 
     @Override
@@ -212,6 +209,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         } catch (IOException ex) {
             throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
         }
+
+        //need this eviction since the load properties puts an empty value to domain title
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
+        domain.setName(getDomainTitle(domain));
     }
 
     @Override

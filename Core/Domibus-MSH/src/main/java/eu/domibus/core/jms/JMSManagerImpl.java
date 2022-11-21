@@ -359,7 +359,8 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        validateMessagesMove(source, destination, messageIds);
+        JMSDestination jmsDestination = getValidJmsDestination(destination);
+        validateMessagesMove(source, jmsDestination, messageIds);
 
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
         int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
@@ -376,24 +377,34 @@ public class JMSManagerImpl implements JMSManager {
                 source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
-    protected void validateMessagesMove(String source, String destination, String[] jmsMessageIds) {
+    @Override
+    public void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination) {
+        JMSDestination jmsDestination = getValidJmsDestination(destination);
+        validateSourceAndDestination(source, jmsDestination);
+        List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
+
+        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType,  fromDate, toDate, selector, destination);
+        if (movedMessageCount == 0) {
+            throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
+        }
+        if (movedMessageCount != messagesToMove.size()) {
+            LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
+                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messagesToMove.size());
+        }
+        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+        List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
+        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
+        final String domainCode = domainContextProvider.getCurrentDomain().getCode();
+        messagesToMove.forEach(jmsMessage -> auditService.addJmsMessageMovedAudit(jmsMessage.getId(),
+                source, destination, domainCode));
+    }
+
+    protected void validateMessagesMove(String source, JMSDestination destinationQueue, String[] jmsMessageIds) {
         if (jmsMessageIds.length == 0 || Arrays.stream(jmsMessageIds).anyMatch(StringUtils::isBlank)) {
             throw new RequestValidationException("No IDs provided for messages/action");
         }
 
-        if (StringUtils.equals(destination, source)) {
-            throw new RequestValidationException("Source and destination queues names cannot be the same: [" + destination + "].");
-        }
-
-        Map<String, JMSDestination> destinations = getDestinations();
-        JMSDestination destinationQueue = destinations.values().stream()
-                .filter(dest -> StringUtils.equals(destination, dest.getName()))
-                .findFirst().orElse(null);
-
-        if (destinationQueue == null) {
-            throw new RequestValidationException("Cannot find destination with the name [" + destination + "].");
-        }
-        LOG.debug("Destination queue found: [{}]", destinationQueue.getName());
+        validateSourceAndDestination(source, destinationQueue);
 
         Arrays.stream(jmsMessageIds).forEach(msgId -> {
             InternalJmsMessage msg = internalJmsManager.getMessage(source, msgId);
@@ -405,6 +416,33 @@ public class JMSManagerImpl implements JMSManager {
                 throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
             }
         });
+    }
+
+    private void validateSourceAndDestination(String source, JMSDestination destinationQueue) {
+        if (destinationQueue == null) {
+            throw new RequestValidationException("Destination cannot be null.");
+        }
+        if(source == null){
+            throw new RequestValidationException("Source cannot be null.");
+        }
+        if (StringUtils.equals(destinationQueue.getName(), source)) {
+            throw new RequestValidationException("Source and destination queues names cannot be the same: [" + destinationQueue.getName() + "].");
+        }
+    }
+
+    /**
+     * @param destination
+     * @return a JMSDestination with the name equal to the parameter
+     * @throws RequestValidationException if no such destination queue is found
+     */
+    protected JMSDestination getValidJmsDestination(String destination) {
+        Map<String, JMSDestination> destinations = getDestinations();
+        JMSDestination jmsDestination = destinations.values().stream()
+                .filter(dest -> StringUtils.equals(destination, dest.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RequestValidationException("Cannot find destination with the name [" + destination + "]."));
+        LOG.debug("Destination queue found: [{}]", jmsDestination.getName());
+        return jmsDestination;
     }
 
     protected boolean matchQueue(JMSDestination queue, String queueName) {

@@ -31,4 +31,8 @@ public final class InternalJMSConstants {
    public static final String NOTIFY_BACKEND_QUEUE = "notifyBackendQueue";
    public static final String UNKNOWN_RECEIVER_QUEUE = "unknownReceiverQueue";
    public static final String CLUSTER_COMMAND_TOPIC = "clusterCommandTopic";
+   public static final String CRITERIA_JMS_TYPE = "JMSType";
+   public static final String CRITERIA_JMS_TIMESTAMP_FROM = "JMSTimestamp_from";
+   public static final String CRITERIA_JMS_TIMESTAMP_TO = "JMSTimestamp_to";
+   public static final String CRITERIA_SELECTOR_CLAUSE = "selectorClause";
 }

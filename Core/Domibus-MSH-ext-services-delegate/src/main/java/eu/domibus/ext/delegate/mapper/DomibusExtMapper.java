@@ -49,6 +49,8 @@ public interface DomibusExtMapper {
 
     TrustStoreDTO trustStoreEntryToTrustStoreDTO(TrustStoreEntry trustStoreEntry);
 
+    List<TrustStoreDTO> trustStoreEntriesToTrustStoresDTO(List<TrustStoreEntry> trustStoreEntries);
+
     List<PartyDTO> partiesToPartiesDTO(List<Party> parties);
 
     List<ProcessDTO> processListToProcessesDTO(List<Process> processList);

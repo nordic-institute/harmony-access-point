@@ -1,6 +1,7 @@
 package eu.domibus.core.logging;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.property.PropertyUtils;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Created by Cosmin Baciu on 12-Oct-16.
@@ -99,8 +102,11 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    public void testConfigureLoggingWithExistingLogFile(@Mocked File file) throws Exception {
+    public void testConfigureLoggingWithExistingLogFile(@Mocked File file, @Mocked PropertyUtils propertyUtils) {
         new Expectations(logbackLoggingConfigurator) {{
+            PropertyUtils.getPropertyValue(anyString, (Optional<Path>) any);
+            result = "";
+
             new File(anyString).exists();
             result = true;
 

@@ -2,20 +2,14 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserEntityBase;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
-import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.user.ui.UserDao;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.VerificationsInOrder;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,25 +29,10 @@ public class ConsoleUserAlertsServiceImplTest {
     private UserDao userDao;
 
     @Injectable
-    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
-
-    @Injectable
     private EventService eventService;
 
     @Injectable
     AlertConfigurationService alertConfigurationService;
-
-    @Injectable
-    ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
-
-    @Injectable
-    ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
-
-    @Injectable
-    ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-
-    @Injectable
-    ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
 
     @Tested
     private ConsoleUserAlertsServiceImpl userAlertsService;
@@ -97,13 +76,13 @@ public class ConsoleUserAlertsServiceImplTest {
     public void testGetUserType() {
         UserEntityBase.Type val = userAlertsService.getUserType();
 
-        Assert.assertEquals( UserEntityBase.Type.CONSOLE, val);
+        Assert.assertEquals(UserEntityBase.Type.CONSOLE, val);
     }
 
     @Test
     public void testGetAccountDisabledConfiguration(@Injectable AccountDisabledModuleConfiguration accountDisabledModuleConfiguration) {
         new Expectations() {{
-            consoleAccountDisabledConfigurationManager.getConfiguration();
+            alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
             result = accountDisabledModuleConfiguration;
         }};
 

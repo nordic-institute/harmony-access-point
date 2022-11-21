@@ -101,6 +101,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_TYPE, Type.STRING, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_PROFILE_ORDER, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS, Usage.DOMAIN, false),
@@ -364,7 +365,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_LEVEL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ALERT_PARTITION_CHECK_PREFIX_FREQUENCY_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_PARTITION_CHECK_FREQUENCY_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT, Usage.DOMAIN, true),

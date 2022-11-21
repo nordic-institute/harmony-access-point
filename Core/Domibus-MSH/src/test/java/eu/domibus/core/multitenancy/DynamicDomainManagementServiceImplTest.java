@@ -116,7 +116,6 @@ public class DynamicDomainManagementServiceImplTest {
     public void internalAddDomain(@Injectable List<DomainsAware> domainsAwareList) throws Exception {
         new Expectations() {{
             domibusPropertyProvider.loadProperties((Domain) any);
-            dbSchemaUtil.isDatabaseSchemaForDomainValid(domain2); result = true;
         }};
 
         dynamicDomainManagementService.internalAddDomain(domain2);
@@ -141,7 +140,7 @@ public class DynamicDomainManagementServiceImplTest {
             }
         });
 
-        new Expectations() {{
+        new Expectations(dynamicDomainManagementService) {{
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 

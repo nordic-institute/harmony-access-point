@@ -15,13 +15,6 @@ import java.util.Map;
  */
 public interface AlertService {
 
-    /**
-     * Decides whether or not an alert should be created based on an event.
-     * @param event the event.
-     * @return the created alert.
-     */
-    Alert createAlertOnEvent(Event event);
-
     /***
      * Decides whether or not an alert should be created based on an event from a plugin.
      * @param event the event.
@@ -32,12 +25,14 @@ public interface AlertService {
 
     /**
      * Add alert to the alert/event monitoring queue.
+     *
      * @param alert the alert to be added.
      */
     void enqueueAlert(Alert alert);
 
     /**
      * Based on a alert, creates a mail model containing the information to select and fill in the mail template.
+     *
      * @param alert the alert.
      * @return the mailModel with data and template information.
      */
@@ -45,6 +40,7 @@ public interface AlertService {
 
     /**
      * Manage the status of the alert after a sending tentative.
+     *
      * @param alert the alert.
      */
     void handleAlertStatus(Alert alert);
@@ -56,6 +52,7 @@ public interface AlertService {
 
     /**
      * Filter alerts based on criteria.
+     *
      * @param alertCriteria the alert criteria.
      * @return the filtered list of alerts.
      */
@@ -63,6 +60,7 @@ public interface AlertService {
 
     /**
      * Count alerts for a given criteria.
+     *
      * @param alertCriteria the alert criteria.
      * @return the number of alerts corresponding to the criteria.
      */
@@ -75,6 +73,7 @@ public interface AlertService {
 
     /**
      * Set alerts as processed true/false
+     *
      * @param alerts the alerts to update.
      */
     void updateAlertProcessed(List<Alert> alerts);
@@ -85,4 +84,6 @@ public interface AlertService {
      * @param alerts list of alerts to be deleted
      */
     void deleteAlerts(List<Alert> alerts);
+
+    void createAndEnqueueAlertOnEvent(Event event);
 }

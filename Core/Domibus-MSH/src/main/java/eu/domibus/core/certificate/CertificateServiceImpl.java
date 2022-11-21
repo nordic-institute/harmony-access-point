@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -16,10 +17,9 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
@@ -28,7 +28,6 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -74,8 +73,9 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -102,10 +102,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final PModeProvider pModeProvider;
 
-    private final ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-    private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
     private final CertificateHelper certificateHelper;
 
     protected final DomainService domainService;
@@ -122,27 +118,27 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final DomibusCoreMapper coreMapper;
 
+    private final AlertConfigurationService alertConfigurationService;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
                                   EventService eventService,
                                   PModeProvider pModeProvider,
-                                  ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
-                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager,
                                   CertificateHelper certificateHelper,
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   PasswordEncryptionService passwordEncryptionService,
-                                  DomainContextProvider domainContextProvider, DomibusCoreMapper coreMapper) {
+                                  DomainContextProvider domainContextProvider,
+                                  DomibusCoreMapper coreMapper,
+                                  AlertConfigurationService alertConfigurationService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
         this.eventService = eventService;
         this.pModeProvider = pModeProvider;
-        this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
-        this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
         this.certificateHelper = certificateHelper;
         this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
@@ -151,6 +147,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.passwordEncryptionService = passwordEncryptionService;
         this.domainContextProvider = domainContextProvider;
         this.coreMapper = coreMapper;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -389,7 +386,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
         String storeType = certificateHelper.getStoreType(fileName);
-       return replaceStore(fileContent, filePassword, storeType, trustName);
+        return replaceStore(fileContent, filePassword, storeType, trustName);
     }
 
     @Override
@@ -531,7 +528,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
      */
     protected Long doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
@@ -551,8 +547,8 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
         return null;
     }
+
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
      */
     protected Long doRemoveCertificates(String trustName, List<String> aliases) {
@@ -661,7 +657,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity}
      */
     // used for add/remove certificates ( the persisted store is the same as the one modified)
@@ -741,13 +736,14 @@ public class CertificateServiceImpl implements CertificateService {
 
     /**
      * Method returns backup name for the truststore.
+     *
      * @param name - the initial name
      * @return returns the backup name with timestamp
      */
-    protected String generateBackupName(String name){
+    protected String generateBackupName(String name) {
         return name + ".backup."
                 + LocalDateTime.now().format(BACKUP_SUFFIX_DATETIME_FORMATTER)
-                + "-" + (int)(Math.random() * 1000);
+                + "-" + (int) (Math.random() * 1000);
     }
 
     @Override
@@ -915,7 +911,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected void sendCertificateExpiredAlerts() {
-        final ExpiredCertificateModuleConfiguration configuration = expiredCertificateConfigurationManager.getConfiguration();
+        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
         final boolean activeModule = configuration.isActive();
         LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
         if (!activeModule) {
@@ -923,8 +919,8 @@ public class CertificateServiceImpl implements CertificateService {
             return;
         }
         final String accessPoint = getAccessPointName();
-        final Integer revokedDuration = configuration.getExpiredDuration();
-        final Integer revokedFrequency = configuration.getExpiredFrequency();
+        final Integer revokedDuration = configuration.getDelay();
+        final Integer revokedFrequency = configuration.getFrequency();
         Date endNotification = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant());
         Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant());
 
@@ -959,7 +955,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected void sendCertificateImminentExpirationAlerts() {
-        final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
+        RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
         final Boolean activeModule = configuration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
         if (BooleanUtils.isNotTrue(activeModule)) {
@@ -967,8 +963,8 @@ public class CertificateServiceImpl implements CertificateService {
             return;
         }
         final String accessPoint = getAccessPointName();
-        final Integer imminentExpirationDelay = configuration.getImminentExpirationDelay();
-        final Integer imminentExpirationFrequency = configuration.getImminentExpirationFrequency();
+        final Integer imminentExpirationDelay = configuration.getDelay();
+        final Integer imminentExpirationFrequency = configuration.getFrequency();
 
         final Date today = Date.from(ZonedDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant());
         final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());
@@ -1070,6 +1066,22 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public void removeTruststore(String truststoreName, Domain domain) {
         domainTaskExecutor.submit(() -> doRemoveTruststore(truststoreName, domain), domain);
+    }
+
+    @Override
+    public boolean isChangedOnDisk(String storeName) {
+        String location;
+        if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
+            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        } else if (DOMIBUS_KEYSTORE_NAME.equals(storeName)) {
+            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+        } else {
+            throw new DomibusCertificateException("Invalid store name provided " + storeName);
+        }
+
+        byte[] contentOnDisk = getTruststoreContentFromFile(location);
+        TruststoreEntity entity = getTruststoreEntitySafely(storeName);
+        return !Arrays.equals(entity.getContent(), contentOnDisk);
     }
 
     private void doRemoveTruststore(String truststoreName, Domain domain) {

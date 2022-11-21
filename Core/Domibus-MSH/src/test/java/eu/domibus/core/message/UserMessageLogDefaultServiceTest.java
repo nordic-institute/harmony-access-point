@@ -1,7 +1,9 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -52,11 +54,14 @@ public class UserMessageLogDefaultServiceTest {
     @Injectable
     protected NotificationStatusDao notificationStatusDao;
 
-    @Injectable
-    ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
+//    @Injectable
+//    ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
 
     @Injectable
     EventService eventService;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
 
     @Test
     public void setSignalMessageAsDeleted_signalIsNull() {
@@ -99,8 +104,8 @@ public class UserMessageLogDefaultServiceTest {
             signalMessage.getSignalMessageId();
             result = messageId;
 
-             messageStatusDao.findOrCreate(MessageStatus.DELETED);
-             result = messageStatusEntity;
+            messageStatusDao.findOrCreate(MessageStatus.DELETED);
+            result = messageStatusEntity;
         }};
 
         assertTrue(userMessageLogDefaultService.setSignalMessageAsDeleted(signalMessage));
@@ -180,11 +185,13 @@ public class UserMessageLogDefaultServiceTest {
 
     @Test
     public void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
-                                        @Injectable final UserMessageLog userMessageLog) {
+                                        @Injectable final UserMessageLog userMessageLog, @Injectable ConnectionMonitoringModuleConfiguration configuration) {
 
         new Expectations() {{
             userMessage.isTestMessage();
             result = true;
+            alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
+            result = configuration;
         }};
 
         userMessageLogDefaultService.setMessageAsDeleted(userMessage, userMessageLog);

@@ -105,6 +105,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Injectable
     private EndpointInfo endpointInfo;
 
+    @Injectable
+    private DynamicDiscoveryUtil dynamicDiscoveryUtil;
+
     @Tested
     private DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL;
 
@@ -191,7 +194,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     public void getPartyIdTypeTestForNull() {
         final String URN_TYPE_VALUE = "urn:fdc:peppol.eu:2017:identifiers:ap";
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
+            dynamicDiscoveryUtil.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
             result = URN_TYPE_VALUE;
             times = 1;
         }};
@@ -202,14 +205,13 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test
     public void getPartyIdTypeTestForEmpty() {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
+            dynamicDiscoveryUtil.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
             result = null;
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
         Assert.assertNull(partyIdType);
     }
-
 
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {

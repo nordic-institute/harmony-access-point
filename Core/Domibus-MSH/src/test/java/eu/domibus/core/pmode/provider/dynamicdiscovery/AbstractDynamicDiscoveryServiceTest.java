@@ -33,7 +33,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {
 
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = null;
 
             testInstance.getLogger();
@@ -54,7 +54,7 @@ public class AbstractDynamicDiscoveryServiceTest {
             Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, parameter);
             // test call correct property
             String property;
-            testInstance.getTrimmedDomibusProperty(property = withCapture());
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(property = withCapture());
             Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, property);
         }};
     }
@@ -62,7 +62,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithOne() {
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = CERTIFICATE_POLICY_QCP_NATURAL;
         }};
 
@@ -76,7 +76,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithMultipleAndSpaces() {
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = CERTIFICATE_POLICY_QCP_NATURAL
                     + "," + CERTIFICATE_POLICY_QCP_LEGAL
                     + ", " + CERTIFICATE_POLICY_QCP_NATURAL_QSCD
@@ -100,7 +100,7 @@ public class AbstractDynamicDiscoveryServiceTest {
             testInstance.getPartyIdTypePropertyName();
             result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
 
-            testInstance.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
             result = " ";
         }};
 
@@ -115,7 +115,7 @@ public class AbstractDynamicDiscoveryServiceTest {
             testInstance.getPartyIdTypePropertyName();
             result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE;
 
-            testInstance.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
             result = URN_TYPE_VALUE;
         }};
 
@@ -130,7 +130,7 @@ public class AbstractDynamicDiscoveryServiceTest {
             testInstance.getPartyIdResponderRolePropertyName();
             result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
 
-            testInstance.getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
             result = RESPONDER_ROLE;
         }};
 

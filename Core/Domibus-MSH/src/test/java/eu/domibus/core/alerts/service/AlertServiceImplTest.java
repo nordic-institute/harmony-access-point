@@ -7,8 +7,10 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationServiceImpl;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -38,7 +40,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.MESSAGE_ID;
 import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
-import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static eu.domibus.core.alerts.configuration.common.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
 import static java.util.Optional.of;
 import static org.junit.Assert.*;
@@ -99,7 +101,7 @@ public class AlertServiceImplTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
+            alertConfigurationService.getConfiguration(AlertType.MSG_STATUS_CHANGED);
             result = config;
 
             config.isActive();

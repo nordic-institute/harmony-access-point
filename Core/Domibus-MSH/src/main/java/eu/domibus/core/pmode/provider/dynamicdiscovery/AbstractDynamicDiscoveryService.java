@@ -6,7 +6,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION;
 
 /**
  * Abstract class implement common methods for Peppol and Oasis dynamic discovery
@@ -24,12 +24,11 @@ public abstract class AbstractDynamicDiscoveryService {
     protected abstract DomibusLogger getLogger();
 
     /**
-     * Return trimmed domibus property value
+     * Returns the DynamicDiscoveryUtil service
      *
-     * @param propertyName
-     * @return value for given domibus property name
+     * @return DynamicDiscoveryUtil service
      */
-    protected abstract String getTrimmedDomibusProperty(String propertyName);
+    protected abstract DynamicDiscoveryUtil getDynamicDiscoveryUtil();
 
     /**
      * Get Default Discovery partyId type specific to implementation of the dynamic discovery service
@@ -51,7 +50,7 @@ public abstract class AbstractDynamicDiscoveryService {
      * @return list of certificate policy OIDs
      */
     protected List<String> getAllowedSMPCertificatePolicyOIDs() {
-        final String allowedCertificatePolicyId = getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+        final String allowedCertificatePolicyId = getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
         if (StringUtils.isBlank(allowedCertificatePolicyId)) {
             getLogger().debug("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
             return Collections.emptyList();
@@ -65,12 +64,12 @@ public abstract class AbstractDynamicDiscoveryService {
         // if is null - this means property is commented-out and default value must be set.
         // else if is empty - property is set in domibus.properties as empty string and the right value for the
         // ebMS 3.0  PartyId/@type is null value!
-        return StringUtils.trimToNull(getTrimmedDomibusProperty(propertyName));
+        return StringUtils.trimToNull(getDynamicDiscoveryUtil().getTrimmedDomibusProperty(propertyName));
     }
 
     public String getResponderRole() {
         String propertyName = getPartyIdResponderRolePropertyName();
-        return getTrimmedDomibusProperty(propertyName);
+        return getDynamicDiscoveryUtil().getTrimmedDomibusProperty(propertyName);
     }
 
     /**

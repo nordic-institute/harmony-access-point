@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNull;
 public class WSPluginMessageBuilderTest {
 
     public static final String MESSAGE_ID = "messageId";
+    public static final long MESSAGE_ENTITY_ID = 555;
     public static final long ENTITY_ID = 123;
     public static final String ORIGINAL_SENDER = "sender";
     public static final String FINAL_RECIPIENT = "recipient";
@@ -249,10 +250,13 @@ public class WSPluginMessageBuilderTest {
     @Test(expected = WSPluginException.class)
     public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
-            messageLogEntity.getEntityId();
-            result = ENTITY_ID;
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
 
-            wsPlugin.browseMessage(ENTITY_ID, (UserMessage) any);
+            messageLogEntity.getMessageEntityId();
+            result = MESSAGE_ENTITY_ID;
+
+            wsPlugin.browseMessage(MESSAGE_ENTITY_ID, (UserMessage) any);
             result = new MessageNotFoundException();
         }};
 

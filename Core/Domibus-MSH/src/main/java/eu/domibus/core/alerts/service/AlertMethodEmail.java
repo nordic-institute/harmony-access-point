@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
@@ -49,7 +49,7 @@ public class AlertMethodEmail implements AlertMethod {
         String to = alertConfigurationManager.getConfiguration().getSendTo();
         mailSender.sendMail(mailModelForAlert, from, to);
 
-        //if the alert is created form an event related to a user, send the email to the user address also
+        // if the alert is created from an event related to a user, send the email to the user address also
         Stream<Event> userEvents = alert.getEvents().stream().filter(event -> event.getType().isUserRelated());
         userEvents.forEach(event -> {
             if (!event.getType().getProperties().contains(USERNAME_EVENT_PROPERTY)) {

@@ -8,6 +8,7 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
 import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
@@ -113,6 +114,9 @@ public class DomainSchedulerFactoryConfiguration {
 
     @Autowired
     protected DomainService domainService;
+
+    @Autowired
+    DbSchemaUtil dbSchemaUtil;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -745,7 +749,7 @@ public class DomainSchedulerFactoryConfiguration {
         if(domibusConfigurationService.isSingleTenantAware()) {
             throw new UnsupportedOperationException("There is no scheduling tables prefix for a general schema in single tenancy");
         }
-        final String generalSchema = domainService.getGeneralSchema();
+        final String generalSchema = dbSchemaUtil.getGeneralSchema();
         if (StringUtils.isEmpty(generalSchema)) {
             throw new IllegalArgumentException("Could not get the general database schema");
         }
@@ -763,7 +767,7 @@ public class DomainSchedulerFactoryConfiguration {
             LOG.debug("There is no scheduling tables prefix for a domain schema in single tenancy");
             return null;
         }
-        final String databaseSchema = domainService.getDatabaseSchema(domain);
+        final String databaseSchema = dbSchemaUtil.getDatabaseSchema(domain);
         if (StringUtils.isEmpty(databaseSchema)) {
             throw new IllegalArgumentException("Could not get the database schema for domain [" + domain + "]");
         }

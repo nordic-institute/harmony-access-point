@@ -1,18 +1,19 @@
 # Domibus upgrade information
 
   ## Domibus 5.1 (from 5.0.2)
-
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
   ### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
-                        - single tenancy: oracle-5.0-to-5.1-migration.ddl
+                        - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - multitenancy:
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
-                            - domain schemas: oracle-5.0-to-5.1-migration.ddl
+                            - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                     o [Mysql only]
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                             - the root user, specifying the target databases as part of the command. For example, for single tenancy:
                                     mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                    mysql -u root -p domibus < mysql-5.1-data-migration.ddl
                                 or, for multitenancy:
                                     mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                     mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
@@ -20,6 +21,7 @@
                                     GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                               and then specifying the target databases as part of the command. For example, for single tenancy:
                                      mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                     mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
                                  or, for multitenancy:
                                      mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                      mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.

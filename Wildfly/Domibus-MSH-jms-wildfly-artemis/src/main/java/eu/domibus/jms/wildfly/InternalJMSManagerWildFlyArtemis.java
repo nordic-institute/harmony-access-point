@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION;
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
@@ -444,20 +445,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
         String destinationType = destination.getType();
         if ("Queue".equals(destinationType)) {
-            Map<String, Object> criteria = new HashMap<>();
-            if (jmsType != null) {
-                criteria.put("JMSType", jmsType);
-            }
-            if (fromDate != null) {
-                criteria.put("JMSTimestamp_from", fromDate.getTime());
-            }
-            if (toDate != null) {
-                criteria.put("JMSTimestamp_to", toDate.getTime());
-            }
-            if (selectorClause != null) {
-                criteria.put("selectorClause", selectorClause);
-            }
-            String selector = jmsSelectorUtil.getSelector(criteria);
+            String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
             try {
                 internalJmsMessages.addAll(getMessagesFromDestination(source, selector));
             } catch (Exception e) {
@@ -467,6 +455,23 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             throw new InternalJMSException("Unrecognized destination type [" + destinationType + "]");
         }
         return internalJmsMessages;
+    }
+
+    private String getSelector(String jmsType, Date fromDate, Date toDate, String selectorClause) {
+        Map<String, Object> criteria = new HashMap<>();
+        if (jmsType != null) {
+            criteria.put(CRITERIA_JMS_TYPE, jmsType);
+        }
+        if (fromDate != null) {
+            criteria.put(CRITERIA_JMS_TIMESTAMP_FROM, fromDate.getTime());
+        }
+        if (toDate != null) {
+            criteria.put(CRITERIA_JMS_TIMESTAMP_TO, toDate.getTime());
+        }
+        if (selectorClause != null) {
+            criteria.put(CRITERIA_SELECTOR_CLAUSE, selectorClause);
+        }
+        return jmsSelectorUtil.getSelector(criteria);
     }
 
     private List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws NamingException {
@@ -543,6 +548,17 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             return queue.moveMessages(createFilterFromJMSSelector(jmsSelectorUtil.getSelector(messageIds)), destination);
         } catch (Exception e) {
             throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + Arrays.toString(messageIds), e);
+        }
+    }
+
+    @Override
+    public int moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destination) {
+        String selector = getSelector(jmsType, fromDate, toDate, selectorClause);
+        try {
+            QueueControl queue = getQueueControl(source);
+            return queue.moveMessages(createFilterFromJMSSelector(selector), destination);
+        } catch (Exception e) {
+            throw new InternalJMSException(String.format("Failed to move messages from source [%s] to destination [%s] with selector [%s]", source, destination, selector), e);
         }
     }
 

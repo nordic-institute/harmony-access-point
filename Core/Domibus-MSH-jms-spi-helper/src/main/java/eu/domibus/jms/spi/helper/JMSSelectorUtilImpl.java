@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -39,7 +41,7 @@ public class JMSSelectorUtilImpl implements JMSSelectorUtil {
     public String getSelector(Map<String, Object> criteria) {
         StringBuffer selector = new StringBuffer();
         // JMSType
-        String jmsType = (String) criteria.get("JMSType");
+        String jmsType = (String) criteria.get(CRITERIA_JMS_TYPE);
         if (!StringUtils.isBlank(jmsType)) {
             selector.append(selector.length() > 0 ? " and " : "");
             selector.append("JMSType='")
@@ -47,17 +49,17 @@ public class JMSSelectorUtilImpl implements JMSSelectorUtil {
                     .append("'");
         }
         // JMSTimestamp
-        Long jmsTimestampFrom = (Long) criteria.get("JMSTimestamp_from");
+        Long jmsTimestampFrom = (Long) criteria.get(CRITERIA_JMS_TIMESTAMP_FROM);
         if (jmsTimestampFrom != null) {
             selector.append(selector.length() > 0 ? " and " : "");
             selector.append("JMSTimestamp>=").append(jmsTimestampFrom);
         }
-        Long jmsTimestampTo = (Long) criteria.get("JMSTimestamp_to");
+        Long jmsTimestampTo = (Long) criteria.get(CRITERIA_JMS_TIMESTAMP_TO);
         if (jmsTimestampTo != null) {
             selector.append(selector.length() > 0 ? " and " : "");
             selector.append("JMSTimestamp<=").append(jmsTimestampTo);
         }
-        String selectorClause = (String) criteria.get("selectorClause");
+        String selectorClause = (String) criteria.get(CRITERIA_SELECTOR_CLAUSE);
         if (!StringUtils.isBlank(selectorClause)) {
             selector.append(selector.length() > 0 ? " and " : "");
             selector.append(selectorClause);

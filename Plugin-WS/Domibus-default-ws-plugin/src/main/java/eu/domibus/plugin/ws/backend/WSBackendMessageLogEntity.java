@@ -48,6 +48,9 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     @Column(name = "MESSAGE_ID", nullable = false)
     private String messageId;
 
+    @Column(name = "MESSAGE_ENTITY_ID", nullable = false)
+    private long messageEntityId;
+
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
@@ -140,6 +143,14 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     public String getFinalRecipient() {
@@ -247,6 +258,7 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
                 ", createdBy='" + createdBy + '\'' +
                 ", modifiedBy='" + modifiedBy + '\'' +
                 ", messageId='" + messageId + '\'' +
+                ", messageEntityId='" + messageEntityId + '\'' +
                 ", finalRecipient='" + finalRecipient + '\'' +
                 ", originalSender='" + originalSender + '\'' +
                 ", backendMessageStatus=" + backendMessageStatus +

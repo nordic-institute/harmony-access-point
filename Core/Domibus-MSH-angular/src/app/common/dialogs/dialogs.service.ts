@@ -66,8 +66,12 @@ export class DialogsService {
     });
   }
 
-  public openYesNoDialog(): Promise<boolean> {
-    return this.openAndThen(YesNoDialogComponent);
+  public openYesNoDialog(question: string): Promise<boolean> {
+    return this.openYesNoDialogDialog({
+      data: {
+        title: question,
+      }
+    });
   }
 
   public open<T, D = any, R = any>(dialog: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): MatDialogRef<T, R> {

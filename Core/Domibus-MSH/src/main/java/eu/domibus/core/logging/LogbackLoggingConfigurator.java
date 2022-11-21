@@ -5,12 +5,20 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.domibus.api.logging.LoggingConfigurator;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.property.PropertyUtils;
+import eu.domibus.logging.DomibusLoggersCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+
+import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
 
 /**
  * @author  Cosmin Baciu
@@ -19,6 +27,7 @@ import java.io.File;
 public class LogbackLoggingConfigurator implements LoggingConfigurator {
 
     private static final String DEFAULT_LOGBACK_FILE_NAME = "logback.xml";
+
     private static final String LOGBACK_CONFIGURATION_FILE_PARAM = "logback.configurationFile";
 
     private static final Logger LOG = LoggerFactory.getLogger(LogbackLoggingConfigurator.class);
@@ -48,6 +57,10 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
             LOG.warn("Could not configure logging: the file [" + logbackConfigurationFile + "] does not exists");
             return;
         }
+
+        String propertyValue = PropertyUtils.getPropertyValue(DomainService.GENERAL_SCHEMA_PROPERTY, getDomibusPropertiesFilePath());
+        LOG.info("Preparing the logging system for single tenancy or multitenancy by inspecting the general schema property: [{}]", propertyValue);
+        DomibusLoggersCache.setSingleTenancyMode(StringUtils.isBlank(propertyValue));
 
         configureLogback(logbackConfigurationFile);
     }
@@ -94,5 +107,9 @@ public class LogbackLoggingConfigurator implements LoggingConfigurator {
 
     protected String getLogFileLocation(String domibusConfigLocation, String logFileName) {
         return domibusConfigLocation + File.separator + logFileName;
+    }
+
+    private Optional<Path> getDomibusPropertiesFilePath() {
+        return Optional.of(Paths.get(domibusConfigLocation, DOMIBUS_PROPERTY_FILE));
     }
 }

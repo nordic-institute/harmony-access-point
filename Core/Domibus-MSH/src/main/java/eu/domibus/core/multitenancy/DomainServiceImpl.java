@@ -3,7 +3,6 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
@@ -11,18 +10,12 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
+import java.util.stream.Collectors;
 
 /**
  * @author Cosmin Baciu
@@ -30,17 +23,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.0
  */
 @Service
-public class DomainServiceImpl implements DomainService, DomainsAware {
+public class DomainServiceImpl implements DomainService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
-
-    protected final Object generalSchemaLock = new Object();
-
-    protected volatile String generalSchema;
-
-    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
     private List<Domain> domains;
 
@@ -52,42 +39,40 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private final DomibusCacheService domibusCacheService;
 
-    private final AuthenticationService authenticationService;
-
     private final DbSchemaUtil dbSchemaUtil;
 
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
                              DomibusConfigurationService domibusConfigurationService,
                              DomainDao domainDao,
                              DomibusCacheService domibusCacheService,
-                             @Lazy AuthenticationService authenticationService,
-                             @Lazy DbSchemaUtil dbSchemaUtil) {
+                             DbSchemaUtil dbSchemaUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
-        this.authenticationService = authenticationService;
         this.dbSchemaUtil = dbSchemaUtil;
-    }
-
-    @PostConstruct
-    public void initialize() {
-        domains = domainDao.findAll();
     }
 
     @Override
     public synchronized List<Domain> getDomains() {
-        LOG.debug("Getting active domains.");
-
-        domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
-
+        if (domains == null) {
+            domains = getAllValidDomains();
+        }
         return domains;
     }
 
     @Override
-    public List<Domain> getAllDomains() {
-        LOG.debug("Getting all potential domains.");
-        return domainDao.findAll();
+    public List<Domain> getAllValidDomains() {
+        LOG.debug("Getting all potential domains that have a valid database schema.");
+        return domainDao.findAll().stream()
+                .filter(domain -> {
+                    boolean valid = dbSchemaUtil.isDatabaseSchemaForDomainValid(domain);
+                    if (!valid) {
+                        LOG.info("Domain [{}] has invalid database schema so it will be filtered out.", domain);
+                    }
+                    return valid;
+                })
+                .collect(Collectors.toList());
     }
 
     @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
@@ -119,51 +104,6 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         return getDomain(schedulerName);
     }
 
-    /**
-     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
-     *
-     * @param domain the domain for which the db schema is retrieved
-     * @return database schema name
-     */
-    @Override
-    public String getDatabaseSchema(Domain domain) {
-        String domainSchema = domainSchemas.get(domain);
-        if (domainSchema == null) {
-            synchronized (domainSchemas) {
-                domainSchema = domainSchemas.get(domain);
-                if (domainSchema == null) {
-                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
-                    if (value == null) {
-                        LOG.warn("Database schema for domain [{}] was null, removing from cache", domain);
-                        domainSchemas.remove(domain);
-                    } else {
-                        LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
-                        domainSchemas.put(domain, value);
-                    }
-                    domainSchema = value;
-                }
-            }
-        }
-
-        return domainSchema;
-    }
-
-    /**
-     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
-     */
-    @Override
-    public String getGeneralSchema() {
-        if (generalSchema == null) {
-            synchronized (generalSchemaLock) {
-                if (generalSchema == null) {
-                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
-                    LOG.debug("Caching general schema [{}]", generalSchema);
-                }
-            }
-        }
-        return generalSchema;
-    }
-
     @Override
     public String getSchedulerName(Domain domain) {
         String result = domain.getCode();
@@ -180,14 +120,15 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             LOG.info("Could not refresh an empty domain.");
             return;
         }
+
         Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
         if (domain == null) {
             LOG.warn("Could not find domain [{}] to refresh.", domainCode);
             return;
         }
+
         domainDao.refreshDomain(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -196,12 +137,14 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             LOG.info("Could not add a null domain.");
             return;
         }
+
+        clearCaches(domain);
+        if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domain));
+        }
+
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
-
-        authenticationService.addDomainCode(domain.getCode());
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -215,11 +158,10 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             LOG.warn("Could not find domain [{}] to remove.", domainCode);
             return;
         }
-        domains.remove(domain);
 
-        authenticationService.removeDomainCode(domain.getCode());
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
+        LOG.debug("Removing domain [{}]", domain);
+        domains.remove(domain);
+        clearCaches(domain);
     }
 
     @Override
@@ -242,28 +184,10 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
     }
 
-    @Override
-    public void onDomainAdded(Domain domain) {
-        removeCachedSchema(domain);
+    private void clearCaches(Domain domain) {
+        LOG.info("Clear db schema and domain by code caches for domain [{}]", domain);
+        dbSchemaUtil.removeCachedDatabaseSchema(domain);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
-    @Override
-    public void onDomainRemoved(Domain domain) {
-        removeCachedSchema(domain);
-    }
-
-    private void removeCachedSchema(Domain domain) {
-        String domainSchema = domainSchemas.get(domain);
-        if (domainSchema == null) {
-            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
-            return;
-        }
-        synchronized (domainSchemas) {
-            domainSchema = domainSchemas.get(domain);
-            if (domainSchema != null) {
-                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
-                domainSchemas.remove(domain);
-            }
-        }
-    }
 }
