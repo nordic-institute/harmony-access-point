@@ -33,6 +33,9 @@ public class DomibusDistributedCacheConfiguration {
 
     public static final String DOMIBUS_CLUSTER = "domibusDistributedCacheCluster";
 
+    //TODO properties
+    public static final int CACHE_DEFAULT_SIZE = 5000;
+
     private DomibusPropertyProvider domibusPropertyProvider;
 
     public DomibusDistributedCacheConfiguration(DomibusPropertyProvider domibusPropertyProvider) {
@@ -127,11 +130,37 @@ public class DomibusDistributedCacheConfiguration {
 
         final EvictionConfig evictionConfig = mapConfig.getEvictionConfig();
         evictionConfig.setEvictionPolicy(EvictionPolicy.LRU);
-        //TODO get from domibus.properties
-        evictionConfig.setSize(5000);
-        evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
 
+        final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
+        LOG.info("Setting default size for distributed cache to [{}]", defaultSize);
+        evictionConfig.setSize(defaultSize);
+        evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
+        mapConfig.setEvictionConfig(evictionConfig);
+
+        final NearCacheConfig defaultNearCacheConfig = mapDefaultNearCacheConfig();
+        mapConfig.setNearCacheConfig(defaultNearCacheConfig);
 
         return mapConfig;
+    }
+
+    protected NearCacheConfig mapDefaultNearCacheConfig() {
+        final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
+        LOG.info("Setting default size for distributed near cache to [{}]", defaultSize);
+
+        EvictionConfig evictionConfig = new EvictionConfig()
+                .setEvictionPolicy(EvictionPolicy.LRU)
+                .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT)
+                .setSize(defaultSize);
+
+        final Integer defaultTtl = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL);
+        LOG.info("Setting default TTL for distributed near cache to [{}]", defaultTtl);
+
+        NearCacheConfig nearCacheConfig = new NearCacheConfig()
+                .setInMemoryFormat(InMemoryFormat.OBJECT)
+                .setInvalidateOnChange(true)
+                .setTimeToLiveSeconds(defaultTtl)
+                .setEvictionConfig(evictionConfig);
+
+        return nearCacheConfig;
     }
 }

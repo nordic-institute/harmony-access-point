@@ -420,7 +420,13 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
+
+    String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";
+
+    String DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.nearcache.size";
+    String DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_TTL = "domibus.cache.distributed.nearcache.ttl";
+
     String DOMIBUS_DISTRIBUTED_CACHE_PORT = "domibus.cache.distributed.port";
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT = "domibus.cache.distributed.port.autoincrement";
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
