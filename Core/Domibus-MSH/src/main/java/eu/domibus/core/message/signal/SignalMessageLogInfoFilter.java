@@ -55,7 +55,7 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
                 "signal.signalMessageId," +
                 "log.messageStatus.messageStatus," +
-                "log.mshRole.role," +
+                "message.mshRole.role," +
                 "log.deleted," +
                 "log.received," +
                 EMPTY_CONVERSATION_ID +
