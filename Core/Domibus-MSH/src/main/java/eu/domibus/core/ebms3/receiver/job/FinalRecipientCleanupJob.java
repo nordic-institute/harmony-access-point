@@ -29,7 +29,7 @@ public class FinalRecipientCleanupJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         Integer numberOfDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
-        if(numberOfDays==null){
+        if (numberOfDays == null) {
             LOG.debug("Job 'final recipient cleanup' will not be executed because the property [{}] is not set", DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
             return;
         }
