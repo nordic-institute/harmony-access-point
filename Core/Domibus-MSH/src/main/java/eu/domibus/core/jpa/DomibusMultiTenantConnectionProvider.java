@@ -5,11 +5,11 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.api.util.DbSchemaUtil;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -119,22 +119,13 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     protected void setSchema(final Connection connection, String databaseSchema) {
         try {
             try (final Statement statement = connection.createStatement()) {
-                final String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
+                final String schemaChangeSQL = dbSchemaUtil.getSchemaChangeSQL(databaseSchema);
                 LOG.trace("Change current schema:[{}]", schemaChangeSQL);
                 statement.execute(schemaChangeSQL);
             }
-        } catch (final SQLException e) {
+        } catch (final SQLException | FaultyDatabaseSchemaNameException e) {
             throw new HibernateException("Could not alter JDBC connection to specified schema [" + databaseSchema + "]", e);
         }
-    }
-
-    protected String getSchemaChangeSQL(String databaseSchema) {
-        final DataBaseEngine dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
-        String result = "USE " + databaseSchema;
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
-        }
-        return result;
     }
 
     @Override
