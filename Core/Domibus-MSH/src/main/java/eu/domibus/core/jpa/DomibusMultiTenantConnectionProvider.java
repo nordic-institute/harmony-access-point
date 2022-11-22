@@ -123,7 +123,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
                 LOG.trace("Change current schema:[{}]", schemaChangeSQL);
                 statement.execute(schemaChangeSQL);
             }
-        } catch (SQLException | FaultyDatabaseSchemaNameException e) {
+        } catch (final SQLException | FaultyDatabaseSchemaNameException e) {
             throw new HibernateException("Could not alter JDBC connection to specified schema [" + databaseSchema + "]", e);
         }
     }
