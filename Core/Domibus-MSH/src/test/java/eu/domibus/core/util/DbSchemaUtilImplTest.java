@@ -18,7 +18,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.*;
-import java.sql.SQLDataException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -171,7 +170,7 @@ public class DbSchemaUtilImplTest {
     }
 
     @Test(expected = FaultyDatabaseSchemaNameException.class)
-    public void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingSQLDataExceptionShouldBeThrown() {
+    public void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingThenFaultyDatabaseSchemaNameExceptionShouldBeThrown() {
         String dbSchemaName = "default'; select * from tb_user";
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.valueOf("MYSQL"));
         dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName);
@@ -253,8 +252,6 @@ public class DbSchemaUtilImplTest {
         }};
     }
 
-
-
     @Test
     public void givenDbSchemaNameWithFaultyCharactersWhenSanityCheckingThenNameCheckShouldFail() {
         String dbSchemaName = "default' and select * from tb_user";
@@ -266,6 +263,4 @@ public class DbSchemaUtilImplTest {
         String dbSchemaName = "blue_default_scheme";
         Assert.assertTrue(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
     }
-
-
 }
