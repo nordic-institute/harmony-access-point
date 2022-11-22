@@ -70,10 +70,11 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
-    private final Object configurationLock = new Object();
+    private final Object configurationLock;
 
     public CachingPModeProvider(Domain domain) {
         this.domain = domain;
+        configurationLock = ConfigurationLockContainer.getForDomain(domain);
     }
 
     public Configuration getConfiguration() {
@@ -700,7 +701,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
+        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient, domain);
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
             LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
@@ -714,7 +715,7 @@ public class CachingPModeProvider extends PModeProvider {
     public void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
         LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
         synchronized (configurationLock) {
-            finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
+            finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl, domain);
         }
     }
 
@@ -931,7 +932,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            finalRecipientService.clearFinalRecipientAccessPointUrls();
+            finalRecipientService.clearFinalRecipientAccessPointUrls(domain);
             this.init(); //reloads the config
         }
     }
@@ -1237,7 +1238,7 @@ public class CachingPModeProvider extends PModeProvider {
     public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays){
         List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
         synchronized (configurationLock) {
-            finalRecipientService.deleteFinalRecipients(oldFinalRecipients);
+            finalRecipientService.deleteFinalRecipients(oldFinalRecipients, domain);
         }
         return oldFinalRecipients;
     }
