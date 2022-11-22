@@ -7,6 +7,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * @author maierga
+ * @since 5.1
+ */
 public class ConfigurationLockContainer {
     private static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConfigurationLockContainer.class);
     private static final ConcurrentMap<String, Object> domainSpecificConfigurationLock = new ConcurrentHashMap<>();

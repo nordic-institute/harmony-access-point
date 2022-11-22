@@ -16,15 +16,26 @@ import java.time.ZoneOffset;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN;
 
+/**
+ * Job that deleted old FinalRecipients
+ *
+ * @author maierga
+ * @since 5.1
+ */
+
 @DisallowConcurrentExecution
 public class FinalRecipientCleanupJob extends DomibusQuartzJobBean {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FinalRecipientCleanupJob.class);
 
-    @Autowired
     private PModeProvider pModeProvider;
 
-    @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    public FinalRecipientCleanupJob(PModeProvider pModeProvider, DomibusPropertyProvider domibusPropertyProvider) {
+        this.pModeProvider = pModeProvider;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
@@ -33,7 +44,7 @@ public class FinalRecipientCleanupJob extends DomibusQuartzJobBean {
             LOG.debug("Job 'final recipient cleanup' will not be executed because the property [{}] is not set", DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
             return;
         }
-        LOG.debug("Executing job 'Cleanup final recipients older than [{}] days' at [{}]", numberOfDays, LocalDateTime.now(ZoneOffset.UTC));
+        LOG.debug("Executing job 'Cleanup final recipients older than [{}] days'", numberOfDays);
         pModeProvider.deleteFinalRecipientsOlderThan(numberOfDays);
     }
 }

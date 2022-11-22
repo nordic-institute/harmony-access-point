@@ -13,7 +13,6 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = "FinalRecipientEntity.findByFinalRecipient",
                 query = "select rec from FinalRecipientEntity rec where rec.finalRecipient =: FINAL_RECIPIENT"),
-        @NamedQuery(name = "FinalRecipientEntity.deleteFinalRecipients", query = "delete from  FinalRecipientEntity where entityId in :RECEIPTIDS"),
         @NamedQuery(name = "FinalRecipientEntity.findFinalRecipientsModifiedBefore", query = "select rec.entityId, rec.finalRecipient from FinalRecipientEntity rec where rec.modificationTime < :MODIFICATION_DATE and rec.creationTime < :MODIFICATION_DATE")
 })
 public class FinalRecipientEntity extends AbstractBaseEntity {
