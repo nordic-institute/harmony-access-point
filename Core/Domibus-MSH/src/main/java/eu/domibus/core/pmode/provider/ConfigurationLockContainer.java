@@ -16,7 +16,7 @@ public class ConfigurationLockContainer {
 
     public static Object getForDomain(Domain domain) {
         String key;
-        if (domain == null) {
+        if (domain == null || domain.getCode() == null) {
             key = "default";
         } else {
             key = domain.getCode();
