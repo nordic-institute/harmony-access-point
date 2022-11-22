@@ -34,6 +34,7 @@ import javax.servlet.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,8 +114,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     }
 
     protected PluginClassLoader createPluginClassLoader(String domibusConfigLocation) {
-        String pluginsLocation = domibusConfigLocation + PLUGINS_LOCATION;
-        String extensionsLocation = domibusConfigLocation + EXTENSIONS_LOCATION;
+        String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
+        String pluginsLocation = normalizedDomibusConfigLocation + PLUGINS_LOCATION;
+        String extensionsLocation = normalizedDomibusConfigLocation + EXTENSIONS_LOCATION;
 
         LOG.info("Using plugins location [{}]", pluginsLocation);
 
