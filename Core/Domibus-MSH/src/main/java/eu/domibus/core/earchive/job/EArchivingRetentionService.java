@@ -82,7 +82,7 @@ public class EArchivingRetentionService {
     protected void deleteBatch(EArchiveBatchEntity batch) {
         com.codahale.metrics.Timer.Context metricDeleteBatch = metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time();
 
-        LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
+        LOG.debug("Deleting eArchive structure for batchId [{}]", batch.getBatchId());
         Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
         LOG.debug("Clean folder [{}]", folderToClean);
 

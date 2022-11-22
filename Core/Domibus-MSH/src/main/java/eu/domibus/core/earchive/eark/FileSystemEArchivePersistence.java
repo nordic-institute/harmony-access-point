@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -17,6 +18,7 @@ import org.roda_project.commons_ip2.model.MetsWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -39,7 +41,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistence.class);
     public static final String BATCH_JSON = "batch.json";
     public static final String FOLDER_REPRESENTATION_1 = IPConstants.REPRESENTATIONS_FOLDER + "representation1" + IPConstants.ZIP_PATH_SEPARATOR;
-    public static final String FOLDER_REPRESENTATION_1_NEW = IPConstants.REPRESENTATIONS_FOLDER + "representation1";
+
     public static final String BATCH_JSON_PATH = FOLDER_REPRESENTATION_1 + IPConstants.DATA_FOLDER + BATCH_JSON;
 
     protected final EArchiveFileStorageProvider storageProvider;
@@ -69,10 +71,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
     public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds, Date messageStartDate, Date messageEndDate) {
         String batchId = batchEArchiveDTO.getBatchId();
-        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
+        LOG.info("Create eArchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
             com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("createEArkSipStructure", "batchDirectory", "timer")).time();
-            Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
+            EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
+            File storageDirectory = currentStorage.getStorageDirectory();
+            String absolutePath = storageDirectory.getAbsolutePath();
+            Path batchDirectory = Paths.get(absolutePath, batchId);
             methodTimer.stop();
             com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
             FileUtils.forceMkdir(batchDirectory.toFile());

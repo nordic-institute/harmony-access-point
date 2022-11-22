@@ -73,16 +73,16 @@ public class EArchiveConfiguration {
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(restUrl);
 
-        ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
-        earchivingClientApi.setApiClient(apiClient);
+        ArchiveWebhookApi eArchivingClientApi = new ArchiveWebhookApi();
+        eArchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
         if (StringUtils.isNotBlank(username)) {
-            earchivingClientApi.getApiClient().setUsername(username);
+            eArchivingClientApi.getApiClient().setUsername(username);
             String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
-            earchivingClientApi.getApiClient().setPassword(password);
+            eArchivingClientApi.getApiClient().setPassword(password);
         }
-        return earchivingClientApi;
+        return eArchivingClientApi;
     }
 
     @Bean(EARCHIVING_REST_TEMPLATE_BEAN)
