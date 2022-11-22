@@ -22,6 +22,9 @@ public class MessagesActionRequest {
     @CustomWhiteListed(permitted = ".@!/")
     private String destination;
 
+    @CustomWhiteListed(permitted = ".@!/")
+    private String originalQueue;
+
     @CustomWhiteListed(permitted = "<>.:-")
     private List<String> selectedMessages;
 
@@ -44,6 +47,14 @@ public class MessagesActionRequest {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getOriginalQueue() {
+        return originalQueue;
+    }
+
+    public void setOriginalQueue(String originalQueue) {
+        this.originalQueue = originalQueue;
     }
 
     public String getType() {

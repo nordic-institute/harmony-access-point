@@ -59,6 +59,8 @@ export class JmsComponent extends mix(BaseListComponent)
   private readonly _dlqName = '.*?[d|D]omibus.?DLQ';
 
   private _selectedSource: any;
+  private originalQueuePrefix: string;
+  originalQueueName: string;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -161,6 +163,15 @@ export class JmsComponent extends mix(BaseListComponent)
   protected onSetFilters() {
     this._selectedSource = this.queues.find(el => el.name == this.filter.source);
   }
+
+  // protected onBeforeFilter() {
+  //   let originalQueue = this.originalQueueName;
+  //   if (originalQueue) {
+  //     let destination = originalQueue.substr(originalQueue.indexOf('@') + 1);
+  //     destination = this.originalQueuePrefix + destination;
+  //     this.filter.originalQueue = destination;
+  //   }
+  // }
 
   private getDestinations(): Observable<any> {
     return this.http.get<any>('rest/jms/destinations')
@@ -482,9 +493,11 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   moveAll() {
+    let originalQueue = this.getOriginalQueue();
     let payload: MessagesRequestRO = {
       source: this.currentSearchSelectedSource.name,
-      destination: this.filter.originalQueue,
+      destination: this.originalQueueName,
+      originalQueue: originalQueue,
       action: 'MOVE_ALL',
       jmsType: this.filter.jmsType,
       fromDate: this.filter.fromDate,
@@ -504,4 +517,37 @@ export class JmsComponent extends mix(BaseListComponent)
   isDLQQueue() {
     return this.selectedSource && this.selectedSource.name.match(this._dlqName);
   }
+
+  onSelectOriginalQueue() {
+    this.calculateOriginalQueuePrefix();
+
+    this.filter.originalQueue = this.getOriginalQueue();
+  }
+
+  getOriginalQueue() {
+    let originalQueue = this.originalQueueName;
+    if (originalQueue.indexOf('@') < 0) {
+      return originalQueue;
+    }
+
+    // cluster mode: need to prefix
+    let destination = originalQueue.substr(originalQueue.indexOf('@') + 1);
+    return this.originalQueuePrefix + destination;
+  }
+
+  calculateOriginalQueuePrefix() {
+    if (!this.rows.length) {
+      return;
+    }
+
+    const message = this.rows[0];
+    let originalQueueName = message.customProperties.originalQueue;
+    if (!originalQueueName) {
+      return;
+    }
+
+    this.originalQueuePrefix = originalQueueName.substr(0, originalQueueName.indexOf('!') + 1);
+  }
+
+
 }

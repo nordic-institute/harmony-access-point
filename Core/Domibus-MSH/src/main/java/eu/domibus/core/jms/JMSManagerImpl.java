@@ -366,7 +366,7 @@ public class JMSManagerImpl implements JMSManager {
         validateSourceAndDestination(source, jmsDestination);
 
 
-        String completeSelector = getCompleteSelector(req.getSelector(), destination);
+        String completeSelector = getCompleteSelector(req.getSelector(), req.getOriginalQueue());
         List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
 
         List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
