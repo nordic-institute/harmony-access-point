@@ -56,7 +56,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
   request: MessagesRequestRO;
 
-  dlqQueue: any;
+  private readonly _dlqName = '.*?[d|D]omibus.?DLQ';
 
   private _selectedSource: any;
 
@@ -100,7 +100,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.loadDestinations();
 
     this.queuesInfoGot.subscribe(result => {
-      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
+      this.setDefaultQueue(this._dlqName);
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
@@ -202,7 +202,6 @@ export class JmsComponent extends mix(BaseListComponent)
     }
 
     const matching = this.queues.find((el => el.name && el.name.match(queueName)));
-    this.dlqQueue = matching;
     const toSelect = matching != null ? matching : this.queues.length[0];
 
     this.selectedSource = toSelect;
@@ -496,10 +495,13 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canMoveAll() {
-    return this.selectedSource == this.dlqQueue
+    return this.isDLQQueue()
       && this.rows.length
       && this.filter.originalQueue != null
       && this.isFiltered();
   }
 
+  isDLQQueue() {
+    return this.selectedSource && this.selectedSource.name.match(this._dlqName);
+  }
 }
