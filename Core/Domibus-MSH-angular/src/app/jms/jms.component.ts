@@ -36,6 +36,10 @@ export class JmsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
+  private readonly _dlqName = '.*?[d|D]omibus.?DLQ';
+  private readonly queueNamePrefixSeparator = '@';
+  private readonly originalQueuePrefixSeparator = '!';
+
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
@@ -55,8 +59,6 @@ export class JmsComponent extends mix(BaseListComponent)
   markedForDeletionMessages: any[];
 
   request: MessagesRequestRO;
-
-  private readonly _dlqName = '.*?[d|D]omibus.?DLQ';
 
   private _selectedSource: any;
   private originalQueuePrefix: string;
@@ -163,15 +165,6 @@ export class JmsComponent extends mix(BaseListComponent)
   protected onSetFilters() {
     this._selectedSource = this.queues.find(el => el.name == this.filter.source);
   }
-
-  // protected onBeforeFilter() {
-  //   let originalQueue = this.originalQueueName;
-  //   if (originalQueue) {
-  //     let destination = originalQueue.substr(originalQueue.indexOf('@') + 1);
-  //     destination = this.originalQueuePrefix + destination;
-  //     this.filter.originalQueue = destination;
-  //   }
-  // }
 
   private getDestinations(): Observable<any> {
     return this.http.get<any>('rest/jms/destinations')
@@ -361,7 +354,7 @@ export class JmsComponent extends mix(BaseListComponent)
       return null;
     }
     // EDELIVERY-2814
-    originalQueueName = originalQueueName.substr(originalQueueName.indexOf('!') + 1);
+    originalQueueName = originalQueueName.substr(originalQueueName.indexOf(this.originalQueuePrefixSeparator) + 1);
     return originalQueueName;
   }
 
@@ -493,11 +486,10 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   moveAll() {
-    let originalQueue = this.getOriginalQueue();
     let payload: MessagesRequestRO = {
       source: this.currentSearchSelectedSource.name,
       destination: this.originalQueueName,
-      originalQueue: originalQueue,
+      originalQueue: this.getOriginalQueueForFiltering(),
       action: 'MOVE_ALL',
       jmsType: this.filter.jmsType,
       fromDate: this.filter.fromDate,
@@ -521,17 +513,17 @@ export class JmsComponent extends mix(BaseListComponent)
   onSelectOriginalQueue() {
     this.calculateOriginalQueuePrefix();
 
-    this.filter.originalQueue = this.getOriginalQueue();
+    this.filter.originalQueue = this.getOriginalQueueForFiltering();
   }
 
-  getOriginalQueue() {
+  getOriginalQueueForFiltering() {
     let originalQueue = this.originalQueueName;
-    if (originalQueue.indexOf('@') < 0) {
+    if (originalQueue.indexOf(this.queueNamePrefixSeparator) < 0) {
       return originalQueue;
     }
 
     // cluster mode: need to prefix
-    let destination = originalQueue.substr(originalQueue.indexOf('@') + 1);
+    let destination = originalQueue.substr(originalQueue.indexOf(this.ueueNamePrefixSeparator) + 1);
     return this.originalQueuePrefix + destination;
   }
 
@@ -546,7 +538,7 @@ export class JmsComponent extends mix(BaseListComponent)
       return;
     }
 
-    this.originalQueuePrefix = originalQueueName.substr(0, originalQueueName.indexOf('!') + 1);
+    this.originalQueuePrefix = originalQueueName.substr(0, originalQueueName.indexOf(this.originalQueuePrefixSeparator) + 1);
   }
 
 
