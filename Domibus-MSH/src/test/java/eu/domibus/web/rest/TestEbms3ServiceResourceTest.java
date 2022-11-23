@@ -1,10 +1,10 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
@@ -49,20 +49,8 @@ public class TestEbms3ServiceResourceTest {
     @Injectable
     ConnectionMonitoringService connectionMonitoringService;
 
-    @Test
-    public void testGetSenderParty() {
-        // Given
-        new Expectations() {{
-            partyService.getGatewayPartyIdentifier();
-            result = "test";
-        }};
-
-        // When
-        String senderParty = testServiceResource.getSenderParty();
-
-        // Then
-        Assert.assertEquals("test", senderParty);
-    }
+    @Injectable
+    PartyCoreMapper partyCoreMapper;
 
     @Test
     public void testGetTestParties() {
@@ -72,7 +60,7 @@ public class TestEbms3ServiceResourceTest {
         testPartiesList.add("testParty2");
 
         new Expectations() {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = testPartiesList;
         }};
 
@@ -123,27 +111,4 @@ public class TestEbms3ServiceResourceTest {
         Assert.assertEquals("dynamicdiscovery", submitTestDynamicDiscovery);
     }
 
-    @Test
-    public void testGetConnectionMonitorStatus() {
-        // Given
-        String[] partyIds = {"partyId1", "partyId2"};
-
-        ConnectionMonitorRO conn1 = new ConnectionMonitorRO();
-        ConnectionMonitorRO conn2 = new ConnectionMonitorRO();
-
-        Map<String, ConnectionMonitorRO> info = new HashedMap();
-        info.put(partyIds[0], conn1);
-        info.put(partyIds[1], conn2);
-
-        new Expectations() {{
-            connectionMonitoringService.getConnectionStatus(partyIds);
-            result = info;
-        }};
-
-        // When
-        Map<String, ConnectionMonitorRO> result = testServiceResource.getConnectionMonitorStatus(partyIds);
-
-        // Then
-        Assert.assertEquals(result, info);
-    }
 }

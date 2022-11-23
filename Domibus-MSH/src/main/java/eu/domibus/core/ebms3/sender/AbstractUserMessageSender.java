@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
@@ -44,6 +45,9 @@ import java.sql.Timestamp;
  * @since 4.1
  */
 public abstract class AbstractUserMessageSender implements MessageSender {
+
+    @Autowired
+    protected UserMessageSoapEnvelopeSpiDelegate userMessageSoapEnvelopeSpiDelegate;
 
     @Autowired
     protected PModeProvider pModeProvider;
@@ -153,9 +157,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
 
             getLog().debug("PMode found : [{}]", pModeKey);
-            final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
+            SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
 
             String receiverUrl = pModeProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
+            requestSoapMessage = userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(requestSoapMessage);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverUrl, policy, legConfiguration, pModeKey);
 
             requestRawXMLMessage = soapUtil.getRawXMLMessage(requestSoapMessage);

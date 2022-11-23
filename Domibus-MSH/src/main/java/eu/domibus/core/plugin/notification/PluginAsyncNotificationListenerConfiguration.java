@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,7 +40,8 @@ public class PluginAsyncNotificationListenerConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public PluginAsyncNotificationListener createAsyncNotificationListener(AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider, asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils);
+        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider, asyncNotificationConfiguration,
+                pluginEventNotifierProvider, authUtils);
         return notificationListenerServiceImpl;
     }
 }

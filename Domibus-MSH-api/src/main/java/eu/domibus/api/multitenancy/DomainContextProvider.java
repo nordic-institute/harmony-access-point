@@ -18,6 +18,8 @@ public interface DomainContextProvider {
 
     void setCurrentDomain(String domainCode);
 
+    void setCurrentDomainWithValidation(String domainCode);
+
     void setCurrentDomain(Domain domain);
 
     void clearCurrentDomain();

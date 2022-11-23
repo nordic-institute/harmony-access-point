@@ -2,6 +2,7 @@ package eu.domibus.core.monitoring;
 
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,8 +25,10 @@ public interface ConnectionMonitoringService {
     /**
      * Retrieves the last known connection status for the given parties.
      *
+     *
+     * @param senderPartyId
      * @param partyIds The party identifier array
      * @return Details about the connection status of the given parties.
      */
-    Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds);
+    Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds);
 }

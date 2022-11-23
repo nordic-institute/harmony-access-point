@@ -3,10 +3,8 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+    public static final String PARTY_SEPARATOR = ">";
 
     @Autowired
     private PartyService partyService;
@@ -51,60 +48,60 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
             return;
         }
 
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
-            LOG.info("The self party is not configured -> could not send test messages");
-            return;
-        }
-
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(PARTY_SEPARATOR)[1])))
                 .collect(Collectors.toList());
-        for (String party : monitoredParties) {
+        for (String partyPair : monitoredParties) {
+            String[] pairVals = partyPair.split(PARTY_SEPARATOR);
+            String senderParty = pairVals[0];
+            String receiverParty = pairVals[1];
             try {
-                String testMessageId = testService.submitTest(selfParty, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
-            } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+                String testMessageId = testService.submitTest(senderParty, receiverParty);
+                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
+            } catch (Exception ex) {
+                LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty, ex);
             }
         }
     }
 
     @Override
-    public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
+    public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
+        ensureMewFormatForEnabledProperty();
+
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
-            ConnectionMonitorRO status = this.getConnectionStatus(partyId);
+            ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
             result.put(partyId, status);
         }
         return result;
     }
 
-    protected ConnectionMonitorRO getConnectionStatus(String partyId) {
+    protected ConnectionMonitorRO getConnectionStatus(String senderPartyId, String partyId) {
         ConnectionMonitorRO result = new ConnectionMonitorRO();
 
-        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
+        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(senderPartyId, partyId);
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
-            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
+            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(senderPartyId, partyId, null);
             result.setLastReceived(lastReceived);
         }
 
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setTestable(true);
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (result.isTestable() && enabledParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+        String partyPair = senderPartyId + PARTY_SEPARATOR + partyId;
+        if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
@@ -127,11 +124,26 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getMonitorEnabledParties() {
-        List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED).split(","));
-        enabledParties = enabledParties.stream()
-                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
-                .collect(Collectors.toList());
-        return enabledParties;
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+    }
+
+    protected void ensureMewFormatForEnabledProperty() {
+        String selfPartyId = partyService.getGatewayPartyIdentifier();
+        List<String> monitoredParties = getMonitorEnabledParties();
+        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
+        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+    }
+
+    protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
+        for (int i = 0; i < monitoredParties.size(); i++) {
+            String monitoredPartyPair = monitoredParties.get(i);
+            String[] pairVals = monitoredPartyPair.split(PARTY_SEPARATOR);
+            if (pairVals.length == 1) {
+                monitoredParties.set(i, selfPartyId + PARTY_SEPARATOR + pairVals[0]);
+            }
+        }
+        String newValue = monitoredParties.stream().collect(Collectors.joining(","));
+        return newValue;
     }
 
 }

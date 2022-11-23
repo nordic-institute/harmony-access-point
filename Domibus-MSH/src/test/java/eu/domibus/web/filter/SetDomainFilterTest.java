@@ -53,7 +53,7 @@ public class SetDomainFilterTest {
         setDomainFilter.doFilter(request, response, chain);
 
         new Verifications() {{
-            domainContextProvider.setCurrentDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
             chain.doFilter(request, response);
         }};
     }

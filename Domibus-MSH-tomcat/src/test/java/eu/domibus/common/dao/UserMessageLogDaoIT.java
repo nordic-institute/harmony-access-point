@@ -451,7 +451,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findMessagesNotFinalAsc() {
         List<EArchiveBatchUserMessage> retryMessages = userMessageLogDao.findMessagesNotFinalAsc(0, 999999999999999999L);
 
-        assertEquals(2, retryMessages.size());
+        assertEquals(1, retryMessages.size());
     }
 
     @Test

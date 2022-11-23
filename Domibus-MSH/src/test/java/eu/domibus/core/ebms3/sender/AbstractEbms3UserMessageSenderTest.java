@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
@@ -47,6 +48,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
     @Tested
     AbstractUserMessageSender abstractUserMessageSender;
+
+    @Injectable
+    protected UserMessageSoapEnvelopeSpiDelegate userMessageSoapEnvelopeSpiDelegate;
 
     @Injectable
     protected PModeProvider pModeProvider;
@@ -162,6 +166,9 @@ public class AbstractEbms3UserMessageSenderTest {
             result = senderName;
 
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
+            result = soapMessage;
+
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -362,6 +369,9 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
+            result = soapMessage;
+
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
@@ -473,6 +483,9 @@ public class AbstractEbms3UserMessageSenderTest {
             result = senderName;
 
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
+            result = soapMessage;
+
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);

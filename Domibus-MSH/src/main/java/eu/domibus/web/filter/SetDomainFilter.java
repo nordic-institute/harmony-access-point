@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,14 @@ public class SetDomainFilter extends GenericFilterBean {
         if (loggedUser != null) {
             String domain = getDomain(loggedUser);
             LOG.debug("Found authenticated user [{}]; setting its domain [{}] on the context.", loggedUser.getUsername(), domain);
-            domainContextProvider.setCurrentDomain(domain);
+            try {
+                domainContextProvider.setCurrentDomainWithValidation(domain);
+            } catch (DomibusDomainException ex) {
+                LOG.error("Invalid domain: [{}]", domain, ex);
+            }
+        } else {
+            LOG.debug("No authenticated user found so no domain to set.");
         }
-        LOG.debug("No authenticated user found so no domain to set.");
-
         chain.doFilter(request, response);
     }
 

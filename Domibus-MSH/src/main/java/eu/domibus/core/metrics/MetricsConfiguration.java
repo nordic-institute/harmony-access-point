@@ -9,13 +9,16 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.server.ServerInfoService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,11 +36,17 @@ public class MetricsConfiguration {
     protected static final Logger LOG = LoggerFactory.getLogger(MetricsConfiguration.class);
 
     protected static final Marker STATISTIC_MARKER = MarkerFactory.getMarker("STATISTIC");
+
     public static final String JMS_QUEUES = "jmsQueues";
 
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
         return new HealthCheckRegistry();
+    }
+
+    @Bean
+    public JmsQueueCountSetScheduler jmsQueueCountSetScheduler(MetricRegistry metricRegistry, JMSQueuesCountSet jmsQueuesCountSet, DomibusPropertyProvider domibusPropertyProvider) {
+        return new JmsQueueCountSetScheduler(metricRegistry, jmsQueuesCountSet, domibusPropertyProvider);
     }
 
     @Bean
@@ -47,6 +56,16 @@ public class MetricsConfiguration {
         MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, jmsManager, authUtils, domainTaskExecutor);
         addMetricsToLogs(domibusPropertyProvider, metricRegistry);
         return metricRegistry;
+    }
+
+    @Bean
+    public JMSQueuesCountSet jmsQueuesCountSet(DomibusPropertyProvider domibusPropertyProvider,
+                                               JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, ServerInfoService serverInfoService, DomibusConfigurationService domibusConfigurationService) {
+        long refreshPeriod = domibusPropertyProvider.getLongProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD);
+        boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
+        boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
+        return new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
+                refreshPeriod, showDLQOnly, serverInfoService, clusterDeployment);
     }
 
 
@@ -76,15 +95,6 @@ public class MetricsConfiguration {
             JmxReporter jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
             jmxReporter.start();
         }
-
-        Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
-        if (monitorJMSQueues) {
-            long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
-            boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
-            metricRegistry.register(JMS_QUEUES, new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
-                    refreshPeriod, showDLQOnly));
-        }
-
         return metricRegistry;
     }
 

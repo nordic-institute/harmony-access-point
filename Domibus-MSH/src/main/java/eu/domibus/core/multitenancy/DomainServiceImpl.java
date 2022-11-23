@@ -209,12 +209,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             throw new DomibusDomainException("Domain is empty.");
         }
 
-        Domain domain = findByCode(domainCode, getAllDomains());
-        if (domain == null) {
-            throw new DomibusDomainException(String.format("Domain [%s] cannot be found.", domainCode));
-        }
-
-        domain = findByCode(domainCode, getDomains());
+        Domain domain = findByCode(domainCode, getDomains());
         if (domain == null) {
             throw new DomibusDomainException(String.format("Domain [%s] is not enabled.", domainCode));
         }
