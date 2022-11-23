@@ -51,7 +51,7 @@ public class FileCacheDataLoader implements DataLoader, DSSFileLoader {
 	private static final String DATA_LOADER_NOT_CONFIGURED = "The DataLoader is not configured";
 
 	/** The directory to cache files */
-	private File fileCacheDirectory = new File(System.getProperty("java.io.tmpdir"));
+	private File fileCacheDirectory = new File(DSSUtils.getNormalizedString(System.getProperty("java.io.tmpdir")));
 
 	/** Loads absolute path */
 	private ResourceLoader resourceLoader = new ResourceLoader();
@@ -258,7 +258,7 @@ public class FileCacheDataLoader implements DataLoader, DSSFileLoader {
 		// TODO usage ??
 		final String resourcePath = resourceLoader.getAbsoluteResourceFolder(Utils.trim(urlString));
 		if (resourcePath != null) {
-			final File fileResource = new File(resourcePath);
+			final File fileResource = new File(DSSUtils.getNormalizedString(resourcePath));
 			return DSSUtils.toByteArray(fileResource);
 		} else {
 			return dataLoader.get(urlString);

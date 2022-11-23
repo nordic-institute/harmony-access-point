@@ -39,7 +39,7 @@ public class PayloadFileStorage {
 
     private File storageDirectory = null;
 
-    private Domain domain;
+    private final Domain domain;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -50,14 +50,13 @@ public class PayloadFileStorage {
 
     @PostConstruct
     public void init() {
-
         final String location = domibusPropertyProvider.getProperty(this.domain, ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isBlank(location)) {
             LOG.warn("No file system storage defined. This is fine for small attachments but might lead to database issues when processing large payloads");
             return;
         }
 
-        Path path = createLocation(location);
+        Path path = createLocation(location).normalize();
         if (path == null) {
             LOG.warn("There was an error initializing the payload folder, so Domibus will be using the database");
             return;
@@ -104,7 +103,7 @@ public class PayloadFileStorage {
             LOG.error("Error creating/accessing the payload folder [{}]", path, ioEx);
 
             // Takes temporary folder by default if it faces any issue while creating defined path.
-            payloadPath = Paths.get(System.getProperty("java.io.tmpdir"));
+            payloadPath = Paths.get(System.getProperty("java.io.tmpdir")).normalize();
             LOG.warn(WarningUtil.warnOutput("The temporary payload folder " + payloadPath.toAbsolutePath() + " has been selected!"));
         }
         return payloadPath;
