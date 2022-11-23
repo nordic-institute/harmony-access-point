@@ -7,10 +7,11 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cluster.ClusterDeploymentCondition;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.distributed.DistributedCacheServiceImpl;
+import eu.domibus.core.cache.distributed.DistributedCacheDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +54,10 @@ public class DomibusDistributedCacheConfiguration {
     }
 
     @Bean
-    public DistributedCacheServiceImpl distributedCacheService(HazelcastInstance hazelcastInstance, DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper) {
-        return new DistributedCacheServiceImpl(hazelcastInstance, distributedCacheConfigurationHelper);
+    public DistributedCacheDao distributedCacheService(@Autowired(required = false) HazelcastInstance hazelcastInstance,
+                                                       DomibusPropertyProvider domibusPropertyProvider,
+                                                       DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper) {
+        return new DistributedCacheDao(hazelcastInstance, domibusPropertyProvider, distributedCacheConfigurationHelper);
     }
 
     @Bean
@@ -69,8 +72,6 @@ public class DomibusDistributedCacheConfiguration {
         Config config = new Config();
         config.setClusterName(DOMIBUS_CLUSTER);
         config.setProperty("hazelcast.logging.type", "slf4j");
-
-        config.addMapConfig(distributedCacheConfigurationHelper.mapDefaultMapConfig());
 
         NetworkConfig networkConfig = new NetworkConfig();
         networkConfig.setRestApiConfig(restApiConfig);
@@ -120,7 +121,6 @@ public class DomibusDistributedCacheConfiguration {
                 map(memberValue -> RestEndpointGroup.valueOf(memberValue))
                 .collect(Collectors.toList());
     }
-
 
 
 }

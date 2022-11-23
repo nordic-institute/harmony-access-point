@@ -1,5 +1,6 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.Command;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -24,7 +25,7 @@ public class Evict2LCachesCommandTaskTest {
     private Evict2LCachesCommandTask evict2LCachesCommandTask;
 
     @Injectable
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
     @Test
     public void canHandle() {
@@ -41,7 +42,7 @@ public class Evict2LCachesCommandTaskTest {
         evict2LCachesCommandTask.execute(properties);
 
         new FullVerifications() {{
-            domibusCacheService.clear2LCCaches(false);
+            domibusLocalCacheService.clear2LCCaches(false);
         }};
     }
 }

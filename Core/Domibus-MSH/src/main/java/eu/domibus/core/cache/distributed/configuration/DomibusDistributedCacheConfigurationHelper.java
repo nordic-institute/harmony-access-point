@@ -22,14 +22,13 @@ public class DomibusDistributedCacheConfigurationHelper {
     /**
      * Default configuration for all maps
      */
-    public MapConfig mapDefaultMapConfig() {
+    public MapConfig createDefaultMapConfig(String mapName) {
         final Integer defaultTtl = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL);
         final Integer maxIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE);
         final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
 
-
         final NearCacheConfig defaultNearCacheConfig = createDefaultMapNearCacheConfig();
-        return createMapConfig("default*", defaultSize, defaultTtl, maxIdle, defaultNearCacheConfig);
+        return createMapConfig(mapName, defaultSize, defaultTtl, maxIdle, defaultNearCacheConfig);
     }
 
     public MapConfig createMapConfig(String mapName, final Integer mapSize, final Integer timeToLiveSeconds, final Integer maxIdle, NearCacheConfig nearCacheConfig) {
@@ -38,16 +37,16 @@ public class DomibusDistributedCacheConfigurationHelper {
 
         mapConfig.addEntryListenerConfig(new EntryListenerConfig().setIncludeValue(true).setImplementation(new HazelcastMapEntryListener()));
 
-        LOG.info("Setting TTL for distributed cache to [{}]", timeToLiveSeconds);
+        LOG.info("Setting TTL for distributed cache [{}] to [{}]", mapName, timeToLiveSeconds);
         mapConfig.setTimeToLiveSeconds(timeToLiveSeconds);
 
-        LOG.info("Setting max idle for distributed cache to [{}]", maxIdle);
+        LOG.info("Setting max idle for distributed cache [{}] to [{}]", mapName, maxIdle);
         mapConfig.setMaxIdleSeconds(maxIdle);
 
         final EvictionConfig evictionConfig = mapConfig.getEvictionConfig();
         evictionConfig.setEvictionPolicy(EvictionPolicy.LRU);
 
-        LOG.info("Setting size for distributed cache to [{}]", mapSize);
+        LOG.info("Setting size for distributed cache [{}] to [{}]", mapName, mapSize);
         evictionConfig.setSize(mapSize);
         evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
         mapConfig.setEvictionConfig(evictionConfig);

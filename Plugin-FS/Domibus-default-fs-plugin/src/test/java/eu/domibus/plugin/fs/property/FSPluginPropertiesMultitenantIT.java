@@ -3,11 +3,10 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.PropertyProviderHelper;
 import eu.domibus.core.property.PropertyRetrieveManager;
-import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
@@ -49,7 +48,7 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
     @Autowired
-    DomibusCacheService domibusCacheService;
+    DomibusLocalCacheService domibusLocalCacheService;
     @Autowired
     DefaultDomibusConfigurationService defaultDomibusConfigurationService;
 

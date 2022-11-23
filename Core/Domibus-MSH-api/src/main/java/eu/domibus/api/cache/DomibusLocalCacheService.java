@@ -1,4 +1,4 @@
-package eu.domibus.core.cache;
+package eu.domibus.api.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 
@@ -7,7 +7,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
  * @since 3.3
  */
 
-public interface DomibusCacheService {
+public interface DomibusLocalCacheService {
 
     String USER_DOMAIN_CACHE = "userDomain";
     String PREFERRED_USER_DOMAIN_CACHE = "preferredUserDomain";
@@ -35,4 +35,10 @@ public interface DomibusCacheService {
      */
     boolean containsCacheForKey(String key, String cacheName);
 
+    Object getEntryFromCache(String cacheName, String key);
+
+
+    void addEntryInCache(String cacheName, String key, Object value);
+
+    void evictEntryFromCache(String cacheName, String key);
 }

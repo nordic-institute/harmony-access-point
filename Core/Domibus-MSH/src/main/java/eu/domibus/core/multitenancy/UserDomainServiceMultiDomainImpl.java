@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,7 +31,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     protected UserDomainDao userDomainDao;
 
     @Autowired
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
     @Autowired
     protected AuthUtils authUtils;
@@ -42,7 +42,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the domain code of the user
      */
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.USER_DOMAIN_CACHE, key = "#user")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.USER_DOMAIN_CACHE, key = "#user")
     @Override
     public String getDomainForUser(String user) {
         LOG.debug("Searching domain for user [{}]", user);
@@ -57,7 +57,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the code of the preferred domain of a super user
      */
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
     @Override
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);
@@ -89,12 +89,12 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
     private void setDomainByUser(String user, String domainCode) {
         userDomainDao.setDomainByUser(user, domainCode);
-        domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setPreferredDomainByUser(String user, String domainCode) {
         userDomainDao.setPreferredDomainByUser(user, domainCode);
-        domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.PREFERRED_USER_DOMAIN_CACHE);
     }
 
     protected void executeInContext(Runnable method) {

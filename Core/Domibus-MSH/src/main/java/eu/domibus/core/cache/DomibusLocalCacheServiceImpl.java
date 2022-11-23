@@ -1,5 +1,7 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cache.DomibusCacheException;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -20,9 +22,9 @@ import java.util.List;
  */
 
 @Service
-public class DomibusCacheServiceImpl implements DomibusCacheService {
+public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLocalCacheServiceImpl.class);
 
     protected CacheManager cacheManager;
 
@@ -30,9 +32,9 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
 
     protected LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
 
-    public DomibusCacheServiceImpl(CacheManager cacheManager,
-                                   @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */,
-                                   @Lazy LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean/*Lazy injection to avoid cyclic dependency as the entityManagerFactory needs DomibusMultiTenantConnectionProvider*/) {
+    public DomibusLocalCacheServiceImpl(CacheManager cacheManager,
+                                        @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */,
+                                        @Lazy LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean/*Lazy injection to avoid cyclic dependency as the entityManagerFactory needs DomibusMultiTenantConnectionProvider*/) {
         this.cacheManager = cacheManager;
         this.domibusCacheServiceNotifierList = domibusCacheServiceNotifierList;
         this.localContainerEntityManagerFactoryBean = localContainerEntityManagerFactoryBean;
@@ -97,7 +99,37 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
             LOG.debug("Cache with name [{}] does not exist!", cacheName);
             return false;
         }
-        return ((javax.cache.Cache)cache.getNativeCache()).containsKey(key);
+        return ((javax.cache.Cache) cache.getNativeCache()).containsKey(key);
+    }
+
+    @Override
+    public Object getEntryFromCache(String cacheName, String key) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache == null) {
+            throw new DomibusCacheException("Cannot get entry [" + key + "] from cache [" + cacheName + "]. Cache does not exists");
+        }
+        LOG.debug("Getting entry [{}] from cache [{}]", key, cacheName);
+        return cache.get(key);
+    }
+
+    @Override
+    public void addEntryInCache(String cacheName, String key, Object value) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache == null) {
+            throw new DomibusCacheException("Cannot add entry [" + key + "] in cache [" + cacheName + "]. Cache does not exists");
+        }
+        LOG.debug("Adding entry [{}] with value [{}] to cache [{}]", key, value, cacheName);
+        cache.put(key, value);
+    }
+
+    @Override
+    public void evictEntryFromCache(String cacheName, String key) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache == null) {
+            throw new DomibusCacheException("Cannot remove entry [" + key + "] from cache [" + cacheName + "]. Cache does not exists");
+        }
+        LOG.debug("Evicting entry [{}] from cache [{}]", key, cacheName);
+        cache.evict(key);
     }
 
     protected void notifyClearAllCaches() {

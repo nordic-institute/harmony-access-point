@@ -1,16 +1,14 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import mockit.Expectations;
@@ -20,9 +18,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Tiago Miguel, Catalin Enache
@@ -62,7 +57,7 @@ public class ApplicationResourceTest {
     DomainTaskExecutor domainTaskExecutor;
 
     @Injectable
-    DomibusCacheService domibusCacheService;
+    DomibusLocalCacheService domibusLocalCacheService;
 
     @Test
     public void testGetDomibusInfo() {

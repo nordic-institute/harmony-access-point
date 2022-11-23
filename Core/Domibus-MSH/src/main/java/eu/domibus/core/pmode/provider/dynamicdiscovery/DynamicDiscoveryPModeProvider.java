@@ -9,7 +9,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -31,7 +31,7 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -85,7 +85,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected PartyIdDictionaryService partyIdDictionaryService;
 
     @Autowired
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -204,7 +204,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
             String cacheKey = getCacheKeyForDynamicDiscovery(userMessage);
             PartyId partyId = cachedToPartyId.get(cacheKey);
-            if (partyId!=null && domibusCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
+            if (partyId!=null && domibusLocalCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
                 LOG.debug("Skip ddc lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", cacheKey);
                 userMessage.getPartyInfo().getTo().setToPartyId(partyId);
                 if (userMessage.getPartyInfo().getTo().getToRole() == null) {

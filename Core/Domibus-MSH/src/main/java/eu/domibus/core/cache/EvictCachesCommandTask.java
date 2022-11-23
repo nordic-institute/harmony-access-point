@@ -1,5 +1,6 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.logging.DomibusLogger;
@@ -18,10 +19,10 @@ public class EvictCachesCommandTask implements CommandTask {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EvictCachesCommandTask.class);
 
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
-    public EvictCachesCommandTask(DomibusCacheService domibusCacheService) {
-        this.domibusCacheService = domibusCacheService;
+    public EvictCachesCommandTask(DomibusLocalCacheService domibusLocalCacheService) {
+        this.domibusLocalCacheService = domibusLocalCacheService;
     }
 
     @Override
@@ -33,6 +34,6 @@ public class EvictCachesCommandTask implements CommandTask {
     public void execute(Map<String, String> properties) {
         LOG.info("Evicting caches command task");
 
-        domibusCacheService.clearAllCaches(false);
+        domibusLocalCacheService.clearAllCaches(false);
     }
 }

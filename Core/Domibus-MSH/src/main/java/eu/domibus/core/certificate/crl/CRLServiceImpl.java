@@ -2,7 +2,7 @@ package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -33,14 +33,14 @@ public class CRLServiceImpl implements CRLService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     private volatile List<String> supportedCrlProtocols;
 
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
+    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -135,7 +135,7 @@ public class CRLServiceImpl implements CRLService {
     public void resetCacheCrlProtocols() {
         LOG.debug("Clearing supported Crl protocols and cache.");
         this.supportedCrlProtocols = null;
-        this.domibusCacheService.clearCache(DomibusCacheService.CRL_BY_CERT);
+        this.domibusLocalCacheService.clearCache(DomibusLocalCacheService.CRL_BY_CERT);
     }
 
 }
