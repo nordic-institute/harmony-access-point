@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,7 +91,7 @@ public class FinalRecipientService {
     public List<FinalRecipientEntity> getFinalRecipientsOlderThan(int numberOfDays) {
         if(numberOfDays < 0){
             LOG.debug("The number of days after which FinalRecipients are deleted should be a positive number (numberOfDays=[{}])", numberOfDays);
-            return null;
+            return Collections.emptyList();
         }
         return finalRecipientDao.findFinalRecipientsOlderThan(numberOfDays);
     }
