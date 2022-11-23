@@ -54,7 +54,7 @@ public class DomibusDistributedCacheConfiguration {
     }
 
     @Bean
-    public DistributedCacheDao distributedCacheService(@Autowired(required = false) HazelcastInstance hazelcastInstance,
+    public DistributedCacheDao distributedCacheService(HazelcastInstance hazelcastInstance,
                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                        DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper) {
         return new DistributedCacheDao(hazelcastInstance, domibusPropertyProvider, distributedCacheConfigurationHelper);

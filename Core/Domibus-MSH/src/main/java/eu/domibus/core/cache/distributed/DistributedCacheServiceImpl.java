@@ -6,7 +6,10 @@ import eu.domibus.api.cache.distributed.DistributedCacheService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DistributedCacheServiceImpl implements DistributedCacheService {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DistributedCacheServiceImpl.class);
@@ -15,6 +18,14 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     protected DistributedCacheDao distributedCacheDao;
     protected DomibusLocalCacheService domibusLocalCacheService;
     protected DomibusConfigurationService domibusConfigurationService;
+
+    public DistributedCacheServiceImpl(@Autowired(required = false) DistributedCacheDao distributedCacheDao,
+                                       DomibusLocalCacheService domibusLocalCacheService,
+                                       DomibusConfigurationService domibusConfigurationService) {
+        this.distributedCacheDao = distributedCacheDao;
+        this.domibusLocalCacheService = domibusLocalCacheService;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @Override
     public void createCache(String cacheName) {

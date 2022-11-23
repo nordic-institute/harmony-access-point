@@ -19,7 +19,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
 import javax.validation.constraints.NotNull;
 import java.io.File;

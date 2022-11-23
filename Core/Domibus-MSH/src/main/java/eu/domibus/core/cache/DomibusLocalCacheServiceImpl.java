@@ -109,7 +109,11 @@ public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
             throw new DomibusCacheException("Cannot get entry [" + key + "] from cache [" + cacheName + "]. Cache does not exists");
         }
         LOG.debug("Getting entry [{}] from cache [{}]", key, cacheName);
-        return cache.get(key);
+        final Cache.ValueWrapper valueWrapper = cache.get(key);
+        if(valueWrapper != null) {
+            return valueWrapper.get();
+        }
+        return null;
     }
 
     @Override
