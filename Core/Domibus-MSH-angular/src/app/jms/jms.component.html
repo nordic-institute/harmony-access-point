@@ -98,11 +98,13 @@
         <mat-icon>move_to_inbox</mat-icon>
         <span>Move</span>
       </button>
-      <button id="jmsMoveAll" mat-raised-button color="primary" (click)="moveAll()" [disabled]="!canMoveAll()"
-                button-click-behaviour style="margin-left: 10px;" matTooltip="Select am original queue and filter to move all messages back">
-        <mat-icon>move_to_inbox</mat-icon>
-        <span>Move All</span>
-      </button>
+      <span matTooltip="Select am original queue and filter to move all messages back">
+        <button id="jmsMoveAll" mat-raised-button color="primary" (click)="moveAll()" [disabled]="!canMoveAll()"
+                button-click-behaviour style="margin-left: 10px;">
+          <mat-icon>move_to_inbox</mat-icon>
+          <span>Move All</span>
+        </button>
+      </span>
       <button id="jmsDeleteAllButton" mat-raised-button color="primary" (click)="deleteAll()" [disabled]="!canDeleteAll()"
              button-click-behaviour style="margin-left: 10px;" matTooltip="Delete all messages">
         <mat-icon>delete_forever</mat-icon>
