@@ -85,7 +85,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         assertEquals(finalRecipientURL, receiverPartyEndpoint);
 
         //clear the cache to simulate a second server which doesn't have the endpoint URL in the cache
-        finalRecipientService.clearFinalRecipientAccessPointUrls();
+        finalRecipientService.clearFinalRecipientAccessPointUrls(domainContextProvider.getCurrentDomain());
 
         //the endpoint URL should be retrieved from the database
         receiverPartyEndpoint = pmodeProvider.getReceiverPartyEndpoint(party, finalRecipient);
