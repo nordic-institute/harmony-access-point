@@ -701,7 +701,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient, domain);
+        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
             LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
@@ -1237,9 +1237,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays){
         List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
-        synchronized (configurationLock) {
-            finalRecipientService.deleteFinalRecipients(oldFinalRecipients, domain);
-        }
+        finalRecipientService.deleteFinalRecipients(oldFinalRecipients, domain);
         return oldFinalRecipients;
     }
 }

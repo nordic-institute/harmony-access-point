@@ -19,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 /**
  * Job that deleted old FinalRecipients
  *
- * @author maierga
+ * @author Gabriel Maier
  * @since 5.1
  */
 
@@ -27,21 +27,17 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class FinalRecipientCleanupJob extends DomibusQuartzJobBean {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FinalRecipientCleanupJob.class);
 
+    @Autowired
     private PModeProvider pModeProvider;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
-
     @Autowired
-    public FinalRecipientCleanupJob(PModeProvider pModeProvider, DomibusPropertyProvider domibusPropertyProvider) {
-        this.pModeProvider = pModeProvider;
-        this.domibusPropertyProvider = domibusPropertyProvider;
-    }
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         Integer numberOfDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
         if (numberOfDays == null) {
-            LOG.debug("Job 'final recipient cleanup' will not be executed because the property [{}] is not set", DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
+            LOG.debug("Job 'final recipient cleanup' will not be executed because the value of the property [{}] is empty", DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN);
             return;
         }
         LOG.debug("Executing job 'Cleanup final recipients older than [{}] days'", numberOfDays);

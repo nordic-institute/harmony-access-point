@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Cosmin Baciu
@@ -24,30 +24,28 @@ public class FinalRecipientService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FinalRecipientService.class);
 
-    private final Map<String, String> finalRecipientAccessPointUrls = new HashMap<>();
+    private final Map<String, String> finalRecipientAccessPointUrls = new ConcurrentHashMap<>();
 
     @Autowired
     protected FinalRecipientDao finalRecipientDao;
 
-    public String getEndpointURL(String finalRecipient, Domain domain) {
-        synchronized (ConfigurationLockContainer.getForDomain(domain)) {
-            String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+    public String getEndpointURL(String finalRecipient) {
+        String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
 
-            if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-                LOG.debug("Getting from cache the endpoint URL for final recipient [{}]", finalRecipient);
-                return finalRecipientAPUrl;
-            }
-            LOG.debug("Checking from database the endpoint URL for final recipient [{}]", finalRecipient);
-            final FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
-            if (finalRecipientEntity == null) {
-                LOG.debug("No endpoint URL found in the database for final recipient [{}]", finalRecipient);
-                return null;
-            }
-            finalRecipientAPUrl = finalRecipientEntity.getEndpointURL();
-            LOG.debug("Updating the cache from database for final recipient [{}] with endpoint URL [{}]", finalRecipient, finalRecipientAPUrl);
-            finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+        if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
+            LOG.debug("Getting from cache the endpoint URL for final recipient [{}]", finalRecipient);
             return finalRecipientAPUrl;
         }
+        LOG.debug("Checking from database the endpoint URL for final recipient [{}]", finalRecipient);
+        final FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
+        if (finalRecipientEntity == null) {
+            LOG.debug("No endpoint URL found in the database for final recipient [{}]", finalRecipient);
+            return null;
+        }
+        finalRecipientAPUrl = finalRecipientEntity.getEndpointURL();
+        LOG.debug("Updating the cache from database for final recipient [{}] with endpoint URL [{}]", finalRecipient, finalRecipientAPUrl);
+        finalRecipientAccessPointUrls.putIfAbsent(finalRecipient, finalRecipientAPUrl);
+        return finalRecipientAPUrl;
     }
 
     @Transactional
