@@ -3,12 +3,13 @@ package eu.domibus.core.pmode.provider;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author maierga
+ * @author Gabriel Maier
  * @since 5.1
  */
 public class ConfigurationLockContainer {
@@ -20,7 +21,7 @@ public class ConfigurationLockContainer {
 
     public static Object getForDomain(Domain domain) {
         String key;
-        if (domain == null || domain.getCode() == null) {
+        if (domain == null || StringUtils.isBlank(domain.getCode())) {
             key = "default";
         } else {
             key = domain.getCode();
