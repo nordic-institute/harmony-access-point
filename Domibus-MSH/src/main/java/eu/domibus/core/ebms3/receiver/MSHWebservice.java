@@ -85,7 +85,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         }
         setUserMessageEntityIdOnContext();
 
-        signalMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
+        soapMessage = signalMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
 
         return soapMessage;
 
