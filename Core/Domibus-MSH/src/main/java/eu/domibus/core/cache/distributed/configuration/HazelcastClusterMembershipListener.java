@@ -1,4 +1,4 @@
-package eu.domibus.core.cache.distributed;
+package eu.domibus.core.cache.distributed.configuration;
 
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;

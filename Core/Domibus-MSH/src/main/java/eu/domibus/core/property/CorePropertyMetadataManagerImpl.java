@@ -401,10 +401,13 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             //Start distributed cache properties
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL, Type.NUMERIC),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE, Type.NUMERIC),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_TTL, Type.NUMERIC),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE, Type.NUMERIC),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_TTL, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_MAX_IDLE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_SIZE, Type.NUMERIC),
+
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT, Type.NUMERIC),

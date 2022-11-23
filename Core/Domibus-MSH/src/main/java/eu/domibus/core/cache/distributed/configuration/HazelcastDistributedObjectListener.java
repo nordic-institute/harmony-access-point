@@ -1,4 +1,4 @@
-package eu.domibus.core.cache.distributed;
+package eu.domibus.core.cache.distributed.configuration;
 
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.DistributedObjectEvent;

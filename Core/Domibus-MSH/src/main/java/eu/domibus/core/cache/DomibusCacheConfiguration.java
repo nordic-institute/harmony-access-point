@@ -6,11 +6,13 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -53,9 +55,10 @@ public class DomibusCacheConfiguration {
 
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
+    @Primary
     @Bean(name = CacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
-        CachingProvider provider = Caching.getCachingProvider();
+        EhcacheCachingProvider provider = new EhcacheCachingProvider();
         ClassLoader classLoader = getClass().getClassLoader();
         DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
         //default cache

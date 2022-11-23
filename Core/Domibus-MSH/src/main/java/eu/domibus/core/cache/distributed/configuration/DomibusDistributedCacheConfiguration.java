@@ -1,4 +1,4 @@
-package eu.domibus.core.cache.distributed;
+package eu.domibus.core.cache.distributed.configuration;
 
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
@@ -7,6 +7,7 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cluster.ClusterDeploymentCondition;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cache.distributed.DistributedCacheServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -33,21 +34,31 @@ public class DomibusDistributedCacheConfiguration {
 
     public static final String DOMIBUS_CLUSTER = "domibusDistributedCacheCluster";
 
-    //TODO properties
-    public static final int CACHE_DEFAULT_SIZE = 5000;
+    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    public DomibusDistributedCacheConfiguration(DomibusPropertyProvider domibusPropertyProvider) {
+    public DomibusDistributedCacheConfiguration(DomibusPropertyProvider domibusPropertyProvider, DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.distributedCacheConfigurationHelper = distributedCacheConfigurationHelper;
     }
 
-    public static final String HAZELCAST_REST_API_GROUPS_ENABLED = "HEALTH_CHECK,CLUSTER_READ,CLUSTER_WRITE,HOT_RESTART,WAN,DATA,CP";
-
     @Bean(name = CacheConstants.DISTRIBUTED_CACHE_MANAGER)
-    public org.springframework.cache.CacheManager distributedCacheManager() {
+    public org.springframework.cache.CacheManager distributedCacheManager(HazelcastInstance instance) {
         LOG.info("Creating the distributed cache bean");
 
+        final HazelcastCacheManager hazelcastCacheManager = new HazelcastCacheManager(instance);
+
+        LOG.info("Finished creating the distributed cache bean");
+        return hazelcastCacheManager;
+    }
+
+    @Bean
+    public DistributedCacheServiceImpl distributedCacheService(HazelcastInstance hazelcastInstance, DomibusDistributedCacheConfigurationHelper distributedCacheConfigurationHelper) {
+        return new DistributedCacheServiceImpl(hazelcastInstance, distributedCacheConfigurationHelper);
+    }
+
+    @Bean
+    public HazelcastInstance hazelcastInstance() {
         final boolean restApiEnabled = BooleanUtils.toBoolean(domibusPropertyProvider.getBooleanProperty(DOMIBUS_DISTRIBUTED_CACHE_REST_API_ENABLED));
         final List<RestEndpointGroup> restEndpointGroups = getConfiguredRestApiGroups(restApiEnabled);
 
@@ -59,7 +70,7 @@ public class DomibusDistributedCacheConfiguration {
         config.setClusterName(DOMIBUS_CLUSTER);
         config.setProperty("hazelcast.logging.type", "slf4j");
 
-        config.addMapConfig(mapDefaultConfig());
+        config.addMapConfig(distributedCacheConfigurationHelper.mapDefaultMapConfig());
 
         NetworkConfig networkConfig = new NetworkConfig();
         networkConfig.setRestApiConfig(restApiConfig);
@@ -94,10 +105,7 @@ public class DomibusDistributedCacheConfiguration {
         instance.getCluster().addMembershipListener(new HazelcastClusterMembershipListener());
         instance.addDistributedObjectListener(new HazelcastDistributedObjectListener());
 
-        final HazelcastCacheManager hazelcastCacheManager = new HazelcastCacheManager(instance);
-
-        LOG.info("Finished creating the distributed cache bean");
-        return hazelcastCacheManager;
+        return instance;
     }
 
     protected List<RestEndpointGroup> getConfiguredRestApiGroups(boolean restApiEnabled) {
@@ -113,54 +121,6 @@ public class DomibusDistributedCacheConfiguration {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Default configuration for all maps
-     */
-    private MapConfig mapDefaultConfig() {
-        MapConfig mapConfig = new MapConfig("*");
-        mapConfig.setBackupCount(0);
 
-        final Integer defaultTtl = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL);
-        LOG.info("Setting default TTL for distributed cache to [{}]", defaultTtl);
-        mapConfig.setTimeToLiveSeconds(defaultTtl);
 
-        final Integer maxIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE);
-        LOG.info("Setting default max idle for distributed cache to [{}]", maxIdle);
-        mapConfig.setMaxIdleSeconds(maxIdle);
-
-        final EvictionConfig evictionConfig = mapConfig.getEvictionConfig();
-        evictionConfig.setEvictionPolicy(EvictionPolicy.LRU);
-
-        final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
-        LOG.info("Setting default size for distributed cache to [{}]", defaultSize);
-        evictionConfig.setSize(defaultSize);
-        evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
-        mapConfig.setEvictionConfig(evictionConfig);
-
-        final NearCacheConfig defaultNearCacheConfig = mapDefaultNearCacheConfig();
-        mapConfig.setNearCacheConfig(defaultNearCacheConfig);
-
-        return mapConfig;
-    }
-
-    protected NearCacheConfig mapDefaultNearCacheConfig() {
-        final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
-        LOG.info("Setting default size for distributed near cache to [{}]", defaultSize);
-
-        EvictionConfig evictionConfig = new EvictionConfig()
-                .setEvictionPolicy(EvictionPolicy.LRU)
-                .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT)
-                .setSize(defaultSize);
-
-        final Integer defaultTtl = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL);
-        LOG.info("Setting default TTL for distributed near cache to [{}]", defaultTtl);
-
-        NearCacheConfig nearCacheConfig = new NearCacheConfig()
-                .setInMemoryFormat(InMemoryFormat.OBJECT)
-                .setInvalidateOnChange(true)
-                .setTimeToLiveSeconds(defaultTtl)
-                .setEvictionConfig(evictionConfig);
-
-        return nearCacheConfig;
-    }
 }

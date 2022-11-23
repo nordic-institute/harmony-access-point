@@ -1,10 +1,12 @@
-package eu.domibus.core.cache.distributed;
+package eu.domibus.core.cache.distributed.configuration;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * @author Cosmin Baciu
@@ -18,7 +20,8 @@ public class HazelcastMapEntryListener implements
         EntryLoadedListener<String, String>,
         MapEvictedListener,
         MapClearedListener,
-        EntryExpiredListener {
+        EntryExpiredListener,
+        Serializable {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HazelcastMapEntryListener.class);
 
