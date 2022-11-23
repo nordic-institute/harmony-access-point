@@ -10,7 +10,9 @@
             <mat-form-field class="domibus" style="width:40%">
               <mat-select class="searchField" placeholder="Source Queue" [(ngModel)]="selectedSource" name="jmsQueueSelector"
                           id="jmsQueueSelector" style="width:100%;">
-                <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
+                <input matInput placeholder="type so filter" (keyup)="onFilterSourceQueuesKey($event.target.value)"
+                       style="width: 90%; padding: 10px 20px; border-bottom: grey solid 0.5px">
+                <mat-option *ngFor="let queue of filteredQueues" [value]="queue" class="queue-combo-item">
                   {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
                 </mat-option>
               </mat-select>
@@ -40,8 +42,10 @@
             <mat-form-field *ngIf="isDLQQueue()" class="domibus" style="width:40%">
               <mat-select [(ngModel)]="originalQueueName" (selectionChange)="onSelectOriginalQueue()"
                            placeholder="Original Queue" name="sourceQueue" id="sourceQueue_id" style="width:100%">
+                <input matInput placeholder="type so filter" (keyup)="onFilterOriginalQueuesKey($event.target.value)"
+                       style="width: 90%; padding: 10px 20px; border-bottom: grey solid 0.5px">
                 <mat-option value=""></mat-option>
-                <mat-option *ngFor="let queue of queues" [value]="queue.name" style="width:95%">
+                <mat-option *ngFor="let queue of originalQueues" [value]="queue.name" style="width:95%">
                   {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
                 </mat-option>
               </mat-select>

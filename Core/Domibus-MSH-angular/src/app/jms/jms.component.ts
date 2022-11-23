@@ -52,7 +52,9 @@ export class JmsComponent extends mix(BaseListComponent)
   @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
 
   queues: any[];
-  orderedQueues: any[];
+  filteredQueues: any[];
+  originalQueues: any[];
+  // orderedQueues: any[];
 
   currentSearchSelectedSource;
 
@@ -93,7 +95,9 @@ export class JmsComponent extends mix(BaseListComponent)
     this.queuesInfoGot = new EventEmitter(false);
 
     this.queues = [];
-    this.orderedQueues = [];
+    this.filteredQueues = [];
+    this.originalQueues = [];
+    // this.orderedQueues = [];
 
     // set toDate equals to now
     this.filter.toDate = new Date();
@@ -179,6 +183,8 @@ export class JmsComponent extends mix(BaseListComponent)
         for (const key in destinations) {
           this.queues.push(destinations[key]);
         }
+        this.filteredQueues = this.queues;
+        this.originalQueues = this.queues;
         this.queuesInfoGot.emit();
       }
     );
@@ -500,7 +506,8 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canMoveAll() {
-    return this.isDLQQueue()
+    return !this.isBusy()
+      && this.isDLQQueue()
       && this.rows.length
       && this.filter.originalQueue != null
       && this.isFiltered();
@@ -542,4 +549,11 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
 
+  onFilterSourceQueuesKey(value: any) {
+    this.filteredQueues = this.queues.filter(queue => queue.name && queue.name.toLowerCase().includes(value));
+  }
+
+  onFilterOriginalQueuesKey(value: any) {
+    this.originalQueues = this.queues.filter(queue => queue.name && queue.name.toLowerCase().includes(value));
+  }
 }
