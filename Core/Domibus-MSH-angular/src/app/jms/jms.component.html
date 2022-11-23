@@ -80,12 +80,12 @@
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button id="jmsMoveButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
-            tooltip="Move" button-click-behaviour>
+            matTooltip="Move" button-click-behaviour>
       <mat-icon>move_to_inbox</mat-icon>
     </button>
     <button id="jmsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary"
             (click)="deleteAction(row)"
-            tooltip="Delete" button-click-behaviour>
+            matTooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>
   </ng-template>
@@ -99,12 +99,12 @@
         <span>Move</span>
       </button>
       <button id="jmsMoveAll" mat-raised-button color="primary" (click)="moveAll()" [disabled]="!canMoveAll()"
-                button-click-behaviour style="margin-left: 10px;">
+                button-click-behaviour style="margin-left: 10px;" matTooltip="Select am original queue and filter to move all messages back">
         <mat-icon>move_to_inbox</mat-icon>
         <span>Move All</span>
       </button>
       <button id="jmsDeleteAllButton" mat-raised-button color="primary" (click)="deleteAll()" [disabled]="!canDeleteAll()"
-             button-click-behaviour style="margin-left: 10px;">
+             button-click-behaviour style="margin-left: 10px;" matTooltip="Delete all messages">
         <mat-icon>delete_forever</mat-icon>
         <span>Delete All</span>
       </button>

@@ -72,11 +72,11 @@
 
     <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
       <button mat-icon-button (click)="edit(row)"
-              color="primary" tooltip="Edit" button-click-behaviour>
+              color="primary" matTooltip="Edit" button-click-behaviour>
         <mat-icon>edit</mat-icon>
       </button>
       <button mat-icon-button (click)="delete(row)" color="primary"
-              tooltip="Delete" button-click-behaviour>
+              matTooltip="Delete" button-click-behaviour>
         <mat-icon>delete</mat-icon>
       </button>
     </ng-template>

@@ -523,7 +523,7 @@ export class JmsComponent extends mix(BaseListComponent)
     }
 
     // cluster mode: need to prefix
-    let destination = originalQueue.substr(originalQueue.indexOf(this.ueueNamePrefixSeparator) + 1);
+    let destination = originalQueue.substr(originalQueue.indexOf(this.queueNamePrefixSeparator) + 1);
     return this.originalQueuePrefix + destination;
   }
 
