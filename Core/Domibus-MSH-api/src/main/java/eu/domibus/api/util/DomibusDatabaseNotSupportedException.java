@@ -1,4 +1,4 @@
-package eu.domibus.core.util;
+package eu.domibus.api.util;
 
 /**
  * @author Lucian FURCA
@@ -25,4 +25,3 @@ public class DomibusDatabaseNotSupportedException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
-

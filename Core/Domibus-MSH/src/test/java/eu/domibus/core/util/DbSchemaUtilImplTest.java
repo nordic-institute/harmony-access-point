@@ -5,9 +5,9 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Tested;
 import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Before;
@@ -153,6 +153,7 @@ public class DbSchemaUtilImplTest {
 
     @Test
     public void givenDomainWithFaultyDbSchemaWhenTestingValidityFalseShouldBeReturned() {
+        //given
         Domain domain = new Domain(DOMAIN, DOMAIN);
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
@@ -168,6 +169,12 @@ public class DbSchemaUtilImplTest {
         Assert.assertFalse(actualResult);
     }
 
+    @Test(expected = FaultyDatabaseSchemaNameException.class)
+    public void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingThenFaultyDatabaseSchemaNameExceptionShouldBeThrown() {
+        String dbSchemaName = "default'; select * from tb_user";
+        Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.valueOf("MYSQL"));
+        dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName);
+    }
 
     @Test
     public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
@@ -243,5 +250,17 @@ public class DbSchemaUtilImplTest {
             domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
             times = 1;
         }};
+    }
+
+    @Test
+    public void givenDbSchemaNameWithFaultyCharactersWhenSanityCheckingThenNameCheckShouldFail() {
+        String dbSchemaName = "default' and select * from tb_user";
+        Assert.assertFalse(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
+    }
+
+    @Test
+    public void givenDbSchemaNameInCorrectFormatWhenSanityCheckingThenCheckNameShouldSucceed() {
+        String dbSchemaName = "blue_default_scheme";
+        Assert.assertTrue(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
     }
 }
