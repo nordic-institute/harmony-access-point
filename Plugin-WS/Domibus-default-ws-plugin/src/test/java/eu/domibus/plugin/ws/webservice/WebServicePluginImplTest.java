@@ -167,7 +167,7 @@ public class WebServicePluginImplTest {
 
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
-            @Injectable StatusRequest statusRequest,
+            @Injectable StatusRequestWithAccessPointRole statusRequest,
             @Injectable MessageRetrieverExtService messageRetriever) throws StatusFault {
         new Expectations() {{
             statusRequest.getMessageID();
@@ -187,7 +187,7 @@ public class WebServicePluginImplTest {
             times = 1;
         }};
 
-        webServicePlugin.getStatus(statusRequest);
+        webServicePlugin.getStatusWithAccessPointRole(statusRequest);
 
         new FullVerifications() {};
     }

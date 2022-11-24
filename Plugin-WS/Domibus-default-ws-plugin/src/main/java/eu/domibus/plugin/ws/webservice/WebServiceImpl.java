@@ -205,8 +205,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         Optional<Property> filepathProperty = extendedPartInfo.getPartProperties().getProperty().stream()
                 .filter(property -> PAYLOAD_PROPERTY_FILE_PATH.equalsIgnoreCase(property.getName()))
                 .findFirst();
-        if(filepathProperty.isPresent()){
-            if(foundPayload) {
+        if (filepathProperty.isPresent()) {
+            if (foundPayload) {
                 LOG.warn("An unexpected payload found in the body (payloadId='{}') will be ignored because in the header a filepath is provided", extendedPartInfo.getHref());
             }
 
@@ -416,6 +416,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     /**
      * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     *
      * @param markMessageAsDownloadedRequest
      * @param markMessageAsDownloadedResponse
      * @param ebMSHeaderInfo
@@ -442,7 +443,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         }
         markMessageAsDownloaded(trimmedMessageId);
 
-        markMessageAsDownloadedResponse.value =  WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
+        markMessageAsDownloadedResponse.value = WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
         markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
     }
 
@@ -566,7 +567,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return payloadInfo.getPartInfo();
     }
 
-
+    /**
+     * @param statusRequest
+     * @return returns eu.domibus.plugin.ws.generated.body.MessageStatus
+     * @throws StatusFault
+     * @deprecated since 5.1 Use instead {@link #getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole)}
+     */
+    @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequest.getMessageID());
@@ -580,12 +587,30 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, MSHRole.RECEIVING).name());
     }
 
+    /**
+     * @param statusRequestWithAccessPointRole
+     * @return returns eu.domibus.plugin.ws.generated.body.MessageStatus
+     * @throws StatusFault
+     */
+    @Override
+    public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
+        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequestWithAccessPointRole.getMessageID());
+        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+        if (!isMessageIdNotEmpty) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+        }
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
+
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+    }
+
     @Override
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage = null;
         try {
-            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID(), MSHRole.RECEIVING);
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID(), MSHRole.SENDING);
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));

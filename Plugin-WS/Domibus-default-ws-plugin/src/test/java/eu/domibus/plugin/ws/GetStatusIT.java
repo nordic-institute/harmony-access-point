@@ -5,7 +5,8 @@ import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.body.MessageStatus;
-import eu.domibus.plugin.ws.generated.body.StatusRequest;
+import eu.domibus.plugin.ws.generated.body.MshRole;
+import eu.domibus.plugin.ws.generated.body.StatusRequestWithAccessPointRole;
 import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -52,25 +53,25 @@ public class GetStatusIT extends AbstractBackendWSIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        StatusRequest messageStatusRequest = createMessageStatusRequest(messageId);
-        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
+        StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(messageId, MshRole.RECEIVING);
+        MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
         Assert.assertEquals(MessageStatus.RECEIVED, response);
     }
 
     @Test
     public void testGetStatusInvalidId() throws StatusFault {
         String invalidMessageId = "invalid";
-        StatusRequest messageStatusRequest = createMessageStatusRequest(invalidMessageId);
-        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
+        StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(invalidMessageId, MshRole.RECEIVING);
+        MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
         Assert.assertEquals(MessageStatus.NOT_FOUND, response);
     }
 
     @Test
     public void testGetStatusEmptyMessageId() {
         String emptyMessageId = "";
-        StatusRequest messageStatusRequest = createMessageStatusRequest(emptyMessageId);
+        StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(emptyMessageId, MshRole.RECEIVING);
         try {
-            webServicePluginInterface.getStatus(messageStatusRequest);
+            webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
             Assert.fail();
         } catch (StatusFault statusFault) {
             String message = "Message ID is empty";
@@ -78,9 +79,10 @@ public class GetStatusIT extends AbstractBackendWSIT {
         }
     }
 
-    private StatusRequest createMessageStatusRequest(final String messageId) {
-        StatusRequest statusRequest = new StatusRequest();
+    private StatusRequestWithAccessPointRole createMessageStatusRequest(final String messageId, MshRole role) {
+        StatusRequestWithAccessPointRole statusRequest = new StatusRequestWithAccessPointRole();
         statusRequest.setMessageID(messageId);
+        statusRequest.setAccessPointRole(role);
         return statusRequest;
     }
 }
