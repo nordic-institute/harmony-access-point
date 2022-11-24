@@ -1,8 +1,8 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.services.*;
-import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
@@ -182,7 +182,7 @@ public class WebServicePluginImplTest {
             result = messageRetriever;
             times = 1;
 
-            messageRetriever.getStatus(MESSAGE_ID);
+            messageRetriever.getStatus(MESSAGE_ID, MSHRole.RECEIVING);
             result = MessageStatus.ACKNOWLEDGED;
             times = 1;
         }};

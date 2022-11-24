@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.common.ErrorResult;
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
@@ -10,7 +11,6 @@ import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -576,8 +576,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-        // cannot know the msh role unless we add it on StatusRequest class
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, MSHRole.RECEIVING).name());
     }
 
     @Override
@@ -585,7 +585,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage = null;
         try {
-            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID(), MSHRole.RECEIVING);
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
