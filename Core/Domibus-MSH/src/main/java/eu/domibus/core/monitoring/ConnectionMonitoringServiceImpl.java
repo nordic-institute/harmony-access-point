@@ -1,5 +1,6 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,6 +12,7 @@ import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -31,14 +34,22 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+
     public static final String SENDER_RECEIVER_SEPARATOR = ">";
+
     public static final String LIST_ITEM_SEPARATOR = ",";
+
+    private final static String OUTGOING_TEST_MESSAGE="outgoing-test-message";
 
     private final PartyService partyService;
 
     protected final TestService testService;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
+
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, DomibusPropertyProvider domibusPropertyProvider) {
         this.partyService = partyService;
@@ -48,6 +59,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
+        com.codahale.metrics.Timer.Context testMessageTimer=null;
+        com.codahale.metrics.Counter testMessageCounter=null;
+        try {
+            testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
+            testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class,OUTGOING_TEST_MESSAGE, "counter"));
+            testMessageCounter.inc();
         handleAllValueForCommaSeparatedProperties();
 
         if (!isMonitoringEnabled()) {
@@ -56,6 +73,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
+        }finally {
+            if (testMessageTimer != null) {
+                testMessageTimer.stop();
+            }
+            if (testMessageCounter != null) {
+                testMessageCounter.dec();
+            }
+
+        }
     }
 
     @Override
