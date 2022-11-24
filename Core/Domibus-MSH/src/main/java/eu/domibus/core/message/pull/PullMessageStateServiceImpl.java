@@ -61,6 +61,21 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         sendFailed(userMessageLog, messageId);
     }
 
+    @Override
+    @Transactional
+    public void sendFailed(final UserMessageLog userMessageLog, UserMessage userMessage) {
+        if (userMessageLog == null) {
+            LOG.warn("Could not mark message as failed: userMessageLog is null");
+            return;
+        }
+        if (userMessage == null) {
+            LOG.debug("Could not set message as failed because no userMessage was found");
+            return;
+        }
+        LOG.debug("Setting [{}] message as failed", userMessage.getMessageId());
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+    }
+
     /**
      * {@inheritDoc}
      */
