@@ -1,9 +1,11 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.ebms3.receiver.handler.AbstractIncomingMessageHandler;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
 
 /**
@@ -42,6 +45,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    protected MetricRegistry metricRegistry;
+
     @Override
     public boolean isMonitoringEnabled() {
         boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
@@ -51,29 +57,44 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-        if (CollectionUtils.isEmpty(testableParties)) {
-            LOG.debug("There are no available parties to test");
-            return;
-        }
-
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
-            LOG.info("The self party is not configured -> could not send test messages");
-            return;
-        }
-
-        List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
-                .collect(Collectors.toList());
-        for (String party : monitoredParties) {
-            try {
-                String testMessageId = testService.submitTest(selfParty, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
-            } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+        com.codahale.metrics.Timer.Context testMessageTimer=null;
+        com.codahale.metrics.Counter testMessageCounter=null;
+        try {
+            testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, "outgoingTestMessage", "timer")).time();
+            testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class,"outgoingTestMessage", "counter"));
+            testMessageCounter.inc();
+            List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            if (CollectionUtils.isEmpty(testableParties)) {
+                LOG.debug("There are no available parties to test");
+                return;
             }
+
+            String selfParty = partyService.getGatewayPartyIdentifier();
+            if (StringUtils.isEmpty(selfParty)) {
+                LOG.info("The self party is not configured -> could not send test messages");
+                return;
+            }
+
+            List<String> enabledParties = getMonitorEnabledParties();
+            List<String> monitoredParties = testableParties.stream()
+                    .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+                    .collect(Collectors.toList());
+            for (String party : monitoredParties) {
+                try {
+                    String testMessageId = testService.submitTest(selfParty, party);
+                    LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
+                } catch (IOException | MessagingProcessingException e) {
+                    LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+                }
+            }
+        }finally {
+            if (testMessageTimer != null) {
+                testMessageTimer.stop();
+            }
+            if (testMessageCounter != null) {
+                testMessageCounter.dec();
+            }
+
         }
     }
 
