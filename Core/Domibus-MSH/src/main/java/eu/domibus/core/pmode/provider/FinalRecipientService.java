@@ -31,6 +31,10 @@ public class FinalRecipientService {
     protected FinalRecipientDao finalRecipientDao;
 
     public String getEndpointURL(String finalRecipient) {
+        if (finalRecipient == null) {
+            LOG.debug("No final recipient provided");
+            return null;
+        }
         String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
 
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
