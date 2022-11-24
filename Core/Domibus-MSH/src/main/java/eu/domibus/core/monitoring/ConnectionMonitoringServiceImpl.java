@@ -39,14 +39,13 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     public static final String LIST_ITEM_SEPARATOR = ",";
 
-    private final static String OUTGOING_TEST_MESSAGE="outgoing-test-message";
+    private final static String OUTGOING_TEST_MESSAGE = "outgoing-test-message";
 
     private final PartyService partyService;
 
     protected final TestService testService;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
-
 
     @Autowired
     private MetricRegistry metricRegistry;
@@ -59,21 +58,21 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        com.codahale.metrics.Timer.Context testMessageTimer=null;
-        com.codahale.metrics.Counter testMessageCounter=null;
+        com.codahale.metrics.Timer.Context testMessageTimer = null;
+        com.codahale.metrics.Counter testMessageCounter = null;
         try {
             testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
-            testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class,OUTGOING_TEST_MESSAGE, "counter"));
+            testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
             testMessageCounter.inc();
-        handleAllValueForCommaSeparatedProperties();
+            handleAllValueForCommaSeparatedProperties();
 
-        if (!isMonitoringEnabled()) {
-            LOG.debug("Connection monitoring for others is not enabled; exiting;");
-            return;
-        }
+            if (!isMonitoringEnabled()) {
+                LOG.debug("Connection monitoring for others is not enabled; exiting;");
+                return;
+            }
 
-        sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
-        }finally {
+            sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
+        } finally {
             if (testMessageTimer != null) {
                 testMessageTimer.stop();
             }
