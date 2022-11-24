@@ -974,7 +974,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_party_rec(in_party_type VARCHAR(255),
                     COMMIT;
                 END;
 
-            SELECT ID_PK INTO out_id_pk FROM TB_D_PARTY WHERE TYPE = in_party_type AND VALUE = in_party_value;
+            IF in_party_type IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PARTY WHERE TYPE IS NULL AND VALUE = in_party_value;
+            ELSEIF in_party_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PARTY WHERE TYPE = in_party_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PARTY WHERE TYPE = in_party_type AND VALUE = in_party_value;
+            END IF;
         END;
     END
 //
@@ -1079,8 +1085,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_msg_property_rec(in_prop_name VARCHAR
                     COMMIT;
                 END;
 
-            SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE (NAME = in_prop_name AND TYPE = in_prop_type
-                    AND VALUE = in_prop_value) OR (NAME = in_prop_name AND TYPE IS NULL AND VALUE = in_prop_value);
+            IF in_prop_type IS NULL AND in_prop_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = in_prop_name AND TYPE IS NULL AND VALUE IS NULL;
+            ELSEIF in_prop_type IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = in_prop_name AND TYPE IS NULL AND VALUE = in_prop_value;
+            ELSEIF in_prop_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = in_prop_name AND TYPE = in_prop_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = in_prop_name AND TYPE = in_prop_type AND VALUE = in_prop_value;
+            END IF;
         END;
     END
 //
@@ -1107,8 +1120,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_part_property_rec(in_prop_name VARCHA
                     COMMIT;
                 END;
 
-            SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE (NAME = in_prop_name AND VALUE = in_prop_value
-                    AND TYPE = in_prop_type) OR (NAME = in_prop_name AND VALUE = in_prop_value AND TYPE IS NULL);
+            IF in_prop_type IS NULL AND in_prop_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = in_prop_name AND TYPE IS NULL AND VALUE IS NULL;
+            ELSEIF in_prop_type IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = in_prop_name AND TYPE IS NULL AND VALUE = in_prop_value;
+            ELSEIF in_prop_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = in_prop_name AND TYPE = in_prop_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = in_prop_name AND TYPE = in_prop_type AND VALUE = in_prop_value;
+            END IF;
         END;
     END
 //
