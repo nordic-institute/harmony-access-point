@@ -13,8 +13,11 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
+import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -82,11 +85,15 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Autowired
     protected SynchronizedRunnableFactory synchronizedRunnableFactory;
 
+    @Autowired
+    BackendConnectorProvider backendConnectorProvider;
+
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
 
     protected List<DomibusDomainQuartzJob> jobsToDelete = new ArrayList<>();
+
     protected List<DomibusDomainQuartzJob> jobsToPause = new ArrayList<>();
 
     @PostConstruct
@@ -105,19 +112,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
-    protected void initQuartzSchedulers() {
-        // General Schedulers
-        try {
-            startsSchedulers(GROUP_GENERAL);
-        } catch (SchedulerException e) {
-            LOG.error("Could not initialize the Quartz Scheduler for general schema", e);
-        }
-
-        // Domain Schedulers
-        final List<Domain> domains = domainService.getDomains();
-        initQuartzSchedulers(domains);
-    }
-
     @Override
     public void onDomainAdded(final Domain domain) {
         initQuartzSchedulers(Arrays.asList(domain));
@@ -126,18 +120,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Override
     public void onDomainRemoved(Domain domain) {
         removeScheduler(domain);
-    }
-
-    private void initQuartzSchedulers(List<Domain> domains) {
-        for (Domain domain : domains) {
-            try {
-                checkJobsAndStartScheduler(domain);
-            } catch (SchedulerException e) {
-                LOG.error("Could not initialize the Quartz Scheduler for domain [{}]", domain, e);
-            }
-        }
-
-        removeMarkedForDeletionJobs();
     }
 
     @PreDestroy
@@ -186,9 +168,206 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
 
+        pauseJobsForDisabledPlugins(domain);
+
         pauseJobsForCurrentDomain();
 
         domainContextProvider.clearCurrentDomain();
+    }
+
+    /**
+     * Get Quartz Trigger Details with jobName, domainName and trigger status.
+     *
+     * @throws SchedulerException Quartz scheduler exception
+     */
+    public QuartzInfo getTriggerInfo() throws Exception {
+        List<QuartzTriggerDetails> schedulerTriggers = getSchedulersInfo(schedulers);
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            List<QuartzTriggerDetails> generalSchedulerTriggers = getGeneralSchedulersInfo(generalSchedulers);
+            schedulerTriggers.addAll(generalSchedulerTriggers);
+        }
+        MonitoringStatus state = (schedulerTriggers.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
+        QuartzInfo quartzInfo = new QuartzInfo();
+        quartzInfo.setStatus(state);
+        quartzInfo.setName("Quartz Trigger");
+        quartzInfo.setQuartzTriggerDetails(schedulerTriggers);
+        LOG.debug(" Quartz Scheduler trigger Info [{}]", quartzInfo);
+        return quartzInfo;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
+        try {
+            LOG.debug("Rescheduling job [{}] with cron expression: [{}]", jobNameToReschedule, newCronExpression);
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
+            rescheduleJob(scheduler, jobKey, newCronExpression);
+        } catch (SchedulerException ex) {
+            LOG.error("Error rescheduling job [{}]", jobNameToReschedule, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException {
+        pauseJobs(domain, jobNameToPause);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException {
+        resumeJobs(domain, jobNameToResume);
+    }
+
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void pauseJobs(Domain domain, String... jobNamesToPause) throws DomibusSchedulerException {
+        LOG.debug("Pause cron jobs [{}]!", Arrays.asList(jobNamesToPause));
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+
+        for (String jobNameToPause : jobNamesToPause) {
+            LOG.debug("Pause cron job [{}]!", jobNameToPause);
+            try {
+                JobKey jobKey = findJob(scheduler, jobNameToPause);
+                if (jobKey == null) {
+                    LOG.warn("Can not pause the job [{}] because it does not exist!", jobNameToPause);
+                    continue;
+                }
+                scheduler.pauseJob(jobKey);
+            } catch (SchedulerException ex) {
+                LOG.error("Error pausing the job [{}]", jobNameToPause, ex);
+                throw new DomibusSchedulerException(ex);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void resumeJobs(Domain domain, String... jobNamesToResume) throws DomibusSchedulerException {
+        LOG.debug("Resume cron jobs [{}]!", Arrays.asList(jobNamesToResume));
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+        for (String jobNameToResume : jobNamesToResume) {
+            try {
+                LOG.debug("Resume cron job [{}]!", jobNameToResume);
+
+                JobKey jobKey = findJob(scheduler, jobNameToResume);
+                if (jobKey == null) {
+                    LOG.warn("Can not resume the job [{}] because it does not exist!", jobNameToResume);
+                    continue;
+                }
+                scheduler.resumeJob(jobKey);
+            } catch (SchedulerException ex) {
+                LOG.error("Error resuming the job [{}]", jobNameToResume, ex);
+                throw new DomibusSchedulerException(ex);
+            }
+        }
+    }
+
+    @Override
+    public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete) {
+        jobsToDelete.add(new DomibusDomainQuartzJob(domain, jobNameToDelete));
+    }
+
+    @Override
+    public void markJobForPausingByDomain(Domain domain, String jobName) {
+        jobsToPause.add(new DomibusDomainQuartzJob(domain, jobName));
+    }
+
+    @Override
+    public void triggerMessageResendJob() throws SchedulerException {
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+        JobKey jobKey = findJob(scheduler, MESSAGE_RESEND_JOB);
+
+        LOG.debug("Triggering the job with jobKey [{}] ..", jobKey);
+        scheduler.triggerJob(jobKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
+        if (newRepeatInterval <= 0) {
+            LOG.warn("Invalid repeat interval: [{}] for job [{}]", newRepeatInterval, jobNameToReschedule);
+            throw new DomibusSchedulerException("Invalid repeat interval: " + newRepeatInterval);
+        }
+        try {
+            LOG.debug("Rescheduling job [{}] with repeat interval: [{}]", jobNameToReschedule, newRepeatInterval);
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
+            rescheduleJob(scheduler, jobKey, newRepeatInterval);
+        } catch (SchedulerException ex) {
+            LOG.error("Error rescheduling job [{}] ", jobNameToReschedule, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    protected void deleteJobByDomain(Domain domain, String jobNameToDelete) throws DomibusSchedulerException {
+        try {
+            String domainCode = domain != null ? domain.getCode() : null;
+            LOG.debug("Deleting job with jobKey=[{}] for domain=[{}]", jobNameToDelete, domainCode);
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            if (scheduler != null) {
+                JobKey jobKey = findJob(scheduler, jobNameToDelete);
+                if (jobKey != null) {
+                    deleteSchedulerJob(scheduler, jobKey, null);
+                }
+
+            }
+        } catch (SchedulerException ex) {
+            LOG.error("Error deleting job [{}] ", jobNameToDelete, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    protected void initQuartzSchedulers() {
+        // General Schedulers
+        try {
+            startsSchedulers(GROUP_GENERAL);
+        } catch (SchedulerException e) {
+            LOG.error("Could not initialize the Quartz Scheduler for general schema", e);
+        }
+
+        // Domain Schedulers
+        final List<Domain> domains = domainService.getDomains();
+        initQuartzSchedulers(domains);
+    }
+
+    private void initQuartzSchedulers(List<Domain> domains) {
+        for (Domain domain : domains) {
+            try {
+                checkJobsAndStartScheduler(domain);
+            } catch (SchedulerException e) {
+                LOG.error("Could not initialize the Quartz Scheduler for domain [{}]", domain, e);
+            }
+        }
+
+        removeMarkedForDeletionJobs();
+    }
+
+    private void pauseJobsForDisabledPlugins(Domain domain) {
+        List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
+        plugins.forEach(plugin -> {
+            boolean enabled = plugin.isEnabled(domain.getCode());
+            if (!enabled) {
+                LOG.info("Plugin [{}] is disabled so his cron jobs will be paused.", plugin.getName());
+                List<CronJobInfoDTO> jobsInfo = plugin.getJobsInfo();
+                jobsInfo.forEach(jobInfo -> markJobForPausingByDomain(domain, jobInfo.getName()));
+            }
+        });
     }
 
     private void removeScheduler(Domain domain) {
@@ -223,27 +402,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .filter(job -> (domain == null && job.getDomain() == null) || (domain != null && domain.equals(job.getDomain())))
                 .map(job -> job.getQuartzJob()).toArray(String[]::new);
         pauseJobs(domain, jobNamesToPause);
-    }
-
-    /**
-     * Get Quartz Trigger Details with jobName, domainName and trigger status.
-     *
-     * @throws SchedulerException Quartz scheduler exception
-     */
-
-    public QuartzInfo getTriggerInfo() throws Exception {
-        List<QuartzTriggerDetails> schedulerTriggers = getSchedulersInfo(schedulers);
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            List<QuartzTriggerDetails> generalSchedulerTriggers = getGeneralSchedulersInfo(generalSchedulers);
-            schedulerTriggers.addAll(generalSchedulerTriggers);
-        }
-        MonitoringStatus state = (schedulerTriggers.size() > 0) ? MonitoringStatus.ERROR : MonitoringStatus.NORMAL;
-        QuartzInfo quartzInfo = new QuartzInfo();
-        quartzInfo.setStatus(state);
-        quartzInfo.setName("Quartz Trigger");
-        quartzInfo.setQuartzTriggerDetails(schedulerTriggers);
-        LOG.debug(" Quartz Scheduler trigger Info [{}]", quartzInfo);
-        return quartzInfo;
     }
 
     /**
@@ -442,135 +600,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void rescheduleJob(Domain domain, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
-        try {
-            LOG.debug("Rescheduling job [{}] with cron expression: [{}]", jobNameToReschedule, newCronExpression);
-            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
-            rescheduleJob(scheduler, jobKey, newCronExpression);
-        } catch (SchedulerException ex) {
-            LOG.error("Error rescheduling job [{}]", jobNameToReschedule, ex);
-            throw new DomibusSchedulerException(ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException {
-        pauseJobs(domain, jobNameToPause);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException {
-        resumeJobs(domain, jobNameToResume);
-    }
-
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void pauseJobs(Domain domain, String... jobNamesToPause) throws DomibusSchedulerException {
-        LOG.debug("Pause cron jobs [{}]!", Arrays.asList(jobNamesToPause));
-        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-
-        for (String jobNameToPause : jobNamesToPause) {
-            LOG.debug("Pause cron job [{}]!", jobNameToPause);
-            try {
-                JobKey jobKey = findJob(scheduler, jobNameToPause);
-                if (jobKey == null) {
-                    LOG.warn("Can not pause the job [{}] because it does not exist!", jobNameToPause);
-                    continue;
-                }
-                scheduler.pauseJob(jobKey);
-            } catch (SchedulerException ex) {
-                LOG.error("Error pausing the job [{}]", jobNameToPause, ex);
-                throw new DomibusSchedulerException(ex);
-            }
-        }
-    }
-
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void resumeJobs(Domain domain, String... jobNamesToResume) throws DomibusSchedulerException {
-        LOG.debug("Resume cron jobs [{}]!", Arrays.asList(jobNamesToResume));
-        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-        for (String jobNameToResume : jobNamesToResume) {
-            try {
-                LOG.debug("Resume cron job [{}]!", jobNameToResume);
-
-                JobKey jobKey = findJob(scheduler, jobNameToResume);
-                if (jobKey == null) {
-                    LOG.warn("Can not resume the job [{}] because it does not exist!", jobNameToResume);
-                    continue;
-                }
-                scheduler.resumeJob(jobKey);
-            } catch (SchedulerException ex) {
-                LOG.error("Error resuming the job [{}]", jobNameToResume, ex);
-                throw new DomibusSchedulerException(ex);
-            }
-        }
-    }
-
-    @Override
-    public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete) {
-        jobsToDelete.add(new DomibusDomainQuartzJob(domain, jobNameToDelete));
-    }
-
-    @Override
-    public void markJobForPausingByDomain(Domain domain, String jobName) {
-        jobsToPause.add(new DomibusDomainQuartzJob(domain, jobName));
-    }
-
-    protected void deleteJobByDomain(Domain domain, String jobNameToDelete) throws DomibusSchedulerException {
-        try {
-            String domainCode = domain != null ? domain.getCode() : null;
-            LOG.debug("Deleting job with jobKey=[{}] for domain=[{}]", jobNameToDelete, domainCode);
-            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-            if (scheduler != null) {
-                JobKey jobKey = findJob(scheduler, jobNameToDelete);
-                if (jobKey != null) {
-                    deleteSchedulerJob(scheduler, jobKey, null);
-                }
-
-            }
-        } catch (SchedulerException ex) {
-            LOG.error("Error deleting job [{}] ", jobNameToDelete, ex);
-            throw new DomibusSchedulerException(ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(noRollbackFor = DomibusSchedulerException.class)
-    public void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException {
-        if (newRepeatInterval <= 0) {
-            LOG.warn("Invalid repeat interval: [{}] for job [{}]", newRepeatInterval, jobNameToReschedule);
-            throw new DomibusSchedulerException("Invalid repeat interval: " + newRepeatInterval);
-        }
-        try {
-            LOG.debug("Rescheduling job [{}] with repeat interval: [{}]", jobNameToReschedule, newRepeatInterval);
-            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-            JobKey jobKey = findJob(scheduler, jobNameToReschedule);
-            rescheduleJob(scheduler, jobKey, newRepeatInterval);
-        } catch (SchedulerException ex) {
-            LOG.error("Error rescheduling job [{}] ", jobNameToReschedule, ex);
-            throw new DomibusSchedulerException(ex);
-        }
-    }
-
-    protected JobKey findJob(Scheduler scheduler, String jobNameToFind) throws SchedulerException {
+    public JobKey findJob(Scheduler scheduler, String jobNameToFind) throws SchedulerException {
         for (String groupName : scheduler.getJobGroupNames()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 final String jobName = jobKey.getName();

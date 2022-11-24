@@ -2,10 +2,11 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
+import eu.domibus.core.property.GlobalPropertyMetadataManager;
 
 /**
  * @author Cosmin Baciu
@@ -17,18 +18,28 @@ public class PasswordEncryptionContextDomain extends PasswordEncryptionContextAb
 
     private final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
+
     public PasswordEncryptionContextDomain(PasswordEncryptionService passwordEncryptionService,
                                            DomibusRawPropertyProvider domibusRawPropertyProvider,
                                            DomibusConfigurationService domibusConfigurationService,
+                                           GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                            Domain domain) {
         super(passwordEncryptionService, domibusConfigurationService);
         this.domain = domain;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
     }
 
     @Override
     public boolean isPasswordEncryptionActive() {
         return domibusConfigurationService.isPasswordEncryptionActive(domain);
+    }
+
+    @Override
+    protected Boolean handlesProperty(String propertyName) {
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        return propertyMetadata.isEncrypted() && propertyMetadata.isDomain();
     }
 
     @Override

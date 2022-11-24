@@ -156,11 +156,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+        if (StringUtils.equals(propertyValue, getProperty(domain, propertyName))) {
+            LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, domain);
+            return;
+        }
         propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
+        if (StringUtils.equals(propertyValue, getProperty(propertyName))) {
+            LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, null);
+            return;
+        }
         propertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
     }
 
@@ -177,11 +185,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void loadProperties(Domain domain) {
-        loadProperties(domain, domibusConfigurationService.getConfigurationFileName(domain));
-
-        //need this eviction since the load properties puts an empty value to domain title
-        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
-        domain.setName(getDomainTitle(domain));
+        String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+        loadProperties(domain, configurationFileName);
     }
 
     @Override
@@ -204,6 +209,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         } catch (IOException ex) {
             throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
         }
+
+        //need this eviction since the load properties puts an empty value to domain title
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
+        domain.setName(getDomainTitle(domain));
     }
 
     @Override
@@ -239,6 +248,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return Arrays.stream(StringUtils.split(StringUtils.trimToEmpty(propertyValue), ','))
                 .map(StringUtils::trimToEmpty)
                 .filter(StringUtils::isNotBlank)
+                .distinct()
                 .collect(Collectors.toList());
     }
 

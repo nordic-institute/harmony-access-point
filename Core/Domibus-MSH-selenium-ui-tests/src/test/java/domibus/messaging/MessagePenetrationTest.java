@@ -27,7 +27,6 @@ public class MessagePenetrationTest extends RestTest {
 
 	List<String> errRows = new ArrayList<>();
 	Client client = Client.create();
-	//	client.addFilter(new HTTPBasicAuthFilter("padmin-01", "QW!@qw12"));
 	WebResource resource = client.resource(data.getUiBaseUrl());
 
 	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

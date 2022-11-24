@@ -15,4 +15,7 @@
     <packaging>pom</packaging>
     <name>JMS Plugin modules</name>
 
+    <modules>
+        <module>Domibus-default-jms-plugin</module>
+    </modules>
 </project>

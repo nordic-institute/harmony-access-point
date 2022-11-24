@@ -7,7 +7,6 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -64,6 +63,8 @@ public interface UserMessageService {
     void deleteFailedMessage(String messageId);
 
     void deleteMessage(String messageId, MSHRole mshRole);
+
+    void deleteMessagesWithIDs(List<Long> ids);
 
     void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
@@ -207,4 +208,6 @@ public interface UserMessageService {
     String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole);
 
     eu.domibus.api.model.UserMessage getByMessageId(String messageId);
+
+    void clearPayloadData(List<Long> entityIds);
 }

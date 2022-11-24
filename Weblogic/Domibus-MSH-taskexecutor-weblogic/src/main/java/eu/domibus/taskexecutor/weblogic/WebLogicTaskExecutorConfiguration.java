@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static eu.domibus.common.TaskExecutorConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -38,21 +40,21 @@ public class WebLogicTaskExecutorConfiguration {
         return workManagerFactory;
     }
 
-    @Bean("mshTaskExecutor")
+    @Bean(DOMIBUS_MSH_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWorkManagerTaskExecutor mshTaskExecutor(@Qualifier("mshWorkManager") WorkManager workManager) {
         DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = new DomibusWorkManagerTaskExecutor();
         domibusWorkManagerTaskExecutor.setWorkManager(workManager);
         return domibusWorkManagerTaskExecutor;
     }
 
-    @Bean("taskExecutor")
+    @Bean(DOMIBUS_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWorkManagerTaskExecutor taskExecutor(@Qualifier("domibusWorkManager") WorkManager workManager) {
         DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = new DomibusWorkManagerTaskExecutor();
         domibusWorkManagerTaskExecutor.setWorkManager(workManager);
         return domibusWorkManagerTaskExecutor;
     }
 
-    @Bean("quartzTaskExecutor")
+    @Bean(DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWorkManagerTaskExecutor quartzTaskExecutor(@Qualifier("quartzWorkManager") WorkManager workManager) {
         DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = new DomibusWorkManagerTaskExecutor();
         domibusWorkManagerTaskExecutor.setWorkManager(workManager);

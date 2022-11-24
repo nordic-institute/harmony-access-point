@@ -5,11 +5,11 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.api.util.DbSchemaUtil;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 /**
  * @author Cosmin Baciu
  * @since 4.0
- *
+ * <p>
  * Transaction Isolation set to {@value Connection#TRANSACTION_READ_COMMITTED}
  */
 @Conditional(MultiTenantAwareEntityManagerCondition.class)
@@ -48,7 +48,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     protected DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
 
     @Autowired
-    protected DomainService domainService; //NOSONAR: not necessary to be transient or serializable
+    DbSchemaUtil dbSchemaUtil;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider; //NOSONAR: not necessary to be transient or serializable
@@ -64,7 +64,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         LOG.trace("Getting any connection");
 
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
-        if(StringUtils.isBlank(mdcUser)) {
+        if (StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
@@ -89,11 +89,11 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         String databaseSchema;
         if (currentDomain != null) {
             LOG.trace("Getting schema for domain [{}]", currentDomain);
-            databaseSchema = domainService.getDatabaseSchema(currentDomain);
+            databaseSchema = dbSchemaUtil.getDatabaseSchema(currentDomain);
             LOG.trace("Found database schema name as [{}] for current domain [{}]", databaseSchema, currentDomain);
         } else {
             LOG.trace("Getting general schema");
-            databaseSchema = domainService.getGeneralSchema();
+            databaseSchema = dbSchemaUtil.getGeneralSchema();
             LOG.trace("Database schema name for general schema: [{}]", databaseSchema);
         }
 
@@ -119,27 +119,18 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     protected void setSchema(final Connection connection, String databaseSchema) {
         try {
             try (final Statement statement = connection.createStatement()) {
-                final String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
-                LOG.trace("Change current schema:[{}]",schemaChangeSQL);
+                final String schemaChangeSQL = dbSchemaUtil.getSchemaChangeSQL(databaseSchema);
+                LOG.trace("Change current schema:[{}]", schemaChangeSQL);
                 statement.execute(schemaChangeSQL);
             }
-        } catch (final SQLException e) {
+        } catch (final SQLException | FaultyDatabaseSchemaNameException e) {
             throw new HibernateException("Could not alter JDBC connection to specified schema [" + databaseSchema + "]", e);
         }
     }
 
-    protected String getSchemaChangeSQL(String databaseSchema) {
-        final DataBaseEngine dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
-        String result = "USE " + databaseSchema;
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
-        }
-        return result;
-    }
-
     @Override
     public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
-        final String generalSchema = domainService.getGeneralSchema();
+        final String generalSchema = dbSchemaUtil.getGeneralSchema();
         LOG.trace("Releasing connection, setting database schema to [{}] ", generalSchema);
         setSchema(connection, generalSchema);
         connection.close();

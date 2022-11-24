@@ -84,8 +84,14 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
         return coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(passwordEncryptionResult);
     }
 
+    @Deprecated
     @Override
     public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn) {
-        return passwordEncryptionService.getPropertiesToEncrypt(encryptedProperties, getPropertyFn);
+        return getPropertiesToEncrypt(encryptedProperties, (String) -> Boolean.TRUE, getPropertyFn);
+    }
+
+    @Override
+    public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, Boolean> handlesPropertyFn, Function<String, String> getPropertyFn) {
+        return passwordEncryptionService.getPropertiesToEncrypt(encryptedProperties, handlesPropertyFn, getPropertyFn);
     }
 }

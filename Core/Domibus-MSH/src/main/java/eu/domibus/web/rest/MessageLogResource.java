@@ -22,12 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import static eu.domibus.core.message.MessageLogInfoFilter.*;
 
 /**
  * @author Tiago Miguel, Catalin Enache
@@ -40,28 +36,18 @@ public class MessageLogResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
-    public static final int DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES = 60;
-
     private static final String MODULE_NAME_MESSAGES = "messages";
 
-    private static final String PROPERTY_CONVERSATION_ID = "conversationId";
     private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
-    private static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
     private static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
-    private static final String PROPERTY_MESSAGE_ID = "messageId";
-    private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-    private static final String PROPERTY_TEST_MESSAGE = "testMessage";
     private static final String PROPERTY_MESSAGE_TYPE = "messageType";
     private static final String PROPERTY_MSH_ROLE = "mshRole";
-    private static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
     private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
     private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
     private static final String PROPERTY_RECEIVED_TO = "receivedTo";
     private static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
     private static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
-    private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
-    private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
     private static final String PROPERTY_NEXTATTEMPT_TIMEZONEID = "nextAttemptTimezoneId";
     private static final String PROPERTY_NEXTATTEMPT_OFFSET = "nextAttemptOffsetSeconds";
 
@@ -71,15 +57,19 @@ public class MessageLogResource extends BaseResource {
 
     private final DateUtil dateUtil;
 
-    private final MessagesLogService messagesLogService;
-
     private final DomibusConfigurationService domibusConfigurationService;
 
-    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService, DomibusConfigurationService domibusConfigurationService) {
+    private final RequestFilterUtils requestFilterUtils;
+
+    private final MessagesLogService messagesLogService;
+
+    public MessageLogResource(TestService testService, DateUtil dateUtil, DomibusConfigurationService domibusConfigurationService,
+                              RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
-        this.messagesLogService = messagesLogService;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.requestFilterUtils = requestFilterUtils;
+        this.messagesLogService = messagesLogService;
     }
 
     @GetMapping
@@ -87,9 +77,9 @@ public class MessageLogResource extends BaseResource {
         LOG.debug("Getting message log");
 
         //creating the filters
-        HashMap<String, Object> filters = createFilterMap(request);
+        HashMap<String, Object> filters = requestFilterUtils.createFilterMap(request);
 
-        setDefaultFilters(request, filters);
+        requestFilterUtils.setDefaultFilters(request, filters);
 
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
                 request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
@@ -111,26 +101,6 @@ public class MessageLogResource extends BaseResource {
         return result;
     }
 
-    private void setDefaultFilters(MessageLogFilterRequestRO request, HashMap<String, Object> filters) {
-        //we just set default values for received column
-        // in order to improve pagination on large amount of data
-        Date from = dateUtil.fromString(request.getReceivedFrom());
-        if (from == null) {
-            from = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());
-        }
-        Date to = dateUtil.fromString(request.getReceivedTo());
-        if (to == null) {
-            to = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
-        }
-        filters.put(PROPERTY_RECEIVED_FROM, from);
-        filters.put(PROPERTY_RECEIVED_TO, to);
-
-        filters.put(PROPERTY_MIN_ENTITY_ID, from);
-        filters.put(PROPERTY_MAX_ENTITY_ID, to);
-
-        LOG.debug("using filters [{}]", filters);
-    }
-
     /**
      * This method returns a CSV file with the contents of Messages table
      *
@@ -138,7 +108,7 @@ public class MessageLogResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid final MessageLogFilterRequestRO request) {
-        HashMap<String, Object> filters = createFilterMap(request);
+        HashMap<String, Object> filters = requestFilterUtils.createFilterMap(request);
 
         filters.put(PROPERTY_RECEIVED_FROM, dateUtil.fromString(request.getReceivedFrom()));
         filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
@@ -163,7 +133,7 @@ public class MessageLogResource extends BaseResource {
      */
     @GetMapping(value = "test/outgoing/latest")
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) throws TestServiceException {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestSentWithErrors(request.getPartyId());
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestSentWithErrors(request.getSenderPartyId(), request.getPartyId());
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
@@ -177,7 +147,7 @@ public class MessageLogResource extends BaseResource {
      */
     @GetMapping(value = "test/incoming/latest")
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws TestServiceException {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getPartyId(), request.getUserMessageId());
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getSenderPartyId(), request.getPartyId(), request.getUserMessageId());
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
@@ -190,24 +160,4 @@ public class MessageLogResource extends BaseResource {
         LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
         return excludedProperties;
     }
-
-    private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put(PROPERTY_MESSAGE_ID, request.getMessageId());
-        filters.put(PROPERTY_CONVERSATION_ID, request.getConversationId());
-        filters.put(PROPERTY_MSH_ROLE, request.getMshRole());
-        filters.put(PROPERTY_MESSAGE_STATUS, request.getMessageStatus());
-        filters.put(PROPERTY_NOTIFICATION_STATUS, request.getNotificationStatus());
-        filters.put(PROPERTY_FROM_PARTY_ID, request.getFromPartyId());
-        filters.put(PROPERTY_TO_PARTY_ID, request.getToPartyId());
-        filters.put(PROPERTY_REF_TO_MESSAGE_ID, request.getRefToMessageId());
-        filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
-        filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
-        filters.put(PROPERTY_TEST_MESSAGE, request.getTestMessage());
-        filters.put(MESSAGE_ACTION, request.getAction());
-        filters.put(MESSAGE_SERVICE_TYPE, request.getServiceType());
-        filters.put(MESSAGE_SERVICE_VALUE, request.getServiceValue());
-        return filters;
-    }
-
 }

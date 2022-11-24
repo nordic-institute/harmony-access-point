@@ -16,6 +16,7 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -37,6 +38,7 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 
+
 /**
  * @author Thomas Dussart
  * @author Cosmin Baciu
@@ -46,6 +48,10 @@ import java.io.IOException;
 public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
+
+    private static final String RSA_PROFILE = "RSA";
+
+    private static final String ECC_PROFILE = "ECC";
 
     protected final ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
@@ -57,15 +63,18 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final UserMessageErrorCreator userMessageErrorCreator;
 
+    private final SecurityUtilImpl securityUtil;
+
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator) {
+                                        UserMessageErrorCreator userMessageErrorCreator, SecurityUtilImpl securityUtil) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
+        this.securityUtil = securityUtil;
     }
 
     @Override
@@ -93,7 +102,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
         try {
             ebms3Messaging = soapService.getMessage(message);
-
+            message.getExchange().put(MessageConstants.EMBS3_MESSAGING_OBJECT, ebms3Messaging);
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, ebms3Messaging);
 
             LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
@@ -109,10 +118,11 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.put(PolicyConstants.POLICY_OVERRIDE, policy);
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
-            final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+
+            String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-            message.getExchange().put(MessageConstants.EMBS3_MESSAGING_OBJECT, ebms3Messaging);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
         } catch (EbMS3Exception e) {

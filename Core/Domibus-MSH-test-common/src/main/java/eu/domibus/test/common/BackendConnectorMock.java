@@ -1,9 +1,12 @@
 package eu.domibus.test.common;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import mockit.Mocked;
+import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * @author Ion perpegel
@@ -19,6 +22,8 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private MessageSendFailedEvent messageSendFailedEvent;
     private MessageSendSuccessEvent messageSendSuccessEvent;
 
+    private MessageResponseSentEvent messageResponseSentEvent;
+
     public BackendConnectorMock(String name) {
         super(name);
     }
@@ -31,6 +36,11 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     @Override
     public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
         this.messageReceiveFailureEvent = messageReceiveFailureEvent;
+    }
+
+    @Override
+    public void messageResponseSent(final MessageResponseSentEvent messageResponseSentEvent) {
+        this.messageResponseSentEvent = messageResponseSentEvent;
     }
 
     @Override
@@ -81,6 +91,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         this.deliverMessageEvent = null;
         this.messageSendFailedEvent = null;
         this.messageSendSuccessEvent = null;
+        this.messageResponseSentEvent = null;
     }
 
     public MessageReceiveFailureEvent getMessageReceiveFailureEvent() {
@@ -110,4 +121,18 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     public MessageSendSuccessEvent getMessageSendSuccessEvent() {
         return messageSendSuccessEvent;
     }
+
+    public MessageResponseSentEvent getMessageReceiveReplySentEvent() {
+        return messageResponseSentEvent;
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+    }
+
 }

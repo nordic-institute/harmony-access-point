@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogService;
@@ -95,6 +96,13 @@ public class MessageSubmitterImplTest {
 
     @Injectable
     protected MessageSubmitterHelper messageSubmitterHelper;
+
+    @Injectable
+    protected TestMessageValidator testMessageValidator;
+
+    @Injectable
+    BackendConnectorService backendConnectorService;
+
 
     @Test
     public void testcreateNewParty() {

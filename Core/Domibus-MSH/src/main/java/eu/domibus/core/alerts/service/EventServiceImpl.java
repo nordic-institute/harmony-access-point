@@ -1,17 +1,22 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.DomibusAlertException;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.*;
+import eu.domibus.core.alerts.model.common.AlertCategory;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -22,23 +27,22 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
 import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -46,156 +50,96 @@ public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
 
-    static final String MESSAGE_EVENT_SELECTOR = "message";
-
-    static final String LOGIN_FAILURE = "loginFailure";
-
-    static final String ACCOUNT_DISABLED = "accountDisabled";
-
-    static final String ACCOUNT_ENABLED = "accountEnabled";
-
-    static final String CERTIFICATE_EXPIRED = "certificateExpired";
-
-    static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
-
-    private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
-
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
-    public static final String PARTITION_CHECK = "PARTITION_CHECK";
+    public static final String ALERT_JMS_LISTENER_CONTAINER_FACTORY = "alertJmsListenerContainerFactory";
 
-    @Autowired
-    private EventDao eventDao;
+    private final EventDao eventDao;
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private UserMessageDao userMessageDao;
+    private final UserMessageDao userMessageDao;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private EventMapper eventMapper;
+    private final EventMapper eventMapper;
 
-    @Autowired
-    private JMSManager jmsManager;
+    private final JMSManager jmsManager;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    @Qualifier(ALERT_MESSAGE_QUEUE)
-    private Queue alertMessageQueue;
+    private final Queue alertMessageQueue;
 
-    @Autowired
-    protected MpcService mpcService;
+    protected final MpcService mpcService;
 
-    /**
-     * {@inheritDoc}
-     */
+    private final AlertConfigurationService alertConfigurationService;
+
+    public EventServiceImpl(EventDao eventDao, PModeProvider pModeProvider, UserMessageDao userMessageDao,
+                            ErrorLogService errorLogService, EventMapper eventMapper, JMSManager jmsManager,
+                            @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
+                            MpcService mpcService, AlertConfigurationService alertConfigurationService) {
+        this.eventDao = eventDao;
+        this.pModeProvider = pModeProvider;
+        this.userMessageDao = userMessageDao;
+        this.errorLogService = errorLogService;
+        this.eventMapper = eventMapper;
+        this.jmsManager = jmsManager;
+        this.alertMessageQueue = alertMessageQueue;
+        this.mpcService = mpcService;
+        this.alertConfigurationService = alertConfigurationService;
+    }
+
     @Override
-    public void enqueueMessageEvent(
-            final String messageId,
-            final MessageStatus oldStatus,
-            final MessageStatus newStatus,
-            final MSHRole role) {
+    public void enqueueEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
+        Event event = getEvent(eventType, eventIdentifier, eventProperties);
+        if (event == null) {
+            return;
+        }
+
+        enqueueEvent(event);
+    }
+
+    @Override
+    public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
         Event event = new Event(EventType.MSG_STATUS_CHANGED);
         event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
         event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
         event.addStringKeyValue(ROLE.name(), role.name());
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, MESSAGE_EVENT_SELECTOR);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+
+        enrichMessageEvent(event);
+
+        enqueueEvent(event);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
-        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
-        enqueueEvent(LOGIN_FAILURE, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                loginTime,
-                Boolean.toString(accountDisabled),
-                AccountEventKey.ACCOUNT_DISABLED));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
-        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
-        enqueueEvent(ACCOUNT_DISABLED, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountDisabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_DISABLED));
-    }
-
-    @Override
-    public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
-        EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
-        enqueueEvent(ACCOUNT_ENABLED, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountEnabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_ENABLED));
-    }
-
-    private void enqueueEvent(String selector, Event event) {
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, selector);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
-        EventType eventType = EventType.CERT_IMMINENT_EXPIRATION;
-        enqueueEvent(CERTIFICATE_IMMINENT_EXPIRATION, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        Event event = prepareCertificateEvent(EventType.CERT_IMMINENT_EXPIRATION, accessPoint, alias, expirationDate);
+        enqueueEvent(event);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enqueuePartitionCheckEvent(String partitionName) {
-        Event event = new Event(EventType.PARTITION_CHECK);
-        event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
-        enqueueEvent(PARTITION_CHECK, event);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
-        EventType eventType = EventType.CERT_EXPIRED;
-        enqueueEvent(CERTIFICATE_EXPIRED, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        Event event = prepareCertificateEvent(EventType.CERT_EXPIRED, accessPoint, alias, expirationDate);
+        enqueueEvent(event);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus) {
-        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
-        event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
-        event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
-        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays) {
+        LocalDate expDate = user.getPasswordChangeDate().plusDays(maxPasswordAgeInDays).toLocalDate();
+        EventProperties eventProperties = new EventProperties(user.getUserName(), user.getType().getName(), expDate);
+        String eventIdentifier = getUniqueIdentifier(user);
+
+        Event event = getEvent(eventType, eventIdentifier, eventProperties);
+        if (event == null) {
+            return;
+        }
+
+        enqueueEvent(event);
+
+        LOG.securityInfo(eventType.getSecurityMessageCode(), user.getUserName(), event.findOptionalProperty("EXPIRATION_DATE"));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = eventMapper.eventServiceToEventPersist(event);
@@ -206,11 +150,7 @@ public class EventServiceImpl implements EventService {
         return eventEntity;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enrichMessageEvent(final Event event) {
+    protected void enrichMessageEvent(final Event event) {
         final Optional<String> messageIdProperty = event.findStringProperty(MESSAGE_ID.name());
         final Optional<String> roleProperty = event.findStringProperty(ROLE.name());
         if (!messageIdProperty.isPresent() || !roleProperty.isPresent()) {
@@ -255,49 +195,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Event prepareCertificateEvent(String accessPoint, String alias, Date expirationDate, EventType eventType) {
-        Event event = new Event(eventType);
-        event.addStringKeyValue(CertificateEvent.ACCESS_POINT.name(), accessPoint);
-        event.addStringKeyValue(CertificateEvent.ALIAS.name(), alias);
-        event.addDateKeyValue(CertificateEvent.EXPIRATION_DATE.name(), expirationDate);
-        return event;
-    }
-
-    private Event prepareAccountEvent(
-            final EventType eventType,
-            final String userName,
-            final String userType,
-            final Date loginTime,
-            final String value,
-            final AccountEventKey key) {
-        Event event = new Event(eventType);
-        event.addAccountKeyValue(USER, userName);
-        event.addAccountKeyValue(USER_TYPE, userType);
-        event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
-        event.addAccountKeyValue(key, value);
-        return event;
-    }
-
-    @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
-        Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
-
-        if (!shouldCreateAlert(entity, alertConfiguration)) {
-            return;
-        }
-
-        entity.setLastAlertDate(LocalDate.now());
-        eventDao.update(entity);
-
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, eventType.getQueueSelector());
-
-        LOG.securityInfo(eventType.getSecurityMessageCode(), user.getUserName(), event.findOptionalProperty(PasswordExpirationEventProperties.EXPIRATION_DATE.name()));
-    }
-
     @Override
     public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
-
         if (entity == null) {
             LOG.debug("Should create alert because the event was not previously persisted");
             return true;
@@ -320,10 +219,20 @@ public class EventServiceImpl implements EventService {
         return false;
     }
 
-    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event, String identifier) {
-        String id = event.findStringProperty(identifier).orElse("");
-        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), identifier, id);
+    private void enqueueEvent(Event event) {
+        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
+        LOG.debug("Event:[{}] added to the queue", event);
+    }
 
+    private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
+        Event event = createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
+        return event;
+    }
+
+    @Override
+    public eu.domibus.core.alerts.model.persist.Event getOrCreatePersistedEvent(Event event) {
+        String id = event.findStringProperty(EVENT_IDENTIFIER).orElse("");
+        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EVENT_IDENTIFIER, id);
         if (entity == null) {
             entity = this.persistEvent(event);
         }
@@ -331,48 +240,62 @@ public class EventServiceImpl implements EventService {
         return entity;
     }
 
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
-        int frequency = alertConfiguration.getEventFrequency();
-        return shouldCreateAlert(entity, frequency);
-    }
-
-    private Event preparePasswordEvent(UserEntityBase user, EventType eventType, Integer maxPasswordAgeInDays) {
-        Event event = new Event(eventType);
-        event.setReportingTime(new Date());
-
-        event.addStringKeyValue(EVENT_IDENTIFIER, getUniqueIdentifier(user));
-        event.addStringKeyValue(PasswordExpirationEventProperties.USER_TYPE.name(), user.getType().getName());
-        event.addStringKeyValue(PasswordExpirationEventProperties.USER.name(), user.getUserName());
-
-        LocalDate expDate = user.getPasswordChangeDate().plusDays(maxPasswordAgeInDays).toLocalDate();
-        event.addDateKeyValue(PasswordExpirationEventProperties.EXPIRATION_DATE.name(), Date.from(expDate.atStartOfDay(ZoneOffset.UTC).toInstant()));
-
-        return event;
-    }
-
     private String getUniqueIdentifier(UserEntityBase user) {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enqueueEArchivingMessageNonFinalEvent(final String messageId,
-                                                      final MessageStatus status) {
-        Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
-        event.addStringKeyValue(OLD_STATUS.name(), status.name());
-        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
+    private Event getEvent(EventType eventType, String eventIdentifier, EventProperties eventProperties) {
+        AlertType alertType = eventType.geDefaultAlertType();
+        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
+        if (!configuration.isActive()) {
+            LOG.info("Alert [{}] in not active; exiting", alertType);
+            return null;
+        }
+
+        Event event = createEventWithProperties(eventType, eventProperties);
+        event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
+
+        if (alertType.getCategory() == AlertCategory.REPETITIVE) {
+            eu.domibus.core.alerts.model.persist.Event entity = getOrCreatePersistedEvent(event);
+            RepetitiveAlertConfiguration repetitiveConfiguration = (RepetitiveAlertConfiguration) configuration;
+            if (!shouldCreateAlert(entity, repetitiveConfiguration.getFrequency())) {
+                LOG.debug("Based on alert configuration [{}], the repetitive alert [{}] identified by event [{}] should not be fired now.",
+                        configuration, alertType, eventIdentifier);
+                return null;
+            }
+
+            entity.setLastAlertDate(LocalDate.now());
+            eventDao.update(entity);
+        }
+        return event;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enqueueEArchivingStartDateStopped() {
-        Event event = new Event(EventType.ARCHIVING_START_DATE_STOPPED);
-        enqueueEvent(EventType.ARCHIVING_START_DATE_STOPPED.name(), event);
-    }
+    private Event createEventWithProperties(EventType eventType, EventProperties eventProperties) {
+        Event event = new Event(eventType);
 
+        if (eventProperties == null || eventProperties.get() == null
+                || eventType.getProperties().size() != eventProperties.get().length) {
+            throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
+                    Arrays.toString(eventProperties.get()), eventType.getProperties()));
+        }
+        for (int i = 0; i < eventProperties.get().length; i++) {
+            String prop = eventType.getProperties().get(i);
+            Object propValue = eventProperties.get()[i];
+            if (propValue == null) {
+                LOG.info("Property [{}] is null; skipping", prop);
+                continue;
+            }
+            if (propValue instanceof String) {
+                event.addStringKeyValue(prop, (String) propValue);
+            } else if (propValue instanceof Date) {
+                event.addDateKeyValue(prop, (Date) propValue);
+            } else if (propValue instanceof Boolean) {
+                event.addStringKeyValue(prop, Boolean.toString((Boolean) propValue));
+            } else {
+                LOG.info("Unexpected parameter [{}] value [{}] for event [{}]; stringify-ing it.", prop, propValue, event);
+                event.addStringKeyValue(prop, propValue.toString());
+            }
+        }
+        return event;
+    }
 }

@@ -75,6 +75,9 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
 
@@ -451,6 +454,10 @@
             <column name="TEST_MESSAGE"/>
             <column name="ID_PK"/>
         </createIndex>
+        <createIndex indexName="IDX_UM_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE" >
+            <column name="MPC_ID_FK"/>
+            <column name="ID_PK"/>
+        </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
@@ -486,7 +493,7 @@
             </column>
             <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT">
+            <column name="MESSAGE_ACK_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -498,12 +505,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ACK_ID_FK" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
-        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
-            <column name="FK_MSG_ACKNOWLEDGE"/>
+        <createIndex indexName="IDX_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="MESSAGE_ACK_ID_FK"/>
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
@@ -627,7 +634,9 @@
             <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
                 <constraints nullable="false"/>
             </column>
-            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -689,6 +698,14 @@
         </createIndex>
         <createIndex indexName="IDX_MSG_PROCESSING_TYPE" tableName="TB_USER_MESSAGE_LOG">
             <column name="PROCESSING_TYPE"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_DOWNLOADED" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+        </createIndex>
+        <createIndex indexName="IDX_UML_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+            <column name="ID_PK"/>
+            <column name="MESSAGE_STATUS_ID_FK"/>
         </createIndex>
 
 
@@ -1214,6 +1231,28 @@
             </column>
         </createTable>
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
+    </changeSet>
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-10221">
+        <createTable tableName="TB_FINAL_RECIPIENT_URL">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_FINAL_RECIPIENT_URL"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <createIndex indexName="TB_FINAL_RECIPIENT_URL_IDX" tableName="TB_FINAL_RECIPIENT_URL">
+            <column name="FINAL_RECIPIENT"/>
+        </createIndex>
     </changeSet>
 
     <!-- Start PMode Tables -->
@@ -1842,6 +1881,7 @@
             <column name="DELETE_MESSAGE_METADATA"
                     remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
                     defaultValueBoolean="false"/>
+            <column name="RETENTION_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
             <column name="MAX_BATCH_DELETE"
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>
@@ -2882,6 +2922,8 @@
 
     </changeSet>
 
+    <!-- End User Tables -->
+
     <changeSet author="dussath" id="EDELIVERY-4669">
         <comment>Create pull request table</comment>
         <createTable tableName="TB_PULL_REQUEST">
@@ -2967,6 +3009,30 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
-    <!-- End User Tables -->
+    <changeSet author="Lucian Furca" id="EDELIVERY-9686">
+        <addColumn tableName="TB_PM_SECURITY">
+            <column name="PROFILE" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="Soumya Chandran " id="EDELIVERY-10091">
+        <createTable tableName="TB_MESSAGES_TO_RESEND">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGES_TO_RESEND"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
+    </changeSet>
 
 </databaseChangeLog>

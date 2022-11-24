@@ -38,7 +38,6 @@ class Domibus{
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 
-
     static def backup_file_suffix = "_backup_for_soapui_tests"
     static def DEFAULT_LOG_LEVEL = 1
     static def SUPER_USER = "super"
@@ -324,6 +323,14 @@ class Domibus{
         closeAllDbConnections()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the test messages from all defined for domains databases
+    def cleanDatabaseTestMessagesAll() {
+        debugLog("  ====  Calling \"cleanDatabaseTestMessagesAll\".", log)
+        openAllDbConnections()
+        cleanDatabaseTMForDomains(allDomainsProperties.keySet())
+        closeAllDbConnections()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Clean certificate from table
     def cleanCertificateEntries(String domainName, String certAlias) {
         debugLog("  ====  Calling \"cleanCertificateEntries\".", log)
@@ -381,9 +388,40 @@ class Domibus{
 
         log.info "  cleanDatabaseAll  [][]  Cleaning Done"
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the test messages from the DB for provided list of domain defined by domain IDs
+    def cleanDatabaseTMForDomains(domainIdList) {
+        debugLog("  ====  Calling \"cleanDatabaseTMForDomains\" ${domainIdList}.", log)
+		
+		def select_ID_PK = "SELECT ID_PK FROM tb_user_message where TEST_MESSAGE=1" //extracted as common part of queries below
+		
+        def sqlQueriesList = [
+			"delete from TB_USER_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",		
+			"delete from TB_PART_PROPERTIES where PART_INFO_ID_FK IN (SELECT ID_PK FROM TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))", 			
+			"delete from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_RECEIPT where ID_PK IN (" + select_ID_PK + ")", 			
+			"delete from TB_SIGNAL_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SIGNAL_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + ")", 		
+			"delete from TB_USER_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")",
+			"delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_MESSAGE_ACKNW_PROP where MESSAGE_ACK_ID_FK IN (SELECT ID_PK FROM TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))", 
+			"delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_ERROR_LOG where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+			"delete from TB_USER_MESSAGE where TEST_MESSAGE=1"
+        ] as String[]
 
 
 
+        domainIdList.each { domainName ->
+            def domain = retrieveDomainId(domainName)
+            debugLog("  cleanDatabaseForDomains  [][]  Clean DB for domain ID: ${domain}", log)
+            executeListOfSqlQueries(sqlQueriesList, domain)
+        }
+
+        log.info "  cleanDatabaseTMForDomains  [][]  Cleaning Done"
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
     // Clean single message identified by messageID starting with provided value from ALL defined DBs
     def cleanDBMessageIDStartsWith(String messageID) {
@@ -430,7 +468,7 @@ class Domibus{
                 "delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
                 "delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
                 "delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-                "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+                "delete from TB_MESSAGE_ACKNW_PROP where MESSAGE_ACK_ID_FK IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
                 "delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
                 "delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
                 "delete from TB_USER_MESSAGE where (MESSAGE_ID " + messageIDCheck + ") AND (ID_PK NOT IN (19700101))",
@@ -795,6 +833,159 @@ class Domibus{
         debugLog("  ====  END \"waitForStatus\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    // Get the path to the payload storage location
+    def static getPathToTmpPayLocation(log, testRunner,side) {
+        def tmpPath=null
+        switch (side.toLowerCase()) {			
+			case "c2default":
+			case "blue":
+            case "c2":
+                tmpPath = getProjectCustProp("tmpPayPathBlue",log,testRunner)
+                break
+			case "c3default":	
+			case "red":
+            case "c3":
+                tmpPath = getProjectCustProp("tmpPayPathRed",log,testRunner)
+                break
+            case "c3green":
+                tmpPath = getProjectCustProp("tmpPayPathGreen",log,testRunner)
+                break
+            default:
+                log.warn "Unknown side: assume it is C2 ..."
+                tmpPath = getProjectCustProp("tmpPayPathBlue",log,testRunner)
+                break
+        }
+        return tmpPath
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Check if the payload file exists or not
+    def static payloadFileExists(log,testRunner,side, filename) {
+		LogUtils.debugLog("  ====  Calling \"payloadFileExists\".", log)
+		
+		LogUtils.debugLog("  payloadFileExists  [][]  filename=$filename", log)
+		
+		if(filename.equals("") || filename.equals("0") || (filename==null)){
+			return false
+		}
+		
+		def builtPath=getPathToTmpPayLocation(log, testRunner,side)+"/"+filename
+		builtPath=formatPathSlashes(builtPath)
+		LogUtils.debugLog("  payloadFileExists  [][]  Checking if the following file exists $builtPath", log)
+		def testFile=new File(builtPath)
+		if(testFile.exists()){
+			LogUtils.debugLog("  payloadFileExists  [][]  payload's file $filename is present", log)
+			return true
+		}else{
+			LogUtils.debugLog("  payloadFileExists  [][]  payload's file $filename is not present or was deleted", log)
+			return false
+		}		
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method gets the list of payloads linked to a message
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def getListOfPayloadsLinkedToMessageId(String targetSchema = "BLUE", String messageID){
+        debugLog("  ====  Calling \"getListOfPayloadsLinkedToMessageId\".", log)
+        int retValue = 0
+		def listPay=[]
+		def lp=0
+        openAllDbConnections()
+
+        def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
+		
+		// Get list of linked payloads
+        sqlSender.eachRow("select * from TB_USER_MESSAGE m right join TB_PART_INFO d on m.ID_PK = d.USER_MESSAGE_ID_FK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+            listPay[lp] = [it.BINARY_DATA?"1":"0",it.FILENAME?it.FILENAME:"0"]
+			lp=lp+1
+        }
+        closeAllDbConnections()
+		listPay.each{inputs->
+			LogUtils.debugLog("  getListOfPayloadsLinkedToMessageId  [][]  payload storage details: " + inputs[0] + " - " + inputs[1], log)
+		}
+		debugLog("  ====  END \"getListOfPayloadsLinkedToMessageId\".", log)
+		return listPay
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks the status of the payload linked to a messageID
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def checkPayloadsStatus(log,testRunner, String targetSchema = "BLUE", String messageID, String status="deleted"){
+        debugLog("  ====  Calling \"checkPayloadsStatus\".", log)
+		
+		def valid=true
+		def payloadsList=getListOfPayloadsLinkedToMessageId(targetSchema, messageID)
+		
+		switch(status.toLowerCase()){
+			case "deleted":
+				if(payloadsList.size()!=0){
+					payloadsList.each{ inputs ->
+						if(inputs[0].equals("1") || (payloadFileExists(log,testRunner,targetSchema, extractFileNameFromString(log,inputs[1]))==true)){
+							valid=false
+						}
+					}
+				}
+				break
+
+			case "present":
+				if(payloadsList.size()==0){
+					valid=false
+				}else{
+					payloadsList.each{ inputs ->
+						if(inputs[0].equals("0") && (payloadFileExists(log,testRunner,targetSchema,extractFileNameFromString(log,inputs[1]))==false)){
+							valid=false
+						}
+					}
+				}
+				break
+			default:
+                assert(false),"Error:checkPayloadsStatus: Unknown payload status: $status. Status must be either \"deleted\" or \"present\""	
+		}
+		assert(valid==true),"  checkPayloadsStatus  [][]  payload(s) not $status"
+		log.info "======================="
+		log.info "payload(s) are $status"
+		log.info "======================="
+		debugLog("  ====  END \"checkPayloadsStatus\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks the status of the metadata linked to a messageID
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def checkMetadataStatus(log,testRunner,String targetSchema = "BLUE", String messageID, String status="deleted"){
+        debugLog("  ====  Calling \"checkMetadataStatus\".", log)
+		
+		def valid=true
+		def payloadsList=getListOfPayloadsLinkedToMessageId(targetSchema, messageID)
+		
+		switch(status.toLowerCase()){
+			case "deleted":
+				if(payloadsList.size()!=0){
+					valid=false
+				}
+				break
+			case "present":
+				if(payloadsList.size()==0){
+					valid=false
+				}
+				break
+			default:
+                assert(false),"Error:checkMetadataStatus: Unknown metadata status: $status. Status must be either \"deleted\" or \"present\""	
+		}
+		assert(valid==true),"  checkMetadataStatus  [][]  Metadata not $status"
+		log.info "======================="
+		log.info "Metadata is $status"
+		log.info "======================="
+		debugLog("  ====  END \"checkMetadataStatus\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema = "BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
@@ -807,22 +998,54 @@ class Domibus{
         def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
 
 
-        while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {
-            // Extract message ID PK
-            if(msgPK==null){
-                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    msgPK = it.ID_PK
-                }
-            }
-            sqlSender.eachRow("Select count(*) lignes from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK = ${msgPK}") {
-                total = it.lignes
-            }
+        while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {			
+			sqlSender.eachRow("select * from TB_USER_MESSAGE m inner join TB_USER_MESSAGE_LOG d on m.ID_PK = d.ID_PK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+				total = it.SEND_ATTEMPTS
+			}			
             log.info "  checkSendAttempt  [][]  W: " + MAX_WAIT_TIME
             sleep(STEP_WAIT_TIME)
             MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
         }
         assert(total > 0),locateTest(context) + "Error: Message " + messageID + " is not present in the table TB_SEND_ATTEMPT."
         closeAllDbConnections()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method gets the value of SEND_ATTEMPTS of a message
+     * @param side/targetSchema
+     * @param messageID
+     * @return SEND_ATTEMPTS value
+     */
+    def getSendAttemptsValue(String targetSchema = "BLUE", String messageID){
+        debugLog("  ====  Calling \"getSendAttemptsValue\".", log)
+        int retValue = 0
+        openAllDbConnections()
+
+        def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
+        sqlSender.eachRow("select * from TB_USER_MESSAGE m inner join TB_USER_MESSAGE_LOG d on m.ID_PK = d.ID_PK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+            retValue = it.SEND_ATTEMPTS
+        }
+        closeAllDbConnections()
+		debugLog("  ====  END \"getSendAttemptsValue\".", log)
+		return retValue
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks if SEND_ATTEMPTS is equal to an expected value
+     * @param side/targetSchema
+     * @param messageID
+     * @param expectedValue
+     */
+    def checkSendAttemptsValue(String targetSchema = "BLUE", String messageID, int expectedValue){
+        debugLog("  ====  Calling \"getSendAttemptsValue\".", log)
+		int retValue=getSendAttemptsValue(targetSchema, messageID)
+		assert(retValue==expectedValue),"  checkSendAttemptsValue  [][]  Error: SEND_ATTEMPTS = $retValue instead of 3."
+
+		log.info " ======================"
+		log.info " == SEND_ATTEMPTS="+retValue
+		log.info " ======================"
+
+		debugLog("  ====  END \"checkSendAttemptsValue\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     // retrieve message entity ID
@@ -1401,7 +1624,7 @@ class Domibus{
         def authenticationUser = userLogin
         def authenticationPwd = passwordLogin
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/fourcornerenabled",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1438,7 +1661,7 @@ class Domibus{
         def authenticationUser = userLogin
         def authenticationPwd = passwordLogin
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/name",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1613,7 +1836,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
         def commandString = null
         if (!onlyActive) {
             commandString = "curl " + urlToDomibus(side, log, context) + "/rest/domains -b " + context.expand('${projectDir}') +
@@ -1655,7 +1878,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET "
         def commandResult = runCommandInShell(commandString, log)
@@ -1670,7 +1893,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  addAdminConsoleUser  [][]  Fetch users list and verify that user \"$userAC\" doesn't already exist.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
@@ -1713,7 +1936,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  removeAdminConsoleUser  [][]  Fetch users list and verify that user \"$userAC\" exists.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
@@ -1778,7 +2001,7 @@ class Domibus{
 
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/password",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1807,7 +2030,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize=10000",
                              "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
@@ -1826,7 +2049,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  addPluginUser  [][]  Fetch users list and verify that user $userPl doesn't already exist.",log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -1874,7 +2097,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  removePluginUser  [][]  Fetch users list and verify that user $userPl exists.", log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -1929,7 +2152,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  updatePluginUser  [][]  Fetch users list and verify that user $userPl exists.", log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -2064,7 +2287,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authenticationUser,authenticationPwd))
             debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
@@ -2095,7 +2318,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  pluginUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authenticationUser, authenticationPwd))
             debugLog("  pluginUserSuspended  [][]  Plugin users map: $usersMap.", log)
@@ -2126,7 +2349,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -2198,7 +2421,7 @@ class Domibus{
         def jsonSlurper = new JsonSlurper()
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def filtersMap = jsonSlurper.parseText(getMessageFilters(side,context,log))
             debugLog("  setMessageFilters  [][]  filtersMap:" + filtersMap, log)
@@ -2342,6 +2565,21 @@ class Domibus{
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    static def convertFilePath(String fullPath, log) {
+        debugLog("  ====  Calling \"convertFilePath\".", log)
+
+        def returnPath = fullPath.replace("\\\\", "\\")
+
+        debugLog("  +++++++++++ Run on: " + System.properties['os.name'], log)
+        if (System.properties['os.name'].toLowerCase().contains('windows'))
+            returnPath = returnPath.replace("\\", "\\\\")
+        else
+            returnPath = returnPath.replace("\\", "/")
+
+        debugLog("Output convertFilePath: " + returnPath.toString(), log)
+        return returnPath.toString()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Run curl command
     static def runCommandInShell(inputCommand, log) {
         debugLog("  ====  Calling \"runCommandInShell\".", log)
@@ -2390,15 +2628,15 @@ class Domibus{
     }
 
 // Return admin credentials for super user in multidomain configuration and admin user in single domain situation with domain provided
-    static def retriveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
-        debugLog("  ====  Calling \"retriveAdminCredentialsForDomain\".", log)
+    static def retrieveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
+        debugLog("  ====  Calling \"retrieveAdminCredentialsForDomain\".", log)
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
         def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if (multitenancyOn) {
-            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side and domain $domainValue.")
-            debugLog("  retriveAdminCredentialsForDomain  [][]  First, set domain to $domainValue.", log)
+            log.info("  retrieveAdminCredentialsForDomain  [][]  retrieveAdminCredentialsForDomain for Domibus $side and domain $domainValue.")
+            debugLog("  retrieveAdminCredentialsForDomain  [][]  First, set domain to $domainValue.", log)
             setDomain(side, context, log, domainValue)
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
@@ -2406,19 +2644,19 @@ class Domibus{
                 authenticationPwd = SUPER_USER_PWD
             }
         } else {
-            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side.")
+            log.info("  retrieveAdminCredentialsForDomain  [][]  retrieveAdminCredentialsForDomain for Domibus $side.")
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
                 authenticationUser = DEFAULT_ADMIN_USER
                 authenticationPwd = DEFAULT_ADMIN_USER_PWD
             }
         }
-        debugLog("  ====  END \"retriveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
+        debugLog("  ====  END \"retrieveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
         return [authenticationUser, authenticationPwd]
     }
 
     // Return admin credentials for super user in multidomain configuration and admin user in single domaind situation without domain provided
-    static def retriveAdminCredentials(context, log, String side, String authUser, authPwd) {
+    static def retrieveAdminCredentials(context, log, String side, String authUser, authPwd) {
         def authenticationUser = authUser
         def authenticationPwd = authPwd
         // If authentication details are not fully provided, use default values
@@ -2788,7 +3026,7 @@ class Domibus{
         log.info "  changePropertyAtRuntime  [][]  Property to change: " + propName + " new value: " + propNewValue
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/" + propName,
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -2826,7 +3064,7 @@ class Domibus{
         log.info "  getPropertyAtRuntime  [][]  Property to get: \"$propName\"."
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?showDomain=$showDomain&name=$propName",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -2860,14 +3098,14 @@ class Domibus{
         debugLog("  ====  Finished \"testPropertyAtRuntime\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static void  setTestCaseCustProp(custPropName,custPropValue,log,context,testRunner){
+    static void  setTestCaseCustProp(custPropName,custPropValue,log,testRunner){
         debugLog("  ====  Calling \"setTestCaseCustProp\".", log)
         testRunner.testCase.setPropertyValue(custPropName,custPropValue)
         log.info "Test case level custom property \"$custPropName\" set to \"$custPropValue\"."
         debugLog("  ====  End \"setTestCaseCustProp\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getTestCaseCustProp(custPropName,log, context, testRunner){
+    static def getTestCaseCustProp(custPropName,log, testRunner){
         debugLog("  ====  Calling \"getTestCaseCustProp\".", log)
         def retPropVal = testRunner.testCase.getPropertyValue(custPropName)
         assert(retPropVal!= null),"Error:getTestCaseCustProp: Couldn't fetch property \"$custPropName\" value"
@@ -2876,7 +3114,23 @@ class Domibus{
         return retPropVal
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getProjectCustProp(custPropName,context,log, testRunner){
+    static void  setTestSuiteCustProp(custPropName,custPropValue,log,testRunner){
+        debugLog("  ====  Calling \"setTestSuiteCustProp\".", log)
+        testRunner.testCase.testSuite.setPropertyValue(custPropName,custPropValue)
+        log.info "Test suite level custom property \"$custPropName\" set to \"$custPropValue\"."
+        debugLog("  ====  End \"setTestSuiteCustProp\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getTestSuiteCustProp(custPropName,log,testRunner){
+        debugLog("  ====  Calling \"getTestSuiteCustProp\".", log)
+        def retPropVal = testRunner.testCase.testSuite.getPropertyValue(custPropName)
+        assert(retPropVal!= null),"Error:getTestSuiteCustProp: Couldn't fetch property \"$custPropName\" value"
+        log.info "Test suite level custom property fetched \"$custPropName\"= \"$retPropVal\"."
+        debugLog("  ====  End \"getTestSuiteCustProp\".", log)
+        return retPropVal
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getProjectCustProp(custPropName,log, testRunner){
         debugLog("  ====  Calling \"getProjectCustProp\".", log)
         def retPropVal = testRunner.testCase.testSuite.project.getPropertyValue(custPropName)
         assert(retPropVal!= null),"Error:getProjectCustProp: Couldn't fetch property \"$custPropName\" value"
@@ -3033,7 +3287,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
             if (userExists(usersMap, userAC, log, false)) {
                 log.error "Error:userInputCheck_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique."
@@ -3071,8 +3325,8 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            //(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            //(authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy=received&asc=false&messageId="+ data +"&messageType=USER_MESSAGE&page=0&pageSize=10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
             def commandResult = runCommandInShell(commandString, log)
             if(listType.toLowerCase() == "blacklist"){
@@ -3157,7 +3411,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         try{
             // Try to retrieve the queue name from domibus to avoid problems like in case of cluster
@@ -3320,7 +3574,7 @@ class Domibus{
         }
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def json = ifWindowsEscapeJsonString('{\"name\":\"' + "${packageName}" + '\",\"level\":\"' + "${logLevel}" + '\"}')
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel",
@@ -3348,7 +3602,7 @@ class Domibus{
         log.info "  getLogLevel  [][]  getting Log level of Package/Class \"$packageName\" for Domibus \"$side\"."
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?loggerName=$packageName&showClasses=false&page=0&pageSize=500&orderBy=name&asc=false",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -3476,7 +3730,7 @@ class Domibus{
         def i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/count",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
@@ -3516,7 +3770,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/sync",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
@@ -3713,7 +3967,7 @@ class Domibus{
         def authenticationPwd = authPwd
         def isClusteredValue=false
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
         isClusteredValue=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, domainValue,"false", authenticationUser, authenticationPwd) ?: "false"
         return isClusteredValue.toLowerCase().toBoolean()
     }
@@ -3880,7 +4134,7 @@ class Domibus{
         def jsonSlurper= new JsonSlurper()
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def partyMap = jsonSlurper.parseText(getPartyListFromPmode(side,context,log,testRunner,domainValue,authenticationUser, authenticationPwd))
             switch(operation.toLowerCase()){
@@ -3932,7 +4186,7 @@ class Domibus{
      * @param maxWaitingTime
      * @return
      */
-    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
+    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, onlySourceMessages=false, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
         debugLog("  ====  Calling \"waitFindAndUpdateLatestMessageIdIn\".", log)
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         def MAX_WAIT_TIME = maxWaitingTime
@@ -3945,9 +4199,11 @@ class Domibus{
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
         openDbConnections([domainId])
 
-        def sqlQuery = """SELECT MESSAGE_ID
-                    FROM TB_USER_MESSAGE 
-                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+        def REQUEST_FILTER=""
+		if(onlySourceMessages)
+			REQUEST_FILTER="AND SOURCE_MESSAGE=1"
+			
+		def sqlQuery = "SELECT MESSAGE_ID FROM TB_USER_MESSAGE WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE TEST_MESSAGE=0 " + REQUEST_FILTER + ")"
 
         while ( (lastStoredMessageId == newestMessageIdFetchFromDB) && MAX_WAIT_TIME > 0)  {
             messageIdExist = sqlHandler.rows(sqlQuery)
@@ -3970,6 +4226,7 @@ class Domibus{
         assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitFindAndUpdateLatestMessageIdIn: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
         testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
 
+		log.info "  waitFindAndUpdateLatestMessageIdIn  [][]  Returning message ID $newestMessageIdFetchFromDB"
         debugLog("  ====  Ending \"waitFindAndUpdateLatestMessageIdIn\".", log)
         return newestMessageIdFetchFromDB
     }
@@ -3981,16 +4238,18 @@ class Domibus{
      * @param domainId
      * @return
      */
-    def storeLatestMessagesId(testRunner, domainId = blueDomainID){
+    def storeLatestMessagesId(testRunner, domainId = blueDomainID, onlySourceMessages=false) {
         debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
         def outputMessageId
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
         openDbConnections([domainId])
+		
+        def REQUEST_FILTER=""
+		if(onlySourceMessages)
+			REQUEST_FILTER="AND SOURCE_MESSAGE=1"		
 
         // Query DB
-        def sqlQuery = """SELECT MESSAGE_ID 
-                    FROM TB_USER_MESSAGE 
-                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+		def sqlQuery = "SELECT MESSAGE_ID FROM TB_USER_MESSAGE WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE TEST_MESSAGE=0 " + REQUEST_FILTER + ")"
 
         List messageIdExist = sqlHandler.rows(sqlQuery)
 
@@ -4008,7 +4267,58 @@ class Domibus{
         debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
         return outputMessageId
     }
+	
+    /**
+     * Extract filename from string path
+     * @param file path 
+     * @param unit. Can be "min" or "sec"
+     * @return the extracted file name or (null or empty)
+     */
+	static def extractFileNameFromString(log,String fullPath){	
+		def index=null
+		def separator="/"
+	    if ( (fullPath != null) && (fullPath != "") ) {
+            if (System.properties['os.name'].toLowerCase().contains('windows')){
+                fullPath=fullPath.replaceAll("/", "\\\\")
+				separator="\\"
+            }
+			index=fullPath.lastIndexOf(separator);
+			return fullPath.substring(index + 1);			
+        }else{
+			return fullPath
+		}
+	}
+    /**
+     * Sleep for a specific amount of time
+     * @param duration. Can be an integer or a float min.sec 
+     * @param unit. Can be "min" or "sec"
+     * @param extra message to display
+     */
+	static def waitFor(log,String duration="0", String unit="min", message=""){
+		def totalDur=0
+		def valueArr=[]
+		def slpMes="$duration $unit $message"
 
+		try{
+			valueArr=duration.split("\\.")
+			if(unit.toLowerCase().equals("sec")){
+				totalDur=(valueArr[0] as Integer)*1000
+			}else{
+				if(valueArr.size()==2){
+					totalDur=( ((valueArr[0] as Integer)*60)+(valueArr[1] as Integer) )*1000
+					slpMes=valueArr[0]+" min and "+valueArr[1]+" sec  $message"
+				}else{
+					totalDur=(duration as Integer)*60*1000
+				}
+			}
+		}catch(NumberFormatException ex){
+			log.error "Error occured. Please verify the duration format. Must be int (min or sec) or int.int (only min)"
+			assert 0,"Exception occurred: " + ex
+		}
+		log.info "------------ Sleeping for $slpMes ..."
+		sleep(totalDur)
+		log.info "------------ Sleeping for $slpMes DONE"	
+	}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting

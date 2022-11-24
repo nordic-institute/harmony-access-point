@@ -16,9 +16,12 @@ import java.util.Map;
  */
 public class MessageSendFailedEvent implements Serializable, MessageEvent {
 
+    private static final long serialVersionUID = 1L;
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected Long messageEntityId;
+
+    public MessageSendFailedEvent(){} //needed by jackson deserializer
 
     public MessageSendFailedEvent(Long messageEntityId, String messageId) {
         this.messageEntityId = messageEntityId;
@@ -50,7 +53,7 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

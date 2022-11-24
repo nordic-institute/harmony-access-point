@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,7 @@ public class DomibusJMSActiveMQConfiguration {
 
     @Bean(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
     public ConnectionFactory cachingConnectionFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
-                                               DomibusPropertyProvider domibusPropertyProvider) {
+                                                      DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
@@ -77,19 +78,20 @@ public class DomibusJMSActiveMQConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public BrokerViewMBean mBeanProxyFactoryBeans(MBeanServerConnection server, String brokerName) throws MalformedObjectNameException {
+    public BrokerViewMBean mBeanProxyFactoryBeans(String brokerName, String serviceUrl) throws MalformedObjectNameException, MalformedURLException {
         MBeanProxyFactoryBean result = new MBeanProxyFactoryBean();
         result.setObjectName(MQ_BROKER_NAME + brokerName);
         result.setProxyInterface(BrokerViewMBean.class);
-        result.setServer(server);
+        result.setServiceUrl(serviceUrl);
+        result.setConnectOnStartup(false);
         result.afterPropertiesSet();
         return (BrokerViewMBean) result.getObject();
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusJMSActiveMQBroker domibusJMSActiveMQBroker(String brokerDetails, MBeanServerConnection mBeanServerConnection, BrokerViewMBean brokerViewMBean) {
-        return new DomibusJMSActiveMQBroker(brokerDetails, mBeanServerConnection, brokerViewMBean);
+    public DomibusJMSActiveMQBroker domibusJMSActiveMQBroker(String brokerName, String serviceName, ObjectProvider<MBeanServerConnection> mBeanServerConnections, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
+        return new DomibusJMSActiveMQBroker(brokerName, serviceName, mBeanServerConnections, brokerViewMBeans);
     }
 
     @Bean("jmsSender")

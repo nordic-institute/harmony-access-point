@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
 
@@ -251,5 +252,29 @@ public class AuthUtilsImpl implements AuthUtils {
     @Override
     public void clearSecurityContext() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Override
+    public void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        executeOnLoggedUser(consumer, authentication);
+    }
+
+    @Override
+    public void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer, Authentication authentication) {
+        if (authentication == null) {
+            LOG.debug("Authentication is missing from the security context");
+            return;
+        }
+        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
+        if (securityUser == null) {
+            LOG.debug("User details are missing from the authentication");
+            return;
+        }
+
+        consumer.accept(securityUser);
+
+        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

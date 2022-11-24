@@ -9,6 +9,7 @@
 			 retention_downloaded="0"
 			 retention_undownloaded="14400"
 			 retention_sent="14400"
+			 retention_metadata_offset="0"
 		     delete_message_metadata="false"
 		     max_batch_delete="1000"/>
 	</mpcs>
@@ -68,7 +69,13 @@
 		<securities>
 			<security name="eDeliveryAS4Policy"
 					policy="eDeliveryAS4Policy.xml"
-					signatureMethod="RSA_SHA256" />	
+					signatureMethod="RSA_SHA256" />
+			<!--<security name="eDeliveryAS4PolicyRSA"
+					  policy="eDeliveryAS4Policy.xml"
+					  profile="RSA"/>-->
+			<!--<security name="eDeliveryAS4PolicyECC"
+					  policy="eDeliveryAS4Policy.xml"
+					  profile="ECC"/>-->
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling" 

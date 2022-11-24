@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -18,7 +20,7 @@ public class JsonFormatterConfiguration {
      *
      * @return
      */
-    @Bean("domibusJsonMapper")
+    @Bean(JSON_MAPPER_BEAN)
     public ObjectMapper objectMapper() {
         ObjectMapper bean = new ObjectMapper();
         bean.registerModule(new JavaTimeModule());

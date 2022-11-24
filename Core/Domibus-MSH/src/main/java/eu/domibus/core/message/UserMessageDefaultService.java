@@ -11,7 +11,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
-import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -560,18 +559,15 @@ public class UserMessageDefaultService implements UserMessageService {
                 .map(UserMessageLogDto::getEntityId)
                 .collect(Collectors.toList());
 
-        List<String> userMessageIds = userMessageLogs
-                .stream()
-                .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList());
-
-        deleteMessages(ids, userMessageIds);
+        deleteMessagesWithIDs(ids);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
     }
 
-    public void deleteMessages(List<Long> ids, List<String> userMessageIds) {
+    @Override
+    @Transactional
+    public void deleteMessagesWithIDs(List<Long> ids) {
 
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
@@ -672,6 +668,21 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessageNotFoundException(messageId);
         }
         return userMessage;
+    }
+
+    @Transactional
+    @Override
+    public void clearPayloadData(List<Long> entityIds) {
+        if(CollectionUtils.isEmpty(entityIds)){
+            return;
+        }
+        try {
+            entityIds.forEach(partInfoService::clearPayloadData);
+            userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
+        } catch (RuntimeException e){
+            LOG.warn("Cleaning payload failed with exception", e);
+            throw e;
+        }
     }
 
     @Override

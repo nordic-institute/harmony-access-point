@@ -11,15 +11,17 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
+//import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
+//import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
+//import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+//import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -106,12 +108,6 @@ public class CertificateServiceImplTest {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-    @Injectable
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
-    @Injectable
     CertificateHelper certificateHelper;
 
     @Injectable
@@ -128,6 +124,9 @@ public class CertificateServiceImplTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -534,7 +533,7 @@ public class CertificateServiceImplTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendCertificateImminentExpirationAlerts(final @Injectable ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration, @Injectable final Certificate certificate) throws ParseException {
+    public void sendCertificateImminentExpirationAlerts(final @Injectable RepetitiveAlertConfiguration imminentExpirationCertificateConfiguration, @Injectable final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date notAfter = parser.parse("23/10/1977 00:00:00");
@@ -555,16 +554,16 @@ public class CertificateServiceImplTest {
             pModeProvider.getGatewayParty().getName();
             result = accesPoint;
 
-            imminentExpirationCertificateConfigurationManager.getConfiguration();
-            result = imminentExpirationCertificateConfiguration;
+//            imminentExpirationCertificateConfigurationManager.getConfiguration();
+//            result = imminentExpirationCertificateConfiguration;
 
             imminentExpirationCertificateConfiguration.isActive();
             result = true;
 
-            imminentExpirationCertificateConfiguration.getImminentExpirationDelay();
+            imminentExpirationCertificateConfiguration.getDelay();
             result = imminentExpirationDelay;
 
-            imminentExpirationCertificateConfiguration.getImminentExpirationFrequency();
+            imminentExpirationCertificateConfiguration.getFrequency();
             result = imminentExpirationFrequency;
 
             certificateDao.findImminentExpirationToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), today, withArgThat(new GreaterThan<>(maxDate)));
@@ -590,7 +589,7 @@ public class CertificateServiceImplTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendCertificateExpiredAlerts(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
+    public void sendCertificateExpiredAlerts(final @Injectable RepetitiveAlertConfiguration expiredCertificateConfiguration,
                                              @Injectable final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
@@ -612,16 +611,13 @@ public class CertificateServiceImplTest {
             pModeProvider.getGatewayParty().getName();
             result = accesPoint;
 
-            expiredCertificateConfigurationManager.getConfiguration();
-            result = expiredCertificateConfiguration;
-
             expiredCertificateConfiguration.isActive();
             result = true;
 
-            expiredCertificateConfiguration.getExpiredDuration();
+            expiredCertificateConfiguration.getDelay();
             result = revokedDuration;
 
-            expiredCertificateConfiguration.getExpiredFrequency();
+            expiredCertificateConfiguration.getFrequency();
             result = revokedFrequency;
 
             certificateDao.findExpiredToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), withArgThat(new GreaterThan<>(endNotification)));
@@ -646,12 +642,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                           @Mocked final Certificate certificate) {
-        new Expectations() {{
-            expiredCertificateConfigurationManager.getConfiguration().isActive();
-            result = false;
-        }};
+    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked RepetitiveAlertConfiguration expiredCertificateConfiguration) {
         certificateService.sendCertificateExpiredAlerts();
         new VerificationsInOrder() {{
             pModeProvider.isConfigurationLoaded();
@@ -660,12 +651,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration, @Injectable ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateModuleConfiguration,
-                                                                      @Injectable final Certificate certificate) {
+    public void sendCertificateImminentExpirationAlertsModuleInactive(@Injectable RepetitiveAlertConfiguration imminentExpirationCertificateModuleConfiguration) {
         new Expectations() {{
-            imminentExpirationCertificateConfigurationManager.getConfiguration();
-            result = imminentExpirationCertificateModuleConfiguration;
-
             imminentExpirationCertificateModuleConfiguration.isActive();
             result = false;
         }};

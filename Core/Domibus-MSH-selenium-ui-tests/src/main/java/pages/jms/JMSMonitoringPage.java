@@ -22,6 +22,9 @@ public class JMSMonitoringPage extends DomibusPage {
 	@FindBy(css = "#deleteButtonId")
 	public WebElement deleteButton;
 
+	@FindBy(css = "#jmsDeleteAllButton")
+	public WebElement deleteAllButton;
+
 	public JMSMonitoringPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -51,6 +54,10 @@ public class JMSMonitoringPage extends DomibusPage {
 		return new DButton(driver, deleteButton);
 	}
 
+	public DButton getDeleteAllButton() {
+		return new DButton(driver, deleteAllButton);
+	}
+
 	public boolean isLoaded() throws Exception {
 		return (grid().isPresent()
 				&& filters().isLoaded()
@@ -58,6 +65,7 @@ public class JMSMonitoringPage extends DomibusPage {
 				&& getSaveButton().isPresent()
 				&& getMoveButton().isPresent()
 				&& getDeleteButton().isPresent()
+				&& getDeleteAllButton().isPresent()
 		);
 	}
 

@@ -156,8 +156,6 @@ public class DWait {
 	}
 
 	public void forElementToContainText(WebElement element, String text) {
-//		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
-
 		defaultWait.until((ExpectedCondition<Boolean>) driver -> containsIgnoreCase(element.getText(), text));
 
 	}

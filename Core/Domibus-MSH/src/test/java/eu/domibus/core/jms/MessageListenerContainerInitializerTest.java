@@ -2,6 +2,7 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
@@ -46,6 +47,9 @@ public class MessageListenerContainerInitializerTest {
 
     @Injectable
     protected UserMessagePriorityService userMessagePriorityService;
+
+    @Injectable
+    BackendConnectorService backendConnectorService;
 
     @Tested
     MessageListenerContainerInitializer messageListenerContainerInitializer;

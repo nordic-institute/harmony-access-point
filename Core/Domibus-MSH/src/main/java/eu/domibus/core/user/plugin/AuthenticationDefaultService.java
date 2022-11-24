@@ -118,7 +118,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
             Authentication authentication = new X509CertificateAuthentication(certificates);
             String user = ((X509CertificateAuthentication) authentication).getCertificateId();
             final String domainForUser = userDomainService.getDomainForUser(user);
-            domainContextProvider.setCurrentDomain(domainForUser);
+            domainContextProvider.setCurrentDomainWithValidation(domainForUser);
             authenticationResult = authenticate(authentication);
         } else if ("http".equalsIgnoreCase(httpRequest.getScheme())) {
             if (certHeaderValue == null) {
@@ -128,7 +128,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
             Authentication authentication = new BlueCoatClientCertificateAuthentication(certHeaderValue);
             String user = ((BlueCoatClientCertificateAuthentication) authentication).getCertificateId();
             final String domainForUser = userDomainService.getDomainForUser(user);
-            domainContextProvider.setCurrentDomain(domainForUser);
+            domainContextProvider.setCurrentDomainWithValidation(domainForUser);
             authenticationResult = authenticate(authentication);
         } else {
             throw new AuthenticationException("There is no valid authentication in this request and unsecure login is not allowed.");

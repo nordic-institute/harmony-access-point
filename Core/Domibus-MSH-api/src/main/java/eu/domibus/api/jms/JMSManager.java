@@ -131,6 +131,19 @@ public interface JMSManager {
     void moveMessages(String source, String destination, String[] messageIds);
 
     /**
+     * Move messages from {@code source} to {@code destination} filtered by the parameters
+     *
+     * @param source      JMS Queue
+     * @param jmsType  type of the JMS message
+     * @param fromDate starting date
+     * @param toDate   ending date
+     * @param selector selector
+     * @param destination JMS Queue
+     * @throws IllegalArgumentException if no message moved
+     */
+    void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination);
+
+    /**
      * Consumes a business message from a source.
      *
      * @param source    a JMS source

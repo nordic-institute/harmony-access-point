@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
@@ -48,11 +47,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.w3c.dom.Node;
 
-import javax.activation.DataHandler;
 import javax.xml.bind.JAXBContext;
-import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -62,7 +58,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
-import static eu.domibus.common.ErrorCode.EBMS_0001;
 import static org.junit.Assert.*;
 
 /**
@@ -268,9 +263,6 @@ public class UserMessageHandlerServiceImplTest {
             soapUtil.logMessage(soapRequestMessage);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(null, userMessage);
-            times = 1;
-
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
@@ -301,15 +293,12 @@ public class UserMessageHandlerServiceImplTest {
 
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, true, false, false, null);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false, false, null);
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-            times = 1;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
         }};
@@ -337,15 +326,12 @@ public class UserMessageHandlerServiceImplTest {
 
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, new Ebms3MessageFragmentType(), null, true, false, false, null);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, new Ebms3MessageFragmentType(), null, false, false, null);
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-            times = 1;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
             splitAndJoinService.incrementReceivedFragments(null, "backEndName");
@@ -397,137 +383,6 @@ public class UserMessageHandlerServiceImplTest {
             soapUtil.logMessage(soapRequestMessage);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
-    }
-
-    @Test
-    public void test_HandlePayLoads_HappyFlowUsingEmptyCID(@Injectable final Ebms3Messaging ebms3Messaging,
-                                                           @Injectable final PartInfo partInfo) throws SOAPException, TransformerException, EbMS3Exception {
-
-        Ebms3PartInfo ebms3PartInfo = new Ebms3PartInfo();
-        ebms3PartInfo.setHref(null);
-        Ebms3Description value1 = new Ebms3Description();
-        value1.setValue("description");
-        value1.setLang("en");
-        ebms3PartInfo.setDescription(value1);
-        Ebms3Schema value = new Ebms3Schema();
-        value.setLocation("location");
-        value.setNamespace("namespace");
-        value.setVersion("version");
-        ebms3PartInfo.setSchema(value);
-
-        Ebms3PayloadInfo ebms3PayloadInfo = new Ebms3PayloadInfo();
-        ebms3PayloadInfo.getPartInfo().add(ebms3PartInfo);
-        new Expectations(userMessageHandlerService) {{
-            ebms3Messaging.getUserMessage().getPayloadInfo();
-            result = ebms3PayloadInfo;
-
-            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-            result = "messageId";
-
-            userMessageHandlerService.convert(ebms3PartInfo);
-            result = partInfo;
-        }};
-
-        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
-
-        new Verifications() {{
-            partInfo.setInBody(true);
-            partInfo.setPayloadDatahandler((DataHandler) any);
-        }};
-    }
-
-    @Test
-    public void test_HandlePayLoads_EmptyCIDAndBodyContent(@Injectable final Ebms3Messaging ebms3Messaging,
-                                                           @Injectable final Node bodyContent,
-                                                           @Injectable final PartInfo partInfo)
-            throws SOAPException, TransformerException, EbMS3Exception {
-
-        new Expectations() {{
-
-            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-            result = "messageId";
-
-            ebms3Messaging.getUserMessage().getPayloadInfo();
-            result = null;
-
-//            partInfo.getHref();
-//            result = "";
-
-//            soapRequestMessage.getSOAPBody().hasChildNodes();
-//            result = false;
-
-//            soapRequestMessage.getAttachments();
-//            result = Collections.emptyIterator();
-
-//            xmlUtil.getTransformerFactory().newTransformer();
-//            result = null;
-        }};
-
-        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
-
-        new FullVerifications() {{
-//            partInfo.setPayloadDatahandler((DataHandler) any);
-        }};
-    }
-
-
-    /**
-     * A single message having multiple PartInfo's with no or special cid.
-     */
-    @Test
-    public void test_HandlePayLoads_NullCIDMultiplePartInfo(
-            @Injectable final Ebms3Messaging ebms3Messaging,
-            @Injectable final Node bodyContent1,
-            @Injectable final DataHandler dataHandler)
-            throws SOAPException, TransformerException {
-
-        Ebms3PartInfo part1 = getPartInfo("MimeType", "text/xml", "");
-        Ebms3PartInfo part2 = getPartInfo("MimeType", "text/xml", "#1234");
-        List<Ebms3PartInfo> ebms3PartInfos = Arrays.asList(
-                part1,
-                part2);
-
-        List<Node> bodyContentNodeList = new ArrayList<>();
-        bodyContentNodeList.add(bodyContent1);
-        final Iterator<Node> bodyContentNodeIterator = bodyContentNodeList.iterator();
-
-        new Expectations(userMessageHandlerService) {{
-
-            soapRequestMessage.getSOAPBody().hasChildNodes();
-            result = true;
-
-            soapRequestMessage.getSOAPBody().getChildElements();
-            result = bodyContentNodeIterator;
-
-            userMessageHandlerService.getDataHandler((Node) any);
-            result = dataHandler;
-
-            soapRequestMessage.getAttachments();
-            result = Collections.emptyIterator();
-
-            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-            result = "messageId";
-
-            ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
-            result = ebms3PartInfos;
-
-            partPropertyDictionaryService.findOrCreatePartProperty(anyString, anyString, anyString);
-            result = new PartProperty();
-            times = 2;
-
-            storageProvider.getCurrentStorage().getStorageDirectory();
-            result = "/some/filepath";
-        }};
-
-        try {
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
-            fail("Expecting error that - More than one Partinfo referencing the soap body found!");
-        } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
-        }
-
-        new FullVerifications() {
-        };
     }
 
     public static Ebms3PartInfo getPartInfo(String name, String value, String href) {
@@ -618,120 +473,6 @@ public class UserMessageHandlerServiceImplTest {
             userMessageLogDao.create(withAny(userMessageLog));
             times = 0;
         }};
-    }
-
-    @Test
-    public void test_HandlePayLoads_HappyFlowUsingCID(@Injectable final UserMessage userMessage,
-                                                      @Injectable final Ebms3Messaging ebms3Messaging,
-                                                      @Injectable final AttachmentPart attachmentPart1,
-                                                      @Injectable final AttachmentPart attachmentPart2,
-                                                      @Injectable final DataHandler attachmentPart1DH,
-                                                      @Injectable final DataHandler attachmentPart2DH) throws SOAPException, TransformerException, EbMS3Exception {
-
-        final Ebms3PartInfo partInfo = new Ebms3PartInfo();
-        partInfo.setHref("cid:message");
-
-        Ebms3PartProperties partProperties = new Ebms3PartProperties();
-        Ebms3Property property1 = new Ebms3Property();
-        property1.setName("MimeType");
-        property1.setValue("text/xml");
-
-        partProperties.getProperties().add(property1);
-        partInfo.setPartProperties(partProperties);
-
-        List<AttachmentPart> attachmentPartList = new ArrayList<>();
-        attachmentPartList.add(attachmentPart1);
-        attachmentPartList.add(attachmentPart2);
-        final Iterator<AttachmentPart> attachmentPartIterator = attachmentPartList.iterator();
-
-        new Expectations() {{
-            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-            result = "messageId";
-
-            ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
-            result = Arrays.asList(partInfo);
-
-            soapRequestMessage.getAttachments();
-            result = attachmentPartIterator;
-
-            attachmentPart1.getContentId();
-            result = "AnotherContentID";
-
-            attachmentPart2.getContentId();
-            result = "message";
-
-            attachmentPart2.getDataHandler();
-            result = attachmentPart2DH;
-        }};
-
-        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
-//        Assert.assertNotNull(partInfo.getPayloadDatahandler());
-//        assertNotNull(partInfo.getPayloadDatahandler());
-
-        new Verifications() {{
-//            attachmentPart1.setContentId(anyString);
-//            attachmentPart2.setContentId(anyString);
-        }};
-    }
-
-    @Test
-    public void test_HandlePayLoads_NoPayloadFound(
-            @Injectable final UserMessage userMessage,
-            @Injectable final Ebms3Messaging ebms3Messaging,
-            @Injectable final PartInfo partInfo,
-            @Injectable final AttachmentPart attachmentPart1,
-            @Injectable final AttachmentPart attachmentPart2) throws TransformerException, SOAPException {
-
-        List<AttachmentPart> attachmentPartList = new ArrayList<>();
-        attachmentPartList.add(attachmentPart1);
-        attachmentPartList.add(attachmentPart2);
-        final Iterator<AttachmentPart> attachmentPartIterator = attachmentPartList.iterator();
-
-        new Expectations(userMessageHandlerService) {{
-            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-            result = "messageId";
-
-            userMessageHandlerService.getPartInfoList(ebms3Messaging);
-            result = Arrays.asList(partInfo);
-
-            partInfo.getHref();
-            result = "cid:message";
-
-            soapRequestMessage.getAttachments();
-            result = attachmentPartIterator;
-
-            attachmentPart1.getContentId();
-            result = "AnotherContentID";
-
-            attachmentPart2.getContentId();
-            result = "message123";
-
-        }};
-
-        try {
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
-            fail("Expected Ebms3 exception that no matching payload was found!");
-        } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getErrorCode());
-        }
-
-        new FullVerifications() {{
-            attachmentPart1.setContentId(anyString);
-            attachmentPart2.setContentId(anyString);
-        }};
-    }
-
-    @Test
-    public void testGetFinalRecipientName() {
-        final UserMessage userMessage = createSampleUserMessage();
-        Assert.assertEquals(FINAL_RECEIPIENT_VALUE, userMessageHandlerService.getFinalRecipientName(userMessage));
-    }
-
-    @Test
-    public void testGetFinalRecipientName_noProperties() {
-        final UserMessage userMessage = createSampleUserMessage();
-        userMessage.setMessageProperties(new HashSet<>());
-        Assert.assertNull(userMessageHandlerService.getFinalRecipientName(userMessage));
     }
 
     @Test

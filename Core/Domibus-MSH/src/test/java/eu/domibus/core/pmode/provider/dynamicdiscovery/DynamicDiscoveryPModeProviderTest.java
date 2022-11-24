@@ -13,8 +13,8 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -25,9 +25,11 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
+import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
+import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -59,7 +61,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -123,12 +125,20 @@ public class DynamicDiscoveryPModeProviderTest {
     MultiDomainCryptoService multiDomainCertificateProvider;
     @Mock
     DomainContextProvider domainProvider;
+
+    @Mock
+    FinalRecipientDao finalRecipientDao;
+
     @Mock
     PartyIdDictionaryService partyIdDictionaryService;
     @Mock
     PartyRoleDictionaryService partyRoleDictionaryService;
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
+
+    @Mock
+    FinalRecipientService finalRecipientService;
+
 
     @Before
     public void initMocks() {
@@ -140,10 +150,10 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(CRLServiceImpl.class),
                 Mockito.mock(DomibusPropertyProviderImpl.class),
                 Mockito.spy(CertificateDaoImpl.class),
-                Mockito.spy(EventServiceImpl.class),
+                Mockito.spy(EventService.class),
                 Mockito.spy(MultiDomainPModeProvider.class),
-                Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
-                Mockito.spy(ExpiredCertificateConfigurationManager.class),
+//                Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
+//                Mockito.spy(ExpiredCertificateConfigurationManager.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
@@ -151,8 +161,8 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(PasswordDecryptionService.class),
                 Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-                Mockito.spy(DomibusCoreMapper.class)
-        );
+                Mockito.spy(DomibusCoreMapper.class),
+                Mockito.spy(AlertConfigurationService.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
@@ -200,10 +210,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Test
     public void testUseDynamicDiscovery() {
-        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
         assertFalse(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
 
-        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
         assertTrue(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
     }
 
@@ -281,7 +291,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn("false").when(domibusPropertyProvider).getProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
         doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
         try {
             partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
@@ -292,8 +302,8 @@ public class DynamicDiscoveryPModeProviderTest {
             assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
-        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
-        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
+        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DOMIBUS_SMLZONE));
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();

@@ -1,6 +1,10 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.CronJobInfoDTO;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,22 +15,26 @@ import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.exception.TransformationException;
-import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
+import static eu.domibus.plugin.ws.property.listeners.WSPluginDispatcherCronExpressionChangeListener.SEND_RETRY_JOB_NAME;
 
 /**
  * Backend connector for the WS Plugin
@@ -40,25 +48,29 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     public static final String PLUGIN_NAME = "backendWSPlugin";
 
-    public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
-
     private final StubDtoTransformer defaultTransformer;
 
     protected WSMessageLogService wsMessageLogService;
 
     private final WSPluginBackendService wsPluginBackendService;
 
+    private final WSPluginPropertyManager wsPluginPropertyManager;
+
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
-                        WSPluginBackendService wsPluginBackendService) {
+                        WSPluginBackendService wsPluginBackendService,
+                        WSPluginPropertyManager wsPluginPropertyManager) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
+        this.wsPluginPropertyManager = wsPluginPropertyManager;
     }
 
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
+        checkEnabled();
+
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(
                 event.getMessageId(),
@@ -84,6 +96,8 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
      */
     @Deprecated
     public String submitFromOldPlugin(final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging message) throws MessagingProcessingException {
+        checkEnabled();
+
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             messageData.setProcessingType(null);
@@ -105,24 +119,28 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
+        checkEnabled();
         LOG.info("Message receive failed [{}]", event);
         wsPluginBackendService.send(event, RECEIVE_FAIL);
     }
 
     @Override
     public void messageStatusChanged(final MessageStatusChangeEvent event) {
+        checkEnabled();
         LOG.info("Message status changed [{}]", event);
         wsPluginBackendService.send(event, MESSAGE_STATUS_CHANGE);
     }
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
+        checkEnabled();
         LOG.info("Message send failed [{}]", event);
         wsPluginBackendService.send(event, SEND_FAILURE);
     }
 
     @Override
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
+        checkEnabled();
         List<String> messageIds = event.getMessageDeletedEvents().stream().map(MessageDeletedEvent::getMessageId).collect(Collectors.toList());
         LOG.info("Message delete batch event [{}]", messageIds);
         wsMessageLogService.deleteByMessageIds(messageIds);
@@ -131,6 +149,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     @Override
     public void messageDeletedEvent(final MessageDeletedEvent event) {
+        checkEnabled();
         LOG.info("Message delete event [{}]", event.getMessageId());
         wsMessageLogService.deleteByMessageId(event.getMessageId());
         wsPluginBackendService.send(event, DELETED);
@@ -138,6 +157,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
+        checkEnabled();
         LOG.info("Message send success [{}]", event.getMessageId());
         wsPluginBackendService.send(event, SEND_SUCCESS);
     }
@@ -155,4 +175,22 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     public MessageRetrieverExtService getMessageRetriever() {
         return this.messageRetriever;
     }
+
+    @Override
+    public List<CronJobInfoDTO> getJobsInfo() {
+        return Stream.of(SEND_RETRY_JOB_NAME)
+                .map(CronJobInfoDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getDomainEnabledPropertyName() {
+        return DOMAIN_ENABLED;
+    }
+
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
+        return wsPluginPropertyManager;
+    }
+
 }

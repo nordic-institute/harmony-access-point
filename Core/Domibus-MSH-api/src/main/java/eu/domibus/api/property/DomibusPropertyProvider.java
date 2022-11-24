@@ -32,7 +32,6 @@ public interface DomibusPropertyProvider {
      */
     String getProperty(Domain domain, String propertyName) throws DomibusPropertyException;
 
-
     /**
      * Returns all property names for which the given predicate is true
      *
@@ -183,5 +182,4 @@ public interface DomibusPropertyProvider {
      * @return a list of the individual values being part of the comma-separated value
      */
     List<String> getCommaSeparatedPropertyValues(String propertyName);
-
 }

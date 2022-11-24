@@ -18,15 +18,11 @@ public interface DomainService {
 
     List<Domain> getDomains();
 
-    List<Domain> getAllDomains();
+    List<Domain> getAllValidDomains();
 
     Domain getDomain(String code);
 
     Domain getDomainForScheduler(String schedulerName);
-
-    String getDatabaseSchema(Domain domain);
-
-    String getGeneralSchema();
 
     String getSchedulerName(Domain domain);
 

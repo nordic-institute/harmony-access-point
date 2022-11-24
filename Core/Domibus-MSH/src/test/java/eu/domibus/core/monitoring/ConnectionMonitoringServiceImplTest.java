@@ -4,7 +4,6 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.testservice.TestService;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
@@ -53,10 +53,6 @@ public class ConnectionMonitoringServiceImplTest {
 
         boolean res = connectionMonitoringService.isMonitoringEnabled();
         Assert.assertFalse(res);
-
-        boolean res2 = connectionMonitoringService.isMonitoringEnabled();
-        Assert.assertTrue(res2);
-
     }
 
     @Test
@@ -65,15 +61,8 @@ public class ConnectionMonitoringServiceImplTest {
         String partyId2 = "partyId2";
 
         new Expectations() {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty);
-
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
-
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
-
         }};
 
         connectionMonitoringService.sendTestMessages();
@@ -90,15 +79,8 @@ public class ConnectionMonitoringServiceImplTest {
         String partyId2 = "partyId2";
 
         new Expectations() {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
-
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
-
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
-
         }};
 
         connectionMonitoringService.sendTestMessages();
@@ -112,36 +94,30 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void sendTestMessages() throws IOException, MessagingProcessingException {
         String selfParty = "self";
+        String enabledPair = "self>partyId2";
         String partyId2 = "partyId2";
 
         new Expectations() {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
-
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId2;
-
-            testService.submitTest(selfParty, partyId2);
-            result = "testMessageId";
         }};
 
         connectionMonitoringService.sendTestMessages();
 
         new Verifications() {{
-            testService.submitTest(selfParty, partyId2);
-            times = 1;
+
         }};
     }
 
     @Test
     public void testGetConnectionStatus() {
         // Given
+        String senderPartyId = "senderPartyId";
         String partyId1 = "partyId1";
         String partyId2 = "partyId2";
-        String[] partyIds = {partyId1, partyId2};
+        String enabledPair = "senderPartyId>partyId1";
+        List<String> partyIds = Arrays.asList(partyId1, partyId2);
 
         TestServiceMessageInfoRO lastSent1 = new TestServiceMessageInfoRO() {{
             setMessageStatus(MessageStatus.ACKNOWLEDGED);
@@ -158,27 +134,29 @@ public class ConnectionMonitoringServiceImplTest {
         }};
 
         new Expectations() {{
-            testService.getLastTestSent(partyId1);
+
+            testService.getLastTestSent(senderPartyId, partyId1);
             result = lastSent1;
 
-            testService.getLastTestReceived(partyId1, null);
+            testService.getLastTestReceived(senderPartyId, partyId1, null);
             result = lastReceived1;
 
-            testService.getLastTestSent(partyId2);
+            testService.getLastTestSent(senderPartyId, partyId2);
             result =lastSent2;
 
-            testService.getLastTestReceived(partyId2, null);
+            testService.getLastTestReceived(senderPartyId, partyId2, null);
             result = lastReceived2;
 
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(partyId1, partyId2);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId1;
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList(enabledPair);
+
         }};
 
         // When
-        Map<String, ConnectionMonitorRO> result = connectionMonitoringService.getConnectionStatus(partyIds);
+        Map<String, ConnectionMonitorRO> result = connectionMonitoringService.getConnectionStatus(senderPartyId, partyIds);
 
         // Then
         Assert.assertEquals(result.size(), 2);
@@ -192,4 +170,16 @@ public class ConnectionMonitoringServiceImplTest {
         Assert.assertEquals(result.get(partyId2).getStatus(), ConnectionMonitorRO.ConnectionStatus.BROKEN);
 
     }
+
+    @Test
+    public void transformToNewFormatTest() {
+        String selfParty = "self";
+        String partyId1 = "partyId1";
+        String partyId2 = "partyId2";
+        String enabledPair = "self>partyId1,self>partyId2";
+
+        String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
+        Assert.assertEquals(enabledPair, res);
+    }
+
 }

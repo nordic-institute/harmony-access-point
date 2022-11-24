@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.*;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME;
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -25,11 +28,11 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @Qualifier("taskExecutor")
+    @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME)
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
-    @Qualifier("quartzTaskExecutor")
+    @Qualifier(DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME)
     @Autowired
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
 

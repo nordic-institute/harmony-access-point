@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.7.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
   <wsdl:types>
     <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
       <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
@@ -762,11 +762,26 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="markMessageAsDownloadedRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="markMessageAsDownloadedResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
       <xsd:element name="retrieveMessageRequest">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
           </xsd:sequence>
+          <xsd:attribute default="true" name="markAsDownloaded" type="xsd:string"/>
         </xsd:complexType>
       </xsd:element>
       <xsd:element name="retrieveMessageResponse">
@@ -791,7 +806,32 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="listPushFailedMessagesRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="0" name="messageId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="finalRecipient" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="originalSender" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="receivedFrom" type="xsd:dateTime"/>
+            <xsd:element minOccurs="0" name="receivedTo" type="xsd:dateTime"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="rePushFailedMessagesRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
       <xsd:element name="listPendingMessagesResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="listPushFailedMessagesResponse">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
@@ -843,7 +883,7 @@
       </xsd:complexType>
       <xsd:complexType name="errorResultImpl">
         <xsd:sequence>
-          <xsd:element minOccurs="0" name="errorCode" type="tns:errorCode"/>
+          <xsd:element minOccurs="0" name="domibusErrorCode" type="tns:domibusErrorCode"/>
           <xsd:element minOccurs="0" name="errorDetail" type="xsd:string"/>
           <xsd:element minOccurs="0" name="messageInErrorId" type="xsd:string"/>
           <xsd:element minOccurs="0" name="mshRole" type="tns:mshRole"/>
@@ -878,7 +918,7 @@
           <xsd:enumeration value="DOWNLOADED"/>
         </xsd:restriction>
       </xsd:simpleType>
-      <xsd:simpleType name="errorCode">
+      <xsd:simpleType name="domibusErrorCode">
         <xsd:restriction base="xsd:string">
           <xsd:enumeration value="EBMS_0001"/>
           <xsd:enumeration value="EBMS_0002"/>
@@ -923,6 +963,19 @@
           <xsd:enumeration value="EBMS_0055"/>
           <xsd:enumeration value="EBMS_0060"/>
           <xsd:enumeration value="EBMS_0065"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="errorCode">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="WS_PLUGIN:0001"/>
+          <xsd:enumeration value="WS_PLUGIN:0002"/>
+          <xsd:enumeration value="WS_PLUGIN:0003"/>
+          <xsd:enumeration value="WS_PLUGIN:0004"/>
+          <xsd:enumeration value="WS_PLUGIN:0005"/>
+          <xsd:enumeration value="WS_PLUGIN:0006"/>
+          <xsd:enumeration value="WS_PLUGIN:0007"/>
+          <xsd:enumeration value="WS_PLUGIN:0008"/>
+          <xsd:enumeration value="WS_PLUGIN:0009"/>
         </xsd:restriction>
       </xsd:simpleType>
       <xsd:simpleType name="mshRole">
@@ -974,6 +1027,13 @@
         </xsd:sequence>
         <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional"/>
       </xsd:complexType>
+      <xsd:simpleType name="ProcessingType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PUSH"/>
+          <xsd:enumeration value="PULL"/>
+          <xsd:minLength value="0"/>
+        </xsd:restriction>
+      </xsd:simpleType>
       <xsd:complexType name="UserMessage">
         <xsd:all>
           <xsd:element minOccurs="0" name="MessageInfo" type="MessageInfo"/>
@@ -981,6 +1041,7 @@
           <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
           <xsd:element minOccurs="0" name="MessageProperties" type="tns:MessageProperties"/>
           <xsd:element minOccurs="0" name="PayloadInfo" type="tns:PayloadInfo"/>
+          <xsd:element default="PUSH" minOccurs="0" name="ProcessingType" type="ProcessingType"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
       </xsd:complexType>
@@ -1087,7 +1148,7 @@
    http://www.w3.org/TR/REC-xml for information about this namespace.
 
     This schema document describes the XML namespace, in a form
-    suitable for import by other schema documents.
+    suitable for import by other schema documents.  
 
     Note that local names in this namespace are intended to be defined
     only by the World Wide Web Consortium or its subgroups.  The
@@ -1101,20 +1162,27 @@
          appears; its value is inherited.  This name is reserved
          by virtue of its definition in the XML Base specification.
 
+    id   (as an attribute name): denotes an attribute whose value
+         should be interpreted as if declared to be of type ID.
+         The xml:id specification is not yet a W3C Recommendation,
+         but this attribute is included here to facilitate experimentation
+         with the mechanisms it proposes.  Note that it is _not_ included
+         in the specialAttrs attribute group.
+
     lang (as an attribute name): denotes an attribute whose value
          is a language code for the natural language of the content of
          any element; its value is inherited.  This name is reserved
          by virtue of its definition in the XML specification.
-
+  
     space (as an attribute name): denotes an attribute whose
          value is a keyword indicating what whitespace processing
          discipline is intended for the content of the element; its
          value is inherited.  This name is reserved by virtue of its
          definition in the XML specification.
 
-    Father (in any context at all): denotes Jon Bosak, the chair of
-         the original XML Working Group.  This name is reserved by
-         the following decision of the W3C XML Plenary and
+    Father (in any context at all): denotes Jon Bosak, the chair of 
+         the original XML Working Group.  This name is reserved by 
+         the following decision of the W3C XML Plenary and 
          XML Coordination groups:
 
              In appreciation for his vision, leadership and dedication
@@ -1125,15 +1193,15 @@
       <xs:annotation>
         <xs:documentation>This schema defines attributes and an attribute group
         suitable for use by
-        schemas wishing to allow xml:base, xml:lang or xml:space attributes
-        on elements they define.
+        schemas wishing to allow xml:base, xml:lang, xml:space or xml:id
+        attributes on elements they define.
 
         To enable this, such a schema must import this schema
         for the XML namespace, e.g. as follows:
         &lt;schema . . .>
          . . .
          &lt;import namespace="http://www.w3.org/XML/1998/namespace"
-                    schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+                    schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 
         Subsequently, qualified reference to any of the attributes
         or the group defined below will have the desired effect, e.g.
@@ -1141,31 +1209,47 @@
         &lt;type . . .>
          . . .
          &lt;attributeGroup ref="xml:specialAttrs"/>
-
+ 
          will define a type which will schema-validate an instance
          element with any of those attributes</xs:documentation>
       </xs:annotation>
       <xs:annotation>
         <xs:documentation>In keeping with the XML Schema WG's standard versioning
    policy, this schema document will persist at
-   http://www.w3.org/2001/03/xml.xsd.
+   http://www.w3.org/2005/08/xml.xsd.
    At the date of issue it can also be found at
    http://www.w3.org/2001/xml.xsd.
    The schema document at that URI may however change in the future,
    in order to remain compatible with the latest version of XML Schema
-   itself.  In other words, if the XML Schema namespace changes, the version
-   of this document at
+   itself, or with the XML namespace itself.  In other words, if the XML
+   Schema or XML namespaces change, the version of this document at
    http://www.w3.org/2001/xml.xsd will change
    accordingly; the version at
-   http://www.w3.org/2001/03/xml.xsd will not change.</xs:documentation>
+   http://www.w3.org/2005/08/xml.xsd will not change.</xs:documentation>
       </xs:annotation>
-      <xs:attribute name="lang" type="xs:language">
+      <xs:attribute name="lang">
         <xs:annotation>
-          <xs:documentation>In due course, we should install the relevant ISO 2- and 3-letter
-         codes as the enumerated possible values . . .</xs:documentation>
+          <xs:documentation>Attempting to install the relevant ISO 2- and 3-letter
+         codes as the enumerated possible values is probably never
+         going to be a realistic possibility.  See
+         RFC 3066 at http://www.ietf.org/rfc/rfc3066.txt and the IANA registry
+         at http://www.iana.org/assignments/lang-tag-apps.htm for
+         further information.
+
+         The union allows for the 'un-declaration' of xml:lang with
+         the empty string.</xs:documentation>
         </xs:annotation>
+        <xs:simpleType>
+          <xs:union memberTypes="xs:language">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value=""/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:union>
+        </xs:simpleType>
       </xs:attribute>
-      <xs:attribute default="preserve" name="space">
+      <xs:attribute name="space">
         <xs:simpleType>
           <xs:restriction base="xs:NCName">
             <xs:enumeration value="default"/>
@@ -1176,6 +1260,12 @@
       <xs:attribute name="base" type="xs:anyURI">
         <xs:annotation>
           <xs:documentation>See http://www.w3.org/TR/xmlbase/ for
+                     information about this attribute.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="id" type="xs:ID">
+        <xs:annotation>
+          <xs:documentation>See http://www.w3.org/TR/xml-id/ for
                      information about this attribute.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -1214,6 +1304,7 @@
     <wsdl:part element="tns:submitRequest" name="submitRequest"></wsdl:part>
     <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="rePushFailedMessagesResponse"></wsdl:message>
   <wsdl:message name="retrieveMessage">
     <wsdl:part element="tns:retrieveMessageRequest" name="retrieveMessageRequest"></wsdl:part>
   </wsdl:message>
@@ -1223,6 +1314,15 @@
   <wsdl:message name="listPendingMessages">
     <wsdl:part element="tns:listPendingMessagesRequest" name="listPendingMessagesRequest"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="MarkMessageAsDownloadedFault">
+    <wsdl:part element="tns:FaultDetail" name="MarkMessageAsDownloadedFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListPushFailedMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="ListPushFailedMessagesFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPushFailedMessagesResponse">
+    <wsdl:part element="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse"></wsdl:part>
+  </wsdl:message>
   <wsdl:message name="StatusFault">
     <wsdl:part element="tns:FaultDetail" name="StatusFault"></wsdl:part>
   </wsdl:message>
@@ -1230,14 +1330,29 @@
     <wsdl:part element="tns:retrieveMessageResponse" name="retrieveMessageResponse"></wsdl:part>
     <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="listPushFailedMessages">
+    <wsdl:part element="tns:listPushFailedMessagesRequest" name="listPushFailedMessagesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListPendingMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="ListPendingMessagesFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RePushFailedMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="RePushFailedMessagesFault"></wsdl:part>
+  </wsdl:message>
   <wsdl:message name="submitMessageResponse">
     <wsdl:part element="tns:submitResponse" name="submitResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="markMessageAsDownloaded">
+    <wsdl:part element="tns:markMessageAsDownloadedRequest" name="markMessageAsDownloadedRequest"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="getStatusResponse">
     <wsdl:part element="tns:getStatusResponse" name="getStatusResponse"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="listPendingMessagesResponse">
     <wsdl:part element="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="rePushFailedMessages">
+    <wsdl:part element="tns:rePushFailedMessagesRequest" name="rePushFailedMessagesRequest"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="getMessageErrorsResponse">
     <wsdl:part element="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:part>
@@ -1251,16 +1366,14 @@
   <wsdl:message name="getStatus">
     <wsdl:part element="tns:statusRequest" name="statusRequest"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="GetMessageErrorsFault">
+    <wsdl:part element="tns:FaultDetail" name="GetMessageErrorsFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="markMessageAsDownloadedResponse">
+    <wsdl:part element="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse"></wsdl:part>
+    <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
+  </wsdl:message>
   <wsdl:portType name="WebServicePluginInterface">
-    <wsdl:operation name="getMessageErrors">
-      <wsdl:input message="tns:getMessageErrors" name="getMessageErrors"></wsdl:input>
-      <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getStatus">
-      <wsdl:input message="tns:getStatus" name="getStatus"></wsdl:input>
-      <wsdl:output message="tns:getStatusResponse" name="getStatusResponse"></wsdl:output>
-      <wsdl:fault message="tns:StatusFault" name="StatusFault"></wsdl:fault>
-    </wsdl:operation>
     <wsdl:operation name="submitMessage">
       <wsdl:input message="tns:submitMessage" name="submitMessage"></wsdl:input>
       <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse"></wsdl:output>
@@ -1274,31 +1387,36 @@
     <wsdl:operation name="listPendingMessages">
       <wsdl:input message="tns:listPendingMessages" name="listPendingMessages"></wsdl:input>
       <wsdl:output message="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:ListPendingMessagesFault" name="ListPendingMessagesFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="markMessageAsDownloaded" parameterOrder="markMessageAsDownloadedRequest markMessageAsDownloadedResponse ebMSHeaderInfo">
+      <wsdl:input message="tns:markMessageAsDownloaded" name="markMessageAsDownloaded"></wsdl:input>
+      <wsdl:output message="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse"></wsdl:output>
+      <wsdl:fault message="tns:MarkMessageAsDownloadedFault" name="MarkMessageAsDownloadedFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="rePushFailedMessages">
+      <wsdl:input message="tns:rePushFailedMessages" name="rePushFailedMessages"></wsdl:input>
+      <wsdl:output message="tns:rePushFailedMessagesResponse" name="rePushFailedMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:RePushFailedMessagesFault" name="RePushFailedMessagesFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageErrors">
+      <wsdl:input message="tns:getMessageErrors" name="getMessageErrors"></wsdl:input>
+      <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:output>
+      <wsdl:fault message="tns:GetMessageErrorsFault" name="GetMessageErrorsFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <wsdl:input message="tns:getStatus" name="getStatus"></wsdl:input>
+      <wsdl:output message="tns:getStatusResponse" name="getStatusResponse"></wsdl:output>
+      <wsdl:fault message="tns:StatusFault" name="StatusFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPushFailedMessages">
+      <wsdl:input message="tns:listPushFailedMessages" name="listPushFailedMessages"></wsdl:input>
+      <wsdl:output message="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:ListPushFailedMessagesFault" name="ListPushFailedMessagesFault"></wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="WebServicePluginSoapBinding" type="tns:WebServicePluginInterface">
     <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-    <wsdl:operation name="getMessageErrors">
-      <soap12:operation soapAction="" style="document"/>
-      <wsdl:input name="getMessageErrors">
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output name="getMessageErrorsResponse">
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getStatus">
-      <soap12:operation soapAction="" style="document"/>
-      <wsdl:input name="getStatus">
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output name="getStatusResponse">
-        <soap12:body use="literal"/>
-      </wsdl:output>
-      <wsdl:fault name="StatusFault">
-        <soap12:fault name="StatusFault" use="literal"/>
-      </wsdl:fault>
-    </wsdl:operation>
     <wsdl:operation name="submitMessage">
       <soap12:operation soapAction="" style="document"/>
       <wsdl:input name="submitMessage">
@@ -1333,6 +1451,70 @@
       <wsdl:output name="listPendingMessagesResponse">
         <soap12:body use="literal"/>
       </wsdl:output>
+      <wsdl:fault name="ListPendingMessagesFault">
+        <soap12:fault name="ListPendingMessagesFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="markMessageAsDownloaded">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="markMessageAsDownloaded">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="markMessageAsDownloadedResponse">
+        <soap12:header message="tns:markMessageAsDownloadedResponse" part="ebMSHeaderInfo" use="literal"></soap12:header>
+        <soap12:body parts="markMessageAsDownloadedResponse" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="MarkMessageAsDownloadedFault">
+        <soap12:fault name="MarkMessageAsDownloadedFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="rePushFailedMessages">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="rePushFailedMessages">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="rePushFailedMessagesResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RePushFailedMessagesFault">
+        <soap12:fault name="RePushFailedMessagesFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageErrors">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getMessageErrors">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMessageErrorsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GetMessageErrorsFault">
+        <soap12:fault name="GetMessageErrorsFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getStatus">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getStatusResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="StatusFault">
+        <soap12:fault name="StatusFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPushFailedMessages">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="listPushFailedMessages">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listPushFailedMessagesResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ListPushFailedMessagesFault">
+        <soap12:fault name="ListPushFailedMessagesFault" use="literal"/>
+      </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="WebServicePlugin">
@@ -1453,7 +1635,515 @@
          </payload>
       </eu:submitRequest>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation><con:operation id="6163a7c4-4978-46b2-9f21-15b6ba342a27" isOneWay="false" action="" name="markMessageAsDownloaded" bindingOperationName="markMessageAsDownloaded" type="Request-Response" outputName="markMessageAsDownloadedResponse" inputName="markMessageAsDownloaded" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="21be63f0-233a-4344-95aa-02269ce99cec" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:markMessageAsDownloadedRequest>\r
+         <messageID>?</messageID>\r
+      </eu:markMessageAsDownloadedRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/markMessageAsDownloaded"/></con:call></con:operation><con:operation id="20202ed3-cfa9-4106-8e84-8cc9c164b13e" isOneWay="false" action="" name="rePushFailedMessages" bindingOperationName="rePushFailedMessages" type="Request-Response" outputName="rePushFailedMessagesResponse" inputName="rePushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4e171764-4f5e-4b4d-b3fa-3eb4a4127f41" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:rePushFailedMessagesRequest>\r
+         <!--Zero or more repetitions:-->\r
+         <messageID>?</messageID>\r
+      </eu:rePushFailedMessagesRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/rePushFailedMessages"/></con:call></con:operation><con:operation id="b2f181e1-6ffb-4771-9ad0-e67513ba1ab7" isOneWay="false" action="" name="listPushFailedMessages" bindingOperationName="listPushFailedMessages" type="Request-Response" outputName="listPushFailedMessagesResponse" inputName="listPushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="2d7382f2-17b3-4338-9e5a-bf6b7716029b" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:listPushFailedMessagesRequest>\r
+         <!--Optional:-->\r
+         <messageId>?</messageId>\r
+         <!--Optional:-->\r
+         <finalRecipient>?</finalRecipient>\r
+         <!--Optional:-->\r
+         <originalSender>?</originalSender>\r
+         <!--Optional:-->\r
+         <receivedFrom>?</receivedFrom>\r
+         <!--Optional:-->\r
+         <receivedTo>?</receivedTo>\r
+      </eu:listPushFailedMessagesRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPushFailedMessages"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="b8e85729-92e6-429f-ba5f-7ed6eb3f4c90" wsaVersion="NONE" name="BackendServiceSoapBinding" type="wsdl" bindingName="{eu.domibus}BackendServiceSoapBinding" soapVersion="1_2" anonymous="optional" definition="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl"><con:part><con:url>file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="backendService" targetNamespace="eu.domibus" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="eu.domibus">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="eu.domibus" schemaLocation="BackendService.xsd"/>
+    </schema>
+  </wsdl:types>
+  <wsdl:message name="submitMessage">
+    <wsdl:part element="tns:submitRequest" name="submitRequest"/>
+    <wsdl:part element="tns:Messaging" name="headerInfo"/>
+  </wsdl:message>
+  <wsdl:message name="submitMessageResponse"/>
+  <wsdl:message name="submitMessageFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="submitMessageFault"/>
+  </wsdl:message>
+  <wsdl:message name="sendSuccess">
+    <wsdl:part element="tns:sendSuccess" name="sendSuccess"/>
+  </wsdl:message>
+  <wsdl:message name="sendSuccessResponse"/>
+  <wsdl:message name="sendSuccessFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault"/>
+  </wsdl:message>
+  <wsdl:message name="sendFailure">
+    <wsdl:part element="tns:sendFailure" name="sendFailure"/>
+  </wsdl:message>
+  <wsdl:message name="sendFailureResponse"/>
+  <wsdl:message name="sendFailureFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault"/>
+  </wsdl:message>
+  <wsdl:message name="receiveSuccess">
+    <wsdl:part element="tns:receiveSuccess" name="receiveSuccess"/>
+  </wsdl:message>
+  <wsdl:message name="receiveSuccessResponse"/>
+  <wsdl:message name="receiveSuccessFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault"/>
+  </wsdl:message>
+  <wsdl:message name="receiveFailure">
+    <wsdl:part element="tns:receiveFailure" name="receiveFailure"/>
+  </wsdl:message>
+  <wsdl:message name="receiveFailureResponse"/>
+  <wsdl:message name="receiveFailureFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault"/>
+  </wsdl:message>
+  <wsdl:message name="delete">
+    <wsdl:part element="tns:delete" name="delete"/>
+  </wsdl:message>
+  <wsdl:message name="deleteResponse"/>
+  <wsdl:message name="deleteFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="deleteFault"/>
+  </wsdl:message>
+  <wsdl:message name="deleteBatch">
+    <wsdl:part element="tns:deleteBatch" name="deleteBatch"/>
+  </wsdl:message>
+  <wsdl:message name="deleteBatchResponse"/>
+  <wsdl:message name="deleteBatchFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="deleteBatchFault"/>
+  </wsdl:message>
+  <wsdl:message name="messageStatusChange">
+    <wsdl:part element="tns:messageStatusChange" name="messageStatusChange"/>
+  </wsdl:message>
+  <wsdl:message name="messageStatusChangeResponse"/>
+  <wsdl:message name="messageStatusChangeFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault"/>
+  </wsdl:message>
+  <wsdl:portType name="BackendInterface">
+    <wsdl:operation name="submitMessage">
+      <wsdl:input message="tns:submitMessage" name="submitRequest"></wsdl:input>
+      <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse"></wsdl:output>
+      <wsdl:fault message="tns:submitMessageFault" name="submitMessageFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSuccess">
+      <wsdl:input message="tns:sendSuccess" name="sendSuccess"></wsdl:input>
+      <wsdl:output message="tns:sendSuccessResponse" name="sendSuccessResponse"></wsdl:output>
+      <wsdl:fault message="tns:sendSuccessFault" name="sendSuccessFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendFailure">
+      <wsdl:input message="tns:sendFailure" name="sendFailure"></wsdl:input>
+      <wsdl:output message="tns:sendFailureResponse" name="sendFailureResponse"></wsdl:output>
+      <wsdl:fault message="tns:sendFailureFault" name="sendFailureFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveSuccess">
+      <wsdl:input message="tns:receiveSuccess" name="receiveSuccess"></wsdl:input>
+      <wsdl:output message="tns:receiveSuccessResponse" name="receiveSuccessResponse"></wsdl:output>
+      <wsdl:fault message="tns:receiveSuccessFault" name="receiveSuccessFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveFailure">
+      <wsdl:input message="tns:receiveFailure" name="receiveFailure"></wsdl:input>
+      <wsdl:output message="tns:receiveFailureResponse" name="receiveFailureResponse"></wsdl:output>
+      <wsdl:fault message="tns:receiveFailureFault" name="receiveFailureFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delete">
+      <wsdl:input message="tns:delete" name="delete"></wsdl:input>
+      <wsdl:output message="tns:deleteResponse" name="deleteResponse"></wsdl:output>
+      <wsdl:fault message="tns:deleteFault" name="deleteFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="deleteBatch">
+      <wsdl:input message="tns:deleteBatch" name="deleteBatch"></wsdl:input>
+      <wsdl:output message="tns:deleteBatchResponse" name="deleteBatchResponse"></wsdl:output>
+      <wsdl:fault message="tns:deleteBatchFault" name="deleteBatchFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="messageStatusChange">
+      <wsdl:input message="tns:messageStatusChange" name="messageStatusChange"></wsdl:input>
+      <wsdl:output message="tns:messageStatusChangeResponse" name="messageStatusChangeResponse"></wsdl:output>
+      <wsdl:fault message="tns:messageStatusChangeFault" name="messageStatusChangeFault"></wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BackendServiceSoapBinding" type="tns:BackendInterface">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="submitMessage">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="submitMessage">
+        <soap12:header message="tns:submitMessage" part="headerInfo" use="literal"/>
+        <soap12:body parts="submitRequest" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="submitMessageResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="submitMessageFault">
+        <soap12:fault name="submitMessageFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSuccess">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="sendSuccess">
+        <soap12:body parts="sendSuccess" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendSuccessResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="sendSuccessFault">
+        <soap12:fault name="sendSuccessFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendFailure">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="sendFailure">
+        <soap12:body parts="sendFailure" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendFailureResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="sendFailureFault">
+        <soap12:fault name="sendFailureFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveSuccess">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="receiveSuccess">
+        <soap12:body parts="receiveSuccess" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="receiveSuccessResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="receiveSuccessFault">
+        <soap12:fault name="receiveSuccessFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveFailure">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="receiveFailure">
+        <soap12:body parts="receiveFailure" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="receiveFailureResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="receiveFailureFault">
+        <soap12:fault name="receiveFailureFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delete">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="delete">
+        <soap12:body parts="delete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="deleteFault">
+        <soap12:fault name="deleteFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="deleteBatch">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteBatch">
+        <soap12:body parts="deleteBatch" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteBatchResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="deleteBatchFault">
+        <soap12:fault name="deleteBatchFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="messageStatusChange">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="messageStatusChange">
+        <soap12:body parts="messageStatusChange" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="messageStatusChangeResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="messageStatusChangeFault">
+        <soap12:fault name="messageStatusChangeFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="BackendService">
+    <wsdl:port binding="tns:BackendServiceSoapBinding" name="BACKEND_PORT">
+      <soap12:address location="http://localhost:8080/backend"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>file:\C:\work\digit\tools\domibus\5.1RC2\domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin\conf\domibus\plugins\backend\BackendService.xsd</con:url><con:content><![CDATA[<xsd:schema targetNamespace="eu.domibus" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:tns="eu.domibus">
+  <xsd:simpleType name="max255-non-empty-string">
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="255"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="max1024-non-empty-string">
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="1024"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="messageStatus">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="READY_TO_SEND"/>
+      <xsd:enumeration value="READY_TO_PULL"/>
+      <xsd:enumeration value="BEING_PULLED"/>
+      <xsd:enumeration value="SEND_ENQUEUED"/>
+      <xsd:enumeration value="SEND_IN_PROGRESS"/>
+      <xsd:enumeration value="WAITING_FOR_RECEIPT"/>
+      <xsd:enumeration value="ACKNOWLEDGED"/>
+      <xsd:enumeration value="ACKNOWLEDGED_WITH_WARNING"/>
+      <xsd:enumeration value="SEND_ATTEMPT_FAILED"/>
+      <xsd:enumeration value="SEND_FAILURE"/>
+      <xsd:enumeration value="NOT_FOUND"/>
+      <xsd:enumeration value="WAITING_FOR_RETRY"/>
+      <xsd:enumeration value="RECEIVED"/>
+      <xsd:enumeration value="RECEIVED_WITH_WARNINGS"/>
+      <xsd:enumeration value="DELETED"/>
+      <xsd:enumeration value="DOWNLOADED"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="LargePayloadType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
+    </xsd:sequence>
+    <xsd:attribute name="payloadId" type="xsd:token"/>
+    <xsd:attribute name="contentType" type="xsd:string"/>
+    <xsd:attribute name="mimeType" type="xsd:string"/>
+    <xsd:attribute name="payloadName" type="xsd:string"/>
+  </xsd:complexType>
+  <xsd:element name="submitRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+        <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" type="tns:LargePayloadType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Messaging" type="tns:Messaging"/>
+  <xsd:complexType name="Messaging">
+    <xsd:sequence>
+      <xsd:element name="UserMessage" type="tns:UserMessage" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="UserMessage">
+    <xsd:all>
+      <xsd:element name="MessageInfo" type="tns:MessageInfo" minOccurs="0"/>
+      <xsd:element name="PartyInfo" type="tns:PartyInfo"/>
+      <xsd:element name="CollaborationInfo" type="tns:CollaborationInfo"/>
+      <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
+      <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
+      <xsd:element name="ProcessingType" type="tns:ProcessingType" minOccurs="0" default="PUSH"/>
+    </xsd:all>
+    <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
+  </xsd:complexType>
+  <xsd:simpleType name="ProcessingType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="PUSH"/>
+      <xsd:enumeration value="PULL"/>
+      <xsd:minLength value="0"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="MessageInfo">
+    <xsd:all>
+      <xsd:element name="Timestamp" type="xsd:dateTime" minOccurs="0"/>
+      <xsd:element name="MessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+      <xsd:element name="RefToMessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="PartyInfo">
+    <xsd:all>
+      <xsd:element name="From" type="tns:From"/>
+      <xsd:element name="To" type="tns:To" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="PartyId">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="From">
+    <xsd:all>
+      <xsd:element name="PartyId" type="tns:PartyId"/>
+      <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="To">
+    <xsd:all>
+      <xsd:element name="PartyId" type="tns:PartyId"/>
+      <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="CollaborationInfo">
+    <xsd:all>
+      <xsd:element name="AgreementRef" type="tns:AgreementRef" minOccurs="0"/>
+      <xsd:element name="Service" type="tns:Service"/>
+      <xsd:element name="Action" type="xsd:token"/>
+      <xsd:element name="ConversationId" type="xsd:token" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="Service">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="AgreementRef">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+        <xsd:attribute name="pmode" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PayloadInfo">
+    <xsd:sequence>
+      <xsd:element name="PartInfo" type="tns:PartInfo" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PartInfo">
+    <xsd:all>
+      <xsd:element name="PartProperties" type="tns:PartProperties" minOccurs="0"/>
+    </xsd:all>
+    <xsd:attribute name="href" type="xsd:token"/>
+  </xsd:complexType>
+  <xsd:complexType name="Property">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max1024-non-empty-string">
+        <xsd:attribute name="name" type="tns:max255-non-empty-string" use="required"/>
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PartProperties">
+    <xsd:sequence>
+      <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="MessageProperties">
+    <xsd:sequence>
+      <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="BackendFaultDetail">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="code" type="xsd:string"/>
+        <xsd:element name="message" nillable="true" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="sendSuccess">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="sendFailure">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="receiveSuccess">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="receiveFailure">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="delete">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="deleteBatch">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="messageStatusChange">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+        <xsd:element name="messageStatus" type="tns:messageStatus"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/backend</con:endpoint></con:endpoints><con:operation id="7a41018e-e4a5-4507-aa77-24fa96f06e96" isOneWay="false" action="" name="delete" bindingOperationName="delete" type="Request-Response" outputName="deleteResponse" inputName="delete" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="79214900-8dde-4c91-89f9-306e369d2bdd" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:delete>\r
+         <messageID>?</messageID>\r
+      </eu:delete>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/delete"/></con:call></con:operation><con:operation id="3b5efb69-580f-4457-82c8-8cab99d57ee2" isOneWay="false" action="" name="deleteBatch" bindingOperationName="deleteBatch" type="Request-Response" outputName="deleteBatchResponse" inputName="deleteBatch" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="91e944b8-dea7-47dc-8710-da6fe416b420" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:deleteBatch>\r
+         <!--Zero or more repetitions:-->\r
+         <messageIds>?</messageIds>\r
+      </eu:deleteBatch>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/deleteBatch"/></con:call></con:operation><con:operation id="74690526-0c9a-4f00-9836-294649572353" isOneWay="false" action="" name="messageStatusChange" bindingOperationName="messageStatusChange" type="Request-Response" outputName="messageStatusChangeResponse" inputName="messageStatusChange" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="54c4ffc6-1074-4cf9-869d-07129578dd54" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:messageStatusChange>\r
+         <messageID>?</messageID>\r
+         <messageStatus>?</messageStatus>\r
+      </eu:messageStatusChange>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/messageStatusChange"/></con:call></con:operation><con:operation id="4d1d5e50-4a2d-41f8-b627-b9f1151c2404" isOneWay="false" action="" name="receiveFailure" bindingOperationName="receiveFailure" type="Request-Response" outputName="receiveFailureResponse" inputName="receiveFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="bf7f6ce9-d9c1-4ee4-b068-7ad6744bf9e4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:receiveFailure>\r
+         <messageID>?</messageID>\r
+      </eu:receiveFailure>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveFailure"/></con:call></con:operation><con:operation id="58471080-e76f-45d0-adcc-b136fb165ca3" isOneWay="false" action="" name="receiveSuccess" bindingOperationName="receiveSuccess" type="Request-Response" outputName="receiveSuccessResponse" inputName="receiveSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9bdf5d40-f72c-48fa-bf0b-95190a224930" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:receiveSuccess>\r
+         <messageID>?</messageID>\r
+      </eu:receiveSuccess>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveSuccess"/></con:call></con:operation><con:operation id="36ffbd7b-ce18-40d5-b5e1-c0d66fec8a08" isOneWay="false" action="" name="sendFailure" bindingOperationName="sendFailure" type="Request-Response" outputName="sendFailureResponse" inputName="sendFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="16609ef8-6c40-4105-99db-63ade86f029d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:sendFailure>\r
+         <messageID>?</messageID>\r
+      </eu:sendFailure>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendFailure"/></con:call></con:operation><con:operation id="f318e689-9e17-4986-96ee-4eaf31e9cfdf" isOneWay="false" action="" name="sendSuccess" bindingOperationName="sendSuccess" type="Request-Response" outputName="sendSuccessResponse" inputName="sendSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="31d91487-854a-4df9-8cfc-0e1956bc6f42" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:sendSuccess>\r
+         <messageID>?</messageID>\r
+      </eu:sendSuccess>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendSuccess"/></con:call></con:operation></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
             <con:settings/>
 
 
@@ -4041,7 +4731,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><
 def propValueC2=Domibus.getLogLevel("C2",context,log,custPropName);
 
 // Set test case custom property
-Domibus.setTestCaseCustProp(custPropName,propValueC2,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValueC2,log,testRunner);
 
 
 </script></con:config></con:testStep><con:testStep type="delay" name="D0" id="fc1bfbd4-3658-42ae-9236-95946b163341"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set cxf log level to INFO" id="630d6874-ba28-4b20-8e4b-0f003f705787"><con:settings/><con:config><script>Domibus.setLogLevel("C2",context,log,"org.apache.cxf","INFO");</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="bbcce0ef-6002-40cf-9191-c1139b1606f3"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number - Default cid" id="b7c59afd-592b-454c-a772-86e7ec73f944"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="71383111-0ee1-4890-9f30-de0285802211"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers - Default cid" id="578ea9b2-c5c4-45d6-92d5-e07c73be3c8c"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
@@ -4089,7 +4779,7 @@ LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner
 </script></con:config></con:testStep><con:testStep type="groovy" name="Reset log levels" id="caceebb0-cf5e-45d3-b893-892209d68373" disabled="true"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
 
 // C2
-def propValueC2=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValueC2=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 // Reset log level value
 Domibus.setLogLevel("C2",context,log,custPropName,propValueC2);
 sleep(2000);
@@ -4140,7 +4830,662 @@ def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+gap).to
 def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+gap).toString();
 
 def test = new Domibus(log,null,context)
-test.waitMessagesExchangedNumber(count1,count2,"acknowledged","downloaded","C2Default","C3Default",2,1);</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>51</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property></con:properties></con:testCase><con:properties/><con:setupScript>// Disable role validation
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","downloaded","C2Default","C3Default",2,1);</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>51</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS029-SmartRetry-Default-Mecanism" searchProperties="true" id="9fef59bc-fdf5-461c-8e06-aca835fa60ac">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="e2263fd5-376d-481f-9004-b482ba68091d"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C3-Remove-tc20Action" id="ee291fe6-3287-46dd-bf07-8bd50c1994be"><con:settings/><con:config><script>def side="c3"
+def nodename1="action"; def searchKey1="name"; def searchvalue1="tc20Action"; def attTochange1="value"; def newValue1="TC20Leg1random"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Update-Retry-2times-1min" id="d5e13271-6a4e-4511-a003-b84fd59247be"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Property-C2-domibus.msh.retry.cron" id="d043f984-9f04-41b2-869f-a30cac7fad07"><con:settings/><con:config><script>def custPropName="domibus.msh.retry.cron";
+// Get Domibus property value
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+// Set test case custom property
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="92846f90-28f7-4af0-9c07-c45e9046f7e9"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="760f7d72-13f0-436a-becf-eed0498a683c"><con:settings/><con:config><script>
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="83ba3c3b-afb1-4bca-941c-257ad095f07b"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="7fa3f2de-e205-4044-b08d-08379ad82443"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="3e58cdc9-fd8a-4a04-a2e8-69249f529266"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="37d68322-ef90-4eb9-ab5e-0cc0abdcee37"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="1d7a7003-b6bc-45c4-b6ab-b517bc5d6c9f"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="648e0b57-146e-4291-9c86-db18f889b2a1"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="59cd7d54-2c0c-40d3-b8cd-d720f1de175d"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="f26c171f-c6a3-47ef-9eea-01ad06d2ca4a"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="2c6b97c7-e93f-497f-8126-7b0d71c29e48"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="6fe89582-4703-4f2a-b14d-73eacde9d825" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="8858ad5b-6c13-49f1-973b-6af6560fd9aa" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+// Reset property value
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>2183</con:value></con:property><con:property><con:name>propertyCountC2</con:name><con:value>0</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>e494d665-45c0-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS030-SmartRetry Disabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="a53d445f-8294-48fb-98ff-b884f5617529">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="6599fea6-01fa-4d56-be25-b41c41625b4c"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="3f42c8ab-7504-499c-add7-e41f1113febd"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="d0727836-87f8-4f26-b423-d6ec02f40d15"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Disable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="1718fd3b-cbe2-4b72-b049-8c03c08d6057"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="126e4e70-bf15-4228-a71b-4086da4c827a"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="02ce6ce1-b697-40a1-960e-a71c3a6e4046"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="b7bf9f6e-cf55-4787-a435-1a87152bd97a"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="4c4e8936-cbe8-44b5-b186-520ee1ee5144"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="721771c3-7293-4267-b540-9e2a5d34c155"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="abda8bd8-4ed2-4109-85a3-acaa485a9401"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="36c97407-9725-4725-bde6-7e2a4a2b4971"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="2a0f5201-3203-4c25-9517-bc8da60775c0"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="3d7b5fc9-365b-4dfa-bb11-f39a6ed6ed4d"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="bd6806ff-56d7-48ad-b79e-4f1f600b51d5"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="9887f716-a090-450b-8cf1-2085e991b248" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="f6af74a4-fcb0-4c3f-bdc1-dfdbf1fa21fe" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Groovy Script" id="2b7e22a1-50fe-4032-a963-0bf8e1e71cfb" disabled="true"><con:settings/><con:config><script>
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+test.finalize()</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>11951</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>5ca9507f-45c4-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS031-SmartRetry Enabled-Monitoring Disabled-C3 Unreachable-No History" searchProperties="true" id="cca45117-07f4-4395-872a-7048bee5346f">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="a029b7ae-6e6b-4549-90b2-8e1160f72511"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="17bbd31c-fa2a-419a-ac91-9da59bbefed3"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="e7141931-6c94-42c8-8bdd-0835513fcdd3"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Disable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Monitoring History" id="09d5ea3e-50e5-41a1-b34b-3fac18ac6d5d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.cleanDatabaseTestMessagesAll()
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="4b67355f-3f22-49e2-89b7-7dcde7917136"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="7d438e2a-8085-41a6-a909-bc760c147949"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="37805593-6c70-4db7-ad8d-3afcd090ba7c"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="a1d5ebec-d509-4406-950f-05190eae42fc"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="6857608f-d4ca-4d8b-bb31-00b6e81fe662"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="88fb8ef2-8316-473c-838f-6cef9ff950dd"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="aed895a2-a0a7-48ef-86f1-f00aaffea511"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="d8729f40-ed51-4253-8141-01ffb3a6f2c5"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="18522216-6cb5-4558-833a-0d3d130edf3b"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="8081222e-e4a2-4ef7-9633-b9cc4fc36e90"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="36f0604f-0d29-468d-a9c1-0fa917a80635"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="7a57e131-6126-407e-b266-3a1678240153" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="33de7e59-f699-4eb6-932a-4f0bde6fcd8f" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>14857</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>0fc9fbf9-45c6-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS032-SmartRetry Enabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="a73b6194-9e6b-468d-bc97-697d06d4c42c">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="cb7d63a6-8d64-4bf8-b554-c2e688d3ba52"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="418da793-8b8a-48e5-a763-5391f98afde4"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="6e57438a-f777-41d3-95aa-21c73510b5e4"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="ca548249-d4ad-4ab5-a037-541438b5598b"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="dd01f49e-e2c9-4ba8-8563-8bd2007e2a62"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="1bbdd9ab-659d-4361-8440-9f144e691a3b"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="ea29640e-13b9-4aee-88dd-c624a6acaa52"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="ed7629f9-f694-44a2-97f9-0f83c0d913d1"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="4a892f44-e386-4638-8dcd-0b8e90342cb7"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="874211d7-a658-41aa-a94c-9a5b990da0f0"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="0a65ad58-20d3-40ce-92cd-7a4f9277068d"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="cb77401c-86a0-42df-88f1-6afc6c53b725"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="75b0b250-341c-4087-96d8-e2a6c0bd6af1"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="174fa03f-a229-4400-bae7-0a03019a7917"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="ef9e97cb-9521-4df4-8131-4304d152370f" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="17da56da-ca47-405c-aef2-b5428d875eaf" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>17795</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>810430bc-45c6-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS033-SmartRetry Enabled-Monitoring Enabled-C3 Reachable" searchProperties="true" id="48983f1d-ad42-46ca-a15b-9d942d959c9b">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="8a76852f-f007-476d-adf7-b874b829485b"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Remove tc20Action" id="495465eb-7b3b-4c31-92ec-a0d66a32872d"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)
+
+side="c3"
+nodename1="action"; searchKey1="name"; searchvalue1="tc20Action"; attTochange1="value"; newValue1="TC20Leg1random"
+parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="fa9c8dbf-54fe-40fe-a480-0367c4af5d22"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="36b64493-5e13-41d8-9cef-6ae8fe8df17d"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="1e8baf4d-fde4-4648-a5ab-9680dae8aca8"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="915cbfcc-60f3-4b58-af78-a19ab32bfb0d"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="af43a834-8b7c-4ee5-9408-90c233a9460a"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="1d8b12d6-fcc9-4342-bef6-4783465ce2b4"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="81262fca-4a90-4d3d-b6bc-ae080b94c5f6"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="75570cef-1a25-431f-8a98-e1971b37fad7"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="5336216d-9aa1-4bb7-9218-bcc0ac4e0046"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="96453242-22bc-47dd-a6b9-55f2a2281e6b"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="054036fa-dbf6-4d7c-a316-311f529c9efe"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="d22adccf-fe92-429d-8507-9b797d41bc81"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="9402c04d-026f-40ed-a92e-39ef2666840a" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="39796de7-6883-48c3-90c4-9ce912541ba8" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>22639</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>dab7560e-45c7-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:setupScript>// Disable role validation
 Domibus.changePropertyAtRuntime("C2", "domibus.partyinfo.roles.validation.enabled", "true", context, log);
 Domibus.changePropertyAtRuntime("C3", "domibus.partyinfo.roles.validation.enabled", "true", context, log);
 sleep(5000);</con:setupScript></con:testSuite><con:testSuite id="6a6973ad-148d-4ac5-bfee-b920f180e0b3" name="Multitenancy-FS-Automated"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="44d870fb-f288-4b4e-8b37-f090e0ce2b04" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Set custom properties-Multitenancy4D-Multitenancy2D-Main Branch" id="648cd58c-7443-4182-b33d-f9fe90a8e550"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
@@ -4824,7 +6169,7 @@ test.waitMessagesExchangedNumber(count1,count2,"acknowledged","downloaded","C2Do
 def propValueC2=Domibus.getLogLevel("C2",context,log,custPropName);
 
 // Set test case custom property
-Domibus.setTestCaseCustProp(custPropName,propValueC2,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValueC2,log,testRunner);
 
 
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set cxf log level to INFO" id="bd7f608e-50b7-4e25-bb14-3b66763a5599" disabled="true"><con:settings/><con:config><script>Domibus.setLogLevel("C2",context,log,"org.apache.cxf","INFO");</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers - Default cid" id="8c7fb304-3782-45f1-b5c3-501aa0702877"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
@@ -4879,7 +6224,7 @@ LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner
 </script></con:config></con:testStep><con:testStep type="groovy" name="Reset log levels" id="4685be37-52cd-4b59-bf64-b73ec9d125f3" disabled="true"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
 
 // C2
-def propValueC2=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValueC2=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 // Reset log level value
 Domibus.setLogLevel("C2",context,log,custPropName,propValueC2);
 sleep(2000);

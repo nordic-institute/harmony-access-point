@@ -24,6 +24,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.util.*;
 
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 import static org.junit.Assert.*;
 
 /**
@@ -172,10 +173,10 @@ public class JMSManagerActiveMQTest {
             Map<String, Object> criteria = null;
             jmsSelectorUtil.getSelector(criteria = withCapture());
 
-            assertEquals(criteria.get("JMSType"), jmsType);
-            assertEquals(criteria.get("JMSTimestamp_from"), fromDate.getTime());
-            assertEquals(criteria.get("JMSTimestamp_to"), toDate.getTime());
-            assertEquals(criteria.get("selectorClause"), selectorClause);
+            assertEquals(criteria.get(CRITERIA_JMS_TYPE), jmsType);
+            assertEquals(criteria.get(CRITERIA_JMS_TIMESTAMP_FROM), fromDate.getTime());
+            assertEquals(criteria.get(CRITERIA_JMS_TIMESTAMP_TO), toDate.getTime());
+            assertEquals(criteria.get(CRITERIA_SELECTOR_CLAUSE), selectorClause);
 
             domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             queueMbean.browse(anyString);
@@ -197,7 +198,7 @@ public class JMSManagerActiveMQTest {
 
         new Expectations(jmsManagerActiveMQ) {
             {
-                jmsManagerActiveMQ.getCompositeValue(data, "JMSType");
+                jmsManagerActiveMQ.getCompositeValue(data, CRITERIA_JMS_TYPE);
                 result = jmsType;
 
                 jmsManagerActiveMQ.getCompositeValue(data, "JMSTimestamp");

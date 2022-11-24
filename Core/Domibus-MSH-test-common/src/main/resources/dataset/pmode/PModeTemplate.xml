@@ -14,9 +14,9 @@
 	</mpcs>
 	<businessProcesses>
 		<roles>
-			<role name="defaultInitiatorRole" 
+			<role name="defaultInitiatorRole"
 					value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
-			<role name="defaultResponderRole" 
+			<role name="defaultResponderRole"
 					value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
 		</roles>
 		<parties>
@@ -24,15 +24,13 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
 			<party name="red_gw"
-				    endpoint="http://localhost:8892/domibus/services/msh"
-					allowChunking="false"
->
+				   endpoint="http://localhost:8892/domibus/services/msh"
+				   allowChunking="false">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw" 
-					endpoint="http://localhost:8080/domibus/services/msh"
-					allowChunking="false"
->
+			<party name="blue_gw"
+				   endpoint="http://localhost:8080/domibus/services/msh"
+				   allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -42,29 +40,29 @@
 			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
 		</meps>
 		<properties>
-			<property name="originalSenderProperty" 
-					key="originalSender" 
-					datatype="string" 
+			<property name="originalSenderProperty"
+					key="originalSender"
+					datatype="string"
 					required="true"/>
-			<property name="finalRecipientProperty" 
-					key="finalRecipient" 
-					datatype="string" 
+			<property name="finalRecipientProperty"
+					key="finalRecipient"
+					datatype="string"
 					required="true"/>
 			<propertySet name="ecodexPropertySet">
 				<propertyRef property="finalRecipientProperty"/>
 				<propertyRef property="originalSenderProperty"/>
 			</propertySet>
-		</properties>				
+		</properties>
 		<payloadProfiles>
 			<payload name="businessContentPayload"
 					cid="cid:message"
 					required="true"
 					mimeType="text/xml"/>
 			<payload name="businessContentAttachment"
-					cid="cid:attachment" 
+					cid="cid:attachment"
 					required="false"
 					mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" 
+			<payloadProfile name="MessageProfile"
 					maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
@@ -74,10 +72,12 @@
 			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256" />
 			<security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
 			<security name="signOnly" policy="signOnly.xml" signatureMethod="RSA_SHA256"/>
+			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256" profile = "RSA"/>
+			<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" signatureMethod="ECC_SHA256" profile = "ECC"/>-->
 		</securities>
 		<errorHandlings>
-			<errorHandling name="demoErrorHandling" 
-					errorAsResponse="true" 
+			<errorHandling name="demoErrorHandling"
+					errorAsResponse="true"
 					businessErrorNotifyProducer="true"
 					businessErrorNotifyConsumer="true"
 					deliveryFailureNotifyProducer="true"/>
@@ -89,12 +89,14 @@
 		</agreements>
 		<services>
 			<service name="testService1" value="bdx:noprocess" type="tc1"/>
+			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
 		</services>
 		<actions>
 			<action name="tc1Action" value="TC1Leg1"/>
 			<action name="tc2Action" value="TC2Leg1"/>
 			<action name="tc3Action" value="TC3Leg1"/>
 			<action name="tc4Action" value="TC4Leg1"/>
+			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -102,13 +104,13 @@
 			<reliability name="noReliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
 		<legConfigurations>
-			<legConfiguration name="pushTestcase1tc1Action" 
-					service="testService1" 
-					action="tc1Action" 
-					defaultMpc="defaultMpc" 
-					reliability="AS4Reliability" 
+			<legConfiguration name="pushTestcase1tc1Action"
+					service="testService1"
+					action="tc1Action"
+					defaultMpc="defaultMpc"
+					reliability="AS4Reliability"
 					security="eDeliveryAS4Policy"
-					receptionAwareness="receptionAwareness" 
+					receptionAwareness="receptionAwareness"
 					propertySet="ecodexPropertySet"
 					errorHandling="demoErrorHandling"
 					compressPayloads="true"/>
@@ -153,6 +155,10 @@
 							  payloadProfile="MessageProfile"
 							  errorHandling="demoErrorHandling"
 							  compressPayloads="true"/>
+			<legConfiguration name="testServiceCase" reliability="AS4Reliability" security="eDeliveryAS4Policy"
+							  receptionAwareness="receptionAwareness" service="testService" action="testAction"
+							  defaultMpc="defaultMpc" propertySet="eDeliveryPropertySet" errorHandling="demoErrorHandling"
+							  compressPayloads="true"/>
 		</legConfigurations>
 <process name="tc1Process"
          agreement=""
@@ -174,6 +180,22 @@
 		<leg name="pushTestcase1tc3Action"/>
 		<leg name="pushTestcase1tc4Action"/>
 		<leg name="pushTestcase1tc2ActionWithPayload"/>
+			</legs>
+		</process>
+		<process name="tc1Process"
+				 agreement=""
+				 mep="oneway"
+				 binding="push"
+				 initiatorRole="defaultInitiatorRole"
+				 responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="testServiceCase"/>
 	</legs>
 </process>
 	</businessProcesses>

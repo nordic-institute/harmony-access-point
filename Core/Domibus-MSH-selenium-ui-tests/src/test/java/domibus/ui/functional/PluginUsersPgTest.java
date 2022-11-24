@@ -92,8 +92,8 @@ public class PluginUsersPgTest extends SeleniumTest {
 		new Dialog(driver).confirm();
 		page.clickVoidSpace();
 
-		Reporter.log(page.getAlertArea().getAlertMessage()); //.equalsIgnoreCase(DMessages.PLUGINUSER_SAVE_SUCCESS);
-		log.info(page.getAlertArea().getAlertMessage()); //.equalsIgnoreCase(DMessages.PLUGINUSER_SAVE_SUCCESS);
+		Reporter.log(page.getAlertArea().getAlertMessage());
+		log.info(page.getAlertArea().getAlertMessage());
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
@@ -637,6 +637,37 @@ public class PluginUsersPgTest extends SeleniumTest {
 			e.printStackTrace();
 		}
 		soft.assertFalse(success, "Message was not sent with disabled plugin user");
+
+		soft.assertAll();
+	}
+
+	@Test(description = "NO-ID", groups = {"multiTenancy"})
+	public void duplicatePluginUserDetectionDeletedUser() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		String username = Gen.randomAlphaNumeric(9);
+
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.grid().scrollToAndSelect("User Name", username);
+		page.getDeleteBtn().click();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.getDomainSelector().selectAnotherDomain();
+
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertFalse(page.getAlertArea().isError(), "There is no error message when creating a duplicate of a deleted plugin user");
 
 		soft.assertAll();
 	}

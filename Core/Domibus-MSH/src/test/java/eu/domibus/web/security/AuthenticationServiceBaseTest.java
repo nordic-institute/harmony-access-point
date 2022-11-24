@@ -63,41 +63,6 @@ public class AuthenticationServiceBaseTest {
     }
 
     @Test
-    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetailsImpl domibusUserDetails) {
-        final String domainCode = "domain1";
-
-        new Expectations() {{
-            domainService.getDomains();
-            result = domains;
-
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = authentication;
-
-            authentication.getPrincipal();
-            result = domibusUserDetails;
-
-        }};
-
-        //tested method
-        authenticationServiceBase.changeDomain(domainCode);
-
-        new Verifications() {{
-            String actualDomain;
-            domibusUserDetails.setDomain(actualDomain = withCapture());
-            Assert.assertEquals(domainCode, actualDomain);
-
-            SecurityContextHolder.getContext().setAuthentication((Authentication) any);
-        }};
-    }
-
-    @Test
     public void test_changeDomain_DomainDoesntExists() {
         final String domainCode = "domain3";
 
@@ -136,58 +101,6 @@ public class AuthenticationServiceBaseTest {
         }
 
         new FullVerifications() {{
-        }};
-    }
-
-    @Test
-    public void testExecuteOnLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
-                                                        @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("username", "password", authorities);
-
-        new Expectations() {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = authentication;
-
-            authentication.getPrincipal();
-            result = domibusUserDetails;
-
-        }};
-
-        authenticationServiceBase.executeOnLoggedUser(domibusUserDetailsConsumer);
-
-        new Verifications() {{
-            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testExecuteOnLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext, @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
-        new Expectations(authenticationServiceBase) {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = null;
-        }};
-
-        authenticationServiceBase.executeOnLoggedUser(domibusUserDetailsConsumer);
-
-        new Verifications() {{
-            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
-            times = 0;
         }};
     }
 

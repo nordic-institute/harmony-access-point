@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.audit.AuditService;
@@ -58,6 +59,12 @@ public class MessageResourceTest {
 
     @Injectable
     private UserMessageRestoreService userMessageDefaultRestoreService;
+
+    @Injectable
+    RequestFilterUtils requestFilterUtils;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Test
     public void testDownloadZipped() throws IOException {

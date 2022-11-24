@@ -1,12 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.property.DefaultDomibusConfigurationService;
-import eu.domibus.core.property.PropertyProviderHelper;
-import eu.domibus.core.property.PropertyRetrieveManager;
-import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,25 +23,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
     private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
 
     @Autowired
-    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
-
-    @Autowired
     FSPluginProperties fsPluginProperties;
-    @Autowired
-    PropertyProviderHelper propertyProviderHelper;
-
-    @Autowired
-    DomainExtService domainExtService;
-    @Autowired
-    DomainService domainService;
-    @Autowired
-    PropertyRetrieveManager propertyRetrieveManager;
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-    @Autowired
-    DomibusCacheService domibusCacheService;
-    @Autowired
-    DefaultDomibusConfigurationService defaultDomibusConfigurationService;
 
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/dataset/fsplugin/fs-plugin.properties")
@@ -62,9 +39,9 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(DEFAULT_DOMAIN));
     }
 
-    @Test
+    @Test(expected = DomibusPropertyExtException.class)
     public void testGetLocation_NonExistentDomain() {
-        Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(NONEXISTENT_DOMAIN));
+        fsPluginProperties.getLocation(NONEXISTENT_DOMAIN);
     }
 
     @Test
@@ -102,10 +79,11 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getReceivedPurgeExpired(DEFAULT_DOMAIN));
     }
 
-    @Test
+    @Test(expected = DomibusPropertyExtException.class)
     public void testGetPayloadId_NullDomain() {
-        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(null));
+        fsPluginProperties.getPayloadId(null);
     }
+
     @Test
     public void testGetPayloadId_ok() {
         Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DEFAULT_DOMAIN));

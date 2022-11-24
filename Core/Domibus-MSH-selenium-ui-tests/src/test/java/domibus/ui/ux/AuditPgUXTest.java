@@ -365,9 +365,7 @@ public class AuditPgUXTest extends SeleniumTest {
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
-//		grid.getGridCtrl().showCtrls();
-//
-//		List<String> columnList = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
+
 		grid.checkModifyVisibleColumns(soft);
 
 		soft.assertAll();

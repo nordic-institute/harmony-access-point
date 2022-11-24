@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.multitenancy;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -226,6 +227,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
+        return getCurrentPModeProvider().getMetadataRetentionOffsetByMpcURI(mpcURI);
+    }
+
+    @Override
     public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
         return getCurrentPModeProvider().isDeleteMessageMetadataByMpcURI(mpcURI);
     }
@@ -266,8 +272,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
-        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action, meps);
+    public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);
+    }
+
+    @Override
+    public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, String service, String action, List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartiesByResponderServiceAndAction(responderPartyId, service, action, meps);
     }
 
     @Override
@@ -374,5 +385,10 @@ public class MultiDomainPModeProvider extends PModeProvider {
     @Override
     public String getLegConfigurationNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getLegConfigurationNameFromPModeKey(pModeKey);
+    }
+
+    @Override
+    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
+        return getCurrentPModeProvider().deleteFinalRecipientsOlderThan(numberOfDays);
     }
 }

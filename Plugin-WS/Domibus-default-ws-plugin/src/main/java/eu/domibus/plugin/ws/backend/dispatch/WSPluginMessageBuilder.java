@@ -80,7 +80,7 @@ public class WSPluginMessageBuilder {
     public SOAPMessage buildSOAPMessageSubmit(final WSBackendMessageLogEntity messageLogEntity) {
         UserMessage userMessage = new UserMessage();
         try {
-            userMessage = wsPlugin.browseMessage(messageLogEntity.getMessageId(), MSHRole.SENDING, userMessage);
+            userMessage = wsPlugin.browseMessage(messageLogEntity.getMessageEntityId(), userMessage);
         } catch (MessageNotFoundException e) {
             throw new WSPluginException("Domibus message could not be found with message id: [" + messageLogEntity.getMessageId() + "]", e);
         }

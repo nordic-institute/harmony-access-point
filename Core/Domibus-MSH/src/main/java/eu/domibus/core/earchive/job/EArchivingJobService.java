@@ -6,6 +6,7 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
@@ -57,6 +58,8 @@ public class EArchivingJobService {
 
     private final EArchivingEventService eArchivingEventService;
 
+    private final PartInfoService partInfoService;
+
     public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
                                 PModeProvider pModeProvider,
@@ -64,7 +67,7 @@ public class EArchivingJobService {
                                 EArchiveBatchStartDao eArchiveBatchStartDao,
                                 NoArgGenerator uuidGenerator,
                                 UserMessageLogDao userMessageLogDao,
-                                EArchivingEventService eArchivingEventService) {
+                                EArchivingEventService eArchivingEventService, PartInfoService partInfoService) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
@@ -73,6 +76,7 @@ public class EArchivingJobService {
         this.uuidGenerator = uuidGenerator;
         this.userMessageLogDao = userMessageLogDao;
         this.eArchivingEventService = eArchivingEventService;
+        this.partInfoService = partInfoService;
     }
 
     @Transactional(readOnly = true)
@@ -96,8 +100,8 @@ public class EArchivingJobService {
 
     @Transactional
     public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
-        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId,userMessageToBeArchived!=null?userMessageToBeArchived.size():0, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
-        if(CollectionUtils.isNotEmpty(userMessageToBeArchived)) {
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, userMessageToBeArchived != null ? userMessageToBeArchived.size() : 0, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
+        if (CollectionUtils.isNotEmpty(userMessageToBeArchived)) {
             eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         }
         return eArchiveBatch;
@@ -115,7 +119,7 @@ public class EArchivingJobService {
     public EArchiveBatchEntity reExportEArchiveBatch(String batchId) {
         EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (originEntity == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "eArchive batch not found batchId: [" + batchId + "]");
         }
         List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
 
@@ -227,8 +231,25 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
-    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize) {
-        return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize, int batchPayloadMaxSize) {
+        List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
+        if (batchPayloadMaxSize == 0) {
+            LOG.trace("BatchPayloadMaxSize is 0 so no restrictions on payload size.");
+            return messagesForArchiving;
+        }
+        List<EArchiveBatchUserMessage> results = new ArrayList<>();
+        long totalPayloadSize = 0;
+        for (EArchiveBatchUserMessage message : messagesForArchiving) {
+            final long totalLength = partInfoService.findPartInfoTotalLength(message.getEntityId());
+            totalPayloadSize += totalLength;
+            if (totalPayloadSize >= batchPayloadMaxSize) {
+                LOG.debug("Reached the limit of [{}]; exiting", batchPayloadMaxSize);
+                break;
+            }
+            results.add(message);
+        }
+        LOG.debug("BatchPayloadMaxSize is [{}]; returning [{}] messages.", batchPayloadMaxSize, results.size());
+        return results;
     }
 
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
@@ -245,7 +266,12 @@ public class EArchivingJobService {
         Integer property = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
 
         if (property == null || continuousLastUpdatedDate == null) {
-            LOG.error("The configuration is incorrect: either [{}] is undefined or the continuous job start date is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            if (property == null) {
+                LOG.error("The configuration is incorrect: [{}] is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            }
+            else {
+                LOG.error("The configuration is incorrect: the continuous job start date is undefined");
+            }
             eArchivingEventService.sendEventStartDateStopped();
             return;
         }

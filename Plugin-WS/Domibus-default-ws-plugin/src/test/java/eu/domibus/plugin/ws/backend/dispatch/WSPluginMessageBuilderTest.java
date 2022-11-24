@@ -43,6 +43,8 @@ import static org.junit.Assert.assertNull;
 public class WSPluginMessageBuilderTest {
 
     public static final String MESSAGE_ID = "messageId";
+    public static final long MESSAGE_ENTITY_ID = 555;
+    public static final long ENTITY_ID = 123;
     public static final String ORIGINAL_SENDER = "sender";
     public static final String FINAL_RECIPIENT = "recipient";
     public static final String HREF = "HREF";
@@ -251,7 +253,10 @@ public class WSPluginMessageBuilderTest {
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
-            wsPlugin.browseMessage(MESSAGE_ID, MSHRole.SENDING, (UserMessage) any);
+            messageLogEntity.getMessageEntityId();
+            result = MESSAGE_ENTITY_ID;
+
+            wsPlugin.browseMessage(MESSAGE_ENTITY_ID, (UserMessage) any);
             result = new MessageNotFoundException();
         }};
 

@@ -35,7 +35,6 @@ public class TestRunData {
 
 	private void loadTestData() {
 		try {
-//			String filename = System.getenv("propertiesFile");
 			String filename = System.getProperty("propertiesFile");
 			FileInputStream stream = new FileInputStream(new File(filename));
 			prop.load(stream);
@@ -126,7 +125,6 @@ public class TestRunData {
 	}
 
 	public String getRunBrowser() {
-//		return System.getenv("runBrowser");
 		return System.getProperty("runBrowser");
 	}
 

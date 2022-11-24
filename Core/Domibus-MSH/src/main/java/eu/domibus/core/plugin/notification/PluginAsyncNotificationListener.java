@@ -1,11 +1,13 @@
 
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -33,25 +35,27 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListener.class);
 
-    protected AuthUtils authUtils;
-    protected DomainContextProvider domainContextProvider;
-    protected AsyncNotificationConfiguration asyncNotificationConfiguration;
-    protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected final AuthUtils authUtils;
+    protected final DomainContextProvider domainContextProvider;
+    protected final AsyncNotificationConfiguration asyncNotificationConfiguration;
+    protected final PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected final ObjectMapper objectMapper;
 
     public PluginAsyncNotificationListener(DomainContextProvider domainContextProvider,
                                            AsyncNotificationConfiguration asyncNotificationConfiguration,
                                            PluginEventNotifierProvider pluginEventNotifierProvider,
-                                           AuthUtils authUtils) {
+                                           AuthUtils authUtils, ObjectMapper objectMapper) {
         this.domainContextProvider = domainContextProvider;
         this.asyncNotificationConfiguration = asyncNotificationConfiguration;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
         this.authUtils = authUtils;
+        this.objectMapper = objectMapper;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Transactional
-    @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
-    @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
+    @Timer(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
+    @Counter(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     public void onMessage(final Message message) {
         authUtils.runWithSecurityContext(()-> doOnMessage(message),
                 "notif", "notif", AuthRole.ROLE_ADMIN);
@@ -69,7 +73,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing message ID [{}] for domain [{}]", messageId, domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
 
             final NotificationType notificationType = NotificationType.valueOf(message.getStringProperty(MessageConstants.NOTIFICATION_TYPE));
 
@@ -81,7 +85,15 @@ public class PluginAsyncNotificationListener implements MessageListener {
                 return;
             }
             Map<String, String> messageProperties = getMessageProperties(message);
-            pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
+
+
+            // deserialize the message body into the correct MessageEvent instance
+            String serializedBody = message.getStringProperty(AsyncNotificationConfiguration.BODY);
+            String eventClass = message.getStringProperty(AsyncNotificationConfiguration.EVENT_CLASS);
+            MessageEvent event = (MessageEvent) objectMapper.readValue(serializedBody, Class.forName(eventClass, true, this.getClass().getClassLoader()));
+
+            LOG.info("Calling the plugin notifier for the event type [{}] with the following content: [{}]", eventClass, serializedBody);
+            pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector());
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());

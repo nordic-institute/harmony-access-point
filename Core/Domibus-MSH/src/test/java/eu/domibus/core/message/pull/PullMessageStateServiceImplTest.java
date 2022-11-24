@@ -128,7 +128,7 @@ public class PullMessageStateServiceImplTest {
             userMessageLogDao.update(userMessageLog);
             times = 1;
             times = 1;
-            backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, (Timestamp) any);
+            backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, (Timestamp) any);
             times = 1;
         }};
     }

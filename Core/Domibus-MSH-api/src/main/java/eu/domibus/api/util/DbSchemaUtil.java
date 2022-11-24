@@ -10,6 +10,18 @@ import eu.domibus.api.multitenancy.Domain;
  */
 public interface DbSchemaUtil {
 
+    String getDatabaseSchema(Domain domain);
+
+    /**
+     * This method is used to retrieve the schema change sql statement, conforming to the current database type
+     *
+     * @param databaseSchemaName the database schema name to be checked
+     * @throws DomibusDatabaseNotSupportedException database type is not supported
+     * @throws FaultyDatabaseSchemaNameException database schema name is invalid
+     * @return the sql statement that changes the db schema
+     */
+    String getSchemaChangeSQL(String databaseSchemaName) throws DomibusDatabaseNotSupportedException, FaultyDatabaseSchemaNameException;
+
     /**
      * Checks if the database schema associated to the domain can be accessed
      * @param domain - the domain for which the schema is checked
@@ -17,10 +29,15 @@ public interface DbSchemaUtil {
      */
     boolean isDatabaseSchemaForDomainValid(Domain domain);
 
+    String getGeneralSchema();
+
+    void removeCachedDatabaseSchema(Domain domain);
+
     /**
-     * Create SQL command for changing the schema
-     * @param databaseSchema - schema name
-     * @return sql for schema change
+     * Checks the database schema name sanity(it may contain only alphanumeric and "_" characters)
+     *
+     * @param schemaName the database schema name to be checked
+     * @return result of the db schema sanity check
      */
-    String getSchemaChangeSQL(String databaseSchema);
+    boolean isDatabaseSchemaNameSane(final String schemaName);
 }

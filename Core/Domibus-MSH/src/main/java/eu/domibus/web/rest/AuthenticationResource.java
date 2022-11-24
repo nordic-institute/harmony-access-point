@@ -69,7 +69,7 @@ public class AuthenticationResource {
         this.authenticationService = authenticationService;
         this.domainContextProvider = domainContextProvider;
         this.userDomainService = userDomainService;
-        this.domainService= domainService;
+        this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.errorHandlerService = errorHandlerService;
         this.sas = sas;
@@ -92,7 +92,7 @@ public class AuthenticationResource {
         LOG.debug("Determined domain [{}] for user [{}]", domainCode, loginRO.getUsername());
 
         if (StringUtils.isNotBlank(domainCode)) {   //domain user
-            domainContextProvider.setCurrentDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
         } else {                    //ap user
             domainContextProvider.clearCurrentDomain();
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());

@@ -41,23 +41,23 @@ class FSPluginUtils {
         def messageMetadata
         switch (configuration.toLowerCase()) {
             case "standard":
-                messageMetadata = Domibus.getProjectCustProp("fsMetadataStandard", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("fsMetadataStandard", log, testRunner)
                 break
             case "withmime":
-                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithMimeType", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithMimeType", log, testRunner)
                 break
             case "withpname":
-                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithPayloadName", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithPayloadName", log, testRunner)
                 break
             case "withptype":
-                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithProcessingType", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("fsMetadataWithProcessingType", log, testRunner)
                 break
             case "splitstandard":
-                messageMetadata = Domibus.getProjectCustProp("splitMetadataStandard", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("splitMetadataStandard", log, testRunner)
                 break
             default:
                 log.warn "Unknown type of configuration: assume standard ..."
-                messageMetadata = Domibus.getProjectCustProp("fsPluginPrototype", context, log, testRunner)
+                messageMetadata = Domibus.getProjectCustProp("fsPluginPrototype", log, testRunner)
                 break
         }
         return messageMetadata
@@ -68,17 +68,17 @@ class FSPluginUtils {
         def fspluginPath
         switch (side.toLowerCase()) {
             case  "c2":
-                fspluginPath = Domibus.getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                fspluginPath = Domibus.getProjectCustProp("fsFilesPathBlue",log,testRunner)
                 break
             case "c3":
-                fspluginPath = Domibus.getProjectCustProp("fsFilesPathRed",context,log,testRunner)
+                fspluginPath = Domibus.getProjectCustProp("fsFilesPathRed",log,testRunner)
                 break
             case "c3green":
-                fspluginPath = Domibus.getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
+                fspluginPath = Domibus.getProjectCustProp("fsFilesPathGreen",log,testRunner)
                 break
             default:
                 log.warn "Unknown side: assume it is C2 ..."
-                fspluginPath = Domibus.getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                fspluginPath = Domibus.getProjectCustProp("fsFilesPathBlue",log,testRunner)
                 break
         }
         return fspluginPath
@@ -336,17 +336,17 @@ class FSPluginUtils {
 
         switch (side.toLowerCase()) {
             case  "c2":
-                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathBlue",log,testRunner)
                 break
             case "c3":
-                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathRed",context,log,testRunner)
+                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathRed",log,testRunner)
                 break
             case "c3green":
-                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
+                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathGreen",log,testRunner)
                 break
             default:
                 log.warn "Unknown side: assume it is C2 ..."
-                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                fsPayloadPathBase = Domibus.getProjectCustProp("fsFilesPathBlue",log,testRunner)
                 break
         }
         def multitenancyOn = Domibus.getMultitenancyFromSide(side, context, log)

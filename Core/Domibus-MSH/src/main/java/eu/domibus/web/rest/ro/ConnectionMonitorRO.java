@@ -12,6 +12,10 @@ public class ConnectionMonitorRO {
 
     boolean monitored;
 
+    boolean alertable;
+
+    boolean deleteHistory;
+
     public enum ConnectionStatus {
         UNKNOWN,
         OK,
@@ -31,6 +35,14 @@ public class ConnectionMonitorRO {
 
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
+    }
+
+    public boolean isAlertable() {
+        return alertable;
+    }
+
+    public void setAlertable(boolean alertable) {
+        this.alertable = alertable;
     }
 
     public boolean isTestable() {
@@ -63,6 +75,14 @@ public class ConnectionMonitorRO {
 
     public void setLastReceived(TestServiceMessageInfoRO lastReceived) {
         this.lastReceived = lastReceived;
+    }
+
+    public boolean isDeleteHistory() {
+        return deleteHistory;
+    }
+
+    public void setDeleteHistory(boolean deleteHistory) {
+        this.deleteHistory = deleteHistory;
     }
 
     @Override

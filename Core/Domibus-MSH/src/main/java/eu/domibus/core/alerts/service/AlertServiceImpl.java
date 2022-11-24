@@ -5,8 +5,9 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -36,7 +37,7 @@ import java.util.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
-import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static eu.domibus.core.alerts.configuration.common.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
@@ -110,13 +111,8 @@ public class AlertServiceImpl implements AlertService {
         this.reprogrammableService = reprogrammableService;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getModuleConfiguration(AlertType.getByEventType(event.getType()));
+    protected eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
+        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getConfiguration(AlertType.getByEventType(event.getType()));
         return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());
     }
 
@@ -362,6 +358,13 @@ public class AlertServiceImpl implements AlertService {
                 .map(this::readAlert)
                 .filter(Objects::nonNull)
                 .forEach(this::deleteAlert);
+    }
+
+    @Override
+    @Transactional
+    public void createAndEnqueueAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
+        final eu.domibus.core.alerts.model.service.Alert alertOnEvent = createAlertOnEvent(event);
+        enqueueAlert(alertOnEvent);
     }
 
     private Event readEvent(eu.domibus.core.alerts.model.service.Event event) {

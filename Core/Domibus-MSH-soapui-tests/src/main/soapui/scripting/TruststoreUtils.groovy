@@ -34,7 +34,7 @@ class TruststoreUtils {
 
         try{
             LogUtils.debugLog("  uploadTruststore  [][]  Fetch multitenancy mode on domibus $side.", log)
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             String truststoreFile = Domibus.computePathRessources(baseFilePath,extFilePath,context,log)
 

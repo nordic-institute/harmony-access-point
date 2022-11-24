@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
@@ -61,6 +62,9 @@ public class DynamicDomainManagementServiceImplTest {
 
     @Injectable
     DbSchemaUtil dbSchemaUtil;
+
+    @Injectable
+    BackendConnectorService backendConnectorService;
 
     List<Domain> domains, allDomains;
     Domain domain1, domain2;
@@ -136,7 +140,7 @@ public class DynamicDomainManagementServiceImplTest {
             }
         });
 
-        new Expectations() {{
+        new Expectations(dynamicDomainManagementService) {{
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 

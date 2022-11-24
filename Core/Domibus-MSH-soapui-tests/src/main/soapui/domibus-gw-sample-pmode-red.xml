@@ -12,6 +12,7 @@
 		<mpc name="mpcPullSelfSend" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullSelfSend" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
 		<mpc name="mpcPullShortRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullShortRetention" enabled="true" default="true" retention_downloaded="1" retention_undownloaded="2"/>
 		<mpc name="mpcPullAgrNoPayProfile" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullAgrNoPayProfile" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="mpcPullForPush" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullForPush" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
 	</mpcs>
 	<businessProcesses>
 		<roles>
@@ -98,6 +99,8 @@
 			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
+			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" profile="RSA"/>-->
+			<!--<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" profile="ECC"/>-->
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
@@ -142,6 +145,7 @@
 			<service name="testService32" value="bdx:noprocess" type="tc32"/>
 			<service name="testService36" value="bdx:noprocess" type="tc36"/>
 			<service name="testService37" value="bdx:noprocess" type="tc37"/>
+			<service name="testService39" value="bdx:noprocess" type="tc39"/>
 			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
 			<service name="testServiceUntyped" value="bdx:noprocessuntyped"/>
 		</services>
@@ -175,6 +179,7 @@
 			<action name="tc33Action" value="TC33Leg1"/>
 			<action name="tc36Action" value="TC36Leg1"/>
 			<action name="tc37Action" value="TC37Leg1"/>
+			<action name="tc39Action" value="TC39Leg1"/>
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
@@ -217,8 +222,8 @@
 			<legConfiguration name="pushTestcase33tc33Action" service="testService32" action="tc33Action" splitting="default" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase34tc34Action" service="testServiceUntyped" action="tc10Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase35tc35Action" service="testServiceUntyped" action="tc33Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="twoCornersPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<legConfiguration name="pushTestcase36tc36Action" service="testService36" action="tc36Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			<legConfiguration name="pushTestcase37tc37Action" service="testService37" action="tc37Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionOnlyOneAttempt" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase36tc36Action" service="testService36" action="tc36Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase37tc37Action" service="testService37" action="tc37Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionOnlyOneAttempt" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
 		</legConfigurations>
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
@@ -400,20 +405,6 @@
 			</responderParties>
 			<legs>
 				<leg name="pullTestcase28tc28Action"/>
-			</legs>
-		</process>
-		<process name="tc36Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="red_gw"/>
-				<responderParty name="blue_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase36tc36Action"/>
-				<leg name="pushTestcase37tc37Action"/>
 			</legs>
 		</process>
 	</businessProcesses>

@@ -5,6 +5,7 @@ import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
@@ -66,6 +67,8 @@ public class EArchivingJobServiceTest {
     private UserMessageLogDao userMessageLogDao;
     @Injectable
     private EArchivingEventService eArchivingEventService;
+    @Injectable
+    private PartInfoService partInfoService;
 
     @Test
     public void getMpcs() {

@@ -13,7 +13,6 @@
     <artifactId>domibus-msh-taskexecutor-weblogic</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH TaskExecutor for WebLogic</name>
- 
 
     <build>
         <plugins>
@@ -29,6 +28,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -51,8 +55,8 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.weblogic</groupId>
-            <artifactId>weblogic.server.merged</artifactId>
-            <version>12.1.2-0-0</version>
+            <artifactId>com.bea.core.weblogic.workmanager</artifactId>
+            <version>${com.oracle.weblogic.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

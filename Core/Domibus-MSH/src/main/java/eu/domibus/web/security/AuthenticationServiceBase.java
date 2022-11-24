@@ -1,7 +1,9 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserService;
@@ -38,7 +40,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
     private UserService userManagementService;
 
     @Autowired
-    private AuthUtils authUtils;
+    protected AuthUtils authUtils;
 
     /**
      * Set the domain in the current security context
@@ -54,7 +56,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
             throw new DomainTaskException("Could not set current domain: unknown domain (" + domainCode + ")");
         }
 
-        executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
+        authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));
     }
 
     @Override
@@ -63,16 +65,6 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), currentPassword, newPassword);
         executeOnLoggedUser(userDetails -> userDetails.setDefaultPasswordUsed(false));
-    }
-
-    @Override
-    public void addDomainCode(String domainCode) {
-        executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domainCode));
-    }
-
-    @Override
-    public void removeDomainCode(String domainCode) {
-        executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domainCode));
     }
 
     /**
@@ -86,26 +78,18 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         return authUtils.getUserDetails();
     }
 
-    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        executeOnLoggedUser(consumer, authentication);
+    @Override
+    public void onDomainAdded(Domain domain) {
+        executeOnLoggedUser(userDetails -> userDetails.addDomainCode(domain.getCode()));
     }
 
-    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer, Authentication authentication) {
-        if (authentication == null) {
-            LOG.debug("Authentication is missing from the security context");
-            return;
-        }
-        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
-        if (securityUser == null) {
-            LOG.debug("User details are missing from the authentication");
-            return;
-        }
+    @Override
+    public void onDomainRemoved(Domain domain) {
+        executeOnLoggedUser(userDetails -> userDetails.removeDomainCode(domain.getCode()));
+    }
 
-        consumer.accept(securityUser);
-
-        SecurityContextHolder.clearContext();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    protected void executeOnLoggedUser(Consumer<DomibusUserDetails> consumer) {
+        authUtils.executeOnLoggedUser(consumer);
     }
 
     UserService getUserService() {

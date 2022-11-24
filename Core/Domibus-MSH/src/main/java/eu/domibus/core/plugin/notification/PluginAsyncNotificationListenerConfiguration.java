@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.config.JmsListenerContainerFactory;
+
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 
 /**
  * @author Cosmin Baciu
@@ -25,21 +28,25 @@ public class PluginAsyncNotificationListenerConfiguration {
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected ObjectMapper objectMapper;
 
     public PluginAsyncNotificationListenerConfiguration(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
                                                         AuthUtils authUtils,
                                                         DomainContextProvider domainContextProvider,
-                                                        PluginEventNotifierProvider pluginEventNotifierProvider) {
+                                                        PluginEventNotifierProvider pluginEventNotifierProvider,
+                                                        @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
         this.authUtils = authUtils;
         this.domainContextProvider = domainContextProvider;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public PluginAsyncNotificationListener createAsyncNotificationListener(AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider, asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils);
+        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider,
+                asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils, objectMapper);
         return notificationListenerServiceImpl;
     }
 }

@@ -2,7 +2,7 @@ package eu.domibus.core.alerts.model.service;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.core.alerts.service.ConfigurationReader;
+import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +49,12 @@ public class ConfigurationLoader<E> {
     public void resetConfiguration() {
         final Domain domain = domainContextProvider.getCurrentDomainSafely();
         final Domain key = domain == null ? SUPER_DOMAIN : domain;
-        synchronized (this.configuration) {
-            this.configuration.remove(key);
+        if(this.configuration.containsKey(key)) {
+            synchronized (this.configuration) {
+                if(this.configuration.containsKey(key)) {
+                    this.configuration.remove(key);
+                }
+            }
         }
     }
 }

@@ -37,4 +37,6 @@ public interface ErrorLogService {
     List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole);
 
     List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role);
+
+    List<ErrorLogEntry> getErrorsForMessage(String messageId);
 }

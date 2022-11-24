@@ -1,7 +1,6 @@
 
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
@@ -52,7 +51,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     public static final String ACTION_ARCHIVE = "archive";
 
     /**
-     *
      * @param domain The domain property qualifier
      */
     public boolean getDomainEnabled(String domain) {
@@ -77,8 +75,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
-     * @return The cron expression that defines the frequency of the sent messages purge job
      * @param domain The domain property qualifier
+     * @return The cron expression that defines the frequency of the sent messages purge job
      */
     public String getSentPurgeWorkerCronExpression(String domain) {
         return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION);
@@ -128,7 +126,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
-     * @param domain  The domain property qualifier
+     * @param domain The domain property qualifier
      * @return The cron expression that defines the frequency of the orphan lock files purge job
      */
     public String getLocksPurgeWorkerCronExpression(String domain) {
@@ -228,7 +226,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return send worker interval in milliseconds
      */
     public Integer getSendWorkerInterval(String domain) {
-        return  getDomainIntegerProperty(domain, SEND_WORKER_INTERVAL);
+        return getDomainIntegerProperty(domain, SEND_WORKER_INTERVAL);
     }
 
     /**
@@ -274,20 +272,13 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     /**
      * get the base (mapped to default) and other domains property
+     *
      * @param domain
      * @param propertyName
      * @return
      */
     public String getDomainProperty(String domain, String propertyName) {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            DomainDTO domainDTO = domainExtService.getDomain(domain);
-            if (domainDTO == null) {
-                LOG.warn("Domain [{}] not found when trying to access domain property [{}]", domain, propertyName);
-            }
-            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
-        }
-        //ST
-        return super.getKnownPropertyValue(propertyName);
+        return getKnownPropertyValue(domain, propertyName);
     }
 
     protected Integer getDomainIntegerProperty(String domain, String propertyName) {

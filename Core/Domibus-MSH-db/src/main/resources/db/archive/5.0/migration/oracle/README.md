@@ -11,12 +11,12 @@ to a destination Domibus **v4.2.9** application or from a source Domibus **v5.0*
 
 ## 1. From v4.2.9 to v4.2.9
 
-The PL/SQL package for migrating ongoing messages between the source and destination databases is located in 
-_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_.
+The PL/SQL package for migrating ongoing messages between the source and destination databases is located in
+_Domibus-MSH-db/src/main/resources/db/archive/5.0/migration/oracle/db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_.
 
-It must be compiled on the source database (v4.2.9 schema). It is intended to be only run using a few ongoing 
+It must be compiled on the source database (v4.2.9 schema). It is intended to be only run using a few ongoing
 messages at a time (hundreds or a few thousands), something to be decided by the DBA. In case of a large result
-set of ongoing messages, these need to be split into multiple batches according to the concept of time 
+set of ongoing messages, these need to be split into multiple batches according to the concept of time
 windows. These time windows are to be organised in such manner that they will capture the correct number of
 ongoing messages to migrate. The package **DOES NOT** commit at the end of running its _migrate_ procedure, so
 the user **MUST** commit or rollback depending on the result of each run.
@@ -25,9 +25,9 @@ The main entrypoint of the procedure is the _migrate_ procedure:
 
     PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS DEFAULT T_MIGRATION_DETAILS());
 
-The _migrate_ procedure expect a database link to the destination database to be created in the source 
+The _migrate_ procedure expect a database link to the destination database to be created in the source
 database (usually done by the DBA):
-    
+
     CREATE PUBLIC DATABASE LINK DATABASE_LINK_NAME_v429
     CONNECT TO domibus IDENTIFIED BY domibus
     using
@@ -37,7 +37,7 @@ database (usually done by the DBA):
         (CONNECT_DATA=
             (SERVICE_NAME=ORCLPDB1)))'
     /
-    
+
 
 To run this procedure, the user could use a similar anonymous block, with the startDate and endDate updated accordingly
 (the user is encouraged to enable DBMS_OUTPUT before running this, for a better logging output experience):
@@ -57,12 +57,12 @@ To run this procedure, the user could use a similar anonymous block, with the st
     end;
     /
 
-**Note**: At the end of each execution, the user must remember to COMMIT or ROLLBACK! 
+**Note**: At the end of each execution, the user must remember to COMMIT or ROLLBACK!
 
 ## 2. From v5.0 to v5.0
 
 The PL/SQL package for migrating ongoing messages between the source and destination databases is located in
-_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-5.0-to-5.0.sql_.
+_Domibus-MSH-db/src/main/resources/db/archive/5.0/migration/oracle/db-migration-ongoing-messages-5.0-to-5.0.sql_.
 
 It must be compiled on the source database (v5.0 schema). It is intended to be only run using a few ongoing
 messages at a time (hundreds or a few thousands), something to be decided by the DBA. In case of a large result

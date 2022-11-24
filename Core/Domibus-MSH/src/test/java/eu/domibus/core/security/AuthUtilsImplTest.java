@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
@@ -12,12 +13,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
 import static org.hamcrest.core.Is.is;
@@ -603,5 +605,57 @@ public class AuthUtilsImplTest {
 
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void testExecuteOnLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
+                                                        @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("username", "password", authorities);
+
+        new Expectations() {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = authentication;
+
+            authentication.getPrincipal();
+            result = domibusUserDetails;
+
+        }};
+
+        authUtilsImpl.executeOnLoggedUser(domibusUserDetailsConsumer);
+
+        new Verifications() {{
+            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testExecuteOnLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext, @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
+        new Expectations(authUtilsImpl) {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = null;
+        }};
+
+        authUtilsImpl.executeOnLoggedUser(domibusUserDetailsConsumer);
+
+        new Verifications() {{
+            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
+            times = 0;
+        }};
     }
 }

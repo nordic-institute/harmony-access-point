@@ -33,31 +33,20 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the list of Party Names for a specific Service and Action
+     * Returns the list of Party Names that can be tested (can send test messages)
      *
-     * @param service Service name
-     * @param action  Action name
      * @return List of Party names
      */
-    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
+    List<String> findPushToPartyNamesForTest();
+
+    List<String> findPushFromPartyNamesForTest();
 
     /**
-     * Returns the list of Party Names for a specific Service and Action configured as responders in process including
-     * a push binding
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-    List<String> findPushToPartyNamesByServiceAndAction(final String service, final String action);
-
-
-    /**
-     * Returns the Party Identifier Name for the gateway party
+     * Returns the gateway party
      *
      * @return Party Identifier Name
      */
-    String getGatewayPartyIdentifier();
+    Party getGatewayParty();
 
     /**
      * Updates the current pMode with the provided parties
@@ -67,6 +56,13 @@ public interface PartyService {
      * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
     List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
+
+    /**
+     * Returns the first gateway party identifier
+     *
+     * @return Party Identifier
+     */
+    String getGatewayPartyIdentifier();
 
     /**
      * Retrieve all the processes configured in the pmode.

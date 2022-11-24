@@ -39,5 +39,23 @@ public interface PasswordEncryptionExtService {
      */
     PasswordEncryptionResultDTO encryptProperty(DomainDTO domain, String propertyName, String propertyValue);
 
+    /**
+     *
+     * @param encryptedProperties names of the properties to encrypt
+     * @param getPropertyFn function receiving a property name and returning its value
+     * @return the list of property values that have been successfully encrypted
+     * @deprecated use {@link #getPropertiesToEncrypt(String, Function, Function)} instead.
+     */
+    @Deprecated
     List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn);
+
+    /**
+     * Returns a sublist of encryted property names passed in as a comma-separated value that can be actually encrypted.
+     *
+     * @param encryptedProperties names of the properties to encrypt
+     * @param handlesPropertyFn function receiving a property name and returning whether the property can be encrypted or not
+     * @param getPropertyFn function receiving a property name and returning its value
+     * @return the list of property names that have can be encrypted
+     */
+    List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, Boolean> handlesPropertyFn, Function<String, String> getPropertyFn);
 }

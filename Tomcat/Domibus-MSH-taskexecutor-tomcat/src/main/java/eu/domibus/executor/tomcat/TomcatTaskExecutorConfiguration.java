@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor;
 
+import static eu.domibus.common.TaskExecutorConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -17,7 +19,7 @@ public class TomcatTaskExecutorConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTaskExecutorConfiguration.class);
 
-    @Bean(name = {"taskExecutor", "quartzTaskExecutor"})
+    @Bean(name = {DOMIBUS_TASK_EXECUTOR_BEAN_NAME, DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME})
     public SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor(DomibusPropertyProvider domibusPropertyProvider) {
         SimpleThreadPoolTaskExecutor poolTaskExecutor = new SimpleThreadPoolTaskExecutor();
 
@@ -28,7 +30,7 @@ public class TomcatTaskExecutorConfiguration {
         return poolTaskExecutor;
     }
 
-    @Bean("mshTaskExecutor")
+    @Bean(DOMIBUS_MSH_TASK_EXECUTOR_BEAN_NAME)
     public SimpleThreadPoolTaskExecutor simpleThreadPoolMshTaskExecutor(DomibusPropertyProvider domibusPropertyProvider) {
         SimpleThreadPoolTaskExecutor poolTaskExecutor = new SimpleThreadPoolTaskExecutor();
 

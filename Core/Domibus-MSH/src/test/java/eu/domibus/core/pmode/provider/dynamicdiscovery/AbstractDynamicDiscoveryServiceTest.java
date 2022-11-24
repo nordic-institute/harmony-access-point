@@ -1,7 +1,5 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.logging.DomibusLogger;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -19,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.core.pki.PKIUtil.*;
-import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
@@ -35,7 +33,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {
 
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = null;
 
             testInstance.getLogger();
@@ -53,18 +51,18 @@ public class AbstractDynamicDiscoveryServiceTest {
             logger.debug(logTemplate = withCapture(), parameter = withCapture());
 
             Assert.assertEquals("The value for property [{}] is empty.", logTemplate);
-            Assert.assertEquals(DYNAMIC_DISCOVERY_CERT_POLICY, parameter);
+            Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, parameter);
             // test call correct property
             String property;
-            testInstance.getTrimmedDomibusProperty(property = withCapture());
-            Assert.assertEquals(DYNAMIC_DISCOVERY_CERT_POLICY, property);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(property = withCapture());
+            Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, property);
         }};
     }
 
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithOne() {
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = CERTIFICATE_POLICY_QCP_NATURAL;
         }};
 
@@ -78,7 +76,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithMultipleAndSpaces() {
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(anyString);
             result = CERTIFICATE_POLICY_QCP_NATURAL
                     + "," + CERTIFICATE_POLICY_QCP_LEGAL
                     + ", " + CERTIFICATE_POLICY_QCP_NATURAL_QSCD
@@ -98,68 +96,47 @@ public class AbstractDynamicDiscoveryServiceTest {
 
     @Test
     public void testGetPartyIdTypeTestGetDefaultForNullProperty() {
-        final String URN_TYPE_VALUE = "TEST_PARTY_TYPE";
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
-            result = null;
-            testInstance.getDefaultDiscoveryPartyIdType();
-            result = URN_TYPE_VALUE;
+            testInstance.getPartyIdTypePropertyName();
+            result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
+
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
+            result = " ";
         }};
 
         String partyIdType = testInstance.getPartyIdType();
-        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+        assertNull(partyIdType);
     }
 
     @Test
     public void testGetPartyIdTypeFromProperty() {
         final String URN_TYPE_VALUE = "TEST_PARTY_TYPE_FROM_PROPERTY";
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getPartyIdTypePropertyName();
+            result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE;
+
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE);
             result = URN_TYPE_VALUE;
         }};
 
         String partyIdType = testInstance.getPartyIdType();
         Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
-        // test to call correct property
-        new FullVerifications(testInstance) {{
-            String property;
-            testInstance.getTrimmedDomibusProperty(property = withCapture());
-            Assert.assertEquals(DYNAMIC_DISCOVERY_PARTYID_TYPE, property);
-        }};
-    }
-
-    @Test
-    public void getResponderRoleTestGetDefaultForNullProperty() {
-        final String DEFAULT_RESPONDER_ROLE = "DEFAULT_RESPONDER_ROLE";
-
-        new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
-            result = null;
-
-            testInstance.getDefaultResponderRole();
-            result = DEFAULT_RESPONDER_ROLE;
-        }};
-        String responderRole = testInstance.getResponderRole();
-        Assert.assertEquals(DEFAULT_RESPONDER_ROLE, responderRole);
     }
 
     @Test
     public void testGetResponderRoleFromProperty() {
         final String RESPONDER_ROLE = "RESPONDER_ROLE_FROM_PROPERTY";
         new Expectations(testInstance) {{
-            testInstance.getTrimmedDomibusProperty(anyString);
+            testInstance.getPartyIdResponderRolePropertyName();
+            result = DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
+
+            testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE);
             result = RESPONDER_ROLE;
         }};
 
         String partyIdType = testInstance.getResponderRole();
 
         Assert.assertEquals(partyIdType, RESPONDER_ROLE);
-        // test to call correct property
-        new FullVerifications(testInstance) {{
-            String property;
-            testInstance.getTrimmedDomibusProperty(property = withCapture());
-            Assert.assertEquals(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE, property);
-        }};
     }
 
     @Test

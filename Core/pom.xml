@@ -17,6 +17,7 @@
 
     <modules>
         <module>Domibus-archive-webhook-swagger</module>
+        <module>Domibus-archive-client</module>
         <module>Domibus-MSH</module>
         <module>Domibus-MSH-spi</module>
         <module>Domibus-MSH-api</module>
@@ -32,4 +33,52 @@
         <module>Domibus-ext-model</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>UI</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Domibus-MSH-angular</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>database</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Domibus-MSH-db</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>swagger</id>
+            <modules>
+                <module>Domibus-MSH-swagger</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bamboo-rest</id>
+            <modules>
+                <module>Domibus-MSH-selenium-ui-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bamboo-remote</id>
+            <modules>
+                <module>Domibus-MSH-selenium-ui-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>selenium_local</id>
+            <modules>
+                <module>Domibus-MSH-selenium-ui-tests</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

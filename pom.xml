@@ -11,30 +11,29 @@
     <name>Domibus MSH</name>
     <modules>
         <module>Core</module>
-        <module>Domibus-DSS</module>
-        <module>Plugin-FS</module>
-        <module>Plugin-JMS</module>
-        <module>Plugin-WS</module>
-        <module>Tomcat</module>
-        <module>Weblogic</module>
-        <module>Wildfly</module>
+        <module>Core/Domibus-MSH-customizations</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
+        <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
         <cxf.version>3.5.3</cxf.version>
-        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.22</spring.version>
-        <spring.security.version>5.7.2</spring.security.version>
+        <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
+        <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
+        gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
+        and keeps the customizations needed by Domibus -->
+        <xmlsec.version>2.3.0</xmlsec.version>
+        <messaging.saaj.version>1.5.3</messaging.saaj.version>
+        <spring.version>5.3.23</spring.version>
+        <spring.security.version>5.7.4</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
-        <springdoc.version>1.6.9</springdoc.version>
-        <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
+        <springdoc.version>1.6.12</springdoc.version>
+        <io.swagger.core.v3.version>2.2.4</io.swagger.core.v3.version>
         <swagger-ui.version>4.13.0</swagger-ui.version>
-        <hibernate.version>5.6.10.Final</hibernate.version>
+        <hibernate.version>5.6.12.Final</hibernate.version>
         <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
         <logback.version>1.2.11</logback.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
@@ -44,41 +43,41 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.71</bouncycastle.version>
+        <bouncycastle.version>1.72</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
-        <jackson.version>2.13.3</jackson.version>
+        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
+        <jackson.version>2.13.4</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.3</jackson-databind.version>
+        <jackson-databind.version>2.13.4</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.31</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-impl.version>2.3.6</jaxb-impl.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>2.4.1</tika.version>
-        <peppol.version>2.2.0</peppol.version>
+        <tika.version>2.5.0</tika.version>
+        <peppol.version>2.4.0</peppol.version>
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>2.1.214</h2.version>
-        <liquibase.version>4.15.0</liquibase.version>
+        <liquibase.version>4.17.0</liquibase.version>
         <mysql.connector.java.version>8.0.30</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.0</handlebars.version>
-        <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
-        <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
+        <dropwizard.metrics.version>4.2.12</dropwizard.metrics.version>
+        <owasp.dependency.check.version>7.2.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.65</tomcat-embed.version>
+        <tomcat-embed.version>9.0.68</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
-        <xbean-spring.version>4.20</xbean-spring.version>
+        <xbean-spring.version>4.20</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
         <!-- normally we use the version brought by activemq-spring but 4.21 has an issue so this is an exception -->
         <!-- the issue is that it cannot inject a property: domibus-msh-test-common tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
 
@@ -118,26 +117,24 @@
         <!--<sonar.web.javaAdditionalOpts>-Dhttp.proxyHost=158.169.9.13 -Dhttp.proxyPort=8012 -Dhttp.proxyUser=theuser -Dhttp.proxyPassword=thepassword -Dhttps.proxyHost=158.169.9.13 -Dhttps.proxyPort=8012 -Dhttps.proxyUser=theuser -Dhttps.proxyPassword=thepassword -Dhttps.nonProxyHosts=localhost -Dhttp.nonProxyHosts=localhost</sonar.web.javaAdditionalOpts>-->
         <!--IAM extension properties -->
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
-        <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
-        <opencsv.version>5.6</opencsv.version>
+        <guava.version>31.1-jre</guava.version>
+        <opencsv.version>5.7.0</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
         <jmockit.version>1.22</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
-        <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <javax.annotation.version>1.3.2</javax.annotation.version>
 
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <xmlsec.version>2.2.4</xmlsec.version>
         <httpcore.version>4.4.15</httpcore.version>
-        <ehcache.version>3.9.9</ehcache.version>
+        <ehcache.version>3.10.2</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-net.version>3.8.0</commons-net.version>
@@ -145,7 +142,7 @@
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <commons-lang.version>2.6</commons-lang.version>
         <jakarta.activation.version>2.1.0</jakarta.activation.version>
-        <jakarta.xml.bind-api.version>3.0.1</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version>
         <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
         <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
         <neethi.version>3.2.0</neethi.version>
@@ -154,9 +151,8 @@
         <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
-        <commons-text.version>1.9</commons-text.version>
-        <swagger-maven-plugin.version>2.2.2</swagger-maven-plugin.version>
-        <swagger-codegen-maven-plugin.version>3.0.34</swagger-codegen-maven-plugin.version>
+        <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         
         <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
@@ -164,7 +160,7 @@
         <commons-configuration2.version>2.8.0</commons-configuration2.version>
         <httpmime.version>4.5.13</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
-        <xml-apis.version>1.3.04</xml-apis.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -636,11 +632,6 @@
                 <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>${commons-text.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
                 <version>${geronimo-javamail_1.4_mail.version}</version>
@@ -897,6 +888,16 @@
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.fastinfoset</groupId>
+                        <artifactId>FastInfoset</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>javax.cache</groupId>
@@ -1448,125 +1449,78 @@
 
     <profiles>
         <profile>
-            <id>tomcat</id>
+            <id>distribution</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
-                <module>Tomcat/Domibus-MSH-jms-activemq</module>
-                <module>Tomcat/Domibus-MSH-taskexecutor-tomcat</module>
-                <module>Tomcat/Domibus-MSH-tomcat</module>
-                <module>Tomcat/Domibus-MSH-tomcat-distribution</module>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>sample-configuration</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>tomcat</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Tomcat</module>
             </modules>
         </profile>
         <profile>
             <id>weblogic</id>
             <modules>
-                <module>Weblogic/Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Weblogic/Domibus-MSH-jms-weblogic</module>
-                <module>Weblogic/Domibus-MSH-weblogic-common</module>
-                <module>Weblogic/Domibus-MSH-weblogic</module>
+                <module>Weblogic</module>
             </modules>
         </profile>
         <profile>
             <id>weblogic-ecas</id>
             <modules>
-                <module>Weblogic/Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Weblogic/Domibus-MSH-jms-weblogic</module>
-                <module>Weblogic/Domibus-MSH-weblogic-common</module>
-                <module>Weblogic/Domibus-MSH-weblogic-eu-login</module>
+                <module>Weblogic</module>
             </modules>
         </profile>
         <profile>
             <id>wildfly</id>
             <modules>
-                <module>Wildfly/Domibus-MSH-jms-wildfly-artemis</module>
-                <module>Wildfly/Domibus-MSH-taskexecutor-wildfly</module>
-                <module>Wildfly/Domibus-MSH-wildfly</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>UI</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Core/Domibus-MSH-angular</module>
+                <module>Wildfly</module>
             </modules>
         </profile>
         <profile>
             <id>default-plugins</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
-                <module>Plugin-WS/Domibus-default-ws-plugin-stub-utils</module>
-                <module>Plugin-WS/Domibus-ws-stubs</module>
-                <module>Plugin-WS/Domibus-default-ws-plugin-stubs</module>
-                <module>Plugin-WS/Domibus-default-ws-plugin-backend-ws-stubs</module>
-                <module>Plugin-WS/Domibus-default-ws-plugin-backend-ws-test</module>
-                <module>Plugin-WS/Domibus-default-ws-plugin-client</module>
-                <module>Plugin-WS/Domibus-default-ws-plugin</module>
-                <module>Plugin-JMS/Domibus-default-jms-plugin</module>
-                <module>Plugin-FS/Domibus-default-fs-plugin</module>
+                <module>Plugin-WS</module>
+                <module>Plugin-JMS</module>
+                <module>Plugin-FS</module>
             </modules>
         </profile>
         <profile>
             <id>dss-extension</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
                 <module>Domibus-DSS</module>
-                <module>Domibus-DSS/Domibus-authentication-dss-extension</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>database</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Core/Domibus-MSH-db</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>distribution</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Core/Domibus-MSH-distribution</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>swagger</id>
-            <modules>
-                <module>Core/Domibus-MSH-swagger</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>sample-configuration</id>
-            <modules>
-                <module>Core/Domibus-MSH-distribution</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>bamboo-rest</id>
-            <modules>
-                <module>Core/Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>bamboo-remote</id>
-            <modules>
-                <module>Core/Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>selenium_local</id>
-            <modules>
-                <module>Core/Domibus-MSH-selenium-ui-tests</module>
             </modules>
         </profile>
         <profile>

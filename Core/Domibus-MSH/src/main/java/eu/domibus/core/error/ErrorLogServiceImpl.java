@@ -116,6 +116,11 @@ public class ErrorLogServiceImpl implements ErrorLogService {
         return errorLogDao.getErrorsForMessage(messageId, role);
     }
 
+    @Override
+    public List<ErrorLogEntry> getErrorsForMessage(String messageId) {
+        return errorLogDao.getErrorsForMessage(messageId);
+    }
+
     protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
         ErrorResultImpl result = new ErrorResultImpl();
         result.setErrorCode(errorLogEntry.getErrorCode());

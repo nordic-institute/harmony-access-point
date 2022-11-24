@@ -19,4 +19,6 @@ class DomibusConstants {
     public static final BATCH_METS_NAME = "METS.xml"
 	public static final def BATCH_SUCCESS_STATUS="success" // Status value assigned to a batch in case of a successfull export
 	public static final def BATCH_FAILURE_STATUS="failure" // Status value assigned to a batch in case of a failed export
+	public static final def MOCK_RUNNER_UPDATE_DELAY=5000
+	public static final def TC_CP_NBR_REQ_RECEIVED_BY_MOCK="numberOfRequestsReceivedByMock"
 }

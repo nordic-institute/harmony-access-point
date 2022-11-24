@@ -149,7 +149,7 @@
                                  referencedTableName="TB_D_MSH_ROLE" />
     </changeSet>
 
-    <changeSet author="Razvan Cretu"  id="EDELIVERY-10064-mysql-migration-plans-are-failing">
+    <changeSet author="Razvan Cretu" dbms="mysql" id="EDELIVERY-10064-mysql-migration-plans-are-failing">
         <addNotNullConstraint tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" columnName="SENT" columnDataType="DATETIME"/>
         <addNotNullConstraint tableName="TB_USER_MESSAGE_LOG" columnName="VERSION" columnDataType="INT"/>
         <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB"/>
@@ -158,4 +158,46 @@
         <addNotNullConstraint tableName="TB_COMMAND_PROPERTY" columnName="FK_COMMAND" columnDataType="BIGINT"/>
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
+
+    <changeSet author="Gabriel Maier" id="EDELIVERY-10093_metadata_retention">
+        <addColumn tableName="TB_PM_MPC">
+            <column name="RETENTION_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+        </addColumn>
+        <addNotNullConstraint tableName="TB_USER_MESSAGE_LOG" columnName="MESSAGE_STATUS_ID_FK" columnDataType="BIGINT"/>
+    </changeSet>
+
+    <changeSet author="Lucian Furca" id="EDELIVERY-9686">
+        <addColumn tableName="TB_PM_SECURITY">
+            <column name="PROFILE" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="Soumya Chandran " id="EDELIVERY-10091">
+        <createTable tableName="TB_MESSAGES_TO_RESEND">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGES_TO_RESEND"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
+    </changeSet>
+
+    <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
+        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -1,7 +1,6 @@
 package eu.domibus.api.property.encryption;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
@@ -22,6 +21,7 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
     public static final String ENCRYPTED_KEY = "encrypted.key";
 
     protected PasswordEncryptionService passwordEncryptionService;
+
     protected DomibusConfigurationService domibusConfigurationService;
 
     public PasswordEncryptionContextAbstract(PasswordEncryptionService passwordEncryptionService,
@@ -32,7 +32,7 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        return passwordEncryptionService.getPropertiesToEncrypt(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, this::getProperty);
+        return passwordEncryptionService.getPropertiesToEncrypt(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, this::handlesProperty, this::getProperty);
     }
 
     @Override
@@ -42,6 +42,8 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
     }
 
     protected abstract String getConfigurationFileName();
+
+    protected abstract Boolean handlesProperty(String propertyName);
 
     @Override
     public File getEncryptedKeyFile() {

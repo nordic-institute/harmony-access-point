@@ -23,6 +23,7 @@ import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 import {ComponentType} from 'angular-md2';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-base-truststore',
@@ -42,15 +43,16 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected ADD_CERTIFICATE_URL: string;
   protected REMOVE_CERTIFICATE_URL: string;
 
-  protected canHandleCertificates: boolean = false;
+  protected canHandleCertificates = false;
   protected storeExists: boolean;
   showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationContextService, private http: HttpClient, protected trustStoreService: TrustStoreService,
+  constructor(private applicationService: ApplicationContextService, protected http: HttpClient, protected trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef,
-              private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService) {
+              private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService,
+              private dialogsService: DialogsService) {
     super();
   }
 
@@ -195,7 +197,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
       super.isLoading = true;
       await this.trustStoreService.reloadStore(this.BASE_URL + '/reset');
       this.alertService.success('The ' + this.name + ' was successfully reset.')
-      
+
       await this.getTrustStoreEntries();
     } catch (ex) {
       this.alertService.exception('Error reseting the ' + this.name + ':', ex);
@@ -204,5 +206,15 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     }
   }
 
+  protected async checkModifiedOnDisk() {
+    const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
+    if (isChanged) {
+      const refresh = await this.dialogsService.openYesNoDialog('Store file on the disk has different content than the one loaded and used in Domibus. ' +
+        'Would you like to refresh?');
+      if (refresh) {
+        this.reloadStore();
+      }
+    }
+  }
 
 }

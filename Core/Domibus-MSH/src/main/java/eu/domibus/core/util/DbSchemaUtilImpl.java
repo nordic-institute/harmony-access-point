@@ -4,17 +4,27 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
@@ -24,29 +34,82 @@ import javax.persistence.Query;
  */
 @Service
 public class DbSchemaUtilImpl implements DbSchemaUtil {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
 
-    private final EntityManager entityManager;
+    private static final String ALPHANUMERIC_PATTERN_WITH_UNDERSCORE = "^[a-zA-Z0-9_]+$";
 
-    private final DomainService domainService;
+    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
+
+    protected final Object generalSchemaLock = new Object();
+
+    protected volatile String generalSchema;
+
+    private EntityManager entityManager;
+
+    private final EntityManagerFactory entityManagerFactory;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public DbSchemaUtilImpl(DomainService domainService,
+    public DbSchemaUtilImpl(@Lazy EntityManagerFactory entityManagerFactory,
                             DomibusConfigurationService domibusConfigurationService,
-                            EntityManagerFactory entityManagerFactory) {
+                            DomibusPropertyProvider domibusPropertyProvider) {
+        this.entityManagerFactory = entityManagerFactory;
 
-        this.domainService = domainService;
         this.domibusConfigurationService = domibusConfigurationService;
-        entityManager = entityManagerFactory.createEntityManager();
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
-    public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
+    /**
+     * Get database schema name for the domain. Uses a local cache.
+     *
+     * @param domain the domain for which the db schema is retrieved
+     * @return database schema name
+     */
+    @Override
+    public String getDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            synchronized (domainSchemas) {
+                domainSchema = domainSchemas.get(domain);
+                if (domainSchema == null) {
+                    String value = getDBSchemaFromPropertyFile(domain);
+                    if (value == null) {
+                        LOG.warn("Database schema for domain [{}] was null, removing from cache", domain);
+                        domainSchemas.remove(domain);
+                    } else {
+                        LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
+                        domainSchemas.put(domain, value);
+                    }
+                    domainSchema = value;
+                }
+            }
+        }
 
+        return domainSchema;
+    }
+
+    /**
+     * Get the configured general schema. Uses a local cache.
+     */
+    @Override
+    public String getGeneralSchema() {
+        if (generalSchema == null) {
+            synchronized (generalSchemaLock) {
+                if (generalSchema == null) {
+                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+                    LOG.debug("Caching general schema [{}]", generalSchema);
+                }
+            }
+        }
+        return generalSchema;
+    }
+
+    public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         //in single tenancy the schema validity check is not needed
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.info("Domain's database schema validity check is not needed in single tenancy");
             return true;
         }
@@ -56,18 +119,21 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
+        if (entityManager == null) {
+            entityManager = entityManagerFactory.createEntityManager();
+        }
         String databaseSchema = null;
         try {
             //set corresponding db schema
             entityManager.getTransaction().begin();
-            databaseSchema = domainService.getDatabaseSchema(domain);
+            databaseSchema = getDatabaseSchema(domain);
             String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
             Query q = entityManager.createNativeQuery(schemaChangeSQL);
             //check if the domain's database schema can be accessed
             q.executeUpdate();
 
             return true;
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
             LOG.warn("Could not set database schema [{}] for domain [{}]", databaseSchema, domain.getCode());
             return false;
         } finally {
@@ -76,27 +142,76 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    public String getSchemaChangeSQL(String databaseSchema) {
+    @Override
+    public void removeCachedDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
+            return;
+        }
+        synchronized (domainSchemas) {
+            domainSchema = domainSchemas.get(domain);
+            if (domainSchema != null) {
+                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
+                domainSchemas.remove(domain);
+            }
+        }
+    }
+
+    @Override
+    public String getSchemaChangeSQL(String databaseSchemaName) throws DomibusDatabaseNotSupportedException, FaultyDatabaseSchemaNameException {
         final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
         String result;
 
+        if (!isDatabaseSchemaNameSane(databaseSchemaName)) {
+            LOG.error("Faulty database schema name: [{}]",databaseSchemaName);
+            throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: " + databaseSchemaName);
+        }
+
         switch (databaseEngine) {
             case MYSQL:
-                result = "USE " + databaseSchema;
+                result = "USE " + databaseSchemaName;
                 break;
             case H2:
-                result = "SET SCHEMA " + databaseSchema;
+                result = "SET SCHEMA " + databaseSchemaName;
                 break;
             case ORACLE:
-                result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
+                result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchemaName;
                 break;
             default:
                 LOG.error("Unsupported database engine: {}", databaseEngine);
-                throw new DomibusDatabaseNotSupportedException("Unsupported database engine ...");
+                throw new DomibusDatabaseNotSupportedException("Unsupported database engine: [" + databaseEngine + "]");
         }
 
         LOG.debug("Generated SQL string for changing the schema: {}", result);
 
         return result;
+    }
+
+    protected String getDBSchemaFromPropertyFile(Domain domain) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+        }
+
+        if (domain == null) {
+            LOG.warn("Cannot get the database schema name since the domain provided is null.");
+            return null;
+        }
+
+        String propertiesFilePath = domibusConfigurationService.getConfigLocation() + File.separator
+                + domibusConfigurationService.getConfigurationFileName(domain);
+        try (FileInputStream fis = new FileInputStream(propertiesFilePath)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            return properties.getProperty(domain.getCode() + "." + DOMIBUS_DATABASE_SCHEMA);
+        } catch (IOException ex) {
+            LOG.warn("Could not properties from file [{}] to get the database schema name.", propertiesFilePath);
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isDatabaseSchemaNameSane(final String schemaName) {
+        return schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
     }
 }

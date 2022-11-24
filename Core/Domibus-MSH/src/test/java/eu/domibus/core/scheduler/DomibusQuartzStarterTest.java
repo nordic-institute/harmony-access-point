@@ -6,8 +6,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -69,6 +71,9 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     private SynchronizedRunnableFactory synchronizedRunnableFactory;
+
+    @Injectable
+    BackendConnectorProvider backendConnectorProvider;
 
     @Before
     public void setUp() throws Exception {

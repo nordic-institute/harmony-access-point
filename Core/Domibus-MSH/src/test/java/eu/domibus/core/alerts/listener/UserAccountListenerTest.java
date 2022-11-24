@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.listener.generic.DefaultEventListener;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -33,7 +34,7 @@ public class UserAccountListenerTest {
     private DatabaseUtil databaseUtil;
 
     @Tested
-    private UserAccountListener userAccountListener;
+    private DefaultEventListener userAccountListener;
 
     @Test
     public void onLoginFailure(@Mocked final Event event,
@@ -44,16 +45,14 @@ public class UserAccountListenerTest {
             result = "databaseUserName";
         }};
 
-        userAccountListener.onLoginFailure(event, null);
+        userAccountListener.onEvent(event, null);
 
         new Verifications() {{
             domainContextProvider.clearCurrentDomain();
             times = 1;
             eventService.persistEvent(event);
             times = 1;
-            alertService.createAlertOnEvent(event);
-            times = 1;
-            alertService.enqueueAlert(alert);
+            alertService.createAndEnqueueAlertOnEvent(event);
             times = 1;
         }};
     }
@@ -68,16 +67,14 @@ public class UserAccountListenerTest {
             result = "databaseUserName";
         }};
 
-        userAccountListener.onLoginFailure(event, domain);
+        userAccountListener.onEvent(event, domain);
 
         new Verifications() {{
             domainContextProvider.setCurrentDomain(withAny(domain));
             times = 1;
             eventService.persistEvent(event);
             times = 1;
-            alertService.createAlertOnEvent(event);
-            times = 1;
-            alertService.enqueueAlert(alert);
+            alertService.createAndEnqueueAlertOnEvent(event);
             times = 1;
         }};
     }

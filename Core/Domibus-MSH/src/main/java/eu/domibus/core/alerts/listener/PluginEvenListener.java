@@ -2,16 +2,21 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_ALERT;
+import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
 
 /**
  * Listener to handle plugin event and create alert
@@ -42,10 +47,10 @@ public class PluginEvenListener {
         this.databaseUtil = databaseUtil;
     }
 
-    @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'PLUGIN_EVENT'")
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
+            selector = "selector = '" + EventType.QueueSelectors.PLUGIN_EVENT + "'")
     @Transactional
-    public void onPluginEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
+    public void onPluginEvent(final Event event, final @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
 

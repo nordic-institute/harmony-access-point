@@ -1,13 +1,16 @@
 package eu.domibus.core.message.signal;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +27,9 @@ import java.util.List;
 public class SignalMessageDao extends BasicDao<SignalMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageDao.class);
+
+    @Autowired
+    private ActionDictionaryService actionDictionaryService;
 
     public SignalMessageDao() {
         super(SignalMessage.class);
@@ -53,8 +59,10 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return result;
     }
 
-    public SignalMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
+    public SignalMessage findLastTestMessage(String senderPartyId, String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
+        query.setParameter("SENDER_PARTY_ID", senderPartyId);
         query.setParameter("PARTY_ID", partyId);
         query.setParameter("ACTION_ID", actionEntity.getEntityId());
         query.setMaxResults(1);

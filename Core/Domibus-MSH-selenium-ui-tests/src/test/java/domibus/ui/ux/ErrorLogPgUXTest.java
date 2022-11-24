@@ -254,7 +254,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		String fileName = rest.csv().downloadGrid(RestServicePaths.ERROR_LOG_CSV, params, null);
 		Reporter.log("downloaded errors to file " + fileName);
 		log.info("downloaded errors to file " + fileName);
-		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "datetime"); //checkCSVvsGridInfo(fileName, soft);
+		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "datetime");
 
 		soft.assertAll();
 	}
@@ -408,7 +408,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		page.grid().checkCSVvsGridHeaders(csvFile, soft);
 		int maxMess = page.grid().getRowsNo();
 
-		page.grid().relaxCheckCSVvsGridInfo(csvFile, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
+		page.grid().relaxCheckCSVvsGridInfo(csvFile, soft, "datetime");
 		soft.assertAll();
 	}
 

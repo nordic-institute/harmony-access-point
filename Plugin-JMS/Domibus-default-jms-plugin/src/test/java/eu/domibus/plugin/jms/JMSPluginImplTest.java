@@ -4,11 +4,13 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -65,7 +67,7 @@ public class JMSPluginImplTest {
     protected DomibusPropertyExtService domibusPropertyService;
 
     @Injectable
-    protected DomainContextExtService domainContextService;
+    protected DomainContextExtService domainContextExtService;
 
     @Injectable
     private MessageExtService messageExtService;
@@ -85,6 +87,15 @@ public class JMSPluginImplTest {
     @Injectable
     String name = "myjmsplugin";
 
+    @Injectable
+    JmsPluginPropertyManager jmsPluginPropertyManager;
+
+    @Injectable
+    BackendConnectorProviderExtService backendConnectorProviderExtService;
+
+    @Injectable
+    DomainExtService domainExtService;
+
     @Tested
     JMSPluginImpl backendJMS;
 
@@ -96,6 +107,8 @@ public class JMSPluginImplTest {
         final String messageTypeSubmit = JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
 
         new Expectations(backendJMS) {{
+            backendJMS.checkEnabled();
+
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
@@ -138,6 +151,8 @@ public class JMSPluginImplTest {
         final String messageTypeSubmit = JMSMessageConstants.MESSAGE_TYPE_SUBMIT;
 
         new Expectations(backendJMS) {{
+            backendJMS.checkEnabled();
+
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
@@ -171,13 +186,15 @@ public class JMSPluginImplTest {
     }
 
     @Test
-    public void testReceiveMessageWithUnacceptedMessage(@Injectable final MapMessage map,
+    public void testReceiveMessageWithUnacceptedMessage(@Injectable final MapMessage map, @Injectable DomainDTO domain,
                                                         @Injectable QueueContext queueContext) throws Exception {
         final String messageId = "1";
         final String jmsCorrelationId = "2";
         final String unacceptedMessageType = "unacceptedMessageType";
 
         new Expectations(backendJMS) {{
+            backendJMS.checkEnabled();
+
             map.getStringProperty(JMSMessageConstants.MESSAGE_ID);
             result = messageId;
 
@@ -215,6 +232,8 @@ public class JMSPluginImplTest {
         final String errorDetail = "myError";
 
         new Expectations(backendJMS) {{
+            backendJMS.checkEnabled();
+
             messageReceiveFailureEvent.getErrorResult();
             result = errorResult;
 

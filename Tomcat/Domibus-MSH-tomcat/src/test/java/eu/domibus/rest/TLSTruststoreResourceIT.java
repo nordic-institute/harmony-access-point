@@ -100,14 +100,15 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
         List<TrustStoreRO> entries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks");
-        MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
-                "octetstream", IOUtils.toByteArray(resourceAsStream));
-        tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
+            MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
+                    "octetstream", IOUtils.toByteArray(resourceAsStream));
+            tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
 
-        List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
+            List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-        Assert.assertTrue(entries.size() != newEntries.size());
+            Assert.assertTrue(entries.size() != newEntries.size());
+        }
     }
 
     @Test
@@ -118,14 +119,15 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         } catch (Exception ex) {
         }
 
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks");
-        MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.jks", "gateway_truststore.jks",
-                "octetstream", IOUtils.toByteArray(resourceAsStream));
-        tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks")) {
+            MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.jks", "gateway_truststore.jks",
+                    "octetstream", IOUtils.toByteArray(resourceAsStream));
+            tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
 
-        List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
+            List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-        Assert.assertTrue(newEntries.size() == 2);
+            Assert.assertTrue(newEntries.size() == 2);
+        }
     }
 
 
@@ -156,10 +158,11 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         domibusTruststoreEntity.setName(domibusKeystoreName);
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-        byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
-        domibusTruststoreEntity.setContent(trustStoreBytes);
-        truststoreDao.create(domibusTruststoreEntity);
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+            domibusTruststoreEntity.setContent(trustStoreBytes);
+            truststoreDao.create(domibusTruststoreEntity);
+        }
     }
 
     private void removeStore(String domibusKeystoreName) {

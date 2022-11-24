@@ -8,6 +8,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,6 +16,7 @@ import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.Audit.AuditFilters;
 import pages.Audit.AuditPage;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
@@ -24,6 +26,9 @@ import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
+import pages.tlsTrustStore.TlsTrustStorePage;
+import pages.users.UserModal;
+import pages.users.UsersPage;
 import utils.DFileUtils;
 import utils.Gen;
 import utils.TestUtils;
@@ -144,7 +149,7 @@ public class AuditPgTest extends SeleniumTest {
 
 		MessagesPage pg = new MessagesPage(driver);
 		int index = pg.grid().scrollToAndSelect("Message Status", "SEND_FAILURE");
-		if(index<0) {
+		if (index < 0) {
 			throw new SkipException("No message with SEND_FAILURE status found");
 		}
 
@@ -1139,6 +1144,180 @@ public class AuditPgTest extends SeleniumTest {
 
 		soft.assertAll();
 
+	}
+
+
+	/* EDELIVERY-8207 - AU-56 - Check log on Upload/Download TLS truststore event */
+	@Test(description = "AU-56", groups = {"multiTenancy", "singleTenancy"})
+	public void tlsTrustoreUploadDownload() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		TlsTrustStorePage page = new TlsTrustStorePage(driver);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+
+		page.uploadTruststore("./src/main/resources/truststore/gateway_truststore.jks", "test123");
+
+		page.grid().waitForRowsToLoad();
+
+		page.getDownloadButton().click();
+
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage auditPage = new AuditPage(driver);
+
+
+		AuditFilters filters = auditPage.filters();
+		filters.getTableFilter().selectOptionByText("Truststore");
+		filters.clickSearch();
+
+		soft.assertTrue(auditPage.grid().getRowsNo() > 0, "Audit log contains records");
+
+		soft.assertTrue(auditPage.grid().getRowInfo(0).get("Action").equals("Downloaded"), "Downloaded action is present in audit log");
+		soft.assertTrue(auditPage.grid().getRowInfo(1).get("Action").equals("Modified"), "Modified action is present in audit log");
+
+
+		soft.assertTrue(auditPage.grid().getRowInfo(0).get("Id").matches("\\d+"), "The ID column lists a number");
+		soft.assertTrue(auditPage.grid().getRowInfo(1).get("Id").matches("\\d+"), "The ID column lists a number2");
+
+		soft.assertAll();
+
+	}
+
+
+	/* EDELIVERY-9633 - AU-55 - Create/Edit/Delete Super user is visible in Audot page separate from domain events */
+	@Test(description = "AU-55", groups = {"multiTenancy"})
+	public void superUserSuperAudit() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = "super" + RandomStringUtils.randomAlphanumeric(5);
+		rest.users().createUser(username, DRoles.SUPER, data.defaultPass(), "default");
+		UsersPage upg = new UsersPage(driver);
+		upg.getSidebar().goToPage(PAGES.USERS);
+		upg.grid().scrollToAndDoubleClick("User Name", username);
+		UserModal modal = new UserModal(driver);
+		modal.getEmailInput().fill("thebest@super.com");
+		modal.clickOK();
+		upg.saveAndConfirm();
+
+		rest.users().deleteUser(username, "default");
+
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.filters().getTableFilter().selectOptionByText("User");
+		page.filters().getIsDomainChk().uncheck();
+		page.filters().clickSearch();
+
+		soft.assertTrue(page.grid().getRowsNo() > 0, "Audit log contains records");
+
+		ArrayList<HashMap<String, String>> info = page.grid().getListedRowInfo();
+		String id = info.get(0).get("Id");
+
+		for (int i = 0; i < 3; i++) {
+			info.get(i).get("Id").matches("\\d+");
+			soft.assertEquals(id, info.get(i).get("Id"), "The ID column lists same number for the first 3 rows");
+			if (i < 2) {
+				soft.assertEquals(info.get(i).get("Action"), "Modified", "Modified action is present in audit log");
+			}
+		}
+
+
+		soft.assertAll();
+
+	}
+
+	/* EDELIVERY-8209- AU-53 - Check log for Remove certificate event */
+	@Test(description = "AU-53", groups = {"multiTenancy", "singleTenancy"})
+	public void removeCertificateEvent() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		TlsTrustStorePage page = new TlsTrustStorePage(driver);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+		page.uploadTruststore("./src/main/resources/truststore/gateway_truststore.jks", "test123");
+		page.grid().waitForRowsToLoad();
+		page.grid().selectRow(0);
+		page.getRemoveCertButton().click();
+
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage auditPage = new AuditPage(driver);
+
+		AuditFilters filters = auditPage.filters();
+		filters.getTableFilter().selectOptionByText("Certificate");
+		filters.clickSearch();
+
+
+		soft.assertTrue(page.grid().getRowsNo() > 0, "Audit log contains records");
+
+		HashMap<String, String> info = page.grid().getRowInfo(0);
+		soft.assertTrue(info.get("Action").equals("Deleted"), "Deleted action is present in audit log");
+		soft.assertTrue(info.get("Id").matches("\\d+"), "The ID column lists a number");
+
+		soft.assertAll();
+
+	}
+
+	/*EDELIVERY-8208 - AU-52 - Check log for Add certificate event*/
+	@Test(description = "AU-52", groups = {"multiTenancy", "singleTenancy"})
+	public void addCertificateEvent() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		TlsTrustStorePage page = new TlsTrustStorePage(driver);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+
+		try {
+			if (page.getAlertArea().isError()) {
+				page.getAlertArea().closeAlert();
+				page.uploadTruststore("./src/main/resources/truststore/gateway_truststore.jks", "test123");
+			}
+		} catch (Exception e) {
+		}
+
+		page.addCertificate(DFileUtils.getAbsolutePath("./src/main/resources/truststore/test.cer"), "newAlias");
+		page.getAlertArea().waitForAlertSucces();
+
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage auditPage = new AuditPage(driver);
+
+		AuditFilters filters = auditPage.filters();
+		filters.getTableFilter().selectOptionByText("Certificate");
+		filters.clickSearch();
+
+
+		soft.assertTrue(page.grid().getRowsNo() > 0, "Audit log contains records");
+
+		HashMap<String, String> info = page.grid().getRowInfo(0);
+		soft.assertEquals(info.get("Action"), "Created", "Created action is present in audit log");
+		soft.assertTrue(info.get("Id").matches("\\d+"), "The ID column lists a number");
+
+		soft.assertAll();
+
+	}
+
+
+	/* EDELIVERY-8175 - AU-51 - Verify username field data on Audit page on user/plugin user suspension event */
+	@Test(description = "AU-51", groups = {"multiTenancy", "singleTenancy"})
+	public void userSuspended() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
+		log.info("Susoending username: " + username);
+		for (int i = 0; i < 30; i++) {
+			rest.login(username, "wrongPassword");
+			if (rest.users().getUser(null, username).getBoolean("suspended")) {
+				break;
+			}
+		}
+
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+
+		log.info("Searching for user suspended event ");
+		AuditFilters filters = page.filters();
+		filters.getTableFilter().selectOptionByText("User");
+		filters.clickSearch();
+
+		soft.assertTrue(page.grid().getRowsNo() > 0, "Audit log contains records");
+		soft.assertTrue(page.grid().getRowInfo(0).get("User").equalsIgnoreCase("domibus"), "Suspension event is logged under user domibus");
+
+
+		soft.assertAll();
 	}
 
 }

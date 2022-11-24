@@ -1,9 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.ErrorResultImpl;
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,15 +10,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
-import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
-
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
 @Service
-public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier {
+public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier<MessageReceiveFailureEvent> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginMessageReceivedFailureNotifier.class);
 
@@ -37,27 +31,10 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        ErrorResultImpl errorResult = getErrorResult(messageId, properties);
-
-        MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
-        event.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        event.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
-        event.setMessageId(messageId);
-        event.setMessageEntityId(messageEntityId);
-        String service = properties.get(MessageConstants.SERVICE);
-        event.setService(service);
-
-        String serviceType = properties.get(MessageConstants.SERVICE_TYPE);
-        event.setServiceType(serviceType);
-
-        String action = properties.get(MessageConstants.ACTION);
-        event.setAction(action);
-
-        event.setErrorResult(errorResult);
-        event.setEndpoint(properties.get(MessageConstants.ENDPOINT));
-        backendConnectorDelegate.messageReceiveFailed(backendConnector, event);
+    public void notifyPlugin(MessageReceiveFailureEvent messageEvent, BackendConnector<?, ?> backendConnector) {
+        backendConnectorDelegate.messageReceiveFailed(backendConnector, messageEvent);
     }
+
 
     protected ErrorResultImpl getErrorResult(String messageId, Map<String, String> properties) {
         final String errorCode = properties.get(MessageConstants.ERROR_CODE);

@@ -30,6 +30,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
+    public static final long MESSAGE_ENTITY_ID = 555;
     public static final int RETRY_MAX = 10;
     public static final String RULE_NAME = "ruleName";
     public static final long BACKEND_MESSAGE_ID = 1L;
@@ -91,7 +92,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
         props.put(FINAL_RECIPIENT, FINAL_RECIPIENT);
         props.put(ORIGINAL_SENDER, ORIGINAL_SENDER);
         props.put(MessageConstants.STATUS_TO, ACKNOWLEDGED.name());
-        retryService.schedule(MESSAGE_ID, props, rule, WSBackendMessageType.SEND_SUCCESS);
+        retryService.schedule(MESSAGE_ID, MESSAGE_ENTITY_ID, props, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
             WSBackendMessageLogEntity wsBackendMessageLogEntity;

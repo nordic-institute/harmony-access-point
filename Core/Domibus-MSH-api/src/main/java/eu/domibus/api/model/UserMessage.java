@@ -21,9 +21,19 @@ import java.util.Set;
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
         @NamedQuery(name = "UserMessage.find",
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
-        @NamedQuery(name = "UserMessage.findTestMessageDesc",
+        @NamedQuery(name = "UserMessage.findTestMessageToPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID " +
+                        "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "order by um.entityId desc"),
+        @NamedQuery(name = "UserMessage.findSentTestMessageWithStatusDesc",
+                query = "select uml.userMessage from UserMessageLog uml " +
+                        "where uml.userMessage.testMessage=true and uml.userMessage.sourceMessage=false and uml.userMessage.action.entityId=:ACTION_ID " +
+                        "and uml.userMessage.partyInfo.to.toPartyId.value=:PARTY_ID and uml.messageStatus.messageStatus=:STATUS " +
+                        "order by uml.userMessage.entityId desc"),
+        @NamedQuery(name = "UserMessage.findTestMessageFromPartyDesc",
+                query = "select um from UserMessage um " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID and um.partyInfo.from.fromPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
 })
 @NamedNativeQueries({
