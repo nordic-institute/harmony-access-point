@@ -1,5 +1,6 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -180,13 +182,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
                 }
             }
         } finally {
-            if (testMessageTimer != null) {
-                testMessageTimer.stop();
-            }
-            if (testMessageCounter != null) {
-                testMessageCounter.dec();
-            }
-
+            Optional.ofNullable(testMessageTimer).ifPresent(com.codahale.metrics.Timer.Context::stop);
+            Optional.ofNullable(testMessageCounter).ifPresent(Counter::dec);
         }
     }
 

@@ -26,6 +26,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -107,14 +108,10 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
                 throw new WebServiceException(e);
             }
             return responseMessage;
-        } finally {
-            if (testMessageTimer != null) {
-                testMessageTimer.stop();
-            }
-            if (testMessageCounter != null) {
-                testMessageCounter.dec();
-            }
 
+        } finally {
+            Optional.ofNullable(testMessageTimer).ifPresent(com.codahale.metrics.Timer.Context::stop);
+            Optional.ofNullable(testMessageCounter).ifPresent(com.codahale.metrics.Counter::dec);
         }
     }
 
