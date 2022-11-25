@@ -58,29 +58,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        com.codahale.metrics.Timer.Context testMessageTimer = null;
-        com.codahale.metrics.Counter testMessageCounter = null;
-        try {
-            testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
-            testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
-            testMessageCounter.inc();
-            handleAllValueForCommaSeparatedProperties();
-
-            if (!isMonitoringEnabled()) {
-                LOG.debug("Connection monitoring for others is not enabled; exiting;");
-                return;
-            }
-
-            sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
-        } finally {
-            if (testMessageTimer != null) {
-                testMessageTimer.stop();
-            }
-            if (testMessageCounter != null) {
-                testMessageCounter.dec();
-            }
-
+        handleAllValueForCommaSeparatedProperties();
+        if (!isMonitoringEnabled()) {
+            LOG.debug("Connection monitoring for others is not enabled; exiting;");
+            return;
         }
+
+
+        sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
+
     }
 
     @Override
@@ -111,6 +97,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void deleteReceivedTestMessageHistoryIfApplicable() {
+
         if (!isDeleteHistoryEnabled()) {
             LOG.debug("Delete received test message history is not enabled; exiting.");
             return;
@@ -160,31 +147,46 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private void sendTestMessagesTo(BiFunction<List<String>, String, List<String>> getMonitoredPartiesFn) {
-        List<String> testableParties = partyService.findPushToPartyNamesForTest();
-        if (CollectionUtils.isEmpty(testableParties)) {
-            LOG.debug("There are no available parties to test");
-            return;
-        }
-
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
-            LOG.info("The self party is not configured -> could not send test messages");
-            return;
-        }
-
-        List<String> monitoredParties = getMonitoredPartiesFn.apply(testableParties, selfParty);
-        if (CollectionUtils.isEmpty(monitoredParties)) {
-            LOG.debug("There are no monitored parties to test");
-            return;
-        }
-
-        for (String party : monitoredParties) {
-            try {
-                String testMessageId = testService.submitTest(selfParty, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
-            } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+        com.codahale.metrics.Timer.Context testMessageTimer = null;
+        com.codahale.metrics.Counter testMessageCounter = null;
+        try {
+            List<String> testableParties = partyService.findPushToPartyNamesForTest();
+            if (CollectionUtils.isEmpty(testableParties)) {
+                LOG.debug("There are no available parties to test");
+                return;
             }
+
+            String selfParty = partyService.getGatewayPartyIdentifier();
+            if (StringUtils.isEmpty(selfParty)) {
+                LOG.info("The self party is not configured -> could not send test messages");
+                return;
+            }
+
+            List<String> monitoredParties = getMonitoredPartiesFn.apply(testableParties, selfParty);
+            if (CollectionUtils.isEmpty(monitoredParties)) {
+                LOG.debug("There are no monitored parties to test");
+                return;
+            }
+
+            for (String party : monitoredParties) {
+                try {
+                    testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
+                    testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
+                    testMessageCounter.inc();
+                    String testMessageId = testService.submitTest(selfParty, party);
+                    LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
+                } catch (IOException | MessagingProcessingException e) {
+                    LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+                }
+            }
+        } finally {
+            if (testMessageTimer != null) {
+                testMessageTimer.stop();
+            }
+            if (testMessageCounter != null) {
+                testMessageCounter.dec();
+            }
+
         }
     }
 
