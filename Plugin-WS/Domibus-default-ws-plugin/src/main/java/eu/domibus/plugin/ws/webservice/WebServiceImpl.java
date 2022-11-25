@@ -71,6 +71,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
+    private static final String ACCESS_POINT_ROLE_EMPTY = "Access point role is empty";
+
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
 
@@ -576,9 +578,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
-        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequest.getMessageID());
+        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequest.getMessageID());
 
-        if (!isMessageIdNotEmpty) {
+        if (isMessageIdEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
@@ -594,11 +596,18 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
-        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequestWithAccessPointRole.getMessageID());
+
+        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequestWithAccessPointRole.getMessageID());
         MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-        if (!isMessageIdNotEmpty) {
+
+        if (isMessageIdEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+        }
+
+        if (StringUtils.isEmpty(role.name())) {
+            LOG.error(ACCESS_POINT_ROLE_EMPTY);
+            throw new StatusFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
 
