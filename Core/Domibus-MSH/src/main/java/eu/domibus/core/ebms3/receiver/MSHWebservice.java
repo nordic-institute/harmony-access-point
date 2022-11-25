@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -50,8 +51,11 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     private DomainContextProvider domainContextProvider;
 
-    @Timer(clazz = MSHWebservice.class, value = "incoming_user_message")
-    @Counter(clazz = MSHWebservice.class, value = "incoming_user_message")
+    @Autowired
+    protected SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
+    @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
+    @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
@@ -65,7 +69,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
         final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, ebms3Messaging);
         if (messageHandler == null) {
-            throw new WebServiceException(EbMS3ExceptionBuilder.getInstance()
+            throw new WebServiceException( EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Unrecognized message")
                     .refToMessageId(ebms3Messaging.getUserMessage().getMessageInfo().getMessageId())
@@ -81,13 +85,16 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         }
         setUserMessageEntityIdOnContext();
 
+        soapMessage = signalMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
+
         return soapMessage;
+
     }
 
     protected void setCurrentDomain(final SOAPMessage request) {
         LOG.trace("Setting the current domain");
         try {
-            final String domainCode = (String) request.getProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
+            final String domainCode = (String)request.getProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
             domainContextProvider.setCurrentDomainWithValidation(domainCode);
         } catch (SOAPException se) {
             throw new DomainTaskException("Could not get current domain from request header " + DomainContextProvider.HEADER_DOMIBUS_DOMAIN, se);

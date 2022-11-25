@@ -176,11 +176,12 @@ public class WebserviceClientTest {
         assertEquals(messageId, ebMSHeaderResponse.getUserMessage().getMessageInfo().getMessageId());
 
         //test DOWNLOADED status
-        StatusRequest statusRequest = new StatusRequest();
+        StatusRequestWithAccessPointRole statusRequest = new StatusRequestWithAccessPointRole();
         //The messageId determines the message for which the status is requested
         statusRequest.setMessageID(messageId);
+        statusRequest.setAccessPointRole(MshRole.RECEIVING);
 
-        MessageStatus response = webServicePluginInterface.getStatus(statusRequest);
+        MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(statusRequest);
         assertEquals(MessageStatus.DOWNLOADED, response);
 
     }
@@ -240,11 +241,12 @@ public class WebserviceClientTest {
         //wait until the message should be received
         sleep(2000);
 
-        StatusRequest messageStatusRequest = new StatusRequest();
+        StatusRequestWithAccessPointRole messageStatusRequest = new StatusRequestWithAccessPointRole();
         //The messageId determines the message for which the status is requested
         messageStatusRequest.setMessageID(messageId);
+        messageStatusRequest.setAccessPointRole(MshRole.RECEIVING);
 
-        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
+        MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
 
         assertEquals(MessageStatus.RECEIVED, response);
     }
@@ -252,11 +254,12 @@ public class WebserviceClientTest {
     @Test
     public void testGetStatus_MessageIdEmpty_SOAPFaultExpected() {
 
-        StatusRequest messageStatusRequest = new StatusRequest();
+        StatusRequestWithAccessPointRole messageStatusRequest = new StatusRequestWithAccessPointRole();
         //The messageId determines the message for which the status is requested
         messageStatusRequest.setMessageID("");
+        messageStatusRequest.setAccessPointRole(MshRole.RECEIVING);
         try {
-            webServicePluginInterface.getStatus(messageStatusRequest);
+            webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
             fail("One of the following exceptions was expected: SOAPFaultException for XSD validation enabled or StatusFault when the XSD validation is disabled");
         } catch (StatusFault statusFault) {
             assertEquals("Message ID is empty", statusFault.getMessage());

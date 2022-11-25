@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.ro;
+package eu.domibus.api.jms;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -6,26 +6,22 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 /**
- * Created by musatmi on 15/05/2017.
+ * @author Ion Perpegel
+ * @version 5.1
  */
 
-public class JmsFilterRequestRO {
+public class JmsFilterRequest {
 
-    @CustomWhiteListed(permitted = ".@!/")
     private String source;
 
-    @CustomWhiteListed(permitted = ".@!/")
     private String originalQueue;
 
     private String jmsType;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date fromDate;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
 
-    @CustomWhiteListed(permitted = "=,:-'<>.@!/")
     private String selector;
 
     public String getSource() {

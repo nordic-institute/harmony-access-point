@@ -389,7 +389,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            SELECT ID_PK INTO v_id_pk FROM TB_D_PARTY WHERE TYPE = party_type AND VALUE = party_value;
+            IF party_type IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PARTY WHERE TYPE IS NULL AND VALUE = party_value;
+            ELSIF party_value IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PARTY WHERE TYPE = party_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PARTY WHERE TYPE = party_type AND VALUE = party_value;
+            END IF;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
@@ -472,9 +478,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY
-            WHERE (NAME = prop_name AND TYPE = prop_type AND VALUE = prop_value)
-               OR (NAME = prop_name AND TYPE IS NULL AND VALUE = prop_value);
+            IF prop_type IS NULL AND prop_value IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = prop_name AND TYPE IS NULL AND VALUE IS NULL;
+            ELSIF prop_type IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = prop_name AND TYPE IS NULL AND VALUE = prop_value;
+            ELSIF prop_value IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = prop_name AND TYPE = prop_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE NAME = prop_name AND TYPE = prop_type AND VALUE = prop_value;
+            END IF;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
@@ -495,9 +507,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            SELECT ID_PK INTO v_id_pk  FROM TB_D_PART_PROPERTY
-            WHERE (NAME = prop_name AND VALUE = prop_value AND TYPE = prop_type)
-               OR (NAME = prop_name AND VALUE = prop_value AND TYPE IS NULL);
+            IF prop_type IS NULL AND prop_value IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = prop_name AND TYPE IS NULL AND VALUE IS NULL;
+            ELSIF prop_type IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = prop_name AND TYPE IS NULL AND VALUE = prop_value;
+            ELSIF prop_value IS NULL THEN
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = prop_name AND TYPE = prop_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO v_id_pk FROM TB_D_PART_PROPERTY WHERE NAME = prop_name AND TYPE = prop_type AND VALUE = prop_value;
+            END IF;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record

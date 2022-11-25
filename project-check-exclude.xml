@@ -335,6 +335,7 @@
         <cve>CVE-2022-38749</cve>
         <cve>CVE-2022-38751</cve>
         <cve>CVE-2022-38750</cve>
+        <cve>CVE-2022-41854</cve>
         <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
     </suppress>
 </suppressions>

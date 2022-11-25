@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 import java.net.ConnectException;
-import java.util.Base64;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 
@@ -51,7 +52,14 @@ public class WSPluginDispatcher {
             if (isNoneBlank(username, password)) {
                 String credentials = username+":"+password;
                 String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-                soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + encodedCredentials);
+
+                Map<String, List<String>> requestHeaders = (Map<String, List<String>>) dispatch.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+                if (requestHeaders == null) {
+                    requestHeaders = new HashMap<>();
+                }
+                requestHeaders.put("Authorization", Arrays.asList("Basic " + encodedCredentials));
+
+                dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
                 LOG.debug("Authorization header added for user [{}]", username);
             }
 

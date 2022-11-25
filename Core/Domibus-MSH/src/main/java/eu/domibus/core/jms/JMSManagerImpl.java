@@ -1,9 +1,9 @@
 package eu.domibus.core.jms;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.jms.JMSDestination;
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.jms.*;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -39,6 +39,8 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE;
 
 /**
  * @author Cosmin Baciu
@@ -158,31 +160,11 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    public List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector) {
-
-        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
-        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", source, selector);
+    public List<JmsMessage> browseMessages(JmsFilterRequest req) {
+        String selector = getCompleteSelector(req.getSelector(), req.getOriginalQueue());
+        List<InternalJmsMessage> messagesSPI = internalJmsManager.browseMessages(req.getSource(), req.getJmsType(), req.getFromDate(), req.getToDate(), selector);
+        LOG.debug("Jms Messages browsed from the source queue [{}] with the selector [{}]", req.getSource(), selector);
         return jmsMessageMapper.convert(messagesSPI);
-    }
-
-    @Override
-    public String getDomainSelector(String selector) {
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            return selector;
-        }
-        if (authUtils.isSuperAdmin()) {
-            return selector;
-        }
-        final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        String domainClause = "DOMAIN ='" + currentDomain.getCode() + "'";
-
-        String result;
-        if (StringUtils.isBlank(selector)) {
-            result = domainClause;
-        } else {
-            result = selector + " AND " + domainClause;
-        }
-        return result;
     }
 
     @Override
@@ -363,40 +345,57 @@ public class JMSManagerImpl implements JMSManager {
         validateMessagesMove(source, jmsDestination, messageIds);
 
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
-        int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
-        if (moveMessages == 0) {
+
+        int movedMessageCount = internalJmsManager.moveMessages(source, destination, messageIds);
+        if (movedMessageCount == 0) {
             throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
         }
-        if (moveMessages != messageIds.length) {
-            LOG.warn("Not all the JMS messages Ids [{}] were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", messageIds, source, destination, moveMessages, messageIds.length);
-        }
-        LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", moveMessages, messageIds, source, destination);
-        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
-                source, destination, jmsMessageDomainDTO.getDomainCode()));
+
+        logAndAudit(source, destination, Arrays.asList(messageIds), movedMessageCount, jmsMessageDomains);
     }
 
     @Override
-    public void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination) {
+    public void moveAllMessages(MessagesActionRequest req) {
+        String destination = req.getDestination();
+        String source = req.getSource();
+        String jmsType = req.getJmsType();
+        Date fromDate = req.getFromDate();
+        Date toDate = req.getToDate();
+
         JMSDestination jmsDestination = getValidJmsDestination(destination);
         validateSourceAndDestination(source, jmsDestination);
-        List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, getDomainSelector(selector));
 
-        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType,  fromDate, toDate, selector, destination);
-        if (movedMessageCount == 0) {
-            throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, selector));
-        }
-        if (movedMessageCount != messagesToMove.size()) {
-            LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
-                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messagesToMove.size());
-        }
-        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+
+        String completeSelector = getCompleteSelector(req.getSelector(), req.getOriginalQueue());
+        List<InternalJmsMessage> messagesToMove = internalJmsManager.browseMessages(source, jmsType, fromDate, toDate, completeSelector);
+
         List<String> messageIds = messagesToMove.stream().map(InternalJmsMessage::getId).collect(Collectors.toList());
-        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
-        final String domainCode = domainContextProvider.getCurrentDomain().getCode();
-        messagesToMove.forEach(jmsMessage -> auditService.addJmsMessageMovedAudit(jmsMessage.getId(),
-                source, destination, domainCode));
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds.toArray(new String[0]));
+
+        int maxLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE);
+        if (maxLimit > 0 && messagesToMove.size() > maxLimit) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Number of messages to move exceeds the limit of " + maxLimit);
+        }
+
+        int movedMessageCount = internalJmsManager.moveAllMessages(source, jmsType, fromDate, toDate, completeSelector, destination);
+        if (movedMessageCount == 0) {
+            throw new MessageNotFoundException(String.format("Failed to move messages from source [%s] to destination [%s] with the selector [%s]", source, destination, completeSelector));
+        }
+
+        logAndAudit(source, destination, messageIds, movedMessageCount, jmsMessageDomains);
+    }
+
+    private void logAndAudit(String source, String destination, List<String> messageIdsToMove, int movedMessageCount, List<JMSMessageDomainDTO> jmsMessageDomains) {
+        if (movedMessageCount != messageIdsToMove.size()) {
+            LOG.warn("Not all the JMS message were moved from the source queue [{}] to the destination queue [{}]. " +
+                    "Actual: [{}], Expected [{}]", source, destination, movedMessageCount, messageIdsToMove.size());
+        }
+
+        LOG.debug("[{}] Jms Messages Moved from the source queue [{}] to the destination queue [{}]", movedMessageCount, source, destination);
+        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIdsToMove, source, destination);
+
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
     protected void validateMessagesMove(String source, JMSDestination destinationQueue, String[] jmsMessageIds) {
@@ -422,7 +421,7 @@ public class JMSManagerImpl implements JMSManager {
         if (destinationQueue == null) {
             throw new RequestValidationException("Destination cannot be null.");
         }
-        if(source == null){
+        if (source == null) {
             throw new RequestValidationException("Source cannot be null.");
         }
         if (StringUtils.equals(destinationQueue.getName(), source)) {
@@ -604,5 +603,36 @@ public class JMSManagerImpl implements JMSManager {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
 
+    }
+
+    private String getCompleteSelector(String selector, String originalQueue) {
+        String domainSelector = getDomainSelector(selector);
+        if (StringUtils.isNotBlank(originalQueue)) {
+            if (StringUtils.isBlank(domainSelector)) {
+                domainSelector = "originalQueue='" + originalQueue + "'";
+            } else {
+                domainSelector += " AND originalQueue='" + originalQueue + "'";
+            }
+        }
+        return domainSelector;
+    }
+
+    protected String getDomainSelector(String selector) {
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            return selector;
+        }
+        if (authUtils.isSuperAdmin()) {
+            return selector;
+        }
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+        String domainClause = "DOMAIN ='" + currentDomain.getCode() + "'";
+
+        String result;
+        if (StringUtils.isBlank(selector)) {
+            result = domainClause;
+        } else {
+            result = selector + " AND " + domainClause;
+        }
+        return result;
     }
 }

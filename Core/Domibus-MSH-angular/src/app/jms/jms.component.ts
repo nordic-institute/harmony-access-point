@@ -36,6 +36,10 @@ export class JmsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
 
+  private readonly _dlqName = '.*?[d|D]omibus.?DLQ';
+  private readonly queueNamePrefixSeparator = '@';
+  private readonly originalQueuePrefixSeparator = '!';
+
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
@@ -48,7 +52,9 @@ export class JmsComponent extends mix(BaseListComponent)
   @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
 
   queues: any[];
-  orderedQueues: any[];
+  filteredQueues: any[];
+  originalQueues: any[];
+  // orderedQueues: any[];
 
   currentSearchSelectedSource;
 
@@ -57,6 +63,8 @@ export class JmsComponent extends mix(BaseListComponent)
   request: MessagesRequestRO;
 
   private _selectedSource: any;
+  private originalQueuePrefix: string;
+  originalQueueName: string;
 
   get selectedSource(): any {
     return this._selectedSource;
@@ -87,7 +95,9 @@ export class JmsComponent extends mix(BaseListComponent)
     this.queuesInfoGot = new EventEmitter(false);
 
     this.queues = [];
-    this.orderedQueues = [];
+    this.filteredQueues = [];
+    this.originalQueues = [];
+    // this.orderedQueues = [];
 
     // set toDate equals to now
     this.filter.toDate = new Date();
@@ -98,7 +108,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.loadDestinations();
 
     this.queuesInfoGot.subscribe(result => {
-      this.setDefaultQueue('.*?[d|D]omibus.?DLQ');
+      this.setDefaultQueue(this._dlqName);
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
@@ -173,6 +183,8 @@ export class JmsComponent extends mix(BaseListComponent)
         for (const key in destinations) {
           this.queues.push(destinations[key]);
         }
+        this.filteredQueues = this.queues;
+        this.originalQueues = this.queues;
         this.queuesInfoGot.emit();
       }
     );
@@ -279,7 +291,13 @@ export class JmsComponent extends mix(BaseListComponent)
         .afterClosed().subscribe(result => {
         if (result && result.destination) {
           const messageIds = elements.map((message) => message.id);
-          this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
+          let payload = {
+            source: this.currentSearchSelectedSource.name,
+            destination: result.destination,
+            selectedMessages: messageIds,
+            action: 'MOVE'
+          };
+          this.serverMoveSelected(payload);
         }
       });
     } catch (ex) {
@@ -342,7 +360,7 @@ export class JmsComponent extends mix(BaseListComponent)
       return null;
     }
     // EDELIVERY-2814
-    originalQueueName = originalQueueName.substr(originalQueueName.indexOf('!') + 1);
+    originalQueueName = originalQueueName.substr(originalQueueName.indexOf(this.originalQueuePrefixSeparator) + 1);
     return originalQueueName;
   }
 
@@ -386,33 +404,25 @@ export class JmsComponent extends mix(BaseListComponent)
     super.selected = [];
   }
 
-  serverMove(source: string, destination: string, messageIds: Array<any>) {
+  async serverMoveSelected(payload: MessagesRequestRO) {
     super.isSaving = true;
-    this.http.post('rest/jms/messages/action', {
-      source: source,
-      destination: destination,
-      selectedMessages: messageIds,
-      action: 'MOVE'
-    }).subscribe(
-      () => {
-        this.alertService.success('The operation \'move messages\' completed successfully.');
+    try {
+      await this.http.post('rest/jms/messages/action', payload).toPromise();
+      // refresh destinations
+      this.refreshDestinations().subscribe(res => {
+        this.setDefaultQueue(this.currentSearchSelectedSource.name);
+      });
 
-        // refresh destinations
-        this.refreshDestinations().subscribe(res => {
-          this.setDefaultQueue(this.currentSearchSelectedSource.name);
-        });
+      // remove the selected rows
+      this.deleteElements(this.selected);
+      this.markedForDeletionMessages = [];
 
-        // remove the selected rows
-        this.deleteElements(this.selected);
-        this.markedForDeletionMessages = [];
-
-        super.isSaving = false;
-      },
-      error => {
-        this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
-        super.isSaving = false;
-      }
-    )
+      this.alertService.success('The operation \'move messages\' completed successfully.');
+    } catch (error) {
+      this.alertService.exception('The operation \'move messages\' could not be completed: ', error);
+    } finally {
+      super.isSaving = false;
+    }
   }
 
   async serverRemove(source: string, messageIds: Array<any>): Promise<void> {
@@ -481,5 +491,69 @@ export class JmsComponent extends mix(BaseListComponent)
     return this.selected.length > 0;
   }
 
+  moveAll() {
+    let payload: MessagesRequestRO = {
+      source: this.currentSearchSelectedSource.name,
+      destination: this.originalQueueName,
+      originalQueue: this.getOriginalQueueForFiltering(),
+      action: 'MOVE_ALL',
+      jmsType: this.filter.jmsType,
+      fromDate: this.filter.fromDate,
+      toDate: this.filter.toDate,
+      selector: this.filter.selector
+    };
+    this.serverMoveSelected(payload);
+  }
 
+  canMoveAll() {
+    return !this.isBusy()
+      && this.isDLQQueue()
+      && this.rows.length
+      && this.filter.originalQueue != null
+      && this.isFiltered();
+  }
+
+  isDLQQueue() {
+    return this.selectedSource && this.selectedSource.name.match(this._dlqName);
+  }
+
+  onSelectOriginalQueue() {
+    this.calculateOriginalQueuePrefix();
+
+    this.filter.originalQueue = this.getOriginalQueueForFiltering();
+  }
+
+  getOriginalQueueForFiltering() {
+    let originalQueue = this.originalQueueName;
+    if (originalQueue.indexOf(this.queueNamePrefixSeparator) < 0) {
+      return originalQueue;
+    }
+
+    // cluster mode: need to prefix
+    let destination = originalQueue.substr(originalQueue.indexOf(this.queueNamePrefixSeparator) + 1);
+    return this.originalQueuePrefix + destination;
+  }
+
+  calculateOriginalQueuePrefix() {
+    if (!this.rows.length) {
+      return;
+    }
+
+    const message = this.rows[0];
+    let originalQueueName = message.customProperties.originalQueue;
+    if (!originalQueueName) {
+      return;
+    }
+
+    this.originalQueuePrefix = originalQueueName.substr(0, originalQueueName.indexOf(this.originalQueuePrefixSeparator) + 1);
+  }
+
+
+  onFilterSourceQueuesKey(value: any) {
+    this.filteredQueues = this.queues.filter(queue => queue.name && queue.name.toLowerCase().includes(value));
+  }
+
+  onFilterOriginalQueuesKey(value: any) {
+    this.originalQueues = this.queues.filter(queue => queue.name && queue.name.toLowerCase().includes(value));
+  }
 }
