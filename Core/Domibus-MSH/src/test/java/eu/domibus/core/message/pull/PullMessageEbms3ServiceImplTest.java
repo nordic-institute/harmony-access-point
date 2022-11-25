@@ -271,7 +271,7 @@ public class PullMessageEbms3ServiceImplTest {
         }};
         pullMessageService.waitingForCallBack(userMessage, legConfiguration, userMessageLog);
         new Verifications() {{
-            pullMessageStateService.sendFailed(userMessageLog, messageId);
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             messagingLockDao.save(lock);
@@ -410,7 +410,7 @@ public class PullMessageEbms3ServiceImplTest {
         new VerificationsInOrder() {{
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
-            pullMessageStateService.sendFailed(userMessageLog, anyString);
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
             messagingLockDao.save(lock);
         }};
     }
@@ -484,7 +484,7 @@ public class PullMessageEbms3ServiceImplTest {
         pullMessageService.pullFailedOnReceipt(userMessage, legConfiguration, userMessageLog);
 
         new VerificationsInOrder() {{
-            pullMessageStateService.sendFailed(userMessageLog, messageID);
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
         }};
 
     }

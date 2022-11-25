@@ -116,7 +116,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 pullFailedOnRequest(userMessage, legConfiguration, userMessageLog);
                 break;
             case ABORT:
-                pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
+                pullMessageStateService.sendFailed(userMessageLog, userMessage);
                 reprogrammableService.removeRescheduleInfo(lock);
                 lock.setMessageState(MessageState.DEL);
                 messagingLockDao.save(lock);
@@ -278,7 +278,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         final MessagingLock lock = messagingLockDao.findMessagingLockForMessageId(userMessage.getMessageId());
         if (updateRetryLoggingService.isExpired(legConfiguration, userMessageLog)) {
             LOG.debug("[WAITING_FOR_CALLBACK]:Message:[{}] expired]", userMessage.getMessageId());
-            pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             messagingLockDao.save(lock);
@@ -349,7 +349,7 @@ public class PullMessageServiceImpl implements PullMessageService {
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             LOG.debug("[PULL_REQUEST]:Message:[{}] has no more attempt, it has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
-            pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
         }
         messagingLockDao.save(lock);
     }
@@ -365,7 +365,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         } else {
             LOG.debug("[PULL_RECEIPT]:Message:[{}] has no more attempt, it has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
-            pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
+            pullMessageStateService.sendFailed(userMessageLog, userMessage);
         }
         return new PullRequestResult(userMessage.getMessageId(), userMessageLog);
 
