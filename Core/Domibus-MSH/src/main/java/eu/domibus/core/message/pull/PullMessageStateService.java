@@ -26,7 +26,6 @@ public interface PullMessageStateService {
      *
      * @param userMessageLog the user message.
      */
-    @Transactional
     void sendFailed(UserMessageLog userMessageLog, UserMessage userMessage);
 
     /**
