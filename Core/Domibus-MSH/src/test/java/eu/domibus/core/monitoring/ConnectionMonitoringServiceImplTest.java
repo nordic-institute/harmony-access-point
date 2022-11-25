@@ -1,5 +1,6 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -43,6 +44,9 @@ public class ConnectionMonitoringServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    MetricRegistry metricRegistry;
 
     @Test
     public void isMonitoringEnabled() {
