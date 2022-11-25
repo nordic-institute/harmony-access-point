@@ -4,7 +4,9 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.jms.MessagesActionRequest;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -34,6 +36,9 @@ public class JmsResourceTest {
     @Mocked
     private MessagesActionRequestRO messagesActionRequestRO;
 
+    @Mocked
+    private MessagesActionRequest messagesActionRequest;
+
     @Tested
     private JmsResource jmsResource;
 
@@ -48,6 +53,9 @@ public class JmsResourceTest {
 
     @Injectable
     private ErrorHandlerService errorHandlerService;
+
+    @Injectable
+    DomibusCoreMapper coreMapper;
 
     @Test
     public void testDestinations() {
@@ -70,42 +78,9 @@ public class JmsResourceTest {
     }
 
     @Test
-    public void testMessages(final @Mocked JmsFilterRequestRO requestRO) {
-        // Given
-        final List<JmsMessage> jmsMessageList = new ArrayList<>();
-
-        new Expectations() {{
-            requestRO.getSource();
-            times = 2;
-            requestRO.getJmsType();
-            times = 1;
-            requestRO.getFromDate();
-            times = 1;
-            requestRO.getToDate();
-            times = 1;
-            requestRO.getSelector();
-            times = 1;
-            jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
-            result = jmsMessageList;
-        }};
-
-        // When
-        MessagesResponseRO messages = jmsResource.messages(requestRO);
-
-        // Then
-        Assert.assertNotNull(messages);
-        Assert.assertEquals(jmsMessageList, messages.getMessages());
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void testAction_wrongAction() {
         // Given
         new Expectations() {{
-            messagesActionRequestRO.getSelectedMessages();
-            result = new ArrayList<>();
-            times = 1;
             messagesActionRequestRO.getAction();
             result = null;
         }};
@@ -206,34 +181,6 @@ public class JmsResourceTest {
         // Then
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testGetCsv(@Injectable JmsMessage jmsMessage) {
-        // Given
-        String source = "source";
-        String jmsType = null;
-        String selector = "selector";
-        List<JmsMessage> jmsMessageList = new ArrayList<>();
-        String mockCsvResult = "csv";
-
-        new Expectations(jmsResource) {{
-            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
-            result = jmsMessageList;
-            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
-            result = mockCsvResult;
-        }};
-
-        // When
-        final ResponseEntity<String> csv = jmsResource.getCsv(new JmsFilterRequestRO() {{
-            setSource(source);
-            setSelector(selector);
-            setJmsType(jmsType);
-        }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals(mockCsvResult, csv.getBody());
     }
 
 }

@@ -1,4 +1,4 @@
-package eu.domibus.web.rest.ro;
+package eu.domibus.api.jms;
 
 import eu.domibus.api.validators.CustomWhiteListed;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +10,7 @@ import java.util.List;
  * Created by musatmi on 15/05/2017.
  */
 
-public class MessagesActionRequestRO {
+public class MessagesActionRequest {
 
     @CustomWhiteListed(permitted = ".@!/")
     private String source;

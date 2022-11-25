@@ -11,7 +11,7 @@
             <mat-form-field>
               <input matInput placeholder="Package or class name" name="packageClassName"
                      [(ngModel)]="filter.loggerName" #loggerName="ngModel" id="loggerName_id"
-                     width="40px" tooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
+                     width="40px" matTooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
             </mat-form-field>
             <mat-checkbox name="showClasses" [(ngModel)]="filter.showClasses" #showClasses="ngModel"
                           id="showClasses_id">
@@ -24,7 +24,7 @@
 
               <button mat-raised-button color="primary" id="resetbutton_id" (click)="resetLogging()"
                       style="position: absolute;right: 0;top: 0;"
-                      tooltip="Click to reset logging configuration"
+                      matTooltip="Click to reset logging configuration"
                       type="button">
                 <mat-icon>cached</mat-icon>
                 <span>Reset</span>

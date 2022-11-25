@@ -30,16 +30,12 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
 
     private final GatewayConfigurationValidator gatewayConfigurationValidator;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     public TruststoreChangeListener(MultiDomainCryptoService multiDomainCryptoService,
                                     DomainService domainService,
-                                    GatewayConfigurationValidator gatewayConfigurationValidator,
-                                    DomibusPropertyProvider domibusPropertyProvider) {
+                                    GatewayConfigurationValidator gatewayConfigurationValidator) {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainService = domainService;
         this.gatewayConfigurationValidator = gatewayConfigurationValidator;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
