@@ -109,6 +109,10 @@
         <wsdl:part element="tns:statusRequest" name="statusRequest">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="getStatusWithAccessPointRole">
+        <wsdl:part element="tns:statusRequestWithAccessPointRole" name="statusRequestWithAccessPointRole">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="StatusFault">
         <wsdl:part element="tns:FaultDetail" name="StatusFault">
         </wsdl:part>
@@ -142,6 +146,14 @@
         </wsdl:operation>
         <wsdl:operation name="getStatus">
             <wsdl:input message="tns:getStatus" name="getStatus">
+            </wsdl:input>
+            <wsdl:output message="tns:getStatusResponse" name="getStatusResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:StatusFault" name="StatusFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getStatusWithAccessPointRole">
+            <wsdl:input message="tns:getStatusWithAccessPointRole" name="getStatusWithAccessPointRole">
             </wsdl:input>
             <wsdl:output message="tns:getStatusResponse" name="getStatusResponse">
             </wsdl:output>
@@ -217,6 +229,19 @@
         <wsdl:operation name="getStatus">
             <soap12:operation soapAction="" style="document"/>
             <wsdl:input name="getStatus">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getStatusResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="StatusFault">
+                <soap12:fault name="StatusFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getStatusWithAccessPointRole">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="getStatusWithAccessPointRole">
                 <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output name="getStatusResponse">
