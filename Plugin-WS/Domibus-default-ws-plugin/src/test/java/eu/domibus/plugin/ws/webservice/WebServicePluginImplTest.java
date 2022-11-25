@@ -174,6 +174,10 @@ public class WebServicePluginImplTest {
             result = MESSAGE_ID;
             times = 2;
 
+            statusRequest.getAccessPointRole();
+            result = MshRole.RECEIVING;
+            times = 2;
+
             messageExtService.cleanMessageIdentifier(MESSAGE_ID);
             result = MESSAGE_ID;
             times = 1;
@@ -186,10 +190,23 @@ public class WebServicePluginImplTest {
             result = MessageStatus.ACKNOWLEDGED;
             times = 1;
         }};
-
         webServicePlugin.getStatusWithAccessPointRole(statusRequest);
-
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
+    @Test
+    public void getStatusWithEmptyAccessPointRole(
+            @Injectable StatusRequestWithAccessPointRole statusRequest) {
+        new Expectations() {{
+            statusRequest.getMessageID();
+            result = MESSAGE_ID;
+            times = 1;
+        }};
+        try {
+            webServicePlugin.getStatusWithAccessPointRole(statusRequest);
+        } catch (StatusFault statusFault) {
+            assertEquals(statusFault.getMessage(), "Access point role is empty");
+        }
+    }
 }

@@ -598,17 +598,17 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
 
         boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequestWithAccessPointRole.getMessageID());
-        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-
         if (isMessageIdEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
 
-        if (StringUtils.isEmpty(role.name())) {
+        if (StringUtils.isEmpty(statusRequestWithAccessPointRole.getAccessPointRole().name())) {
             LOG.error(ACCESS_POINT_ROLE_EMPTY);
             throw new StatusFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty"));
         }
+        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
