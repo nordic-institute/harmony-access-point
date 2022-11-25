@@ -162,12 +162,25 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
         final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
-        return initChildren(messageId, userMessageLog);
-    }
-
-    private UserMessageLog initChildren(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
+            return null;
+        }
+        initializeChildren(userMessageLog);
+        return userMessageLog;
+    }
+
+    /**
+     * Finds a UserMessageLog by user message entity id. If the message id is not found it catches the exception raised Hibernate and returns null.
+     *
+     * @param userMessageEntityId The user message entity id
+     * @return The UserMessageLog
+     */
+    @Transactional
+    public UserMessageLog findByMessageEntityIdSafely(long userMessageEntityId, MSHRole mshRole) {
+        final UserMessageLog userMessageLog = findByUserMessageEntityId(userMessageEntityId, mshRole);
+        if (userMessageLog == null) {
+            LOG.debug("Could not find any result for message with user message entity id [{}]", userMessageEntityId);
             return null;
         }
         initializeChildren(userMessageLog);
@@ -234,13 +247,41 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    public UserMessageLog findByUserMessageEntityId(long userMessageEntityId) {
+        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByUserMessageEntityId", UserMessageLog.class);
+        query.setParameter(STR_MESSAGE_ENTITY_ID, userMessageEntityId);
+        List<UserMessageLog> results = query.getResultList();
+        return filterResults(results, String.valueOf(userMessageEntityId), STR_MESSAGE_ENTITY_ID);
+    }
+
+    public UserMessageLog findByUserMessageEntityId(long userMessageEntityId, MSHRole mshRole) {
+        if (mshRole == null) {
+            LOG.debug("Provided MSHRole is null; calling findByUserMessageEntityId(userMessageEntityId) for id [{}]", userMessageEntityId);
+            return findByUserMessageEntityId(userMessageEntityId);
+        }
+
+        TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.getMessageStatusByIdAndRole", UserMessageLog.class);
+        query.setParameter(STR_MESSAGE_ENTITY_ID, userMessageEntityId);
+        query.setParameter(MSH_ROLE, mshRole);
+
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.getMessageStatusByIdAndRole did not find any result for message with id [{}] and MSH role [{}]", userMessageEntityId, mshRole);
+        }
+        return userMessageLog;
+    }
+
     // keep this until we remove the deprecated ext methods
     public UserMessageLog findByMessageId(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         List<UserMessageLog> results = query.getResultList();
+        return filterResults(results, messageId, STR_MESSAGE_ID);
+    }
+
+    private static UserMessageLog filterResults(List<UserMessageLog> results, String id, String idType) {
         if (CollectionUtils.isEmpty(results)) {
-            LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", idType, id);
             return null;
         }
 
@@ -248,8 +289,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
             return results.get(0);
         }
-
-        LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+        LOG.info("Found more than one UserMessageLog for message with [{}]=[{}], Trying to return the one with SENDING role", idType, id);
         UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
                 .orElse(results.get(0));
         LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
@@ -264,7 +304,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRole);
 
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
         if (userMessageLog == null) {

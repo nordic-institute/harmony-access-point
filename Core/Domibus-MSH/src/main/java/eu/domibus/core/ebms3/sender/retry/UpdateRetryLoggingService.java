@@ -116,23 +116,23 @@ public class UpdateRetryLoggingService {
      */
     @Transactional
     public boolean failIfExpired(UserMessage userMessage, final @NotNull LegConfiguration legConfiguration) {
-        final String messageId = userMessage.getMessageId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final long userMessageMessageId = userMessage.getEntityId();
+        UserMessageLog userMessageLog = userMessageLogDao.findByUserMessageEntityId(userMessageMessageId, MSHRole.SENDING);
 
         boolean expired = isExpired(legConfiguration, userMessageLog);
         if (!expired) {
-            LOG.debug("Message [{}] is not expired", messageId);
+            LOG.debug("Message [{}] is not expired", userMessageMessageId);
             return false;
         }
-        LOG.debug("Message [{}] is expired", messageId);
+        LOG.debug("Message [{}] is expired", userMessageMessageId);
         setMessageFailed(userMessage, userMessageLog);
         return true;
     }
 
     @Transactional
     public boolean failIfInvalidConfig(UserMessage userMessage, final LegConfiguration legConfiguration) {
-        final String messageId = userMessage.getMessageId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final long userMessageEntityId = userMessage.getEntityId();
+        UserMessageLog userMessageLog = userMessageLogDao.findByUserMessageEntityId(userMessageEntityId, MSHRole.SENDING);
         if (legConfiguration == null) {
             setMessageFailed(userMessage, userMessageLog);
             return true;
@@ -174,7 +174,7 @@ public class UpdateRetryLoggingService {
 
     protected void updateRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt) {
         LOG.debug("Updating retry for message");
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(userMessage.getMessageId(), MSHRole.SENDING);
+        UserMessageLog userMessageLog = userMessageLogDao.findByUserMessageEntityId(userMessage.getEntityId(), MSHRole.SENDING);
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
@@ -221,12 +221,12 @@ public class UpdateRetryLoggingService {
     }
 
     public void setSourceMessageAsFailed(UserMessage userMessage) {
-        final String messageId = userMessage.getMessageId();
-        LOG.debug("Setting the SourceMessage [{}] as failed", messageId);
+        final long userMessageEntityId = userMessage.getEntityId();
+        LOG.debug("Setting the SourceMessage [{}] as failed", userMessageEntityId);
 
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageEntityIdSafely(userMessageEntityId, userMessage.getMshRole().getRole());
         if (messageLog == null) {
-            LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
+            LOG.error("UserMessageLogEntity not found for message with entity id [{}]: could not mark the message as failed", userMessageEntityId);
             return;
         }
         messageFailed(userMessage, messageLog);
