@@ -24,7 +24,8 @@ public interface PullMessageStateService {
     /**
      * Reset the next attempt date, put the message in send_failure and notify if configure.
      *
-     * @param userMessageLog the user message.
+     * @param userMessageLog the user message
+     * @param userMessageLog the message to be puller
      */
     void sendFailed(UserMessageLog userMessageLog, UserMessage userMessage);
 
