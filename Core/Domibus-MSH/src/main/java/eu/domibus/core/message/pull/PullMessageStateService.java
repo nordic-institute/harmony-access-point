@@ -21,6 +21,11 @@ public interface PullMessageStateService {
      */
     void expirePullMessage(String messageId);
 
+    /**
+     * Reset the next attempt date, put the message in send_failure and notify if configure.
+     *
+     * @param userMessageLog the user message.
+     */
     @Transactional
     void sendFailed(UserMessageLog userMessageLog, UserMessage userMessage);
 
