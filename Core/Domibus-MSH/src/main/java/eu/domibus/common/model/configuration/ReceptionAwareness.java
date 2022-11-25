@@ -248,7 +248,7 @@ public class ReceptionAwareness extends AbstractBaseEntity {
      private List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
         List result = new ArrayList();
         int crtTriggerTime = initialInterval;
-        while (crtTriggerTime <= timeout) {
+        while (crtTriggerTime <= timeout && crtTriggerTime > 0) {
             result.add(crtTriggerTime);
             crtTriggerTime = crtTriggerTime * multiplyingFactor;
         }
