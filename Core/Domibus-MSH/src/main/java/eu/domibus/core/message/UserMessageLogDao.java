@@ -178,7 +178,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      */
     @Transactional
     public UserMessageLog findByMessageEntityIdSafely(long userMessageEntityId) {
-        final UserMessageLog userMessageLog = findByUserMessageEntityId(userMessageEntityId);
+        final UserMessageLog userMessageLog = findByEntityId(userMessageEntityId);
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with user message entity id [{}]", userMessageEntityId);
             return null;
@@ -245,18 +245,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.debug("Could not find any result for message with entityId [{}]", entityId);
             return null;
         }
-    }
-
-    public UserMessageLog findByUserMessageEntityId(long userMessageEntityId) {
-        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByUserMessageEntityId", UserMessageLog.class);
-        query.setParameter(STR_MESSAGE_ENTITY_ID, userMessageEntityId);
-        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
-        if (userMessageLog == null) {
-            LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ENTITY_ID, userMessageEntityId);
-            return null;
-        }
-        LOG.debug("Returning the message with role [{}]", userMessageLog.getMshRole().getRole());
-        return userMessageLog;
     }
 
     // keep this until we remove the deprecated ext methods
@@ -417,6 +405,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter(MSH_ROLE, mshRole);
+        return query.getSingleResult();
+    }
+
+    public String findBackendForMessageEntityId(long messageEntityId) {
+        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessageEntityId", String.class);
+        query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
         return query.getSingleResult();
     }
 

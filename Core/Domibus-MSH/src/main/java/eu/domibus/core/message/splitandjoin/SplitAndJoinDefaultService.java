@@ -507,7 +507,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         final long userMessageEntityId = userMessage.getEntityId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByUserMessageEntityId(userMessageEntityId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(userMessageEntityId);
         }
