@@ -33,7 +33,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
     public static final String DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT = DOMIBUS_INSTANCE_NAME;
 
-    Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
+    protected Map<AlertType, AlertConfigurationManager> alertConfigurationManagers = new HashMap<>();
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
