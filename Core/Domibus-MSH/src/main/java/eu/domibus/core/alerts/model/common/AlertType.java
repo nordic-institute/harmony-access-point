@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.core.alerts.configuration.account.AccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.PluginAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.CertificateExpiredAlertConfigurationManager;
@@ -28,10 +29,10 @@ public enum AlertType {
 
     USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX, ConsoleUserLoginFailAlertConfigurationManager.class),
     USER_ACCOUNT_DISABLED("account_disabled.ftl", DOMIBUS_ALERT_USER_ACCOUNT_DISABLED_PREFIX, ConsoleAccountDisabledConfigurationManager.class),
-    USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_PREFIX),
+    USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_PREFIX, AccountEnabledConfigurationManager.class),
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_PREFIX),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl", DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_DISABLED_PREFIX, PluginAccountDisabledConfigurationManager.class),
-    PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_PREFIX),
+    PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_PREFIX, AccountEnabledConfigurationManager.class),
 
     PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX,
             AlertCategory.REPETITIVE, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
