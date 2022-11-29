@@ -8,11 +8,11 @@ import eu.domibus.core.alerts.configuration.generic.DefaultRepetitiveAlertConfig
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_INSTANCE_NAME;
 
 /**
  * @author Thomas Dussart,
@@ -67,18 +67,14 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     @Override
     public AlertModuleConfiguration getConfiguration(AlertType alertType) {
         AlertConfigurationManager configurationManager = getConfigurationManager(alertType);
-        return configurationManager != null ? configurationManager.getConfiguration() : null;
+        return configurationManager.getConfiguration();
     }
-
 
     @Override
     public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
         if (!alertConfigurationManagers.containsKey(alertType)) {
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
-            if (configurationManager != null) {
-                LOG.debug("Created configuration manager for alert [{}]", alertType);
-                applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, this);
-            }
+            applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, this);
             alertConfigurationManagers.put(alertType, configurationManager);
         }
         return alertConfigurationManagers.get(alertType);
@@ -88,6 +84,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
         String configurationProperty = alertType.getConfigurationProperty();
         Class configurationManagerClass = alertType.getConfigurationManagerClass();
         if (configurationManagerClass != null) {
+            LOG.debug("Create custom class [{}] configuration manager for alert [{}] ", configurationManagerClass, alertType);
             return (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType);
         }
         if (StringUtils.isNotBlank(configurationProperty)) {
@@ -97,17 +94,19 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
                 return null;
             }
             if (alertCategory == AlertCategory.DEFAULT) {
+                LOG.debug("Create default configuration manager for alert [{}] ", alertType);
                 return applicationContext.getBean(DefaultConfigurationManager.class, alertType);
             }
             if (alertCategory == AlertCategory.REPETITIVE) {
+                LOG.debug("Create repetitive configuration manager for alert [{}] ", alertType);
                 return applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
             }
             if (alertCategory == AlertCategory.WITH_FREQUENCY) {
+                LOG.debug("Create frequency configuration manager for alert [{}] ", alertType);
                 return applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
             }
         }
-        LOG.info("Could not create a configuration manager for alert [{}]: no configurationManagerClass or configurationProperty is specified.", alertType);
-        return null;
+        throw new ConfigurationException(String.format("Could not create a configuration manager for alert [%s]: no configurationManagerClass or configurationProperty is specified.", alertType));
     }
 
 }

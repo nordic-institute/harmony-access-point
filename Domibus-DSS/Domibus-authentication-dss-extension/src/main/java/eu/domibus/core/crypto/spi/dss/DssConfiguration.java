@@ -12,7 +12,6 @@ import eu.europa.esig.dss.service.crl.OnlineCRLSource;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
 import eu.europa.esig.dss.service.ocsp.OnlineOCSPSource;
-import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
 import eu.europa.esig.dss.spi.client.http.IgnoreDataLoader;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
@@ -55,6 +54,7 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -185,7 +185,7 @@ public class DssConfiguration {
     @Bean
     public KeyStoreCertificateSource ojContentKeyStore() throws IOException {
         LOG.debug("Initializing DSS trust list trustStore with type:[{}], path:[{}]", keystoreType, keystorePath);
-        return new KeyStoreCertificateSource(new File(DSSUtils.getNormalizedString(keystorePath)), keystoreType, keystorePassword);
+        return new KeyStoreCertificateSource(new File(Paths.get(keystorePath).normalize().toString()), keystoreType, keystorePassword);
     }
 
     @Bean
@@ -478,12 +478,12 @@ public class DssConfiguration {
     @Bean
     public CertificateSource officialJournalContentKeyStore() throws IOException {
         LOG.debug("Initializing DSS trust list trustStore with type:[{}], path:[{}]", keystoreType, keystorePath);
-        return new KeyStoreCertificateSource(new File(DSSUtils.getNormalizedString(keystorePath)), keystoreType, keystorePassword);
+        return new KeyStoreCertificateSource(new File(Paths.get(keystorePath).normalize().toString()), keystoreType, keystorePassword);
     }
 
     @Bean
     public File cacheDirectory() {
         String nodeName = serverInfoExtService.getNodeName();
-        return new File(DSSUtils.getNormalizedString(dssCachePath + File.separator + nodeName + File.separator));
+        return new File(Paths.get(dssCachePath + File.separator + nodeName + File.separator).normalize().toString());
     }
 }

@@ -1,12 +1,11 @@
 package eu.domibus.core.alerts.model.common;
 
-import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.configuration.account.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.PluginAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.CertificateExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringFailedConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.ConsoleUserLoginFailAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.partitions.PartitionConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.ConsoleUserPasswordExpirationAlertConfigurationManager;
 
@@ -22,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.0
  */
 public enum AlertType {
-    MSG_STATUS_CHANGED("message.ftl"),
+    MSG_STATUS_CHANGED("message.ftl", MessagingConfigurationManager.class),
 
     CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl", DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX, AlertCategory.REPETITIVE),
     CERT_EXPIRED("cert_expired.ftl", DOMIBUS_ALERT_CERT_EXPIRED_PREFIX, AlertCategory.REPETITIVE, CertificateExpiredAlertConfigurationManager.class),
@@ -69,6 +68,10 @@ public enum AlertType {
 
     AlertType(String template) {
         setParams(template, null, null, null);
+    }
+
+    AlertType(String template, Class configurationManagerClass) {
+        setParams(template, null, null, configurationManagerClass);
     }
 
     AlertType(String template, String configurationProperty) {
