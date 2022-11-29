@@ -1,11 +1,11 @@
 package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
@@ -50,5 +50,16 @@ public class EArchivingEventService {
         LOG.debug("Creating Alert for continuous job start date stopped");
         EventType eventType = EventType.ARCHIVING_START_DATE_STOPPED;
         eventService.enqueueEvent(eventType, eventType.name(), new EventProperties());
+    }
+
+    public void sendEventExportFailed(String batchId, Long entityId, String message) {
+        AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_MESSAGE_EXPORT_FAILED);
+        if (!alertConfiguration.isActive()) {
+            LOG.debug("E-Archiving message export failed alerts module is not enabled, no alert will be created");
+            return;
+        }
+
+        LOG.debug("Creating Alert for message export failed alerts.");
+        eventService.enqueueEvent(EventType.ARCHIVING_MESSAGE_EXPORT_FAILED, entityId.toString(), new EventProperties(batchId, entityId, message));
     }
 }
