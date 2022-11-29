@@ -97,6 +97,8 @@ public abstract class AbstractIT {
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_PERSISTENT, "false");
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_USERNAME, "test_user");
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_PASSWORD, "test_password");
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()
