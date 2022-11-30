@@ -1,19 +1,28 @@
 package eu.domibus.core.alert;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.AbstractPropertyValue;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
+import eu.domibus.core.user.ui.UserDao;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ion Perpegel
@@ -25,9 +34,9 @@ public class AlertEventsTestIT extends AbstractIT {
     private EventServiceImpl eventService;
 
     @Autowired
-    AlertDispatcherService alertDispatcherService;
+    UserDao userDao;
 
-    static Alert createdAlert;
+    static List<Alert> dispatchedAlerts = new ArrayList<>();
 
     @Configuration
     static class ContextConfiguration {
@@ -35,9 +44,14 @@ public class AlertEventsTestIT extends AbstractIT {
         @Primary
         @Bean
         public AlertDispatcherService alertDispatcherService() {
-            return alert -> createdAlert = alert;
+            return alert -> dispatchedAlerts.add(alert);
         }
 
+    }
+
+    @Before
+    public void setUp() {
+        dispatchedAlerts.clear();
     }
 
     @Test
@@ -46,8 +60,55 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueEvent(eventType, eventType.name(), new EventProperties());
 
         Thread.sleep(1000);
-        Assert.assertEquals(createdAlert.getAlertType(), AlertType.ARCHIVING_START_DATE_STOPPED);
-        Assert.assertEquals(createdAlert.getEvents().size(), 1);
-        Assert.assertEquals(createdAlert.getEvents().toArray(new Event[0])[0].getType(), eventType);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_START_DATE_STOPPED);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
+    }
+
+    @Test
+    public void sendEventMessageNotFinal() throws InterruptedException {
+        String messageId = "messageId";
+        MessageStatus messageStatus = MessageStatus.RECEIVED;
+
+        eventService.enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL, messageId, new EventProperties(messageId, messageStatus.name()));
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_MESSAGES_NON_FINAL);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Event event = alert.getEvents().toArray(new Event[0])[0];
+        Assert.assertEquals(event.getType(), EventType.ARCHIVING_MESSAGES_NON_FINAL);
+        Map<String, AbstractPropertyValue> properties = event.getProperties();
+        Assert.assertEquals(properties.size(), 3);
+        Assert.assertEquals(properties.get("OLD_STATUS").getValue(), messageStatus.name());
+        Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
+        Assert.assertEquals(properties.get("EVENT_IDENTIFIER").getValue(), messageId);
+    }
+
+    @Test
+    public void sendRepetitiveAlert() throws InterruptedException {
+        EventType eventType = EventType.PLUGIN_PASSWORD_EXPIRED;
+        UserEntityBase user = userDao.listUsers().get(0);
+        int maxPasswordAgeInDays = 10;
+
+        eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.PLUGIN_PASSWORD_EXPIRED);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
+
+        eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+
+        eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
     }
 }
