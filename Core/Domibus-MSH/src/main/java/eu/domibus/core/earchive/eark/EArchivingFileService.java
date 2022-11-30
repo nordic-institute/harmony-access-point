@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.eark;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.PartInfo;
@@ -99,7 +100,7 @@ public class EArchivingFileService {
 
     private ArchivingFileDTO getDecompressdInputStream(Long entityId, PartInfo partInfo, String mimeType) {
         if (partInfo.getPayloadDatahandler() == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
+            throw new DomibusEArchiveExportException(DomibusCoreErrorCode.DOM_009, entityId, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
         }
         try {
             return ArchivingFileDTOBuilder.getInstance()
@@ -128,7 +129,7 @@ public class EArchivingFileService {
 
     protected ArchivingFileDTO getArchivingFileDTO(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
+            throw new DomibusEArchiveExportException(DomibusCoreErrorCode.DOM_009, entityId, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
         }
         try {
             return ArchivingFileDTOBuilder.getInstance()
