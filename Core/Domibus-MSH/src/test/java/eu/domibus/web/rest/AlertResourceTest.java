@@ -379,30 +379,6 @@ public class AlertResourceTest {
     }
 
     @Test
-    public void test_getAlertTypesAsStrings() {
-        new Expectations() {{
-            domibusConfigurationService.isExtAuthProviderEnabled();
-            result = false;
-        }};
-
-        List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(19, alertTypesAsStrings.size());
-        assertTrue(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
-    }
-
-    @Test
-    public void test_getAlertTypesAsStrings_ExtAuthProvider() {
-        new Expectations() {{
-            domibusConfigurationService.isExtAuthProviderEnabled();
-            result = true;
-        }};
-
-        List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(14, alertTypesAsStrings.size());
-        assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
-    }
-
-    @Test
     public void getExcludedColumns() {
         List<String> excludedCert = alertResource.getExcludedColumns(true);
         assertEquals(excludedCert.size(), 5);
