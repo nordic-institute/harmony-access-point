@@ -586,7 +586,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
 
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, MSHRole.RECEIVING).name());
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
 
     /**
