@@ -248,7 +248,7 @@ public class EventServiceImpl implements EventService {
         AlertType alertType = eventType.geDefaultAlertType();
         AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
         if (!configuration.isActive()) {
-            LOG.info("Alert [{}] in not active; exiting", alertType);
+            LOG.info("[{}] alerts module is not enabled, no alert will be created.", alertType);
             return null;
         }
 
