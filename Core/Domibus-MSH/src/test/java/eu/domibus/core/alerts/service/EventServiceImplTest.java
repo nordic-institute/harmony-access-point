@@ -28,7 +28,6 @@ import eu.domibus.core.user.ui.User;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -176,7 +175,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void enqueueImminentCertificateExpirationEvent() throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
@@ -194,7 +192,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void enqueueCertificateExpiredEvent() throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
@@ -212,7 +209,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void persistEvent() {
         Event event = new Event();
 
@@ -241,7 +237,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void enrichMessageEvent(@Mocked final UserMessage userMessage,
                                    @Mocked final MessageExchangeConfiguration userMessageExchangeContext) throws EbMS3Exception {
         final Event event = new Event();
@@ -290,8 +285,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueuePasswordExpirationEvent(@Mocked RepetitiveAlertConfiguration passwordExpirationAlertModuleConfiguration) throws ParseException {
+    public void enqueuePasswordExpirationEvent(@Mocked RepetitiveAlertConfiguration configuration) throws ParseException {
         int maxPasswordAge = 15;
         LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
         final Date expirationDate = Date.from(LocalDateTime.of(2018, 10, 16, 0, 0, 0).atZone(ZoneOffset.UTC).toInstant());
@@ -301,6 +295,10 @@ public class EventServiceImplTest {
         persistedEvent.setType(EventType.PASSWORD_EXPIRED);
 
         new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
+            result = configuration;
+            configuration.isActive();
+            result = true;
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
             eventMapper.eventServiceToEventPersist((Event) any);
@@ -314,7 +312,6 @@ public class EventServiceImplTest {
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
             times = 1;
             Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
-            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};
     }
 
