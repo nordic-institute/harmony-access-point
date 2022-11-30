@@ -170,23 +170,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLog;
     }
 
-    /**
-     * Finds a UserMessageLog by user message entity id. If the message id is not found it catches the exception raised Hibernate and returns null.
-     *
-     * @param userMessageEntityId The user message entity id
-     * @return The UserMessageLog
-     */
-    @Transactional
-    public UserMessageLog findByMessageEntityIdSafely(long userMessageEntityId) {
-        final UserMessageLog userMessageLog = findByEntityId(userMessageEntityId);
-        if (userMessageLog == null) {
-            LOG.debug("Could not find any result for message with user message entity id [{}]", userMessageEntityId);
-            return null;
-        }
-        initializeChildren(userMessageLog);
-        return userMessageLog;
-    }
-
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache

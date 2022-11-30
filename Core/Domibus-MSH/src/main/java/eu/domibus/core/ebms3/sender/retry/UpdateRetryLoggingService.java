@@ -224,7 +224,7 @@ public class UpdateRetryLoggingService {
         final long userMessageEntityId = userMessage.getEntityId();
         LOG.debug("Setting the SourceMessage [{}] as failed", userMessageEntityId);
 
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageEntityIdSafely(userMessageEntityId);
+        final UserMessageLog messageLog = userMessageLogDao.findByEntityIdSafely(userMessageEntityId);
         if (messageLog == null) {
             LOG.error("UserMessageLogEntity not found for message with entity id [{}]: could not mark the message as failed", userMessageEntityId);
             return;

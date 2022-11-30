@@ -100,13 +100,13 @@ public class UpdateRetryLoggingServiceTest {
     public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                                   @Injectable UserMessageLog userMessageLog,
                                                                                                   @Injectable LegConfiguration legConfiguration) throws Exception {
-        final String messageId = UUID.randomUUID().toString();
+        final long entityId = 123;
 
         new Expectations(updateRetryLoggingService) {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessage.getEntityId();
+            result = entityId;
 
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByEntityId(entityId);
             result = userMessageLog;
 
             updateRetryLoggingService.hasAttemptsLeft(userMessageLog, legConfiguration);
@@ -136,14 +136,14 @@ public class UpdateRetryLoggingServiceTest {
                                                 @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
-        final String messageId = UUID.randomUUID().toString();
+        final long entityId = 123;
 
 
         new Expectations() {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessage.getEntityId();
+            result = entityId;
 
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByEntityId(entityId);
             result = userMessageLog;
 
             userMessageLog.getSendAttempts();
@@ -203,7 +203,7 @@ public class UpdateRetryLoggingServiceTest {
                                                                                                                         @Injectable LegConfiguration legConfiguration) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
-        final String messageId = UUID.randomUUID().toString();
+        final long entityId = 123;
         final long receivedTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Received 5 min ago
 
         new Expectations() {{
@@ -213,16 +213,10 @@ public class UpdateRetryLoggingServiceTest {
             userMessageLog.getSendAttemptsMax();
             result = 3;
 
-//            userMessageLog.getReceived();
-//            result = new Date(receivedTime);
+            userMessage.getEntityId();
+            result = entityId;
 
-//            userMessageLog.getNotificationStatus();
-//            result = NotificationStatus.NOT_REQUIRED;
-
-            userMessage.getMessageId();
-            result = messageId;
-
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByEntityId(entityId);
             result = userMessageLog;
         }};
 
@@ -488,17 +482,14 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void setSourceMessageAsFailed_null(@Injectable UserMessage userMessage) {
-        String messageId = "123";
+        final long entityId = 123;
 
         new Expectations() {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessage.getEntityId();
+            result = entityId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByEntityIdSafely(entityId);
             result = null;
-
-            userMessage.getMshRole().getRole();
-            result = MSHRole.SENDING;
         }};
 
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
@@ -510,13 +501,13 @@ public class UpdateRetryLoggingServiceTest {
     @Test
     public void setSourceMessageAsFailed(@Injectable UserMessage userMessage,
                                          @Injectable UserMessageLog messageLog) {
-        String messageId = "123";
+        final long entityId = 123;
 
         new Expectations() {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessage.getEntityId();
+            result = entityId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
+            userMessageLogDao.findByEntityIdSafely(entityId);
             result = messageLog;
         }};
 
