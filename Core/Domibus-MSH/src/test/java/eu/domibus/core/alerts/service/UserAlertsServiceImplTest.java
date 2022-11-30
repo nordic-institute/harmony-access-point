@@ -3,12 +3,12 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.user.UserDaoBase;
@@ -55,6 +55,9 @@ public class UserAlertsServiceImplTest {
 
     @Injectable
     protected DomainService domainService;
+
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Tested
     private UserAlertsServiceImpl userAlertsService;
@@ -229,18 +232,16 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void triggerDisabledEventTest() {
+    public void triggerDisabledEventTest(@Injectable AccountDisabledModuleConfiguration configuration) {
         final User user1 = new User() {{
             setUserName("user1");
             setPassword("anypassword");
         }};
-//        AccountDisabledModuleConfiguration conf = new AccountDisabledModuleConfiguration(AlertType.USER_ACCOUNT_DISABLED,
-//                AlertLevel.MEDIUM, AccountDisabledMoment.AT_LOGON, "");
-        AccountDisabledModuleConfiguration conf = new AccountDisabledModuleConfiguration(AlertType.USER_ACCOUNT_DISABLED);
         new Expectations(userAlertsService) {{
+            configuration.isActive();
+            result = true;
             userAlertsService.getAccountDisabledConfiguration();
-            result = conf;
+            result = configuration;
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
         }};
@@ -248,38 +249,12 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerDisabledEvent(user1);
 
         new VerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, user1.getUserName(), new EventProperties(UserEntityBase.Type.CONSOLE, user1.getUserName(), (Date) any, true));
+            eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, UserEntityBase.Type.CONSOLE.getCode() + "/" + user1.getUserName(), (EventProperties) any);
             times = 1;
         }};
     }
 
     @Test
-    @Ignore
-    public void triggerEnabledEventTest() {
-        final User user1 = new User() {{
-            setUserName("user1");
-            setPassword("anypassword");
-        }};
-//        AlertModuleConfigurationBase conf = new AlertModuleConfigurationBase(AlertType.USER_ACCOUNT_ENABLED,
-//                AlertLevel.MEDIUM, "");
-        AlertModuleConfigurationBase conf = new AlertModuleConfigurationBase(AlertType.USER_ACCOUNT_ENABLED);
-        new Expectations(userAlertsService) {{
-            userAlertsService.getAccountEnabledConfiguration();
-            result = conf;
-            userAlertsService.getUserType();
-            result = UserEntityBase.Type.CONSOLE;
-        }};
-
-        userAlertsService.triggerEnabledEvent(user1);
-
-        new VerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.USER_ACCOUNT_ENABLED, user1.getUserName(), new EventProperties(UserEntityBase.Type.CONSOLE, user1.getUserName(), (Date) any));
-            times = 1;
-        }};
-    }
-
-    @Test
-    @Ignore
     public void triggerLoginEventsTest_BAD_CREDENTIALS(
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
 
@@ -297,13 +272,12 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.BAD_CREDENTIALS);
 
         new VerificationsInOrder() {{
-            eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, "user1", new EventProperties(UserEntityBase.Type.CONSOLE, "user1", (Date) any, false));
+            eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, UserEntityBase.Type.CONSOLE.getCode() + "/" + "user1", (EventProperties) any);
             times = 1;
         }};
     }
 
     @Test
-    @Ignore
     public void triggerLoginEventsTest_SUSPENDED_inactive(
             @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
@@ -311,6 +285,7 @@ public class UserAlertsServiceImplTest {
         new Expectations(userAlertsService) {{
             LoginFailureModuleConfiguration.isActive();
             result = true;
+
             userAlertsService.getLoginFailureConfiguration();
             result = LoginFailureModuleConfiguration;
 
@@ -319,16 +294,18 @@ public class UserAlertsServiceImplTest {
 
             accountDisabledConfiguration.isActive();
             result = false;
+
+            userAlertsService.getUserType();
+            result = UserEntityBase.Type.CONSOLE;
         }};
 
-        userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
+        userAlertsService.triggerLoginEvents(UserEntityBase.Type.CONSOLE.getCode() + "/" + "user1", UserLoginErrorReason.SUSPENDED);
 
         new FullVerifications() {
         };
     }
 
     @Test
-    @Ignore
     public void triggerLoginEventsTest_SUSPENDED_active_eachLogin(
             @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
@@ -356,12 +333,11 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
 
         new FullVerifications() {{
-            eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, "user1", new EventProperties(UserEntityBase.Type.CONSOLE, "user1", withAny(new Date())));
+            eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, UserEntityBase.Type.CONSOLE.getCode() + "/" + "user1", (EventProperties) any);
         }};
     }
 
     @Test
-    @Ignore
     public void triggerLoginEventsTest_SUSPENDED_active_notEachLogin(
             @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
@@ -389,7 +365,7 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
 
         new FullVerifications() {{
-            eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, "user1", new EventProperties(UserEntityBase.Type.CONSOLE, "user1", (Date) any, true));
+            eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, UserEntityBase.Type.CONSOLE.getCode() + "/" + "user1", (EventProperties) any);
         }};
     }
 

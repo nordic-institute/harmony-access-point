@@ -68,7 +68,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
-//        final LoginFailureModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         AlertModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         LOG.debug("loginFailureConfiguration.isActive : [{}]", loginFailureConfiguration.isActive());
         EventType loginFailEventType = getUserType() == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
@@ -95,7 +94,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         }
     }
 
-    private String getEventId(String userName) {
+    protected String getEventId(String userName) {
         return getUserType().getCode() + "/" + userName;
     }
 

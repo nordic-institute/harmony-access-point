@@ -6,13 +6,17 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -73,8 +77,10 @@ public class EventServiceImplTest {
     @Injectable
     protected MpcService mpcService;
 
+    @Injectable
+    AlertConfigurationService alertConfigurationService;
+
     @Test
-    @Ignore
     public void enqueueMessageEvent() {
         final String messageId = "messageId";
         final MessageStatus oldMessageStatus = MessageStatus.SEND_ENQUEUED;
@@ -93,13 +99,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueLoginFailureEvent() throws ParseException {
+    public void enqueueLoginFailureEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
         final boolean accountDisabled = false;
-//        eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, userName, loginTime, accountDisabled);
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, accountDisabled));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_LOGIN_FAILURE.getQueueSelector());
@@ -112,13 +126,20 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueAccountDisabledEvent() throws ParseException {
+    public void enqueueAccountDisabledEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
 
-//        eventService.enqueueAccountDisabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, true));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_DISABLED.getQueueSelector());
@@ -130,13 +151,20 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueAccountEnabledEvent() throws ParseException {
+    public void enqueueAccountEnabledEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
 
-//        eventService.enqueueAccountEnabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_ACCOUNT_ENABLED, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, true));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_ENABLED.getQueueSelector());
