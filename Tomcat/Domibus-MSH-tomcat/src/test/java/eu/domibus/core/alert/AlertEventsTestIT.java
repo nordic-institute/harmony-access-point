@@ -1,8 +1,11 @@
 package eu.domibus.core.alert;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.AbstractPropertyValue;
@@ -86,6 +89,23 @@ public class AlertEventsTestIT extends AbstractIT {
         Assert.assertEquals(properties.get("OLD_STATUS").getValue(), messageStatus.name());
         Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
         Assert.assertEquals(properties.get("EVENT_IDENTIFIER").getValue(), messageId);
+    }
+
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
+
+    @Test
+    public void sendMessagingEvent() throws InterruptedException {
+        String messageId = "msg-test-0";
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage(messageId);
+        eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.MSG_STATUS_CHANGED);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.MSG_STATUS_CHANGED);
     }
 
     @Test

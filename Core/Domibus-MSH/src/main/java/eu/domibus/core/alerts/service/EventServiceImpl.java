@@ -225,8 +225,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
-        Event event = createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
-        return event;
+        return createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
     }
 
     @Override

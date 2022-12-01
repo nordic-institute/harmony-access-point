@@ -42,7 +42,7 @@ public class RepetitiveEventListener {
         this.eventDao = eventDao;
     }
 
-    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
+    @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${" + DOMIBUS_JMS_QUEUE_ALERT + "}",
             selector = "selector = '" + EventType.QueueSelectors.REPETITIVE + "'")
     @Transactional
     public void onEvent(final Event event, final @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
@@ -62,6 +62,8 @@ public class RepetitiveEventListener {
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());
         if (entity != null) {
             alertService.createAndEnqueueAlertOnEvent(event);
+        } else {
+            LOG.debug("Could not find entity for event [{}]; no alert will be created", event);
         }
     }
 
