@@ -111,4 +111,26 @@ public class AlertEventsTestIT extends AbstractIT {
         Thread.sleep(1000);
         Assert.assertEquals(dispatchedAlerts.size(), 1);
     }
+
+    @Test
+    public void sendFrequencyAlert() throws InterruptedException {
+        String partitionName = "partitionName";
+
+        eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.PARTITION_CHECK);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.PARTITION_CHECK);
+
+        eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+
+        eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+    }
 }
