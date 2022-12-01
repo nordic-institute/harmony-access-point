@@ -302,7 +302,18 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
-    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
+    public X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider) {
+        List<java.security.cert.Certificate> serCerts = Arrays.asList(certificates);
+        LOG.debug("Reloading certificates with [{}]", provider);
+        return deserializeCertificateChainFromPemFormat(serializeCertificateChainIntoPemFormat(serCerts), provider).toArray(new X509Certificate[]{});
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain, String provider) {
         List<X509Certificate> certificates = new ArrayList<>();
         try (PemReader reader = new PemReader(new StringReader(chain))) {
             CertificateFactory cf = CertificateFactory.getInstance("X509");
