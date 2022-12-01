@@ -83,20 +83,4 @@ public class AlertConfigurationServiceImplTest {
         Assert.assertTrue(res == alertModuleConfiguration);
     }
 
-    @Test
-    public void getModuleConfigurationManager(@Mocked AlertType alertType1, @Mocked AlertType alertType2,
-                                              @Mocked AlertConfigurationManager alertConfigurationManager1,
-                                              @Mocked AlertConfigurationManager alertConfigurationManager2) {
-        alertConfigurationService.alertConfigurationManagers.put(alertType1, alertConfigurationManager1);
-        alertConfigurationService.alertConfigurationManagers.put(alertType2, alertConfigurationManager2);
-
-        AlertConfigurationManager res = alertConfigurationService.getConfigurationManager(alertType1);
-        Assert.assertTrue(res == alertConfigurationManager1);
-
-        try {
-            Assert.fail();
-        } catch (ConfigurationException ex) {
-
-        }
-    }
 }
