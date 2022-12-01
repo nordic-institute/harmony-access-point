@@ -14,6 +14,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.user.ui.UserDao;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -94,10 +96,13 @@ public class AlertEventsTestIT extends AbstractIT {
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
 
+    @Autowired
+    UserMessageLogDao userMessageLogDao;
+
     @Test
     public void sendMessagingEvent() throws InterruptedException {
         String messageId = "msg-test-0";
-        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage(messageId);
+        UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
 
         Thread.sleep(1000);
@@ -105,7 +110,15 @@ public class AlertEventsTestIT extends AbstractIT {
         Alert alert = dispatchedAlerts.get(0);
         Assert.assertEquals(alert.getAlertType(), AlertType.MSG_STATUS_CHANGED);
         Assert.assertEquals(alert.getEvents().size(), 1);
-        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.MSG_STATUS_CHANGED);
+        Event event = alert.getEvents().toArray(new Event[0])[0];
+        Assert.assertEquals(event.getType(), EventType.MSG_STATUS_CHANGED);
+        Map<String, AbstractPropertyValue> properties = event.getProperties();
+        Assert.assertEquals(properties.size(), 4);
+        Assert.assertEquals(properties.get("OLD_STATUS").getValue(), MessageStatus.SEND_ENQUEUED.name());
+        Assert.assertEquals(properties.get("NEW_STATUS").getValue(), MessageStatus.SEND_FAILURE.name());
+        Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
+
+        userMessageLogDao.deleteMessageLogs(Arrays.asList(uml.getEntityId()));
     }
 
     @Test
