@@ -60,7 +60,7 @@ public class FileSystemEArchivePersistenceIT {
     protected EARKSIPFileService earksipFileService;
 
     @Injectable
-    EArchivingEventService eArchivingEventService;
+    private EArchivingEventService eArchivingEventService;
 
     @Tested
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;

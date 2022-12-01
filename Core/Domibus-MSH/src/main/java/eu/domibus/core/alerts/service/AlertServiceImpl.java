@@ -65,6 +65,7 @@ public class AlertServiceImpl implements AlertService {
     public static final String DESCRIPTION = "DESCRIPTION";
 
     public static final String ALERT_SELECTOR = "alert";
+
     public static final String ALERT_DESCRIPTION = "ALERT_DESCRIPTION";
 
     private final EventDao eventDao;
@@ -165,7 +166,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public void enqueueAlert(eu.domibus.core.alerts.model.service.Alert alert) {
         if (alert == null) {
-            LOG.info("Alert parameter is null; exit.");
+            LOG.info("No alert enqueued because of a missing alert parameter");
             return;
         }
         jmsManager.convertAndSendToQueue(alert, alertMessageQueue, ALERT_SELECTOR);

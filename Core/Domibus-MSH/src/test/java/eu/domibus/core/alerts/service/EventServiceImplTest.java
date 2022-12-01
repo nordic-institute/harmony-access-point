@@ -77,7 +77,7 @@ public class EventServiceImplTest {
     protected MpcService mpcService;
 
     @Injectable
-    AlertConfigurationService alertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Test
     public void enqueueMessageEvent() {
