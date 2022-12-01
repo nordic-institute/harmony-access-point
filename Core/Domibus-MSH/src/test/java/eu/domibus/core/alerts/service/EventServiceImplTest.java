@@ -9,6 +9,7 @@ import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -80,12 +81,25 @@ public class EventServiceImplTest {
     private AlertConfigurationService alertConfigurationService;
 
     @Test
-    public void enqueueMessageEvent() {
+    public void enqueueMessageEvent(@Injectable MessagingModuleConfiguration configuration) {
         final String messageId = "messageId";
         final MessageStatus oldMessageStatus = MessageStatus.SEND_ENQUEUED;
         final MessageStatus newMessageStatus = MessageStatus.ACKNOWLEDGED;
         final MSHRole mshRole = MSHRole.SENDING;
+
+        new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.MSG_STATUS_CHANGED);
+            result = configuration;
+
+            configuration.isActive();
+            result = true;
+
+            configuration.shouldMonitorMessageStatus(newMessageStatus);
+            result = true;
+        }};
+
         eventService.enqueueMessageStatusChangedEvent(messageId, oldMessageStatus, newMessageStatus, mshRole);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.MSG_STATUS_CHANGED.getQueueSelector());
@@ -175,12 +189,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void enqueueImminentCertificateExpirationEvent() throws ParseException {
+    public void enqueueImminentCertificateExpirationEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
+            result = configuration;
+        }};
+
         eventService.enqueueImminentCertificateExpirationEvent(accessPoint, alias, expirationDate);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_IMMINENT_EXPIRATION.getQueueSelector());
@@ -192,12 +215,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void enqueueCertificateExpiredEvent() throws ParseException {
+    public void enqueueCertificateExpiredEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
+            result = configuration;
+        }};
+
         eventService.enqueueCertificateExpiredEvent(accessPoint, alias, expirationDate);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_EXPIRED.getQueueSelector());
