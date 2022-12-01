@@ -4,16 +4,13 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -66,8 +63,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected final PartitionService partitionService;
 
-    protected final AlertConfigurationService alertConfigurationService;
-
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
@@ -78,8 +73,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomibusConfigurationService domibusConfigurationService,
                                              DbSchemaUtil dbSchemaUtil,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
-                                             PartitionService partitionService,
-                                             AlertConfigurationService alertConfigurationService) {
+                                             PartitionService partitionService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -90,7 +84,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -151,10 +144,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected void enqueuePartitionCheckEvent(String partitionName) {
-        AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
-        if (partitionsModuleConfiguration.isActive()) {
-            eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
-        }
+        eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
     }
 
     protected List<String> getExpiredPartitions(String newestPartitionName) {

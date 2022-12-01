@@ -2,13 +2,13 @@ package eu.domibus.core.alerts.listener.generic;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -68,6 +68,7 @@ public class FrequencyEventListener {
 
         eu.domibus.core.alerts.model.persist.Event entity = eventService.getOrCreatePersistedEvent(event);
         if (!eventService.shouldCreateAlert(entity, configuration.getFrequency())) {
+            LOG.info("No alert is created for event [{}] with entity [{}] and frequuency [{}]", event, entity, configuration.getFrequency());
             return;
         }
 

@@ -57,7 +57,6 @@ public class DefaultEventListener {
             domainContextProvider.clearCurrentDomain();
             LOG.debug("Event:[{}] for super user.", event);
         }
-
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eventService.persistEvent(event);
