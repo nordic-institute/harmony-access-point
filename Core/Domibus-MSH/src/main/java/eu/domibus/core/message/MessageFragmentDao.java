@@ -19,10 +19,8 @@ public class MessageFragmentDao extends BasicDao<MessageFragmentEntity> {
 
     @Override
     public void create(MessageFragmentEntity messageFragmentEntity) {
-        if (!em.contains(messageFragmentEntity.getUserMessage())) {
-            UserMessage attachedUserMessage = em.find(UserMessage.class, messageFragmentEntity.getUserMessage().getEntityId());
-            messageFragmentEntity.setUserMessage(attachedUserMessage);
-        }
+        UserMessage attachedUserMessage = em.find(UserMessage.class, messageFragmentEntity.getUserMessage().getEntityId());
+        messageFragmentEntity.setUserMessage(attachedUserMessage);
         super.create(messageFragmentEntity);
     }
 }
