@@ -10,6 +10,7 @@ import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.DomibusAlertException;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -101,6 +102,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void enqueueMessageStatusChangedEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
+        AlertType alertType = EventType.MSG_STATUS_CHANGED.geDefaultAlertType();
+        MessagingModuleConfiguration configuration = (MessagingModuleConfiguration) alertConfigurationService.getConfiguration(alertType);
+        if (!configuration.isActive()) {
+            LOG.info("Messaging alerts module is not enabled, no alert will be created.");
+            return;
+        }
+
+        if (!configuration.shouldMonitorMessageStatus(newStatus)) {
+            LOG.info("[{}] status is not monitored, no alert will be created.", newStatus);
+            return;
+        }
+
         Event event = new Event(EventType.MSG_STATUS_CHANGED);
         event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
         event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
@@ -114,12 +127,26 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
+        AlertType alertType = EventType.CERT_IMMINENT_EXPIRATION.geDefaultAlertType();
+        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
+        if (!configuration.isActive()) {
+            LOG.info("[{}] alerts module is not enabled, no alert will be created.", alertType);
+            return;
+        }
+
         Event event = prepareCertificateEvent(EventType.CERT_IMMINENT_EXPIRATION, accessPoint, alias, expirationDate);
         enqueueEvent(event);
     }
 
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
+        AlertType alertType = EventType.CERT_EXPIRED.geDefaultAlertType();
+        AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
+        if (!configuration.isActive()) {
+            LOG.info("[{}] alerts module is not enabled, no alert will be created.", alertType);
+            return;
+        }
+
         Event event = prepareCertificateEvent(EventType.CERT_EXPIRED, accessPoint, alias, expirationDate);
         enqueueEvent(event);
     }
@@ -225,8 +252,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
-        Event event = createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
-        return event;
+        return createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
     }
 
     @Override

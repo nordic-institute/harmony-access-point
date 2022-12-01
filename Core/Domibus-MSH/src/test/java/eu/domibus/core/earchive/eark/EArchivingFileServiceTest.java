@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.eark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.RawEnvelopeDto;
@@ -169,7 +170,7 @@ public class EArchivingFileServiceTest {
         try {
             eArchivingFileService.getArchivingFiles(entityId);
             Assert.fail();
-        } catch (DomibusEArchiveException e) {
+        } catch (DomibusEArchiveExportException e) {
             //ok
         }
 
