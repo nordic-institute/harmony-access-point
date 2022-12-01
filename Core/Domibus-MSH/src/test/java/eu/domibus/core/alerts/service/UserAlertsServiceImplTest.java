@@ -18,13 +18,11 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -238,10 +236,6 @@ public class UserAlertsServiceImplTest {
             setPassword("anypassword");
         }};
         new Expectations(userAlertsService) {{
-            configuration.isActive();
-            result = true;
-            userAlertsService.getAccountDisabledConfiguration();
-            result = configuration;
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
         }};
@@ -259,12 +253,6 @@ public class UserAlertsServiceImplTest {
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
-            LoginFailureModuleConfiguration.isActive();
-            result = true;
-
-            userAlertsService.getLoginFailureConfiguration();
-            result = LoginFailureModuleConfiguration;
-
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
         }};
@@ -283,26 +271,21 @@ public class UserAlertsServiceImplTest {
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
-            LoginFailureModuleConfiguration.isActive();
-            result = true;
-
-            userAlertsService.getLoginFailureConfiguration();
-            result = LoginFailureModuleConfiguration;
-
             userAlertsService.getAccountDisabledConfiguration();
             result = accountDisabledConfiguration;
 
-            accountDisabledConfiguration.isActive();
-            result = false;
-
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
+
+            accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin();
+            result = true;
         }};
 
         userAlertsService.triggerLoginEvents(UserEntityBase.Type.CONSOLE.getCode() + "/" + "user1", UserLoginErrorReason.SUSPENDED);
 
-        new FullVerifications() {
-        };
+        new Verifications() {{
+            eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, anyString, (EventProperties) any);
+        }};
     }
 
     @Test
@@ -311,17 +294,8 @@ public class UserAlertsServiceImplTest {
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
-            LoginFailureModuleConfiguration.isActive();
-            result = true;
-
-            userAlertsService.getLoginFailureConfiguration();
-            result = LoginFailureModuleConfiguration;
-
             userAlertsService.getAccountDisabledConfiguration();
             result = accountDisabledConfiguration;
-
-            accountDisabledConfiguration.isActive();
-            result = true;
 
             accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin();
             result = true;
@@ -343,17 +317,8 @@ public class UserAlertsServiceImplTest {
             @Injectable AlertModuleConfigurationBase LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
-            LoginFailureModuleConfiguration.isActive();
-            result = true;
-
-            userAlertsService.getLoginFailureConfiguration();
-            result = LoginFailureModuleConfiguration;
-
             userAlertsService.getAccountDisabledConfiguration();
             result = accountDisabledConfiguration;
-
-            accountDisabledConfiguration.isActive();
-            result = true;
 
             accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin();
             result = false;
