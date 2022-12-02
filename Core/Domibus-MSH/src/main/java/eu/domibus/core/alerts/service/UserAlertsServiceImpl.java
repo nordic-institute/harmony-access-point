@@ -4,7 +4,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -131,6 +130,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         RepetitiveAlertConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
                 : getExpiredAlertConfiguration();
         if (!alertConfiguration.isActive()) {
+            LOG.debug("[{}] alert module is not ebabled.", eventType);
             return;
         }
 
@@ -139,6 +139,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
             // if password expiration is disabled, do not trigger the corresponding alerts, regardless of alert enabled/disabled status
+            LOG.debug("Property maximum password in days is 0 so password expiration is disabled.");
             return;
         }
 

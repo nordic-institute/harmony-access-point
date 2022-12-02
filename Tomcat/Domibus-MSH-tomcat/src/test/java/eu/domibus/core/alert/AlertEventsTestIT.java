@@ -41,6 +41,12 @@ public class AlertEventsTestIT extends AbstractIT {
     @Autowired
     UserDao userDao;
 
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
+
+    @Autowired
+    UserMessageLogDao userMessageLogDao;
+
     static List<Alert> dispatchedAlerts = new ArrayList<>();
 
     @Configuration
@@ -93,15 +99,9 @@ public class AlertEventsTestIT extends AbstractIT {
         Assert.assertEquals(properties.get("EVENT_IDENTIFIER").getValue(), messageId);
     }
 
-    @Autowired
-    MessageDaoTestUtil messageDaoTestUtil;
-
-    @Autowired
-    UserMessageLogDao userMessageLogDao;
-
     @Test
     public void sendMessagingEvent() throws InterruptedException {
-        String messageId = "msg-test-0";
+        String messageId = "msg-test-1";
         UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
 
@@ -117,6 +117,18 @@ public class AlertEventsTestIT extends AbstractIT {
         Assert.assertEquals(properties.get("OLD_STATUS").getValue(), MessageStatus.SEND_ENQUEUED.name());
         Assert.assertEquals(properties.get("NEW_STATUS").getValue(), MessageStatus.SEND_FAILURE.name());
         Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
+
+        userMessageLogDao.deleteMessageLogs(Arrays.asList(uml.getEntityId()));
+    }
+
+    @Test
+    public void sendMessagingEventStatusWithoutAlert() throws InterruptedException {
+        String messageId = "msg-test-2";
+        UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
+        eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.ACKNOWLEDGED, MSHRole.SENDING);
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 0);
 
         userMessageLogDao.deleteMessageLogs(Arrays.asList(uml.getEntityId()));
     }
@@ -165,5 +177,23 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         Thread.sleep(1000);
         Assert.assertEquals(dispatchedAlerts.size(), 1);
+    }
+
+    @Test
+    public void sendConnMonitorAlert() throws InterruptedException {
+        MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
+        String fromParty = "fromParty";
+        String toParty = "toParty";
+        String messageId = "messageId";
+
+        eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
+                new EventProperties(messageId, MSHRole.RECEIVING.name(), oldStatus.name(), fromParty, toParty));
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Alert alert = dispatchedAlerts.get(0);
+        Assert.assertEquals(alert.getAlertType(), AlertType.CONNECTION_MONITORING_FAILED);
+        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.CONNECTION_MONITORING_FAILED);
     }
 }
