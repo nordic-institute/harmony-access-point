@@ -44,7 +44,7 @@ public class DistributedCacheExtResource {
     }
 
     @Operation(summary = "Create distributed cache",
-            description = "Create distributed cache using the specified configurtion",
+            description = "Create distributed cache using the specified configuration",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
 
     @ApiResponses(value = {

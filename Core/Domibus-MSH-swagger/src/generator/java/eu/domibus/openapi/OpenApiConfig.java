@@ -167,4 +167,11 @@ public class OpenApiConfig {
     public TruststoreExtService truststoreExtService() {
         return Mockito.mock(TruststoreExtService.class);
     }
+
+
+    @Bean
+    public DistributedCacheExtService distributedCacheExtService() {
+        return Mockito.mock(DistributedCacheExtService.class);
+    }
+
 }
