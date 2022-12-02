@@ -31,6 +31,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
 
+    private static final String BOUNCYCASTLE_PROVIDER = "BC";
+
     private static final String CERTPATH = "certpath";
 
     private ValidationReport validationReport;
@@ -71,6 +73,10 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
                     append(cert.getSerialNumber()).
                     append(cert.getIssuerDN() != null ? cert.getIssuerDN().getName() : "");
         }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Certificates received by the DSS extension");
+            logCertificate(certs);
+        }
         String cacheKey = cacheKeyBuilder.toString();
         if (dssCache.isChainValid(cacheKey)) {
             LOG.debug("Certificate with cache key:[{}] validated from dss cache", dssCache);
@@ -81,10 +87,20 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
                 LOG.trace("Certificate has been added to the DSS cache by another thread.");
                 return;
             }
-            final X509Certificate leafCertificate = getX509LeafCertificate(certs);
+
+            //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
+            LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
+            X509Certificate[] dssCerts = pkiExtService.getCertificatesWithProvider(certs, BOUNCYCASTLE_PROVIDER);
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Certificates received after Bouncy castle reload");
+                logCertificate(dssCerts);
+            }
+
+            final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.
             final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
-            CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
+            CertificateSource adjunctCertSource = prepareCertificateSource(dssCerts, leafCertificate);
             certificateVerifier.setAdjunctCertSources(adjunctCertSource);
             LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
             //add leaf certificate to DSS
@@ -95,6 +111,11 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
         }
 
+    }
+
+    private void logCertificate(X509Certificate[] certs) {
+        List<X509Certificate> x509Certificates = Arrays.asList(certs);
+        x509Certificates.forEach(x509Certificate -> LOG.debug("Certificate to be validated value:[{}] canonical:[{}]", x509Certificate, x509Certificate.getSubjectX500Principal().getName("CANONICAL")));
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
@@ -149,5 +170,4 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
     public String getIdentifier() {
         return "DSS_AUTHENTICATION_SPI";
     }
-
 }
