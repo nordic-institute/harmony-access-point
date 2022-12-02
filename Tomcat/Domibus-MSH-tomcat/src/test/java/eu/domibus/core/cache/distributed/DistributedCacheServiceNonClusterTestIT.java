@@ -7,14 +7,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 
-@TestPropertySource(properties = {"domibus.deployment.clustered=false"})
 public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DistributedCacheServiceNonClusterTestIT.class);
