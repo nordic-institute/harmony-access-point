@@ -5,6 +5,7 @@ import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.cache.Cache;
@@ -13,8 +14,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Thomas Dussart
@@ -73,6 +73,18 @@ public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
     }
 
     @Override
+    public List<String> getCacheNames() {
+        List<String> result = new ArrayList<>();
+        final Collection<String> cacheNames = cacheManager.getCacheNames();
+        if (CollectionUtils.isNotEmpty(cacheNames)) {
+            result.addAll(cacheNames);
+        }
+        return result;
+
+
+    }
+
+    @Override
     public void clear2LCCaches(boolean notification) throws DomibusCoreException {
         SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
         sessionFactory.getCache().evictAll();
@@ -110,7 +122,7 @@ public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
         }
         LOG.debug("Getting entry [{}] from cache [{}]", key, cacheName);
         final Cache.ValueWrapper valueWrapper = cache.get(key);
-        if(valueWrapper != null) {
+        if (valueWrapper != null) {
             return valueWrapper.get();
         }
         return null;
@@ -134,6 +146,24 @@ public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
         }
         LOG.debug("Evicting entry [{}] from cache [{}]", key, cacheName);
         cache.evict(key);
+    }
+
+    @Override
+    public Map<String, Object> getEntriesFromCache(String cacheName) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache == null) {
+            throw new DomibusCacheException("Cannot get entries from cache [" + cacheName + "]. Cache does not exists");
+        }
+        Map<String, Object> result = new HashMap<>();
+
+        final Iterator iterator = ((javax.cache.Cache) cache.getNativeCache()).iterator();
+        while (iterator.hasNext()) {
+            javax.cache.Cache.Entry<String, Object> next = (javax.cache.Cache.Entry<String, Object>) iterator.next();
+            final String key = next.getKey();
+            final Object value = next.getValue();
+            result.put(key, value);
+        }
+        return result;
     }
 
     protected void notifyClearAllCaches() {

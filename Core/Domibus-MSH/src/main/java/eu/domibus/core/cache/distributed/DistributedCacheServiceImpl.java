@@ -9,6 +9,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class DistributedCacheServiceImpl implements DistributedCacheService {
 
@@ -30,7 +33,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     @Override
     public void createCache(String cacheName) {
         if (isClusterDeployment()) {
-            distributedCacheDao.createCache(cacheName);
+            distributedCacheDao.createCacheIfNeeded(cacheName);
             return;
         }
         LOGGER.info(CACHE_NOT_CREATED_IN_NON_CLUSTER_MESSAGE);
@@ -40,7 +43,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     public void createCache(String cacheName, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds) {
         if (isClusterDeployment()) {
             LOGGER.debug("Creating cache [{}]", cacheName);
-            distributedCacheDao.createCache(cacheName);
+            distributedCacheDao.createCacheIfNeeded(cacheName);
             return;
         }
         LOGGER.info(CACHE_NOT_CREATED_IN_NON_CLUSTER_MESSAGE);
@@ -50,7 +53,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     public void createCache(String cacheName, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds, int nearCacheSize, int nearCacheTimeToLiveSeconds, int nearCacheMaxIdleSeconds) {
         if (isClusterDeployment()) {
             LOGGER.info("Creating cache [{}]", cacheName);
-            distributedCacheDao.createCache(cacheName);
+            distributedCacheDao.createCacheIfNeeded(cacheName);
             return;
         }
         LOGGER.info(CACHE_NOT_CREATED_IN_NON_CLUSTER_MESSAGE);
@@ -83,6 +86,24 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
         }
         //for single instance defaults to local cache
         domibusLocalCacheService.evictEntryFromCache(cacheName, key);
+    }
+
+    @Override
+    public List<String> getDistributedCacheNames() {
+        if (isClusterDeployment()) {
+            return distributedCacheDao.getCacheNames();
+        }
+        //for single instance defaults to local cache
+        return domibusLocalCacheService.getCacheNames();
+    }
+
+    @Override
+    public Map<String, Object> getEntriesFromCache(String cacheName) {
+        if (isClusterDeployment()) {
+            return distributedCacheDao.getEntriesFromCache(cacheName);
+        }
+        //for single instance defaults to local cache
+        return domibusLocalCacheService.getEntriesFromCache(cacheName);
     }
 
     protected boolean isClusterDeployment() {

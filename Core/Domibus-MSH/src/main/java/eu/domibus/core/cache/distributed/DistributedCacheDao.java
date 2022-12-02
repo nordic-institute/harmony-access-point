@@ -3,6 +3,7 @@ package eu.domibus.core.cache.distributed;
 import com.hazelcast.config.InvalidConfigurationException;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import eu.domibus.api.cache.DomibusCacheException;
@@ -11,6 +12,11 @@ import eu.domibus.core.cache.distributed.configuration.DomibusDistributedCacheCo
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -35,7 +41,7 @@ public class DistributedCacheDao {
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
-    public IMap<String, Object> createCache(String name) {
+    public IMap<String, Object> createCacheIfNeeded(String name) {
         LOGGER.debug("Creating or getting cache [{}]", name);
 
         final Integer cacheSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
@@ -49,13 +55,13 @@ public class DistributedCacheDao {
         return doGetCache(name, cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
     }
 
-    public IMap<String, Object> createCache(String name, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds) {
+    public IMap<String, Object> createCacheIfNeeded(String name, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds) {
         LOGGER.debug("Creating or getting cache [{}]", name);
         return doGetCache(name, cacheSize, timeToLiveSeconds, maxIdleSeconds, 0, 0, 0);
     }
 
 
-    public IMap<String, Object> createCache(String name, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds, int nearCacheSize, int nearCacheTimeToLiveSeconds, int nearCacheMaxIdleSeconds) {
+    public IMap<String, Object> createCacheIfNeeded(String name, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds, int nearCacheSize, int nearCacheTimeToLiveSeconds, int nearCacheMaxIdleSeconds) {
         LOGGER.debug("Creating or getting cache [{}]", name);
         return doGetCache(name, cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
     }
@@ -100,16 +106,27 @@ public class DistributedCacheDao {
         return mapConfig != null && StringUtils.equals(cacheName, mapConfig.getName());
     }
 
+    public List<String> getCacheNames() {
+        List<String> result = new ArrayList<>();
+        Collection<DistributedObject> distributedObjects = hazelcastInstance.getDistributedObjects();
+        for (DistributedObject object : distributedObjects) {
+            if (object instanceof IMap) {
+                result.add(object.getName());
+            }
+        }
+        return result;
+    }
+
     public void addEntryInCache(String cacheName, String key, Object value) {
         validateCacheExists(cacheName);
-        final IMap<String, Object> cache = createCache(cacheName);
+        final IMap<String, Object> cache = createCacheIfNeeded(cacheName);
         cache.set(key, value);
         LOGGER.info("Added key [{}] with value [{}] in cache [{}]", key, value, cacheName);
     }
 
     public Object getEntryFromCache(String cacheName, String key) {
         validateCacheExists(cacheName);
-        final IMap<String, Object> cache = createCache(cacheName);
+        final IMap<String, Object> cache = createCacheIfNeeded(cacheName);
         LOGGER.debug("Getting entry [{}] from cache [{}]", key, cacheName);
         return cache.get(key);
     }
@@ -118,9 +135,14 @@ public class DistributedCacheDao {
     public void removeEntryFromCache(String cacheName, String key) {
         validateCacheExists(cacheName);
 
-        final IMap<String, Object> cache = createCache(cacheName);
+        final IMap<String, Object> cache = createCacheIfNeeded(cacheName);
         cache.delete(key);
         LOGGER.info("Removed key [{}] from cache [{}]", key, cacheName);
+    }
+
+    public Map<String, Object> getEntriesFromCache(String cacheName) {
+        validateCacheExists(cacheName);
+        return createCacheIfNeeded(cacheName);
     }
 
     private void validateCacheExists(String cacheName) {

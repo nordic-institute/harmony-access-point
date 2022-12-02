@@ -2,16 +2,19 @@ package eu.domibus.core.cache.distributed;
 
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.impl.proxy.MapProxyImpl;
 import com.hazelcast.map.impl.proxy.NearCachedMapProxyImpl;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.cache.DomibusCacheException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -27,9 +30,17 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
     @Autowired
     DistributedCacheDao distributedCacheDao;
 
+    @Autowired
+    HazelcastInstance hazelcastInstance;
+
+    @Before
+    public void beforeTest() {
+        distributedCacheDao.getCacheNames().stream().forEach(mapName -> hazelcastInstance.getMap(mapName).destroy());
+    }
+
     @Test
     public void testGetCacheWithDefaultConfiguration() {
-        final Map<String, Object> mycache = distributedCacheDao.createCache("mycache");
+        final Map<String, Object> mycache = distributedCacheDao.createCacheIfNeeded("mycache");
         final MapConfig mapConfig = ((NearCachedMapProxyImpl) (mycache)).getMapConfig();
         assertEquals(EXPECTED_CACHE_SIZE, mapConfig.getEvictionConfig().getSize());
         assertEquals(0, mapConfig.getBackupCount());
@@ -46,7 +57,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
         final int cacheSize = 10;
         final int timeToLiveSeconds = 60;
         final int maxIdleSeconds = 100;
-        final Map<String, Object> myCache = distributedCacheDao.createCache("myCustomCache", cacheSize, timeToLiveSeconds, maxIdleSeconds);
+        final Map<String, Object> myCache = distributedCacheDao.createCacheIfNeeded("myCustomCache", cacheSize, timeToLiveSeconds, maxIdleSeconds);
         final MapConfig mapConfig = ((MapProxyImpl) (myCache)).getMapConfig();
         assertEquals(cacheSize, mapConfig.getEvictionConfig().getSize());
         assertEquals(0, mapConfig.getBackupCount());
@@ -65,7 +76,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
         final int nearCacheSize = 2000;
         final int nearCacheTimeToLiveSeconds = 120;
         final int nearCacheMaxIdleSeconds = 50;
-        final Map<String, Object> myCache = distributedCacheDao.createCache("myCustomCache2", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
+        final Map<String, Object> myCache = distributedCacheDao.createCacheIfNeeded("myCustomCache2", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
         final MapConfig mapConfig = ((NearCachedMapProxyImpl) (myCache)).getMapConfig();
         assertEquals(cacheSize, mapConfig.getEvictionConfig().getSize());
         assertEquals(0, mapConfig.getBackupCount());
@@ -77,7 +88,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
         assertEquals(nearCacheTimeToLiveSeconds, nearCacheConfig.getTimeToLiveSeconds());
         assertEquals(nearCacheMaxIdleSeconds, nearCacheConfig.getMaxIdleSeconds());
 
-        final Map<String, Object> myCache1 = distributedCacheDao.createCache("myCustomCache2", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
+        final Map<String, Object> myCache1 = distributedCacheDao.createCacheIfNeeded("myCustomCache2", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
         //check that we retrieve the same cache and not a newly created cache
         assertTrue(myCache == myCache1);
     }
@@ -90,7 +101,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
         final int nearCacheSize = 2000;
         final int nearCacheTimeToLiveSeconds = 120;
         final int nearCacheMaxIdleSeconds = 50;
-        distributedCacheDao.createCache("myCustomCache3", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
+        distributedCacheDao.createCacheIfNeeded("myCustomCache3", cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
 
         distributedCacheDao.addEntryInCache("myCustomCache3", "mykey", "myvalue");
     }
@@ -110,7 +121,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
     @Test
     public void evictEntryFromCache() {
         final String cacheName = "myCustomCache4";
-        distributedCacheDao.createCache(cacheName);
+        distributedCacheDao.createCacheIfNeeded(cacheName);
 
         final String key = "mykey";
         final String value = "myvalue";
@@ -119,5 +130,33 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
         assertEquals(value, entryFromCache);
         distributedCacheDao.removeEntryFromCache(cacheName, key);
         assertNull(distributedCacheDao.getEntryFromCache(cacheName, key));
+    }
+
+    @Test
+    public void getCacheNames() {
+        distributedCacheDao.createCacheIfNeeded("cache1");
+        distributedCacheDao.createCacheIfNeeded("cache2");
+        distributedCacheDao.createCacheIfNeeded("cache3");
+
+        final List<String> cacheNames = distributedCacheDao.getCacheNames();
+        assertNotNull(cacheNames);
+        assertEquals(3, cacheNames.size());
+        cacheNames.contains("cache1");
+        cacheNames.contains("cache2");
+        cacheNames.contains("cache3");
+    }
+
+    @Test
+    public void getEntriesFromCache() {
+        final String cacheName = "cache11";
+        distributedCacheDao.createCacheIfNeeded(cacheName);
+        distributedCacheDao.addEntryInCache(cacheName, "key1", "value1");
+        distributedCacheDao.addEntryInCache(cacheName, "key2", "value2");
+
+        final Map<String, Object> entriesFromCache = distributedCacheDao.getEntriesFromCache(cacheName);
+        assertNotNull(entriesFromCache);
+        assertEquals(2, entriesFromCache.size());
+        assertEquals("value1", entriesFromCache.get("key1"));
+        assertEquals("value2", entriesFromCache.get("key2"));
     }
 }

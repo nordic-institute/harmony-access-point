@@ -9,8 +9,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 @TestPropertySource(properties = {"domibus.deployment.clustered=false"})
 public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
@@ -42,9 +44,23 @@ public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
         distributedCacheService.addEntryInCache(EXISTING_LOCAL_CACHE, myKey, myValue);
 
         assertEquals(myValue, distributedCacheService.getEntryFromCache(EXISTING_LOCAL_CACHE, myKey));
-
         distributedCacheService.evictEntryFromCache(EXISTING_LOCAL_CACHE, myKey);
-
         assertNull(distributedCacheService.getEntryFromCache(EXISTING_LOCAL_CACHE, myKey));
+    }
+
+    @Test
+    public void getCacheNames() {
+        final List<String> distributedCacheNames = distributedCacheService.getDistributedCacheNames();
+        assertNotNull(distributedCacheNames);
+    }
+
+    @Test
+    public void getEntriesFromCache() {
+        distributedCacheService.createCache(EXISTING_LOCAL_CACHE);
+        distributedCacheService.addEntryInCache(EXISTING_LOCAL_CACHE, "key11", "value11");
+        final Map<String, Object> entriesFromCache = distributedCacheService.getEntriesFromCache(EXISTING_LOCAL_CACHE);
+        assertNotNull(entriesFromCache);
+        assertEquals(1, entriesFromCache.size());
+        assertEquals("value11", entriesFromCache.get("key11"));
     }
 }

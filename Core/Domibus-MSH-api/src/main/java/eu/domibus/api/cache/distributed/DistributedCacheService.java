@@ -2,6 +2,9 @@ package eu.domibus.api.cache.distributed;
 
 import eu.domibus.api.cache.DomibusCacheException;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Service responsible for managing the distributed cache. Changes are propagated automatically amongst the cluster members.
  * The service fallbacks to local cache in a non cluster environment.
@@ -63,4 +66,17 @@ public interface DistributedCacheService {
      * @throws DomibusCacheException if the cache does not exist
      */
     void evictEntryFromCache(String cacheName, String key) throws DomibusCacheException;
+
+    /**
+     * Get all cache names
+     * @return the list of cache names
+     */
+    List<String> getDistributedCacheNames();
+
+    /**
+     * Get all entries from a cache
+     * @param cacheName The cache name from which we get the entries
+     * @return All the entries from the cache
+     */
+    Map<String, Object> getEntriesFromCache(String cacheName);
 }

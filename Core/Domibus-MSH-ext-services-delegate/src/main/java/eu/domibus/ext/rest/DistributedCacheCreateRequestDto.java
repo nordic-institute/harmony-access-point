@@ -14,6 +14,9 @@ public class DistributedCacheCreateRequestDto {
     protected Integer nearCacheTimeToLiveSeconds;
     protected Integer nearCacheMaxIdleSeconds;
 
+    public DistributedCacheCreateRequestDto() {
+    }
+
     public DistributedCacheCreateRequestDto(String cacheName, Integer cacheSize, Integer timeToLiveSeconds, Integer maxIdleSeconds, Integer nearCacheSize, Integer nearCacheTimeToLiveSeconds, Integer nearCacheMaxIdleSeconds) {
         this.cacheName = cacheName;
         this.cacheSize = cacheSize;

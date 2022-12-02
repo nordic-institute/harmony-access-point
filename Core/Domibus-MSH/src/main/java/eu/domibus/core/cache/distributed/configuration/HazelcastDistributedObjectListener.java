@@ -17,12 +17,11 @@ public class HazelcastDistributedObjectListener implements DistributedObjectList
     @Override
     public void distributedObjectCreated(DistributedObjectEvent event) {
         DistributedObject instance = event.getDistributedObject();
-        LOG.info("Distributed cache object created [{}] with service [{}]", instance.getName(), instance.getServiceName());
+        LOG.info("Distributed cache object created [{}]", instance.getName());
     }
 
     @Override
     public void distributedObjectDestroyed(DistributedObjectEvent event) {
-        DistributedObject instance = event.getDistributedObject();
-        LOG.info("Distributed cache object destroyed [{}] with service [{}]", instance.getName(), instance.getServiceName());
+        LOG.info("Distributed cache object destroyed [{}]", event.getObjectName());
     }
 }

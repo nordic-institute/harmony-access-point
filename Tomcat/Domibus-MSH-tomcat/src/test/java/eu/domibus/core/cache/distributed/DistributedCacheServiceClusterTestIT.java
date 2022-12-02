@@ -6,9 +6,13 @@ import eu.domibus.api.cache.DomibusCacheException;
 import eu.domibus.api.cache.distributed.DistributedCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -22,6 +26,11 @@ public class DistributedCacheServiceClusterTestIT extends AbstractIT {
 
     @Autowired
     HazelcastInstance hazelcastInstance;
+
+    @Before
+    public void beforeTest() {
+        distributedCacheService.getDistributedCacheNames().stream().forEach(mapName -> hazelcastInstance.getMap(mapName).destroy());
+    }
 
     @Test
     public void testCreateCache() {
@@ -71,5 +80,34 @@ public class DistributedCacheServiceClusterTestIT extends AbstractIT {
         assertEquals(value, entryFromCache);
         distributedCacheService.evictEntryFromCache(cacheName, key);
         assertNull(distributedCacheService.getEntryFromCache(cacheName, key));
+    }
+
+    @Test
+    public void getCacheNames() {
+        distributedCacheService.createCache("cacheName1");
+        distributedCacheService.createCache("cacheName2");
+        final List<String> distributedCacheNames = distributedCacheService.getDistributedCacheNames();
+        assertNotNull(distributedCacheNames);
+        assertEquals(2, distributedCacheNames.size());
+    }
+
+    @Test
+    public void getCacheNamesDuplicate() {
+        distributedCacheService.createCache("cacheName1");
+        distributedCacheService.createCache("cacheName1");
+        final List<String> distributedCacheNames = distributedCacheService.getDistributedCacheNames();
+        assertNotNull(distributedCacheNames);
+        assertEquals(1, distributedCacheNames.size());
+    }
+
+    @Test
+    public void getEntriesFromCache() {
+        final String cacheName = "entries1";
+        distributedCacheService.createCache(cacheName);
+        distributedCacheService.addEntryInCache(cacheName, "key11", "value11");
+        final Map<String, Object> entriesFromCache = distributedCacheService.getEntriesFromCache(cacheName);
+        assertNotNull(entriesFromCache);
+        assertEquals(1, entriesFromCache.size());
+        assertEquals("value11", entriesFromCache.get("key11"));
     }
 }

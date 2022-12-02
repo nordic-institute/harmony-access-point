@@ -1,6 +1,9 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.ext.domain.CacheEntryDTO;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
+
+import java.util.List;
 
 /**
  * Service responsible for managing the distributed cache. Changes are propagated automatically amongst the cluster members.
@@ -66,4 +69,20 @@ public interface DistributedCacheExtService {
      * @throws CacheExtServiceException if the cache does not exist
      */
     void evictEntryFromCache(String cacheName, String key) throws CacheExtServiceException;
+
+    /**
+     * Get all cache names
+     * @return the list of cache names
+     */
+    List<String> getDistributedCacheNames();
+
+    /**
+     * Add an entry in the cache
+     * @param cacheName The cache in which the entry is added
+     * @param key The entry key
+     * @param value The value to add in the cache
+     */
+    void addEntry(String cacheName, String key, Object value);
+
+    List<CacheEntryDTO> getEntriesFromCache(String cacheName);
 }
