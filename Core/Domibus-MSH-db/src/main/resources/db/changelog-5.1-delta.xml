@@ -149,7 +149,7 @@
                                  referencedTableName="TB_D_MSH_ROLE" />
     </changeSet>
 
-    <changeSet author="Razvan Cretu"  id="EDELIVERY-10064-mysql-migration-plans-are-failing">
+    <changeSet author="Razvan Cretu" dbms="mysql" id="EDELIVERY-10064-mysql-migration-plans-are-failing">
         <addNotNullConstraint tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" columnName="SENT" columnDataType="DATETIME"/>
         <addNotNullConstraint tableName="TB_USER_MESSAGE_LOG" columnName="VERSION" columnDataType="INT"/>
         <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB"/>
@@ -195,7 +195,7 @@
     <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
         <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
             <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </addColumn>
     </changeSet>

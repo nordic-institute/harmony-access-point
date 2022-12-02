@@ -1,13 +1,10 @@
-package eu.domibus.core.alerts.service;
+package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationServiceImpl;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.exception.ConfigurationException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -16,8 +13,6 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
 @RunWith(JMockit.class)
 public class AlertConfigurationServiceImplTest {
@@ -88,22 +83,4 @@ public class AlertConfigurationServiceImplTest {
         Assert.assertTrue(res == alertModuleConfiguration);
     }
 
-//    @Test
-//    public void getModuleConfigurationManager(@Mocked AlertType alertType1, @Mocked AlertType alertType2, @Mocked AlertType alertType3,
-//                                              @Mocked AlertConfigurationManager alertConfigurationManager1,
-//                                              @Mocked AlertConfigurationManager alertConfigurationManager2) {
-//        configurationService.alertConfigurationManagers = Arrays.asList(alertConfigurationManager2, alertConfigurationManager1);
-//        new Expectations(configurationService) {{
-//            alertConfigurationManager1.getAlertType();
-//            result = alertType1;
-//            alertConfigurationManager2.getAlertType();
-//            result = alertType2;
-//        }};
-//
-//        AlertConfigurationManager res = configurationService.getModuleConfigurationManager(alertType1);
-//        Assert.assertTrue(res == alertConfigurationManager1);
-//
-//        AlertConfigurationManager res3 = configurationService.getModuleConfigurationManager(alertType3);
-//        Assert.assertNull(res3);
-//    }
 }

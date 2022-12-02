@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
@@ -37,6 +38,9 @@ public class MSHWebServiceTest {
 
     @Injectable
     IncomingMessageHandlerFactory incomingMessageHandlerFactory;
+
+    @Injectable
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
 
     @Injectable
     DomainContextProvider domainContextProvider;

@@ -34,6 +34,7 @@ import javax.servlet.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,15 +56,16 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
-        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+        String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
+        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, normalizedDomibusConfigLocation);
 
         BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
         bouncyCastleInitializer.registerBouncyCastle();
         bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
 
-        configureLogging(domibusConfigLocation);
+        configureLogging(normalizedDomibusConfigLocation);
 
-        PluginClassLoader pluginClassLoader = createPluginClassLoader(domibusConfigLocation);
+        PluginClassLoader pluginClassLoader = createPluginClassLoader(normalizedDomibusConfigLocation);
         Thread.currentThread().setContextClassLoader(pluginClassLoader);
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
@@ -71,7 +73,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         rootContext.setClassLoader(pluginClassLoader);
 
         try {
-            configurePropertySources(rootContext, domibusConfigLocation);
+            configurePropertySources(rootContext, normalizedDomibusConfigLocation);
         } catch (IOException e) {
             throw new ServletException("Error configuring property sources", e);
         }
@@ -113,8 +115,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     }
 
     protected PluginClassLoader createPluginClassLoader(String domibusConfigLocation) {
-        String pluginsLocation = domibusConfigLocation + PLUGINS_LOCATION;
-        String extensionsLocation = domibusConfigLocation + EXTENSIONS_LOCATION;
+        String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
+        String pluginsLocation = normalizedDomibusConfigLocation + PLUGINS_LOCATION;
+        String extensionsLocation = normalizedDomibusConfigLocation + EXTENSIONS_LOCATION;
 
         LOG.info("Using plugins location [{}]", pluginsLocation);
 

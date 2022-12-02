@@ -4,8 +4,6 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
-import eu.domibus.core.crypto.spi.dss.listeners.encryption.DssPropertyEncryptionListener;
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -37,7 +35,6 @@ import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.springframework.beans.factory.ObjectProvider;
@@ -57,6 +54,7 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -88,8 +86,6 @@ public class DssConfiguration {
 
     private final static String CACERT_PATH = "/lib/security/cacerts";
 
-    public static final String DEFAULT_DOMAIN = "default";
-
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
 
@@ -98,9 +94,6 @@ public class DssConfiguration {
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.password}")
     private String keystorePassword;
-
-    @Value("${domibus.authentication.dss.lotl.root.scheme.info.uri}")
-    private String lotlSchemeUri;
 
     @Value("${domibus.authentication.dss.cache.path}")
     private String dssCachePath;
@@ -136,19 +129,10 @@ public class DssConfiguration {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
-    private DomainExtService domainExtService;
-
-    @Autowired
-    private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
-
-    @Autowired
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
     @Autowired
     private ServerInfoExtService serverInfoExtService;
-
-    @Autowired
-    private PasswordEncryptionExtService passwordEncryptionService;
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -160,10 +144,6 @@ public class DssConfiguration {
         return new IgnorePivotFilenameFilter();
     }
 
-
-    private String getCacheDirectoryName(String dssCachePath, String nodeName) {
-        return dssCachePath + File.separator + nodeName + File.separator;
-    }
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -205,7 +185,7 @@ public class DssConfiguration {
     @Bean
     public KeyStoreCertificateSource ojContentKeyStore() throws IOException {
         LOG.debug("Initializing DSS trust list trustStore with type:[{}], path:[{}]", keystoreType, keystorePath);
-        return new KeyStoreCertificateSource(new File(keystorePath), keystoreType, keystorePassword);
+        return new KeyStoreCertificateSource(new File(Paths.get(keystorePath).normalize().toString()), keystoreType, keystorePassword);
     }
 
     @Bean
@@ -498,20 +478,12 @@ public class DssConfiguration {
     @Bean
     public CertificateSource officialJournalContentKeyStore() throws IOException {
         LOG.debug("Initializing DSS trust list trustStore with type:[{}], path:[{}]", keystoreType, keystorePath);
-        return new KeyStoreCertificateSource(new File(keystorePath), keystoreType, keystorePassword);
-    }
-
-    private FileCacheDataLoader getDSSFileLoader() {
-        FileCacheDataLoader fileLoader = new FileCacheDataLoader();
-        fileLoader.setCacheExpirationTime(0);
-        fileLoader.setFileCacheDirectory(cacheDirectory());
-        return fileLoader;
+        return new KeyStoreCertificateSource(new File(Paths.get(keystorePath).normalize().toString()), keystoreType, keystorePassword);
     }
 
     @Bean
     public File cacheDirectory() {
         String nodeName = serverInfoExtService.getNodeName();
-        return new File(dssCachePath + File.separator + nodeName + File.separator);
+        return new File(Paths.get(dssCachePath + File.separator + nodeName + File.separator).normalize().toString());
     }
-
 }

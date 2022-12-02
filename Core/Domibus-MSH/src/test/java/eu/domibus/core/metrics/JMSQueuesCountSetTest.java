@@ -7,7 +7,9 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +36,7 @@ public class JMSQueuesCountSetTest {
     @Test
     public void test_GetMetrics_FromDLQ() {
         //tested class
-        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, true);
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, true, null, false);
 
         final Map<String, JMSDestination> jmsDestinationList = new TreeMap<>();
         final long nbMessages = 20;
@@ -62,7 +64,7 @@ public class JMSQueuesCountSetTest {
     @Test
     public void test_GetMetrics_FromQueues() {
         //tested class
-        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false);
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false, null, false);
 
         final Map<String, JMSDestination> jmsDestinationList = new TreeMap<>();
         final long nbMessages = 20;
@@ -90,7 +92,7 @@ public class JMSQueuesCountSetTest {
     @Test
     public void test_getQueues() {
         //tested class
-        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false);
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false, null, false);
 
         final Map<String, JMSDestination> jmsDestinationList = new TreeMap<>();
         final long nbMessages = 20;
@@ -108,7 +110,7 @@ public class JMSQueuesCountSetTest {
         }};
 
         //tested method
-       List<JMSDestination> result = jmsQueuesCountSet.getQueues();
+        List<JMSDestination> result = jmsQueuesCountSet.getQueues();
 
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
@@ -118,10 +120,10 @@ public class JMSQueuesCountSetTest {
     @Test
     public void test_getQueuesAuthenticated() {
         //tested class
-        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false);
+        JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false, null, false);
 
         new Expectations() {{
-            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, anyString, anyString, (AuthRole)any);
+            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, anyString, anyString, (AuthRole) any);
         }};
 
         jmsQueuesCountSet.getQueuesAuthenticated();
@@ -132,12 +134,12 @@ public class JMSQueuesCountSetTest {
             String password;
             AuthRole role;
             authUtils.runFunctionWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture());
+                    username = withCapture(), password = withCapture(), role = withCapture());
 
             Assert.assertNotNull(function);
-            Assert.assertEquals("jms_metrics_user",username);
-            Assert.assertEquals("jms_metrics_password",password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertEquals("jms_metrics_user", username);
+            Assert.assertEquals("jms_metrics_password", password);
+            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN, role);
 
         }};
     }

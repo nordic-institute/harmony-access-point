@@ -150,17 +150,17 @@
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button mat-icon-button color="primary" [disabled]="!row.canDownloadMessage" button-click-behaviour
-            (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
+            (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" matTooltip="Download">
       <mat-icon>file_download</mat-icon>
     </button>
     <button mat-icon-button color="primary"  [disabled]="!row.canDownloadEnvelope" button-click-behaviour
             (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
-            tooltip="Download Envelopes">
+            matTooltip="Download Envelopes">
       <mat-icon>local_post_office</mat-icon>
     </button>
     <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()"
             [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
-            id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
+            id="resendButtonRow{{rows.indexOf(row)}}_id" matTooltip="Resend" button-click-behaviour>
       <mat-icon>send</mat-icon>
     </button>
   </ng-template>

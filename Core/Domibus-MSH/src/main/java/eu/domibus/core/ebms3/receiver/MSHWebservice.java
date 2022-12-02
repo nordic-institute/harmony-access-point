@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -50,6 +51,9 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     private DomainContextProvider domainContextProvider;
 
+    @Autowired
+    protected SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
     @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
@@ -80,6 +84,8 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             throw new WebServiceException(e);
         }
         setUserMessageEntityIdOnContext();
+
+        soapMessage = signalMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
 
         return soapMessage;
 

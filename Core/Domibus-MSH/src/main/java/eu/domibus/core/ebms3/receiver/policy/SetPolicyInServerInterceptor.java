@@ -153,7 +153,13 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
         final String messageId = userMessage.getMessageId();
         if (legConfiguration == null) {
-            LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
+            if (e == null) {
+                // no pmode mismatch/misconfiguration issues
+                LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
+            } else {
+                // if pmode misconfigured in c3, then notify the plugins
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
+            }
             return;
         }
         boolean testMessage = testMessageValidator.checkTestMessage(userMessage);

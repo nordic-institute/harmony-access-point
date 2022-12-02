@@ -6,6 +6,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -555,4 +556,11 @@ public abstract class PModeProvider {
     public abstract Agreement getAgreementRef(String serviceValue);
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
+
+    /**
+     * Delete FinalRecipientEntity that were modified more than numberOfDays ago; update the FinalRecipient cache
+     * @param numberOfDays
+     * @return the list of final recipients that were deleted
+     */
+    public abstract List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays);
 }
