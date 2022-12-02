@@ -27,7 +27,10 @@ public class EArchiveBatchUtils {
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             return new ArrayList<>();
         }
-        return userMessageDtos.stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList());
+        return userMessageDtos.stream()
+                .map(EArchiveBatchUserMessage::getMessageId)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public List<Long> getEntityIds(List<EArchiveBatchUserMessage> userMessageDtos) {
