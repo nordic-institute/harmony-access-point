@@ -8,4 +8,6 @@ public interface UserMessageLogService {
     MessageStatus getMessageStatus(final Long messageEntityId);
 
     MessageStatus getMessageStatus(String messageId, MSHRole mshRole);
+
+    MessageStatus getMessageStatusById(String messageId);
 }
