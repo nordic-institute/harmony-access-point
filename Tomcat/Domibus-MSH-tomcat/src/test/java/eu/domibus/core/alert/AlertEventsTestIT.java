@@ -14,7 +14,9 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.user.ui.UserDao;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,9 +46,6 @@ public class AlertEventsTestIT extends AbstractIT {
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
-
-    @Autowired
-    UserMessageLogDao userMessageLogDao;
 
     static List<Alert> dispatchedAlerts = new ArrayList<>();
 
@@ -101,7 +101,7 @@ public class AlertEventsTestIT extends AbstractIT {
 
     @Test
     public void sendMessagingEvent() throws InterruptedException {
-        String messageId = "msg-test-1";
+        String messageId = this.getClass().getName() + "msg-test-1";
         UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
 
@@ -118,19 +118,19 @@ public class AlertEventsTestIT extends AbstractIT {
         Assert.assertEquals(properties.get("NEW_STATUS").getValue(), MessageStatus.SEND_FAILURE.name());
         Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
 
-        userMessageLogDao.deleteMessageLogs(Arrays.asList(uml.getEntityId()));
+        messageDaoTestUtil.deleteMessages(Arrays.asList(uml.getEntityId()));
     }
 
     @Test
     public void sendMessagingEventStatusWithoutAlert() throws InterruptedException {
-        String messageId = "msg-test-2";
+        String messageId = this.getClass().getName() + "msg-test-2";
         UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.ACKNOWLEDGED, MSHRole.SENDING);
 
         Thread.sleep(1000);
         Assert.assertEquals(dispatchedAlerts.size(), 0);
 
-        userMessageLogDao.deleteMessageLogs(Arrays.asList(uml.getEntityId()));
+        messageDaoTestUtil.deleteMessages(Arrays.asList(uml.getEntityId()));
     }
 
     @Test
