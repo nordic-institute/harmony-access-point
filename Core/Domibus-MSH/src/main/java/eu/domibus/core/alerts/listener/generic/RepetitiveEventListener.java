@@ -60,11 +60,11 @@ public class RepetitiveEventListener {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());
-        if (entity != null) {
-            alertService.createAndEnqueueAlertOnEvent(event);
-        } else {
+        if (entity == null) {
             LOG.debug("Could not find entity for event [{}]; no alert will be created", event);
+            return;
         }
+        alertService.createAndEnqueueAlertOnEvent(event);
     }
 
 }
