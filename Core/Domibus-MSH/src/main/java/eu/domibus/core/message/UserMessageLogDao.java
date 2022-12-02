@@ -24,7 +24,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -176,6 +179,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         userMessageLog.getMessageStatus();
         userMessageLog.getMshRole().getRole();
         userMessageLog.getNotificationStatus();
+    }
+
+
+    public MessageStatus getMessageStatusById(String messageId) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusById", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [{}]", messageId);
+            return MessageStatus.NOT_FOUND;
+        }
     }
 
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
