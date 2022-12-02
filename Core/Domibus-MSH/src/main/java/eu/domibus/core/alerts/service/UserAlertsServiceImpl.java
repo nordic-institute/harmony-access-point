@@ -130,7 +130,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         RepetitiveAlertConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
                 : getExpiredAlertConfiguration();
         if (!alertConfiguration.isActive()) {
-            LOG.info("[{}] alert module is not ebabled.", eventType);
+            LOG.debug("[{}] alert module is not ebabled.", eventType);
             return;
         }
 
@@ -139,7 +139,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
             // if password expiration is disabled, do not trigger the corresponding alerts, regardless of alert enabled/disabled status
-            LOG.info("Property maximum password in days is 0 so password expiration is disabled.");
+            LOG.debug("Property maximum password in days is 0 so password expiration is disabled.");
             return;
         }
 
