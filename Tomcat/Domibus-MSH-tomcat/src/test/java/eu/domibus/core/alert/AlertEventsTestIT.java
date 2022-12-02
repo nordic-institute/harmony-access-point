@@ -101,7 +101,7 @@ public class AlertEventsTestIT extends AbstractIT {
 
     @Test
     public void sendMessagingEvent() throws InterruptedException {
-        String messageId = "msg-test-1";
+        String messageId = this.getClass().getName() + "msg-test-1";
         UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
 
@@ -123,7 +123,7 @@ public class AlertEventsTestIT extends AbstractIT {
 
     @Test
     public void sendMessagingEventStatusWithoutAlert() throws InterruptedException {
-        String messageId = "msg-test-2";
+        String messageId = this.getClass().getName() + "msg-test-2";
         UserMessageLog uml = messageDaoTestUtil.createTestMessage(messageId);
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.ACKNOWLEDGED, MSHRole.SENDING);
 

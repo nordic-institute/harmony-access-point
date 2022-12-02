@@ -112,8 +112,8 @@ public class UserMessageDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindLastTestMessageId() {
-        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage("msg-test-0");
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage(this.getClass().getName() + "msg-test-0");
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(this.getClass().getName() + "msg-test-1");
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         String senderPartyId = "domibus-blue";
