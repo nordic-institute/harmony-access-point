@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class DefaultAlertConfigurationManagerTest {
 
     @Tested
-    DefaultConfigurationManager configurationReader = new DefaultConfigurationManager(AlertType.USER_ACCOUNT_DISABLED);
+    DefaultConfigurationManager configurationReader = new DefaultConfigurationManager(AlertType.ARCHIVING_NOTIFICATION_FAILED);
 
     @Injectable
     ConfigurationLoader<AccountDisabledModuleConfiguration> loader;
@@ -46,14 +46,11 @@ public class DefaultAlertConfigurationManagerTest {
     AlertConfigurationService alertConfigurationService;
 
     @Test
-    @Ignore
     public void readLoginFailureConfigurationMainModuleInactive() {
 
         new Expectations() {{
-//            alertConfigurationService.isAlertModuleEnabled();
-//            result = false;
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
-            result = true;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
+            result = false;
         }};
 
         final AlertModuleConfiguration loginFailureConfiguration = configurationReader.readConfiguration();
@@ -62,14 +59,11 @@ public class DefaultAlertConfigurationManagerTest {
     }
 
     @Test
-    @Ignore
     public void readLoginFailureConfigurationModuleInactive() {
         new Expectations() {
             {
-//                alertConfigurationService.isAlertModuleEnabled();
-//                result = true;
-                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
-                result = false;
+                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
+                result = true;
             }
         };
         final AlertModuleConfiguration loginFailureConfiguration = configurationReader.readConfiguration();
@@ -77,39 +71,37 @@ public class DefaultAlertConfigurationManagerTest {
     }
 
     @Test
-    @Ignore
     public void readLoginFailureConfiguration() {
-        final String mailSubject = "Login failure";
+        final String mailSubject = "mailSubject";
         new Expectations() {
             {
-//                alertConfigurationService.isAlertModuleEnabled();
-//                result = true;
-                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
+                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
-                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_LEVEL);
+                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE);
+                result = true;
+                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL);
                 result = "MEDIUM";
-                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_MAIL_SUBJECT);
+                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT);
                 this.result = mailSubject;
             }
         };
-        final AlertModuleConfiguration loginFailureConfiguration = configurationReader.readConfiguration();
-        assertTrue(loginFailureConfiguration.isActive());
-        Event event = new Event(EventType.PLUGIN_USER_LOGIN_FAILURE);
-        assertEquals(AlertLevel.MEDIUM, loginFailureConfiguration.getAlertLevel(event));
-        assertEquals(mailSubject, loginFailureConfiguration.getMailSubject());
+        final AlertModuleConfiguration configuration = configurationReader.readConfiguration();
+        assertTrue(configuration.isActive());
+        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
+        assertEquals(AlertLevel.MEDIUM, configuration.getAlertLevel(event));
+        assertEquals(mailSubject, configuration.getMailSubject());
     }
 
     @Test
-    @Ignore
     public void readLoginFailureConfigurationWrongAlertLevelConfig() {
 
         new Expectations() {
             {
-//                alertConfigurationService.isAlertModuleEnabled();
-//                result = true;
-                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_ACTIVE);
+                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
                 result = true;
-                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_LEVEL);
+                domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE);
+                result = true;
+                domibusPropertyProvider.getProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL);
                 result = "WHAT?";
             }
         };
