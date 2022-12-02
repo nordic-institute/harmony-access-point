@@ -1,5 +1,9 @@
 package eu.domibus.ext.rest;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1
+ */
 public class DistributedCacheCreateRequestDto {
 
     protected String cacheName;

@@ -5,6 +5,7 @@ import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +59,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         this.domibusConfigurationService = domibusConfigurationService;
     }
 
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
     @Override
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);

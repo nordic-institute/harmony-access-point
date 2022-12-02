@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1
+ */
 @Service
 public class DomibusDistributedCacheConfigurationHelper {
 

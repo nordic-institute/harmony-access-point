@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.exception.ConfigurationException;
@@ -56,7 +57,7 @@ public class PolicyServiceImpl implements PolicyService {
      * @throws ConfigurationException if the policy xml cannot be read or parsed from the file
      */
     @Override
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "policyCache", sync = true)
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "policyCache", sync = true)
     public Policy parsePolicy(final String location) throws ConfigurationException {
         final PolicyBuilder pb = domibusBus.getExtension(PolicyBuilder.class);
         try (InputStream inputStream = new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location))){

@@ -3,6 +3,7 @@ package eu.domibus.core.cache;
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,7 +56,7 @@ public class DomibusCacheConfiguration {
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
     @Primary
-    @Bean(name = CacheConstants.CACHE_MANAGER)
+    @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         EhcacheCachingProvider provider = new EhcacheCachingProvider();
         ClassLoader classLoader = getClass().getClassLoader();

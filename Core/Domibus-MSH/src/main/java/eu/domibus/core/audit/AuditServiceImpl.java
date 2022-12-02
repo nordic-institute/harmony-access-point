@@ -10,6 +10,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.core.audit.envers.ModificationType;
@@ -105,7 +106,7 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "auditTarget")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "auditTarget")
     @Transactional(readOnly = true)
     public List<String> listAuditTarget() {
         Set<Class<?>> typesAnnotatedWith = getFiltereAuditTargets();

@@ -1,6 +1,7 @@
 package eu.domibus.core.encryption;
 
 import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,7 +25,7 @@ public class EncryptionKeyDao extends BasicDao<EncryptionKeyEntity> {
         super(EncryptionKeyEntity.class);
     }
 
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "encryptionKey", key = "#domain + #encryptionUsage")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "encryptionKey", key = "#domain + #encryptionUsage")
     public EncryptionKeyEntity findByUsageCacheable(final String domain, final EncryptionUsage encryptionUsage) {
         LOG.trace("Getting the EncryptionKey for usage [{}]", encryptionUsage);
 

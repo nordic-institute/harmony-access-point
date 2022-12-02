@@ -3,6 +3,7 @@ package eu.domibus.core.jpa;
 import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.core.property.PrefixedProperties;
@@ -51,7 +52,7 @@ public class DomibusJPAConfiguration {
     }
 
     @Bean
-    @DependsOn({DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, CacheConstants.CACHE_MANAGER})
+    @DependsOn({DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, DomibusCacheConstants.CACHE_MANAGER})
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,

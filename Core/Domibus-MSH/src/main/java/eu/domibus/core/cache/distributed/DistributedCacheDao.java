@@ -14,6 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1
+ */
 public class DistributedCacheDao {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DistributedCacheDao.class);

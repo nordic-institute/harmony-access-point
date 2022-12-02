@@ -6,10 +6,6 @@ package eu.domibus.api.cache;
  */
 public final class CacheConstants {
 
-    public static final String CACHE_MANAGER = "cacheManager";
-
-    public static final String DISTRIBUTED_CACHE_MANAGER = "distributedCacheManager";
-
     /*
      * Dictionary queries cache region
      */

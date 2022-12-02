@@ -4,6 +4,7 @@ import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.cache.DomibusCacheDynamicExpiryPolicy;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -47,7 +48,7 @@ public class DynamicDiscoveryCacheTTLChangeListener implements DomibusPropertyCh
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
 
-    public DynamicDiscoveryCacheTTLChangeListener(@Qualifier(value = CacheConstants.CACHE_MANAGER) CacheManager cacheManager, DomibusPropertyProvider domibusPropertyProvider) {
+    public DynamicDiscoveryCacheTTLChangeListener(@Qualifier(value = DomibusCacheConstants.CACHE_MANAGER) CacheManager cacheManager, DomibusPropertyProvider domibusPropertyProvider) {
         this.cacheManager = cacheManager;
         // initialize property to cache mapping
         this.propertyCacheMapping = new HashMap<>();

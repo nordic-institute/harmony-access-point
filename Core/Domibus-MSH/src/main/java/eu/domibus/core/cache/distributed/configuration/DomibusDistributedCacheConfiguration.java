@@ -4,14 +4,13 @@ import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cluster.ClusterDeploymentCondition;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.cache.distributed.DistributedCacheDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,7 @@ public class DomibusDistributedCacheConfiguration {
         this.distributedCacheConfigurationHelper = distributedCacheConfigurationHelper;
     }
 
-    @Bean(name = CacheConstants.DISTRIBUTED_CACHE_MANAGER)
+    @Bean(name = DomibusCacheConstants.DISTRIBUTED_CACHE_MANAGER)
     public org.springframework.cache.CacheManager distributedCacheManager(HazelcastInstance instance) {
         LOG.info("Creating the distributed cache bean");
 

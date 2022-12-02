@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.api.cache.DomibusLocalCacheService;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -75,7 +76,7 @@ public class DomainServiceImpl implements DomainService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_CODE_CACHE)
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
         LOG.trace("Getting domain with code [{}]", code);
@@ -95,7 +96,7 @@ public class DomainServiceImpl implements DomainService {
         return null;
     }
 
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
     @Override
     public Domain getDomainForScheduler(String schedulerName) {
         if (DEFAULT_QUARTZ_SCHEDULER_NAME.equalsIgnoreCase(schedulerName)) {

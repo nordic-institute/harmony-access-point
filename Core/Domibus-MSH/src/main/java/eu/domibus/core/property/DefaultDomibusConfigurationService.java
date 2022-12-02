@@ -4,6 +4,7 @@ import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.*;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +45,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return propertyRetrieveManager.getInternalProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
     }
 
-    @Cacheable(cacheManager = CacheConstants.CACHE_MANAGER, value = "multitenantCache")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(propertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
