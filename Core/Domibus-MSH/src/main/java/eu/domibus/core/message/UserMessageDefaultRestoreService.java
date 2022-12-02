@@ -227,39 +227,37 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
 
     public void restoreMessages(List<String> messageIds) {
-        List<String> restoredMessages = new ArrayList<>();
         for (String messageId : messageIds) {
             LOG.debug("Message Id's selected to restore [{}]", messageId);
-            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
+            try {
+                new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                    @SuppressWarnings("squid:S2229")
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
                         restoreFailedMessage(messageId);
-                        restoredMessages.add(messageId);
-                    } catch (Exception e) {
-                        LOG.error("Failed to restore message [" + messageId + "]", e);
                     }
-                }
-            });
+                });
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
         }
     }
 
     @Override
     public void findAndRestoreFailedMessages() {
-        final List<String> restoredMessages = new ArrayList<>();
         List<String> messageIds = findAllMessagesToRestore();
         for (String messageId : messageIds) {
             LOG.debug("Found message to restore. Starting the restoring process of message with messageId [{}]", messageId);
-            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
+            try {
+                new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                    @SuppressWarnings("squid:S2229")
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
                         restoreFailedMessage(messageId);
-                        restoredMessages.add(messageId);
                         userMessageRestoreDao.delete(messageId);
-                    } catch (Exception e) {
-                        LOG.error("Failed to restore message [" + messageId + "]", e);
                     }
-                }
-            });
+                });
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
             LOG.debug("Restoring process of failed messages completed successfully.");
         }
     }
