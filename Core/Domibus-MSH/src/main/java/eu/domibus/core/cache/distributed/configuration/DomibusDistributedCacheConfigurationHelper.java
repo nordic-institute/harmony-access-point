@@ -52,7 +52,7 @@ public class DomibusDistributedCacheConfigurationHelper {
 
         LOG.info("Setting size for distributed cache [{}] to [{}]", mapName, mapSize);
         evictionConfig.setSize(mapSize);
-        evictionConfig.setMaxSizePolicy(MaxSizePolicy.PER_NODE);
+        evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
         mapConfig.setEvictionConfig(evictionConfig);
 
         mapConfig.setNearCacheConfig(nearCacheConfig);

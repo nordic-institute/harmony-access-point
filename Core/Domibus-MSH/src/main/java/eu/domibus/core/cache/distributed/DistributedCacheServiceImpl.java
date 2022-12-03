@@ -53,7 +53,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     public void createCache(String cacheName, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds, int nearCacheSize, int nearCacheTimeToLiveSeconds, int nearCacheMaxIdleSeconds) {
         if (isClusterDeployment()) {
             LOGGER.info("Creating cache [{}]", cacheName);
-            distributedCacheDao.createCacheIfNeeded(cacheName);
+            distributedCacheDao.createCacheIfNeeded(cacheName, cacheSize, timeToLiveSeconds, maxIdleSeconds, nearCacheSize, nearCacheTimeToLiveSeconds, nearCacheMaxIdleSeconds);
             return;
         }
         LOGGER.info(CACHE_NOT_CREATED_IN_NON_CLUSTER_MESSAGE);
