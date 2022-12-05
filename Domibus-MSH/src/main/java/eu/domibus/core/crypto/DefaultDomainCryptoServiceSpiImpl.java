@@ -118,7 +118,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         KeyStore old = getKeyStore();
         final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
         super.setKeyStore(current);
-
+        super.clearCache();
+        
         if (areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
         } else {
