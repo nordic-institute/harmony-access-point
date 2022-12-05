@@ -315,7 +315,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         KeyStore old = getKeyStore();
         final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
-                securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setKeyStore(current));
+                securityProfileConfiguration -> {
+                    Merlin merlin = securityProfileConfiguration.getMerlin();
+                    merlin.setKeyStore(current);
+                    merlin.clearCache();
+                });
 
         if (securityUtil.areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
