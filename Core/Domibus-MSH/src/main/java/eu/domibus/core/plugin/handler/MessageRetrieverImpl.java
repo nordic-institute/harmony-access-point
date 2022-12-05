@@ -55,12 +55,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
+    @Transactional
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
         return downloadMessage(messageId, true);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
@@ -72,12 +73,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
+    @Transactional
     public Submission downloadMessage(final Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         return downloadMessage(messageEntityId);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Submission downloadMessage(final Long messageEntityId) throws MessageNotFoundException {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
