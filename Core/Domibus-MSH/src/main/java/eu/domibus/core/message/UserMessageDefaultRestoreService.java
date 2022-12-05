@@ -232,6 +232,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             try {
                 new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
                     @SuppressWarnings("squid:S2229")
+                    //we can ignore the Sonar check here because the transaction is created by TransactionTemplate
                     protected void doInTransactionWithoutResult(TransactionStatus status) {
                         restoreFailedMessage(messageId);
                     }
