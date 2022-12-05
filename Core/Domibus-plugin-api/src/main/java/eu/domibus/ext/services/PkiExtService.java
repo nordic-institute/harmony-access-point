@@ -25,7 +25,7 @@ public interface PkiExtService {
      * Get the certificates with the specified provider
      *
      * @param certificates the array of certificates.
-     * @param provider the provider string (e.g. Bouncy Castle)
+     * @param provider     the provider string (e.g. Bouncy Castle)
      * @return the array of certificates loaded with the given provider
      */
     X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);

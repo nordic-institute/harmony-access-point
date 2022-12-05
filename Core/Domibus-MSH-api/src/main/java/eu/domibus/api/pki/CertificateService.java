@@ -89,7 +89,7 @@ public interface CertificateService {
     /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
-     * @param chain the pem formatted string.
+     * @param chain    the pem formatted string.
      * @param provider
      * @return the list of certificates.
      */
@@ -99,7 +99,7 @@ public interface CertificateService {
      * Reloads the certificates with the specified provider
      *
      * @param certificates the array of certificates.
-     * @param provider the provider string (e.g. Bouncy Castle)
+     * @param provider     the provider string (e.g. Bouncy Castle)
      * @return the array of certificates loaded with the given provider
      */
     X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);

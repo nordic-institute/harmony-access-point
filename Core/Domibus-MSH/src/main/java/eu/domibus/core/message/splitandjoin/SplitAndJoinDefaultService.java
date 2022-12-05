@@ -504,14 +504,14 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
-        final String messageId = userMessage.getMessageId();
+        final long userMessageEntityId = userMessage.getEntityId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, userMessage.getMshRole().getRole());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(userMessageEntityId);
         }
-        final boolean messageExpired = isMessageExpired(messageId, userMessageLog.getReceived(), joinInterval);
+        final boolean messageExpired = isMessageExpired(userMessage.getMessageId(), userMessageLog.getReceived(), joinInterval);
         if (messageExpired) {
             LOG.debug("Message group [{}] is expired", groupId);
             return true;

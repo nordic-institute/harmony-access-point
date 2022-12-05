@@ -165,10 +165,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
         final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
-        return initChildren(messageId, userMessageLog);
-    }
-
-    private UserMessageLog initChildren(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
@@ -255,7 +251,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         List<UserMessageLog> results = query.getResultList();
         if (CollectionUtils.isEmpty(results)) {
-            LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;
         }
 
@@ -263,8 +259,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
             return results.get(0);
         }
-
-        LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+        LOG.info("Found more than one UserMessageLog for message with [{}]=[{}], Trying to return the one with SENDING role", STR_MESSAGE_ID, messageId);
         UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
                 .orElse(results.get(0));
         LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
@@ -279,7 +274,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRole);
 
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
         if (userMessageLog == null) {
@@ -408,6 +403,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter(MSH_ROLE, mshRole);
+        return query.getSingleResult();
+    }
+
+    public String findBackendForMessageEntityId(long messageEntityId) {
+        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessageEntityId", String.class);
+        query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
         return query.getSingleResult();
     }
 

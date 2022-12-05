@@ -315,7 +315,7 @@ public class CertificateServiceImpl implements CertificateService {
         try (PemReader reader = new PemReader(new StringReader(chain))) {
             CertificateFactory cf;
             PemObject pemObject;
-            if(provider == null) {
+            if (provider == null) {
                 cf = CertificateFactory.getInstance("X509");
             } else {
                 cf = CertificateFactory.getInstance("X509", provider);
