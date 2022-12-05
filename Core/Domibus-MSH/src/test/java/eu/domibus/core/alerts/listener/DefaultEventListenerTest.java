@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class UserAccountListenerTest {
+public class DefaultEventListenerTest {
 
     @Injectable
     private EventService eventService;

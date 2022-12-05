@@ -55,8 +55,10 @@ public class AlertServiceImplTest {
 
     public static final String SUBJECT = "subject";
     public static final String ALERT_DESCRIPTION_TEST = "Alert description";
+
     @Tested
     AlertServiceImpl alertService;
+
     @Injectable
     private EventDao eventDao;
 

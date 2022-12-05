@@ -10,9 +10,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
-import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -45,8 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 import static java.util.stream.Collectors.toList;
@@ -77,8 +74,6 @@ public class BackendNotificationService {
 
     protected final EventService eventService;
 
-    protected final MessagingConfigurationManager messagingConfigurationManager;
-
     private final UserMessageServiceHelper userMessageServiceHelper;
 
     protected final PluginEventNotifierProvider pluginEventNotifierProvider;
@@ -94,7 +89,7 @@ public class BackendNotificationService {
 
     public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
                                       UserMessageLogDao userMessageLogDao, Queue unknownReceiverQueue, UserMessageDao userMessageDao,
-                                      DomibusPropertyProvider domibusPropertyProvider, EventService eventService, MessagingConfigurationManager messagingConfigurationManager,
+                                      DomibusPropertyProvider domibusPropertyProvider, EventService eventService,
                                       UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
                                       BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
                                       BackendConnectorService backendConnectorService, ObjectMapper objectMapper) {
@@ -106,7 +101,6 @@ public class BackendNotificationService {
         this.userMessageDao = userMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.eventService = eventService;
-        this.messagingConfigurationManager = messagingConfigurationManager;
         this.userMessageServiceHelper = userMessageServiceHelper;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
         this.backendConnectorProvider = backendConnectorProvider;
@@ -347,10 +341,7 @@ public class BackendNotificationService {
             return;
         }
 
-        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
-        if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
-            eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
-        }
+        eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
 
         handleMDC(userMessage);
         if (messageLog.getMessageStatus() == newStatus) {

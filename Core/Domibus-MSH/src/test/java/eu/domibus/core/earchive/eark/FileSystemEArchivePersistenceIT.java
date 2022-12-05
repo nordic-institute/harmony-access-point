@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -57,6 +58,9 @@ public class FileSystemEArchivePersistenceIT {
 
     @Injectable
     protected EARKSIPFileService earksipFileService;
+
+    @Injectable
+    private EArchivingEventService eArchivingEventService;
 
     @Tested
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;

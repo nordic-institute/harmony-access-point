@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.List;
 
 /**
@@ -63,8 +65,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
-        if(markAsDownloaded) {
-            markMessageAsDownloaded(userMessage);
+        if (markAsDownloaded) {
+            markMessageAsDownloaded(userMessage.getMessageId());
         }
         return messagingService.getSubmission(userMessage);
     }
@@ -80,7 +82,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        markMessageAsDownloaded(userMessage);
+        markMessageAsDownloaded(userMessage.getMessageId());
         return messagingService.getSubmission(userMessage);
     }
 
@@ -115,14 +117,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        //try both
-        eu.domibus.common.MessageStatus status = getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
-        if (status != eu.domibus.common.MessageStatus.NOT_FOUND) {
-            LOG.debug("Found status for message id [{}] and RECEIVING role", messageId);
-            return status;
+        final MessageStatus messageStatus;
+        try {
+            messageStatus = userMessageLogService.getMessageStatusById(messageId);
+        } catch (NonUniqueResultException exception) {
+            throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
         }
-        LOG.debug("Returning status for message id [{}] and SENDING role since there is no one with RECEIVING role.", messageId);
-        return getStatus(messageId, eu.domibus.common.MSHRole.SENDING);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
@@ -157,12 +158,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public void markMessageAsDownloaded(String messageId) {
+        LOG.info("Setting the status of the message with id [{}] to downloaded", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
-        markMessageAsDownloaded(userMessage);
-    }
-
-    private void markMessageAsDownloaded(UserMessage userMessage) {
-        LOG.info("Setting the status of the message with id [{}] to downloaded", userMessage.getMessageId());
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());

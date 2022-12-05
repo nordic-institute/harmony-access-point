@@ -79,16 +79,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected AlertModuleConfiguration getAccountEnabledConfiguration() {
-        return alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
-    }
-
-    @Override
-    protected AlertModuleConfiguration getLoginFailureConfiguration() {
-        return alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
-    }
-
-    @Override
     protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
         return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
     }
