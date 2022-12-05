@@ -24,7 +24,7 @@ public class TestMigrationVersion {
     }
 
     @Test
-    public void test() {
+    public void testMigrationScriptsHaveCorrectVersion() {
         String[] migrationFiles = sqlScriptsFolder.list((dir, fileName) -> fileName.contains("-migration"));
         for (String fileName : migrationFiles) {
             assertHasCorrectVersion(fileName);
