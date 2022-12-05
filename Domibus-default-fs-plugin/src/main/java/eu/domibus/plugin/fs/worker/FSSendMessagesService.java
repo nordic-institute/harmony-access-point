@@ -419,7 +419,13 @@ public class FSSendMessagesService {
     protected boolean checkHasWriteLock(FileObject fileObject) {
         // firstly try to lock the file
         // if this fails, it means that another process has an explicit lock on the file
-        String filePath = fileObject.getName().getPath();
+        String filePath;
+        if (fileObject.getName().getURI().startsWith("file:///")) {
+            //handle files that may be located on a different disk partition
+            filePath = fileObject.getPath().toString();
+        } else {
+            filePath = fileObject.getName().getPath();
+        }
         try (RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
              FileChannel fileChannel = raf.getChannel();
              FileLock lock = fileChannel.tryLock(0, 0, true)) {
