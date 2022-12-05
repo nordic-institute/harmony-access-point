@@ -121,7 +121,7 @@ public class UpdateRetryLoggingService {
 
         boolean expired = isExpired(legConfiguration, userMessageLog);
         if (!expired) {
-            LOG.debug("Message [{}] is not expired", userMessageEntityId);
+            LOG.debug("Message with entity id [{}] and message id [{}] is not expired", userMessageEntityId, userMessage.getMessageId());
             return false;
         }
         LOG.debug("Message [{}] is expired", userMessageEntityId);
@@ -131,9 +131,10 @@ public class UpdateRetryLoggingService {
 
     @Transactional
     public boolean failIfInvalidConfig(UserMessage userMessage, final LegConfiguration legConfiguration) {
-        final long userMessageEntityId = userMessage.getEntityId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
         if (legConfiguration == null) {
+            final long userMessageEntityId = userMessage.getEntityId();
+            UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
+            LOG.debug("No leg configuration found for message with entity id [{}] (message id [{}])", userMessageEntityId, userMessage.getMessageId());
             setMessageFailed(userMessage, userMessageLog);
             return true;
         }
@@ -226,7 +227,7 @@ public class UpdateRetryLoggingService {
 
         final UserMessageLog messageLog = userMessageLogDao.findByEntityIdSafely(userMessageEntityId);
         if (messageLog == null) {
-            LOG.error("UserMessageLogEntity not found for message with entity id [{}]: could not mark the message as failed", userMessageEntityId);
+            LOG.error("UserMessageLogEntity not found for message with entity id [{}] and message id [{}]: could not mark the message as failed", userMessageEntityId, userMessage.getMessageId());
             return;
         }
         messageFailed(userMessage, messageLog);
