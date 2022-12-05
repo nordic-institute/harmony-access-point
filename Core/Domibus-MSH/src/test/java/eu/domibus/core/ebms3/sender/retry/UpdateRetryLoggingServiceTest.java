@@ -465,6 +465,9 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getEntityId();
             result = userMessageEntityId;
 
+            userMessage.getMessageId();
+            result = "some id";
+
             userMessageLogDao.findByEntityId(userMessageEntityId);
             result = userMessageLog;
 
@@ -487,6 +490,9 @@ public class UpdateRetryLoggingServiceTest {
         new Expectations() {{
             userMessage.getEntityId();
             result = entityId;
+
+            userMessage.getMessageId();
+            result = "some id";
 
             userMessageLogDao.findByEntityIdSafely(entityId);
             result = null;
