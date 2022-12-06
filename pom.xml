@@ -77,9 +77,6 @@
         <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.68</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
-        <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
-        <!-- normally we use the version brought by activemq-spring but 4.21 has an issue so this is an exception -->
-        <!-- the issue is that it cannot inject a property: domibus-msh-test-common tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
