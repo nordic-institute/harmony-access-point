@@ -2,6 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -33,8 +35,8 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
-                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
+                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
@@ -46,7 +48,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @GetMapping(produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
+    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore(){
         return downloadTruststoreContent();
     }
 
