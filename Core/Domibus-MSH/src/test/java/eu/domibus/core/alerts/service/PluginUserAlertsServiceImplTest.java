@@ -53,20 +53,6 @@ public class PluginUserAlertsServiceImplTest {
     }
 
     @Test
-    public void testGetAlertTypeForPasswordImminentExpiration() {
-        AlertType val = userAlertsService.getAlertTypeForPasswordImminentExpiration();
-
-        Assert.assertEquals(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, val);
-    }
-
-    @Test
-    public void testGetAlertTypeForPasswordExpired() {
-        AlertType val = userAlertsService.getAlertTypeForPasswordExpired();
-
-        Assert.assertEquals(AlertType.PLUGIN_PASSWORD_EXPIRED, val);
-    }
-
-    @Test
     public void testGetEventTypeForPasswordExpired() {
         EventType val = userAlertsService.getEventTypeForPasswordExpired();
 

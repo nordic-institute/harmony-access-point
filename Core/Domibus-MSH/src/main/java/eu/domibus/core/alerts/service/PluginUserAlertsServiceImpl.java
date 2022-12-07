@@ -44,16 +44,6 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected AlertType getAlertTypeForPasswordImminentExpiration() {
-        return AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION;
-    }
-
-    @Override
-    protected AlertType getAlertTypeForPasswordExpired() {
-        return AlertType.PLUGIN_PASSWORD_EXPIRED;
-    }
-
-    @Override
     protected EventType getEventTypeForPasswordImminentExpiration() {
         return EventType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION;
     }

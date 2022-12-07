@@ -44,16 +44,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected AlertType getAlertTypeForPasswordImminentExpiration() {
-        return AlertType.PASSWORD_IMMINENT_EXPIRATION;
-    }
-
-    @Override
-    protected AlertType getAlertTypeForPasswordExpired() {
-        return AlertType.PASSWORD_EXPIRED;
-    }
-
-    @Override
     protected EventType getEventTypeForPasswordImminentExpiration() {
         return EventType.PASSWORD_IMMINENT_EXPIRATION;
     }

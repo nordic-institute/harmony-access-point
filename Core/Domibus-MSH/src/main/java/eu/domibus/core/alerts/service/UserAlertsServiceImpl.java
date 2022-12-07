@@ -43,10 +43,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract String getMaximumPasswordAgeProperty();
 
-    protected abstract AlertType getAlertTypeForPasswordImminentExpiration();
-
-    protected abstract AlertType getAlertTypeForPasswordExpired();
-
     protected abstract EventType getEventTypeForPasswordImminentExpiration();
 
     protected abstract EventType getEventTypeForPasswordExpired();
