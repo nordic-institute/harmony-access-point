@@ -123,7 +123,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     private void triggerExpirationEvents(boolean usersWithDefaultPassword, boolean imminent, EventType eventType) {
         RepetitiveAlertConfiguration alertConfiguration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
-        //        RepetitiveAlertConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration() : getExpiredAlertConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("[{}] alert module is not ebabled.", eventType);
             return;
