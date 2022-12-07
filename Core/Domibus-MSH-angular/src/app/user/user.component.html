@@ -57,12 +57,12 @@
     <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
       <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
               (click)="editUser(row)"
-              color="primary" tooltip="Edit" button-click-behaviour>
+              color="primary" matTooltip="Edit" button-click-behaviour>
         <mat-icon>edit</mat-icon>
       </button>
       <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
               (click)="buttonDeleteAction(row)" color="primary"
-              tooltip="Delete" button-click-behaviour>
+              matTooltip="Delete" button-click-behaviour>
         <mat-icon>delete</mat-icon>
       </button>
     </ng-template>

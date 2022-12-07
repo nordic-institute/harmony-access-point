@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_QUEUE_ALERT;
+import static eu.domibus.core.alerts.service.AlertServiceImpl.ALERT_SELECTOR;
 import static eu.domibus.core.alerts.service.EventServiceImpl.ALERT_JMS_LISTENER_CONTAINER_FACTORY;
 
 /**
@@ -39,7 +40,7 @@ public class AlertListener {
     }
 
     @JmsListener(containerFactory = ALERT_JMS_LISTENER_CONTAINER_FACTORY, destination = "${"+ DOMIBUS_JMS_QUEUE_ALERT + "}",
-            selector = "selector = 'alert'")
+            selector = "selector = '" + ALERT_SELECTOR +"'")
     public void onAlert(final Alert alert, @Header(name = MessageConstants.DOMAIN, required = false) String domain) {
         if (StringUtils.isNotEmpty(domain)) {
             domainContextProvider.setCurrentDomain(domain);

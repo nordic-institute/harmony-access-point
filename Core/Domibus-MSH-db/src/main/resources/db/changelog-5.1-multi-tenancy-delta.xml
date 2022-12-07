@@ -31,7 +31,7 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
-    <changeSet author="Razvan Cretu"  id="EDELIVERY-10064-mysql-migration-plans-are-failing">
+    <changeSet author="Razvan Cretu" dbms="mysql" id="EDELIVERY-10064-mysql-migration-plans-are-failing">
         <addNotNullConstraint tableName="TB_COMMAND_PROPERTY" columnName="FK_COMMAND" columnDataType="BIGINT"/>
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>

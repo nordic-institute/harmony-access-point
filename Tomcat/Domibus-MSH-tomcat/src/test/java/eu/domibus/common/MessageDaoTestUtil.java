@@ -272,5 +272,10 @@ public class MessageDaoTestUtil {
         return em.createQuery("select uml from UserMessageLog uml", UserMessageLog.class).getResultList();
     }
 
-
+    @Transactional
+    public void deleteMessages(List<Long> ids) {
+        userMessageLogDao.deleteMessageLogs(ids);
+        signalMessageLogDao.deleteMessageLogs(ids);
+        signalMessageDao.deleteMessages(ids);
+    }
 }

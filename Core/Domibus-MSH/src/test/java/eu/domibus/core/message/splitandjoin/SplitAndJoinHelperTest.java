@@ -64,7 +64,7 @@ public class SplitAndJoinHelperTest extends TestCase {
     public void createMessageFragments(@Injectable UserMessage sourceMessage,
                                        @Injectable MessageGroupEntity messageGroupEntity
     ) throws MessagingProcessingException {
-        String messageId = "123";
+        final long entityId = 123;
         String backendName = "mybackend";
 
         List<String> fragmentFiles = new ArrayList<>();
@@ -73,10 +73,10 @@ public class SplitAndJoinHelperTest extends TestCase {
 
 
         new Expectations(splitAndJoinHelper) {{
-            sourceMessage.getMessageId();
-            result = messageId;
+            sourceMessage.getEntityId();
+            result = entityId;
 
-            userMessageLogDao.findBackendForMessageId(messageId, sourceMessage.getMshRole().getRole());
+            userMessageLogDao.findBackendForMessageEntityId(entityId);
             result = backendName;
 
             splitAndJoinHelper.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);

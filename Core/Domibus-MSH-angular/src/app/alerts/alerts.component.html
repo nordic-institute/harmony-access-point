@@ -166,7 +166,7 @@
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button id="alertsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
             (click)="buttonDeleteAction(row)" color="primary"
-            tooltip="Delete" button-click-behaviour>
+            matTooltip="Delete" button-click-behaviour>
       <mat-icon>delete</mat-icon>
     </button>
   </ng-template>

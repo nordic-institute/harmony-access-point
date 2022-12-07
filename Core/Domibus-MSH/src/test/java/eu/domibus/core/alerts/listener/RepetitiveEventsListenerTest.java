@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JMockit.class)
-public class PasswordEventsListenerTest {
+public class RepetitiveEventsListenerTest {
 
     @Tested
     private RepetitiveEventListener passwordEventsListener;

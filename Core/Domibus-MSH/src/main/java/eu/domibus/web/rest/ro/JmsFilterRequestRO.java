@@ -14,10 +14,14 @@ public class JmsFilterRequestRO {
     @CustomWhiteListed(permitted = ".@!/")
     private String source;
 
-    private String jmsType;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @CustomWhiteListed(permitted = ".@!/")
+    private String originalQueue;
 
+    private String jmsType;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date fromDate;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date toDate;
 
@@ -30,6 +34,14 @@ public class JmsFilterRequestRO {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getOriginalQueue() {
+        return originalQueue;
+    }
+
+    public void setOriginalQueue(String originalQueue) {
+        this.originalQueue = originalQueue;
     }
 
     public String getJmsType() {

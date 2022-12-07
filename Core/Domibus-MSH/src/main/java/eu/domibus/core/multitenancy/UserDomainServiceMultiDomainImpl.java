@@ -85,7 +85,12 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     public void deleteDomainForUser(String user) {
         LOG.debug("Deleting domain for user [{}]", user);
 
-        executeInContext(() -> userDomainDao.deleteDomainByUser(user));
+        executeInContext(() -> deleteDomainByUser(user));
+    }
+
+    private void deleteDomainByUser(String user) {
+        userDomainDao.deleteDomainByUser(user);
+        domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setDomainByUser(String user, String domainCode) {

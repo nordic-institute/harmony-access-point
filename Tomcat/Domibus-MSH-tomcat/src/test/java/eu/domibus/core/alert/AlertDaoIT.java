@@ -47,15 +47,15 @@ public class AlertDaoIT extends AbstractIT {
     private DateUtil dateUtil;
 
     @Before
-    public void setUp(){
-        createAlert("blue_gw","red_gw",false,null);
-        createAlert("blue_gw","red_gw",true,null);
+    public void setUp() {
+        createAlert("blue_gw", "red_gw", false, null);
+        createAlert("blue_gw", "red_gw", true, null);
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
 
-    public void createAlert(String fromParty,String toParty,boolean processed,Date reportingTime){
-        Event event=new Event();
+    public void createAlert(String fromParty, String toParty, boolean processed, Date reportingTime) {
+        Event event = new Event();
         final StringEventProperty blue_gw = new StringEventProperty();
         blue_gw.setStringValue(fromParty);
 
@@ -72,7 +72,7 @@ public class AlertDaoIT extends AbstractIT {
         event.setReportingTime(new Date());
 
 
-        Alert alert=new Alert();
+        Alert alert = new Alert();
         alert.setAlertStatus(AlertStatus.FAILED);
         alert.setAlertType(AlertType.MSG_STATUS_CHANGED);
         alert.addEvent(event);
@@ -85,37 +85,38 @@ public class AlertDaoIT extends AbstractIT {
 
         alertDao.create(alert);
     }
+
     @Test
     @Transactional
     public void findRetryAlertsOnParty() {
 
         final AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.getParameters().put("FROM_PARTY","blue_gw");
-        alertCriteria.getParameters().put("TO_PARTY","red_gw");
+        alertCriteria.getParameters().put("FROM_PARTY", "blue_gw");
+        alertCriteria.getParameters().put("TO_PARTY", "red_gw");
         alertCriteria.setPage(0);
         alertCriteria.setPageSize(10);
         final List<Alert> alerts = alertDao.filterAlerts(alertCriteria);
-        assertEquals(2,alerts.size());
+        assertEquals(2, alerts.size());
         alerts.forEach(alert1 -> alert1.getEvents().
                 forEach(event1 -> event1.getProperties().
-                        forEach((ke, eventProperty) ->  LOG.info("Key[{}] value[{}]",ke,eventProperty.getValue()))));
+                        forEach((ke, eventProperty) -> LOG.info("Key[{}] value[{}]", ke, eventProperty.getValue()))));
     }
 
     @Test
     @Transactional
     public void findRetryAlertsOnPartyButProcessed() {
-        createAlert("black_gw","red_gw",true,null);
+        createAlert("black_gw", "red_gw", true, null);
         final AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.getParameters().put("FROM_PARTY","black_gw");
-        alertCriteria.getParameters().put("TO_PARTY","red_gw");
+        alertCriteria.getParameters().put("FROM_PARTY", "black_gw");
+        alertCriteria.getParameters().put("TO_PARTY", "red_gw");
         alertCriteria.setProcessed(true);
         alertCriteria.setPage(0);
         alertCriteria.setPageSize(10);
         final List<Alert> alerts = alertDao.filterAlerts(alertCriteria);
-        assertEquals(1,alerts.size());
+        assertEquals(1, alerts.size());
         alerts.forEach(alert1 -> alert1.getEvents().
                 forEach(event1 -> event1.getProperties().
-                        forEach((ke, eventProperty) ->  LOG.info("Key[{}] value[{}]",ke,eventProperty.getValue()))));
+                        forEach((ke, eventProperty) -> LOG.info("Key[{}] value[{}]", ke, eventProperty.getValue()))));
     }
 
     @Test
@@ -124,17 +125,17 @@ public class AlertDaoIT extends AbstractIT {
         final Date reportingDate = asDate(now.minusMinutes(15));
         final Date reportingFrom = asDate(now.minusMinutes(16));
         final Date reportingTo = asDate(now.minusMinutes(14));
-        createAlert("blue_gw","red_gw",true,reportingDate);
+        createAlert("blue_gw", "red_gw", true, reportingDate);
         final AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.getParameters().put("FROM_PARTY","blue_gw");
-        alertCriteria.getParameters().put("TO_PARTY","red_gw");
+        alertCriteria.getParameters().put("FROM_PARTY", "blue_gw");
+        alertCriteria.getParameters().put("TO_PARTY", "red_gw");
         alertCriteria.setReportingFrom(reportingFrom);
         alertCriteria.setReportingTo(reportingTo);
         alertCriteria.setProcessed(true);
         alertCriteria.setPage(0);
         alertCriteria.setPageSize(10);
         final List<Alert> alerts = alertDao.filterAlerts(alertCriteria);
-        assertEquals(1,alerts.size());
+        assertEquals(1, alerts.size());
         Alert alert = alerts.get(0);
         assertNotNull(alert.getCreationTime());
         assertNotNull(alert.getModificationTime());
@@ -148,15 +149,15 @@ public class AlertDaoIT extends AbstractIT {
         final Date reportingDate = asDate(now.minusMinutes(25));
         final Date reportingFrom = asDate(now.minusMinutes(26));
         final Date reportingTo = asDate(now.minusMinutes(24));
-        createAlert("blue_gw","red_gw",true,reportingDate);
+        createAlert("blue_gw", "red_gw", true, reportingDate);
         final AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.getParameters().put("FROM_PARTY","blue_gw");
-        alertCriteria.getParameters().put("TO_PARTY","red_gw");
+        alertCriteria.getParameters().put("FROM_PARTY", "blue_gw");
+        alertCriteria.getParameters().put("TO_PARTY", "red_gw");
         alertCriteria.setReportingFrom(reportingFrom);
         alertCriteria.setReportingTo(reportingTo);
         alertCriteria.setProcessed(true);
         final Long count = alertDao.countAlerts(alertCriteria);
-        assertEquals(1,count.intValue());
+        assertEquals(1, count.intValue());
     }
 
     public static Date asDate(LocalDateTime localDate) {

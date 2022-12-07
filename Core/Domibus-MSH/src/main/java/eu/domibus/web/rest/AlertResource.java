@@ -79,9 +79,11 @@ public class AlertResource extends BaseResource {
     protected List<String> getAlertTypesAsStrings() {
         final List<AlertType> alertTypes = Lists.newArrayList(AlertType.values());
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
-            return alertTypes.stream().filter(alertType ->
-                    forbiddenAlertTypesExtAuthProvider.stream().noneMatch(forbiddenAlertType -> forbiddenAlertType.equals(alertType))).
-                    map(Enum::name).collect(Collectors.toList());
+            return alertTypes.stream()
+                    .filter(alertType -> forbiddenAlertTypesExtAuthProvider.stream()
+                            .noneMatch(forbiddenAlertType -> forbiddenAlertType.equals(alertType)))
+                    .map(Enum::name)
+                    .collect(Collectors.toList());
         }
         return alertTypes.stream().map(Enum::name).collect(Collectors.toList());
     }

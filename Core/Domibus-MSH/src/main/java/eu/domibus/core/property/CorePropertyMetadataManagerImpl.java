@@ -294,6 +294,10 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_MAIL_SUBJECT, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
 
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_LEVEL, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_MAIL_SUBJECT, Usage.DOMAIN, true),
+
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SMART_RETRY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
@@ -398,6 +402,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN, Type.NUMERIC, Usage.DOMAIN, true),
 
             //Start distributed cache properties
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL, Type.NUMERIC),

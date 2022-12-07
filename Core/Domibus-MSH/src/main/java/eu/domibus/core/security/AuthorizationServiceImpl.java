@@ -10,7 +10,6 @@ import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
-import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -104,7 +103,7 @@ public class AuthorizationServiceImpl {
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, String.
                     format("At this stage, the property:[%s] of the soap message should contain a certificate", CertificateExchangeType.getValue()), e);
         }
-        return certificateService.deserializeCertificateChainFromPemFormat(certificateChainValue);
+        return certificateService.deserializeCertificateChainFromPemFormat(certificateChainValue, null);
 
     }
 

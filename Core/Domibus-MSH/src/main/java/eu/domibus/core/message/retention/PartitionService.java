@@ -2,11 +2,9 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
@@ -38,18 +36,14 @@ public class PartitionService {
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    private final AlertConfigurationService alertConfigurationService;
-
     public PartitionService(UserMessageDao userMessageDao,
                             EventService eventService,
                             DateUtil dateUtil,
-                            DomibusPropertyProvider domibusPropertyProvider,
-                            AlertConfigurationService alertConfigurationService) {
+                            DomibusPropertyProvider domibusPropertyProvider) {
         this.userMessageDao = userMessageDao;
         this.eventService = eventService;
         this.dateUtil = dateUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     public void verifyPartitionsInAdvance() {
@@ -60,10 +54,7 @@ public class PartitionService {
         Boolean partitionExists = userMessageDao.checkPartitionExists(partitionName);
         if (BooleanUtils.isFalse(partitionExists)) {
             LOG.warn("Throw partition creation warning, this partition was expected to exist but could not be found [{}]", partitionName);
-            AlertModuleConfiguration partitionsModuleConfiguration = alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK);
-            if (partitionsModuleConfiguration.isActive()) {
-                eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
-            }
+            eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
             return;
         }
         LOG.debug("Partitions check successful, checked partitionName [{}].", partitionName);

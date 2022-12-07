@@ -14,12 +14,20 @@ public class MessagesActionRequestRO {
 
     @CustomWhiteListed(permitted = ".@!/")
     private String source;
+
     private String type;
+
     private String content;
+
     @CustomWhiteListed(permitted = ".@!/")
     private String destination;
+
+    @CustomWhiteListed(permitted = ".@!/")
+    private String originalQueue;
+
     @CustomWhiteListed(permitted = "<>.:-")
     private List<String> selectedMessages;
+
     private Action action;
 
     private String jmsType;
@@ -39,6 +47,14 @@ public class MessagesActionRequestRO {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getOriginalQueue() {
+        return originalQueue;
+    }
+
+    public void setOriginalQueue(String originalQueue) {
+        this.originalQueue = originalQueue;
     }
 
     public String getType() {

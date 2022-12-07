@@ -63,9 +63,6 @@ public class PartitionServiceTest {
         new Expectations() {{
             userMessageDao.checkPartitionExists(anyString);
             result = false;
-
-            alertConfigurationService.getConfiguration(AlertType.PARTITION_CHECK).isActive();
-            result = true;
         }};
 
         partitionsService.verifyPartitionsInAdvance();

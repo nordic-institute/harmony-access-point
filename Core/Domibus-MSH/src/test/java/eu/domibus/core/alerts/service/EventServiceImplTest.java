@@ -6,13 +6,18 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -24,7 +29,6 @@ import eu.domibus.core.user.ui.User;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -73,14 +77,29 @@ public class EventServiceImplTest {
     @Injectable
     protected MpcService mpcService;
 
+    @Injectable
+    private AlertConfigurationService alertConfigurationService;
+
     @Test
-    @Ignore
-    public void enqueueMessageEvent() {
+    public void enqueueMessageEvent(@Injectable MessagingModuleConfiguration configuration) {
         final String messageId = "messageId";
         final MessageStatus oldMessageStatus = MessageStatus.SEND_ENQUEUED;
         final MessageStatus newMessageStatus = MessageStatus.ACKNOWLEDGED;
         final MSHRole mshRole = MSHRole.SENDING;
+
+        new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.MSG_STATUS_CHANGED);
+            result = configuration;
+
+            configuration.isActive();
+            result = true;
+
+            configuration.shouldMonitorMessageStatus(newMessageStatus);
+            result = true;
+        }};
+
         eventService.enqueueMessageStatusChangedEvent(messageId, oldMessageStatus, newMessageStatus, mshRole);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.MSG_STATUS_CHANGED.getQueueSelector());
@@ -93,13 +112,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueLoginFailureEvent() throws ParseException {
+    public void enqueueLoginFailureEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
         final boolean accountDisabled = false;
-//        eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, userName, loginTime, accountDisabled);
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_LOGIN_FAILURE);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_LOGIN_FAILURE, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, accountDisabled));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_LOGIN_FAILURE.getQueueSelector());
@@ -112,13 +139,20 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueAccountDisabledEvent() throws ParseException {
+    public void enqueueAccountDisabledEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
 
-//        eventService.enqueueAccountDisabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_ACCOUNT_DISABLED, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, true));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_DISABLED.getQueueSelector());
@@ -130,13 +164,20 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueAccountEnabledEvent() throws ParseException {
+    public void enqueueAccountEnabledEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String userName = "thomas";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date loginTime = parser.parse("25/10/1977 00:00:00");
 
-//        eventService.enqueueAccountEnabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_ENABLED);
+            result = configuration;
+        }};
+
+        eventService.enqueueEvent(EventType.USER_ACCOUNT_ENABLED, userName, new EventProperties(userName, UserEntityBase.Type.CONSOLE, loginTime, true));
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_ENABLED.getQueueSelector());
@@ -148,13 +189,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueImminentCertificateExpirationEvent() throws ParseException {
+    public void enqueueImminentCertificateExpirationEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
+            result = configuration;
+        }};
+
         eventService.enqueueImminentCertificateExpirationEvent(accessPoint, alias, expirationDate);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_IMMINENT_EXPIRATION.getQueueSelector());
@@ -166,13 +215,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueueCertificateExpiredEvent() throws ParseException {
+    public void enqueueCertificateExpiredEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
         final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
+
+        new Expectations() {{
+            configuration.isActive();
+            result = true;
+            alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
+            result = configuration;
+        }};
+
         eventService.enqueueCertificateExpiredEvent(accessPoint, alias, expirationDate);
+
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_EXPIRED.getQueueSelector());
@@ -184,7 +241,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void persistEvent() {
         Event event = new Event();
 
@@ -213,7 +269,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void enrichMessageEvent(@Mocked final UserMessage userMessage,
                                    @Mocked final MessageExchangeConfiguration userMessageExchangeContext) throws EbMS3Exception {
         final Event event = new Event();
@@ -262,8 +317,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    @Ignore
-    public void enqueuePasswordExpirationEvent(@Mocked RepetitiveAlertConfiguration passwordExpirationAlertModuleConfiguration) throws ParseException {
+    public void enqueuePasswordExpirationEvent(@Mocked RepetitiveAlertConfiguration configuration) throws ParseException {
         int maxPasswordAge = 15;
         LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
         final Date expirationDate = Date.from(LocalDateTime.of(2018, 10, 16, 0, 0, 0).atZone(ZoneOffset.UTC).toInstant());
@@ -273,6 +327,10 @@ public class EventServiceImplTest {
         persistedEvent.setType(EventType.PASSWORD_EXPIRED);
 
         new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
+            result = configuration;
+            configuration.isActive();
+            result = true;
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
             eventMapper.eventServiceToEventPersist((Event) any);
@@ -286,7 +344,6 @@ public class EventServiceImplTest {
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
             times = 1;
             Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
-            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};
     }
 

@@ -33,7 +33,7 @@ import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*;
 
 /**
- * @author maierga
+ * @author Gabriel Maier
  * @since 5.1
  */
 @Configuration

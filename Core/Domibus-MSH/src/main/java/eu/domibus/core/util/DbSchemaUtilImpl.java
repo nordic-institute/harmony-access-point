@@ -6,9 +6,10 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
+import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +20,11 @@ import javax.persistence.Query;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
-import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
@@ -38,6 +36,8 @@ import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELI
 public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
+
+    private static final String ALPHANUMERIC_PATTERN_WITH_UNDERSCORE = "^[a-zA-Z0-9_]+$";
 
     protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
@@ -133,7 +133,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             q.executeUpdate();
 
             return true;
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
             LOG.warn("Could not set database schema [{}] for domain [{}]", databaseSchema, domain.getCode());
             return false;
         } finally {
@@ -158,23 +158,29 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    protected String getSchemaChangeSQL(String databaseSchema) {
+    @Override
+    public String getSchemaChangeSQL(String databaseSchemaName) throws DomibusDatabaseNotSupportedException, FaultyDatabaseSchemaNameException {
         final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
         String result;
 
+        if (!isDatabaseSchemaNameSane(databaseSchemaName)) {
+            LOG.error("Faulty database schema name: [{}]",databaseSchemaName);
+            throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: " + databaseSchemaName);
+        }
+
         switch (databaseEngine) {
             case MYSQL:
-                result = "USE " + databaseSchema;
+                result = "USE " + databaseSchemaName;
                 break;
             case H2:
-                result = "SET SCHEMA " + databaseSchema;
+                result = "SET SCHEMA " + databaseSchemaName;
                 break;
             case ORACLE:
-                result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
+                result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchemaName;
                 break;
             default:
                 LOG.error("Unsupported database engine: {}", databaseEngine);
-                throw new DomibusDatabaseNotSupportedException("Unsupported database engine ...");
+                throw new DomibusDatabaseNotSupportedException("Unsupported database engine: [" + databaseEngine + "]");
         }
 
         LOG.debug("Generated SQL string for changing the schema: {}", result);
@@ -202,5 +208,10 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             LOG.warn("Could not properties from file [{}] to get the database schema name.", propertiesFilePath);
             return null;
         }
+    }
+
+    @Override
+    public boolean isDatabaseSchemaNameSane(final String schemaName) {
+        return schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
     }
 }

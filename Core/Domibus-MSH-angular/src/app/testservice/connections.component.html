@@ -74,15 +74,15 @@
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <div *ngIf="row.testable">
       <button mat-icon-button (click)="openDetails(row)"
-              color="primary" tooltip="Details" button-click-behaviour>
+              color="primary" matTooltip="Details" button-click-behaviour>
         <mat-icon>search</mat-icon>
       </button>
       <button mat-icon-button (click)="refreshMonitor(row)"
-              color="primary" tooltip="Refresh" button-click-behaviour>
+              color="primary" matTooltip="Refresh" button-click-behaviour>
         <mat-icon>cached</mat-icon>
       </button>
       <button mat-icon-button (click)="sendTestMessage(row)"
-              color="primary" tooltip="Send" button-click-behaviour>
+              color="primary" matTooltip="Send" button-click-behaviour>
         <mat-icon>send</mat-icon>
       </button>
     </div>

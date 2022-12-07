@@ -24,7 +24,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -162,10 +165,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
         final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
-        return initChildren(messageId, userMessageLog);
-    }
-
-    private UserMessageLog initChildren(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
@@ -180,6 +179,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         userMessageLog.getMessageStatus();
         userMessageLog.getMshRole().getRole();
         userMessageLog.getNotificationStatus();
+    }
+
+
+    public MessageStatus getMessageStatusById(String messageId) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusById", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [{}]", messageId);
+            return MessageStatus.NOT_FOUND;
+        }
     }
 
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
@@ -240,7 +251,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         List<UserMessageLog> results = query.getResultList();
         if (CollectionUtils.isEmpty(results)) {
-            LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;
         }
 
@@ -248,8 +259,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
             return results.get(0);
         }
-
-        LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+        LOG.info("Found more than one UserMessageLog for message with [{}]=[{}], Trying to return the one with SENDING role", STR_MESSAGE_ID, messageId);
         UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
                 .orElse(results.get(0));
         LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
@@ -264,7 +274,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRole);
 
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
         if (userMessageLog == null) {
@@ -396,6 +406,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
     }
 
+    public String findBackendForMessageEntityId(long messageEntityId) {
+        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessageEntityId", String.class);
+        query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
+        return query.getSingleResult();
+    }
+
     public void setAsNotified(final UserMessageLog messageLog) {
         final NotificationStatusEntity status = notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED);
         messageLog.setNotificationStatus(status);
@@ -439,11 +455,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     @Transactional
-    public int countUnarchivedMessagesOnPartition(String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) WHERE archived IS NULL";
+    public int countMessagesNotArchivedOnPartition(String partitionName) {
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                            "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
+                            "INNER JOIN TB_USER_MESSAGE um ON TB_USER_MESSAGE_LOG.ID_PK=um.ID_PK " +
+                            "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND um.TEST_MESSAGE=0 AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         final Query countQuery = em.createNativeQuery(sqlString);
         try {
+            countQuery.setParameter("MESSAGE_STATUSES", MessageStatus.getNonArchivableStatesAsString());
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
             return result;
@@ -452,6 +472,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             return -1;
         }
     }
+
 
     @Transactional
     public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
