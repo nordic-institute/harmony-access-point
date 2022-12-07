@@ -38,8 +38,6 @@ public class MessageResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
     private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-    private static final String RESEND_SELECTED = "selected";
-    private static final String RESEND_All = "all";
 
     private UserMessageService userMessageService;
 
@@ -49,19 +47,16 @@ public class MessageResource {
 
     private UserMessageRestoreService restoreService;
 
-    private AuthUtils authUtils;
-
     private RequestFilterUtils requestFilterUtils;
 
     private MessagesLogService messagesLogService;
 
     public MessageResource(UserMessageService userMessageService, ErrorHandlerService errorHandlerService, DomibusPropertyProvider domibusPropertyProvider,
-                           UserMessageRestoreService restoreService, AuthUtils authUtils, RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
+                           UserMessageRestoreService restoreService,  RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
         this.userMessageService = userMessageService;
         this.errorHandlerService = errorHandlerService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.restoreService = restoreService;
-        this.authUtils = authUtils;
         this.requestFilterUtils = requestFilterUtils;
         this.messagesLogService = messagesLogService;
     }

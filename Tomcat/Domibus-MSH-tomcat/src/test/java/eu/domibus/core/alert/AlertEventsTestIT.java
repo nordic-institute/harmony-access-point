@@ -14,9 +14,6 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.user.ui.UserDao;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,12 +178,12 @@ public class AlertEventsTestIT extends AbstractIT {
     @Test
     public void sendConnMonitorAlert() throws InterruptedException {
         MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
+        MessageStatus newStatus = MessageStatus.SEND_FAILURE;
         String fromParty = "fromParty";
         String toParty = "toParty";
         String messageId = "messageId";
 
-        eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
-                new EventProperties(messageId, MSHRole.RECEIVING.name(), oldStatus.name(), fromParty, toParty));
+        eventService.enqueueMonitoringEvent(messageId, MSHRole.RECEIVING, oldStatus, newStatus, fromParty, toParty);
 
         Thread.sleep(1000);
         Assert.assertEquals(dispatchedAlerts.size(), 1);
@@ -196,4 +192,19 @@ public class AlertEventsTestIT extends AbstractIT {
         Assert.assertEquals(alert.getEvents().size(), 1);
         Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.CONNECTION_MONITORING_FAILED);
     }
+
+    @Test
+    public void sendConnMonitorAlertNoAlert() throws InterruptedException {
+        MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+        String fromParty = "fromParty";
+        String toParty = "toParty";
+        String messageId = "messageId";
+
+        eventService.enqueueMonitoringEvent(messageId, MSHRole.SENDING, oldStatus, newStatus, fromParty, toParty);
+
+        Thread.sleep(1000);
+        Assert.assertEquals(dispatchedAlerts.size(), 0);
+    }
+
 }

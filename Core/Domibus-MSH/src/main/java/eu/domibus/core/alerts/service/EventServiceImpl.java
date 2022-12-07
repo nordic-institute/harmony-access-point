@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.DomibusAlertException;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -246,15 +247,6 @@ public class EventServiceImpl implements EventService {
         return false;
     }
 
-    private void enqueueEvent(Event event) {
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
-        LOG.debug("Event:[{}] added to the queue", event);
-    }
-
-    private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
-        return createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
-    }
-
     @Override
     public eu.domibus.core.alerts.model.persist.Event getOrCreatePersistedEvent(Event event) {
         String id = event.findStringProperty(EVENT_IDENTIFIER).orElse("");
@@ -264,6 +256,27 @@ public class EventServiceImpl implements EventService {
         }
 
         return entity;
+    }
+
+    @Override
+    public void enqueueMonitoringEvent(String messageId, MSHRole role, MessageStatus messageStatus, MessageStatus newStatus, String fromParty, String toParty) {
+        final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
+        if (!connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
+            LOG.debug("According to configuration, no event will be enqueued for status [{}] and party [{}]", newStatus, toParty);
+            return;
+        }
+
+        enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
+                new EventProperties(messageId, role.name(), messageStatus.name(), fromParty, toParty));
+    }
+
+    private void enqueueEvent(Event event) {
+        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
+        LOG.debug("Event:[{}] added to the queue", event);
+    }
+
+    private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
+        return createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
     }
 
     private String getUniqueIdentifier(UserEntityBase user) {
