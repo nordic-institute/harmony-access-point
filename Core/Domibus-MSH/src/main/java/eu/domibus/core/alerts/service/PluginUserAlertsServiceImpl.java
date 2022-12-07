@@ -26,8 +26,6 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     protected final AuthenticationDAO userDao;
 
-    private final AlertConfigurationService alertConfigurationService;
-
     public PluginUserAlertsServiceImpl(AuthenticationDAO userDao, AlertConfigurationService alertConfigurationService) {
         this.userDao = userDao;
         this.alertConfigurationService = alertConfigurationService;
@@ -66,16 +64,6 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return (AccountDisabledModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_USER_ACCOUNT_DISABLED);
-    }
-
-    @Override
-    protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
-        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED);
-    }
-
-    @Override
-    protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
-        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION);
     }
 
 }
