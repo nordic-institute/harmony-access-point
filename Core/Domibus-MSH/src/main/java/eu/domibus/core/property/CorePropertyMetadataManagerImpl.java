@@ -412,8 +412,6 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_MEMBERS, Type.COMMA_SEPARATED_LIST),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_REST_API_ENABLED, Type.BOOLEAN),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_REST_API_GROUPS, Type.COMMA_SEPARATED_LIST),
             //End distributed cache properties
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 

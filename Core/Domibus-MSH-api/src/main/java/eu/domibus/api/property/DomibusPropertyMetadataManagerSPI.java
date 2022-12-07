@@ -434,7 +434,5 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT = "domibus.cache.distributed.port.autoincrement";
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
     String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
-    String DOMIBUS_DISTRIBUTED_CACHE_REST_API_ENABLED = "domibus.cache.distributed.rest.enabled";
-    String DOMIBUS_DISTRIBUTED_CACHE_REST_API_GROUPS = "domibus.cache.distributed.rest.groups";
     //End distributed cache properties
 }

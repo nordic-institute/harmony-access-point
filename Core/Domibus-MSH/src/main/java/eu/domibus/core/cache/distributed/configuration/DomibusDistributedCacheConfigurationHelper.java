@@ -23,18 +23,6 @@ public class DomibusDistributedCacheConfigurationHelper {
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
-    /**
-     * Default configuration for all maps
-     */
-    public MapConfig createDefaultMapConfig(String mapName) {
-        final Integer defaultTtl = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL);
-        final Integer maxIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE);
-        final Integer defaultSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE);
-
-        final NearCacheConfig defaultNearCacheConfig = createDefaultMapNearCacheConfig();
-        return createMapConfig(mapName, defaultSize, defaultTtl, maxIdle, defaultNearCacheConfig);
-    }
-
     public MapConfig createMapConfig(String mapName, final Integer mapSize, final Integer timeToLiveSeconds, final Integer maxIdle, NearCacheConfig nearCacheConfig) {
         MapConfig mapConfig = new MapConfig(mapName);
         mapConfig.setBackupCount(0);
@@ -78,6 +66,7 @@ public class DomibusDistributedCacheConfigurationHelper {
         LOG.info("Setting TTL to [{}] and max idle to [{}] for distributed near cache ", timeToLiveSeconds, maxIdle);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig()
+                .setCacheLocalEntries(true)
                 .setInMemoryFormat(InMemoryFormat.OBJECT)
                 .setInvalidateOnChange(true)
                 .setTimeToLiveSeconds(timeToLiveSeconds)

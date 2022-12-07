@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -61,20 +60,11 @@ public class DomibusDistributedCacheConfiguration {
 
     @Bean
     public HazelcastInstance hazelcastInstance() {
-        final boolean restApiEnabled = BooleanUtils.toBoolean(domibusPropertyProvider.getBooleanProperty(DOMIBUS_DISTRIBUTED_CACHE_REST_API_ENABLED));
-        final List<RestEndpointGroup> restEndpointGroups = getConfiguredRestApiGroups(restApiEnabled);
-
-        RestApiConfig restApiConfig = new RestApiConfig()
-                .setEnabled(restApiEnabled)
-                .enableGroups(restEndpointGroups.toArray(new RestEndpointGroup[0]));
-
         Config config = new Config();
         config.setClusterName(DOMIBUS_CLUSTER);
         config.setProperty("hazelcast.logging.type", "slf4j");
 
         NetworkConfig networkConfig = new NetworkConfig();
-        networkConfig.setRestApiConfig(restApiConfig);
-
         final Integer hazelcastPort = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT);
         final boolean portAutoincrement = BooleanUtils.toBoolean(domibusPropertyProvider.getBooleanProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT));
         final Integer portAutoincrementCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT);
@@ -107,19 +97,4 @@ public class DomibusDistributedCacheConfiguration {
 
         return instance;
     }
-
-    protected List<RestEndpointGroup> getConfiguredRestApiGroups(boolean restApiEnabled) {
-        if (!restApiEnabled) {
-            LOG.info("Distributed cache REST API is disabled");
-            return new ArrayList<>();
-        }
-        final List<String> restApiGroups = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_DISTRIBUTED_CACHE_REST_API_GROUPS);
-        LOG.info("Distributed cache REST API configured groups are [{}]", restApiGroups);
-
-        return restApiGroups.stream().
-                map(memberValue -> RestEndpointGroup.valueOf(memberValue))
-                .collect(Collectors.toList());
-    }
-
-
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.cache.distributed;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.cache.DomibusCacheException;
 import eu.domibus.api.cache.distributed.DistributedCacheService;
@@ -111,5 +112,27 @@ public class DistributedCacheServiceClusterTestIT extends AbstractIT {
         assertNotNull(entriesFromCache);
         assertEquals(1, entriesFromCache.size());
         assertEquals("value11", entriesFromCache.get("key11"));
+    }
+
+    @Test
+    public void testNearCacheIsUsed() {
+        final String cacheName = "nearCache1";
+        distributedCacheService.createCache(cacheName);
+        final String key = "key11";
+        distributedCacheService.addEntryInCache(cacheName, key, "value11");
+        //the first time we get the value it's added in the near cache
+        final Object entryFromCache = distributedCacheService.getEntryFromCache(cacheName, key);
+        assertNotNull(entryFromCache);
+        assertEquals("value11", entryFromCache);
+
+        //the value is retrieved from the near cache
+        distributedCacheService.getEntryFromCache(cacheName, key);
+        distributedCacheService.getEntryFromCache(cacheName, key);
+        distributedCacheService.getEntryFromCache(cacheName, key);
+
+
+        IMap<String, Object> iMap = hazelcastInstance.getMap(cacheName);
+        final long nearCacheHits = iMap.getLocalMapStats().getNearCacheStats().getHits();
+        assertTrue(nearCacheHits == 3);
     }
 }
