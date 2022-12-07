@@ -496,6 +496,13 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId);
     }
 
+    @Transactional
+    @Override
+    public void deleteMessageInFinalStatus(String messageId) {
+        getMessageInFinalStatus(messageId);
+        deleteFinalStatusMessage(messageId);
+    }
+
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
@@ -508,6 +515,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
+        UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
+
+        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+        }
+
+        return userMessageLog;
+    }
+
+    protected UserMessageLog getNonDeletedUserMessageLog(String messageId) {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
@@ -516,9 +533,15 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog.getDeleted() != null) {
             throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
+        return userMessageLog;
+    }
 
-        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+
+    protected UserMessageLog getMessageInFinalStatus(String messageId) {
+        UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
+
+        if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
         }
 
         return userMessageLog;
@@ -530,10 +553,10 @@ public class UserMessageDefaultService implements UserMessageService {
     public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
@@ -545,7 +568,32 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Deleted messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+
+        return deletedMessages;
+    }
+
+    @Transactional
+    @Override
+    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long start, Long end, String finalRecipient) {
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteInFinalStatus(finalRecipient, start, end);
+        if (CollectionUtils.isEmpty(messagesToDelete)) {
+            LOG.debug("Cannot find messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            return Collections.emptyList();
+        }
+        LOG.debug("Found messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+
+        final List<String> deletedMessages = new ArrayList<>();
+        for (String messageId : messagesToDelete) {
+            try {
+                deleteFinalStatusMessage(messageId);
+                deletedMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to delete message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Deleted messages in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
 
         return deletedMessages;
     }
@@ -555,13 +603,44 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
+        //add messageId to MDC map
+        addMessageIdToMDC(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+        final UserMessage userMessage = getUserMessage(messageId, signalMessage, userMessageLog);
 
+        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
+                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        }
+
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+    }
+
+
+    @Override
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteFinalStatusMessage(String messageId) {
+        LOG.debug("Deleting message in final status[{}]", messageId);
+        addMessageIdToMDC(messageId);
+
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+
+        final UserMessage userMessage = getUserMessage(messageId, signalMessage, userMessageLog);
+        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+    }
+
+    protected void addMessageIdToMDC(String messageId) {
         //add messageId to MDC map
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+    }
+
+    protected UserMessage getUserMessage(String messageId, SignalMessage signalMessage, UserMessageLog userMessageLog) {
         final UserMessage userMessage;
         if (signalMessage == null) {
             LOG.debug("No signalMessage is present for [{}]", messageId);
@@ -573,13 +652,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
-
-        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
-                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
-            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-        }
-
-        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+        return userMessage;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

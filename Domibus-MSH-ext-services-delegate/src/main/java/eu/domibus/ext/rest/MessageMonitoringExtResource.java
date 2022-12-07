@@ -140,6 +140,30 @@ public class MessageMonitoringExtResource {
         return messageMonitorExtService.deleteMessagesDuringPeriod(fromDateHour, toDateHour);
     }
 
+    @Operation(summary = "Delete message payload", description = "Delete the payload of a message which is in final statuses.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ResponseBody
+    @DeleteMapping(path = "/finalstatus/delete/{messageId:.+}")
+    public void deleteMessageInFinalStatus(@PathVariable(value = "messageId") String messageId) {
+        messageMonitorExtService.deleteMessageInFinalStatus(messageId);
+    }
+
+    @Operation(summary = "Delete messages payload",
+            description = "Delete the payload of messages within a certain time interval which are in final statuses.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ResponseBody
+    @DeleteMapping(path = "/finalstatus/delete")
+    public List<String> deleteMessagesInFinalStatus(@RequestBody FailedMessagesCriteriaRO deleteMessagesCriteriaRO) {
+        LOG.debug("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
+                deleteMessagesCriteriaRO.getToDate());
+        Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
+        if (fromDateHour >= toDateHour) {
+            throw getDatesValidationError();
+        }
+        return messageMonitorExtService.deleteMessagesInFinalStatusDuringPeriod(fromDateHour, toDateHour);
+    }
+
     private DomibusDateTimeExtException getDatesValidationError() {
         return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error", new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "Starting date hour is after Ending date hour"));
     }

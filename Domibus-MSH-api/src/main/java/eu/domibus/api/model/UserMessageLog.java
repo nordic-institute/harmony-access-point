@@ -51,7 +51,16 @@ import java.util.Date;
                         "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
-
+        @NamedQuery(name = "UserMessageLog.findMessagesToDeleteInFinalStatusDuringPeriod",
+                query = "SELECT DISTINCT um.messageId                                                                 " +
+                        "FROM UserMessageLog uml                                                                      " +
+                        "JOIN uml.userMessage um                                                                      " +
+                        "left join um.messageProperties p                                                             " +
+                        "WHERE uml.messageStatus.messageStatus IN :MESSAGE_STATUSES                               " +
+                        "AND uml.deleted IS NULL                                                                      " +
+                        "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
+                        "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
+                        "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
         @NamedQuery(name = "UserMessageLog.findFailedMessagesDuringPeriod",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
