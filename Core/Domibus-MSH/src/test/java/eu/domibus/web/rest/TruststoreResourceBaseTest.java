@@ -173,7 +173,7 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) {
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile)  {
         final String emptyPassword = "";
 
         try {

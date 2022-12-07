@@ -109,7 +109,7 @@ public class KeystoreResource extends TruststoreResourceBase {
     }
 
     @GetMapping(value = "/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadKeystore(){
+    public ResponseEntity<ByteArrayResource> downloadKeystore() {
         LOG.debug("Downloading the keystore as byte array for the current domain");
         return downloadTruststoreContent();
     }

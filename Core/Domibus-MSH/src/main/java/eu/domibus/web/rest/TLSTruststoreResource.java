@@ -48,7 +48,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @GetMapping(produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore(){
+    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
         return downloadTruststoreContent();
     }
 

@@ -64,7 +64,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @GetMapping(value = "/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore(){
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
         LOG.debug("Downloading the truststore as byte array for the current domain");
 
         return downloadTruststoreContent();
