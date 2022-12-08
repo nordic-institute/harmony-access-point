@@ -133,7 +133,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void removeTruststore(Domain domain) {
-        certificateService.removeTruststore(TLS_TRUSTSTORE_NAME, domain);
+        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
     }
 
     private void persistTruststores(List<Domain> domains) {

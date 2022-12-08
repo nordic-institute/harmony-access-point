@@ -259,8 +259,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     private void removeTruststores(Domain domain) {
-        certificateService.removeTruststore(DOMIBUS_TRUSTSTORE_NAME, domain);
-        certificateService.removeTruststore(DOMIBUS_KEYSTORE_NAME, domain);
+        certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
+        certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
     }
 
     private void doReplaceKeyStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {

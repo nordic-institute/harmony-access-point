@@ -233,7 +233,7 @@ public interface CertificateService {
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
-    void removeTruststore(String domibusTruststoreName, Domain domain);
+    void removeStore(String domibusTruststoreName, Domain domain);
 
     /**
      * Checks if the database saved store is different that the one on the disk

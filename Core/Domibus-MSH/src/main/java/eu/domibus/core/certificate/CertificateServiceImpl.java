@@ -394,7 +394,7 @@ public class CertificateServiceImpl implements CertificateService {
     public void replaceStore(String fileLocation, String filePassword, String trustName) {
         Path path = Paths.get(fileLocation);
         String fileName = path.getFileName().toString();
-        byte[] fileContent = getTruststoreContentFromFile(fileLocation);
+        byte[] fileContent = getStoreContentFromFile(fileLocation);
         replaceStore(fileName, fileContent, filePassword, trustName);
     }
 
@@ -498,7 +498,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected byte[] getTruststoreContentFromFile(String location) {
+    protected byte[] getStoreContentFromFile(String location) {
         File file = createFileWithLocation(location);
         Path path = Paths.get(file.getAbsolutePath());
         try {
@@ -809,7 +809,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private void createStore(String storeName, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, String filePath) {
         LOG.debug("Loading [{}] from [{}]", storeName, filePath);
-        byte[] content = getTruststoreContentFromFile(filePath);
+        byte[] content = getStoreContentFromFile(filePath);
 
         TruststoreEntity entity = new TruststoreEntity();
         entity.setName(storeName);
@@ -1090,8 +1090,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void removeTruststore(String truststoreName, Domain domain) {
-        domainTaskExecutor.submit(() -> doRemoveTruststore(truststoreName, domain), domain);
+    public void removeStore(String storeName, Domain domain) {
+        domainTaskExecutor.submit(() -> doRemoveStore(storeName, domain), domain);
     }
 
     @Override
@@ -1117,16 +1117,16 @@ public class CertificateServiceImpl implements CertificateService {
             return false;
         }
 
-        byte[] contentOnDisk = getTruststoreContentFromFile(location);
+        byte[] contentOnDisk = getStoreContentFromFile(location);
         boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
         LOG.debug("The store [{}] on disk is newer than the one persisted and has different content.", storeName);
         return different;
     }
 
-    private void doRemoveTruststore(String truststoreName, Domain domain) {
-        TruststoreEntity entity = truststoreDao.findByNameSafely(truststoreName);
+    private void doRemoveStore(String storeName, Domain domain) {
+        TruststoreEntity entity = truststoreDao.findByNameSafely(storeName);
         if (entity == null) {
-            LOG.warn("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
+            LOG.warn("Could not find store named [{}] for domain [{}] to delete", storeName, domain);
             return;
         }
         truststoreDao.delete(entity);
