@@ -762,13 +762,13 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable(String name, boolean optional,
-                                               Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
-                                               List<Domain> domains) {
+    public void persistStores(String name, boolean optional,
+                              Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
+                              List<Domain> domains) {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
         for (Domain domain : domains) {
             try {
-                domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
+                domainTaskExecutor.submit(() -> persistStoreOnCurrentDomain(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
             } catch (DomibusCertificateException dce) {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }
@@ -776,8 +776,8 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 
-    private void persistCurrentDomainTruststoreIfApplicable(String storeName, boolean optional,
-                                                            Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    private void persistStoreOnCurrentDomain(String storeName, boolean optional,
+                                             Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
             Optional<String> filePathHolder = filePathSupplier.get();
             if (!filePathHolder.isPresent()) {

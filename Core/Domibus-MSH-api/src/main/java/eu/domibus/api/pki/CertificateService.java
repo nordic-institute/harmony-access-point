@@ -221,8 +221,8 @@ public interface CertificateService {
      * @param passwordSupplier a supplier method that returns the password of the trust
      * @param domains in MT env it specifies for which domain to persist
      */
-    void persistTruststoresIfApplicable(final String name, boolean optional,
-                                        Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    void persistStores(final String name, boolean optional,
+                       Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
 
     /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
