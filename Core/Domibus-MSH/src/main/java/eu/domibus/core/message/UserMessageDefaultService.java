@@ -55,6 +55,7 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -678,6 +679,10 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         try {
             entityIds.forEach(partInfoService::clearPayloadData);
+            entityIds.forEach(eid -> {
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
+                backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+            });
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
         } catch (RuntimeException e){
             LOG.warn("Cleaning payload failed with exception", e);
