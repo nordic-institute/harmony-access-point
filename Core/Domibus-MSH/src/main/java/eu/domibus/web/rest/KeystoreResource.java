@@ -94,7 +94,7 @@ public class KeystoreResource extends TruststoreResourceBase {
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the keystore has changed on disk for the current domain");
-        return certificateService.isChangedOnDisk(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(DOMIBUS_KEYSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")

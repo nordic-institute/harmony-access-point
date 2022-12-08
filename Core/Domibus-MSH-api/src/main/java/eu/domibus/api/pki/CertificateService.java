@@ -237,8 +237,8 @@ public interface CertificateService {
 
     /**
      * Checks if the database saved store is different that the one on the disk
-     * @param domibusTruststoreName the truststore or keystore
+     * @param storeName the truststore or keystore
      * @return true if they are different
      */
-    boolean isChangedOnDisk(String domibusTruststoreName);
+    boolean isStoreNewerOnDisk(String storeName);
 }

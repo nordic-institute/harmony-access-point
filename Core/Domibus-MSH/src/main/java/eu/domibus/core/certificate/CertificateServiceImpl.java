@@ -1095,7 +1095,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean isChangedOnDisk(String storeName) {
+    public boolean isStoreNewerOnDisk(String storeName) {
         String location;
         if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
             location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
@@ -1105,9 +1105,22 @@ public class CertificateServiceImpl implements CertificateService {
             throw new DomibusCertificateException("Invalid store name provided " + storeName);
         }
 
+        TruststoreEntity persisted = getTruststoreEntitySafely(storeName);
+        if (persisted == null) {
+            LOG.info("The store [{}] is not present in the db", storeName);
+            return true;
+        }
+
+        File storeFile = createFileWithLocation(location);
+        if (persisted.getModificationTime().getTime() > storeFile.lastModified()) {
+            LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
+            return false;
+        }
+
         byte[] contentOnDisk = getTruststoreContentFromFile(location);
-        TruststoreEntity entity = getTruststoreEntitySafely(storeName);
-        return !Arrays.equals(entity.getContent(), contentOnDisk);
+        boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
+        LOG.debug("The store [{}] on disk is newer than the one persisted and has different content.", storeName);
+        return different;
     }
 
     private void doRemoveTruststore(String truststoreName, Domain domain) {
