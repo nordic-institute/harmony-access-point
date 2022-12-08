@@ -319,7 +319,7 @@ public class CertificateServiceImpl implements CertificateService {
                 LOG.debug("Loading Certificate factory with default provider");
                 cf = CertificateFactory.getInstance("X509");
             } else {
-                LOG.debug("Loading Certificate factory with provider:[{}]",provider);
+                LOG.debug("Loading Certificate factory with provider:[{}]", provider);
                 cf = CertificateFactory.getInstance("X509", provider);
             }
             while ((pemObject = reader.readPemObject()) != null) {
@@ -776,37 +776,48 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 
-    private void persistCurrentDomainTruststoreIfApplicable(String name, boolean optional,
+    private void persistCurrentDomainTruststoreIfApplicable(String storeName, boolean optional,
                                                             Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
-            if (truststoreDao.existsWithName(name)) {
-                LOG.debug("The store [{}] is already persisted; exiting", name);
+            Optional<String> filePathHolder = filePathSupplier.get();
+            if (!filePathHolder.isPresent()) {
+                if (optional) {
+                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
+                    return;
+                }
+                throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", storeName));
+            }
+
+            String filePath = filePathHolder.get();
+            File storeFile = createFileWithLocation(filePath);
+            TruststoreEntity persisted = truststoreDao.findByNameSafely(storeName);
+            if (persisted != null && persisted.getModificationTime().getTime() > storeFile.lastModified()) {
+                LOG.info("The store [{}] is already persisted and is newer than on disc.", storeName);
                 return;
             }
 
-            Optional<String> filePath = filePathSupplier.get();
-            if (!filePath.isPresent()) {
-                if (optional) {
-                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", name);
-                    return;
-                }
-                throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));
+            if(persisted != null) {
+                replaceStore(filePath, passwordSupplier.get(), storeName);
+            } else {
+                createStore(storeName, typeSupplier, passwordSupplier, filePath);
             }
-
-            LOG.debug("Loading [{}] from [{}]", name, filePath.get());
-            byte[] content = getTruststoreContentFromFile(filePath.get());
-
-            TruststoreEntity entity = new TruststoreEntity();
-            entity.setName(name);
-            entity.setType(typeSupplier.get());
-            entity.setPassword(passwordSupplier.get());
-            entity.setContent(content);
-
-            truststoreDao.create(entity);
         } catch (Exception ex) {
             LOG.error(String.format("The truststore [%s], whose file location is [%s], could not be persisted! " +
-                    "Please check that the truststore file is present and the location property is set accordingly.", name, filePathSupplier.get()), ex);
+                    "Please check that the truststore file is present and the location property is set accordingly.", storeName, filePathSupplier.get()), ex);
         }
+    }
+
+    private void createStore(String storeName, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, String filePath) {
+        LOG.debug("Loading [{}] from [{}]", storeName, filePath);
+        byte[] content = getTruststoreContentFromFile(filePath);
+
+        TruststoreEntity entity = new TruststoreEntity();
+        entity.setName(storeName);
+        entity.setType(typeSupplier.get());
+        entity.setPassword(passwordSupplier.get());
+        entity.setContent(content);
+
+        truststoreDao.create(entity);
     }
 
     protected void closeStream(Closeable stream) {
