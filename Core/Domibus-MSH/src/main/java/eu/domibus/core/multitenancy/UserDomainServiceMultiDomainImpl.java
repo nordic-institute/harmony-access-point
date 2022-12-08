@@ -1,11 +1,10 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -90,7 +89,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
     private void deleteDomainByUser(String user) {
         userDomainDao.deleteDomainByUser(user);
-        domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setDomainByUser(String user, String domainCode) {
