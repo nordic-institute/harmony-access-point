@@ -84,5 +84,10 @@ public interface DistributedCacheExtService {
      */
     void addEntry(String cacheName, String key, Object value);
 
+    /**
+     * Get all entries from a cache
+     * @param cacheName The cache name from which we get the entries
+     * @return All the entries from the cache
+     */
     List<CacheEntryDTO> getEntriesFromCache(String cacheName);
 }

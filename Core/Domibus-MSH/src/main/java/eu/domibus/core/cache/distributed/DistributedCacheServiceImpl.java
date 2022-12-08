@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1
+ */
 @Service
 public class DistributedCacheServiceImpl implements DistributedCacheService {
 
@@ -43,7 +47,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     public void createCache(String cacheName, int cacheSize, int timeToLiveSeconds, int maxIdleSeconds) {
         if (isClusterDeployment()) {
             LOGGER.debug("Creating cache [{}]", cacheName);
-            distributedCacheDao.createCacheIfNeeded(cacheName);
+            distributedCacheDao.createCacheIfNeeded(cacheName, cacheSize, timeToLiveSeconds, maxIdleSeconds);
             return;
         }
         LOGGER.info(CACHE_NOT_CREATED_IN_NON_CLUSTER_MESSAGE);

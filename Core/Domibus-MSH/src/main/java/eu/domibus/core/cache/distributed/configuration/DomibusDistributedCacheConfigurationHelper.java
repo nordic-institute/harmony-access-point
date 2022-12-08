@@ -17,7 +17,7 @@ public class DomibusDistributedCacheConfigurationHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDistributedCacheConfigurationHelper.class);
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
     public DomibusDistributedCacheConfigurationHelper(DomibusPropertyProvider domibusPropertyProvider) {
         this.domibusPropertyProvider = domibusPropertyProvider;

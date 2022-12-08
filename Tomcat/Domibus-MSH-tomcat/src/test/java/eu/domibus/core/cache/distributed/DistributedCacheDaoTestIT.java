@@ -20,7 +20,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-@Ignore//@TestPropertySource marks the Spring context as dirty and recreating the context fails due to ActiveMQ
+@Ignore//Ignored on purpose for the following reason: @TestPropertySource marks the Spring context as dirty and recreating the context fails due to ActiveMQ
 @TestPropertySource(properties = {"domibus.deployment.clustered=true"})
 public class DistributedCacheDaoTestIT extends AbstractIT {
 
