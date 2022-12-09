@@ -1,7 +1,6 @@
 package eu.domibus.core.spring.lock;
 
 import eu.domibus.core.dao.BasicDao;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
