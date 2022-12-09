@@ -21,6 +21,7 @@ import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -117,6 +118,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final AlertConfigurationService alertConfigurationService;
 
+    protected final AuditService auditService;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -130,7 +133,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
                                   DomibusCoreMapper coreMapper,
-                                  AlertConfigurationService alertConfigurationService) {
+                                  AlertConfigurationService alertConfigurationService, AuditService auditService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -145,6 +148,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.domainContextProvider = domainContextProvider;
         this.coreMapper = coreMapper;
         this.alertConfigurationService = alertConfigurationService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -481,10 +485,11 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
             truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
+            LOG.info("Store [{}] successfully loaded.", trustName);
 
             Long entityId = persistTrustStore(truststore, filePassword, storeType, trustName);
-            LOG.debug("Truststore successfully persisted with id [{}]", entityId);
+            LOG.info("Store [{}] successfully persisted with id [{}]", trustName, entityId);
+            auditService.addStoreReplacedAudit(trustName, entityId);
             return entityId;
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             if (oldTrustStoreBytes != null) {
@@ -631,7 +636,7 @@ public class CertificateServiceImpl implements CertificateService {
             if (entity == null) {
                 throw new ConfigurationException("Could not find truststore entity with name: " + trustName);
             }
-            String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            String decrypted = decrypt(trustName, entity.getPassword());
             entity.setPassword(decrypted);
             return entity;
         } catch (Exception ex) {
@@ -681,8 +686,8 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             TruststoreEntity entity = truststoreDao.findByName(trustName);
 
-            String decryptedPassword = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
-                    trustName + ".password", entity.getPassword());
+            String password = entity.getPassword();
+            String decryptedPassword = decrypt(trustName, password);
             truststore.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
@@ -805,8 +810,7 @@ public class CertificateServiceImpl implements CertificateService {
                 }
 
                 LOG.info("Replacing the store [{}] with the one from the disc.", storeName);
-                String password = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
-                        storeName + ".password", passwordSupplier.get());
+                String password = decrypt(storeName, passwordSupplier.get());
                 replaceStore(filePath, password, storeName);
             } else {
                 LOG.info("Persisting the store [{}] from the disc.", storeName);
@@ -829,6 +833,8 @@ public class CertificateServiceImpl implements CertificateService {
         entity.setContent(content);
 
         truststoreDao.create(entity);
+
+        auditService.addStoreCreatedAudit(storeName);
     }
 
     protected void closeStream(Closeable stream) {
@@ -1143,6 +1149,11 @@ public class CertificateServiceImpl implements CertificateService {
             return;
         }
         truststoreDao.delete(entity);
+    }
+
+    private String decrypt(String trustName, String password) {
+        return passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
+                trustName + ".password", password);
     }
 }
 

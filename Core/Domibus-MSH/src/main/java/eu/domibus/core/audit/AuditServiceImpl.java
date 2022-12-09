@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -15,12 +14,10 @@ import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.model.*;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.user.ui.User;
-import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.CollectionUtils;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -239,6 +236,17 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType) {
         auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
+    }
+
+    @Override
+    public void addStoreReplacedAudit(String storeName, Long storeEntityId) {
+        String id = storeName + ":" + storeEntityId;
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
+    }
+
+    @Override
+    public void addStoreCreatedAudit(String storeName) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(storeName, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
     }
 
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
