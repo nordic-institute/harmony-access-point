@@ -989,6 +989,23 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    public void deleteMessageInFinalStatus(@Injectable  UserMessageLog userMessageLog) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
+            result = userMessageLog;
+        }};
+
+        userMessageDefaultService.deleteMessageInFinalStatus(messageId);
+
+        new FullVerificationsInOrder(userMessageDefaultService) {{
+            userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId);
+        }};
+    }
+
+    @Test
     public void deleteMessagesDuringPeriod() {
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
@@ -1004,6 +1021,27 @@ public class UserMessageDefaultServiceTest {
         }};
 
         userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void deleteMessagesInFinalStatusDuringPeriod() {
+        final String messageId = "1";
+        final List<String> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(messageId);
+
+        final String originalUserFromSecurityContext = "C4";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
+            result = messagesToDelete;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId);
+            times = 1;
+        }};
+
+        userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
         new FullVerifications() {
         };
