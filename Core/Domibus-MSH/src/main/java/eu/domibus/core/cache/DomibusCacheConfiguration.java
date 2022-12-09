@@ -55,7 +55,7 @@ public class DomibusCacheConfiguration {
 
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
-    @Primary
+    @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
     @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         EhcacheCachingProvider provider = new EhcacheCachingProvider();

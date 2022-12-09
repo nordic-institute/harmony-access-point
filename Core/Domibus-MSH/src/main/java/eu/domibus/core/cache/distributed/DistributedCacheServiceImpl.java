@@ -26,7 +26,7 @@ public class DistributedCacheServiceImpl implements DistributedCacheService {
     protected DomibusLocalCacheService domibusLocalCacheService;
     protected DomibusConfigurationService domibusConfigurationService;
 
-    public DistributedCacheServiceImpl(@Autowired(required = false) DistributedCacheDao distributedCacheDao,
+    public DistributedCacheServiceImpl(@Autowired(required = false) DistributedCacheDao distributedCacheDao,//in single tenancy this bean is not created so the injection is not required
                                        DomibusLocalCacheService domibusLocalCacheService,
                                        DomibusConfigurationService domibusConfigurationService) {
         this.distributedCacheDao = distributedCacheDao;
