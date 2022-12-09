@@ -1130,15 +1130,19 @@ public class CertificateServiceImpl implements CertificateService {
 
         File storeFile = createFileWithLocation(location);
         if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
-            LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
+            LOG.info("The persisted store [{}] is newer than on disc.", storeName);
             return false;
         }
 
-        LOG.debug("The store [{}] on disk is newer than the one persisted.", storeName);
+        LOG.info("The store [{}] on disk is newer than the one persisted.", storeName);
 
         byte[] contentOnDisk = getStoreContentFromFile(location);
         boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
-        LOG.debug("The store [{}] on disk is newer than the one persisted and has different content.", storeName);
+        if(different) {
+            LOG.debug("The store [{}] on disk has different content than the persisted one.", storeName);
+        } else {
+            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+        }
         return different;
     }
 

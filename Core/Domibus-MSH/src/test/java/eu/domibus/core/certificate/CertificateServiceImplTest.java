@@ -17,6 +17,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 //import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
@@ -127,6 +128,9 @@ public class CertificateServiceImplTest {
 
     @Injectable
     AlertConfigurationService alertConfigurationService;
+
+    @Injectable
+    AuditService auditService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

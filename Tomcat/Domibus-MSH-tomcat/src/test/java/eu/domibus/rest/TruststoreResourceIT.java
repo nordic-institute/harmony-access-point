@@ -17,10 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
@@ -99,6 +102,7 @@ public class TruststoreResourceIT extends AbstractIT {
         String newLoc = location.replace("gateway_truststore.jks", "gateway_truststore2.jks");
         Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
         Files.copy(Paths.get(newLoc), Paths.get(location), REPLACE_EXISTING);
+        Files.setLastModifiedTime(Paths.get(location), FileTime.from(new Date().toInstant()));
 
         changedOnDisk = truststoreResource.isChangedOnDisk();
         Assert.assertTrue(changedOnDisk);
