@@ -3,10 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.api.model.*;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -14,6 +11,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +70,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     protected PartInfoService partInfoService;
+
+    @Autowired
+    private BackendNotificationService backendNotificationService;
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
@@ -206,6 +208,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 .map(UserMessageLogDto::getEntityId)
                 .collect(Collectors.toList());
         userMessageDefaultService.clearPayloadData(entityIds);
+        backendNotificationService.notifyMessageDeleted(messagesToClean);
         LOG.debug("Deleted the payloads of [{}] messages ", deleted);
     }
 
