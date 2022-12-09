@@ -107,7 +107,7 @@ public abstract class AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    private static boolean springContextInitialized = false;
+    public static boolean springContextInitialized = false;
 
     @Autowired
     private StaticDictionaryService staticDictionaryService;

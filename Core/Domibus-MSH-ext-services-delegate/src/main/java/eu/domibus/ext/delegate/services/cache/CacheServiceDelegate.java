@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.cache;
 
-import eu.domibus.api.cache.CacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
 import eu.domibus.ext.services.CacheExtService;
 import org.springframework.stereotype.Service;
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheServiceDelegate implements CacheExtService {
 
-    protected CacheService cacheService;
+    protected DomibusLocalCacheService cacheService;
 
-    public CacheServiceDelegate(CacheService cacheService) {
+    public CacheServiceDelegate(DomibusLocalCacheService cacheService) {
         this.cacheService = cacheService;
     }
 
     @Override
     public void evictCaches() throws CacheExtServiceException {
-        cacheService.evictCaches();
+        cacheService.clearAllCaches(true);
     }
 
     @Override
     public void evict2LCaches() throws CacheExtServiceException {
-        cacheService.evict2LCaches();
+        cacheService.clear2LCCaches(true);
     }
 }

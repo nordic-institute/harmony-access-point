@@ -1,22 +1,25 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -41,7 +44,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_H
 public class DomibusCacheConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheConfiguration.class);
-    public static final String CACHE_MANAGER = "cacheManager";
+
     public static final String CONFIG_EHCACHE_EHCACHE_DEFAULT_XML = "config/ehcache/ehcache-default.xml";
 
     @Value("${domibus.config.location}/internal/ehcache.xml")
@@ -52,9 +55,10 @@ public class DomibusCacheConfiguration {
 
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
-    @Bean(name = CACHE_MANAGER)
+    @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
+    @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
-        CachingProvider provider = Caching.getCachingProvider();
+        EhcacheCachingProvider provider = new EhcacheCachingProvider();
         ClassLoader classLoader = getClass().getClassLoader();
         DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
         //default cache

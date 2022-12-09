@@ -17,7 +17,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -51,7 +51,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -94,7 +93,7 @@ public abstract class PModeProvider {
     private MpcService mpcService;
 
     @Autowired
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     protected abstract void init();
 
@@ -191,7 +190,7 @@ public abstract class PModeProvider {
 
         LOG.info("Configuration successfully updated");
 
-        domibusCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
+        domibusLocalCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
 
         this.refresh();
 

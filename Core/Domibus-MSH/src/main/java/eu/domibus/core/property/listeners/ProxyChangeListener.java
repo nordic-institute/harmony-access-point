@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.proxy.DomibusProxyService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,11 +18,11 @@ public class ProxyChangeListener implements DomibusPropertyChangeListener {
 
     private DomibusProxyService domibusProxyService;
 
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
-    public ProxyChangeListener(DomibusProxyService domibusProxyService, DomibusCacheService domibusCacheService) {
+    public ProxyChangeListener(DomibusProxyService domibusProxyService, DomibusLocalCacheService domibusLocalCacheService) {
         this.domibusProxyService = domibusProxyService;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ProxyChangeListener implements DomibusPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         domibusProxyService.resetProxy();
-        domibusCacheService.clearCache(DomibusCacheService.DISPATCH_CLIENT);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.DISPATCH_CLIENT);
     }
 
 }

@@ -424,4 +424,21 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
     String DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON = "domibus.party.finalRecipient.cleanup.cron";
     String DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN = "domibus.party.finalRecipient.cleanup.olderThan.days";
+
+    //Start distributed cache properties
+    String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
+
+    String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
+    String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";
+
+    String DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.nearcache.size";
+    String DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_TTL = "domibus.cache.distributed.nearcache.ttl";
+
+    String DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_MAX_IDLE = "domibus.cache.distributed.nearcache.idle.max";
+
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT = "domibus.cache.distributed.port";
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT = "domibus.cache.distributed.port.autoincrement";
+    String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
+    String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
+    //End distributed cache properties
 }

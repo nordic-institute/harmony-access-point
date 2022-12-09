@@ -1,13 +1,16 @@
-package eu.domibus.core.cache;
+package eu.domibus.api.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
 
-public interface DomibusCacheService {
+public interface DomibusLocalCacheService {
 
     String USER_DOMAIN_CACHE = "userDomain";
     String PREFERRED_USER_DOMAIN_CACHE = "preferredUserDomain";
@@ -25,6 +28,8 @@ public interface DomibusCacheService {
 
     void clearAllCaches(boolean notification) throws DomibusCoreException;
 
+    List<String> getCacheNames();
+
     void clear2LCCaches(boolean notification) throws DomibusCoreException;
 
     /**
@@ -35,4 +40,12 @@ public interface DomibusCacheService {
      */
     boolean containsCacheForKey(String key, String cacheName);
 
+    Object getEntryFromCache(String cacheName, String key);
+
+
+    void addEntryInCache(String cacheName, String key, Object value);
+
+    void evictEntryFromCache(String cacheName, String key);
+
+    Map<String, Object> getEntriesFromCache(String cacheName);
 }

@@ -19,10 +19,10 @@ import java.util.List;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DomibusCacheServiceImplTest {
+public class DomibusLocalCacheServiceImplTest {
 
     @Tested
-    private DomibusCacheServiceImpl domibusCacheService;
+    private DomibusLocalCacheServiceImpl domibusCacheService;
 
     @Injectable
     private CacheManager cacheManager;

@@ -403,7 +403,22 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN, Type.NUMERIC, Usage.DOMAIN, true)
+            new DomibusPropertyMetadata(DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN, Type.NUMERIC, Usage.DOMAIN, true),
+
+            //Start distributed cache properties
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE, Type.NUMERIC),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_TTL, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_MAX_IDLE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_NEAR_CACHE_DEFAULT_SIZE, Type.NUMERIC),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_AUTOINCREMENT, Type.BOOLEAN),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_MEMBERS, Type.COMMA_SEPARATED_LIST)
+            //End distributed cache properties
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
