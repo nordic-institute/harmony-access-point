@@ -499,8 +499,13 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public void deleteMessageInFinalStatus(String messageId) {
-        getMessageInFinalStatus(messageId);
-        deleteFinalStatusMessage(messageId);
+        UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
+
+        if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+        }
+
+        findAndSetFinalStatusMessageAsDeleted(messageId);
     }
 
     protected UserMessageLog getFailedMessage(String messageId) {
@@ -533,17 +538,6 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog.getDeleted() != null) {
             throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
-        return userMessageLog;
-    }
-
-
-    protected UserMessageLog getMessageInFinalStatus(String messageId) {
-        UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
-
-        if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
-        }
-
         return userMessageLog;
     }
 
@@ -586,7 +580,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
             try {
-                deleteFinalStatusMessage(messageId);
+                findAndSetFinalStatusMessageAsDeleted(messageId);
                 deletedMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to delete message [" + messageId + "]", e);
@@ -621,8 +615,8 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteFinalStatusMessage(String messageId) {
-        LOG.debug("Deleting message in final status[{}]", messageId);
+    public void findAndSetFinalStatusMessageAsDeleted(String messageId) {
+        LOG.debug("Deleting message in final status [{}]", messageId);
         addMessageIdToMDC(messageId);
 
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);

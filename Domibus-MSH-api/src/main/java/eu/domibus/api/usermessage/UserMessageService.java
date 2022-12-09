@@ -80,7 +80,7 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
-    void deleteFinalStatusMessage(String messageId);
+    void findAndSetFinalStatusMessageAsDeleted(String messageId);
 
     void deleteMessageNotInFinalStatus(String messageId);
 
