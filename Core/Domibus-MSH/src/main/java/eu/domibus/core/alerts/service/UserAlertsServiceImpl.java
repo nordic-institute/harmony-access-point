@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -33,6 +34,8 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAlertsServiceImpl.class);
     private static final String DEFAULT = "default ";
 
+    protected AlertConfigurationService alertConfigurationService;
+
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
@@ -43,10 +46,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract String getMaximumPasswordAgeProperty();
 
-    protected abstract AlertType getAlertTypeForPasswordImminentExpiration();
-
-    protected abstract AlertType getAlertTypeForPasswordExpired();
-
     protected abstract EventType getEventTypeForPasswordImminentExpiration();
 
     protected abstract EventType getEventTypeForPasswordExpired();
@@ -56,10 +55,6 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     protected abstract UserEntityBase.Type getUserType();
 
     protected abstract AccountDisabledModuleConfiguration getAccountDisabledConfiguration();
-
-    protected abstract RepetitiveAlertConfiguration getExpiredAlertConfiguration();
-
-    protected abstract RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration();
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
@@ -127,14 +122,12 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     private void triggerExpirationEvents(boolean usersWithDefaultPassword, boolean imminent, EventType eventType) {
-        RepetitiveAlertConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
-                : getExpiredAlertConfiguration();
+        RepetitiveAlertConfiguration alertConfiguration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
         if (!alertConfiguration.isActive()) {
             LOG.debug("[{}] alert module is not ebabled.", eventType);
             return;
         }
 
-        final Integer duration = alertConfiguration.getDelay();
         String expirationProperty = usersWithDefaultPassword ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
         if (maxPasswordAgeInDays == 0) {
@@ -143,6 +136,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
             return;
         }
 
+        final Integer duration = alertConfiguration.getDelay();
         LocalDate from = imminent ? LocalDate.now().minusDays(maxPasswordAgeInDays)
                 : LocalDate.now().minusDays(maxPasswordAgeInDays).minusDays(duration);
 

@@ -26,8 +26,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     protected final UserDao userDao;
 
-    protected final AlertConfigurationService alertConfigurationService;
-
     public ConsoleUserAlertsServiceImpl(UserDao userDao, AlertConfigurationService alertConfigurationService) {
         this.userDao = userDao;
         this.alertConfigurationService = alertConfigurationService;
@@ -41,16 +39,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected String getMaximumPasswordAgeProperty() {
         return MAXIMUM_PASSWORD_AGE;
-    }
-
-    @Override
-    protected AlertType getAlertTypeForPasswordImminentExpiration() {
-        return AlertType.PASSWORD_IMMINENT_EXPIRATION;
-    }
-
-    @Override
-    protected AlertType getAlertTypeForPasswordExpired() {
-        return AlertType.PASSWORD_EXPIRED;
     }
 
     @Override
@@ -76,16 +64,6 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
         return (AccountDisabledModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.USER_ACCOUNT_DISABLED);
-    }
-
-    @Override
-    protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
-        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_EXPIRED);
-    }
-
-    @Override
-    protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
-        return (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION);
     }
 
 }

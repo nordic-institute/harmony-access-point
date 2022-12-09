@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -57,6 +58,9 @@ public class UserAlertsServiceImplTest {
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    protected AlertConfigurationService alertConfigurationService;
+
     @Tested
     private UserAlertsServiceImpl userAlertsService;
 
@@ -77,13 +81,14 @@ public class UserAlertsServiceImplTest {
             setPassword("anypassword");
         }};
         final List<User> users = Arrays.asList(user1, user2);
+        EventType eventType = EventType.PASSWORD_EXPIRED;
 
         new Expectations(LocalDate.class) {{
             LocalDate.now();
             result = today;
         }};
         new Expectations(userAlertsService) {{
-            userAlertsService.getExpiredAlertConfiguration();
+            alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
             result = alertConfiguration;
             alertConfiguration.isActive();
             result = true;
@@ -127,12 +132,14 @@ public class UserAlertsServiceImplTest {
         }};
         final List<UserEntityBase> users = Arrays.asList(user1, user2);
 
+        EventType eventType = EventType.PASSWORD_IMMINENT_EXPIRATION;
+
         new Expectations(LocalDate.class) {{
             LocalDate.now();
             result = today;
         }};
         new Expectations(userAlertsService) {{
-            userAlertsService.getImminentExpirationAlertConfiguration();
+            alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
             result = alertConfiguration;
             alertConfiguration.isActive();
             result = true;
@@ -161,11 +168,13 @@ public class UserAlertsServiceImplTest {
     @Test
     public void testSendPasswordImminentExpirationAlerts_inactive(
             @Injectable RepetitiveAlertConfiguration alertConfiguration) {
+        EventType eventType = EventType.PASSWORD_IMMINENT_EXPIRATION;
+
         new Expectations(userAlertsService) {{
             userAlertsService.getEventTypeForPasswordImminentExpiration();
             result = EventType.PASSWORD_IMMINENT_EXPIRATION;
 
-            userAlertsService.getImminentExpirationAlertConfiguration();
+            alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
             result = alertConfiguration;
 
             alertConfiguration.isActive();
@@ -210,8 +219,12 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void doNotSendPasswordExpiredEventsIfPasswordExpirationIsDisabled(@Injectable RepetitiveAlertConfiguration alertConfiguration) {
-        new Expectations() {{
-            userAlertsService.getExpiredAlertConfiguration();
+        EventType eventType = EventType.PASSWORD_EXPIRED;
+
+        new Expectations(userAlertsService) {{
+            userAlertsService.getEventTypeForPasswordExpired();
+            result = eventType;
+            alertConfigurationService.getConfiguration(eventType.geDefaultAlertType());
             result = alertConfiguration;
             alertConfiguration.isActive();
             result = true;
