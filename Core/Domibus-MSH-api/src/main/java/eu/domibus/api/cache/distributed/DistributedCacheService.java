@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * @author Cosmin Baciu
+ * @since 5.1
+ *
  * Service responsible for managing the distributed cache. Changes are propagated automatically amongst the cluster members.
  * The service fallbacks to local cache in a non cluster environment.
  */

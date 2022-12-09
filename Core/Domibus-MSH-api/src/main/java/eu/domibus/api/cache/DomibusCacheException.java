@@ -3,6 +3,10 @@ package eu.domibus.api.cache;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1
+ */
 public class DomibusCacheException extends DomibusCoreException {
 
     public DomibusCacheException(DomibusCoreErrorCode dce, String message) {
