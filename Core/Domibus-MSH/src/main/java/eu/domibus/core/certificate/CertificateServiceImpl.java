@@ -681,7 +681,8 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             TruststoreEntity entity = truststoreDao.findByName(trustName);
 
-            String decryptedPassword = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            String decryptedPassword = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
+                    trustName + ".password", entity.getPassword());
             truststore.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
@@ -791,14 +792,24 @@ public class CertificateServiceImpl implements CertificateService {
             String filePath = filePathHolder.get();
             File storeFile = createFileWithLocation(filePath);
             TruststoreEntity persisted = truststoreDao.findByNameSafely(storeName);
-            if (persisted != null && persisted.getModificationTime().getTime() > storeFile.lastModified()) {
+            if (persisted != null && persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
                 LOG.info("The store [{}] is already persisted and is newer than on disc.", storeName);
                 return;
             }
 
-            if(persisted != null) {
-                replaceStore(filePath, passwordSupplier.get(), storeName);
+            if (persisted != null) {
+                byte[] contentOnDisk = getStoreContentFromFile(filePath);
+                if (Arrays.equals(persisted.getContent(), contentOnDisk)) {
+                    LOG.info("The store [{}] on disk has the same content.", storeName);
+                    return;
+                }
+
+                LOG.info("Replacing the store [{}] with the one from the disc.", storeName);
+                String password = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
+                        storeName + ".password", passwordSupplier.get());
+                replaceStore(filePath, password, storeName);
             } else {
+                LOG.info("Persisting the store [{}] from the disc.", storeName);
                 createStore(storeName, typeSupplier, passwordSupplier, filePath);
             }
         } catch (Exception ex) {
@@ -1112,10 +1123,12 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         File storeFile = createFileWithLocation(location);
-        if (persisted.getModificationTime().getTime() > storeFile.lastModified()) {
+        if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
             LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
             return false;
         }
+
+        LOG.debug("The store [{}] on disk is newer than the one persisted.", storeName);
 
         byte[] contentOnDisk = getStoreContentFromFile(location);
         boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
