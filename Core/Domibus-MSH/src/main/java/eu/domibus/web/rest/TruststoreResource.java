@@ -89,7 +89,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isChangedOnDisk(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")

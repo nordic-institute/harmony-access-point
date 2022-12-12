@@ -245,14 +245,14 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable() {
+    public void persistStores() {
         final List<Domain> domains = domainService.getDomains();
-        persistTruststoresIfApplicable(domains);
+        persistStores(domains);
     }
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        persistTruststoresIfApplicable(Arrays.asList(domain));
+        persistStores(Arrays.asList(domain));
     }
 
     @Override
@@ -261,8 +261,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     private void removeTruststores(Domain domain) {
-        certificateService.removeTruststore(DOMIBUS_TRUSTSTORE_NAME, domain);
-        certificateService.removeTruststore(DOMIBUS_KEYSTORE_NAME, domain);
+        certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
+        certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
     }
 
     private void doReplaceKeyStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
@@ -293,15 +293,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
 
-    protected void persistTruststoresIfApplicable(List<Domain> domains) {
-        certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME, false,
+    protected void persistStores(List<Domain> domains) {
+        certificateService.persistStores(DOMIBUS_TRUSTSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
                 () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD),
                 domains
         );
 
-        certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME, false,
+        certificateService.persistStores(DOMIBUS_KEYSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE),
                 () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD),

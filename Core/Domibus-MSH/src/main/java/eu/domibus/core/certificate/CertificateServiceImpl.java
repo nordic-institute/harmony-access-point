@@ -21,6 +21,7 @@ import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -117,6 +118,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final AlertConfigurationService alertConfigurationService;
 
+    protected final AuditService auditService;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -130,7 +133,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
                                   DomibusCoreMapper coreMapper,
-                                  AlertConfigurationService alertConfigurationService) {
+                                  AlertConfigurationService alertConfigurationService, AuditService auditService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -145,6 +148,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.domainContextProvider = domainContextProvider;
         this.coreMapper = coreMapper;
         this.alertConfigurationService = alertConfigurationService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -319,7 +323,7 @@ public class CertificateServiceImpl implements CertificateService {
                 LOG.debug("Loading Certificate factory with default provider");
                 cf = CertificateFactory.getInstance("X509");
             } else {
-                LOG.debug("Loading Certificate factory with provider:[{}]",provider);
+                LOG.debug("Loading Certificate factory with provider:[{}]", provider);
                 cf = CertificateFactory.getInstance("X509", provider);
             }
             while ((pemObject = reader.readPemObject()) != null) {
@@ -394,7 +398,7 @@ public class CertificateServiceImpl implements CertificateService {
     public void replaceStore(String fileLocation, String filePassword, String trustName) {
         Path path = Paths.get(fileLocation);
         String fileName = path.getFileName().toString();
-        byte[] fileContent = getTruststoreContentFromFile(fileLocation);
+        byte[] fileContent = getStoreContentFromFile(fileLocation);
         replaceStore(fileName, fileContent, filePassword, trustName);
     }
 
@@ -481,10 +485,11 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
             truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
+            LOG.info("Store [{}] successfully loaded.", trustName);
 
             Long entityId = persistTrustStore(truststore, filePassword, storeType, trustName);
-            LOG.debug("Truststore successfully persisted with id [{}]", entityId);
+            LOG.info("Store [{}] successfully persisted with id [{}]", trustName, entityId);
+            auditService.addStoreReplacedAudit(trustName, entityId);
             return entityId;
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             if (oldTrustStoreBytes != null) {
@@ -498,7 +503,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected byte[] getTruststoreContentFromFile(String location) {
+    protected byte[] getStoreContentFromFile(String location) {
         File file = createFileWithLocation(location);
         Path path = Paths.get(file.getAbsolutePath());
         try {
@@ -631,7 +636,7 @@ public class CertificateServiceImpl implements CertificateService {
             if (entity == null) {
                 throw new ConfigurationException("Could not find truststore entity with name: " + trustName);
             }
-            String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            String decrypted = decrypt(trustName, entity.getPassword());
             entity.setPassword(decrypted);
             return entity;
         } catch (Exception ex) {
@@ -681,7 +686,8 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             TruststoreEntity entity = truststoreDao.findByName(trustName);
 
-            String decryptedPassword = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            String password = entity.getPassword();
+            String decryptedPassword = decrypt(trustName, password);
             truststore.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
@@ -762,13 +768,13 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable(String name, boolean optional,
-                                               Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
-                                               List<Domain> domains) {
+    public void persistStores(String name, boolean optional,
+                              Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
+                              List<Domain> domains) {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
         for (Domain domain : domains) {
             try {
-                domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
+                domainTaskExecutor.submit(() -> persistStoreOnCurrentDomain(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
             } catch (DomibusCertificateException dce) {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }
@@ -776,37 +782,59 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 
-    private void persistCurrentDomainTruststoreIfApplicable(String name, boolean optional,
-                                                            Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    private void persistStoreOnCurrentDomain(String storeName, boolean optional,
+                                             Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
-            if (truststoreDao.existsWithName(name)) {
-                LOG.debug("The store [{}] is already persisted; exiting", name);
+            Optional<String> filePathHolder = filePathSupplier.get();
+            if (!filePathHolder.isPresent()) {
+                if (optional) {
+                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
+                    return;
+                }
+                throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", storeName));
+            }
+
+            String filePath = filePathHolder.get();
+            File storeFile = createFileWithLocation(filePath);
+            TruststoreEntity persisted = truststoreDao.findByNameSafely(storeName);
+            if (persisted != null && persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
+                LOG.info("The store [{}] is already persisted and is newer than on disc.", storeName);
                 return;
             }
 
-            Optional<String> filePath = filePathSupplier.get();
-            if (!filePath.isPresent()) {
-                if (optional) {
-                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", name);
+            if (persisted != null) {
+                byte[] contentOnDisk = getStoreContentFromFile(filePath);
+                if (Arrays.equals(persisted.getContent(), contentOnDisk)) {
+                    LOG.info("The store [{}] on disk has the same content.", storeName);
                     return;
                 }
-                throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));
+
+                LOG.info("Replacing the store [{}] with the one from the disc.", storeName);
+                String password = decrypt(storeName, passwordSupplier.get());
+                replaceStore(filePath, password, storeName);
+            } else {
+                LOG.info("Persisting the store [{}] from the disc.", storeName);
+                createStore(storeName, typeSupplier, passwordSupplier, filePath);
             }
-
-            LOG.debug("Loading [{}] from [{}]", name, filePath.get());
-            byte[] content = getTruststoreContentFromFile(filePath.get());
-
-            TruststoreEntity entity = new TruststoreEntity();
-            entity.setName(name);
-            entity.setType(typeSupplier.get());
-            entity.setPassword(passwordSupplier.get());
-            entity.setContent(content);
-
-            truststoreDao.create(entity);
         } catch (Exception ex) {
             LOG.error(String.format("The truststore [%s], whose file location is [%s], could not be persisted! " +
-                    "Please check that the truststore file is present and the location property is set accordingly.", name, filePathSupplier.get()), ex);
+                    "Please check that the truststore file is present and the location property is set accordingly.", storeName, filePathSupplier.get()), ex);
         }
+    }
+
+    private void createStore(String storeName, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, String filePath) {
+        LOG.debug("Loading [{}] from [{}]", storeName, filePath);
+        byte[] content = getStoreContentFromFile(filePath);
+
+        TruststoreEntity entity = new TruststoreEntity();
+        entity.setName(storeName);
+        entity.setType(typeSupplier.get());
+        entity.setPassword(passwordSupplier.get());
+        entity.setContent(content);
+
+        truststoreDao.create(entity);
+
+        auditService.addStoreCreatedAudit(storeName);
     }
 
     protected void closeStream(Closeable stream) {
@@ -1079,12 +1107,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void removeTruststore(String truststoreName, Domain domain) {
-        domainTaskExecutor.submit(() -> doRemoveTruststore(truststoreName, domain), domain);
+    public void removeStore(String storeName, Domain domain) {
+        domainTaskExecutor.submit(() -> doRemoveStore(storeName, domain), domain);
     }
 
     @Override
-    public boolean isChangedOnDisk(String storeName) {
+    public boolean isStoreNewerOnDisk(String storeName) {
         String location;
         if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
             location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
@@ -1094,18 +1122,42 @@ public class CertificateServiceImpl implements CertificateService {
             throw new DomibusCertificateException("Invalid store name provided " + storeName);
         }
 
-        byte[] contentOnDisk = getTruststoreContentFromFile(location);
-        TruststoreEntity entity = getTruststoreEntitySafely(storeName);
-        return !Arrays.equals(entity.getContent(), contentOnDisk);
+        TruststoreEntity persisted = getTruststoreEntitySafely(storeName);
+        if (persisted == null) {
+            LOG.info("The store [{}] is not present in the db", storeName);
+            return true;
+        }
+
+        File storeFile = createFileWithLocation(location);
+        if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
+            LOG.info("The persisted store [{}] is newer than on disc.", storeName);
+            return false;
+        }
+
+        LOG.info("The store [{}] on disk is newer than the one persisted.", storeName);
+
+        byte[] contentOnDisk = getStoreContentFromFile(location);
+        boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
+        if(different) {
+            LOG.debug("The store [{}] on disk has different content than the persisted one.", storeName);
+        } else {
+            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+        }
+        return different;
     }
 
-    private void doRemoveTruststore(String truststoreName, Domain domain) {
-        TruststoreEntity entity = truststoreDao.findByNameSafely(truststoreName);
+    private void doRemoveStore(String storeName, Domain domain) {
+        TruststoreEntity entity = truststoreDao.findByNameSafely(storeName);
         if (entity == null) {
-            LOG.warn("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
+            LOG.warn("Could not find store named [{}] for domain [{}] to delete", storeName, domain);
             return;
         }
         truststoreDao.delete(entity);
+    }
+
+    private String decrypt(String trustName, String password) {
+        return passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
+                trustName + ".password", password);
     }
 }
 
