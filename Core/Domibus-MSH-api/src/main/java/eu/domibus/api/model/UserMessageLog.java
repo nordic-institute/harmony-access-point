@@ -84,7 +84,6 @@ import java.util.Date;
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.deleted is null                                                                 " +
-//                        "and (p.name = 'finalRecipient' OR p.name = 'originalSender') " +
                         "and uml.received < :DATE                                                                     "+
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
@@ -96,7 +95,6 @@ import java.util.Date;
                         "left join um.messageProperties p  "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
                         "and mpc.value = :MPC                                                                        " +
-//                        "and (p.name = 'finalRecipient' OR p.name = 'originalSender') " +
                         "and uml.downloaded is not null                                                                 " +
                         "and uml.downloaded < :DATE                                                                     "+
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
@@ -110,7 +108,6 @@ import java.util.Date;
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                           " +
                         "and uml.deleted is null                                                                        " +
-//                        "and (p.name = 'finalRecipient' OR p.name = 'originalSender') " +
                         "and uml.modificationTime is not null                                                                 " +
                         "and uml.modificationTime < :DATE                                                                     "+
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
@@ -123,7 +120,6 @@ import java.util.Date;
                         "left join um.messageProperties p  "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                        " +
-//                        "and (p.name = 'finalRecipient' OR p.name = 'originalSender') " +
                         "and uml.modificationTime is not null                                                                 " +
                         "and uml.modificationTime < :DATE                                                                     "+
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
