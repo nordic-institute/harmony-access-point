@@ -488,16 +488,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         String desc = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
 
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
-            LOG.error("The private key password corresponding to the alias=[{}] was not set for domain [{}]: ", aliasValue, domain);
-            throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
+            String message = String.format("The private key password corresponding to the alias=[%s] was not set for domain [%s]: ", aliasValue, domain);
+            throw new ConfigurationException(message);
         }
         Optional<SecurityProfileAliasConfiguration> existing = securityProfileAliasConfigurations.stream()
                 .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
                 .findFirst();
         if (existing.isPresent()) {
-            LOG.error("Keystore alias [{}] for [{}] already used on domain [{}] for [{}]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
                     aliasValue, desc, domain, existing.get().getDescription());
-            throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
+            throw new ConfigurationException(message);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
             SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, desc);
