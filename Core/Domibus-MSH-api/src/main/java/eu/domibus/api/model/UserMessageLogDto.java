@@ -33,11 +33,13 @@ public class UserMessageLogDto {
         this.mshRole = mshRole;
     }
 
-    public UserMessageLogDto(Long entityId, String messageId, String backend, String finalRecipient) {
+    public UserMessageLogDto(Long entityId, String messageId, String backend, MessageProperty prop) {
         this.entityId = entityId;
         this.messageId = messageId;
         this.backend = backend;
-        properties.put("finalRecipient", finalRecipient);
+        if (prop != null) {
+            properties.put(prop.getName(), prop.getValue());
+        }
     }
 
     public UserMessageLogDto(Long entityId, String messageId, String backend) {
