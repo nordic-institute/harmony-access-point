@@ -9,7 +9,6 @@ import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
-import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -219,9 +218,9 @@ public class BackendNotificationService {
 
         backends.forEach(backend ->
         {
-            List<MessageDeletedEvent> allMessageIdsForBackend =
-                    getAllMessageIdsForBackend(backend, userMessageLogsToNotify);
-            createMessageDeleteBatchEvent(backend, allMessageIdsForBackend);
+            List<MessageDeletedEvent> individualMessageDeletedEvents =
+                    getMessageDeletedEventsForBackend(backend, userMessageLogsToNotify);
+            createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
     }
 
@@ -239,10 +238,9 @@ public class BackendNotificationService {
 
         Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
         fillEventProperties(userMessage, properties);
-        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
-                userMessage.getMessageId(),
-                userMessage.getEntityId(),
-                properties);
+        UserMessageLogDto userMessageLogDto = new UserMessageLogDto(userMessageLog.getEntityId(), userMessageLog.getUserMessage().getMessageId(), userMessageLog.getBackend());
+        userMessageLogDto.setProperties(properties);
+        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(userMessageLogDto);
 
         notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
     }
@@ -405,27 +403,23 @@ public class BackendNotificationService {
         notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH);
     }
 
-    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
-        List<MessageDeletedEvent> messageIds = userMessageLogs
+    protected List<MessageDeletedEvent> getMessageDeletedEventsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
+        List<MessageDeletedEvent> individualMessageDeletedEvents = userMessageLogs
                 .stream()
                 .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
                 .map(this::getMessageDeletedEvent)
                 .collect(toList());
-        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
-        return messageIds;
+        LOG.debug("There are [{}] delete messages to notify for backend [{}]", individualMessageDeletedEvents.size(), backend);
+        return individualMessageDeletedEvents;
     }
 
     protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
-        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getEntityId(), userMessageLogDto.getProperties());
-    }
-
-    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Long messageEntityId, Map<String, String> properties) {
         MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-        messageDeletedEvent.setMessageId(messageId);
-        messageDeletedEvent.setMessageEntityId(messageEntityId);
-        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
-        messageDeletedEvent.addProperty(MSH_ROLE, properties.get(MSH_ROLE));
+        messageDeletedEvent.setMessageId(userMessageLogDto.getMessageId());
+        messageDeletedEvent.setMessageEntityId(userMessageLogDto.getEntityId());
+        messageDeletedEvent.addProperty(FINAL_RECIPIENT, userMessageLogDto.getProperties().get(FINAL_RECIPIENT));
+        messageDeletedEvent.addProperty(ORIGINAL_SENDER, userMessageLogDto.getProperties().get(ORIGINAL_SENDER));
+        messageDeletedEvent.addProperty(MSH_ROLE, userMessageLogDto.getProperties().get(MSH_ROLE));
         return messageDeletedEvent;
     }
 
@@ -443,6 +437,11 @@ public class BackendNotificationService {
 
     private MSHRole getMshRole(MessageEvent messageEvent) {
         MSHRole role = null;
+        Map<String,String> props = messageEvent.getProps();
+        if (MapUtils.isEmpty(props)) {
+            LOG.info("No properties in MessageEvent object of type [{}]", messageEvent.getClass());
+            return role;
+        }
         String mshRole = messageEvent.getProps().get(MSH_ROLE);
         if (mshRole == null) {
             LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
