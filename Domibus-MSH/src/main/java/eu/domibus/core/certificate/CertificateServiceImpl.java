@@ -318,8 +318,10 @@ public class CertificateServiceImpl implements CertificateService {
             CertificateFactory cf;
             PemObject pemObject;
             if(provider == null) {
+                LOG.debug("Loading Certificate factory with default provider");
                 cf = CertificateFactory.getInstance("X509");
             } else {
+                LOG.debug("Loading Certificate factory with provider:[{}]",provider);
                 cf = CertificateFactory.getInstance("X509", provider);
             }
             while ((pemObject = reader.readPemObject()) != null) {
