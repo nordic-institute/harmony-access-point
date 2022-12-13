@@ -32,6 +32,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
     public static final String SENDER_RECEIVER_SEPARATOR = ">";
     public static final String LIST_ITEM_SEPARATOR = ",";
+    public static final String ALL_PARTIES = "ALL";
 
     private final PartyService partyService;
 
@@ -270,7 +271,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private void handleAllValueForCommaSeparatedProperties(String propName, String propValue) {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propName), "ALL")) {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propName), ALL_PARTIES)) {
             domibusPropertyProvider.setProperty(propName, propValue);
         }
     }

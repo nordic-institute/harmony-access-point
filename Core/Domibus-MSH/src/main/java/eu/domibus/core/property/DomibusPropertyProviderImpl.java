@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -60,13 +60,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final DomibusCacheService domibusCacheService;
+    private final DomibusLocalCacheService domibusLocalCacheService;
 
     public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
                                        PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
                                        ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
                                        PasswordDecryptionService passwordDecryptionService, AnnotationConfigWebApplicationContext rootContext,
-                                       DomibusConfigurationService domibusConfigurationService, DomibusCacheService domibusCacheService) {
+                                       DomibusConfigurationService domibusConfigurationService, DomibusLocalCacheService domibusLocalCacheService) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderDispatcher = propertyProviderDispatcher;
         this.primitivePropertyTypesManager = primitivePropertyTypesManager;
@@ -76,7 +76,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         this.passwordDecryptionService = passwordDecryptionService;
         this.rootContext = rootContext;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
     }
 
     @Override
@@ -211,7 +211,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //need this eviction since the load properties puts an empty value to domain title
-        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
+        domibusLocalCacheService.evict(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(DOMAIN_TITLE)));
         domain.setName(getDomainTitle(domain));
     }
 
@@ -232,7 +232,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Removing properties file for domain [{}]: [{}].", domain, configFile);
         String propertySourceName = getSourceName(configFile);
         propertySources.remove(propertySourceName);
-        domibusCacheService.clearCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE);
     }
 
     @Override

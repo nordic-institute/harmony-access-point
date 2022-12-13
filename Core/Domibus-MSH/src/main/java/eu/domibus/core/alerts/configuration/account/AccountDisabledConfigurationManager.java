@@ -52,4 +52,9 @@ public abstract class AccountDisabledConfigurationManager
     protected AccountDisabledModuleConfiguration createNewInstance(AlertType alertType) {
         return new AccountDisabledModuleConfiguration(alertType);
     }
+
+    @Override
+    protected String getMailSubject() {
+        return domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".subject");
+    }
 }

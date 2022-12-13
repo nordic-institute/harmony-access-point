@@ -41,11 +41,11 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
     @Test
     public void testGetMessageErrorsOk() throws GetMessageErrorsFault {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId, MSHRole.RECEIVING);
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId, MSHRole.SENDING);
 
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(messageId);
-        logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         logEntry.setErrorCode(ErrorCode.EBMS_0004);
 
         logEntry.setUserMessage(testMessage.getUserMessage());

@@ -1,4 +1,4 @@
-package eu.domibus.weblogic.cluster;
+package eu.domibus.api.cluster;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;

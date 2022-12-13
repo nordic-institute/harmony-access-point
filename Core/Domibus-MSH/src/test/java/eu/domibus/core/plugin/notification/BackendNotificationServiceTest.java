@@ -514,14 +514,6 @@ public class BackendNotificationServiceTest {
             messageLog.getBackend();
             result = BACKEND_NAME;
 
-            messagingConfigurationManager.getConfiguration();
-            result = messageCommunicationConfiguration;
-            times = 1;
-
-            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-            result = true;
-            times = 1;
-
             backendNotificationService.shouldNotify(userMessage, anyString);
             result = true;
 

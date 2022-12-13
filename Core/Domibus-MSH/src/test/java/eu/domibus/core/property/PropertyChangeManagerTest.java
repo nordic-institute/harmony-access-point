@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.Expectations;
@@ -55,7 +55,7 @@ public class PropertyChangeManagerTest {
     protected Properties domibusProperties;
 
     @Injectable
-    DomibusCacheService domibusCacheService;
+    DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
     DomibusCoreMapper coreMapper;

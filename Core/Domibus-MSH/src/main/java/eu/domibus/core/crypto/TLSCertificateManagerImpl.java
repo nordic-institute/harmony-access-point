@@ -117,14 +117,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void persistTruststoresIfApplicable() {
+    public void persistTruststores() {
         final List<Domain> domains = domainService.getDomains();
-        persistTruststoresIfApplicable(domains);
+        persistTruststores(domains);
     }
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        persistTruststoresIfApplicable(Arrays.asList(domain));
+        persistTruststores(Arrays.asList(domain));
     }
 
     @Override
@@ -133,11 +133,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void removeTruststore(Domain domain) {
-        certificateService.removeTruststore(TLS_TRUSTSTORE_NAME, domain);
+        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
     }
 
-    private void persistTruststoresIfApplicable(List<Domain> domains) {
-        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
+    private void persistTruststores(List<Domain> domains) {
+        certificateService.persistStores(TLS_TRUSTSTORE_NAME, true,
                 () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
                 domains);
     }

@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public enum MessageStatus {
     /**
@@ -97,9 +98,20 @@ public enum MessageStatus {
                 SEND_ENQUEUED,
                 WAITING_FOR_RECEIPT,
                 SEND_ATTEMPT_FAILED,
-                SEND_FAILURE,
                 NOT_FOUND,
                 WAITING_FOR_RETRY);
+    }
+
+    // Messages with status SEND_FAILURE or DELETED are not archived
+    public static List<MessageStatus> getNonArchivableStates() {
+        return Arrays.asList(
+                SEND_FAILURE,
+                DELETED);
+    }
+
+    public static List<String> getNonArchivableStatesAsString(){
+        return getNonArchivableStates().stream().map(messageStatus -> messageStatus.name()).collect(Collectors.toList());
+
     }
 
     public static List<MessageStatus> getFinalStatesForDroppingPartition() {
@@ -112,9 +124,7 @@ public enum MessageStatus {
     }
 
     public static List<String> getFinalStatesForDroppingPartitionAsString() {
-        List<String> messageStatusNames = new ArrayList<>();
-        getFinalStatesForDroppingPartition().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
-        return messageStatusNames;
+        return getFinalStatesForDroppingPartition().stream().map(messageStatus -> messageStatus.name()).collect(Collectors.toList());
     }
 
     public static List<MessageStatus> getUnsuccessfulStates() {

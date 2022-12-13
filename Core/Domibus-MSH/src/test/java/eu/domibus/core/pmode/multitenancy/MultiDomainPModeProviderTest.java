@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
@@ -66,7 +66,7 @@ public class MultiDomainPModeProviderTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     @Tested
     MultiDomainPModeProvider multiDomainPModeProvider;

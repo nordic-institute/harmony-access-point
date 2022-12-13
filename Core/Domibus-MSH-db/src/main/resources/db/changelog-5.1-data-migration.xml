@@ -13,12 +13,13 @@
 
         <sql endDelimiter="\n/" dbms="oracle">
             UPDATE WS_PLUGIN_TB_BACKEND_MSG_LOG LG
-            JOIN TB_USER_MESSAGE MSG ON LG.MESSAGE_ID=MSG.MESSAGE_ID
-            JOIN TB_D_MSH_ROLE R ON MSG.MSH_ROLE_ID_FK=R.ID_PK AND R.ROLE='RECEIVING'
-            SET LG.MESSAGE_ENTITY_ID=MSG.ID_PK;
+            SET LG.MESSAGE_ENTITY_ID = (select MSG.ID_PK from TB_USER_MESSAGE MSG, TB_D_MSH_ROLE R
+                                        where LG.MESSAGE_ID=MSG.MESSAGE_ID
+                                            and MSG.MSH_ROLE_ID_FK=R.ID_PK
+                                            and R.ROLE='RECEIVING');
         </sql>
 
-        <sql endDelimiter="\n//" dbms="mysql">
+        <sql dbms="mysql">
             UPDATE WS_PLUGIN_TB_BACKEND_MSG_LOG LG
             JOIN TB_USER_MESSAGE MSG ON LG.MESSAGE_ID=MSG.MESSAGE_ID
             JOIN TB_D_MSH_ROLE R ON MSG.MSH_ROLE_ID_FK=R.ID_PK AND R.ROLE='RECEIVING'
@@ -27,7 +28,7 @@
     </changeSet>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-10284-make-notnull">
-        <addNotNullConstraint columnDataType="BIGINT" defaultNullValue="${default_id_pk}" columnName="MESSAGE_ENTITY_ID"  tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" />
+        <addNotNullConstraint columnDataType="BIGINT" columnName="MESSAGE_ENTITY_ID" defaultNullValue="${default_id_pk}" tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" />
     </changeSet>
 
 </databaseChangeLog>

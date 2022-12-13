@@ -311,7 +311,7 @@ public class SplitAndJoinDefaultServiceTest {
         String pModeKey = "mykey";
 
         new Expectations(splitAndJoinDefaultService) {{
-            as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
+            as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.RECEIVING, false);
             result = sourceRequest;
 
             splitAndJoinDefaultService.sendSignalMessage(sourceRequest, pModeKey);
@@ -690,13 +690,13 @@ public class SplitAndJoinDefaultServiceTest {
                                @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                @Injectable LegConfiguration legConfiguration,
                                @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
-        String userMessageId = "123";
+        final long entityId = 123;
         String pmodeKey = "pModeKey";
 
 
         new Expectations(LocalDateTime.class) {{
-            userMessage.getMessageId();
-            result = userMessageId;
+            userMessage.getEntityId();
+            result = entityId;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = userMessageExchangeContext;
@@ -710,11 +710,11 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            userMessageLogDao.findByMessageId(userMessageId, userMessage.getMshRole().getRole());
+            userMessageLogDao.findByEntityId(entityId);
             result = userMessageLog;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, userMessageId);
+        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, "anyGroupId");
         Assert.assertTrue(groupExpired);
 
     }

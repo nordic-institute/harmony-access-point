@@ -107,7 +107,7 @@ public abstract class AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    private static boolean springContextInitialized = false;
+    public static boolean springContextInitialized = false;
 
     @Autowired
     private StaticDictionaryService staticDictionaryService;
@@ -125,9 +125,8 @@ public abstract class AbstractIT {
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
-        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
-//        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL, "service:jmx:rmi:///jndi/rmi://localhost:" + activeMQConnectorPort + "/jmxrmi");
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort)); // see EDELIVERY-10294 and check if this can be removed
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
 

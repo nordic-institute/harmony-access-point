@@ -37,7 +37,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
-        tlsCertificateManager.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststores();
         boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
@@ -45,7 +45,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void getTrustStoreEntries() {
-        tlsCertificateManager.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststores();
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
     }
@@ -53,7 +53,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void addCertificate() throws IOException {
-        tlsCertificateManager.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststores();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
@@ -71,7 +71,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void removeCertificate() {
-        tlsCertificateManager.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststores();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
@@ -87,7 +87,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void replaceTrustStore() throws IOException {
-        tlsCertificateManager.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststores();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);

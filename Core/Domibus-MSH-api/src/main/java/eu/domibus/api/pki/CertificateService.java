@@ -89,10 +89,20 @@ public interface CertificateService {
     /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
-     * @param chain the pem formatted string.
+     * @param chain    the pem formatted string.
+     * @param provider
      * @return the list of certificates.
      */
-    List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain);
+    List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain, String provider);
+
+    /**
+     * Reloads the certificates with the specified provider
+     *
+     * @param certificates the array of certificates.
+     * @param provider     the provider string (e.g. Bouncy Castle)
+     * @return the array of certificates loaded with the given provider
+     */
+    X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);
 
     /**
      * Given a chain of signing certificates (Trust chain + leaf), extract the leaf one.
@@ -211,8 +221,8 @@ public interface CertificateService {
      * @param passwordSupplier a supplier method that returns the password of the trust
      * @param domains in MT env it specifies for which domain to persist
      */
-    void persistTruststoresIfApplicable(final String name, boolean optional,
-                                        Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    void persistStores(final String name, boolean optional,
+                       Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
 
     /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
@@ -223,12 +233,12 @@ public interface CertificateService {
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
-    void removeTruststore(String domibusTruststoreName, Domain domain);
+    void removeStore(String domibusTruststoreName, Domain domain);
 
     /**
      * Checks if the database saved store is different that the one on the disk
-     * @param domibusTruststoreName the truststore or keystore
+     * @param storeName the truststore or keystore
      * @return true if they are different
      */
-    boolean isChangedOnDisk(String domibusTruststoreName);
+    boolean isStoreNewerOnDisk(String storeName);
 }

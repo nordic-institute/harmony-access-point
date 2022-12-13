@@ -138,7 +138,9 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     super.isLoading = true;
     this.http.get(this.DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
-        this.trustStoreService.saveTrustStoreFile(res.body, this.name + '.jks');
+        const contentDisposition = res.headers.get('content-disposition');
+        const fileName = contentDisposition.split('filename=')[1];
+        this.trustStoreService.saveTrustStoreFile(res.body, fileName);
         super.isLoading = false;
       }, err => {
         super.isLoading = false;
@@ -209,7 +211,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected async checkModifiedOnDisk() {
     const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
     if (isChanged) {
-      const refresh = await this.dialogsService.openYesNoDialog('Store file on the disk has different content than the one loaded and used in Domibus. ' +
+      const refresh = await this.dialogsService.openYesNoDialog('Store file on the disk is newer and has different content than the one loaded and used in Domibus. ' +
         'Would you like to refresh?');
       if (refresh) {
         this.reloadStore();

@@ -11,7 +11,7 @@ import eu.domibus.api.util.ClassUtil;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
@@ -169,8 +169,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusCacheService domibusCacheService() {
-            return Mockito.mock(DomibusCacheService.class);
+        public DomibusLocalCacheService domibusCacheService() {
+            return Mockito.mock(DomibusLocalCacheService.class);
         }
 
     }

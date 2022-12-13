@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.multitenancy;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -384,5 +385,10 @@ public class MultiDomainPModeProvider extends PModeProvider {
     @Override
     public String getLegConfigurationNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getLegConfigurationNameFromPModeKey(pModeKey);
+    }
+
+    @Override
+    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
+        return getCurrentPModeProvider().deleteFinalRecipientsOlderThan(numberOfDays);
     }
 }

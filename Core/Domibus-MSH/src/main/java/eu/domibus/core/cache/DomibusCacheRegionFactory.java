@@ -2,6 +2,7 @@ package eu.domibus.core.cache;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -27,7 +28,7 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
                 "method before using this class in Hibernate");
 
         final ClassPathResource classPathResource = new ClassPathResource(DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML);
-        CachingProvider provider = Caching.getCachingProvider();
+        CachingProvider provider = new EhcacheCachingProvider();
 
         CacheManager cacheManager;
         try {

@@ -1,6 +1,8 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +17,10 @@ public class MessageFragmentDao extends BasicDao<MessageFragmentEntity> {
         super(MessageFragmentEntity.class);
     }
 
-
+    @Override
+    public void create(MessageFragmentEntity messageFragmentEntity) {
+        UserMessage attachedUserMessage = em.find(UserMessage.class, messageFragmentEntity.getUserMessage().getEntityId());
+        messageFragmentEntity.setUserMessage(attachedUserMessage);
+        super.create(messageFragmentEntity);
+    }
 }

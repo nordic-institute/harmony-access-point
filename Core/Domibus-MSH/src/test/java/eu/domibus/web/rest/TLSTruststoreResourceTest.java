@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -9,7 +10,10 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,6 +54,12 @@ public class TLSTruststoreResourceTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     @Test
     public void replaceTruststore() {

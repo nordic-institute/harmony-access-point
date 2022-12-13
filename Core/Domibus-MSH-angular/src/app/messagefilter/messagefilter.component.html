@@ -2,7 +2,7 @@
   <page-header id="messagefilterheader_id">Message Filter</page-header>
 
   <button mat-icon-button color="primary" (click)="saveAsCSV()" style="margin-bottom: 20px;"
-          id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
+          id="saveascsvbutton_id" mat-matTooltip="Export as CSV" button-click-behaviour>
     <img src="assets/images/exportCSV.svg" width="30" height="30">
   </button>
 
@@ -63,20 +63,20 @@
         <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
           <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
                   (click)="moveAction(row, -1)" id="moveUpButtonRow{{rows.indexOf(row)}}_id"
-                  tooltip="Move Up" button-click-behaviour>
+                  matTooltip="Move Up" button-click-behaviour>
             <mat-icon>arrow_drop_up</mat-icon>
           </button>
           <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
                   (click)="moveAction(row, +1)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
-                  tooltip="Move Down" button-click-behaviour>
+                  matTooltip="Move Down" button-click-behaviour>
             <mat-icon>arrow_drop_down</mat-icon>
           </button>
           <button mat-icon-button color="primary" type="button" (click)="edit(row)"
-                  id="editButtonRow{{rows.indexOf(row)}}_id" tooltip="Edit" button-click-behaviour>
+                  id="editButtonRow{{rows.indexOf(row)}}_id" matTooltip="Edit" button-click-behaviour>
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button color="primary" type="button" (click)="buttonDeleteAction(row)"
-                  id="deleteButtonRow{{rows.indexOf(row)}}_id" tooltip="Delete" button-click-behaviour>
+                  id="deleteButtonRow{{rows.indexOf(row)}}_id" matTooltip="Delete" button-click-behaviour>
             <mat-icon>delete</mat-icon>
           </button>
         </ng-template>

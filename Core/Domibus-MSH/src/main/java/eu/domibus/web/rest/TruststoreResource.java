@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -44,8 +45,8 @@ public class TruststoreResource extends TruststoreResourceBase {
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService);
+                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -88,7 +89,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isChangedOnDisk(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")

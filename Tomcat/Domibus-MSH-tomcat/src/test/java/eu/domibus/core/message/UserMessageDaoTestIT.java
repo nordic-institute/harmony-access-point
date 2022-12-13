@@ -112,8 +112,9 @@ public class UserMessageDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindLastTestMessageId() {
-        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage("msg-test-0");
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage(this.getClass().getName() + "msg-test-0");
+        String msgId = this.getClass().getName() + "msg-test-1";
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(msgId);
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         String senderPartyId = "domibus-blue";
@@ -121,12 +122,14 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
         UserMessage userMessage = userMessageDao.findLastTestMessageToParty(senderPartyId, testParty);
         assertNotNull(userMessage);
-        assertEquals("msg-test-1", userMessage.getMessageId());
+        assertEquals(msgId, userMessage.getMessageId());
 
         SignalMessage signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, testParty);
         assertNotNull(signalMessage);
-        assertEquals("msg-test-1", signalMessage.getRefToMessageId());
-        assertEquals("msg-test-1", signalMessage.getUserMessage().getMessageId());
+        assertEquals(msgId, signalMessage.getRefToMessageId());
+        assertEquals(msgId, signalMessage.getUserMessage().getMessageId());
+
+        messageDaoTestUtil.deleteMessages(Arrays.asList(testMessageOlder.getEntityId(), testMessage.getEntityId()));
     }
 
 }

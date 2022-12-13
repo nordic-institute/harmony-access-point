@@ -44,19 +44,7 @@ public interface JMSManager {
      * @return a list of JmsMessage
      */
     List<JmsMessage> browseClusterMessages(String source, String selector);
-
-    /**
-     * Operation to browse a JMS source with restrictions given by the parameters.
-     *
-     * @param source   queue or topic
-     * @param jmsType  type of the JMS message
-     * @param fromDate starting date
-     * @param toDate   ending date
-     * @param selector selector
-     * @return a list of JmsMessage
-     */
-    List<JmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selector);
-
+    
     void sendMessageToQueue(JmsMessage message, String destination);
 
     /**
@@ -133,15 +121,9 @@ public interface JMSManager {
     /**
      * Move messages from {@code source} to {@code destination} filtered by the parameters
      *
-     * @param source      JMS Queue
-     * @param jmsType  type of the JMS message
-     * @param fromDate starting date
-     * @param toDate   ending date
-     * @param selector selector
-     * @param destination JMS Queue
      * @throws IllegalArgumentException if no message moved
      */
-    void moveAllMessages(String source, String jmsType, Date fromDate, Date toDate, String selector, String destination);
+    void moveAllMessages(MessagesActionRequest req);
 
     /**
      * Consumes a business message from a source.
@@ -168,9 +150,6 @@ public interface JMSManager {
      */
     long getDestinationSize(JMSDestination jmsDestination);
 
-
-    String getDomainSelector(String selector);
-
     /**
      * Lists all messages pending for download by the backend
      *
@@ -185,4 +164,7 @@ public interface JMSManager {
      * @throws MessageNotFoundException if the message is not pending
      */
     void removeFromPending(String queueName, String messageId) throws MessageNotFoundException;
+
+    List<JmsMessage> browseMessages(JmsFilterRequest req);
+
 }
