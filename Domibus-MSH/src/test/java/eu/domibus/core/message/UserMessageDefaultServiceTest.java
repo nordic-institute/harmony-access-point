@@ -46,6 +46,7 @@ import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -211,6 +212,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private FileServiceUtil fileServiceUtil;
+
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -995,13 +999,14 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
             result = userMessageLog;
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessageInFinalStatus(messageId);
 
-        new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
-            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+        new FullVerificationsInOrder() {{
         }};
     }
 

@@ -57,8 +57,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -198,6 +202,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private FileServiceUtil fileServiceUtil;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -567,7 +574,6 @@ public class UserMessageDefaultService implements UserMessageService {
         return deletedMessages;
     }
 
-    @Transactional
     @Override
     public List<String> deleteMessagesInFinalStatusDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteInFinalStatus(finalRecipient, start, end);
@@ -579,6 +585,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
+            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
             try {
                 final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
                 findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
@@ -586,6 +594,8 @@ public class UserMessageDefaultService implements UserMessageService {
             } catch (Exception e) {
                 LOG.error("Failed to delete message [" + messageId + "]", e);
             }
+                }
+            });
         }
 
         LOG.debug("Deleted messages in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
