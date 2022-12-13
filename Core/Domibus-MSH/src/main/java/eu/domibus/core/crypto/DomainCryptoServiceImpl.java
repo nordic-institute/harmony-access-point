@@ -253,10 +253,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset() {
+    public void resetStores() {
         getIAMProvider();
         iamProvider.resetKeyStore();
         iamProvider.resetTrustStore();
+    }
+
+    @Override
+    public void resetSecurityProfiles() {
+        getIAMProvider();
+        iamProvider.resetSecurityProfiles();
     }
 
     @Override

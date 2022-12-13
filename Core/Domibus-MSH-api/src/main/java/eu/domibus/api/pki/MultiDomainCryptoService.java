@@ -80,4 +80,6 @@ public interface MultiDomainCryptoService extends DomainsAware {
     void refreshKeyStore(Domain currentDomain);
 
     void resetTrustStore(Domain domain);
+
+    void resetSecurityProfiles(Domain domain);
 }

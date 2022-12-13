@@ -87,9 +87,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
+
         createSecurityProfileAliasConfigurations();
+
         initTrustStore();
         initKeyStore();
+
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
@@ -340,6 +343,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
         replaceTrustStore(location, password);
+    }
+
+    @Override
+    public void resetSecurityProfiles() {
+        init();
     }
 
     @Override
