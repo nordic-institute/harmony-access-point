@@ -1001,7 +1001,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerificationsInOrder(userMessageDefaultService) {{
             userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
-            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId);
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
         }};
     }
 
@@ -1027,7 +1027,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void deleteMessagesInFinalStatusDuringPeriod() {
+    public void deleteMessagesInFinalStatusDuringPeriod(@Injectable  UserMessageLog userMessageLog) {
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(messageId);
@@ -1037,7 +1037,9 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
-            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result= userMessageLog;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
             times = 1;
         }};
 

@@ -1,6 +1,7 @@
 package eu.domibus.api.usermessage;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
-    void findAndSetFinalStatusMessageAsDeleted(String messageId);
+    void findAndSetFinalStatusMessageAsDeleted(String messageId, UserMessageLog userMessageLog);
 
     void deleteMessageNotInFinalStatus(String messageId);
 
