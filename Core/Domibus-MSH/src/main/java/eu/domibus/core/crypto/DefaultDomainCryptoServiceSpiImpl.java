@@ -485,16 +485,22 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
+        String desc = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
+
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
-            LOG.error("The private key password corresponding to the alias=[{}] was not set for domain [{}]: ", aliasValue, domain);
-            throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
+            String message = String.format("The private key password corresponding to the alias=[%s] was not set for domain [%s]: ", aliasValue, domain);
+            throw new ConfigurationException(message);
         }
-        if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
-            LOG.error("Keystore alias [{}] already defined for domain [{}]", aliasValue, domain);
-            throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
+        Optional<SecurityProfileAliasConfiguration> existing = securityProfileAliasConfigurations.stream()
+                .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
+                .findFirst();
+        if (existing.isPresent()) {
+            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                    aliasValue, desc, domain, existing.get().getDescription());
+            throw new ConfigurationException(message);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
-            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
+            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, desc);
             securityProfileAliasConfigurations.add(profileAliasConfiguration);
         }
     }
