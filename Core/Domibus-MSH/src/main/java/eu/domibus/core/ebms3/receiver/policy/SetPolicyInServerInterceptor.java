@@ -49,10 +49,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
-    private static final String RSA_PROFILE = "RSA";
-
-    private static final String ECC_PROFILE = "ECC";
-
     protected final ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
     protected final BackendNotificationService backendNotificationService;
