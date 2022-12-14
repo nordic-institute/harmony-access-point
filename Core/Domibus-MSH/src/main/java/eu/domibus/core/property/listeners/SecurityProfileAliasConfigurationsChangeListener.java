@@ -6,11 +6,7 @@ import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_MAIL_SENDING_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT;
 
 /**
  * @author Ion Perpegel
@@ -22,11 +18,14 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class SecurityProfileAliasConfigurationsChangeListener implements DomibusPropertyChangeListener {
 
-    @Autowired
-    protected DomainService domainService;
+    private final DomainService domainService;
 
-    @Autowired
-    MultiDomainCryptoServiceImpl multiDomainCryptoService;
+    private final MultiDomainCryptoServiceImpl multiDomainCryptoService;
+
+    public SecurityProfileAliasConfigurationsChangeListener(DomainService domainService, MultiDomainCryptoServiceImpl multiDomainCryptoService) {
+        this.domainService = domainService;
+        this.multiDomainCryptoService = multiDomainCryptoService;
+    }
 
     @Override
     public boolean handlesProperty(String propertyName) {
