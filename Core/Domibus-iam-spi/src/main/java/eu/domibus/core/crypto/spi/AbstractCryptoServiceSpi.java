@@ -176,4 +176,10 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         defaultDomainCryptoService.resetTrustStore();
     }
+
+    @Override
+    public void resetSecurityProfiles() {
+        defaultDomainCryptoService.resetSecurityProfiles();
+    }
+
 }
