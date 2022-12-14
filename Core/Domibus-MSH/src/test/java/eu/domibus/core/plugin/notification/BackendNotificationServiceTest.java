@@ -17,8 +17,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.BackendConnectorHelper;
@@ -595,7 +593,7 @@ public class BackendNotificationServiceTest {
         }};
 
         List<MessageDeletedEvent> result =
-                backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+                backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtos);
 
         assertEquals(2, result.size());
         assertEquals("abc", result.get(0).getMessageId());
@@ -650,7 +648,7 @@ public class BackendNotificationServiceTest {
             uml2.isTestMessage();
             result = true;
 
-            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
+            backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtosNoTest);
             times = 1;
 
             backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
@@ -676,7 +674,7 @@ public class BackendNotificationServiceTest {
             uml2.isTestMessage();
             result = true;
 
-            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
+            backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtosNoTest);
             times = 0;
 
             backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
@@ -702,7 +700,7 @@ public class BackendNotificationServiceTest {
             uml2.getBackend();
             times = 0;
 
-            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtos);
             times = 0;
         }};
 
@@ -736,7 +734,7 @@ public class BackendNotificationServiceTest {
             uml2.isTestMessage();
             result = false;
 
-            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtos);
             result = messageIds;
 
             backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
@@ -771,7 +769,7 @@ public class BackendNotificationServiceTest {
             uml2.isTestMessage();
             result = false;
 
-            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            backendNotificationService.getMessageDeletedEventsForBackend(backend, userMessageLogDtos);
             times = 0;
 
             backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
