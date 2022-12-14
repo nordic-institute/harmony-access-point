@@ -33,15 +33,19 @@ public class UserMessageLogDto {
         this.mshRole = mshRole;
     }
 
-    public UserMessageLogDto(Long entityId, String messageId, Boolean testMessage, String backend) {
+    public UserMessageLogDto(Long entityId, String messageId, String backend, MessageProperty prop) {
         this.entityId = entityId;
         this.messageId = messageId;
-        this.testMessage = testMessage;
         this.backend = backend;
+        if (prop != null) {
+            properties.put(prop.getName(), prop.getValue());
+        }
     }
 
     public UserMessageLogDto(Long entityId, String messageId, String backend) {
-        this(entityId, messageId, null, backend);
+        this.entityId = entityId;
+        this.messageId = messageId;
+        this.backend = backend;
     }
 
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
