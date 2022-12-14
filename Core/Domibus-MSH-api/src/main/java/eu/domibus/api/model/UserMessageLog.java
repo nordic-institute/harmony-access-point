@@ -33,7 +33,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findBackendForMessageEntityId", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)" +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)" +
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat " +

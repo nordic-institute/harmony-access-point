@@ -69,8 +69,6 @@ public class PluginAsyncNotificationListener implements MessageListener {
             final String role = message.getStringProperty(MessageConstants.MSH_ROLE);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, role);
 
-            // final long messageEntityId = message.getLongProperty(MessageConstants.MESSAGE_ENTITY_ID); //unused and throwing NPE in case of DeletedBatchEvents
-
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing message ID [{}] for domain [{}]", messageId, domainCode);
             domainContextProvider.setCurrentDomainWithValidation(domainCode);
