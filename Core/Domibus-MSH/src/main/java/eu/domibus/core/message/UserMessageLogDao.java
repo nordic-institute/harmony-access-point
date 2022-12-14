@@ -249,21 +249,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public UserMessageLog findByMessageId(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        List<UserMessageLog> results = query.getResultList();
-        if (CollectionUtils.isEmpty(results)) {
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;
         }
-
-        if (results.size() == 1) {
-            LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
-            return results.get(0);
-        }
-        LOG.info("Found more than one UserMessageLog for message with [{}]=[{}], Trying to return the one with SENDING role", STR_MESSAGE_ID, messageId);
-        UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
-                .orElse(results.get(0));
-        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
-        return result;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {

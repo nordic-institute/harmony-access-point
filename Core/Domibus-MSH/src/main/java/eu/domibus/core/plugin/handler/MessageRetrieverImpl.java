@@ -21,7 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NonUniqueResultException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -122,8 +121,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         final MessageStatus messageStatus;
         try {
             messageStatus = userMessageLogService.getMessageStatusById(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
+        } catch (MessagingException exception) {
+            throw new MessagingException("Duplicate message status found. For self sending please call the method with access point role to get the status of the message.", exception);
         }
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
@@ -144,9 +143,9 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         try {
-            userMessageLogService.getMessageStatusById(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
+            userMessageLogService.findByMessageId(messageId);
+        } catch (MessagingException exception) {
+            throw new MessagingException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message.", exception);
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
 

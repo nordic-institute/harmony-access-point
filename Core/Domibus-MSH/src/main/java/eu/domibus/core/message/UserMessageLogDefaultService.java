@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NonUniqueResultException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -160,12 +162,25 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     @Override
     public MessageStatus getMessageStatusById(String messageId) {
-        return userMessageLogDao.getMessageStatusById(messageId);
+        try {
+            return userMessageLogDao.getMessageStatusById(messageId);
+        } catch (NonUniqueResultException exception) {
+            throw new MessagingException("Duplicate message status found.", exception);
+        }
     }
 
     @Override
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
+    }
+
+    @Override
+    public UserMessageLog findByMessageId(String messageId) {
+        try {
+            return userMessageLogDao.findByMessageId(messageId);
+        } catch (NonUniqueResultException exception) {
+            throw new MessagingException("Duplicate message found for the message Id .", exception);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
