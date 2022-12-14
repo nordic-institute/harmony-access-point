@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @author Ion Perpegel
  * @since 5.1
  * <p>
- * Handles the change of security profile alias configurations
+ * Handles the change of security profile alias configuration related properties
  */
 
 @Service

@@ -46,11 +46,11 @@ public class KeyStoreResourceIT extends AbstractIT {
         createTrustStore();
         createKeyStore();
 
-        List<TrustStoreEntry> entries = certificateService.getTrustStoreEntries(DOMIBUS_KEYSTORE_NAME);
+        List<TrustStoreEntry> entries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
 
         storeResource.reset();
 
-        List<TrustStoreEntry> newEntries = certificateService.getTrustStoreEntries(DOMIBUS_KEYSTORE_NAME);
+        List<TrustStoreEntry> newEntries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
 
         Assert.assertTrue(entries.size() != newEntries.size());
     }

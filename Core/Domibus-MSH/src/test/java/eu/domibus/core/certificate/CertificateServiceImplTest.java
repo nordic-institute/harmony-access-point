@@ -345,7 +345,7 @@ public class CertificateServiceImplTest {
             trustStore.getCertificate("red_gw");
             result = redCertificate;
         }};
-        final List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(trustStore);
+        final List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(trustStore);
         assertEquals(2, trustStoreEntries.size());
 
         TrustStoreEntry trustStoreEntry = trustStoreEntries.get(0);
@@ -371,7 +371,7 @@ public class CertificateServiceImplTest {
             trustStore.aliases();
             result = new KeyStoreException();
         }};
-        assertEquals(0, certificateService.getTrustStoreEntries(trustStore).size());
+        assertEquals(0, certificateService.getStoreEntries(trustStore).size());
     }
 
     @Test
@@ -745,9 +745,9 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -771,7 +771,7 @@ public class CertificateServiceImplTest {
         thrown.expect(ConfigurationException.class);
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString);
+            certificateService.getStore(anyString);
             result = trustStore;
             trustStore.containsAlias("alias");
             result = true;
@@ -859,9 +859,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(NoSuchAlgorithmException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -886,9 +886,9 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -917,9 +917,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(IOException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -944,9 +944,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(NoSuchAlgorithmException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -972,9 +972,9 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("[DOM_001]:Could not persist the truststore named domibus.truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1000,9 +1000,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(IOException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1034,9 +1034,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(NoSuchAlgorithmException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1071,9 +1071,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(CertificateException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1105,9 +1105,9 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not load store: null");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1152,7 +1152,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1185,7 +1185,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1217,7 +1217,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1389,9 +1389,9 @@ public class CertificateServiceImplTest {
         thrown.expectCause(Is.isA(IOException.class));
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString, anyString);
+            certificateService.loadStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getStoreEntity(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
@@ -1417,12 +1417,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Exception loading truststore.");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+            certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
             result = new IOException();
         }};
 
         // When
-        certificateService.loadTrustStore(content, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+        certificateService.loadStore(content, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
     }
 
     @Test
@@ -1433,7 +1433,7 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Exception loading truststore.");
 
         // When
-        certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+        certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
 
         new Verifications() {{
             certificateService.closeStream(contentStream);
@@ -1473,7 +1473,7 @@ public class CertificateServiceImplTest {
             result = "Content".getBytes(StandardCharsets.UTF_8);
 
         }};
-        certificateService.backupTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.backupStore(DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             TruststoreEntity backup;
@@ -1490,18 +1490,18 @@ public class CertificateServiceImplTest {
         boolean overwrite = true;
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString);
+            certificateService.getStore(anyString);
             result = trustStore;
             certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
             result = true;
-            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
         Long entityId = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
 
         assertNotNull(entityId);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1512,7 +1512,7 @@ public class CertificateServiceImplTest {
         boolean overwrite = true;
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString);
+            certificateService.getStore(anyString);
             result = trustStore;
             certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
             result = false;
@@ -1530,18 +1530,18 @@ public class CertificateServiceImplTest {
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString);
+            certificateService.getStore(anyString);
             result = trustStore;
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = true;
-            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
         Long entityId = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
 
         assertNotNull(entityId);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1554,7 +1554,7 @@ public class CertificateServiceImplTest {
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString);
+            certificateService.getStore(anyString);
             result = trustStore;
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = false;

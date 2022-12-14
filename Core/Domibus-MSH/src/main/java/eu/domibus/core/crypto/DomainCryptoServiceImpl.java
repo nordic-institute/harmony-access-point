@@ -267,7 +267,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     private void getIAMProvider() {

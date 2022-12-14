@@ -79,7 +79,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+            return certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
         } catch (ConfigurationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
@@ -87,7 +87,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
+        return certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override

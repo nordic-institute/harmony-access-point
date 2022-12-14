@@ -300,7 +300,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadTrustStoreProperties();
 
         KeyStore old = getTrustStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setTrustStore(current));
 
@@ -316,7 +316,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadKeystoreProperties();
 
         KeyStore old = getKeyStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> {
                     Merlin merlin = securityProfileConfiguration.getMerlin();
@@ -453,7 +453,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadTrustStoreProperties();
 
-            KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+            KeyStore trustStore = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setTrustStore(trustStore));
         }, domain);
@@ -481,7 +481,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadKeystoreProperties();
 
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+            KeyStore keyStore = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setKeyStore(keyStore));
         }, domain);
@@ -591,12 +591,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getKeystoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getType();
     }
 
     private String getKeystorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getPassword();
     }
 
@@ -625,12 +625,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected String getTrustStorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getPassword();
     }
 
     protected String getTrustStoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getType();
     }
 

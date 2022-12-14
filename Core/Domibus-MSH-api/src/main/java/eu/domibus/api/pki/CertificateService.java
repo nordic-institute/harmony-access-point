@@ -148,7 +148,7 @@ public interface CertificateService {
      * @param trustName the location of the trust on disc
      * @return the truststore object
      */
-    KeyStore getTrustStore(String trustName);
+    KeyStore getStore(String trustName);
 
     /**
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
@@ -156,9 +156,9 @@ public interface CertificateService {
      * @param trustName the name of the trust in DB
      * @return the list of cewrtificates and their names
      */
-    List<TrustStoreEntry> getTrustStoreEntries(String trustName);
+    List<TrustStoreEntry> getStoreEntries(String trustName);
 
-    TruststoreInfo getTruststoreInfo(String trustName);
+    TruststoreInfo getStoreInfo(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
@@ -209,7 +209,7 @@ public interface CertificateService {
      *
      * @return the content and the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      */
-    TrustStoreContentDTO getTruststoreContent(String trustName);
+    TrustStoreContentDTO getStoreContent(String trustName);
 
     /**
      * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time
