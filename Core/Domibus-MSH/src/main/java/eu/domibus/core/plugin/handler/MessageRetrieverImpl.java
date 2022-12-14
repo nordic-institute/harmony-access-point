@@ -122,7 +122,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         try {
             messageStatus = userMessageLogService.getMessageStatusById(messageId);
         } catch (MessagingException exception) {
-            throw new MessagingException("Duplicate message status found. For self sending please call the method with access point role to get the status of the message.", exception);
+            throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
         }
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }

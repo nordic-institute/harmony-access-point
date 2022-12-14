@@ -165,7 +165,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         try {
             return userMessageLogDao.getMessageStatusById(messageId);
         } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message status found.", exception);
+            throw new MessagingException("Duplicate message Id found.", exception);
         }
     }
 
@@ -179,7 +179,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         try {
             return userMessageLogDao.findByMessageId(messageId);
         } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message found for the message Id .", exception);
+            throw new MessagingException("Duplicate message Id found.", exception);
         }
     }
 
