@@ -1047,7 +1047,7 @@ public class UserMessageDefaultServiceTest {
         }};
         userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
-        new Verifications() {{
+        new FullVerifications(userMessageDefaultService) {{
             userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
             times = 1;
         }};
