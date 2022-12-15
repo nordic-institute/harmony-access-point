@@ -1032,29 +1032,25 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void deleteMessagesInFinalStatusDuringPeriod(@Injectable  UserMessageLog userMessageLog) {
+    public void deleteMessagesInFinalStatusDuringPeriod(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(messageId);
 
         final String originalUserFromSecurityContext = "C4";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
         }};
         userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
-        new Verifications() {
-            {
-                userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
-                times = 1;
-                userMessageLogDao.findByMessageIdSafely(messageId);
-                times = 1;
-                userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
-                times = 1;
-            }
-        };
+        new Verifications() {{
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+            times = 1;
+        }};
     }
 
     @Test
