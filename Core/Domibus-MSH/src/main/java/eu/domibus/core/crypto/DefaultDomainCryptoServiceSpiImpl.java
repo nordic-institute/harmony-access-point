@@ -335,6 +335,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetKeyStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        LOG.info("Replacing the keystore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceKeyStore(location, password);
     }
 
@@ -342,11 +343,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        LOG.info("Replacing the truststore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceTrustStore(location, password);
     }
 
     @Override
     public void resetSecurityProfiles() {
+        LOG.info("Resetting security profiles on domain [{}]", domain);
         init();
     }
 
