@@ -742,7 +742,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_KeyStoreException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
                                                                                          @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not replace truststore");
+        thrown.expectMessage("Could not replace store");
 
         new Expectations(certificateService) {{
             certificateService.loadStore((byte[]) any, anyString, anyString);
@@ -790,7 +790,7 @@ public class CertificateServiceImplTest {
             int count = 0;
 
             @Mock
-            KeyStore getTrustStore(String name) {
+            KeyStore getStore(String name) {
                 return trustStore;
             }
 
@@ -800,7 +800,7 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            Long persistTrustStore(Invocation invocation, KeyStore truststore, String name) {
+            Long persistStore(Invocation invocation, KeyStore truststore, String name) {
                 count = invocation.getInvocationCount();
                 return 1L;
             }
@@ -816,7 +816,7 @@ public class CertificateServiceImplTest {
         // Given
         new MockUp<CertificateServiceImpl>() {
             @Mock
-            KeyStore getTrustStore(String name) {
+            KeyStore getStore(String name) {
                 return trustStore;
             }
 
@@ -826,7 +826,7 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            Long persistTrustStore(KeyStore truststore, String name) {
+            Long persistStore(KeyStore truststore, String name) {
                 Assert.fail("Should have not persisted the trust store if not removing certificates inside");
                 return 1L;
             }
@@ -883,7 +883,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
                                                                                             @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not replace truststore");
+        thrown.expectMessage("Could not replace store");
 
         new Expectations(certificateService) {{
             certificateService.loadStore((byte[]) any, anyString, anyString);
@@ -969,7 +969,7 @@ public class CertificateServiceImplTest {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("[DOM_001]:Could not persist the truststore named domibus.truststore");
+        thrown.expectMessage("[DOM_001]:Could not replace the store named domibus.truststore");
 
         new Expectations(certificateService) {{
             certificateService.loadStore((byte[]) any, anyString, anyString);
@@ -1127,7 +1127,7 @@ public class CertificateServiceImplTest {
                                                                                           @Injectable KeyStore trustStore) throws Exception {
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist truststore:");
+        thrown.expectMessage("Could not persist store:");
 
         new MockUp<FileOutputStream>() {
             @Mock
@@ -1160,7 +1160,7 @@ public class CertificateServiceImplTest {
                                                                                       @Injectable KeyStore trustStore) throws Exception {
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist truststore:");
+        thrown.expectMessage("Could not persist store:");
 
         new MockUp<FileOutputStream>() {
             @Mock
@@ -1192,7 +1192,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenFailingToPersistTheTrustStore_KeyStoreException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
                                                                                    @Injectable KeyStore trustStore) throws Exception {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist truststore:");
+        thrown.expectMessage("Could not persist store:");
 
         new MockUp<FileOutputStream>() {
             @Mock
@@ -1226,7 +1226,7 @@ public class CertificateServiceImplTest {
         // Given
         new MockUp<CertificateServiceImpl>() {
             @Mock
-            KeyStore getTrustStore(String trustName) {
+            KeyStore getStore(String trustName) {
                 return truststore;
             }
 
@@ -1236,7 +1236,7 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            Long persistTrustStore(KeyStore truststore, String trustName) {
+            Long persistStore(KeyStore truststore, String trustName) {
                 Assert.fail("Should have not persisted the trust store if not adding nor replacing certificates inside");
                 return 1L;
             }
@@ -1308,7 +1308,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenRemovingCertificateFromTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable KeyStore trustStore) throws KeyStoreException {
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
+        thrown.expectMessage("Error while trying to get the alias from the store. This should never happen");
 
         new Expectations() {{
             trustStore.containsAlias("alias");
@@ -1354,7 +1354,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenAddingCertificateIntoTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable X509Certificate certificate,
                                                                                                             @Injectable KeyStore trustStore) throws KeyStoreException {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
+        thrown.expectMessage("Error while trying to get the alias from the store. This should never happen");
 
         new Expectations() {{
             trustStore.containsAlias("alias");
@@ -1414,7 +1414,7 @@ public class CertificateServiceImplTest {
         byte[] content = {1, 2, 3};
 
         thrown.expect(ConfigurationException.class);
-        thrown.expectMessage("Exception loading truststore.");
+        thrown.expectMessage("Exception loading store.");
 
         new Expectations(certificateService) {{
             certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
@@ -1430,7 +1430,7 @@ public class CertificateServiceImplTest {
                                          @Injectable KeyStore trustStore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
 
         thrown.expect(ConfigurationException.class);
-        thrown.expectMessage("Exception loading truststore.");
+        thrown.expectMessage("Exception loading store.");
 
         // When
         certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
