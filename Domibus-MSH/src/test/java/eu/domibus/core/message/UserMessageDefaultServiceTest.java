@@ -1042,15 +1042,18 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result= userMessageLog;
-            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
-            times = 1;
         }};
-
         userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
-        new FullVerifications() {
+        new Verifications() {
+            {
+                userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
+                times = 1;
+                userMessageLogDao.findByMessageIdSafely(messageId);
+                times = 1;
+                userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+                times = 1;
+            }
         };
     }
 
