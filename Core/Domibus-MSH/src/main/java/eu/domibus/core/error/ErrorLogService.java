@@ -42,5 +42,4 @@ public interface ErrorLogService {
     List<ErrorLogEntry> getErrorsForMessage(String messageId);
 
     ErrorResultImpl convert(ErrorLogEntry errorLogEntry);
-
-    }
+}
