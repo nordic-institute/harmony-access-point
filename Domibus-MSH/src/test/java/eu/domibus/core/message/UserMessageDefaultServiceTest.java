@@ -46,6 +46,7 @@ import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -211,6 +212,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private FileServiceUtil fileServiceUtil;
+
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -989,6 +993,24 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    public void deleteMessageInFinalStatus(@Injectable  UserMessageLog userMessageLog) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
+            result = userMessageLog;
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+        }};
+
+        userMessageDefaultService.deleteMessageInFinalStatus(messageId);
+
+        new FullVerificationsInOrder() {{
+        }};
+    }
+
+    @Test
     public void deleteMessagesDuringPeriod() {
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
@@ -1004,6 +1026,29 @@ public class UserMessageDefaultServiceTest {
         }};
 
         userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void deleteMessagesInFinalStatusDuringPeriod(@Injectable  UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final List<String> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(messageId);
+
+        final String originalUserFromSecurityContext = "C4";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
+            result = messagesToDelete;
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result= userMessageLog;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+            times = 1;
+        }};
+
+        userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
         new FullVerifications() {
         };

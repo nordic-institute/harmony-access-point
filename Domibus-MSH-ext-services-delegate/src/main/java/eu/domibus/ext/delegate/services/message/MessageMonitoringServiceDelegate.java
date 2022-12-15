@@ -109,9 +109,21 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     @Override
+    public void deleteMessageInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
+        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageService.deleteMessageInFinalStatus(messageId);
+    }
+
+    @Override
     public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = getUser();
         return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+    }
+
+    @Override
+    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
+        String originalUserFromSecurityContext = getUser();
+        return userMessageService.deleteMessagesInFinalStatusDuringPeriod(begin, end, originalUserFromSecurityContext);
     }
 
     private String getUser() {

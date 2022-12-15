@@ -1,6 +1,7 @@
 package eu.domibus.api.usermessage;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
@@ -80,11 +81,15 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
+    void findAndSetFinalStatusMessageAsDeleted(String messageId, UserMessageLog userMessageLog);
+
     void deleteMessageNotInFinalStatus(String messageId);
+
+    void deleteMessageInFinalStatus(String messageId);
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
 
-
+    List<String> deleteMessagesInFinalStatusDuringPeriod(Long begin, Long end, String finalRecipient);
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *
