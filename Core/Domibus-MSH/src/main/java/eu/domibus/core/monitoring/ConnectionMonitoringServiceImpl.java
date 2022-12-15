@@ -48,8 +48,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        handleAllValueForCommaSeparatedProperties();
-
         if (!isMonitoringEnabled()) {
             LOG.debug("Connection monitoring for others is not enabled; exiting;");
             return;
@@ -60,8 +58,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessageToMyself() {
-        handleAllValueForCommaSeparatedProperties();
-
         if (!isSelfMonitoringEnabled()) {
             LOG.info("Self Connection monitoring is not enabled; exiting;");
             return;
@@ -72,7 +68,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public boolean isDeleteHistoryEnabled() {
-        List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        List<String> deleteHistoryParties = getDeleteHistoryForParties();
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("Delete test message history is not enabled");
             return false;
@@ -97,7 +93,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
-        List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        List<String> deleteHistoryParties = getDeleteHistoryForParties();
         deleteHistoryParties = deleteHistoryParties.stream().filter(testableParties::contains).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history; exiting.");
@@ -257,47 +253,51 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getMonitorEnabledParties() {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), ALL_PARTIES)) {
+            return getTestableParties();
+        }
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
     private List<String> getAlertableParties() {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES), ALL_PARTIES)) {
+            return getTestableParties();
+        }
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
     private List<String> getDeleteHistoryForParties() {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES), ALL_PARTIES)) {
+            return getTestableParties();
+        }
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
-    private void handleAllValueForCommaSeparatedProperties() {
-        String testablePartiesStr = getTestableParties();
-
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
-    }
-
-    private String getTestableParties() {
+    private List<String> getTestableParties() {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
         String selfPartyId = partyService.getGatewayPartyIdentifier();
-        String testablePartiesStr = testableParties.stream()
+        return testableParties.stream()
                 .map(partyId -> selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)
-                .collect(Collectors.joining(LIST_ITEM_SEPARATOR));
-        return testablePartiesStr;
-    }
-
-    private void handleAllValueForCommaSeparatedProperties(String propName, String propValue) {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propName), ALL_PARTIES)) {
-            domibusPropertyProvider.setProperty(propName, propValue);
-        }
+                .collect(Collectors.toList());
     }
 
     private void ensureCorrectFormatForProperty(String propertyName) {
         String selfPartyId = partyService.getGatewayPartyIdentifier();
-        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
         String propValue = domibusPropertyProvider.getProperty(propertyName);
+        if (StringUtils.equals(propValue, ALL_PARTIES)) {
+            LOG.trace("Property [{}] has [{}] value so no correcting", propertyName, ALL_PARTIES);
+            return;
+        }
+        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
         String newValue = transformToNewFormat(monitoredParties, selfPartyId);
         if (!StringUtils.equals(propValue, newValue)) {
+            LOG.info("Property [{}] has been corrected from [{}] value to [{}] value.", propertyName, propValue, newValue);
             domibusPropertyProvider.setProperty(propertyName, newValue);
+            try {
+                // put some time between writes because the FilesCopy method that backs the property file crashes if coping while changed
+                Thread.sleep(200);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
