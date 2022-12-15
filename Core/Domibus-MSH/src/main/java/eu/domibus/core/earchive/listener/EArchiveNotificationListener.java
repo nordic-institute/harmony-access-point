@@ -51,7 +51,7 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private ArchiveWebhookApi earchivingClientApi;
+    private ArchiveWebhookApi eArchivingClientApi;
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
@@ -71,12 +71,12 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
     }
 
     @PostConstruct
-    public void initEarchivingClientApi() {
-        earchivingClientApi = (ArchiveWebhookApi) applicationContext.getBean(EARCHIVING_CLIENT_BEAN);
+    public void initEArchivingClientApi() {
+        eArchivingClientApi = (ArchiveWebhookApi) applicationContext.getBean(EARCHIVING_CLIENT_BEAN);
     }
 
-    void setEarchivingClientApi(ArchiveWebhookApi earchivingClientApi) {
-        this.earchivingClientApi = earchivingClientApi;
+    void setEArchivingClientApi(ArchiveWebhookApi eArchivingClientApi) {
+        this.eArchivingClientApi = eArchivingClientApi;
     }
 
     @Override
@@ -99,13 +99,13 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
-            earchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
+            eArchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatch);
-            earchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
+            eArchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
     }

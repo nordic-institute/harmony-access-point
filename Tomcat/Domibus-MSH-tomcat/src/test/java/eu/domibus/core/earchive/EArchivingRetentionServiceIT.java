@@ -12,10 +12,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.job.EArchivingRetentionService;
 import eu.domibus.core.earchive.listener.EArchiveListener;
+import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -27,14 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 import static eu.domibus.api.earchive.EArchiveBatchStatus.DELETED;
 import static eu.domibus.api.earchive.EArchiveBatchStatus.EXPIRED;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static java.util.Collections.singletonList;
 
 /**
@@ -89,7 +89,10 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
 
-        storageProvider.getCurrentStorage().reset();
+        // reset
+        EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
+        FieldUtils.writeField(currentStorage, "storageDirectory", null, true);
+        currentStorage.init();
 
         Date currentDate = Calendar.getInstance().getTime();
 

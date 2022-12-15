@@ -46,7 +46,7 @@ public class EArchiveNotificationListenerTest {
     @Injectable
     private EArchiveBatchUtils eArchiveBatchUtils;
     @Injectable
-    private ArchiveWebhookApi earchivingClientApi;
+    private ArchiveWebhookApi eArchivingClientApi;
     @Injectable
     private ApplicationContext applicationContext;
 
@@ -60,7 +60,7 @@ public class EArchiveNotificationListenerTest {
                                      @Injectable BatchNotification batchNotification) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        eArchiveNotificationListener.setEarchivingClientApi(earchivingClientApi);
+        eArchiveNotificationListener.setEArchivingClientApi(eArchivingClientApi);
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
@@ -93,7 +93,7 @@ public class EArchiveNotificationListenerTest {
                                                @Injectable ArchiveWebhookApi apiClient) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        eArchiveNotificationListener.setEarchivingClientApi(earchivingClientApi);
+        eArchiveNotificationListener.setEArchivingClientApi(eArchivingClientApi);
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();

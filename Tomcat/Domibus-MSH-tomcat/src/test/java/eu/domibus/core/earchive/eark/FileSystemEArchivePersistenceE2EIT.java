@@ -9,6 +9,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
@@ -19,6 +20,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.After;
@@ -118,7 +120,10 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
 
-        storageProvider.getCurrentStorage().reset();
+        // reset
+        EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
+        FieldUtils.writeField(currentStorage, "storageDirectory", null, true);
+        currentStorage.init();
     }
 
     @After

@@ -49,10 +49,10 @@ public class DomibusPropertyValidatorService {
     }
 
     private void validationEArchiveAndRetention() {
-        Boolean earchive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+        Boolean eArchive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
         Boolean deleteOnSuccess = domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
 
-        if (BooleanUtils.isTrue(earchive) && BooleanUtils.isTrue(deleteOnSuccess)) {
+        if (BooleanUtils.isTrue(eArchive) && BooleanUtils.isTrue(deleteOnSuccess)) {
             LOG.warn(WarningUtil.warnOutput("Delete payload on success is active AND Earchive is active -> force disable Delete payload on success "));
             domibusPropertyProvider.setProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD, "false");
         }
