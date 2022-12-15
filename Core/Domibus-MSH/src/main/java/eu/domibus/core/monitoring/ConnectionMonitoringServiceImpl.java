@@ -113,14 +113,16 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
      * Checks whether the self monitoring is enabled.
      */
     protected boolean isSelfMonitoringEnabled() {
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        if (CollectionUtils.isEmpty(selfPartyIds)) {
             LOG.info("The self party is not configured -> connection self monitoring disabled");
             return false;
         }
 
-        boolean monitoringEnabled = StringUtils.contains(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), selfParty);
-        LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
+        List<String> monitorEnabledParties = getMonitorEnabledParties();
+        boolean monitoringEnabled = monitorEnabledParties.stream()
+                .anyMatch(pair -> selfPartyIds.contains(pair.split(SENDER_RECEIVER_SEPARATOR)[1]));
+        LOG.debug("Connection self-monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
 
@@ -129,7 +131,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
      * Checks whether the monitoring is enabled for at least a party except self.
      */
     protected boolean isMonitoringEnabled() {
-        boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        if (CollectionUtils.isEmpty(selfPartyIds)) {
+            LOG.info("The self party is not configured -> connection monitoring disabled");
+            return false;
+        }
+
+        List<String> monitorEnabledParties = getMonitorEnabledParties();
+        boolean monitoringEnabled = monitorEnabledParties.stream()
+                .anyMatch(pair -> !selfPartyIds.contains(pair.split(SENDER_RECEIVER_SEPARATOR)[1]));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
@@ -259,15 +269,20 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private void handleAllValueForCommaSeparatedProperties() {
+        String testablePartiesStr = getTestableParties();
+
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
+    }
+
+    private String getTestableParties() {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
         String selfPartyId = partyService.getGatewayPartyIdentifier();
         String testablePartiesStr = testableParties.stream()
                 .map(partyId -> selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)
                 .collect(Collectors.joining(LIST_ITEM_SEPARATOR));
-
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
+        return testablePartiesStr;
     }
 
     private void handleAllValueForCommaSeparatedProperties(String propName, String propValue) {

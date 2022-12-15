@@ -64,6 +64,8 @@ public interface PartyService {
      */
     String getGatewayPartyIdentifier();
 
+    List<String> getGatewayPartyIdentifiers();
+
     /**
      * Retrieve all the processes configured in the pmode.
      *
