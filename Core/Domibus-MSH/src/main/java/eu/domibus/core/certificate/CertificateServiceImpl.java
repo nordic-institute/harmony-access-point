@@ -461,25 +461,27 @@ public class CertificateServiceImpl implements CertificateService {
     protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String storeName) throws CryptoException {
         LOG.debug("Replacing the current store [{}] with the provided file content.", storeName);
 
+        Long entityId;
         TruststoreEntity entity = getStoreEntitySafely(storeName);
         if (entity != null) {
             KeyStore store = loadStore(entity.getContent(), entity.getPassword(), entity.getType());
+            LOG.debug("Store [{}] with entries [{}] found and will be replaced.", storeName, getStoreEntries(store));
             try (ByteArrayOutputStream oldStoreContent = new ByteArrayOutputStream()) {
                 store.store(oldStoreContent, entity.getPassword().toCharArray());
-
-                return doReplace(fileContent, filePassword, storeType, storeName, store, entity.getPassword(), oldStoreContent);
+                entityId = doReplace(fileContent, filePassword, storeType, storeName, store, entity.getPassword(), oldStoreContent);
             } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
                 throw new CryptoException("Could not replace store " + storeName, exc);
             }
         } else {
             try {
+                LOG.debug("Store [{}] is not found so it will be set", storeName);
                 KeyStore store = KeyStore.getInstance(storeType);
-
-                return doReplace(fileContent, filePassword, storeType, storeName, store, null, null);
+                entityId = doReplace(fileContent, filePassword, storeType, storeName, store, null, null);
             } catch (KeyStoreException exc) {
                 throw new CryptoException("Could not set a store named " + storeName, exc);
             }
         }
+        return entityId;
     }
 
     private Long doReplace(byte[] fileContent, String filePassword, String storeType, String storeName, KeyStore store,
@@ -488,7 +490,7 @@ public class CertificateServiceImpl implements CertificateService {
             validateLoadOperation(newStoreContent, filePassword, storeType);
             store.load(newStoreContent, filePassword.toCharArray());
             Long entityId = persistStore(store, filePassword, storeType, storeName);
-            LOG.info("Store [{}] with entries [{}] successfully loaded.", storeName, getStoreEntries(storeName));
+            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
 
             auditService.addStoreReplacedAudit(storeName, entityId);
             return entityId;
