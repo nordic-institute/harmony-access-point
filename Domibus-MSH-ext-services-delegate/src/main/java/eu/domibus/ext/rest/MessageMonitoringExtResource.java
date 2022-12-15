@@ -121,6 +121,7 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
     public void deleteMessage(@PathVariable(value = "messageId") String messageId) {
+        LOG.info("Delete payload of the message not in final status with message Id [{}] ", messageId);
         messageMonitorExtService.deleteMessageNotInFinalStatus(messageId);
     }
 
@@ -130,7 +131,7 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/delete")
     public List<String> deleteMessages(@RequestBody FailedMessagesCriteriaRO deleteMessagesCriteriaRO) {
-        LOG.debug("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
+        LOG.info("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
                 deleteMessagesCriteriaRO.getToDate());
         Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
@@ -145,6 +146,7 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/finalstatus/delete/{messageId:.+}")
     public void deleteMessageInFinalStatus(@PathVariable(value = "messageId") String messageId) {
+        LOG.info("Delete payload of the message in final status with message Id [{}] ", messageId);
         messageMonitorExtService.deleteMessageInFinalStatus(messageId);
     }
 
@@ -154,7 +156,7 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/finalstatus/delete")
     public List<String> deleteMessagesInFinalStatus(@RequestBody FailedMessagesCriteriaRO deleteMessagesCriteriaRO) {
-        LOG.debug("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
+        LOG.info("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
                 deleteMessagesCriteriaRO.getToDate());
         Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
