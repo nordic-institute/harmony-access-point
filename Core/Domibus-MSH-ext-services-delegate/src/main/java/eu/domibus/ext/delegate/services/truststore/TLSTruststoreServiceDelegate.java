@@ -58,7 +58,7 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
     public byte[] downloadTLSTruststoreContent() {
         TrustStoreContentDTO content;
         try {
-            content = certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
+            content = certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
             return content.getContent();
         } catch (Exception e) {
             throw new TruststoreExtException("Could not find truststore entity with name: " + TLS_TRUSTSTORE_NAME);
@@ -74,7 +74,7 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+            List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
             return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
         } catch (Exception ex) {
             throw new TruststoreExtException(errorMessage);

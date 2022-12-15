@@ -28,13 +28,14 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
 
             new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, Usage.DOMAIN, false),
 

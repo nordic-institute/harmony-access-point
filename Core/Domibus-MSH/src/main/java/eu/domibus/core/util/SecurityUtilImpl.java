@@ -30,16 +30,7 @@ public class SecurityUtilImpl {
             return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
         }
 
-        switch (profile) {
-            case RSA:
-                return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-            case ECC:
-                return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
-            default:
-                LOG.error("Profile [{}] is not a valid profile. No security profile was set.", profile);
-        }
-
-        return null;
+        return profile.getAlgorithm();
     }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {

@@ -75,7 +75,7 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTrustStoreEntries(@Injectable KeyStoreType trustStore, @Injectable List<TrustStoreEntry> entries) {
         new Expectations(tlsCertificateManager) {{
-            certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+            certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
             result = entries;
         }};
 
@@ -83,7 +83,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertEquals(entries, result);
         new Verifications() {{
-            certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+            certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
         }};
     }
 

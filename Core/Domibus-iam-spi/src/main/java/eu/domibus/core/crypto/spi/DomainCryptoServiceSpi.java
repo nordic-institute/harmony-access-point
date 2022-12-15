@@ -104,4 +104,6 @@ public interface DomainCryptoServiceSpi {
     void resetKeyStore();
 
     void resetTrustStore();
+
+    void resetSecurityProfiles();
 }

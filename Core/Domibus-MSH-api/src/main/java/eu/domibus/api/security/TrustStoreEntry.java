@@ -81,4 +81,16 @@ public class TrustStoreEntry {
     public void setCertificateExpiryAlertDays(int certificateExpiryAlertDays) {
         this.certificateExpiryAlertDays = certificateExpiryAlertDays;
     }
+
+    @Override
+    public String toString() {
+        return "storeEntry{" +
+                "name='" + name + '\'' +
+                ", subject='" + subject + '\'' +
+                ", issuer='" + issuer + '\'' +
+                ", validFrom=" + validFrom +
+                ", validUntil=" + validUntil +
+                ", fingerprints='" + fingerprints + '\'' +
+                '}';
+    }
 }

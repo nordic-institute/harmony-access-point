@@ -99,6 +99,11 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
     }
 
     @Override
+    public void resetSecurityProfiles() {
+
+    }
+
+    @Override
     public KeyStore getKeyStore() {
         return null;
     }

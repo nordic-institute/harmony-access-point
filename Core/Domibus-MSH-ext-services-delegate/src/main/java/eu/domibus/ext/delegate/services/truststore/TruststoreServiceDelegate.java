@@ -56,7 +56,7 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
     @Override
     public List<TrustStoreDTO> getTrustStoreEntries() {
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
     }
 

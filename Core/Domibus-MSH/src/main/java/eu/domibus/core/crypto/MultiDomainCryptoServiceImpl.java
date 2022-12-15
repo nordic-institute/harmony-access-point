@@ -1,6 +1,5 @@
 package eu.domibus.core.crypto;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
@@ -152,6 +151,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public void resetSecurityProfiles(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.resetSecurityProfiles();
+    }
+
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
     }
@@ -229,7 +234,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void reset(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.reset();
+        domainCertificateProvider.resetStores();
     }
 
     @Override

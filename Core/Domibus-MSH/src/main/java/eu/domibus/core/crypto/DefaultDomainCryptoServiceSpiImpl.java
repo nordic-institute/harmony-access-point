@@ -87,9 +87,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
+
         createSecurityProfileAliasConfigurations();
+
         initTrustStore();
         initKeyStore();
+
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
@@ -297,7 +300,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadTrustStoreProperties();
 
         KeyStore old = getTrustStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setTrustStore(current));
 
@@ -313,7 +316,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadKeystoreProperties();
 
         KeyStore old = getKeyStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> {
                     Merlin merlin = securityProfileConfiguration.getMerlin();
@@ -332,6 +335,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetKeyStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        LOG.info("Replacing the keystore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceKeyStore(location, password);
     }
 
@@ -339,7 +343,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        LOG.info("Replacing the truststore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceTrustStore(location, password);
+    }
+
+    @Override
+    public void resetSecurityProfiles() {
+        LOG.info("Resetting security profiles on domain [{}]", domain);
+        init();
     }
 
     @Override
@@ -445,7 +456,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadTrustStoreProperties();
 
-            KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+            KeyStore trustStore = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setTrustStore(trustStore));
         }, domain);
@@ -473,7 +484,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadKeystoreProperties();
 
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+            KeyStore keyStore = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setKeyStore(keyStore));
         }, domain);
@@ -583,12 +594,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getKeystoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getType();
     }
 
     private String getKeystorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getPassword();
     }
 
@@ -617,12 +628,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected String getTrustStorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getPassword();
     }
 
     protected String getTrustStoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getType();
     }
 

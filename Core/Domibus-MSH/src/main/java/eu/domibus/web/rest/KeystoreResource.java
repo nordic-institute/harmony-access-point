@@ -75,7 +75,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected TrustStoreContentDTO getTrustStoreContent() {
-        return certificateService.getTruststoreContent(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.getStoreContent(DOMIBUS_KEYSTORE_NAME);
     }
 
     @PostMapping(value = "/reset")
@@ -105,7 +105,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getTrustStoreEntries(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
     }
 
     @GetMapping(value = "/download", produces = "application/octet-stream")
