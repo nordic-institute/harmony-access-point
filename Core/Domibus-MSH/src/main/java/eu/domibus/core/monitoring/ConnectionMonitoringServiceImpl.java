@@ -67,21 +67,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public boolean isDeleteHistoryEnabled() {
-        List<String> deleteHistoryParties = getDeleteHistoryForParties();
-        if (CollectionUtils.isEmpty(deleteHistoryParties)) {
-            LOG.debug("Delete test message history is not enabled");
-            return false;
-        }
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        boolean deleteHistoryEnabled = deleteHistoryParties.stream()
-                .anyMatch(party -> !StringUtils.equals(party, selfParty));
-        LOG.debug("Delete test message history enabled: [{}]", deleteHistoryEnabled);
-        return deleteHistoryEnabled;
-    }
-
-    @Override
-    public void deleteReceivedTestMessageHistoryIfApplicable() {
+    public void deleteReceivedTestMessageHistory() {
         if (!isDeleteHistoryEnabled()) {
             LOG.debug("Delete received test message history is not enabled; exiting.");
             return;
@@ -94,15 +80,21 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         List<String> deleteHistoryParties = getDeleteHistoryForParties();
-        deleteHistoryParties = deleteHistoryParties.stream().filter(testableParties::contains).collect(Collectors.toList());
+        deleteHistoryParties = deleteHistoryParties.stream()
+                .filter(pair->testableParties.contains(pair.split(SENDER_RECEIVER_SEPARATOR)[0]) && testableParties.contains(pair.split(SENDER_RECEIVER_SEPARATOR)[1]))
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history; exiting.");
             return;
         }
 
         for (String party : deleteHistoryParties) {
-            testService.deleteReceivedMessageHistoryFromParty(party);
+            testService.deleteReceivedMessageHistoryFromParty(party.split(SENDER_RECEIVER_SEPARATOR)[1]);
         }
+    }
+
+    protected boolean isDeleteHistoryEnabled() {
+        return !CollectionUtils.isEmpty(getDeleteHistoryForParties());
     }
 
     /**
