@@ -121,15 +121,15 @@ public class DomibusEArchiveExtResource {
     }
 
     /**
-     * Get the earchive batch
+     * Get the eArchive batch
      * <p>
-     * Method returns the earchive batch for the given batch ID.
+     * Method returns the eArchive batch for the given batch ID.
      *
      * @param batchId: batch id of the batch,
      * @return Batch with a given batchId
      */
     @Operation(summary = "Get the batch",
-            description = "Method returns the earchive batch for the given batch ID.",
+            description = "Method returns the eArchive batch for the given batch ID.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/batches/{batchId:.+}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchDTO getExportedBatch(

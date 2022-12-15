@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.usermessage.UserMessageDownloadEvent;
 import eu.domibus.common.ErrorResult;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -16,14 +17,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NonUniqueResultException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service used for retrieving messages (split from DatabaseMessageHandler)
@@ -122,7 +121,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         final MessageStatus messageStatus;
         try {
             messageStatus = userMessageLogService.getMessageStatusById(messageId);
-        } catch (NonUniqueResultException exception) {
+        } catch (MessagingException exception) {
             throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
         }
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
@@ -143,13 +142,14 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        List<? extends ErrorResult> errors = getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
-        if (CollectionUtils.isNotEmpty(errors)) {
-            LOG.debug("Returning Errors for message id [{}] and RECEIVING role", messageId);
-            return errors;
+        try {
+            userMessageLogService.findByMessageId(messageId);
+        } catch (MessagingException exception) {
+            throw new MessagingException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message.", exception);
         }
-        LOG.debug("Returning Errors for message id [{}] and SENDING role", messageId);
-        return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.SENDING);
+        List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
+
+        return errorsForMessage.stream().map(errorLogEntry -> errorLogService.convert(errorLogEntry)).collect(Collectors.toList());
     }
 
     @Override

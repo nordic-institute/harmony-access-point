@@ -619,7 +619,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage = null;
         try {
-            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID(), MSHRole.SENDING);
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
