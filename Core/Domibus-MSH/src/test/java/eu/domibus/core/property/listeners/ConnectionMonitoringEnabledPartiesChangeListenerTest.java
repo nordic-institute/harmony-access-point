@@ -28,9 +28,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @RunWith(Parameterized.class)
-public class ConnectionMonitoringChangeListenerTest {
+public class ConnectionMonitoringEnabledPartiesChangeListenerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringEnabledPartiesChangeListenerTest.class);
 
     @Injectable
     protected PModeProvider pModeProvider;
@@ -39,7 +39,7 @@ public class ConnectionMonitoringChangeListenerTest {
     protected PartyService partyService;
 
     @Tested
-    protected ConnectionMonitoringChangeListener listener;
+    protected ConnectionMonitoringEnabledPartiesChangeListener listener;
 
     @Before
     public void setupTest() throws IOException {

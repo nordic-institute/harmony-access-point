@@ -1,31 +1,29 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
-import eu.domibus.core.pmode.provider.PModeProvider;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.1
  * <p>
- * Handles the change of connection monitoring properties, validating that only known party identifiers are used.
+ * Handles the change of connection monitoring delete history for parties property, validating that only valid party identifiers are used.
  */
 @Service
-public class ConnectionMonitoringChangeListener implements DomibusPropertyChangeListener {
+public class ConnectionMonitoringDeleteHistoryForPartiesChangeListener implements DomibusPropertyChangeListener {
 
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
-    public ConnectionMonitoringChangeListener(PartyService partyService, PModeProvider pModeProvider, ConnectionMonitoringHelper connectionMonitoringHelper) {
+    public ConnectionMonitoringDeleteHistoryForPartiesChangeListener(ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED.equalsIgnoreCase(propertyName);
+        return DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES.equalsIgnoreCase(propertyName);
     }
 
     @Override
