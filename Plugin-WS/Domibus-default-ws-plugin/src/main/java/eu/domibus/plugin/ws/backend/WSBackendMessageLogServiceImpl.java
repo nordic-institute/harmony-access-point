@@ -51,7 +51,7 @@ public class WSBackendMessageLogServiceImpl implements WSBackendMessageLogServic
     public void updateForRetry(List<String> messageIDs) throws WSPluginException {
         int countUpdated = wsBackendMessageLogDao.updateForRetry(messageIDs);
         int total = CollectionUtils.size(messageIDs);
-        if (countUpdated != total) {
+        if (countUpdated < total) { // there can be 2 repushes for the same msgId (example message_received + submit_message notifs)
             throw new WSPluginException("Not all messages could be found [" + countUpdated + "/" + total + "]");
         }
         LOG.debug("[{}] messages updated for retry", total);

@@ -117,4 +117,26 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
         MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(1));
         MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2021));
     }
+
+    @Test
+    public void findRetriableAfterRepushed() {
+        List<WSBackendMessageLogEntity> beforeRepush = wsBackendMessageLogDao.findRetryMessages();
+        Assert.assertEquals(2, beforeRepush.size()); // only 2 are ready for retry and none of them is in send_failure status
+        wsBackendMessageLogDao.updateForRetry(
+                Arrays.asList(entityFailed2021.getMessageId(),
+                        entityFailed2022.getMessageId()));
+        em.refresh(entityFailed2021);
+        em.refresh(entityFailed2022);
+
+        List<WSBackendMessageLogEntity> afterRepush = wsBackendMessageLogDao.findRetryMessages();
+        // the 2 failed messages have been repushed so now they are added to the list waiting for retry
+        Assert.assertEquals(4, afterRepush.size());
+
+        // check that the failed messages have been moved to backend status WAITING_FOR_RETRY, thus ready to be picked up for pushing again to C4
+        Assert.assertTrue(afterRepush.contains(entityFailed2021));
+        Assert.assertTrue(afterRepush.contains(entityFailed2022));
+
+        Assert.assertFalse(beforeRepush.contains(entityFailed2021));
+        Assert.assertFalse(beforeRepush.contains(entityFailed2022));
+    }
 }
