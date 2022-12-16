@@ -5,7 +5,6 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.party.PartyService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
@@ -14,6 +13,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,10 +39,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
-import static eu.domibus.core.monitoring.ConnectionMonitoringServiceImpl.ALL_PARTIES;
-import static eu.domibus.core.monitoring.ConnectionMonitoringServiceImpl.SENDER_RECEIVER_SEPARATOR;
 
 /**
  * @author Cosmin Baciu
@@ -74,13 +70,13 @@ public class TestService {
 
     private final UserMessageService userMessageService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     private final PartyService partyService;
+
+    private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
                        SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
-                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider, PartyService partyService) {
+                       UserMessageService userMessageService, PartyService partyService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
         this.userMessageLogDao = userMessageLogDao;
@@ -88,8 +84,8 @@ public class TestService {
         this.signalMessageDao = signalMessageDao;
         this.errorLogService = errorLogService;
         this.userMessageService = userMessageService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.partyService = partyService;
+        this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
     public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
@@ -353,8 +349,8 @@ public class TestService {
     }
 
     protected void deleteSentHistory(String toParty) {
-        List<String> partyList = getDeleteHistoryForParties();
-        if (partyList.stream().noneMatch(pair -> StringUtils.equals(getDestinationParty(pair), toParty))) {
+        List<String> partyList = connectionMonitoringHelper.getDeleteHistoryForParties();
+        if (partyList.stream().noneMatch(pair -> StringUtils.equals(connectionMonitoringHelper.getDestinationParty(pair), toParty))) {
             LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);
             return;
         }
@@ -441,30 +437,4 @@ public class TestService {
         userMessageService.deleteMessagesWithIDs(toDelete);
     }
 
-    public List<String> getDeleteHistoryForParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES), ALL_PARTIES)) {
-            return getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-    }
-
-    public List<String> getTestableParties() {
-        List<String> testableParties = partyService.findPushToPartyNamesForTest();
-        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
-        List<String> result = new ArrayList<>();
-
-        selfPartyIds.forEach(selfPartyId -> testableParties.forEach(partyId ->
-                result.add(selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)));
-
-        return result;
-    }
-
-    private String getDestinationParty(String pair) {
-        String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
-        if (pairValues.length < 2) {
-            LOG.info("Value [{}] is not a pair", pairValues);
-            return StringUtils.EMPTY;
-        }
-        return pairValues[1];
-    }
 }

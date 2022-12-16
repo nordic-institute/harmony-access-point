@@ -44,6 +44,9 @@ public class ConnectionMonitoringServiceImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    ConnectionMonitoringHelper connectionMonitoringHelper;
+
     @Test
     public void isMonitoringEnabled() {
         new Expectations() {{
@@ -171,15 +174,15 @@ public class ConnectionMonitoringServiceImplTest {
 
     }
 
-    @Test
-    public void transformToNewFormatTest() {
-        String selfParty = "self";
-        String partyId1 = "partyId1";
-        String partyId2 = "partyId2";
-        String enabledPair = "self>partyId1,self>partyId2";
-
-        String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
-        Assert.assertEquals(enabledPair, res);
-    }
+//    @Test
+//    public void transformToNewFormatTest() {
+//        String selfParty = "self";
+//        String partyId1 = "partyId1";
+//        String partyId2 = "partyId2";
+//        String enabledPair = "self>partyId1,self>partyId2";
+//
+//        String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
+//        Assert.assertEquals(enabledPair, res);
+//    }
 
 }

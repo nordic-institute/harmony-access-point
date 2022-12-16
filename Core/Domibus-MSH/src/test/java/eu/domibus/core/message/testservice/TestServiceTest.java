@@ -14,6 +14,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
@@ -69,16 +70,13 @@ public class TestServiceTest {
     UserMessageDao userMessageDao;
 
     @Injectable
-    ActionDictionaryService actionDictionaryService;
-
-    @Injectable
     UserMessageService userMessageService;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    PartyService partyService;
 
     @Injectable
-    PartyService partyService;
+    ConnectionMonitoringHelper connectionMonitoringHelper;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
