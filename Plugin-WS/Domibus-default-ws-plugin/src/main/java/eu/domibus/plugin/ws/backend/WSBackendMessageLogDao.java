@@ -152,7 +152,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
         CriteriaUpdate<WSBackendMessageLogEntity> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(WSBackendMessageLogEntity.class);
         Root<WSBackendMessageLogEntity> root = criteriaUpdate.from(WSBackendMessageLogEntity.class);
         criteriaUpdate.set(CRIT_FAILED, null);
-        criteriaUpdate.set(CRIT_SEND_ATTEMPTS, 0);
+        // criteriaUpdate.set(CRIT_SEND_ATTEMPTS, 0); //just mark it as waiting for retry but don't reset the attempts nr gathered (see EDELIVERY-10478)
         criteriaUpdate.set(CRIT_NEXT_ATTEMPT, new Date());
         criteriaUpdate.set(CRIT_BACKEND_MESSAGE_STATUS, WSBackendMessageStatus.WAITING_FOR_RETRY);
         criteriaUpdate.where(root.get(CRIT_MESSAGE_ID).in(messageIDs));
