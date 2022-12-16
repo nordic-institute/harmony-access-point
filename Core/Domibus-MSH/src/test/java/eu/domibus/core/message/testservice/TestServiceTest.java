@@ -204,9 +204,9 @@ public class TestServiceTest {
         givenReceiver("receiver");
         givenReceiverPartyId("receiverPartyId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
-            testService.validateReceiver(anyString);
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
+            connectionMonitoringHelper.validateReceiver(anyString);
         }};
 
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
@@ -221,8 +221,8 @@ public class TestServiceTest {
         givenReceiverType("receiverType");
         givenFinalRecipientMessagePropertyContainsInitialValue("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
         }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();
@@ -237,9 +237,9 @@ public class TestServiceTest {
         givenReceiverPartyId("receiverPartyId");
         givenTheMessageIdentifier("messageId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
-            testService.validateReceiver(anyString);
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
+            connectionMonitoringHelper.validateReceiver(anyString);
         }};
 
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
@@ -254,8 +254,8 @@ public class TestServiceTest {
         givenReceiverType("receiverType");
         givenTheMessageIdentifier("messageId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
         }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();

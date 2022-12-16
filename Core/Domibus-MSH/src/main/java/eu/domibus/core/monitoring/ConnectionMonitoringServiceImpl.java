@@ -2,13 +2,11 @@ package eu.domibus.core.monitoring;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,7 +19,6 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.ALL_PARTIES;
 import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.SENDER_RECEIVER_SEPARATOR;
 
 /**
@@ -37,14 +34,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     protected final TestService testService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
-    public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, DomibusPropertyProvider domibusPropertyProvider, ConnectionMonitoringHelper connectionMonitoringHelper) {
+    public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.partyService = partyService;
         this.testService = testService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
@@ -109,7 +103,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return false;
         }
 
-        List<String> monitorEnabledParties = getMonitorEnabledParties();
+        List<String> monitorEnabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         boolean monitoringEnabled = monitorEnabledParties.stream()
                 .map(connectionMonitoringHelper::getDestinationParty)
                 .anyMatch(selfPartyIds::contains);
@@ -127,7 +121,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return false;
         }
 
-        List<String> monitorEnabledParties = getMonitorEnabledParties();
+        List<String> monitorEnabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         boolean monitoringEnabled = monitorEnabledParties.stream()
                 .map(connectionMonitoringHelper::getDestinationParty)
                 .anyMatch(destParty -> !selfPartyIds.contains(destParty));
@@ -167,7 +161,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, List<String> selfPartyIds) {
-        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
                 .filter(ePair -> connectionMonitoringHelper.partiesAreTestable(testableParties, ePair))
                 .filter(ePair -> !selfPartyIds.contains(connectionMonitoringHelper.getDestinationParty(ePair)))
@@ -176,7 +170,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getMyself(List<String> testableParties, List<String> selfPartyIds) {
-        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
                 .filter(ePair -> connectionMonitoringHelper.partiesAreTestable(testableParties, ePair))
                 .filter(ePair -> selfPartyIds.contains(connectionMonitoringHelper.getDestinationParty(ePair)))
@@ -215,12 +209,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         String partyPair = senderPartyId + SENDER_RECEIVER_SEPARATOR + partyId;
-        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
-        List<String> alertableParties = getAlertableParties();
+        List<String> alertableParties = connectionMonitoringHelper.getAlertableParties();
         if (result.isTestable() && alertableParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setAlertable(true);
         }
@@ -247,20 +241,5 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
         return ConnectionMonitorRO.ConnectionStatus.UNKNOWN;
     }
-
-    private List<String> getMonitorEnabledParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), ALL_PARTIES)) {
-            return connectionMonitoringHelper.getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-    }
-
-    private List<String> getAlertableParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES), ALL_PARTIES)) {
-            return connectionMonitoringHelper.getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-    }
-
 
 }

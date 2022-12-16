@@ -1,9 +1,11 @@
 package eu.domibus.core.monitoring;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,8 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
-import static eu.domibus.core.monitoring.ConnectionMonitoringServiceImpl.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES;
 
 /**
  * @author Ion Perpegel
@@ -41,6 +43,34 @@ public class ConnectionMonitoringHelper {
         this.partyService = partyService;
         this.pModeProvider = pModeProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
+    }
+
+    public void validateReceiver(String receiverParty) {
+        List<String> toParties = partyService.findPushToPartyNamesForTest();
+        if (!toParties.contains(receiverParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
+        }
+    }
+
+    public void validateSender(String senderParty) {
+        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
+        if (!fromParties.contains(senderParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
+        }
+    }
+
+    public List<String> getMonitorEnabledParties() {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), ALL_PARTIES)) {
+            return getTestableParties();
+        }
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+    }
+
+    public List<String> getAlertableParties() {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES), ALL_PARTIES)) {
+            return getTestableParties();
+        }
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
     public List<String> getDeleteHistoryForParties() {

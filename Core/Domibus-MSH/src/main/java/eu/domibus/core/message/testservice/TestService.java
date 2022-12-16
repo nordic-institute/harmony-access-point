@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
-import eu.domibus.api.party.PartyService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
@@ -70,13 +69,11 @@ public class TestService {
 
     private final UserMessageService userMessageService;
 
-    private final PartyService partyService;
-
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
                        SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
-                       UserMessageService userMessageService, PartyService partyService, ConnectionMonitoringHelper connectionMonitoringHelper) {
+                       UserMessageService userMessageService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
         this.userMessageLogDao = userMessageLogDao;
@@ -84,15 +81,14 @@ public class TestService {
         this.signalMessageDao = signalMessageDao;
         this.errorLogService = errorLogService;
         this.userMessageService = userMessageService;
-        this.partyService = partyService;
         this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
     public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", senderParty, receiverParty);
 
-        validateSender(senderParty);
-        validateReceiver(receiverParty);
+        connectionMonitoringHelper.validateSender(senderParty);
+        connectionMonitoringHelper.validateReceiver(receiverParty);
 
         Submission messageData = createSubmission(senderParty);
 
@@ -110,7 +106,7 @@ public class TestService {
     public String submitTestDynamicDiscovery(String senderParty, String receiverParty, String receiverType) throws MessagingProcessingException, IOException {
         LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", senderParty, receiverParty, receiverType);
 
-        validateSender(senderParty);
+        connectionMonitoringHelper.validateSender(senderParty);
 
         Submission messageData = createSubmission(senderParty);
 
@@ -286,20 +282,6 @@ public class TestService {
         submission.setProcessingType(ProcessingType.PUSH);
 
         return submission;
-    }
-
-    protected void validateReceiver(String receiverParty) {
-        List<String> toParties = partyService.findPushToPartyNamesForTest();
-        if (!toParties.contains(receiverParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
-        }
-    }
-
-    protected void validateSender(String senderParty) {
-        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
-        if (!fromParties.contains(senderParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
-        }
     }
 
     protected TestErrorsInfoRO getErrorsForMessage(String userMessageId) {
