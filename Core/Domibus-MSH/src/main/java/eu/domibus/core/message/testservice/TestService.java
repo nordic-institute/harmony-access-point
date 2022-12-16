@@ -39,6 +39,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
+
 /**
  * @author Cosmin Baciu
  * @author Ion Perpegel
@@ -172,7 +175,8 @@ public class TestService {
      * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
      * including errors if an acceptable signal message cannot be found.
      *
-     * @param partyId,      userMessageId
+     * @param partyId,
+     * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
@@ -190,7 +194,8 @@ public class TestService {
     /**
      * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
      *
-     * @param partyId,      userMessageId
+     * @param partyId,
+     * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
      */
@@ -331,6 +336,8 @@ public class TestService {
     }
 
     protected void deleteSentHistory(String toParty) {
+        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+
         List<String> partyList = connectionMonitoringHelper.getDeleteHistoryForParties();
         if (partyList.stream().noneMatch(pair -> StringUtils.equals(connectionMonitoringHelper.getDestinationParty(pair), toParty))) {
             LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);

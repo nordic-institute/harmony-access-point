@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES;
 
 /**
  * @author Ion Perpegel
@@ -99,72 +98,123 @@ public class ConnectionMonitoringHelper {
         return getElementFromPair(pair, 0);
     }
 
-    private String getElementFromPair(String pair, int index) {
-        String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
-        if (pairValues.length < 2) {
-            LOG.info("Value [{}] is not a pair", pairValues);
-            return StringUtils.EMPTY;
-        }
-        return pairValues[index];
-    }
-
-    public void ensureCorrectFormatForProperty(String propertyName) {
-        String propValue = domibusPropertyProvider.getProperty(propertyName);
-        if (StringUtils.equals(propValue, ALL_PARTIES)) {
-            LOG.trace("Property [{}] has [{}] value so no correcting", propertyName, ALL_PARTIES);
-            return;
-        }
-        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
-        String selfPartyId = partyService.getGatewayPartyIdentifier();
-        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
-        if (!StringUtils.equals(propValue, newValue)) {
-            domibusPropertyProvider.setProperty(propertyName, newValue);
-            try {
-                // put some time between writes because the FilesCopy method that backs the property file crashes if copying while changed
-                Thread.sleep(200);
-            } catch (InterruptedException ignored) {
-            }
-        }
-    }
-
-    public String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
-        for (int i = 0; i < monitoredParties.size(); i++) {
-            String monitoredPartyPair = monitoredParties.get(i);
-            String[] pairVals = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
-            if (pairVals.length == 1) {
-                String newVal = selfPartyId + SENDER_RECEIVER_SEPARATOR + pairVals[0];
-                monitoredParties.set(i, newVal);
-                LOG.info("Fixing party enabled format for [{}] into [{}]", pairVals, newVal);
-            }
-        }
-        return String.join(LIST_ITEM_SEPARATOR, monitoredParties);
-    }
-
     public boolean partiesAreTestable(List<String> testableParties, String pair) {
         return testableParties.contains(getSourceParty(pair)) && testableParties.contains(getDestinationParty(pair));
     }
 
+    public void ensureCorrectValueForProperty(String propertyName) {
+        String propValue = domibusPropertyProvider.getProperty(propertyName);
+
+        if (StringUtils.isEmpty(propValue)) {
+            LOG.trace("Property [{}] is empty.", propertyName);
+            return;
+        }
+
+        if (StringUtils.equalsIgnoreCase(propValue, ALL_PARTIES)) {
+            LOG.trace("Property [{}] has [{}] value so no correcting", propertyName, ALL_PARTIES);
+            return;
+        }
+
+        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+        String newValue = fixParties(monitoredParties);
+        if (StringUtils.equals(propValue, newValue)) {
+            LOG.debug("Nothing to fix for property [{}]", propertyName);
+            return;
+        }
+
+        domibusPropertyProvider.setProperty(propertyName, newValue);
+    }
+
+    private String fixParties(List<String> monitoredParties) {
+        List<String> result = new ArrayList<>();
+
+        String defaultSelfPartyId = partyService.getGatewayPartyIdentifier();
+        List<String> senderPartyIds = partyService.getGatewayPartyIdentifiers();
+        List<String> destinationPartyIds = partyService.findPushToPartyNamesForTest();
+
+        monitoredParties.forEach(monitoredPartyPair -> {
+            String[] pairValues = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
+            if (pairValues.length == 1) {
+                if (!destinationPartyIds.contains(pairValues[0])) {
+                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[0]);
+                    return;
+                }
+                String newVal = defaultSelfPartyId + SENDER_RECEIVER_SEPARATOR + pairValues[0];
+                LOG.info("Fixing party enabled format for [{}] into [{}]", pairValues, newVal);
+                result.add(newVal);
+            } else {
+                if (!senderPartyIds.contains(pairValues[0])) {
+                    LOG.info("Party [{}] is not a valid sender party id so it will be eliminated.", pairValues[0]);
+                    return;
+                }
+                if (!destinationPartyIds.contains(pairValues[1])) {
+                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[1]);
+                    return;
+                }
+                result.add(monitoredPartyPair);
+            }
+        });
+
+        return String.join(LIST_ITEM_SEPARATOR, result);
+    }
+
     public void validateEnabledPartiesValue(String propertyValue) {
+        if (StringUtils.isEmpty(propertyValue)) {
+            LOG.trace("Property is empty.");
+            return;
+        }
+
+        if (StringUtils.equalsIgnoreCase(propertyValue, ALL_PARTIES)) {
+            LOG.trace("Property has [{}] value so no correcting", ALL_PARTIES);
+            return;
+        }
+
         List<String> newPartyIds = parsePropertyValue(propertyValue);
 
         List<Party> knownParties = pModeProvider.findAllParties();
         List<String> testablePartyIds = partyService.findPushToPartyNamesForTest();
+        List<String> senderPartyIds = partyService.getGatewayPartyIdentifiers();
 
         newPartyIds.forEach(partyIdPair -> {
-            Arrays.stream(partyIdPair.split(SENDER_RECEIVER_SEPARATOR)).forEach(partyId -> {
-                LOG.trace("Checking that [{}] is a known party", partyId);
-                if (knownParties.stream().noneMatch(party ->
-                        party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
-                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                            + partyId + " is not configured in pMode");
-                }
-                LOG.trace("Checking that [{}] is a known testable party", partyId);
-                if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                            + partyId + " is not configured to receive test messages in pMode");
-                }
-            });
+            String[] pairValues = partyIdPair.split(SENDER_RECEIVER_SEPARATOR);
+            if (pairValues.length < 2) {
+                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                        + pairValues[0] + " must be in a senderPartyId>destinationPartyId format");
+            }
+
+            String partyId = pairValues[0];
+            checkKnownParty(knownParties, partyId);
+            checkSenderParty(senderPartyIds, partyId);
+
+            partyId = pairValues[1];
+            checkKnownParty(knownParties, partyId);
+            checkDestinationParty(testablePartyIds, partyId);
         });
+    }
+
+    private void checkDestinationParty(List<String> testablePartyIds, String partyId) {
+        LOG.trace("Checking that [{}] is a known testable party", partyId);
+        if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
+            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                    + partyId + " is not configured to receive test messages in pMode");
+        }
+    }
+
+    private void checkSenderParty(List<String> senderPartyIds, String partyId) {
+        LOG.trace("Checking that [{}] is a known testable party", partyId);
+        if (senderPartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
+            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                    + partyId + " is not configured to send test messages in pMode");
+        }
+    }
+
+    private void checkKnownParty(List<Party> knownParties, String partyId) {
+        LOG.trace("Checking that [{}] is a known party", partyId);
+        if (knownParties.stream().noneMatch(party ->
+                party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
+            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                    + partyId + " is not configured in pMode");
+        }
     }
 
     protected List<String> parsePropertyValue(String propertyValue) {
@@ -174,5 +224,14 @@ public class ConnectionMonitoringHelper {
                 .filter(name -> !name.isEmpty())
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private String getElementFromPair(String pair, int index) {
+        String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
+        if (pairValues.length < 2) {
+            LOG.info("Value [{}] is not a pair", pairValues);
+            return StringUtils.EMPTY;
+        }
+        return pairValues[index];
     }
 }

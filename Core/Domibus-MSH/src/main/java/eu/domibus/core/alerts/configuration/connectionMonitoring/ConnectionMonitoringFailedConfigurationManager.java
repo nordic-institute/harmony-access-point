@@ -3,6 +3,8 @@ package eu.domibus.core.alerts.configuration.connectionMonitoring;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,9 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAlertConfigurationManager
         implements AlertConfigurationManager {
+
+    @Autowired
+    ConnectionMonitoringHelper connectionMonitoringHelper;
 
     public ConnectionMonitoringFailedConfigurationManager(AlertType alertType) {
         super(alertType);
@@ -48,6 +53,7 @@ public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAle
     }
 
     private List<String> getEnabledParties() {
+        connectionMonitoringHelper.ensureCorrectValueForProperty(domibusPropertiesPrefix + ".parties");
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(domibusPropertiesPrefix + ".parties");
     }
 }
