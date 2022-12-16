@@ -355,7 +355,7 @@ public class PropertyChangeManager {
     private void manageBackups(File configurationFile, Domain domain) {
         Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, 24);
         try {
-            backupService.backupFileIfOlderThan(configurationFile, period);
+            backupService.backupFileIfOlderThan(configurationFile,"backups", period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }
