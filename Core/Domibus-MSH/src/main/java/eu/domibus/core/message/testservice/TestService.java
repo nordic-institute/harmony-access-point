@@ -462,6 +462,7 @@ public class TestService {
     private String getDestinationParty(String pair) {
         String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
         if (pairValues.length < 2) {
+            LOG.info("Value [{}] is not a pair", pairValues);
             return StringUtils.EMPTY;
         }
         return pairValues[1];

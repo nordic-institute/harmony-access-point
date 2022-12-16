@@ -81,7 +81,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> deleteHistoryParties = testService.getDeleteHistoryForParties();
         deleteHistoryParties = deleteHistoryParties.stream()
-                .filter(pair -> testableParties.contains(getSourceParty(pair)) && testableParties.contains(getDestinationParty(pair)))
+                .filter(pair -> partiesAreTestable(testableParties, pair))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history; exiting.");
@@ -109,11 +109,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> monitorEnabledParties = getMonitorEnabledParties();
         boolean monitoringEnabled = monitorEnabledParties.stream()
-                .anyMatch(pair -> selfPartyIds.contains(getDestinationParty(pair)));
+                .map(this::getDestinationParty)
+                .anyMatch(selfPartyIds::contains);
         LOG.debug("Connection self-monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
-
 
     /**
      * Checks whether the monitoring is enabled for at least a party except self.
@@ -127,7 +127,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> monitorEnabledParties = getMonitorEnabledParties();
         boolean monitoringEnabled = monitorEnabledParties.stream()
-                .anyMatch(pair -> !selfPartyIds.contains(getDestinationParty(pair)));
+                .map(this::getDestinationParty)
+                .anyMatch(destParty -> !selfPartyIds.contains(destParty));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
@@ -166,7 +167,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, List<String> selfPartyIds) {
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
-                .filter(ePair -> testableParties.contains(getSourceParty(ePair)) && testableParties.contains(getDestinationParty(ePair)))
+                .filter(ePair -> partiesAreTestable(testableParties, ePair))
                 .filter(ePair -> !selfPartyIds.contains(getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
@@ -175,7 +176,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     private List<String> getMyself(List<String> testableParties, List<String> selfPartyIds) {
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
-                .filter(ePair -> testableParties.contains(getSourceParty(ePair)) && testableParties.contains(getDestinationParty(ePair)))
+                .filter(ePair -> partiesAreTestable(testableParties, ePair))
                 .filter(ePair -> selfPartyIds.contains(getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
@@ -269,7 +270,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         String selfPartyId = partyService.getGatewayPartyIdentifier();
         String newValue = transformToNewFormat(monitoredParties, selfPartyId);
         if (!StringUtils.equals(propValue, newValue)) {
-            LOG.info("Property [{}] has been corrected from [{}] value to [{}] value.", propertyName, propValue, newValue);
             domibusPropertyProvider.setProperty(propertyName, newValue);
             try {
                 // put some time between writes because the FilesCopy method that backs the property file crashes if copying while changed
@@ -284,25 +284,32 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             String monitoredPartyPair = monitoredParties.get(i);
             String[] pairVals = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
             if (pairVals.length == 1) {
-                monitoredParties.set(i, selfPartyId + SENDER_RECEIVER_SEPARATOR + pairVals[0]);
+                String newVal = selfPartyId + SENDER_RECEIVER_SEPARATOR + pairVals[0];
+                monitoredParties.set(i, newVal);
+                LOG.info("Fixing party enabled format for [{}] into [{}]", pairVals, newVal);
             }
         }
         return String.join(LIST_ITEM_SEPARATOR, monitoredParties);
     }
 
+    private boolean partiesAreTestable(List<String> testableParties, String pair) {
+        return testableParties.contains(getSourceParty(pair)) && testableParties.contains(getDestinationParty(pair));
+    }
+
     private String getDestinationParty(String pair) {
-        String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
-        if (pairValues.length < 2) {
-            return StringUtils.EMPTY;
-        }
-        return pairValues[1];
+        return getElementFromPair(pair, 1);
     }
 
     private String getSourceParty(String pair) {
+        return getElementFromPair(pair, 0);
+    }
+
+    private String getElementFromPair(String pair, int index) {
         String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
         if (pairValues.length < 2) {
+            LOG.info("Value [{}] is not a pair", pairValues);
             return StringUtils.EMPTY;
         }
-        return pairValues[0];
+        return pairValues[index];
     }
 }
