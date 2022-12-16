@@ -33,18 +33,23 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the list of Party Names that can be tested (can send test messages)
+     * Returns the list of Party Ids that can be the destination of test messages
      *
      * @return List of Party names
      */
     List<String> findPushToPartyNamesForTest();
 
+    /**
+     * Returns the list of Party Ids that can be the source of test messages
+     *
+     * @return List of Party names
+     */
     List<String> findPushFromPartyNamesForTest();
 
     /**
      * Returns the gateway party
      *
-     * @return Party Identifier Name
+     * @return Party
      */
     Party getGatewayParty();
 
@@ -60,10 +65,15 @@ public interface PartyService {
     /**
      * Returns the first gateway party identifier
      *
-     * @return Party Identifier
+     * @return Party Identifier first id
      */
     String getGatewayPartyIdentifier();
 
+    /**
+     * Returns all gateway party identifiers
+     *
+     * @return Party Identifiers
+     */
     List<String> getGatewayPartyIdentifiers();
 
     /**

@@ -151,31 +151,32 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
-        String selfPartyId = selfPartyIds.get(0);
-        for (String party : monitoredParties) {
+        for (String partyPair : monitoredParties) {
+            String senderParty = getSourceParty(partyPair);
+            String receiverParty = getDestinationParty(partyPair);
             try {
-                String testMessageId = testService.submitTest(selfPartyId, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfPartyId, party, testMessageId);
+                String testMessageId = testService.submitTest(senderParty, receiverParty);
+                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
             } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfPartyId, party);
+                LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
             }
         }
     }
 
     protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, List<String> selfPartyIds) {
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(tPartyId -> enabledParties.stream().map(this::getDestinationParty).anyMatch(tPartyId::equalsIgnoreCase))
-                .filter(tPartyId -> !selfPartyIds.contains(tPartyId))
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(ePair -> testableParties.contains(getSourceParty(ePair)) && testableParties.contains(getDestinationParty(ePair)))
+                .filter(ePair -> !selfPartyIds.contains(getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
     }
 
     private List<String> getMyself(List<String> testableParties, List<String> selfPartyIds) {
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(tPartyId -> enabledParties.stream().map(this::getDestinationParty).anyMatch(tPartyId::equalsIgnoreCase))
-                .filter(selfPartyIds::contains)
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(ePair -> testableParties.contains(getSourceParty(ePair)) && testableParties.contains(getDestinationParty(ePair)))
+                .filter(ePair -> selfPartyIds.contains(getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
     }

@@ -450,10 +450,13 @@ public class TestService {
 
     public List<String> getTestableParties() {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
-        String selfPartyId = partyService.getGatewayPartyIdentifier();
-        return testableParties.stream()
-                .map(partyId -> selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)
-                .collect(Collectors.toList());
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        List<String> result = new ArrayList<>();
+
+        selfPartyIds.forEach(selfPartyId -> testableParties.forEach(partyId ->
+                result.add(selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)));
+
+        return result;
     }
 
     private String getDestinationParty(String pair) {
