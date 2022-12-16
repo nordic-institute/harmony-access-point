@@ -354,7 +354,7 @@ public class TestService {
 
     protected void deleteSentHistory(String toParty) {
         List<String> partyList = getDeleteHistoryForParties();
-        if (!partyList.stream().anyMatch(pair -> StringUtils.equals(pair.split(SENDER_RECEIVER_SEPARATOR)[1], toParty))) {
+        if (partyList.stream().noneMatch(pair -> StringUtils.equals(getDestinationParty(pair), toParty))) {
             LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);
             return;
         }
@@ -441,18 +441,26 @@ public class TestService {
         userMessageService.deleteMessagesWithIDs(toDelete);
     }
 
-    private List<String> getDeleteHistoryForParties() {
+    public List<String> getDeleteHistoryForParties() {
         if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES), ALL_PARTIES)) {
             return getTestableParties();
         }
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
-    private List<String> getTestableParties() {
+    public List<String> getTestableParties() {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
         String selfPartyId = partyService.getGatewayPartyIdentifier();
         return testableParties.stream()
                 .map(partyId -> selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)
                 .collect(Collectors.toList());
+    }
+
+    private String getDestinationParty(String pair) {
+        String[] pairValues = pair.split(SENDER_RECEIVER_SEPARATOR);
+        if (pairValues.length < 2) {
+            return StringUtils.EMPTY;
+        }
+        return pairValues[1];
     }
 }
