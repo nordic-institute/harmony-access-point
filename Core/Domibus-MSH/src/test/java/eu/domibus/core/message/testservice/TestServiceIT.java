@@ -9,6 +9,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -60,6 +61,9 @@ public class TestServiceIT {
 
     @Injectable
     PartyService partyService;
+
+    @Injectable
+    ConnectionMonitoringHelper connectionMonitoringHelper;
 
     @Test
     public void createSubmission() throws IOException {

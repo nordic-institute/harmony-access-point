@@ -125,7 +125,7 @@ public class ConnectionMonitoringHelper {
         domibusPropertyProvider.setProperty(propertyName, newValue);
     }
 
-    private String fixParties(List<String> monitoredParties) {
+    protected String fixParties(List<String> monitoredParties) {
         List<String> result = new ArrayList<>();
 
         String defaultSelfPartyId = partyService.getGatewayPartyIdentifier();
