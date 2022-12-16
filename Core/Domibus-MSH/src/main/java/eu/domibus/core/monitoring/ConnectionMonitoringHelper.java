@@ -178,7 +178,7 @@ public class ConnectionMonitoringHelper {
         newPartyIds.forEach(partyIdPair -> {
             String[] pairValues = partyIdPair.split(SENDER_RECEIVER_SEPARATOR);
             if (pairValues.length < 2) {
-                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                throw new DomibusPropertyException("Invalid list of monitoring parties: "
                         + pairValues[0] + " must be in a senderPartyId>destinationPartyId format");
             }
 
@@ -195,7 +195,7 @@ public class ConnectionMonitoringHelper {
     private void checkDestinationParty(List<String> testablePartyIds, String partyId) {
         LOG.trace("Checking that [{}] is a known testable party", partyId);
         if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+            throw new DomibusPropertyException("Invalid list of monitoring parties: "
                     + partyId + " is not configured to receive test messages in pMode");
         }
     }
@@ -203,7 +203,7 @@ public class ConnectionMonitoringHelper {
     private void checkSenderParty(List<String> senderPartyIds, String partyId) {
         LOG.trace("Checking that [{}] is a known testable party", partyId);
         if (senderPartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+            throw new DomibusPropertyException("Invalid list of monitoring parties: "
                     + partyId + " is not configured to send test messages in pMode");
         }
     }
@@ -212,7 +212,7 @@ public class ConnectionMonitoringHelper {
         LOG.trace("Checking that [{}] is a known party", partyId);
         if (knownParties.stream().noneMatch(party ->
                 party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
-            throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+            throw new DomibusPropertyException("Invalid list of monitoring parties: "
                     + partyId + " is not configured in pMode");
         }
     }
