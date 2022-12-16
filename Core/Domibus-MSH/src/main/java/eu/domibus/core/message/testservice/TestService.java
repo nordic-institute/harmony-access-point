@@ -163,7 +163,7 @@ public class TestService {
 
         UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, partyId);
         if (userMessage == null) {
-            LOG.debug("Could not find last user message for party [{}]", partyId);
+            LOG.debug("Could not find last test user message sent for party [{}]", partyId);
             return null;
         }
 
@@ -175,7 +175,7 @@ public class TestService {
      * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
      * including errors if an acceptable signal message cannot be found.
      *
-     * @param partyId,
+     * @param partyId
      * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
@@ -194,7 +194,7 @@ public class TestService {
     /**
      * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
      *
-     * @param partyId,
+     * @param partyId
      * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
