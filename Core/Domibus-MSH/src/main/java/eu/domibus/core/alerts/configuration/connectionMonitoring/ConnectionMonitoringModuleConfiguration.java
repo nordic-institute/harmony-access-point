@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-import static eu.domibus.core.monitoring.ConnectionMonitoringServiceImpl.ALL_PARTIES;
+import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.ALL_PARTIES;
 
 /**
  * @author Ion Perpegel

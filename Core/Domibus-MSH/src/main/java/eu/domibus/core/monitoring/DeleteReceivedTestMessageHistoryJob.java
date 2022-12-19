@@ -26,7 +26,7 @@ public class DeleteReceivedTestMessageHistoryJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("DeleteReceivedTestMessageHistoryJob started on [{}] domain", domain);
-        connectionMonitoringService.deleteReceivedTestMessageHistoryIfApplicable();
+        connectionMonitoringService.deleteReceivedTestMessageHistory();
         LOG.debug("DeleteTestMessageHistoryJob ended on [{}] domain", domain);
     }
 }

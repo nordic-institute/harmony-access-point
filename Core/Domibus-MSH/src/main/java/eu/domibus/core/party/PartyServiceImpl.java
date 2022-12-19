@@ -122,6 +122,15 @@ public class PartyServiceImpl implements PartyService {
         return result;
     }
 
+    @Override
+    public List<String> getGatewayPartyIdentifiers() {
+        String result = null;
+        eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
+        return gatewayParty.getIdentifiers().stream()
+                .map(Identifier::getPartyId)
+                .collect(toList());
+    }
+
     /**
      * In the actual configuration the link between parties and processes exists from process to party.
      * We need to reverse this association, we want to have a relation party -&gt; process I am involved in as a responder

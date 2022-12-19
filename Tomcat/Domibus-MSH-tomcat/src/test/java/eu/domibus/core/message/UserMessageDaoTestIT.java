@@ -6,7 +6,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.*;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +119,7 @@ public class UserMessageDaoTestIT extends AbstractIT {
         String senderPartyId = "domibus-blue";
         ActionEntity actionEntity = actionDao.findOrCreateAction(Ebms3Constants.TEST_ACTION);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(senderPartyId, testParty);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, testParty);
         assertNotNull(userMessage);
         assertEquals(msgId, userMessage.getMessageId());
 

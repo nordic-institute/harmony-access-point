@@ -2,13 +2,11 @@ package eu.domibus.core.monitoring;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +19,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.SENDER_RECEIVER_SEPARATOR;
 
 /**
  * @author Ion Perpegel
@@ -30,26 +29,21 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
-    public static final String SENDER_RECEIVER_SEPARATOR = ">";
-    public static final String LIST_ITEM_SEPARATOR = ",";
-    public static final String ALL_PARTIES = "ALL";
 
     private final PartyService partyService;
 
     protected final TestService testService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
+    private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
-    public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, DomibusPropertyProvider domibusPropertyProvider) {
+    public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.partyService = partyService;
         this.testService = testService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
     @Override
     public void sendTestMessages() {
-        handleAllValueForCommaSeparatedProperties();
-
         if (!isMonitoringEnabled()) {
             LOG.debug("Connection monitoring for others is not enabled; exiting;");
             return;
@@ -60,8 +54,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessageToMyself() {
-        handleAllValueForCommaSeparatedProperties();
-
         if (!isSelfMonitoringEnabled()) {
             LOG.info("Self Connection monitoring is not enabled; exiting;");
             return;
@@ -71,21 +63,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public boolean isDeleteHistoryEnabled() {
-        List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-        if (CollectionUtils.isEmpty(deleteHistoryParties)) {
-            LOG.debug("Delete test message history is not enabled");
-            return false;
-        }
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        boolean deleteHistoryEnabled = deleteHistoryParties.stream()
-                .anyMatch(party -> !StringUtils.equals(party, selfParty));
-        LOG.debug("Delete test message history enabled: [{}]", deleteHistoryEnabled);
-        return deleteHistoryEnabled;
-    }
-
-    @Override
-    public void deleteReceivedTestMessageHistoryIfApplicable() {
+    public void deleteReceivedTestMessageHistory() {
         if (!isDeleteHistoryEnabled()) {
             LOG.debug("Delete received test message history is not enabled; exiting.");
             return;
@@ -97,96 +75,111 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
-        List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-        deleteHistoryParties = deleteHistoryParties.stream().filter(testableParties::contains).collect(Collectors.toList());
+        List<String> deleteHistoryParties = connectionMonitoringHelper.getDeleteHistoryForParties();
+        deleteHistoryParties = deleteHistoryParties.stream()
+                .filter(pair -> connectionMonitoringHelper.partiesAreTestable(testableParties, pair))
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history; exiting.");
             return;
         }
 
         for (String party : deleteHistoryParties) {
-            testService.deleteReceivedMessageHistoryFromParty(party);
+            testService.deleteReceivedMessageHistoryFromParty(connectionMonitoringHelper.getDestinationParty(party));
         }
+    }
+
+    protected boolean isDeleteHistoryEnabled() {
+        return !CollectionUtils.isEmpty(connectionMonitoringHelper.getDeleteHistoryForParties());
     }
 
     /**
      * Checks whether the self monitoring is enabled.
      */
     protected boolean isSelfMonitoringEnabled() {
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        if (CollectionUtils.isEmpty(selfPartyIds)) {
             LOG.info("The self party is not configured -> connection self monitoring disabled");
             return false;
         }
 
-        boolean monitoringEnabled = StringUtils.contains(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), selfParty);
-        LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
+        List<String> monitorEnabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
+        boolean monitoringEnabled = monitorEnabledParties.stream()
+                .map(connectionMonitoringHelper::getDestinationParty)
+                .anyMatch(selfPartyIds::contains);
+        LOG.debug("Connection self-monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
-
 
     /**
      * Checks whether the monitoring is enabled for at least a party except self.
      */
     protected boolean isMonitoringEnabled() {
-        boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        if (CollectionUtils.isEmpty(selfPartyIds)) {
+            LOG.info("The self party is not configured -> connection monitoring disabled");
+            return false;
+        }
+
+        List<String> monitorEnabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
+        boolean monitoringEnabled = monitorEnabledParties.stream()
+                .map(connectionMonitoringHelper::getDestinationParty)
+                .anyMatch(destParty -> !selfPartyIds.contains(destParty));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
 
-    private void sendTestMessagesTo(BiFunction<List<String>, String, List<String>> getMonitoredPartiesFn) {
+    private void sendTestMessagesTo(BiFunction<List<String>, List<String>, List<String>> getMonitoredPartiesFn) {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
             return;
         }
 
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
+        List<String> selfPartyIds = partyService.getGatewayPartyIdentifiers();
+        if (CollectionUtils.isEmpty(selfPartyIds)) {
             LOG.info("The self party is not configured -> could not send test messages");
             return;
         }
 
-        List<String> monitoredParties = getMonitoredPartiesFn.apply(testableParties, selfParty);
+        List<String> monitoredParties = getMonitoredPartiesFn.apply(testableParties, selfPartyIds);
         if (CollectionUtils.isEmpty(monitoredParties)) {
             LOG.debug("There are no monitored parties to test");
             return;
         }
 
-        for (String party : monitoredParties) {
+        for (String partyPair : monitoredParties) {
+            String senderParty = connectionMonitoringHelper.getSourceParty(partyPair);
+            String receiverParty = connectionMonitoringHelper.getDestinationParty(partyPair);
             try {
-                String testMessageId = testService.submitTest(selfParty, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
+                String testMessageId = testService.submitTest(senderParty, receiverParty);
+                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
             } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+                LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
             }
         }
     }
 
-    protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, String selfParty) {
-        List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
-                .filter(partyId -> !StringUtils.equals(partyId, selfParty))
+    protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, List<String> selfPartyIds) {
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(ePair -> connectionMonitoringHelper.partiesAreTestable(testableParties, ePair))
+                .filter(ePair -> !selfPartyIds.contains(connectionMonitoringHelper.getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
     }
 
-    private List<String> getMyself(List<String> testableParties, String selfParty) {
-        List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> StringUtils.equals(partyId, selfParty))
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+    private List<String> getMyself(List<String> testableParties, List<String> selfPartyIds) {
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(ePair -> connectionMonitoringHelper.partiesAreTestable(testableParties, ePair))
+                .filter(ePair -> selfPartyIds.contains(connectionMonitoringHelper.getDestinationParty(ePair)))
                 .collect(Collectors.toList());
         return monitoredParties;
     }
 
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
-        ensureCorrectFormatForProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        ensureCorrectFormatForProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-        ensureCorrectFormatForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
             ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
@@ -212,18 +205,17 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         String partyPair = senderPartyId + SENDER_RECEIVER_SEPARATOR + partyId;
-
-        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> enabledParties = connectionMonitoringHelper.getMonitorEnabledParties();
         if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
-        List<String> alertableParties = getAlertableParties();
+        List<String> alertableParties = connectionMonitoringHelper.getAlertableParties();
         if (result.isTestable() && alertableParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setAlertable(true);
         }
 
-        List<String> deleteHistoryForParties = getDeleteHistoryForParties();
+        List<String> deleteHistoryForParties = connectionMonitoringHelper.getDeleteHistoryForParties();
         if (result.isTestable() && deleteHistoryForParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setDeleteHistory(true);
         }
@@ -246,54 +238,4 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return ConnectionMonitorRO.ConnectionStatus.UNKNOWN;
     }
 
-    private List<String> getMonitorEnabledParties() {
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-    }
-
-    private List<String> getAlertableParties() {
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-    }
-
-    private List<String> getDeleteHistoryForParties() {
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-    }
-
-    private void handleAllValueForCommaSeparatedProperties() {
-        List<String> testableParties = partyService.findPushToPartyNamesForTest();
-        String selfPartyId = partyService.getGatewayPartyIdentifier();
-        String testablePartiesStr = testableParties.stream()
-                .map(partyId -> selfPartyId + SENDER_RECEIVER_SEPARATOR + partyId)
-                .collect(Collectors.joining(LIST_ITEM_SEPARATOR));
-
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
-        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
-    }
-
-    private void handleAllValueForCommaSeparatedProperties(String propName, String propValue) {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propName), ALL_PARTIES)) {
-            domibusPropertyProvider.setProperty(propName, propValue);
-        }
-    }
-
-    private void ensureCorrectFormatForProperty(String propertyName) {
-        String selfPartyId = partyService.getGatewayPartyIdentifier();
-        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
-        String propValue = domibusPropertyProvider.getProperty(propertyName);
-        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
-        if (!StringUtils.equals(propValue, newValue)) {
-            domibusPropertyProvider.setProperty(propertyName, newValue);
-        }
-    }
-
-    protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
-        for (int i = 0; i < monitoredParties.size(); i++) {
-            String monitoredPartyPair = monitoredParties.get(i);
-            String[] pairVals = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
-            if (pairVals.length == 1) {
-                monitoredParties.set(i, selfPartyId + SENDER_RECEIVER_SEPARATOR + pairVals[0]);
-            }
-        }
-        return monitoredParties.stream().collect(Collectors.joining(LIST_ITEM_SEPARATOR));
-    }
 }

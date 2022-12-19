@@ -44,23 +44,26 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException {
-        final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
+    public void backupFileInLocation(File originalFile, String location) throws IOException {
+        final File backupFile = createBackupFileInLocation(originalFile, location);
         copyBackUpFile(originalFile, backupFile);
     }
 
     @Override
-    public void backupFileIfOlderThan(File originalFile, Integer periodInHours) throws IOException {
+    public void backupFileIfOlderThan(File originalFile, String subFolder, Integer periodInHours) throws IOException {
+        String location = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
+
         if (periodInHours == 0) {
             LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
-            backupFile(originalFile);
+            backupFileInLocation(originalFile, location);
             return;
         }
 
-        List<File> backups = getBackupFilesOf(originalFile);
+        File backupsFile = Paths.get(location, originalFile.getName()).toFile();
+        List<File> backups = getBackupFilesOf(backupsFile);
         if (CollectionUtils.isEmpty(backups)) {
             LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
-            backupFile(originalFile);
+            backupFileInLocation(originalFile, location);
             return;
         }
 
@@ -70,7 +73,7 @@ public class BackupServiceImpl implements BackupService {
             return;
         }
 
-        backupFile(originalFile);
+        backupFileInLocation(originalFile, location);
     }
 
     @Override
@@ -102,7 +105,12 @@ public class BackupServiceImpl implements BackupService {
     }
 
     private List<File> getBackupFilesOf(File originalFile) {
-        return Arrays.stream(originalFile.getParentFile().listFiles())
+        File[] files = originalFile.getParentFile().listFiles();
+        if (files == null) {
+            LOG.info("File [{}] does not exist.", originalFile.getParentFile());
+            return Collections.emptyList();
+        }
+        return Arrays.stream(files)
                 .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
                 .sorted(Comparator.comparing(File::lastModified).reversed())
                 .collect(Collectors.toList());
