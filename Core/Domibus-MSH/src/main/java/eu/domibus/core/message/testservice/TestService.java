@@ -336,8 +336,6 @@ public class TestService {
     }
 
     protected void deleteSentHistory(String toParty) {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-
         List<String> partyList = connectionMonitoringHelper.getDeleteHistoryForParties();
         if (partyList.stream().noneMatch(pair -> StringUtils.equals(connectionMonitoringHelper.getDestinationParty(pair), toParty))) {
             LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);

@@ -59,24 +59,15 @@ public class ConnectionMonitoringHelper {
     }
 
     public List<String> getMonitorEnabledParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), ALL_PARTIES)) {
-            return getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        return getAndCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
     public List<String> getAlertableParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES), ALL_PARTIES)) {
-            return getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
+        return getAndCleanEnabledProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
     public List<String> getDeleteHistoryForParties() {
-        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES), ALL_PARTIES)) {
-            return getTestableParties();
-        }
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        return getAndCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
     public List<String> getTestableParties() {
@@ -233,5 +224,13 @@ public class ConnectionMonitoringHelper {
             return StringUtils.EMPTY;
         }
         return pairValues[index];
+    }
+
+    private List<String> getAndCleanEnabledProperty(String propertyName) {
+        if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propertyName), ALL_PARTIES)) {
+            return getTestableParties();
+        }
+        ensureCorrectValueForProperty(propertyName);
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
     }
 }

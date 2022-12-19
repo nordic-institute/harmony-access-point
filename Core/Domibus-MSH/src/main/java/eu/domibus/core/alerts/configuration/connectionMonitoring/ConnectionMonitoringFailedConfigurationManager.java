@@ -53,7 +53,8 @@ public class ConnectionMonitoringFailedConfigurationManager extends FrequencyAle
     }
 
     private List<String> getEnabledParties() {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(domibusPropertiesPrefix + ".parties");
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(domibusPropertiesPrefix + ".parties");
+        String propertyName = domibusPropertiesPrefix + ".parties";
+        connectionMonitoringHelper.ensureCorrectValueForProperty(propertyName);
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
     }
 }

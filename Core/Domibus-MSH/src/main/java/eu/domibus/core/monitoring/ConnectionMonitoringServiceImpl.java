@@ -44,8 +44,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-
         if (!isMonitoringEnabled()) {
             LOG.debug("Connection monitoring for others is not enabled; exiting;");
             return;
@@ -56,8 +54,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessageToMyself() {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-
         if (!isSelfMonitoringEnabled()) {
             LOG.info("Self Connection monitoring is not enabled; exiting;");
             return;
@@ -68,8 +64,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void deleteReceivedTestMessageHistory() {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-
         if (!isDeleteHistoryEnabled()) {
             LOG.debug("Delete received test message history is not enabled; exiting.");
             return;
@@ -186,10 +180,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-        connectionMonitoringHelper.ensureCorrectValueForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
             ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
