@@ -59,15 +59,15 @@ public class ConnectionMonitoringHelper {
     }
 
     public List<String> getMonitorEnabledParties() {
-        return getAndCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        return getCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
     public List<String> getAlertableParties() {
-        return getAndCleanEnabledProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
+        return getCleanEnabledProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
     public List<String> getDeleteHistoryForParties() {
-        return getAndCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        return getCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
     public List<String> getTestableParties() {
@@ -226,7 +226,7 @@ public class ConnectionMonitoringHelper {
         return pairValues[index];
     }
 
-    private List<String> getAndCleanEnabledProperty(String propertyName) {
+    private List<String> getCleanEnabledProperty(String propertyName) {
         if (StringUtils.containsIgnoreCase(domibusPropertyProvider.getProperty(propertyName), ALL_PARTIES)) {
             return getTestableParties();
         }
