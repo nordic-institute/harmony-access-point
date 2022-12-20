@@ -1,12 +1,11 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -177,7 +176,7 @@ public class DomainServiceImpl implements DomainService {
 
         Domain domain = findByCode(domainCode, getDomains());
         if (domain == null) {
-            throw new DomibusDomainException(String.format("Domain [%s] is not enabled.", domainCode));
+            throw new DomibusDomainException(String.format("Could not find a valid database schema for the domain [%s].", domainCode));
         }
     }
 
