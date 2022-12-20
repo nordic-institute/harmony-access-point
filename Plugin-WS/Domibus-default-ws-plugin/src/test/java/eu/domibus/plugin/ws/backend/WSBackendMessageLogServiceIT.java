@@ -44,8 +44,8 @@ public class WSBackendMessageLogServiceIT extends AbstractBackendWSIT {
 
         em.refresh(entityFailed2022);
         em.refresh(entityFailed2021);
-        MatcherAssert.assertThat(entityFailed2022.getSendAttempts(), is(0));
-        MatcherAssert.assertThat(entityFailed2021.getSendAttempts(), is(0));
+        MatcherAssert.assertThat(entityFailed2022.getSendAttempts(), is(1));
+        MatcherAssert.assertThat(entityFailed2021.getSendAttempts(), is(1));
         MatcherAssert.assertThat(entityFailed2021.getMessageStatus().name(), is(WSBackendMessageStatus.WAITING_FOR_RETRY.name()));
         MatcherAssert.assertThat(entityFailed2022.getMessageStatus().name(), is(WSBackendMessageStatus.WAITING_FOR_RETRY.name()));
     }
