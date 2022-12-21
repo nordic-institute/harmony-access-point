@@ -2,6 +2,9 @@
 
   ## Domibus 5.1 (from 5.0.2)
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
+                 o [Mysql only]
+                    - Changed MySQL dialect property from MySQL5InnoDBDialect to MySQL8Dialect in the domibus.properties file:
+                            domibus.entityManagerFactory.jpaProperty.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
   ### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
