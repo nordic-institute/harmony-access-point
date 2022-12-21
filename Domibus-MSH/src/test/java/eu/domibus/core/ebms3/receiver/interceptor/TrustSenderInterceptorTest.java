@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -143,7 +144,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     }
 
     @Test
-    public void testGetCertificateFromBinarySecurityTokenX509v3(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
+    public void testGetCertificateFromBinarySecurityTokenX509v3(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, NoSuchProviderException, URISyntaxException {
         new Expectations() {{
             binarySecurityTokenReference.getUri();
             result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";
@@ -157,7 +158,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     }
 
     @Test
-    public void testGetCertificateFromBinarySecurityTokenX509PKIPathv1(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, URISyntaxException {
+    public void testGetCertificateFromBinarySecurityTokenX509PKIPathv1(@Mocked final BinarySecurityTokenReference binarySecurityTokenReference) throws XMLStreamException, ParserConfigurationException, WSSecurityException, CertificateException, NoSuchProviderException, URISyntaxException {
         new Expectations() {{
             binarySecurityTokenReference.getUri();
             result = "#X509-9973d6a2-7819-4de2-a3d2-1bbdb2506df8";

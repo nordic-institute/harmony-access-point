@@ -79,7 +79,7 @@ public class HttpUtilImplTest {
         }};
         String url = "http://onsitecrl.verisign.com/offlineca/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl";
         ByteArrayInputStream inputStream = httpUtil.downloadURL(url);
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "BC");
         X509CRL x509CRL = (X509CRL) cf.generateCRL(inputStream);
         System.out.println(x509CRL);
 
@@ -126,12 +126,12 @@ public class HttpUtilImplTest {
         }};
 
         ByteArrayInputStream inputStream = httpUtil.downloadURL(url);
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "BC");
         X509CRL x509CRL = (X509CRL) cf.generateCRL(inputStream);
         LOG.info(x509CRL.toString());
 
         ByteArrayInputStream inputStreamSSL = httpUtil.downloadURL(urlSSL);
-        CertificateFactory cfSSL = CertificateFactory.getInstance("X.509");
+        CertificateFactory cfSSL = CertificateFactory.getInstance("X.509", "BC");
         X509CRL x509CRLSSL = (X509CRL) cfSSL.generateCRL(inputStreamSSL);
         LOG.info(x509CRLSSL.toString());
 

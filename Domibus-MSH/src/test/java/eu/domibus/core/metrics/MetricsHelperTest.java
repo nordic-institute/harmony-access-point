@@ -24,9 +24,6 @@ public class MetricsHelperTest {
     @Injectable
     private AuthUtils authUtils;
 
-    @Injectable
-    private JmsQueueCountSetScheduler jmsQueueCountSetScheduler;
-
     @Tested
     MetricsHelper metricsHelper;
 
