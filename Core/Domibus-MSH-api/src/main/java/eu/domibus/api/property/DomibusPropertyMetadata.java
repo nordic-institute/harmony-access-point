@@ -361,6 +361,8 @@ public class DomibusPropertyMetadata {
      * More types can be added later without any breaking changes
      */
     public enum Type {
+        POSITIVE_INTEGER("^[0-9]+$"),
+        POSITIVE_NUMERIC("^[0-9]+.[0-9]{1,2}$"),
         NUMERIC("^-?[0-9]+(\\.[0-9]{1,2})?$"),
         BOOLEAN("^(true|false)$"),
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
