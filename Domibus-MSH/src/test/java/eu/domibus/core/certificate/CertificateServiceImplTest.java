@@ -46,10 +46,7 @@ import org.mockito.internal.matchers.GreaterThan;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -196,10 +193,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testCertificateChain() throws CertificateException {
+    public void testCertificateChain() throws CertificateException, NoSuchProviderException {
 
         InputStream in = new ByteArrayInputStream(TEST_CERTIFICATE_CONTENT_PEM.getBytes());
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
         final java.security.cert.Certificate certificate = certFactory.generateCertificate(in);
         System.out.println(certificate);
 
@@ -723,7 +720,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void testConvertCertificateContent() {
-        String subject = "OU=DEV, O=DIGIT, EMAILADDRESS=uumds@uumds.eu, C=BE, ST=Belgium, CN=UUMDS tests client certificate VALID";
+        String subject = "CN=UUMDS tests client certificate VALID,ST=Belgium,C=BE,E=uumds@uumds.eu,O=DIGIT,OU=DEV";
         String fingerprint = "6bdfa1594a8b6ce48fe44ff6bb1989af7f3abd26c635ca304e8ee9036dfb36d7";
 
         TrustStoreEntry entry = this.certificateService.convertCertificateContent(TEST_CERTIFICATE_CONTENT_PEM);

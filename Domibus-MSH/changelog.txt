@@ -66,6 +66,11 @@ of the following values point to the same instant - the 21st of July 2021, 12:27
     - added specific domain property file e.g domain1-fs-plugin.properties
     - a domain could be disabled - by setting a property e.g. domain1.fsplugin.domain.enabled (default to true) in the specific domain domain1-fs-plugin.properties file
 - Removed UI replication mechanism
+Domibus 4.2.12
+- Added a timer in order to load drop wizard queue metrics after application initialization.
+- Default value of domibus.metrics.monitor.jms.queues.refresh.period changed to 10
+- Fixed CRL loading issue for large CRLs
+- Fixed proxy timeout issue for failed proxy authentication (401 & 407 error codes)
 Domibus 4.2.11
 - Added a new property domibus.jms.internal.address.expression - to ignore internal JMS addresses in Wildfly when building the address mappings
 - Disable business, security and statistics logging in the default logback configuration

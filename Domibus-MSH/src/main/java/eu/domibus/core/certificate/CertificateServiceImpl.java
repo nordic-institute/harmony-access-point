@@ -240,8 +240,8 @@ public class CertificateServiceImpl implements CertificateService {
         CertificateFactory certFactory;
         X509Certificate cert;
         try {
-            certFactory = CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
+            certFactory = CertificateFactory.getInstance("X.509", "BC");
+        } catch (CertificateException | NoSuchProviderException e) {
             throw new DomibusCertificateException("Could not initialize certificate factory", e);
         }
 
@@ -318,10 +318,10 @@ public class CertificateServiceImpl implements CertificateService {
             CertificateFactory cf;
             PemObject pemObject;
             if(provider == null) {
-                LOG.debug("Loading Certificate factory with default provider");
-                cf = CertificateFactory.getInstance("X509");
+                LOG.debug("Loading Certificate factory with BC provider");
+                cf = CertificateFactory.getInstance("X509", "BC");
             } else {
-                LOG.debug("Loading Certificate factory with provider:[{}]",provider);
+                LOG.debug("Loading Certificate factory with provider:[{}]", provider);
                 cf = CertificateFactory.getInstance("X509", provider);
             }
             while ((pemObject = reader.readPemObject()) != null) {

@@ -1,7 +1,5 @@
 package eu.domibus.core.proxy;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -77,11 +75,11 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
         try {
             httpProxyPort = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROXY_HTTP_PORT);
         } catch (NumberFormatException e) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy port is invalid.");
+            throw new DomibusProxyException("Proxy port is invalid.");
         }
         if (StringUtils.isEmpty(httpProxyHost) || httpProxyPort == 0) {
             LOG.error("Proxy is enabled but the configuration is invalid: host = [{}] port = [{}]", httpProxyHost, httpProxyPort);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy is enabled but the configuration is invalid.");
+            throw new DomibusProxyException("Proxy is enabled but the configuration is invalid.");
         }
         domibusProxy.setHttpProxyHost(httpProxyHost);
         domibusProxy.setHttpProxyPort(httpProxyPort);
@@ -90,7 +88,7 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
         String httpProxyPassword = domibusPropertyProvider.getProperty(DOMIBUS_PROXY_PASSWORD);
         if(!StringUtils.isEmpty(httpProxyUser) && StringUtils.isEmpty(httpProxyPassword)) {
             LOG.error("Proxy user is provided with no password [{}]", httpProxyUser);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_006, "Proxy user is provided with no password.");
+            throw new DomibusProxyException("Proxy user is provided with no password.");
         }
         domibusProxy.setHttpProxyUser(httpProxyUser);
         domibusProxy.setHttpProxyPassword(httpProxyPassword);
