@@ -14,6 +14,7 @@ Domibus 5.1
 - Files can be sent to WS Plugin as references to the filesystem
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Added Security Profiles in order to support different security certificates for signing and encryption
+- Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors
