@@ -126,6 +126,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
         Assert.assertTrue(newEntries.size() == 2);
+
     }
 
 
