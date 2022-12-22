@@ -96,6 +96,32 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
+    public void replaceKeyStoreWithDifferentType() throws IOException {
+        createKeyStore();
+        createTrustStore();
+
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
+        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
+
+        List<TrustStoreRO> entries = truststoreResource.trustStoreEntries();
+
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.p12")) {
+            MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.p12", "gateway_truststore.p12",
+                    "octetstream", IOUtils.toByteArray(resourceAsStream));
+
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+
+            List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
+
+            Assert.assertTrue(entries.size() == newEntries.size());
+
+            Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
+            Files.delete(Paths.get(back));
+        }
+    }
+
+    @Test
     @Ignore
     public void isChangedOnDisk() throws IOException {
         createTrustStore();
