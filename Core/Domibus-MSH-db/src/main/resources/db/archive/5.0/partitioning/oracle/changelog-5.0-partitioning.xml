@@ -64,15 +64,31 @@
         </sql>
 
         <sql>
-            ALTER TABLE TB_SEND_ATTEMPT MODIFY PARTITION BY REFERENCE ( FK_SEND_ATTEMPT_USER_MSG );
+            ALTER TABLE TB_SEND_ATTEMPT
+                MODIFY PARTITION BY REFERENCE ( FK_SEND_ATTEMPT_USER_MSG );
         </sql>
 
         <sql>
-            ALTER TABLE TB_ERROR_LOG MODIFY PARTITION BY REFERENCE ( FK_ERROR_LOG_MSG_ID ) UPDATE INDEXES ( IDX_ERROR_LOG_MSH_ROLE_ID LOCAL, IDX_MESSAGE_IN_ERROR_ID LOCAL, IDX_SIGNAL_MESSAGE_ID LOCAL );
+            ALTER TABLE TB_ERROR_LOG
+                MODIFY PARTITION BY REFERENCE ( FK_ERROR_LOG_MSG_ID ) UPDATE INDEXES ( IDX_ERROR_LOG_MSH_ROLE_ID LOCAL, IDX_MESSAGE_IN_ERROR_ID LOCAL, IDX_SIGNAL_MESSAGE_ID LOCAL );
         </sql>
 
-        <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql" endDelimiter="\n/"/>
-        <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql" endDelimiter="\n/"/>
+        <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
+                 endDelimiter="\n/"/>
+        <!--        create partitions for the first 7 days-->
+        <sql>
+            BEGIN
+                PARTITIONSGEN(0);
+                PARTITIONSGEN(1);
+                PARTITIONSGEN(2);
+                PARTITIONSGEN(3);
+                PARTITIONSGEN(4);
+                PARTITIONSGEN(5);
+                PARTITIONSGEN(6);
+            END;
+        </sql>
+        <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql"
+                 endDelimiter="\n/"/>
 
     </changeSet>
 
