@@ -1,5 +1,6 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.pki.DomibusCertificateException;
 import junit.framework.TestCase;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -47,7 +48,7 @@ public class CertificateHelperTest extends TestCase {
         try {
             certificateHelper.validateStoreType(JKS, "test_filename_wrong_extension.p12");
             Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
+        } catch (DomibusCertificateException e) {
             assertEquals(true, e.getMessage().contains(JKS));
         }
     }
@@ -57,7 +58,7 @@ public class CertificateHelperTest extends TestCase {
         try {
             certificateHelper.validateStoreType(JKS, "test_filename_no_extension");
             Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
+        } catch (DomibusCertificateException e) {
             assertEquals(true, e.getMessage().contains(JKS));
         }
     }
@@ -67,7 +68,7 @@ public class CertificateHelperTest extends TestCase {
         try {
             certificateHelper.validateStoreType("pkcs12", "test_filename_unknown_extension.txt");
             Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
+        } catch (DomibusCertificateException e) {
             assertEquals(true, e.getMessage().contains("pkcs12"));
         }
     }
