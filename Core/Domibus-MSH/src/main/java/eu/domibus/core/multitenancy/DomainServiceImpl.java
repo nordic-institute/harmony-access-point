@@ -178,7 +178,7 @@ public class DomainServiceImpl implements DomainService {
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
         return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode))
-                .findAny().orElseThrow(() -> new DomibusDomainException(String.format("Could not find a valid domain for the domain code [%s]. Please check the configuration of this domain.", domainCode)));
+                .findAny().orElseThrow(() -> new DomibusDomainException(String.format("Domain [%s] is not in the list of valid domains. Please check the domain configuration and database schema.", domainCode)));
     }
 
     private void clearCaches(Domain domain) {
