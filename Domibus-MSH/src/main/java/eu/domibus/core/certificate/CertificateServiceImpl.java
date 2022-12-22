@@ -469,7 +469,7 @@ public class CertificateServiceImpl implements CertificateService {
                 } catch (CryptoException ex) {
                     try {
                         store.load(oldTrustStoreBytes.toInputStream(), oldPassword);
-                        LOG.info("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getTrustStoreEntries(storeName));
+                        LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getTrustStoreEntries(storeName));
                     } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
                         throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
                     }
