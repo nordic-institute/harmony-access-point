@@ -800,6 +800,8 @@ public class CertificateServiceImpl implements CertificateService {
             }
 
             String filePath = filePathHolder.get();
+            certificateHelper.validateStoreType(typeSupplier.get(), filePath);
+
             File storeFile = createFileWithLocation(filePath);
             TruststoreEntity persisted = truststoreDao.findByNameSafely(storeName);
             if (persisted != null && persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
