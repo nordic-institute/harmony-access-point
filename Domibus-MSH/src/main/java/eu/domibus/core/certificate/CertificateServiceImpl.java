@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -28,7 +29,6 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -317,7 +317,7 @@ public class CertificateServiceImpl implements CertificateService {
         try (PemReader reader = new PemReader(new StringReader(chain))) {
             CertificateFactory cf;
             PemObject pemObject;
-            if(provider == null) {
+            if (provider == null) {
                 LOG.debug("Loading Certificate factory with BC provider");
                 cf = CertificateFactory.getInstance("X509", "BC");
             } else {
@@ -403,7 +403,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
         String storeType = certificateHelper.getStoreType(fileName);
-       return replaceStore(fileContent, filePassword, storeType, trustName);
+        return replaceStore(fileContent, filePassword, storeType, trustName);
     }
 
     @Override
@@ -454,49 +454,53 @@ public class CertificateServiceImpl implements CertificateService {
         return coreMapper.truststoreEntityToTruststoreInfo(entity);
     }
 
-    protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String trustName) throws CryptoException {
-        LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
+    protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String storeName) throws CryptoException {
+        LOG.debug("Replacing the current store [{}] with the provided file content.", storeName);
 
-        TruststoreEntity entity = getTruststoreEntitySafely(trustName);
+        TruststoreEntity entity = getTruststoreEntitySafely(storeName);
         if (entity != null) {
-            KeyStore truststore = loadTrustStore(entity.getContent(), entity.getPassword(), entity.getType());
+            KeyStore store = loadTrustStore(entity.getContent(), entity.getPassword(), entity.getType());
+            LOG.debug("Store [{}] with entries [{}] found and will be replaced.", storeName, getTrustStoreEntries(store));
             try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
-                truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
-
-                return doReplace(fileContent, filePassword, storeType, trustName, truststore, entity.getPassword(), oldTrustStoreBytes);
-            } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
-                throw new CryptoException("Could not replace truststore " + trustName, exc);
+                char[] oldPassword = entity.getPassword().toCharArray();
+                store.store(oldTrustStoreBytes, oldPassword);
+                try {
+                    return doReplace(fileContent, filePassword, storeType, storeName);
+                } catch (CryptoException ex) {
+                    try {
+                        store.load(oldTrustStoreBytes.toInputStream(), oldPassword);
+                        LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getTrustStoreEntries(storeName));
+                    } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                        throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
+                    }
+                    throw new CryptoException("Could not replace store " + storeName, ex);
+                }
+            } catch (IOException | CertificateException | ZoneRulesException | KeyStoreException | NoSuchAlgorithmException exc) {
+                throw new CryptoException("Could not replace store " + storeName, exc);
             }
-        } else {
-            try {
-                KeyStore truststore = KeyStore.getInstance(storeType);
+        }
 
-                return doReplace(fileContent, filePassword, storeType, trustName, truststore, null, null);
-            } catch (KeyStoreException exc) {
-                throw new CryptoException("Could not create a store named " + trustName, exc);
-            }
+        LOG.debug("Store [{}] is not found so it will be set", storeName);
+        try {
+            return doReplace(fileContent, filePassword, storeType, storeName);
+        } catch (CryptoException ex) {
+            throw new CryptoException("Could not replace store " + storeName, ex);
         }
     }
 
-    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String trustName, KeyStore truststore,
-                           String oldPassword, ByteArrayOutputStream oldTrustStoreBytes) {
+    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String storeName) {
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
-            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
 
-            Long entityId = persistTrustStore(truststore, filePassword, storeType, trustName);
-            LOG.debug("Truststore successfully persisted with id [{}]", entityId);
+            KeyStore store = KeyStore.getInstance(storeType);
+            store.load(newTrustStoreBytes, filePassword.toCharArray());
+
+            Long entityId = persistTrustStore(store, filePassword, storeType, storeName);
+            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getTrustStoreEntries(store));
+
             return entityId;
-        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-            if (oldTrustStoreBytes != null) {
-                try {
-                    truststore.load(oldTrustStoreBytes.toInputStream(), oldPassword.toCharArray());
-                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-                }
-            }
-            throw new CryptoException("Could not persist the truststore named " + trustName, e);
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+            throw new CryptoException("Could not persist the truststore named " + storeName, e);
         }
     }
 
@@ -545,7 +549,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
      */
     protected Long doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
@@ -565,8 +568,8 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
         return null;
     }
+
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
      */
     protected Long doRemoveCertificates(String trustName, List<String> aliases) {
@@ -675,7 +678,6 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     /**
-     *
      * @return EntityId of the {@link TruststoreEntity}
      */
     // used for add/remove certificates ( the persisted store is the same as the one modified)
@@ -755,13 +757,14 @@ public class CertificateServiceImpl implements CertificateService {
 
     /**
      * Method returns backup name for the truststore.
+     *
      * @param name - the initial name
      * @return returns the backup name with timestamp
      */
-    protected String generateBackupName(String name){
+    protected String generateBackupName(String name) {
         return name + ".backup."
                 + LocalDateTime.now().format(BACKUP_SUFFIX_DATETIME_FORMATTER)
-                + "-" + (int)(Math.random() * 1000);
+                + "-" + (int) (Math.random() * 1000);
     }
 
     @Override

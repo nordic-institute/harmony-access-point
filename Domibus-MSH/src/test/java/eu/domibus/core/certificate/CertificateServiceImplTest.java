@@ -748,7 +748,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_KeyStoreException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
                                                                                          @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not replace truststore");
+        thrown.expectMessage("Could not replace store");
 
         new Expectations(certificateService) {{
             certificateService.loadTrustStore((byte[]) any, anyString, anyString);
@@ -889,7 +889,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
                                                                                             @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not replace truststore");
+        thrown.expectMessage("Could not replace store");
 
         new Expectations(certificateService) {{
             certificateService.loadTrustStore((byte[]) any, anyString, anyString);
@@ -920,7 +920,7 @@ public class CertificateServiceImplTest {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
-        thrown.expectCause(Is.isA(IOException.class));
+        thrown.expectCause(Is.isA(CryptoException.class));
 
         new Expectations(certificateService) {{
             certificateService.loadTrustStore((byte[]) any, anyString, anyString);
@@ -931,7 +931,7 @@ public class CertificateServiceImplTest {
             result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
-            certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
+            certificateService.validateLoadOperation((ByteArrayInputStream)any, anyString, anyString);
             trustStore.load(newTrustStoreBytes, (char[]) any);
             result = new IOException("originalMessage");
         }};
@@ -947,7 +947,7 @@ public class CertificateServiceImplTest {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
-        thrown.expectCause(Is.isA(NoSuchAlgorithmException.class));
+        thrown.expectCause(Is.isA(CryptoException.class));
 
         new Expectations(certificateService) {{
             certificateService.loadTrustStore((byte[]) any, anyString, anyString);
@@ -975,19 +975,19 @@ public class CertificateServiceImplTest {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("[DOM_001]:Could not persist the truststore named domibus.truststore");
+        thrown.expectMessage("Could not replace store and old store was not reverted properly");
 
         new Expectations(certificateService) {{
             certificateService.loadTrustStore((byte[]) any, anyString, anyString);
             result = trustStore;
-            certificateService.getTruststoreEntity(anyString);
+            certificateService.getTruststoreEntitySafely(anyString);
             result = entity;
             entity.getPassword();
             result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
-            trustStore.load(newTrustStoreBytes, (char[]) any);
+            trustStore.load((ByteArrayInputStream)any, (char[]) any);
             result = new CertificateException("originalMessage");
         }};
 

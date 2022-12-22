@@ -161,7 +161,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileLocation);
+        certificateHelper.validateStoreFileName(storeFileLocation);
+
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
 
@@ -263,7 +264,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileNameOrLocation);
+        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         if (storeContent != null) {
