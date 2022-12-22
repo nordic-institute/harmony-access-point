@@ -173,15 +173,12 @@ public class DomainServiceImpl implements DomainService {
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomibusDomainException("Domain is empty.");
         }
-
-        Domain domain = findByCode(domainCode, getDomains());
-        if (domain == null) {
-            throw new DomibusDomainException(String.format("Could not find a valid database schema for the domain [%s].", domainCode));
-        }
+        findByCode(domainCode, getDomains());
     }
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
-        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
+        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode))
+                .findAny().orElseThrow(() -> new DomibusDomainException(String.format("Could not find a valid domain for the domain code [%s]. Please check the configuration of this domain.", domainCode)));
     }
 
     private void clearCaches(Domain domain) {
