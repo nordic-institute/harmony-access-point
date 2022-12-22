@@ -488,19 +488,19 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String trustName) {
+    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String storeName) {
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
 
-            KeyStore truststore = KeyStore.getInstance(storeType);
-            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
+            KeyStore store = KeyStore.getInstance(storeType);
+            store.load(newTrustStoreBytes, filePassword.toCharArray());
 
-            Long entityId = persistTrustStore(truststore, filePassword, storeType, trustName);
-            LOG.debug("Truststore successfully persisted with id [{}]", entityId);
+            Long entityId = persistTrustStore(store, filePassword, storeType, storeName);
+            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getTrustStoreEntries(store));
+
             return entityId;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-            throw new CryptoException("Could not persist the truststore named " + trustName, e);
+            throw new CryptoException("Could not persist the truststore named " + storeName, e);
         }
     }
 
