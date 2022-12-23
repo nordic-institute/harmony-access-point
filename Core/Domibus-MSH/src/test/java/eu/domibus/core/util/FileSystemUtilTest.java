@@ -36,7 +36,7 @@ public class FileSystemUtilTest {
 
     @Test
     public void createLocationWithInvalidPath_returnTempFile() {
-        final String location = "C:\\temp\\domibus\\earchive";
+        final String location = "C:\tempdomibusearchive";
         Path path = fileSystemUtil.createLocation(location);
         Assert.assertNotNull(path);
         assertTrue(Files.exists(path));
