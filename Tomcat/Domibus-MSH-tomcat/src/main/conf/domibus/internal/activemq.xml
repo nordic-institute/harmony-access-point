@@ -13,7 +13,7 @@
 
     <broker useJmx="true" brokerName="${activeMQ.brokerName}"  persistent="${activeMQ.persistent}" schedulerSupport="true" dataDirectory="${domibus.work.location:${domibus.config.location}}/work/activemq_data" tmpDataDirectory="${domibus.work.location:${domibus.config.location}}/temp">
         <managementContext>
-            <managementContext createConnector="false" connectorPort="${activeMQ.connectorPort}"/>
+            <managementContext createConnector="true" connectorPort="${activeMQ.connectorPort}"/>
         </managementContext>
         <transportConnectors>
             <transportConnector uri="${activeMQ.transportConnector.uri}" disableAsyncDispatch="true"/>
