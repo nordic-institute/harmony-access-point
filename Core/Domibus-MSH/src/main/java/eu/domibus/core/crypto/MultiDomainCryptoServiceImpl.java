@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
@@ -9,7 +10,6 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -271,7 +271,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     private void doReplaceKeyStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileNameOrLocation);
+        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         if (storeContent != null) {
@@ -284,7 +284,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileNameOrLocation);
+        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         if (storeContent != null) {

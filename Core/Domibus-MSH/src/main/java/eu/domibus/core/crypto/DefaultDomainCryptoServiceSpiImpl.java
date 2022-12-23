@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
@@ -70,19 +71,21 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    private final CertificateHelper certificateHelper;
 
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
-                                             SecurityUtilImpl securityUtil) {
+                                             SecurityUtilImpl securityUtil, CertificateHelper certificateHelper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
+        this.certificateHelper = certificateHelper;
     }
 
     public void init() {
@@ -335,6 +338,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetKeyStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), location);
+
         LOG.info("Replacing the keystore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceKeyStore(location, password);
     }
@@ -343,6 +348,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), location);
+
         LOG.info("Replacing the truststore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceTrustStore(location, password);
     }
