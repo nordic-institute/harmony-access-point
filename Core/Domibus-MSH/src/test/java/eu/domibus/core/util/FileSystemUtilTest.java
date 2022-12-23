@@ -27,7 +27,7 @@ public class FileSystemUtilTest {
     }
 
     @Test
-    public void createLocationWithAbsolutePath() throws FileSystemException {
+    public void createLocationWithAbsolutePath() {
         final String location = System.getProperty("java.io.tmpdir");
         Path path = fileSystemUtil.createLocation(location);
         Assert.assertNotNull(path);
@@ -36,10 +36,9 @@ public class FileSystemUtilTest {
 
     @Test
     public void createLocationWithInvalidPath_returnTempFile() {
-        final String location = "C:\tempdomibusearchive";
+        final String location = "domibus:path";
         Path path = fileSystemUtil.createLocation(location);
         Assert.assertNotNull(path);
         assertTrue(Files.exists(path));
     }
-
 }
