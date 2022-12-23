@@ -40,7 +40,7 @@ public class OpenApiConfig {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(OpenApiConfig.class);
 
     public static final String OPEN_API_DOCS_URL = "/v3/api-docs";
-    public static final String DOMIBUS_PROPERTIES = "domibus.properties";
+    public static final String DOMIBUS_PROPERTIES = "domibus-swagger.properties";
 
     /**
      * Open api document configuration. For setting up OpenAPI info modify method below,
