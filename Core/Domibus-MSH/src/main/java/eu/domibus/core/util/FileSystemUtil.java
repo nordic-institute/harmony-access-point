@@ -1,7 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,7 @@ public class FileSystemUtil {
         try {
             payloadPath = Paths.get(path).normalize();
             if (!payloadPath.isAbsolute()) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Relative path [" + payloadPath + "] is forbidden. Please provide absolute path for payload storage");
+                throw new IOException("Relative path [" + payloadPath + "] is forbidden. Please provide absolute path for payload storage");
             }
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
