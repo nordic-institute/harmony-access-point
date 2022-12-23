@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
@@ -29,14 +30,6 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  */
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
-
-    public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
-
-    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-
-    public static final String TRUST_STORE_TYPE = "trustStoreType";
-
-    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
 
     @Tested
     private DefaultDomainCryptoServiceSpiImpl domainCryptoService;
@@ -67,6 +60,9 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    CertificateHelper certificateHelper;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
