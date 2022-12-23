@@ -135,7 +135,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         tlsTruststoreResource.downloadTLSTrustStore();
     }
 
-    @Test(expected = DomibusCertificateException.class)
+    @Test(expected = ConfigurationException.class)
     public void addTLSCertificate() {
         byte[] content = {1, 0, 1};
         String filename = "file";
