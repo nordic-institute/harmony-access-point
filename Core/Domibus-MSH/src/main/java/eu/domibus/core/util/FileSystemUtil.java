@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -44,7 +45,7 @@ public class FileSystemUtil {
                     throw new IOException("Write permission for payload folder " + payloadPath.toAbsolutePath() + " is not granted.");
                 }
             }
-        } catch (IOException ioEx) {
+        } catch (InvalidPathException | IOException ioEx) {
             LOG.error("Error creating/accessing the payload folder [{}]", path, ioEx);
 
             // Takes temporary folder by default if it faces any issue while creating defined path.
