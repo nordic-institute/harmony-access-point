@@ -338,4 +338,151 @@
         <cve>CVE-2022-41854</cve>
         <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-collections-3.2.jar
+   ]]></notes>
+        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
+        <!-- MEDIUM vulnerability, Domibus does not use the Net's FTP client -->
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-core-3.4.6.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-46363</vulnerabilityName>
+        <cve>CVE-2022-46364</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: woodstox-core-6.2.6.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.woodstox/woodstox\-core@.*$</packageUrl>
+        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
+        <vulnerabilityName>CVE-2022-40152</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-beanutils-1.9.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-beanutils/commons\-beanutils@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <!-- CVE-2021-37533 MEDIUM vulnerability, Domibus does not use the Net's FTP client -->
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-codec-1.13.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-codec/commons\-codec@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-configuration-1.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-configuration/commons\-configuration@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-fileupload-1.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-fileupload/commons\-fileupload@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-io-2.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-lang-2.6.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-lang/commons\-lang@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-lang3-3.9.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-lang3@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-logging-1.1.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-logging-1.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-net-3.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-net/commons\-net@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-pool2-2.9.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-pool2@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-text-1.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-text@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-vfs2-2.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-vfs2@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-.*.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-.*@.*$</packageUrl>
+        <!-- In Domibus, CXFServlet is not configured with any of the static-resources-list and redirect-query-check attributes -->
+        <cve>CVE-2022-46363</cve>
+        <!-- In Domibus the  XOP:Include in MTOM requests do not use the href parameter -->
+        <cve>CVE-2022-46364</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jcl-over-slf4j-1.7.28.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.slf4j/jcl\-over\-slf4j@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xml-resolver-1.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xml\-resolver/xml\-resolver@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xmlschema-core-2.2.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.ws\.xmlschema/xmlschema\-core@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
 </suppressions>
