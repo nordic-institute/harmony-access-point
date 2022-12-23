@@ -471,12 +471,7 @@ public class CertificateServiceImpl implements CertificateService {
                 try {
                     return doReplace(fileContent, filePassword, storeType, storeName);
                 } catch (CryptoException ex) {
-                    try {
-                        store.load(oldStoreContent.toInputStream(), oldPassword);
-                        LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getStoreEntries(storeName));
-                    } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                        throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
-                    }
+                    restoreOriginalStore(storeName, store, oldStoreContent, oldPassword);
                     throw new CryptoException("Could not replace store " + storeName, ex);
                 }
             } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
@@ -485,11 +480,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         LOG.debug("Store [{}] is not found so it will be set", storeName);
-        try {
-            return doReplace(fileContent, filePassword, storeType, storeName);
-        } catch (CryptoException ex) {
-            throw new CryptoException("Could not replace store " + storeName, ex);
-        }
+        return doReplace(fileContent, filePassword, storeType, storeName);
     }
 
     private Long doReplace(byte[] fileContent, String filePassword, String storeType, String storeName) {
@@ -506,6 +497,15 @@ public class CertificateServiceImpl implements CertificateService {
             return entityId;
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
             throw new CryptoException("Could not replace the store named " + storeName, e);
+        }
+    }
+
+    private void restoreOriginalStore(String storeName, KeyStore store, ByteArrayOutputStream oldStoreContent, char[] oldPassword) {
+        try(InputStream stream = oldStoreContent.toInputStream()) {
+            store.load(stream, oldPassword);
+            LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getStoreEntries(storeName));
+        } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+            throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
         }
     }
 
