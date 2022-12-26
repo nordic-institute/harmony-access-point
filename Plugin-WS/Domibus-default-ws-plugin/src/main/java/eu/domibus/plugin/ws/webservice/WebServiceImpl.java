@@ -622,6 +622,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         String messageId = messageErrorsRequest.getMessageID();
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (MessagingException e) {
             throw new GetMessageErrorsFault("Duplicate message found with Id" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {

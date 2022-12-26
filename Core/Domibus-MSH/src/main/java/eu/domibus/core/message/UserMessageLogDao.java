@@ -250,7 +250,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         try {
-            return query.getSingleResult();
+            return DataAccessUtils.singleResult(query.getResultList());
         } catch (NoResultException nrEx) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;
