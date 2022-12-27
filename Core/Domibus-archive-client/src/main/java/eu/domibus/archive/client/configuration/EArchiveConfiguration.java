@@ -62,6 +62,7 @@ public class EArchiveConfiguration {
         this.domainContextProvider = domainContextProvider;
     }
 
+    // EDELIVERY-10563 to tro to get rid ofprimary annotation
     @Bean(EARCHIVING_CLIENT_BEAN)
     @Scope(SCOPE_PROTOTYPE)
     @Primary
@@ -89,6 +90,7 @@ public class EArchiveConfiguration {
         return eArchivingClientApi;
     }
 
+    // EDELIVERY-10563 to tro to remove the bean annotation altogether
     @Bean(EARCHIVING_REST_TEMPLATE_BEAN)
     @Scope(SCOPE_PROTOTYPE)
     public RestTemplate restTemplate() {
