@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.ext.services.*;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
@@ -12,10 +14,11 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -34,27 +37,15 @@ import java.util.Properties;
 @Configuration
 public class OpenApiConfig {
 
-    public static final String OPEN_API_DOCS_URL = "/v3/api-docs";
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(OpenApiConfig.class);
 
-    /**
-     * Configuration of the OPEN API document
-     *
-     * @return spring property configurer
-     */
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        // update keystore
-        PropertySourcesPlaceholderConfigurer propertiesConfig = new PropertySourcesPlaceholderConfigurer();
-        Properties localProps = new Properties();
-        localProps.setProperty("springdoc.packagesToScan", "eu.domibus.ext.rest");
-        localProps.setProperty("springdoc.api-docs.path", OPEN_API_DOCS_URL);
-        return propertiesConfig;
-    }
+    public static final String OPEN_API_DOCS_URL = "/v3/api-docs";
+    public static final String DOMIBUS_PROPERTIES = "domibus-swagger.properties";
 
     /**
      * Open api document configuration. For setting up OpenAPI info modify method below,
      *
-     * @return
+     * @return OpenApi
      */
     @Bean
     public OpenAPI customOpenAPI() {
@@ -62,15 +53,28 @@ public class OpenApiConfig {
         Server serverDemo = new Server();
         serverDemo.setUrl("/domibus");
         serverDemo.description("Domibus services");
-        Server serverLocalhost = new Server();
+        Properties properties = getProperties();
         return new OpenAPI()
-                .info(new Info().title("Domibus API API")
-                        .description("Domibus REST API documentation")
-                        .version("v1.0")
+                .info(new Info().title("Domibus API")
+                        .description(properties.getProperty("name"))
+                        .version(properties.getProperty("version"))
                         .license(new License().name("EUPL 1.2")
                                 .url("https://www.eupl.eu/")
                         ))
-                .servers(Arrays.asList(serverDemo));
+                .servers(Collections.singletonList(serverDemo));
+    }
+
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(DOMIBUS_PROPERTIES)){
+            if (is == null) {
+                LOG.warn("[{}] not found", DOMIBUS_PROPERTIES);
+            }
+            properties.load(is);
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not find the properties in file "+ DOMIBUS_PROPERTIES, e);
+        }
+        return properties;
     }
 
     /**

@@ -94,24 +94,13 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        List<UserMessage> results = query.getResultList();
-        if (CollectionUtils.isEmpty(results)) {
+        UserMessage result = DataAccessUtils.singleResult(query.getResultList());
+        if (result == null) {
             LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
             return null;
         }
-        UserMessage result;
-        if (results.size() == 1) {
-            result = results.get(0);
-        } else {
-            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
-            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
-                    .orElse(results.get(0));
-        }
 
-        if (result != null) {
-            initializeChildren(result);
-        }
-        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
+        initializeChildren(result);
         return result;
     }
 

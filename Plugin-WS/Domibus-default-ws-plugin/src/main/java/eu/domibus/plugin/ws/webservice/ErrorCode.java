@@ -14,7 +14,8 @@ public enum ErrorCode {
     WS_PLUGIN_0006("WS_PLUGIN:0006", "Proxy related exception."),
     WS_PLUGIN_0007("WS_PLUGIN:0007", "Invalid message exception"),
     WS_PLUGIN_0008("WS_PLUGIN:0008", "Convert exception"),
-    WS_PLUGIN_0009("WS_PLUGIN:0009", "No message with id [%s] found");
+    WS_PLUGIN_0009("WS_PLUGIN:0009", "No message with id [%s] found"),
+    WS_PLUGIN_00010("WS_PLUGIN:00010", "Duplicate message found with same message Id [%s]");
 
     String code;
     String message;

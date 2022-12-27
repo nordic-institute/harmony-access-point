@@ -1,12 +1,11 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -174,15 +173,12 @@ public class DomainServiceImpl implements DomainService {
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomibusDomainException("Domain is empty.");
         }
-
-        Domain domain = findByCode(domainCode, getDomains());
-        if (domain == null) {
-            throw new DomibusDomainException(String.format("Domain [%s] is not enabled.", domainCode));
-        }
+        findByCode(domainCode, getDomains());
     }
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
-        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
+        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode))
+                .findAny().orElseThrow(() -> new DomibusDomainException(String.format("Domain [%s] is not in the list of valid domains. Please check the domain configuration and database schema.", domainCode)));
     }
 
     private void clearCaches(Domain domain) {

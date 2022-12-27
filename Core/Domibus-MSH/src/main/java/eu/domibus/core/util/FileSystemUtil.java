@@ -1,13 +1,12 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,7 +28,7 @@ public class FileSystemUtil {
         try {
             payloadPath = Paths.get(path).normalize();
             if (!payloadPath.isAbsolute()) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Relative path [" + payloadPath + "] is forbidden. Please provide absolute path for payload storage");
+                throw new IOException("Relative path [" + payloadPath + "] is forbidden. Please provide absolute path for payload storage");
             }
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
@@ -44,7 +43,7 @@ public class FileSystemUtil {
                     throw new IOException("Write permission for payload folder " + payloadPath.toAbsolutePath() + " is not granted.");
                 }
             }
-        } catch (IOException ioEx) {
+        } catch (InvalidPathException | IOException ioEx) {
             LOG.error("Error creating/accessing the payload folder [{}]", path, ioEx);
 
             // Takes temporary folder by default if it faces any issue while creating defined path.
