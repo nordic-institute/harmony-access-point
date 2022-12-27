@@ -144,7 +144,11 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         try {
             userMessageLogService.findByMessageId(messageId);
-        } catch (MessagingException exception) {
+        }
+        catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+        }
+        catch (MessagingException exception) {
             throw new MessagingException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message.", exception);
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
