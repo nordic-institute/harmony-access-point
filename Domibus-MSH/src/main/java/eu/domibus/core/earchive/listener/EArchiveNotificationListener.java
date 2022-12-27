@@ -67,11 +67,7 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final ObjectMapper objectMapper;
 
-    private ArchiveWebhookApi earchivingClientApi;
-
     private final EArchiveBatchUtils eArchiveBatchUtils;
-
-    private Object earchivingClientApiLock = new Object();
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
@@ -90,17 +86,6 @@ public class EArchiveNotificationListener implements MessageListener {
         this.eArchiveBatchUtils = eArchiveBatchUtils;
     }
 
-    public ArchiveWebhookApi getEarchivingClientApi() {
-        if (earchivingClientApi == null) {
-            synchronized (earchivingClientApiLock) {
-                if (earchivingClientApi == null) {
-                    initialize();
-                }
-            }
-        }
-        return earchivingClientApi;
-    }
-
     @Override
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
@@ -112,7 +97,8 @@ public class EArchiveNotificationListener implements MessageListener {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
         }
-        jmsUtil.setDomain(message);
+
+        jmsUtil.setCurrentDomainFromMessage(message);
 
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
@@ -132,7 +118,7 @@ public class EArchiveNotificationListener implements MessageListener {
         }
     }
 
-    private void initialize() {
+    protected ArchiveWebhookApi getEarchivingClientApi() {
         String restUrl = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
         if (StringUtils.isBlank(restUrl)) {
             throw new DomibusEArchiveException("eArchive client endpoint not configured");
@@ -143,7 +129,7 @@ public class EArchiveNotificationListener implements MessageListener {
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(restUrl);
 
-        earchivingClientApi = new ArchiveWebhookApi();
+        ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
         earchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
@@ -152,6 +138,8 @@ public class EArchiveNotificationListener implements MessageListener {
             earchivingClientApi.getApiClient().setUsername(username);
             earchivingClientApi.getApiClient().setPassword(password);
         }
+
+        return earchivingClientApi;
     }
 
     protected RestTemplate initRestTemplate() {

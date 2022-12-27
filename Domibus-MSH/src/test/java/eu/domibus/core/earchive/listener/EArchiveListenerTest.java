@@ -176,7 +176,7 @@ public class EArchiveListenerTest {
         eArchiveListener.onMessage(message);
 
         new Verifications() {{
-            jmsUtil.setDomain(message);
+            jmsUtil.setCurrentDomainFromMessage(message);
             times = 1;
 
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
@@ -257,7 +257,7 @@ public class EArchiveListenerTest {
         eArchiveListener.onMessage(message);
 
         new Verifications() {{
-            jmsUtil.setDomain(message);
+            jmsUtil.setCurrentDomainFromMessage(message);
             times = 1;
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
@@ -308,7 +308,7 @@ public class EArchiveListenerTest {
         eArchiveListener.onMessage(message);
 
         new FullVerifications() {{
-            jmsUtil.setDomain(message);
+            jmsUtil.setCurrentDomainFromMessage(message);
             times = 1;
 
             eArchivingDefaultService.executeBatchIsArchived(eArchiveBatch, batchUserMessages);
