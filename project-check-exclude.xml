@@ -337,6 +337,7 @@
         <cve>CVE-2022-38750</cve>
         <cve>CVE-2022-41854</cve>
         <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
+        <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -379,9 +380,16 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: commons-configuration-1.10.jar
+   file name: commons-configuration2-2.8.0.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/commons\-configuration/commons\-configuration@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-configuration2@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-exec-1.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-exec@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
     <suppress>
@@ -414,9 +422,9 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: commons-logging-1.1.1.jar
+   file name: commons-logging-api-1.1.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging\-api@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
     <suppress>
@@ -424,6 +432,13 @@
    file name: commons-logging-1.2.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-compress-1.21.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
     <suppress>
