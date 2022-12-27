@@ -18,7 +18,7 @@ public interface AuthUtils {
      * Returns the original user passed via the security context OR
      * null when the user has the role ROLE_ADMIN
      */
-    String getOriginalUser();
+    String getOriginalUserIfNotAdmin();
 
     String getAuthenticatedUser();
 

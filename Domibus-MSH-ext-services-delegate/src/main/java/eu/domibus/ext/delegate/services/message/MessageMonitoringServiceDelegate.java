@@ -127,7 +127,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     private String getUser() {
-        String originalUserFromSecurityContext = authUtils.getOriginalUser();
+        String originalUserFromSecurityContext = authUtils.getOriginalUserIfNotAdmin();
         if(StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
             throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
         }
