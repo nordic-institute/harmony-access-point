@@ -15,7 +15,10 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.ParameterMode;
+import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
+import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -90,18 +93,14 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Transactional
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
-        UserMessage result;
         query.setParameter("MESSAGE_ID", messageId);
-        try{
-            result =  DataAccessUtils.singleResult(query.getResultList());}
-        catch (NoResultException nrEx) {
+        UserMessage result = DataAccessUtils.singleResult(query.getResultList());
+        if (result == null) {
             LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
             return null;
         }
 
-        if (result != null) {
-            initializeChildren(result);
-        }
+        initializeChildren(result);
         return result;
     }
 

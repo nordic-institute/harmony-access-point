@@ -249,12 +249,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public UserMessageLog findByMessageId(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        try {
-            return DataAccessUtils.singleResult(query.getResultList());
-        } catch (NoResultException nrEx) {
+
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;
         }
+        return userMessageLog;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
