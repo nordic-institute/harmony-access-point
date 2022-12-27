@@ -49,7 +49,7 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
-    private final ObjectProvider<ArchiveWebhookApi> objectProvider;
+    private final ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider;
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
@@ -57,13 +57,13 @@ public class EArchiveNotificationListener implements MessageListener {
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
             EArchiveBatchUtils eArchiveBatchUtils,
-            ObjectProvider<ArchiveWebhookApi> objectProvider) {
+            ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
-        this.objectProvider = objectProvider;
+        this.archiveWebhookApiProvider = archiveWebhookApiProvider;
     }
 
     @Override
@@ -99,16 +99,9 @@ public class EArchiveNotificationListener implements MessageListener {
         }
     }
 
-    //    @PostConstruct
-    private ArchiveWebhookApi getEArchivingClientApi() {
-        return objectProvider.getObject();
-//        return (ArchiveWebhookApi) applicationContext.getBean(EARCHIVING_CLIENT_BEAN);
+    protected ArchiveWebhookApi getEArchivingClientApi() {
+        return archiveWebhookApiProvider.getObject();
     }
-
-    // only for testing
-//    void setEArchivingClientApi(ArchiveWebhookApi eArchivingClientApi) {
-//        this.eArchivingClientApi = eArchivingClientApi;
-//    }
 
     protected BatchNotification buildBatchNotification(EArchiveBatchEntity eArchiveBatch) {
         BatchNotification batchNotification = new BatchNotification();
@@ -149,9 +142,4 @@ public class EArchiveNotificationListener implements MessageListener {
 
     }
 
-
-//    @Override
-//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-//        this.applicationContext = applicationContext;
-//    }
 }
