@@ -121,7 +121,7 @@ public class EArchiveNotificationDlqListenerTest {
         eArchiveNotificationDlqListener.onMessage(message);
 
         new FullVerifications() {{
-            jmsUtil.setDomain(message);
+            jmsUtil.setCurrentDomainFromMessage(message);
         }};
 
     }

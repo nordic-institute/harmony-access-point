@@ -47,7 +47,7 @@ public class JmsUtil {
         return property;
     }
 
-    public void setDomain(Message message) {
+    public void setCurrentDomainFromMessage(Message message) {
         String domainCode = getStringPropertySafely(message, MessageConstants.DOMAIN);
         if (StringUtils.isNotEmpty(domainCode)) {
             domainContextProvider.setCurrentDomain(domainCode);

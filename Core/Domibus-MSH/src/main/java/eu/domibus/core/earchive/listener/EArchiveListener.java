@@ -75,7 +75,7 @@ public class EArchiveListener implements MessageListener {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
         }
-        jmsUtil.setDomain(message);
+        jmsUtil.setCurrentDomainFromMessage(message);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();

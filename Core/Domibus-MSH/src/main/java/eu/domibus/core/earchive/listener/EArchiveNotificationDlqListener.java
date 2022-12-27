@@ -62,7 +62,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
         }
-        jmsUtil.setDomain(message);
+        jmsUtil.setCurrentDomainFromMessage(message);
 
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
