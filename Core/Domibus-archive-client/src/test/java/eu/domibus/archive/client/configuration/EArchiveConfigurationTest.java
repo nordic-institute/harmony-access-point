@@ -1,6 +1,7 @@
 package eu.domibus.archive.client.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.archive.client.api.ArchiveWebhookApi;
 import eu.domibus.archive.client.invoker.auth.HttpBasicAuth;
@@ -26,6 +27,8 @@ public class EArchiveConfigurationTest {
     private DomibusProxyService domibusProxyService;
     @Injectable
     private ObjectMapper objectMapper;
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Test
     public void initializeEarchivingClientApi() {
