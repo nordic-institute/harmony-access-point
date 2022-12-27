@@ -387,6 +387,13 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: commons-configuration-1.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-configuration/commons\-configuration@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: commons-exec-1.2.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-exec@.*$</packageUrl>
