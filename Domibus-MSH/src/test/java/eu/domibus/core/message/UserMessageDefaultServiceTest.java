@@ -1025,7 +1025,7 @@ public class UserMessageDefaultServiceTest {
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+        userMessageDefaultService.deleteMessagesNotInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
         new FullVerifications() {
         };
