@@ -459,38 +459,6 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void isAdminMultiAware_multiTenant() {
-        new Expectations(authUtilsImpl) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-
-            authUtilsImpl.isSuperAdmin();
-            result = true;
-        }};
-
-        assertTrue(authUtilsImpl.isAdminMultiAware());
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void isAdminMultiAware_MonoTenant() {
-        new Expectations(authUtilsImpl) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
-
-            authUtilsImpl.isAdmin();
-            result = true;
-        }};
-
-        assertTrue(authUtilsImpl.isAdminMultiAware());
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void runWithSecurityContext_AddSecurityContext(@Injectable AuthenticatedProcedure expectedFunction) {
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();

@@ -18,7 +18,7 @@ public interface AuthUtils {
      * Returns the original user passed via the security context OR
      * null when the user has the role ROLE_ADMIN
      */
-    String getOriginalUser();
+    String getOriginalUserOrNullIfAdmin();
 
     String getAuthenticatedUser();
 
@@ -40,8 +40,6 @@ public interface AuthUtils {
     void setAuthenticationToSecurityContext(String user, String password);
 
     void setAuthenticationToSecurityContext(String user, String password, AuthRole authRole);
-
-    boolean isAdminMultiAware();
 
     /**
      * Clear spring security context from thread
@@ -121,6 +119,5 @@ public interface AuthUtils {
     void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole, boolean forceSecurityContext);
 
     <R> R runFunctionWithDomibusSecurityContext(AuthenticatedFunction function, AuthRole authRole, boolean forceSecurityContext);
-
 }
 

@@ -9,12 +9,10 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.services.MessageMonitorExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,8 +59,8 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> getFailedMessages(String finalRecipient) throws AuthenticationExtException, MessageMonitorExtException {
         LOG.debug("Getting failed messages with finalRecipient [{}]", finalRecipient);
-        String originalUserFromSecurityContext = getUser();
-        return userMessageService.getFailedMessages(finalRecipient, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.getFailedMessages(finalRecipient, originalUser);
     }
 
     @Override
@@ -85,8 +83,8 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = getUser();
-        return restoreService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return restoreService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUser);
     }
 
     @Override
@@ -116,21 +114,17 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = getUser();
-        return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUser);
     }
 
     @Override
     public List<String> deleteMessagesInFinalStatusDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = getUser();
-        return userMessageService.deleteMessagesInFinalStatusDuringPeriod(begin, end, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.deleteMessagesInFinalStatusDuringPeriod(begin, end, originalUser);
     }
 
-    private String getUser() {
-        String originalUserFromSecurityContext = authUtils.getOriginalUser();
-        if(StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
-        }
-        return originalUserFromSecurityContext;
+    private String getOriginalUserOrNullIfAdmin() {
+        return authUtils.getOriginalUserOrNullIfAdmin();
     }
 }
