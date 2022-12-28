@@ -146,21 +146,19 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return true;
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
-
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+    public List<String> findMessagesToDeleteNotInFinalStatus(String finalRecipient, Long startDate, Long endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotWithStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("ORIGINAL_USER", finalRecipient);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 
     public List<String> findMessagesToDeleteInFinalStatus(String finalRecipient, Long startDate, Long endDate) {
-
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteInFinalStatusDuringPeriod", String.class);
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteWithStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("ORIGINAL_USER", finalRecipient);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
         return query.getResultList();

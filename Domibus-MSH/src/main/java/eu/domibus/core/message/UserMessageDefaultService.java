@@ -552,7 +552,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
             LOG.debug("Cannot find messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
