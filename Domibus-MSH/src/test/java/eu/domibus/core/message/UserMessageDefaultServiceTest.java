@@ -1019,7 +1019,7 @@ public class UserMessageDefaultServiceTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
+            userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
