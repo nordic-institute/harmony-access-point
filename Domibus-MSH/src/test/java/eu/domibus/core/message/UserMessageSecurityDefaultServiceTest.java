@@ -68,7 +68,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserIfNotAdmin();
+            authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
@@ -90,7 +90,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserIfNotAdmin();
+            authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
@@ -107,7 +107,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserIfNotAdmin();
+            authUtils.getOriginalUserOrNullIfAdmin();
             result = null;
         }};
 
@@ -123,7 +123,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserIfNotAdmin();
+            authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);

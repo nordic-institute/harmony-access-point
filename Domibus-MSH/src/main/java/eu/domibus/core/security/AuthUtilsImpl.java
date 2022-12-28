@@ -54,7 +54,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return null;
         }
 
-        return getOriginalUserIfNotAdmin();
+        return getOriginalUserOrNullIfAdmin();
     }
 
     /**
@@ -62,7 +62,7 @@ public class AuthUtilsImpl implements AuthUtils {
      * null value when the user has the role ROLE_ADMIN
      */
     @Override
-    public String getOriginalUserIfNotAdmin() {
+    public String getOriginalUserOrNullIfAdmin() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.error("Authentication is missing from the security context. Unsecured login is not allowed");
             throw new AuthenticationException("Authentication is missing from the security context. Unsecured login is not allowed");
@@ -177,14 +177,6 @@ public class AuthUtilsImpl implements AuthUtils {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean isAdminMultiAware() {
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            return isSuperAdmin();
-        }
-        return isAdmin();
     }
 
     @Override
