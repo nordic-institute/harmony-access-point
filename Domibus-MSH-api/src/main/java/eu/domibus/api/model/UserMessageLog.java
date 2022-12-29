@@ -41,7 +41,7 @@ import java.util.Date;
                         "and uml.deleted IS NOT NULL                                                                    " +
                         "and uml.deleted < :DATE                                                                      " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
-        @NamedQuery(name = "UserMessageLog.findMessagesWithRecipientAndWithoutStatusDuringPeriod",
+        @NamedQuery(name = "UserMessageLog.findMessagesWithSenderAndRecipientAndWithoutStatusDuringPeriod",
                 query = "SELECT DISTINCT um.messageId                                                                 " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
@@ -57,7 +57,7 @@ import java.util.Date;
                         "     )                                                                                       " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
-        @NamedQuery(name = "UserMessageLog.findMessagesWithRecipientAndStatusDuringPeriod",
+        @NamedQuery(name = "UserMessageLog.findMessagesWithSenderAndRecipientAndStatusDuringPeriod",
                 query = "SELECT DISTINCT um.messageId                                                                 " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +

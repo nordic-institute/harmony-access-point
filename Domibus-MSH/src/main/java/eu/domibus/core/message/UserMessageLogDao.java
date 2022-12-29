@@ -147,11 +147,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findMessagesToDeleteNotInFinalStatus(String originalUser, Long startDate, Long endDate) {
-        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithRecipientAndWithoutStatusDuringPeriod", originalUser, startDate, endDate);
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndWithoutStatusDuringPeriod", originalUser, startDate, endDate);
     }
 
     public List<String> findMessagesToDeleteInFinalStatus(String originalUser, Long startDate, Long endDate) {
-        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithRecipientAndStatusDuringPeriod", originalUser, startDate, endDate);
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndStatusDuringPeriod", originalUser, startDate, endDate);
     }
 
     private List<String> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
