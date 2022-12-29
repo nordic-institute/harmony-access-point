@@ -161,7 +161,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.deleteMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+            userMessageService.deleteMessagesNotInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
         }};
     }
 

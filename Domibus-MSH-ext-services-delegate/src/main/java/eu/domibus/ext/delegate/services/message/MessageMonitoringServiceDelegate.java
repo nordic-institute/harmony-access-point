@@ -115,7 +115,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUser = getOriginalUserOrNullIfAdmin();
-        return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUser);
+        return userMessageService.deleteMessagesNotInFinalStatusDuringPeriod(begin, end, originalUser);
     }
 
     @Override

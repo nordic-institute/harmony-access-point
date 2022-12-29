@@ -146,26 +146,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return true;
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+    public List<String> findMessagesToDeleteNotInFinalStatus(String originalUser, Long startDate, Long endDate) {
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndWithoutStatusDuringPeriod", originalUser, startDate, endDate);
+    }
 
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+    public List<String> findMessagesToDeleteInFinalStatus(String originalUser, Long startDate, Long endDate) {
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndStatusDuringPeriod", originalUser, startDate, endDate);
+    }
+
+    private List<String> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery(queryName, String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
-
-    public List<String> findMessagesToDeleteInFinalStatus(String finalRecipient, Long startDate, Long endDate) {
-
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteInFinalStatusDuringPeriod", String.class);
-        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", startDate);
-        query.setParameter("END_DATE", endDate);
-        return query.getResultList();
-    }
-
     /**
      * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
      *

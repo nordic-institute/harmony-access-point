@@ -12,6 +12,7 @@ import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.util.DateUtilImpl;
+import joptsimple.internal.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,15 +113,26 @@ public class MessageDaoTestUtil {
     }
 
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
+        String originalSender = null, finalRecipient = null;
+        if (properties) {
+            originalSender = "originalSender1";
+            finalRecipient = "finalRecipient2";
+        }
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, isTestMessage, mpc, archivedAndExported, originalSender, finalRecipient);
+    }
+
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, String mpc, Date archivedAndExported,
+                                               String originalSender, String finalRecipient) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
 
-        if (properties) {
-            MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
-            MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", "finalRecipient2", "");
+        if (!Strings.isNullOrEmpty(originalSender) || !Strings.isNullOrEmpty(finalRecipient)) {
+            MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", originalSender, "");
+            MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", finalRecipient, "");
             userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
         }
+
         PartyInfo partyInfo = new PartyInfo();
         partyInfo.setFrom(createFrom(INITIATOR_ROLE, "domibus-blue"));
         partyInfo.setTo(createTo(RESPONDER_ROLE, "domibus-red"));
@@ -176,6 +188,11 @@ public class MessageDaoTestUtil {
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
         return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC, new Date());
+    }
+
+    @Transactional
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, String originalSender, String finalRecipient) {
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, MPC, new Date(), originalSender, finalRecipient);
     }
 
     @Transactional

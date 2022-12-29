@@ -551,13 +551,13 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+    public List<String> deleteMessagesNotInFinalStatusDuringPeriod(Long start, Long end, String originalUser) {
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
@@ -569,19 +569,19 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Deleted messages not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, originalUser);
 
         return deletedMessages;
     }
 
     @Override
-    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteInFinalStatus(finalRecipient, start, end);
+    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long start, Long end, String originalUser) {
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUser, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
@@ -598,7 +598,7 @@ public class UserMessageDefaultService implements UserMessageService {
             });
         }
 
-        LOG.debug("Deleted messages in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, originalUser);
 
         return deletedMessages;
     }
