@@ -7,13 +7,15 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserRoleDao;
@@ -100,6 +102,9 @@ public abstract class AbstractIT {
 
     @Autowired
     protected DomibusProxyService domibusProxyService;
+
+    @Autowired
+    protected TruststoreDao truststoreDao;
 
     @Autowired
     protected UserRoleDao userRoleDao;
@@ -265,6 +270,30 @@ public abstract class AbstractIT {
             body = body.replaceAll(key, toReplace.get(key));
         }
         return body;
+    }
+
+    protected void createStore(String domibusKeystoreName, String filePath) throws IOException {
+        if(truststoreDao.existsWithName(domibusKeystoreName)) {
+            LOG.info("truststore already created");
+            return;
+        }
+        LOG.info("create truststore [{}]", domibusKeystoreName);
+        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+        domibusTruststoreEntity.setName(domibusKeystoreName);
+        domibusTruststoreEntity.setType("JKS");
+        domibusTruststoreEntity.setPassword("test123");
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+            domibusTruststoreEntity.setContent(trustStoreBytes);
+            truststoreDao.create(domibusTruststoreEntity);
+        }
+    }
+
+    protected void removeStore(String domibusKeystoreName) {
+        if (truststoreDao.existsWithName(domibusKeystoreName)) {
+            TruststoreEntity trust = truststoreDao.findByName(domibusKeystoreName);
+            truststoreDao.delete(trust);
+        }
     }
 
 }

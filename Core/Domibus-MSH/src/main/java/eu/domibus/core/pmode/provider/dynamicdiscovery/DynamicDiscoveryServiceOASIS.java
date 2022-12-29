@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -8,6 +7,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -23,7 +23,9 @@ import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultProxy;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultSignatureValidator;
 import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
 import eu.europa.ec.dynamicdiscovery.exception.TechnicalException;
-import eu.europa.ec.dynamicdiscovery.model.*;
+import eu.europa.ec.dynamicdiscovery.model.DocumentIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.ParticipantIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.ServiceMetadata;
 import org.apache.commons.lang3.StringUtils;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.EndpointType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
@@ -42,8 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
@@ -84,13 +86,10 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     private final DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
+    private X509CertificateService x509CertificateService;
     private final ObjectProvider<DocumentIdentifier> documentIdentifiers;
 
     private final ObjectProvider<ParticipantIdentifier> participantIdentifiers;
-
-    private final ObjectProvider<ProcessIdentifier> processIdentifiers;
-
-    private final ObjectProvider<TransportProfile> transportProfiles;
 
     private final ObjectProvider<DefaultProxy> proxies;
 
@@ -114,10 +113,9 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
                                         CertificateService certificateService,
                                         DomibusProxyService domibusProxyService,
                                         DomibusHttpRoutePlanner domibusHttpRoutePlanner,
+                                        X509CertificateService x509CertificateService,
                                         ObjectProvider<DocumentIdentifier> documentIdentifiers,
                                         ObjectProvider<ParticipantIdentifier> participantIdentifiers,
-                                        ObjectProvider<ProcessIdentifier> processIdentifiers,
-                                        ObjectProvider<TransportProfile> transportProfiles,
                                         ObjectProvider<DefaultProxy> proxies,
                                         ObjectProvider<DefaultBDXRLocator> bdxrLocators,
                                         ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
@@ -132,10 +130,9 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         this.certificateService = certificateService;
         this.domibusProxyService = domibusProxyService;
         this.domibusHttpRoutePlanner = domibusHttpRoutePlanner;
+        this.x509CertificateService = x509CertificateService;
         this.documentIdentifiers = documentIdentifiers;
         this.participantIdentifiers = participantIdentifiers;
-        this.processIdentifiers = processIdentifiers;
-        this.transportProfiles = transportProfiles;
         this.proxies = proxies;
         this.bdxrLocators = bdxrLocators;
         this.domibusCertificateValidators = domibusCertificateValidators;
@@ -182,19 +179,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
                 processIdScheme);
 
         try {
-            DynamicDiscovery smpClient = createDynamicDiscoveryClient();
-
-            LOG.debug("Getting Request details for ServiceMetadata");
-            final ParticipantIdentifier participantIdentifier = participantIdentifiers.getObject(participantId, participantIdScheme);
-            final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
-            LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]",
-                    participantIdentifier.getIdentifier(),
-                    participantIdentifier.getScheme(),
-                    documentIdentifier.getIdentifier(),
-                    documentIdentifier.getScheme(),
-                    processId,
-                    processIdScheme);
-            ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
+            ServiceMetadata serviceMetadata = getServiceMetadata(participantId, participantIdScheme, documentId, processId, processIdScheme);
 
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
 
@@ -214,6 +199,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             }
 
             X509Certificate certificate = getCertificateFromEndpoint(endpoint, documentId, processId);
+            x509CertificateService.validateClientX509Certificates(certificate);
             return endpointInfos.getObject(endpoint.getEndpointURI(), certificate);
 
         } catch (TechnicalException exc) {
@@ -222,6 +208,22 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             LOG.error(msg, exc);
             throw new ConfigurationException(msg, exc);
         }
+    }
+
+    protected ServiceMetadata getServiceMetadata(String participantId, String participantIdScheme, String documentId, String processId, String processIdScheme) throws EbMS3Exception, TechnicalException {
+        DynamicDiscovery smpClient = createDynamicDiscoveryClient();
+
+        LOG.debug("Getting Request details for ServiceMetadata");
+        final ParticipantIdentifier participantIdentifier = participantIdentifiers.getObject(participantId, participantIdScheme);
+        final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
+        LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]",
+                participantIdentifier.getIdentifier(),
+                participantIdentifier.getScheme(),
+                documentIdentifier.getIdentifier(),
+                documentIdentifier.getScheme(),
+                processId,
+                processIdScheme);
+        return smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
     }
 
     protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
@@ -265,7 +267,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         }
     }
 
-    protected DocumentIdentifier createDocumentIdentifier(String documentId) throws EbMS3Exception {
+    protected DocumentIdentifier createDocumentIdentifier(String documentId) {
         try {
             String scheme = extract(documentId, "scheme");
             String value = extract(documentId, "value");

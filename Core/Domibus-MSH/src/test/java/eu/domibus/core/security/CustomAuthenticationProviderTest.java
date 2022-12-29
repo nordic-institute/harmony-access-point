@@ -124,8 +124,7 @@ public class CustomAuthenticationProviderTest {
         X509Certificate[] certificates = new X509Certificate[1];
         certificates[0] = certificate;
 
-        Authentication authentication = new X509CertificateAuthentication(certificates);
-        return authentication;
+        return new X509CertificateAuthentication(certificates);
     }
 
     private Authentication createBlueCoatAuth() throws ParseException {

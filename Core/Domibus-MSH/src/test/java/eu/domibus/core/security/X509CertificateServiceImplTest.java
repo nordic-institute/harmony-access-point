@@ -1,10 +1,8 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.CertificateServiceImpl;
+import eu.domibus.core.certificate.crl.CRLService;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
@@ -24,8 +22,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(JMockit.class)
 public class X509CertificateServiceImplTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImplTest.class);
 
     @Injectable
     private CertificateServiceImpl certificateService;
@@ -49,7 +45,7 @@ public class X509CertificateServiceImplTest {
     @Test
     public void verifyCertificateTest() {
         X509Certificate[] certificates = createCertificates(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        securityX509CertificateServiceImpl.isClientX509CertificateValid(certificates);
+        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
 
         new Verifications() {{
             crlService.isCertificateRevoked(certificates[0]);
@@ -60,7 +56,7 @@ public class X509CertificateServiceImplTest {
     @Test(expected = AuthenticationException.class)
     public void verifyCertificateExpiredTest() {
         X509Certificate[] certificates = createCertificates(RESOURCE_PATH + EXPIRED_KEYSTORE, EXPIRED_ALIAS, EXPIRED_KEYSTORE_PASSWORD);
-        securityX509CertificateServiceImpl.isClientX509CertificateValid(certificates);
+        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
 
         new Verifications() {{
             crlService.isCertificateRevoked(certificates[0]);

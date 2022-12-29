@@ -1,12 +1,11 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
@@ -27,8 +26,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
@@ -71,6 +71,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Injectable
     private CertificateService certificateService;
+
+    @Injectable
+    private X509CertificateService x509CertificateService;
 
     @Injectable
     private ProxyUtil proxyUtil;
@@ -294,7 +297,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     }
 
     @Test(expected = ConfigurationException.class)
-    public void testSmlZoneEmpty() throws EbMS3Exception {
+    public void testSmlZoneEmpty() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = "";
@@ -304,7 +307,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     }
 
     @Test(expected = ConfigurationException.class)
-    public void testSmlZoneNull() throws EbMS3Exception {
+    public void testSmlZoneNull()  {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = null;

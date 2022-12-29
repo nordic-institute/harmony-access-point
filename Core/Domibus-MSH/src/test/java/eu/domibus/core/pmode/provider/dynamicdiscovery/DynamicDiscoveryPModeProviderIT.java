@@ -1,12 +1,14 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.RandomUtils;
@@ -17,7 +19,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -171,5 +172,11 @@ public class DynamicDiscoveryPModeProviderIT {
             Thread.currentThread().interrupt();
             LOG.info(Thread.currentThread().getName() + " was interrupted during sleep of {} ", i);
         }
+    }
+
+    @Test
+    protected void doDynamicDiscovery() throws EbMS3Exception {
+        dynamicDiscoveryPModeProvider.lookupAndUpdateConfigurationForToPartyId("CacheKey", new UserMessage(), Arrays.asList(new Process()));
+        //protected void doDynamicDiscovery(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
     }
 }
