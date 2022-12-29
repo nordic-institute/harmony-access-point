@@ -509,7 +509,7 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
 
         if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+            throw new MessageNotFoundException(MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
         }
 
         findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
@@ -521,7 +521,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
+            throw new MessageNotFoundException(MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
     }
@@ -530,7 +530,7 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId);
 
         if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+            throw new MessageNotFoundException(MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
         }
 
         return userMessageLog;
@@ -543,7 +543,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         if (userMessageLog.getDeleted() != null) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
+            throw new MessageNotFoundException(MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
         return userMessageLog;
     }
@@ -587,13 +587,13 @@ public class UserMessageDefaultService implements UserMessageService {
         for (String messageId : messagesToDelete) {
             new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-            try {
-                final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-                findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
-                deletedMessages.add(messageId);
-            } catch (Exception e) {
-                LOG.error("Failed to delete message [" + messageId + "]", e);
-            }
+                    try {
+                        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+                        findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+                        deletedMessages.add(messageId);
+                    } catch (Exception e) {
+                        LOG.error("Failed to delete message [" + messageId + "]", e);
+                    }
                 }
             });
         }
@@ -722,11 +722,11 @@ public class UserMessageDefaultService implements UserMessageService {
     public void checkCanGetMessageContent(String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);
         if (message == null) {
-            throw new MessagingException("No message found for message id: " + messageId, null);
+            throw new MessageNotFoundException("No message found for message id: " + messageId, null);
         }
         if (message.getDeleted() != null) {
             LOG.info("Could not find message content for message: [{}]", messageId);
-            throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
+            throw new MessageNotFoundException("Message content is no longer available for message id: " + messageId, null);
         }
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
