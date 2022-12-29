@@ -160,13 +160,14 @@ public class MessageMonitoringExtResource {
                 deleteMessagesCriteriaRO.getToDate());
         Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
-        if (fromDateHour >= toDateHour) {
+        if (fromDateHour > toDateHour) {
             throw getDatesValidationError();
         }
         return messageMonitorExtService.deleteMessagesInFinalStatusDuringPeriod(fromDateHour, toDateHour);
     }
 
     private DomibusDateTimeExtException getDatesValidationError() {
-        return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error", new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "Starting date hour is after Ending date hour"));
+        return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error",
+                new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "'From date' is after 'To date'"));
     }
 }
