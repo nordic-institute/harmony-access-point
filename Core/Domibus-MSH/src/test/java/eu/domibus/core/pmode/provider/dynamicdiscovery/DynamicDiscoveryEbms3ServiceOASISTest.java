@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
@@ -36,7 +37,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
@@ -145,11 +148,14 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     @Injectable
     private DynamicDiscoveryUtil dynamicDiscoveryUtil;
 
+    @Injectable
+    private X509CertificateService x509CertificateService;
+
     @Tested
     private DynamicDiscoveryServiceOASIS dynamicDiscoveryServiceOASIS;
 
 
-    public void setupBasicLookupConditions() throws Exception {
+    public void setupBasicLookupConditions() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = TEST_SML_ZONE;
@@ -186,9 +192,9 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             result = buildServiceMetadata();
 
             dynamicDiscoveryUtil.retrieveTransportProfilesFromProcesses((List<ProcessType>) any);
-            result = Arrays.asList("ECC","RSA");
+            result = Arrays.asList("ECC", "RSA");
 
-            dynamicDiscoveryUtil.getAvailableTransportProfileForHighestRankingSecurityProfile(Arrays.asList("ECC","RSA"), (Map<SecurityProfile, String>) any);
+            dynamicDiscoveryUtil.getAvailableTransportProfileForHighestRankingSecurityProfile(Arrays.asList("ECC", "RSA"), (Map<SecurityProfile, String>) any);
             result = "bdxr-transport-ebms3-as4-v1p0";
 
             endpointInfos.getObject(anyString, any);
@@ -210,7 +216,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     }
 
     @Test
-    public void testLookupInformationProcessNotExits(@Injectable DynamicDiscovery smpClient) throws Exception {
+    public void testLookupInformationProcessNotExits(@Injectable DynamicDiscovery smpClient) {
         //given
         setupBasicLookupConditions();
 
@@ -296,11 +302,11 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
                 Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is not empty",
                         invocation.getInvocationCount() == 1
-                                && "192.168.0.0" .equals(serverAddress)
+                                && "192.168.0.0".equals(serverAddress)
                                 && 1234 == serverPort
-                                && "proxyUser" .equals(user)
-                                && "proxyPassword" .equals(password)
-                                && "host1,host2" .equals(nonProxyHosts)
+                                && "proxyUser".equals(user)
+                                && "proxyPassword".equals(password)
+                                && "host1,host2".equals(nonProxyHosts)
                 );
             }
         };
@@ -338,11 +344,11 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
                 Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is empty",
                         invocation.getInvocationCount() == 1
-                                && "192.168.0.0" .equals(serverAddress)
+                                && "192.168.0.0".equals(serverAddress)
                                 && 1234 == serverPort
                                 && user == null
                                 && password == null
-                                && "host1,host2" .equals(nonProxyHosts)
+                                && "host1,host2".equals(nonProxyHosts)
                 );
             }
         };
