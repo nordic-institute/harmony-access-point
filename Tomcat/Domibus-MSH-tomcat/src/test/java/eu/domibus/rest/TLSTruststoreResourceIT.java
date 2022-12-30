@@ -4,9 +4,9 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.util.MultiPartFileUtil;
-import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
@@ -31,14 +31,13 @@ import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NA
  */
 public class TLSTruststoreResourceIT extends AbstractIT {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTruststoreResourceIT.class);
+
     @Autowired
     private TLSTruststoreResource tlsTruststoreResource;
 
     @Autowired
     protected MultiPartFileUtil multiPartFileUtil;
-
-    @Autowired
-    private TruststoreDao truststoreDao;
 
     @Before
     public void before() {
@@ -77,7 +76,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
             Assert.fail();
         } catch (RequestValidationException ex) {
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Failed to upload the truststoreFile file since its password was empty.");
+            Assert.assertEquals("[DOM_001]:Failed to upload the truststoreFile file since its password was empty.", ex.getMessage());
         }
     }
 
@@ -100,33 +99,34 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
         List<TrustStoreRO> entries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
             MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
             tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
 
             List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-            Assert.assertTrue(entries.size() != newEntries.size());
+            Assert.assertNotEquals(entries.size(), newEntries.size());
         }
     }
 
     @Test
     public void setAnew() throws IOException {
         try {
-            List<TrustStoreRO> entries = tlsTruststoreResource.getTLSTruststoreEntries();
+            tlsTruststoreResource.getTLSTruststoreEntries();
             Assert.fail();
         } catch (Exception ex) {
+            LOG.trace("expected error on tlsTruststoreResource.getTLSTruststoreEntries()", ex);
         }
 
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks")) {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks")) {
             MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.jks", "gateway_truststore.jks",
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
             tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
 
             List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-            Assert.assertTrue(newEntries.size() == 2);
+            Assert.assertEquals( 2, newEntries.size());
         }
     }
 
@@ -151,24 +151,5 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
     private void createTrustStore() throws IOException {
         createStore(TLS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
-    }
-
-    private void createStore(String domibusKeystoreName, String filePath) throws IOException {
-        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
-        domibusTruststoreEntity.setName(domibusKeystoreName);
-        domibusTruststoreEntity.setType("JKS");
-        domibusTruststoreEntity.setPassword("test123");
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
-            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
-            domibusTruststoreEntity.setContent(trustStoreBytes);
-            truststoreDao.create(domibusTruststoreEntity);
-        }
-    }
-
-    private void removeStore(String domibusKeystoreName) {
-        if (truststoreDao.existsWithName(domibusKeystoreName)) {
-            TruststoreEntity trust = truststoreDao.findByName(domibusKeystoreName);
-            truststoreDao.delete(trust);
-        }
     }
 }
