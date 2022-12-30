@@ -58,7 +58,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         try {
             if (authentication instanceof X509CertificateAuthentication) {
                 LOG.debug("Authenticating using the X509 certificate from the request");
-                authentication.setAuthenticated(isClientX509CertificateValid((X509Certificate[]) authentication.getCredentials()));
+                boolean clientX509CertificateValid = isClientX509CertificateValid((X509Certificate[]) authentication.getCredentials());
+                authentication.setAuthenticated(clientX509CertificateValid);
 
                 AuthenticationEntity authenticationEntity = securityAuthenticationDAO.findByCertificateId(authentication.getName());
                 ((X509CertificateAuthentication) authentication).setOriginalUser(authenticationEntity.getOriginalUser());
