@@ -1,3 +1,5 @@
+Domibus 5.0.3
+    - Fixed partition creation issue
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors

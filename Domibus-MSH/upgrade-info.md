@@ -1,5 +1,10 @@
 # Domibus upgrade information
-
+## Domibus 5.0.3 (from 5.0.2):
+                - Replace the Domibus war
+  ### Partitioning only (oracle)
+                    - Run as sys:
+                            GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+                    - Run as edelivery_user partitions-procedures.sql to replace the PARTITIONSGEN procedure
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
