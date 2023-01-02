@@ -400,7 +400,7 @@ public class UserMessageDefaultServiceTest {
         }
     }
 
-    @Test(expected = UserMessageException.class)
+    @Test(expected = MessageNotFoundException.class)
     public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
@@ -1081,18 +1081,20 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
+        String messageId = "messageId";
+
         new Expectations(userMessageDefaultService) {{
             messagesLogService.findUserMessageById(anyString);
             result = deletedMessage;
             deletedMessage.getDeleted();
             result = new Date();
-
         }};
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent(messageId);
             Assert.fail();
         }catch(MessagingException ex){
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
+            Assert.assertTrue(ex.getMessage().contains("Message content is no longer available for message id:"));
+            Assert.assertTrue(ex.getMessage().contains(messageId));
         }
     }
 
@@ -1110,16 +1112,19 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void test_checkCanDownloadWhenNoMessage() {
+        String messageId = "messageId";
+
         new Expectations() {{
             messagesLogService.findUserMessageById(anyString);
             result = null;
         }};
 
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent(messageId);
             Assert.fail();
         }catch(MessagingException ex){
-            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
+            Assert.assertTrue(ex.getMessage().contains("does not exist"));
+            Assert.assertTrue(ex.getMessage().contains(messageId));
         }
     }
 }
