@@ -209,7 +209,7 @@ public class RoutingService {
 
     private void setActive(Domain domain, BackendFilter backendFilter) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
-        if(backendConnector instanceof EnableAware && isNotEnabled(domain, (EnableAware) backendConnector)){
+        if (backendConnector instanceof EnableAware && isNotEnabled(domain, (EnableAware) backendConnector)) {
             backendFilter.setActive(false);
         } else {
             backendFilter.setActive(true);
@@ -261,6 +261,10 @@ public class RoutingService {
     }
 
     protected boolean isBackendFilterMatching(BackendFilter filter, Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
+        if (!filter.isActive()) {
+            LOG.trace("BackendFilter [{}] is inactive", filter.getBackendName());
+            return false;
+        }
         if (!CollectionUtils.isEmpty(filter.getRoutingCriterias())) {
             for (final RoutingCriteria routingCriteriaEntity : filter.getRoutingCriterias()) {
                 final IRoutingCriteria criteria = criteriaMap.get(StringUtils.upperCase(routingCriteriaEntity.getName()));
