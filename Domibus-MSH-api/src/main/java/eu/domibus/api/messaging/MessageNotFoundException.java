@@ -19,4 +19,12 @@ public class MessageNotFoundException extends MessagingException {
     public MessageNotFoundException(String messageId, String context) {
         super(DomibusCoreErrorCode.DOM_009, "Message [" + messageId + "] does not exist for " + context, null);
     }
+
+    private MessageNotFoundException(String messageId, String context, String details) {
+        super(DomibusCoreErrorCode.DOM_009, details == null ? "Message [" + messageId + "] does not exist" + (context == null ? "" : " for " + context) : details, null);
+    }
+
+    public static MessageNotFoundException createMessageNotFoundException(String details) {
+        return new MessageNotFoundException(null, null, details);
+    }
 }
