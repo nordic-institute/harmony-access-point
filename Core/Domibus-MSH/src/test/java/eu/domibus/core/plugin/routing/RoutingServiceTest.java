@@ -15,7 +15,10 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
+import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -620,15 +623,37 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
+    public void testGetBackendFiltersWithCache(@Injectable BackendFilter backendFilter1,
+                                               @Injectable BackendFilter backendFilter2,
+                                               @Injectable EnableAwareConnector backendEnableAware1,
+                                               @Injectable BackendConnector<?, ?> backend2
+                                               ) {
+        List<BackendFilter> backendFilters = asList(backendFilter1, backendFilter2);
         routingService.domainContextProvider = domainContextProvider;
 
         new Expectations(routingService) {{
             domainContextProvider.getCurrentDomain();
-            result = new Domain();
+            result = new Domain("default","default");
 
             routingService.getBackendFiltersUncached();
             result = backendFilters;
+
+            backendFilter1.getBackendName();
+            result = "backendFilter1";
+
+            backendFilter2.getBackendName();
+            result = "backendFilter2";
+
+            backendConnectorProvider.getBackendConnector("backendFilter1");
+            result = backendEnableAware1;
+
+            backendConnectorProvider.getBackendConnector("backendFilter2");
+            result = backend2;
+
+            backendEnableAware1.isEnabled("default");
+            result = true;
+
+
         }};
 
         routingService.backendFiltersCache = new HashMap<>();
@@ -641,6 +666,12 @@ public class RoutingServiceTest {
         new FullVerifications() {{
             routingService.getBackendFiltersUncached();
             times = 1;
+            backendFilter1.setActive(true);
+            times = 1;
+
+            backendFilter2.setActive(true);
+            times = 1;
+
         }};
     }
 
@@ -873,5 +904,22 @@ public class RoutingServiceTest {
             signalService.signalMessageFiltersUpdated();
             allBackendFilterEntities.toString();
         }};
+    }
+
+    protected class EnableAwareConnector extends AbstractBackendConnector {
+
+        public EnableAwareConnector(String name) {
+            super(name);
+        }
+
+        @Override
+        public MessageSubmissionTransformer getMessageSubmissionTransformer() {
+            return null;
+        }
+
+        @Override
+        public MessageRetrievalTransformer getMessageRetrievalTransformer() {
+            return null;
+        }
     }
 }
