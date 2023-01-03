@@ -1,12 +1,8 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.MessageFilterResource;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,15 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * @author François Gautier
- * @since 5.0
+ * @since 5.1
  */
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MessageFilterResourceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFilterResourceIT.class);
     public static final String TEST_ENDPOINT_RESOURCE = "/rest/messagefilters";
-
-    public static final String NOT_FOUND = "not_found";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -38,23 +31,12 @@ public class MessageFilterResourceIT extends AbstractIT {
     @Autowired
     private MessageFilterResource messageFilterResource;
 
-    @Autowired
-    private BackendFilterDao backendFilterDao;
-
     private MockMvc mockMvc;
-
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(messageFilterResource).build();
-
     }
-
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
 
     @Test
     public void getMessageFilter() throws Exception {
@@ -62,7 +44,6 @@ public class MessageFilterResourceIT extends AbstractIT {
         mockMvc.perform(get(TEST_ENDPOINT_RESOURCE))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect((jsonPath("$.messageFilterEntries", Matchers.hasSize(2))));
-
     }
 
 }
