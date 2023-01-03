@@ -10,98 +10,88 @@
         <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
                  endDelimiter="\n/"/>
         <sql>
-            CREATE TABLE DOMIBUS.TMP_TB_USER_MESSAGE AS
-            SELECT *
-            FROM DOMIBUS.TB_USER_MESSAGE
-            WHERE 1 = 0;
-
-            ALTER TABLE DOMIBUS.TMP_TB_USER_MESSAGE
-                MODIFY PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102));
-
-            BEGIN
-                PARTITIONSGEN(-7, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-6, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-5, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-4, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-3, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-2, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-1, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-
-                PARTITIONSGEN(0, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(1, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(2, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(3, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(4, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(5, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(6, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-            END;
-            /
-
-            DECLARE
+            CREATE OR REPLACE PROCEDURE PARTITION_USER_MESSAGE(schema_name IN VARCHAR2) IS
+                tmp_table  VARCHAR2(100);
                 num_errors PLS_INTEGER;
             BEGIN
-                DBMS_REDEFINITION.start_redef_table('domibus', 'TB_USER_MESSAGE', 'TMP_TB_USER_MESSAGE');
+                EXECUTE IMMEDIATE 'SET SERVEROUTPUT ON';
 
-                DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS('domibus', 'TB_USER_MESSAGE', 'TMP_TB_USER_MESSAGE',
-                                                        DBMS_REDEFINITION.CONS_ORIG_PARAMS, TRUE, TRUE, TRUE, TRUE,
+                tmp_table := schema_name || '.TMP_TB_USER_MESSAGE ';
+
+                EXECUTE IMMEDIATE
+                        'CREATE TABLE ' || tmp_table ||
+                        'PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102)) ' ||
+                        'AS SELECT * FROM ' || schema_name || '.TB_USER_MESSAGE WHERE 1 = 0';
+
+                PARTITIONSGEN(-7, tmp_table);
+
+                PARTITIONSGEN(-6, tmp_table);
+
+                PARTITIONSGEN(-5, tmp_table);
+
+                PARTITIONSGEN(-4, tmp_table);
+
+                PARTITIONSGEN(-3, tmp_table);
+
+                PARTITIONSGEN(-2, tmp_table);
+
+                PARTITIONSGEN(-1, tmp_table);
+
+                PARTITIONSGEN(0, tmp_table);
+
+                PARTITIONSGEN(1, tmp_table);
+
+                PARTITIONSGEN(2, tmp_table);
+
+                PARTITIONSGEN(3, tmp_table);
+
+                PARTITIONSGEN(4, tmp_table);
+
+                PARTITIONSGEN(5, tmp_table);
+
+                PARTITIONSGEN(6, tmp_table);
+
+                FOR q IN (
+                    SELECT 'alter table "' || owner || '"."' || table_name || '" DROP CONSTRAINT "' ||
+                           CONSTRAINT_NAME || '"' AS sql_text
+                    FROM dba_constraints
+                    WHERE table_name = 'TMP_TB_USER_MESSAGE'
+                    )
+                    LOOP
+                        DBMS_OUTPUT.put_line(q.sql_text);
+
+                        EXECUTE IMMEDIATE q.sql_text;
+                    END LOOP;
+
+                DBMS_REDEFINITION.start_redef_table(schema_name,
+                                                    'TB_USER_MESSAGE',
+                                                    'TMP_TB_USER_MESSAGE');
+
+                DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS(schema_name,
+                                                        'TB_USER_MESSAGE',
+                                                        'TMP_TB_USER_MESSAGE',
+                                                        DBMS_REDEFINITION.CONS_ORIG_PARAMS,
+                                                        TRUE,
+                                                        TRUE,
+                                                        TRUE,
+                                                        FALSE,
                                                         num_errors);
 
-                DBMS_REDEFINITION.FINISH_REDEF_TABLE('domibus', 'TB_USER_MESSAGE', 'TMP_TB_USER_MESSAGE');
+                DBMS_OUTPUT.put_line('Number of errors=' || num_errors);
 
+                DBMS_REDEFINITION.SYNC_INTERIM_TABLE(schema_name,
+                                                     'TB_USER_MESSAGE',
+                                                     'TMP_TB_USER_MESSAGE');
+
+                DBMS_REDEFINITION.FINISH_REDEF_TABLE(schema_name,
+                                                     'TB_USER_MESSAGE',
+                                                     'TMP_TB_USER_MESSAGE');
+
+                EXECUTE IMMEDIATE 'drop table ' || tmp_table || ' cascade constraints purge';
+
+                EXECUTE IMMEDIATE 'SET SERVEROUTPUT OFF';
             END;
             /
-
-            ALTER TABLE DOMIBUS.TMP_TB_USER_MESSAGE
-                MODIFY PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102));
-
-            BEGIN
-                PARTITIONSGEN(-7, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-6, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-5, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-4, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-3, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-2, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(-1, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-
-                PARTITIONSGEN(0, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(1, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(2, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(3, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(4, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(5, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-                PARTITIONSGEN(6, 'DOMIBUS.TMP_TB_USER_MESSAGE');
-            END;
-            /
-
-            DROP TABLE DOMIBUS.TB_USER_MESSAGE cascade constraints;
-
-            ALTER TABLE DOMIBUS.TMP_TB_USER_MESSAGE RENAME TO TB_USER_MESSAGE; /*TODO: RENAME TMP_TB_USER_MESSAGE TO TB_USER_MESSAGE; nu merge*/
-
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_PK_USER_MESSAGE0 to PK_USER_MESSAGE;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_UK_USER_MSG_MESSAGE_ID0 to UK_USER_MSG_MESSAGE_ID;
-
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_ACTION_ID0 to FK_USER_MSG_ACTION_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_AGREEMENT_ID0 to FK_USER_MSG_AGREEMENT_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_FROM_PARTY_ID0 to FK_USER_MSG_FROM_PARTY_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_FROM_ROLE_ID0 to FK_USER_MSG_FROM_ROLE_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_MPC_ID0 to FK_USER_MSG_MPC_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_MSH_ROLE0 to FK_USER_MSG_MSH_ROLE;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_SERVICE_ID0 to FK_USER_MSG_SERVICE_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_TO_PARTY_ID0 to FK_USER_MSG_TO_PARTY_ID;
-            alter table DOMIBUS.TB_USER_MESSAGE rename constraint TMP$$_FK_USER_MSG_TO_ROLE_ID0 to FK_USER_MSG_TO_ROLE_ID;
-
-            ALTER INDEX DOMIBUS.TMP$$_IDX_FROM_ROLE_ID0 RENAME TO IDX_FROM_ROLE_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_TEST_MESSAGE0 RENAME TO IDX_TEST_MESSAGE;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_TO_ROLE_ID0 RENAME TO IDX_TO_ROLE_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_UM_DELETION_COMPOSITE0 RENAME TO IDX_UM_DELETION_COMPOSITE;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_ACTION_ID0 RENAME TO IDX_USER_MSG_ACTION_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_AGREEMENT_ID0 RENAME TO IDX_USER_MSG_AGREEMENT_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_FROM_PARTY_ID0 RENAME TO IDX_USER_MSG_FROM_PARTY_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_MESSAGE_ID0 RENAME TO IDX_USER_MSG_MESSAGE_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_MPC_ID0 RENAME TO IDX_USER_MSG_MPC_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_SERVICE_ID0 RENAME TO IDX_USER_MSG_SERVICE_ID;
-            ALTER INDEX DOMIBUS.TMP$$_IDX_USER_MSG_TO_PARTY_ID0 RENAME TO IDX_USER_MSG_TO_PARTY_ID;
-            ALTER INDEX DOMIBUS.TMP$$_PK_USER_MESSAGE0 RENAME TO PK_USER_MESSAGE;
         </sql>
 
         <sql>
