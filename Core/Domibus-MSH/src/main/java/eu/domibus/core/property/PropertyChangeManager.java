@@ -252,7 +252,13 @@ public class PropertyChangeManager {
             LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
             File propertyFile = getFile(configurationFileName);
             if (!Files.exists(propertyFile.toPath())) {
-                throw new DomibusPropertyException(String.format("Properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+                LOG.info("Properties file for module [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), configurationFileName);
+                try {
+                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+                } catch (IOException e) {
+                    throw new DomibusPropertyException(String.format("Could not create the properties file for module [%s] at the location [%s].",
+                            propMeta.getName(), domain, configurationFileName), e);
+                }
             }
             return propertyFile;
         }
