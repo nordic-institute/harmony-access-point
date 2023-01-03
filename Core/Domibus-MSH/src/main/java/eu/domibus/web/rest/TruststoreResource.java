@@ -16,11 +16,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
@@ -83,6 +87,29 @@ public class TruststoreResource extends TruststoreResourceBase {
         LOG.debug("Listing entries of the truststore for the current domain");
 
         return getTrustStoreEntries();
+    }
+
+    @PostMapping(value = "/entries")
+    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
+        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+
+        return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
+    }
+
+    @DeleteMapping(value = "/list/{alias:.+}")
+    public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
+        return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
     }
 
     @GetMapping(value = "/changedOnDisk")

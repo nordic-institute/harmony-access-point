@@ -29,8 +29,11 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
     this.DOWNLOAD_URL = this.BASE_URL + '/download';
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
-
+    this.ADD_CERTIFICATE_URL = this.BASE_URL + '/entries';
+    this.REMOVE_CERTIFICATE_URL = this.BASE_URL + '/entries/alias';
+    
     this.showResetOperation = true;
+    this.canHandleCertificates = true;
   }
 
   ngOnInit() {

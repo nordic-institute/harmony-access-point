@@ -41,33 +41,5 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     super.ngOnInit();
   }
 
-  canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
-  }
 
-  canRemoveCertificate() {
-    return this.selected.length == 1 && !this.isBusy();
-  }
-
-  async addCertificate() {
-    const comp: ComponentType<unknown> = CertificateUploadComponent;
-    this.uploadFile(comp, this.ADD_CERTIFICATE_URL);
-  }
-
-  async removeCertificate() {
-    const cert = this.selected[0];
-    if (!cert) {
-      return;
-    }
-    try {
-      super.isLoading = true;
-      let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
-      this.alertService.success(res);
-    } catch (err) {
-      this.alertService.exception(`Error removing the certificate (${cert.name}) from truststore.`, err);
-    } finally {
-      super.isLoading = false;
-      this.loadServerData();
-    }
-  }
 }
