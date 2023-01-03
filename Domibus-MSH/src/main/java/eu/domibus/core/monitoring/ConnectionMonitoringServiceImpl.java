@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
-    public static final String PARTY_SEPARATOR = ">";
+
+    public static final String SENDER_RECEIVER_SEPARATOR = ">";
+    public static final String LIST_ITEM_SEPARATOR = ",";
 
     @Autowired
     private PartyService partyService;
@@ -41,7 +44,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public boolean isMonitoringEnabled() {
-        boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
+        boolean monitoringEnabled = !CollectionUtils.isEmpty(getMonitorEnabledParties());
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
@@ -56,10 +59,10 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
-                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(PARTY_SEPARATOR)[1])))
+                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(SENDER_RECEIVER_SEPARATOR)[1])))
                 .collect(Collectors.toList());
         for (String partyPair : monitoredParties) {
-            String[] pairVals = partyPair.split(PARTY_SEPARATOR);
+            String[] pairVals = partyPair.split(SENDER_RECEIVER_SEPARATOR);
             String senderParty = pairVals[0];
             String receiverParty = pairVals[1];
             try {
@@ -73,8 +76,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
-        ensureMewFormatForEnabledProperty();
-
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
             ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
@@ -100,7 +101,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        String partyPair = senderPartyId + PARTY_SEPARATOR + partyId;
+        String partyPair = senderPartyId + SENDER_RECEIVER_SEPARATOR + partyId;
         if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
@@ -124,26 +125,63 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getMonitorEnabledParties() {
-        return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        return getCleanEnabledProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
-    protected void ensureMewFormatForEnabledProperty() {
-        String selfPartyId = partyService.getGatewayPartyIdentifier();
-        List<String> monitoredParties = getMonitorEnabledParties();
-        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
-        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+    private List<String> getCleanEnabledProperty(String propertyName) {
+        ensureCorrectValueForProperty(propertyName);
+        return domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
     }
 
-    protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
-        for (int i = 0; i < monitoredParties.size(); i++) {
-            String monitoredPartyPair = monitoredParties.get(i);
-            String[] pairVals = monitoredPartyPair.split(PARTY_SEPARATOR);
-            if (pairVals.length == 1) {
-                monitoredParties.set(i, selfPartyId + PARTY_SEPARATOR + pairVals[0]);
-            }
+    public void ensureCorrectValueForProperty(String propertyName) {
+        String propValue = domibusPropertyProvider.getProperty(propertyName);
+
+        if (StringUtils.isEmpty(propValue)) {
+            LOG.trace("Property [{}] is empty.", propertyName);
+            return;
         }
-        String newValue = monitoredParties.stream().collect(Collectors.joining(","));
-        return newValue;
+
+        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+        String newValue = fixParties(monitoredParties);
+        if (StringUtils.equals(propValue, newValue)) {
+            LOG.debug("Nothing to fix for property [{}]", propertyName);
+            return;
+        }
+
+        domibusPropertyProvider.setProperty(propertyName, newValue);
+    }
+
+    protected String fixParties(List<String> monitoredParties) {
+        List<String> result = new ArrayList<>();
+
+        String defaultSelfPartyId = partyService.getGatewayPartyIdentifier();
+        List<String> senderPartyIds = partyService.getGatewayPartyIdentifiers();
+        List<String> destinationPartyIds = partyService.findPushToPartyNamesForTest();
+
+        monitoredParties.forEach(monitoredPartyPair -> {
+            String[] pairValues = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
+            if (pairValues.length == 1) {
+                if (!destinationPartyIds.contains(pairValues[0])) {
+                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[0]);
+                    return;
+                }
+                String newVal = defaultSelfPartyId + SENDER_RECEIVER_SEPARATOR + pairValues[0];
+                LOG.info("Fixing party enabled format for [{}] into [{}]", pairValues, newVal);
+                result.add(newVal);
+            } else {
+                if (!senderPartyIds.contains(pairValues[0])) {
+                    LOG.info("Party [{}] is not a valid sender party id so it will be eliminated.", pairValues[0]);
+                    return;
+                }
+                if (!destinationPartyIds.contains(pairValues[1])) {
+                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[1]);
+                    return;
+                }
+                result.add(monitoredPartyPair);
+            }
+        });
+
+        return String.join(LIST_ITEM_SEPARATOR, result);
     }
 
 }
