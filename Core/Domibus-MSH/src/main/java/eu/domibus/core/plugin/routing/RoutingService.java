@@ -89,7 +89,7 @@ public class RoutingService {
                 backendFilters = backendFiltersCache.get(currentDomain);
                 if (backendFilters == null) {
                     LOG.debug("Initializing backendFilterCache for domain [{}]", currentDomain);
-                    backendFilters = getBackendFiltersUncached(currentDomain);
+                    backendFilters = getBackendFiltersUncached();
                     backendFiltersCache.put(currentDomain, backendFilters);
                 }
             }
@@ -199,30 +199,30 @@ public class RoutingService {
         return backendFilters;
     }
 
-    public List<BackendFilter> getBackendFiltersUncached(Domain domain) {
-        List<BackendFilter> backendFiltersUncached = getBackendFiltersUncached();
+    public List<BackendFilter> getBackendFiltersUncached() {
+        List<BackendFilter> backendFiltersUncached = getBackendFilters();
         for (BackendFilter backendFilter : backendFiltersUncached) {
-            setActive(domain, backendFilter);
+            setActive(backendFilter);
         }
         return backendFiltersUncached;
     }
 
-    private void setActive(Domain domain, BackendFilter backendFilter) {
-        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
-        if (backendConnector instanceof EnableAware && isNotEnabled(domain, (EnableAware) backendConnector)) {
-            backendFilter.setActive(false);
-        } else {
-            backendFilter.setActive(true);
-        }
-    }
-
-    private static boolean isNotEnabled(Domain domain, EnableAware backendConnector) {
-        return !backendConnector.isEnabled(domain.getCode());
-    }
-
-    public List<BackendFilter> getBackendFiltersUncached() {
+    protected List<BackendFilter> getBackendFilters() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
         return backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
+    }
+
+    private void setActive(BackendFilter backendFilter) {
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
+        backendFilter.setActive(isEnabled(backendConnector));
+    }
+
+    private boolean isEnabled(BackendConnector<?, ?> backendConnector) {
+        if (!(backendConnector instanceof EnableAware)) {
+            LOG.trace("BackEndConnector [{}] is not EnableAware: default active", backendConnector.getName());
+            return true;
+        }
+        return ((EnableAware) backendConnector).isEnabled(domainContextProvider.getCurrentDomain().getCode());
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {

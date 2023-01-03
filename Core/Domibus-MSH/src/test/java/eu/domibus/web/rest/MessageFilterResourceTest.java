@@ -158,13 +158,10 @@ public class MessageFilterResourceTest {
         backendFilters.add(backendFilter);
 
         final List<MessageFilterRO> messageFilterROS = getMessageFilterROS(messageFilterEntityId);
-        Domain domain = new Domain("default", "default");
 
         new Expectations() {{
-            domainContextProvider.getCurrentDomain();
-            result = domain;
 
-            routingService.getBackendFiltersUncached(domain);
+            routingService.getBackendFiltersUncached();
             result = backendFilters;
 
             backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);

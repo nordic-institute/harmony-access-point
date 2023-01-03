@@ -656,7 +656,7 @@ public class RoutingServiceTest {
             domainContextProvider.getCurrentDomain();
             result = new Domain("default", "default");
 
-            routingService.getBackendFiltersUncached();
+            routingService.getBackendFilters();
             result = backendFilters;
 
             backendFilter1.getBackendName();
@@ -674,6 +674,8 @@ public class RoutingServiceTest {
             backendEnableAware1.isEnabled("default");
             result = true;
 
+            backend2.getName();
+            result = "backendConnector";
 
         }};
 
@@ -687,6 +689,7 @@ public class RoutingServiceTest {
         new FullVerifications() {{
             routingService.getBackendFiltersUncached();
             times = 1;
+
             backendFilter1.setActive(true);
             times = 1;
 
