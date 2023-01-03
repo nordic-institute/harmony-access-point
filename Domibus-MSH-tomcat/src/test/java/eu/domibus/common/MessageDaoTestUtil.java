@@ -5,6 +5,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -41,6 +42,7 @@ public class MessageDaoTestUtil {
 
     @Autowired
     UserMessageDao userMessageDao;
+
     @Autowired
     MpcDao mpcDao;
 
@@ -79,6 +81,9 @@ public class MessageDaoTestUtil {
 
     @Autowired
     MessageAcknowledgeConverter messageAcknowledgeConverter;
+
+    @Autowired
+    UserMessageDefaultService userMessageDefaultService;
 
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
@@ -277,5 +282,11 @@ public class MessageDaoTestUtil {
     @Transactional
     public List<UserMessageLog> getAllUserMessageLogs() {
         return em.createQuery("select uml from UserMessageLog uml", UserMessageLog.class).getResultList();
+    }
+
+    @Transactional
+    public void clear() {
+        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
+        userMessageDefaultService.deleteMessages(allMessages);
     }
 }

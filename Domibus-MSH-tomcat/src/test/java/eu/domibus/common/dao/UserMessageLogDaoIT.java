@@ -626,6 +626,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void findMessagesToDeleteInFinalStatus() {
+        messageDaoTestUtil.clear();
+
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
@@ -659,6 +661,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void findMessagesToDeleteNotInFinalStatus() {
+        messageDaoTestUtil.clear();
+        
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
