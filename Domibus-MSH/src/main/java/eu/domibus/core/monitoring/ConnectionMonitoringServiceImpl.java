@@ -144,10 +144,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
         String newValue = fixParties(monitoredParties);
         if (StringUtils.equals(propValue, newValue)) {
-            LOG.debug("Nothing to fix for property [{}]", propertyName);
+            LOG.trace("Nothing to fix for property [{}] value [{}]", propertyName, propValue);
             return;
         }
 
+        LOG.info("Fixed property [{}] value from [{}] to [{}]", propertyName, propValue, newValue);
         domibusPropertyProvider.setProperty(propertyName, newValue);
     }
 
@@ -162,7 +163,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             String[] pairValues = monitoredPartyPair.split(SENDER_RECEIVER_SEPARATOR);
             if (pairValues.length == 1) {
                 if (!destinationPartyIds.contains(pairValues[0])) {
-                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[0]);
+                    LOG.debug("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[0]);
                     return;
                 }
                 String newVal = defaultSelfPartyId + SENDER_RECEIVER_SEPARATOR + pairValues[0];
@@ -170,11 +171,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
                 result.add(newVal);
             } else {
                 if (!senderPartyIds.contains(pairValues[0])) {
-                    LOG.info("Party [{}] is not a valid sender party id so it will be eliminated.", pairValues[0]);
+                    LOG.debug("Party [{}] is not a valid sender party id so it will be eliminated.", pairValues[0]);
                     return;
                 }
                 if (!destinationPartyIds.contains(pairValues[1])) {
-                    LOG.info("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[1]);
+                    LOG.debug("Party [{}] is not a valid destination party id so it will be eliminated.", pairValues[1]);
                     return;
                 }
                 result.add(monitoredPartyPair);
