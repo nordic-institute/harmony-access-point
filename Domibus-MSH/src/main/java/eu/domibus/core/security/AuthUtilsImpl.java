@@ -126,6 +126,14 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
+    public boolean isAPAdmin() {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return isSuperAdmin();
+        }
+        return isAdmin();
+    }
+
+    @Override
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     public void hasUserOrAdminRole() {
         if (isAdmin() || isSuperAdmin()) {
