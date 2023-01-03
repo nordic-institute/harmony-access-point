@@ -108,6 +108,14 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    public List<String> getGatewayPartyIdentifiers() {
+        eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
+        return gatewayParty.getIdentifiers().stream()
+                .map(Identifier::getPartyId)
+                .collect(toList());
+    }
+
+    @Override
     public  String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
