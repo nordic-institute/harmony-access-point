@@ -25,6 +25,8 @@ public class MessageFilterRO implements Serializable {
 
     private boolean isPersisted;
 
+    private boolean active;
+
     public String getEntityId() {
         return entityId;
     }
@@ -63,6 +65,14 @@ public class MessageFilterRO implements Serializable {
 
     public void setPersisted(boolean isPersisted) {
         this.isPersisted = isPersisted;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

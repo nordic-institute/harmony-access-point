@@ -14,7 +14,7 @@ public class MessageFilterCSV {
     private RoutingCriteria action;
     private RoutingCriteria service;
     private boolean persisted;
-
+    private boolean active;
 
     public String getPlugin() {
         return plugin;
@@ -62,5 +62,13 @@ public class MessageFilterCSV {
 
     public void setPersisted(boolean persisted) {
         this.persisted = persisted;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

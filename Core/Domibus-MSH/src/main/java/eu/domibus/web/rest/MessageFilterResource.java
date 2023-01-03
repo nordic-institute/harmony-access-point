@@ -1,5 +1,7 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.BackendFilterCoreMapper;
@@ -32,11 +34,14 @@ public class MessageFilterResource extends BaseResource {
     private final RoutingService routingService;
 
     private final BackendFilterCoreMapper backendFilterCoreMapper;
+    private DomainContextProvider domainContextProvider;
 
     public MessageFilterResource(RoutingService routingService,
-                                 BackendFilterCoreMapper backendFilterCoreMapper) {
+                                 BackendFilterCoreMapper backendFilterCoreMapper,
+                                 DomainContextProvider domainContextProvider) {
         this.routingService = routingService;
         this.backendFilterCoreMapper = backendFilterCoreMapper;
+        this.domainContextProvider = domainContextProvider;
     }
 
     @GetMapping
@@ -67,12 +72,14 @@ public class MessageFilterResource extends BaseResource {
         LOG.debug("GET csv");
         List<MessageFilterRO> list = getBackendFiltersInformation().getKey();
         getCsvService().validateMaxRows(list.size());
-        return exportToCSV(list.stream().map(this::fromMessageFilterRO).collect(Collectors.toList()), MessageFilterCSV.class, "message-filter");
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        return exportToCSV(list.stream().map(this::fromMessageFilterRO).collect(Collectors.toList()), MessageFilterCSV.class, "message-filter", currentDomain.getName());
     }
 
     protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
-        List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached(currentDomain);
         List<MessageFilterRO> messageFilterResultROS = backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
             if (StringUtils.isEmpty(messageFilter.getEntityId())) {
@@ -88,6 +95,7 @@ public class MessageFilterResource extends BaseResource {
         MessageFilterCSV messageFilterCSV = new MessageFilterCSV();
         messageFilterCSV.setPlugin(messageFilterRO.getBackendName());
         messageFilterCSV.setPersisted(messageFilterRO.isPersisted());
+        messageFilterCSV.setActive(messageFilterRO.isActive());
 
         List<RoutingCriteria> routingCriteria = messageFilterRO.getRoutingCriterias();
         messageFilterCSV.setFrom(getValue(routingCriteria, MessageUtil.FROM));

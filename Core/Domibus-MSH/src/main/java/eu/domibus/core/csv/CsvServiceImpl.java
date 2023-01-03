@@ -63,10 +63,10 @@ public class CsvServiceImpl implements CsvService {
     }
 
     @Override
-    public String getCsvFilename(String module) {
+    public String getCsvFilename(String module, String domainName) {
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        return module + "_datatable_" + dateFormat.format(date) + ".csv";
+        return domainName + "_" + module + "_datatable_" + dateFormat.format(date) + ".csv";
     }
 
     @Override
