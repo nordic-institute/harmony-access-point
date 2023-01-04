@@ -202,7 +202,7 @@ public class RoutingService {
     public List<BackendFilter> getBackendFiltersUncached() {
         List<BackendFilter> backendFiltersUncached = getBackendFilters();
         for (BackendFilter backendFilter : backendFiltersUncached) {
-            setActive(backendFilter);
+            setActivationStatus(backendFilter);
         }
         return backendFiltersUncached;
     }
@@ -212,7 +212,7 @@ public class RoutingService {
         return backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
     }
 
-    private void setActive(BackendFilter backendFilter) {
+    private void setActivationStatus(BackendFilter backendFilter) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
         backendFilter.setActive(isEnabled(backendConnector));
     }
