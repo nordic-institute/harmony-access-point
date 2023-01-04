@@ -28,7 +28,9 @@
       </ngx-datatable-column>
       <ngx-datatable-column name="Enabled" prop="active" [sortable]="false">
         <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-          <mat-checkbox [checked]="value" disabled id="enabledRow{{rows.indexOf(row)}}_id"></mat-checkbox>
+          <span class="connection-monitor-status">
+            <mat-slide-toggle [(ngModel)]="row.active" (change)="toggleActive(row)"></mat-slide-toggle>
+          </span>
         </ng-template>
       </ngx-datatable-column>
       <ngx-datatable-column name="From" prop="from.expression" [sortable]="false">

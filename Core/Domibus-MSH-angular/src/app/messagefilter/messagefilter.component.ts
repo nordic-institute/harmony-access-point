@@ -12,6 +12,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {PropertiesService, PropertyModel} from '../properties/support/properties.service';
 
 @Component({
   moduleId: module.id,
@@ -32,7 +33,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableSave: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog) {
+              public dialog: MatDialog, private propertiesService: PropertiesService) {
     super();
   }
 
@@ -59,7 +60,8 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
           if (!(currentFilter)) {
             continue;
           }
-          let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted, currentFilter.active);
+          let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias,
+            currentFilter.persisted, currentFilter.active, currentFilter.enabledPropertyName);
           newRows.push(backendEntry);
           if (this.backendFilterNames.indexOf(backendEntry.backendName) == -1) {
             this.backendFilterNames.push(backendEntry.backendName);
@@ -90,7 +92,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
       return;
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false, true);
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false, true, null);
     const ok = await this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,
@@ -254,5 +256,23 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   private disableSelectionAndButtons() {
     super.selected = [];
     this.enableSave = false;
+  }
+
+  async toggleActive(row: BackendFilterEntry) {
+    let newValue = row.active;
+    let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
+
+    try {
+      let propName = row.enabledPropertyName;
+      let prop: PropertyModel = await this.propertiesService.getProperty(propName);
+      prop.value = newValue + '';
+      await this.propertiesService.updateProperty(prop);
+
+      row.active = newValue;
+      this.alertService.success(`Set ${newValueText} for backend <b>${row.backendName}</b>`);
+    } catch (err) {
+      row.active = !newValue;
+      this.alertService.exception(`Could not set ${newValueText} for backend <b>${row.backendName}</b>:<br>`, err);
+    }
   }
 }

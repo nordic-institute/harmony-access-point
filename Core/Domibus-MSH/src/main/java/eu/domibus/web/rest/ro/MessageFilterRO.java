@@ -27,6 +27,8 @@ public class MessageFilterRO implements Serializable {
 
     private boolean active;
 
+    private String enabledPropertyName;
+
     public String getEntityId() {
         return entityId;
     }
@@ -75,6 +77,14 @@ public class MessageFilterRO implements Serializable {
         this.active = active;
     }
 
+    public String getEnabledPropertyName() {
+        return enabledPropertyName;
+    }
+
+    public void setEnabledPropertyName(String enabledPropertyName) {
+        this.enabledPropertyName = enabledPropertyName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,6 +99,7 @@ public class MessageFilterRO implements Serializable {
                 .append(isPersisted, that.isPersisted)
                 .append(routingCriterias, that.routingCriterias)
                 .append(backendName, that.backendName)
+                .append(enabledPropertyName, that.enabledPropertyName)
                 .isEquals();
     }
 
@@ -99,6 +110,7 @@ public class MessageFilterRO implements Serializable {
                 .append(index)
                 .append(routingCriterias)
                 .append(backendName)
+                .append(enabledPropertyName)
                 .append(isPersisted)
                 .toHashCode();
     }
@@ -111,6 +123,7 @@ public class MessageFilterRO implements Serializable {
                 ", routingCriterias=" + routingCriterias +
                 ", backendName='" + backendName + '\'' +
                 ", isPersisted=" + isPersisted +
+                ", enabledPropertyName=" + enabledPropertyName +
                 '}';
     }
 }

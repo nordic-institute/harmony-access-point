@@ -14,7 +14,8 @@ export class BackendFilterEntry {
                      public backendName: string,
                      public routingCriterias: Array<RoutingCriteriaEntry>,
                      public persisted: boolean,
-                     public active: boolean) {
+                     public active: boolean,
+                     public enabledPropertyName: string) {
     this.initRoutingCriteria();
   }
 
