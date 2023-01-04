@@ -7,9 +7,14 @@
     <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="maierga" id="Partition populated tables" dbms="oracle">
+<!--
+@/home/maierga/workspaces/domibus/Core/Domibus-MSH-db/src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql
+-->
         <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
                  endDelimiter="\n/"/>
         <sql>
+
+            -- select TABLE_OWNER, TABLE_NAME, PARTITION_NAME from ALL_TAB_PARTITIONS where TABLE_OWNER='DOMIBUS' AND TABLE_NAME='TMP_TB_USER_MESSAGE';
             CREATE OR REPLACE PROCEDURE PARTITION_USER_MESSAGE(schema_name IN VARCHAR2) IS
                 tmp_table  VARCHAR2(100);
                 num_errors PLS_INTEGER;
@@ -20,8 +25,8 @@
 
                 EXECUTE IMMEDIATE
                         'CREATE TABLE ' || tmp_table ||
-                        'PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102)) ' ||
-                        'AS SELECT * FROM ' || schema_name || '.TB_USER_MESSAGE WHERE 1 = 0';
+                        '   PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102)) ' ||
+                        '   AS SELECT * FROM ' || schema_name || '.TB_USER_MESSAGE WHERE 1 = 0';
 
                 PARTITIONSGEN(-7, tmp_table);
 
