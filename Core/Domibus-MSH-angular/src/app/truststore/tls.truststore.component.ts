@@ -9,8 +9,6 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
-import {ComponentType} from 'angular-md2';
-import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({

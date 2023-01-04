@@ -90,22 +90,12 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @PostMapping(value = "/entries")
-    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+    public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
-        if (StringUtils.isBlank(alias)) {
-            throw new RequestValidationException("Please provide an alias for the certificate.");
-        }
-
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
-        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
-
-        return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
+        return addCertificate(certificateFile, alias);
     }
 
-    @DeleteMapping(value = "/list/{alias:.+}")
+    @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
@@ -149,5 +139,12 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected String getStoreName() {
         return "truststore";
+    }
+
+    @Override
+    protected void doAddCertificate(String alias, byte[] fileContent) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
+        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 }

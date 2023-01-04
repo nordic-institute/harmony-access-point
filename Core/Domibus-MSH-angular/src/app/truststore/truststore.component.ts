@@ -31,7 +31,7 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
     this.ADD_CERTIFICATE_URL = this.BASE_URL + '/entries';
     this.REMOVE_CERTIFICATE_URL = this.BASE_URL + '/entries/alias';
-    
+
     this.showResetOperation = true;
     this.canHandleCertificates = true;
   }

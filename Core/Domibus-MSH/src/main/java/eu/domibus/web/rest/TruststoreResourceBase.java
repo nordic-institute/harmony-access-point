@@ -136,4 +136,19 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 ),
                 Arrays.asList("fingerprints", "certificateExpiryAlertDays"), moduleName);
     }
+
+    protected String addCertificate(MultipartFile certificateFile, String alias) {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        doAddCertificate(alias, fileContent);
+
+        return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+    }
+
+    protected void doAddCertificate(String alias, byte[] fileContent) {
+    }
 }
