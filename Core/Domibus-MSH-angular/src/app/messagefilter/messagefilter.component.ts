@@ -114,6 +114,11 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   edit(row?) {
     row = row || this.selected[0];
 
+    if (!row.active) {
+      this.alertService.error('Cannot edit a disabled backend connector');
+      return;
+    }
+
     const backendEntry = JSON.parse(JSON.stringify(row));
     this.dialog.open(EditMessageFilterComponent, {
       data: {
@@ -213,11 +218,11 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   }
 
   canMoveUp(): boolean {
-    return this.oneRowSelected() && this.rowNumber > 0 && !this.isBusy();
+    return this.oneRowSelected() && this.selected[0].active && this.rowNumber > 0 && !this.isBusy();
   }
 
   canMoveDown(): boolean {
-    return this.oneRowSelected() && this.rowNumber < this.rows.length - 1 && !this.isBusy();
+    return this.oneRowSelected() && this.selected[0].active && this.rowNumber < this.rows.length - 1 && !this.isBusy();
   }
 
   setDirty(dirty: boolean) {
@@ -231,6 +236,10 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   canDelete() {
     return this.selected.length > 0 && !this.isBusy();
+  }
+
+  canEdit(): boolean {
+    return super.canEdit() && this.selected[0].active;
   }
 
   private oneRowSelected() {

@@ -68,17 +68,17 @@
       </ngx-datatable-column>
       <ngx-datatable-column name="Actions" prop="actions" [sortable]="false">
         <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
-          <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===0"
+          <button mat-icon-button color="primary" type="button" [disabled]="!row.active || rows.indexOf(row)===0"
                   (click)="moveAction(row, -1)" id="moveUpButtonRow{{rows.indexOf(row)}}_id"
                   matTooltip="Move Up" button-click-behaviour>
             <mat-icon>arrow_drop_up</mat-icon>
           </button>
-          <button mat-icon-button color="primary" type="button" [disabled]="rows.indexOf(row)===rows.length - 1"
+          <button mat-icon-button color="primary" type="button" [disabled]="!row.active || rows.indexOf(row)===rows.length - 1"
                   (click)="moveAction(row, +1)" id="moveDownButtonRow{{rows.indexOf(row)}}_id"
                   matTooltip="Move Down" button-click-behaviour>
             <mat-icon>arrow_drop_down</mat-icon>
           </button>
-          <button mat-icon-button color="primary" type="button" (click)="edit(row)"
+          <button mat-icon-button color="primary" type="button" (click)="edit(row)" [disabled]="!row.active"
                   id="editButtonRow{{rows.indexOf(row)}}_id" matTooltip="Edit" button-click-behaviour>
             <mat-icon>edit</mat-icon>
           </button>
