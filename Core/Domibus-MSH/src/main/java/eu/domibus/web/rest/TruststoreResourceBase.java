@@ -149,6 +149,5 @@ public abstract class TruststoreResourceBase extends BaseResource {
         return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
     }
 
-    protected void doAddCertificate(String alias, byte[] fileContent) {
-    }
+    protected abstract void doAddCertificate(String alias, byte[] fileContent);
 }
