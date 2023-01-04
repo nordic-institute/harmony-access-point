@@ -7,7 +7,6 @@ import {MessageFilterResult} from './support/messagefilterresult';
 import {BackendFilterEntry} from './support/backendfilterentry';
 import {RoutingCriteriaEntry} from './support/routingcriteriaentry';
 import {EditMessageFilterComponent} from './editmessagefilter-form/editmessagefilter-form.component';
-import {DialogsService} from '../common/dialogs/dialogs.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
@@ -33,7 +32,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableSave: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog, private dialogsService: DialogsService) {
+              public dialog: MatDialog) {
     super();
   }
 
@@ -60,7 +59,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
           if (!(currentFilter)) {
             continue;
           }
-          let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted);
+          let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias, currentFilter.persisted, currentFilter.active);
           newRows.push(backendEntry);
           if (this.backendFilterNames.indexOf(backendEntry.backendName) == -1) {
             this.backendFilterNames.push(backendEntry.backendName);
@@ -91,7 +90,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
       return;
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false);
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false, true);
     const ok = await this.dialog.open(EditMessageFilterComponent, {
       data: {
         backendFilterNames: this.backendFilterNames,

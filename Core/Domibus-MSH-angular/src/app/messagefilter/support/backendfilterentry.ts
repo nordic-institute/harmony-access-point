@@ -13,7 +13,8 @@ export class BackendFilterEntry {
                      public index: number,
                      public backendName: string,
                      public routingCriterias: Array<RoutingCriteriaEntry>,
-                     public persisted: boolean) {
+                     public persisted: boolean,
+                     public active: boolean) {
     this.initRoutingCriteria();
   }
 
