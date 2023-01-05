@@ -91,7 +91,7 @@ public class TLSTruststoreResourceTest {
 
         String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
 
-        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the TLS truststore."));
+        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the [" + tlsTruststoreResource.getStoreName() + "]."));
 
         new Verifications() {{
             tlsCertificateManager.addCertificate(content, alias);

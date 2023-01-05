@@ -45,7 +45,7 @@ public class BaseResourceTest {
     }
 
 
-    private static List<String> jmsExcludedColumns = Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId");
+    private final static List<String> jmsExcludedColumns = Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId");
 
     @Test
     public void testExportToCSV_JMS() {
@@ -56,7 +56,7 @@ public class BaseResourceTest {
             baseResource.getCsvService();
             result = csvServiceImpl;
 
-            csvServiceImpl.getCsvFilename(moduleName);
+            csvServiceImpl.getCsvFilename(moduleName, "");
             result = moduleName;
         }};
 

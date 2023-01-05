@@ -111,4 +111,17 @@
             <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
         </insert>
     </changeSet>
+    
+    <changeSet id="insert_backendFilter_in_TB_BACKEND" author="gautifr">
+        <insert tableName="TB_BACKEND_FILTER">
+            <column name="ID_PK" value="1"/>
+            <column name="PRIORITY" value="1"/>
+            <column name="BACKEND_NAME" value="wsPlugin"/>
+        </insert>
+        <insert tableName="TB_BACKEND_FILTER">
+            <column name="ID_PK" value="2"/>
+            <column name="PRIORITY" value="2"/>
+            <column name="BACKEND_NAME" value="fsPlugin"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
