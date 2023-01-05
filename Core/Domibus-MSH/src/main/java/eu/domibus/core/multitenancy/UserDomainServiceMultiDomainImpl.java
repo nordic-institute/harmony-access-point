@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * @author Ion Perpegel
  * @since 4.0
  */
-public class UserDomainServiceMultiDomainImpl implements UserDomainService {
+    public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainServiceMultiDomainImpl.class);
 
@@ -46,7 +46,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     @Override
     public String getDomainForUser(String user) {
         LOG.debug("Searching domain for user [{}]", user);
-        String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomainByUser(user));
+        String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomain(user));
         LOG.debug("Found domain [{}] for user [{}]", domain, user);
         return domain;
     }
@@ -61,7 +61,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     @Override
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);
-        String domain = domainTaskExecutor.submit(() -> userDomainDao.findPreferredDomainByUser(user));
+        String domain = domainTaskExecutor.submit(() -> userDomainDao.findPreferredDomain(user));
         LOG.debug("Found preferred domain [{}] for user [{}]", domain, user);
         return domain;
     }
@@ -88,17 +88,17 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     }
 
     private void deleteDomainByUser(String user) {
-        userDomainDao.deleteDomainByUser(user);
+        userDomainDao.deleteUserDomain(user);
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setDomainByUser(String user, String domainCode) {
-        userDomainDao.setDomainByUser(user, domainCode);
+        userDomainDao.updateOrCreateDomain(user, domainCode);
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setPreferredDomainByUser(String user, String domainCode) {
-        userDomainDao.setPreferredDomainByUser(user, domainCode);
+        userDomainDao.updateOrCreatePreferredDomain(user, domainCode);
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.PREFERRED_USER_DOMAIN_CACHE);
     }
 

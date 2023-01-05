@@ -45,7 +45,7 @@ public class UserDomainServiceMultiDomainImplTest {
         String domain = "domain1";
 
         new Expectations() {{
-            userDomainDao.findDomainByUser(user);
+            userDomainDao.findDomain(user);
             result = domain;
         }};
 
@@ -61,7 +61,7 @@ public class UserDomainServiceMultiDomainImplTest {
         String domain = "domain1";
 
         new Expectations() {{
-            userDomainDao.findPreferredDomainByUser(user);
+            userDomainDao.findPreferredDomain(user);
             result = domain;
         }};
 
@@ -79,7 +79,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setDomainByUser(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateDomain(user, domainCode));
         }};
     }
 
@@ -91,7 +91,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setPreferredDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setPreferredDomainByUser(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreatePreferredDomain(user, domainCode));
         }};
     }
 
