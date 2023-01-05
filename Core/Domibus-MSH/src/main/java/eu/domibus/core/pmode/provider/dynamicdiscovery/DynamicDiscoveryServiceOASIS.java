@@ -87,6 +87,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     private final DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     private X509CertificateService x509CertificateService;
+
     private final ObjectProvider<DocumentIdentifier> documentIdentifiers;
 
     private final ObjectProvider<ParticipantIdentifier> participantIdentifiers;

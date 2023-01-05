@@ -146,6 +146,9 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     private EndpointInfo endpointInfo;
 
     @Injectable
+    private X509CertificateService x509CertificateService;
+
+    @Injectable
     private DynamicDiscoveryUtil dynamicDiscoveryUtil;
 
     @Injectable

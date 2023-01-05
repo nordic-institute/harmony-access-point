@@ -128,4 +128,8 @@ public class KeystoreResource extends TruststoreResourceBase {
     protected String getStoreName() {
         return "keystore";
     }
+
+    @Override
+    protected void doAddCertificate(String alias, byte[] fileContent) {
+    }
 }
