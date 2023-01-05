@@ -12,7 +12,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
-import {PropertiesService, PropertyModel} from '../properties/support/properties.service';
+import {ManageBackendsComponent} from './manageBackends-form/manageBackends-form.component';
 
 @Component({
   moduleId: module.id,
@@ -26,14 +26,14 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  backendConnectors: { name: string, active: boolean }[];
+  backendConnectors: { name: string, active: boolean, enabledPropertyName: string }[];
   rowNumber: number;
   areFiltersPersisted: boolean;
 
   enableSave: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog, private propertiesService: PropertiesService) {
+              public dialog: MatDialog) {
     super();
   }
 
@@ -64,7 +64,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
             currentFilter.persisted, currentFilter.active, currentFilter.enabledPropertyName);
           newRows.push(backendEntry);
           if (!this.backendConnectors.some(el => el.name == backendEntry.backendName)) {
-            this.backendConnectors.push({name: backendEntry.backendName, active: backendEntry.active});
+            this.backendConnectors.push({name: backendEntry.backendName, active: backendEntry.active, enabledPropertyName: backendEntry.enabledPropertyName});
           }
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
@@ -186,7 +186,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.moveAction(this.selected[0], -1);
   }
 
-  moveAction(row, step: number = 1 | -1) {
+  moveAction(row, step: number = 1 || -1) {
     let rowIndex = this.rows.indexOf(row);
     this.moveInternal(rowIndex, step);
     setTimeout(() => {
@@ -195,7 +195,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     }, 50);
   }
 
-  private moveInternal(rowNumber, step: number = -1 | 1) {
+  private moveInternal(rowNumber, step: number = -1 || 1) {
     if ((step == -1 && rowNumber < 1) || (step == 1 && rowNumber > this.rows.length - 1)) {
       return;
     }
@@ -270,21 +270,12 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.enableSave = false;
   }
 
-  async toggleActive(row: BackendFilterEntry) {
-    let newValue = row.active;
-    let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
-
-    try {
-      let propName = row.enabledPropertyName;
-      let prop: PropertyModel = await this.propertiesService.getProperty(propName);
-      prop.value = newValue + '';
-      await this.propertiesService.updateProperty(prop);
-
-      row.active = newValue;
-      this.alertService.success(`Set ${newValueText} for backend <b>${row.backendName}</b>`);
-    } catch (err) {
-      row.active = !newValue;
-      this.alertService.exception(`Could not set ${newValueText} for backend <b>${row.backendName}</b>:<br>`, err);
-    }
+  async manageBackends() {
+    const ok = await this.dialog.open(ManageBackendsComponent, {
+      data: {
+        backendConnectors: this.backendConnectors,
+      }
+    }).afterClosed().toPromise();
+    this.loadServerData();
   }
 }
