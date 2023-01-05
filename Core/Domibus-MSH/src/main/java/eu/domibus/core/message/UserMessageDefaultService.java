@@ -5,7 +5,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
@@ -665,12 +664,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public UserMessage getByMessageId(String messageId) {
-        final UserMessage userMessage;
-        try {
-            userMessage = userMessageDao.findByMessageId(messageId);
-        } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageFoundException(messageId);
-        }
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

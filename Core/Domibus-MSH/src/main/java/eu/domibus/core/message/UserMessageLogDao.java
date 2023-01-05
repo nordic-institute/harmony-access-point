@@ -192,6 +192,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
             return MessageStatus.NOT_FOUND;
+        } catch (NonUniqueResultException exception) {
+            throw new DuplicateMessageFoundException(messageId);
         }
     }
 
@@ -256,7 +258,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             userMessageLog = DataAccessUtils.singleResult(query.getResultList());
 
         } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new DuplicateMessageFoundException(messageId);
+            throw new DuplicateMessageFoundException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.");
         }
         if (userMessageLog == null) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);

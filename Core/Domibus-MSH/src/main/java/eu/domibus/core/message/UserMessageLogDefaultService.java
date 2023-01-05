@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NonUniqueResultException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -162,11 +160,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     @Override
     public MessageStatus getMessageStatusById(String messageId) {
-        try {
-            return userMessageLogDao.getMessageStatusById(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new DuplicateMessageFoundException(messageId);
-        }
+        return userMessageLogDao.getMessageStatusById(messageId);
     }
 
     @Override
@@ -176,11 +170,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     @Override
     public UserMessageLog findByMessageId(String messageId) {
-        try {
-            return userMessageLogDao.findByMessageId(messageId);
-        } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageFoundException("Duplicate message Id found.", exception);
-        }
+        return userMessageLogDao.findByMessageId(messageId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

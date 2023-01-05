@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
@@ -120,12 +119,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     // we keep this for back-ward compatibility
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId){
-        UserMessage userMessage;
-        try {
-            userMessage = userMessageDao.findByMessageId(messageId);
-        } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageFoundException("Duplicate message Id found.", exception);
-        }
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }
