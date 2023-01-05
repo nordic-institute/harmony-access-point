@@ -125,7 +125,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     const backendEntry = JSON.parse(JSON.stringify(row));
     this.dialog.open(EditMessageFilterComponent, {
       data: {
-        backendFilterNames: this.backendConnectors,
+        backendConnectors: this.backendConnectors,
         entity: backendEntry
       }
     }).afterClosed().toPromise().then(ok => {
