@@ -78,7 +78,7 @@ public class PropertyUtils {
             }
         }
 
-        if (!propertyName.equalsIgnoreCase(DOMIBUS_DATABASE_GENERAL_SCHEMA)) {
+        if (!StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_DATABASE_GENERAL_SCHEMA)) {
             LOG.warn("No system environment variables, system properties nor file properties found matching the name of [{}]: returning a default empty value", propertyName);
         }
 
