@@ -19,12 +19,12 @@ const MAX_LENGTH = 255;
   templateUrl: 'editmessagefilter-form.component.html',
   styleUrls: ['editmessagefilter-form.component.css'],
 })
-export class EditMessageFilterComponent extends EditPopupBaseComponent implements AfterViewInit{
+export class EditMessageFilterComponent extends EditPopupBaseComponent implements AfterViewInit {
 
   formTitle: string;
   textMaxLength = MAX_LENGTH;
 
-  backendNames: Array<String> = [];
+  backendConnectors: Array<{ name: string, active: boolean }> = [];
 
   entity: BackendFilterEntry;
   criteria: any;
@@ -42,7 +42,7 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent implement
               private cdr: ChangeDetectorRef) {
     super(dialogRef, data);
 
-    this.backendNames = data.backendFilterNames;
+    this.backendConnectors = data.backendConnectors;
 
     this.entity = this.data.entity;
     this.extractCriteria();

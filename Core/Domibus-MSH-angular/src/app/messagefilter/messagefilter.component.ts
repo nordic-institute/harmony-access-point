@@ -26,7 +26,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  backendNames: any[];
+  backendConnectors: { name: string, active: boolean }[];
   rowNumber: number;
   areFiltersPersisted: boolean;
 
@@ -40,7 +40,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   ngOnInit() {
     super.ngOnInit();
 
-    this.backendNames = [];
+    this.backendConnectors = [];
     this.rowNumber = -1;
     this.loadServerData();
   }
@@ -53,7 +53,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.disableSelectionAndButtons();
     return this.getMessageFilterEntries().toPromise().then((result: MessageFilterResult) => {
       const newRows = [];
-      this.backendNames = [];
+      this.backendConnectors = [];
       if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
           let currentFilter = result.messageFilterEntries[i];
@@ -63,8 +63,8 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
           let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias,
             currentFilter.persisted, currentFilter.active, currentFilter.enabledPropertyName);
           newRows.push(backendEntry);
-          if (this.backendNames.indexOf(backendEntry.backendName) == -1) {
-            this.backendNames.push(backendEntry.backendName);
+          if (!this.backendConnectors.some(el => el.name == backendEntry.backendName)) {
+            this.backendConnectors.push({name: backendEntry.backendName, active: backendEntry.active});
           }
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
@@ -74,7 +74,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
         super.isChanged = false;
 
-        if (!this.areFiltersPersisted && this.backendNames.length > 1) {
+        if (!this.areFiltersPersisted && this.backendConnectors.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
             'It is strongly recommended to double check the filters configuration and afterwards save it.');
           this.enableSave = true;
@@ -92,10 +92,13 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
       return;
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendNames[0], [], false, true, null);
+    let activeConnectors = this.backendConnectors.filter(bConn => bConn.active);
+    let activeConnector = activeConnectors[0];
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, activeConnector.name, [], false,
+      activeConnector.active, null);
     const ok = await this.dialog.open(EditMessageFilterComponent, {
       data: {
-        backendFilterNames: this.backendNames,
+        backendConnectors: activeConnectors,
         entity: backendEntry
       }
     }).afterClosed().toPromise();
@@ -115,14 +118,14 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     row = row || this.selected[0];
 
     if (!row.active) {
-      this.alertService.error('Cannot edit a disabled backend connector');
+      this.alertService.error('Cannot edit a backend filter of a disabled backend connector.');
       return;
     }
 
     const backendEntry = JSON.parse(JSON.stringify(row));
     this.dialog.open(EditMessageFilterComponent, {
       data: {
-        backendFilterNames: this.backendNames,
+        backendFilterNames: this.backendConnectors,
         entity: backendEntry
       }
     }).afterClosed().toPromise().then(ok => {
