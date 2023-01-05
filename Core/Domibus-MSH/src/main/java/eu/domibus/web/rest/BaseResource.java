@@ -46,11 +46,28 @@ public abstract class BaseResource {
     protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final Map<String, String> customColumnNames,
                                                  List<String> excludedColumns, final String moduleName) {
 
+        return exportToCSV(list, itemClass, customColumnNames, excludedColumns, moduleName, "");
+    }
+
+    /**
+     * exports to CSV
+     *
+     * @param list              the list of objects to export
+     * @param itemClass         the class of the object instances, used to determine the columns
+     * @param customColumnNames needed in case different column titles than the attribute name
+     * @param excludedColumns   the list of excluded columns from the final export
+     * @param moduleName        the seed of the name of the generated file
+     * @param domainName        the name of the domain
+     * @return The comma-separated list of records
+     */
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final Map<String, String> customColumnNames,
+                                                 List<String> excludedColumns, final String moduleName, final String domainName) {
+
         String result = getCsvService().exportToCSV(list, itemClass, customColumnNames, excludedColumns);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(APPLICATION_EXCEL_STR))
-                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName) + "\"")
+                .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName, domainName) + "\"")
                 .body(result);
     }
 
@@ -60,10 +77,11 @@ public abstract class BaseResource {
      * @param list       the list of objects to export
      * @param itemClass  the class of the object instances, used to determine the columns
      * @param moduleName the seed of the name of the generated file
+     * @param domainName the name of the domain
      * @return The comma-separated list of records
      */
-    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final String moduleName) {
-        return exportToCSV(list, itemClass, new HashMap<>(), new ArrayList<>(), moduleName);
+    protected ResponseEntity<String> exportToCSV(List<?> list, Class itemClass, final String moduleName, final String domainName) {
+        return exportToCSV(list, itemClass, new HashMap<>(), new ArrayList<>(), moduleName, domainName);
     }
 
     /**

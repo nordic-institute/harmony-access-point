@@ -16,7 +16,7 @@ public interface CsvService {
 
     int getMaxNumberRowsToExport();
 
-    String getCsvFilename(String module);
+    String getCsvFilename(String module, String domainName);
 
     int getPageSizeForExport();
 

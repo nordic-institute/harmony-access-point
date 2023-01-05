@@ -2,9 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.message.DeleteMessageAbstractIT;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.PartInfoDao;
@@ -49,9 +47,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
     public void setupInfrastructure(){
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-    }
+  }
 
 
     @Test

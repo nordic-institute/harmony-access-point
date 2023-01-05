@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.BackendFilterCoreMapper;
@@ -45,6 +47,9 @@ public class MessageFilterResourceTest {
 
     @Injectable
     RoutingService routingService;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Injectable
     BackendFilterCoreMapper backendFilterCoreMapper;
@@ -116,6 +121,8 @@ public class MessageFilterResourceTest {
         messageFilterResultROS.add(messageFilterRO);
 
         new Expectations(messageFilterResource){{
+            domainContextProvider.getCurrentDomain();
+            result = new Domain("default", "default");
             messageFilterResource.getBackendFiltersInformation();
             result = new ImmutablePair<>(messageFilterResultROS, true);
             messageFilterResource.fromMessageFilterRO(messageFilterRO);
@@ -123,7 +130,7 @@ public class MessageFilterResourceTest {
             csvServiceImpl.exportToCSV((List<?>) any, MessageFilterCSV.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
 
-            csvServiceImpl.getCsvFilename("message-filter");
+            csvServiceImpl.getCsvFilename("message-filter", "default");
             result = "TEST";
         }};
 
@@ -153,6 +160,7 @@ public class MessageFilterResourceTest {
         final List<MessageFilterRO> messageFilterROS = getMessageFilterROS(messageFilterEntityId);
 
         new Expectations() {{
+
             routingService.getBackendFiltersUncached();
             result = backendFilters;
 

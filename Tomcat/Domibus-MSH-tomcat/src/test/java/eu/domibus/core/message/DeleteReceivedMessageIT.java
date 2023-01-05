@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
 
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -34,8 +32,6 @@ public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
         deleteAllMessages();
 
