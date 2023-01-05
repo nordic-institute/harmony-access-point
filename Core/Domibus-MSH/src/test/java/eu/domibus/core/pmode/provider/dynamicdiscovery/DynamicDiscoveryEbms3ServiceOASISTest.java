@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
@@ -141,6 +142,9 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Injectable
     private EndpointInfo endpointInfo;
+
+    @Injectable
+    private X509CertificateService x509CertificateService;
 
     @Injectable
     private DynamicDiscoveryUtil dynamicDiscoveryUtil;
