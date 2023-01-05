@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+
 /**
  * Utilities for reading property values from the environment and from properties files.
  *
@@ -76,7 +78,10 @@ public class PropertyUtils {
             }
         }
 
-        LOG.warn("No system environment variables, system properties nor file properties found matching the name of [{}]: returning a default empty value", propertyValue);
+        if (!propertyName.equalsIgnoreCase(DOMIBUS_DATABASE_GENERAL_SCHEMA)) {
+            LOG.warn("No system environment variables, system properties nor file properties found matching the name of [{}]: returning a default empty value", propertyName);
+        }
+
         return StringUtils.EMPTY;
     }
 }
