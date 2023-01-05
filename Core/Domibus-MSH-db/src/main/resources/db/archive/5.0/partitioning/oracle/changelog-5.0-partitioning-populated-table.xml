@@ -7,9 +7,6 @@
     <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="maierga" id="Partition populated tables" dbms="oracle">
-<!--
-@/home/maierga/workspaces/domibus/Core/Domibus-MSH-db/src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql
--->
         <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
                  endDelimiter="\n/"/>
         <sql>
