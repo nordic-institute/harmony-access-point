@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Inject} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
 import {BackendFilterEntry} from '../support/backendfilterentry';
@@ -19,12 +19,12 @@ const MAX_LENGTH = 255;
   templateUrl: 'editmessagefilter-form.component.html',
   styleUrls: ['editmessagefilter-form.component.css'],
 })
-export class EditMessageFilterComponent extends EditPopupBaseComponent {
+export class EditMessageFilterComponent extends EditPopupBaseComponent implements AfterViewInit{
 
   formTitle: string;
   textMaxLength = MAX_LENGTH;
 
-  backendFilterNames: Array<String> = [];
+  backendNames: Array<String> = [];
 
   entity: BackendFilterEntry;
   criteria: any;
@@ -42,7 +42,7 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
               private cdr: ChangeDetectorRef) {
     super(dialogRef, data);
 
-    this.backendFilterNames = data.backendFilterNames;
+    this.backendNames = data.backendFilterNames;
 
     this.entity = this.data.entity;
     this.extractCriteria();

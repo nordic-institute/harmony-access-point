@@ -26,7 +26,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
   static readonly MESSAGE_FILTER_URL: string = 'rest/messagefilters';
 
-  backendFilterNames: any[];
+  backendNames: any[];
   rowNumber: number;
   areFiltersPersisted: boolean;
 
@@ -40,7 +40,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   ngOnInit() {
     super.ngOnInit();
 
-    this.backendFilterNames = [];
+    this.backendNames = [];
     this.rowNumber = -1;
     this.loadServerData();
   }
@@ -53,7 +53,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.disableSelectionAndButtons();
     return this.getMessageFilterEntries().toPromise().then((result: MessageFilterResult) => {
       const newRows = [];
-      this.backendFilterNames = [];
+      this.backendNames = [];
       if (result.messageFilterEntries) {
         for (let i = 0; i < result.messageFilterEntries.length; i++) {
           let currentFilter = result.messageFilterEntries[i];
@@ -63,8 +63,8 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
           let backendEntry = new BackendFilterEntry(currentFilter.entityId, i, currentFilter.backendName, currentFilter.routingCriterias,
             currentFilter.persisted, currentFilter.active, currentFilter.enabledPropertyName);
           newRows.push(backendEntry);
-          if (this.backendFilterNames.indexOf(backendEntry.backendName) == -1) {
-            this.backendFilterNames.push(backendEntry.backendName);
+          if (this.backendNames.indexOf(backendEntry.backendName) == -1) {
+            this.backendNames.push(backendEntry.backendName);
           }
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
@@ -74,7 +74,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
 
         super.isChanged = false;
 
-        if (!this.areFiltersPersisted && this.backendFilterNames.length > 1) {
+        if (!this.areFiltersPersisted && this.backendNames.length > 1) {
           this.alertService.error('One or several filters in the table were not configured yet (Persisted flag is not checked). ' +
             'It is strongly recommended to double check the filters configuration and afterwards save it.');
           this.enableSave = true;
@@ -92,10 +92,10 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
       return;
     }
 
-    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendFilterNames[0], [], false, true, null);
+    let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, this.backendNames[0], [], false, true, null);
     const ok = await this.dialog.open(EditMessageFilterComponent, {
       data: {
-        backendFilterNames: this.backendFilterNames,
+        backendFilterNames: this.backendNames,
         entity: backendEntry
       }
     }).afterClosed().toPromise();
@@ -122,7 +122,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     const backendEntry = JSON.parse(JSON.stringify(row));
     this.dialog.open(EditMessageFilterComponent, {
       data: {
-        backendFilterNames: this.backendFilterNames,
+        backendFilterNames: this.backendNames,
         entity: backendEntry
       }
     }).afterClosed().toPromise().then(ok => {
