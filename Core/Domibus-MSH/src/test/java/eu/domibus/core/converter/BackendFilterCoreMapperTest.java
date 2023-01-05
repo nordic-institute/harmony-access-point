@@ -42,6 +42,7 @@ public class BackendFilterCoreMapperTest extends AbstractMapperTest {
         final BackendFilterEntity converted = backendFilterCoreMapper.backendFilterToBackendFilterEntity(toConvert);
         final BackendFilter convertedBack = backendFilterCoreMapper.backendFilterEntityToBackendFilter(converted);
         convertedBack.setActive(true);
+        convertedBack.setEnabledPropertyName(toConvert.getEnabledPropertyName());
         objectService.assertObjects(convertedBack, toConvert);
     }
 

@@ -28,7 +28,7 @@ export class ManageBackendsComponent extends EditPopupBaseComponent {
 
     this.selected = [];
     this.backendConnectors = data.backendConnectors;
-    this.formTitle = 'Manage Backend Connectors';
+    this.formTitle = 'Manage Plugins';
   }
 
   async toggleActive(row: { name: string, active: boolean, enabledPropertyName: string }) {
