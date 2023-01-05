@@ -26,7 +26,7 @@
                             <eb:From>
                                 <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red
                                 </eb:PartyId>
-                                <eb:Role>!http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator
+                                <eb:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator
                                 </eb:Role>
                             </eb:From>
                             <eb:To>
