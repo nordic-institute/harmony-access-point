@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
@@ -165,7 +165,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         try {
             return userMessageLogDao.getMessageStatusById(messageId);
         } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found.", exception);
+            throw new DuplicateMessageFoundException(messageId);
         }
     }
 
@@ -178,8 +178,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     public UserMessageLog findByMessageId(String messageId) {
         try {
             return userMessageLogDao.findByMessageId(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found.", exception);
+        } catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageFoundException("Duplicate message Id found.", exception);
         }
     }
 

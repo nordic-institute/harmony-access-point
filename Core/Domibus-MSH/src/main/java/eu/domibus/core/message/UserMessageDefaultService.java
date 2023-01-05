@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
@@ -53,7 +54,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
@@ -668,8 +668,8 @@ public class UserMessageDefaultService implements UserMessageService {
         final UserMessage userMessage;
         try {
             userMessage = userMessageDao.findByMessageId(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found.", exception);
+        } catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageFoundException(messageId);
         }
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);

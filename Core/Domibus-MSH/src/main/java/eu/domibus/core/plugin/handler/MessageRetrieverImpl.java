@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
-import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
@@ -121,8 +121,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         final MessageStatus messageStatus;
         try {
             messageStatus = userMessageLogService.getMessageStatusById(messageId);
-        } catch (MessagingException exception) {
-            throw new MessagingException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.", exception);
+        } catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageFoundException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.");
         }
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
@@ -148,8 +148,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
             throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
         }
-        catch (MessagingException exception) {
-            throw new MessagingException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message.", exception);
+        catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageFoundException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message.", exception);
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
 

@@ -1,7 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.*;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageProperty;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
@@ -11,6 +14,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,9 +96,14 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     // we keep this until deprecated ext methods are deleted
     @Transactional
     public UserMessage findByMessageId(String messageId) {
+        UserMessage result;
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        UserMessage result = DataAccessUtils.singleResult(query.getResultList());
+        try {
+            result = DataAccessUtils.singleResult(query.getResultList());
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            throw new DuplicateMessageFoundException(messageId);
+        }
         if (result == null) {
             LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
             return null;
