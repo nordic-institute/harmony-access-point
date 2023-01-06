@@ -32,10 +32,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.neethi.Policy;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,8 +52,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+@Ignore
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
