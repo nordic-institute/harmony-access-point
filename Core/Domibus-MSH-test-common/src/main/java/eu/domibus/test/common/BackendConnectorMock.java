@@ -1,12 +1,9 @@
 package eu.domibus.test.common;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
-import mockit.Mocked;
-import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * @author Ion perpegel
@@ -59,12 +56,12 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     @Override
-    public MessageSubmissionTransformer getMessageSubmissionTransformer() {
+    public MessageSubmissionTransformer<?> getMessageSubmissionTransformer() {
         return null;
     }
 
     @Override
-    public MessageRetrievalTransformer getMessageRetrievalTransformer() {
+    public MessageRetrievalTransformer<?> getMessageRetrievalTransformer() {
         return null;
     }
 
@@ -75,12 +72,12 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent messageSendFailedEvent) {
-       this.messageSendFailedEvent = messageSendFailedEvent;
+        this.messageSendFailedEvent = messageSendFailedEvent;
     }
 
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent messageSendSuccessEvent) {
-       this.messageSendSuccessEvent = messageSendSuccessEvent;
+        this.messageSendSuccessEvent = messageSendSuccessEvent;
     }
 
     public void clear() {

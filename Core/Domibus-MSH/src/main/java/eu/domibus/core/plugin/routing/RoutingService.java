@@ -14,6 +14,7 @@ import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,14 +117,14 @@ public class RoutingService {
         // so we need to update its name to its newer version while keeping the filter index as is
         LOG.debug("Checking if the old backend filter is already present for the WS-plugin");
         entitiesInDB.stream()
-                .filter(backendFilterEntity -> StringUtils.equalsIgnoreCase(backendFilterEntity.getBackendName() , WS_OLD))
+                .filter(backendFilterEntity -> StringUtils.equalsIgnoreCase(backendFilterEntity.getBackendName(), WS_OLD))
                 .findFirst()
                 .ifPresent(backendFilterEntity -> {
-                    LOG.info("Update old backend filter name from [{}] to [{}] to match the WS-plugin name change", WS_OLD, WS);
-                    backendFilterEntity.setBackendName(WS);
-                    backendFilterDao.update(backendFilterEntity);
-                }
-        );
+                            LOG.info("Update old backend filter name from [{}] to [{}] to match the WS-plugin name change", WS_OLD, WS);
+                            backendFilterEntity.setBackendName(WS);
+                            backendFilterDao.update(backendFilterEntity);
+                        }
+                );
 
         LOG.debug("Checking if any existing database plugins are already removed from the plugin location");
 
@@ -199,14 +200,43 @@ public class RoutingService {
     }
 
     public List<BackendFilter> getBackendFiltersUncached() {
+        List<BackendFilter> backendFiltersUncached = getBackendFilters();
+        for (BackendFilter backendFilter : backendFiltersUncached) {
+            setActivationStatus(backendFilter);
+        }
+        return backendFiltersUncached;
+    }
+
+    protected List<BackendFilter> getBackendFilters() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
         return backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
+    }
+
+    private void setActivationStatus(BackendFilter backendFilter) {
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
+        backendFilter.setActive(isEnabled(backendConnector));
+        backendFilter.setEnabledPropertyName(getEnabledPropertyName(backendConnector));
+    }
+
+    private boolean isEnabled(BackendConnector<?, ?> backendConnector) {
+        if (!(backendConnector instanceof EnableAware)) {
+            LOG.trace("BackEndConnector [{}] is not EnableAware: default active", backendConnector.getName());
+            return true;
+        }
+        return ((EnableAware) backendConnector).isEnabled(domainContextProvider.getCurrentDomain().getCode());
+    }
+
+    private String getEnabledPropertyName(BackendConnector<?, ?> backendConnector) {
+        if (!(backendConnector instanceof EnableAware)) {
+            LOG.trace("BackEndConnector [{}] is not EnableAware: no enabled property", backendConnector.getName());
+            return null;
+        }
+        return ((EnableAware) backendConnector).getDomainEnabledPropertyName();
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
         List<BackendFilter> backendFilters = getBackendFiltersWithCache();
         return getMatchingBackendFilter(backendFilters, criteriaMap, userMessage);
-
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
@@ -240,6 +270,10 @@ public class RoutingService {
     }
 
     protected boolean isBackendFilterMatching(BackendFilter filter, Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
+        if (!filter.isActive()) {
+            LOG.trace("BackendFilter [{}] is inactive", filter.getBackendName());
+            return false;
+        }
         if (!CollectionUtils.isEmpty(filter.getRoutingCriterias())) {
             for (final RoutingCriteria routingCriteriaEntity : filter.getRoutingCriterias()) {
                 final IRoutingCriteria criteria = criteriaMap.get(StringUtils.upperCase(routingCriteriaEntity.getName()));
