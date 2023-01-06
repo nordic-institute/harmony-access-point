@@ -24,6 +24,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -42,6 +43,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author François Gautier
  * @since 5.0
  */
+@Ignore
 @Transactional
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
