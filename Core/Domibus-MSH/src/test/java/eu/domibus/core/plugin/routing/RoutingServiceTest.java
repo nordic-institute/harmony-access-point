@@ -686,7 +686,7 @@ public class RoutingServiceTest {
         assertNotNull(backendFiltersWithCache);
         assertNotNull(backendFiltersWithCache1);
 
-        new FullVerifications() {{
+        new Verifications() {{
             routingService.getBackendFiltersUncached();
             times = 1;
 
