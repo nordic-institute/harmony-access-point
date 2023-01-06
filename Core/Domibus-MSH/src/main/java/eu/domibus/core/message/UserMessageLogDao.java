@@ -258,7 +258,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             userMessageLog = DataAccessUtils.singleResult(query.getResultList());
 
         } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new DuplicateMessageFoundException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.");
+            throw new DuplicateMessageFoundException(messageId, ex);
         }
         if (userMessageLog == null) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);

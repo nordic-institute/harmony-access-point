@@ -102,7 +102,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         try {
             result = DataAccessUtils.singleResult(query.getResultList());
         } catch (IncorrectResultSizeDataAccessException ex) {
-            throw new DuplicateMessageFoundException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message.");
+            throw new DuplicateMessageFoundException(messageId, ex);
         }
         if (result == null) {
             LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);

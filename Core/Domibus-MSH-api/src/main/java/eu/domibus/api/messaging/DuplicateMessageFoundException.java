@@ -8,11 +8,13 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
  */
 public class DuplicateMessageFoundException extends MessagingException {
 
+    public static final String DUPLICATE_MESSAGE_FOUND = "Duplicate message Id found.";
+
     public DuplicateMessageFoundException(String messageId) {
-        super(DomibusCoreErrorCode.DOM_011, " Duplicate message Id found. [" + messageId + "] ", null);
+        super(DomibusCoreErrorCode.DOM_011, DUPLICATE_MESSAGE_FOUND + "[" + messageId + "] ", null);
     }
 
-    public DuplicateMessageFoundException(String message, Throwable cause) {
-        super(DomibusCoreErrorCode.DOM_011, message, cause);
+    public DuplicateMessageFoundException(String messageId, Throwable cause) {
+        super(DomibusCoreErrorCode.DOM_011, DUPLICATE_MESSAGE_FOUND + "[" + messageId + "] ", cause);
     }
 }
