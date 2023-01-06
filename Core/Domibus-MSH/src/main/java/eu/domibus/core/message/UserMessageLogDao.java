@@ -193,7 +193,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.debug("No result for message with id [{}]", messageId);
             return MessageStatus.NOT_FOUND;
         } catch (NonUniqueResultException exception) {
-            throw new DuplicateMessageFoundException(messageId);
+            throw new DuplicateMessageFoundException(messageId, exception);
         }
     }
 

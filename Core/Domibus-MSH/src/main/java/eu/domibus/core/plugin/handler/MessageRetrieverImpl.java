@@ -118,13 +118,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        final MessageStatus messageStatus;
-        try {
-            messageStatus = userMessageLogService.getMessageStatusById(messageId);
-        } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageFoundException("Duplicate message Id found. For self sending please call the method with access point role to get the status of the message." + "[" + messageId + "] ", exception);
-        }
-
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatusById(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
