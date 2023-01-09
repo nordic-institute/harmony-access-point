@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
@@ -624,7 +624,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
-        } catch (MessagingException e) {
+        } catch (DuplicateMessageFoundException e) {
             throw new GetMessageErrorsFault("Duplicate message found with Id" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);

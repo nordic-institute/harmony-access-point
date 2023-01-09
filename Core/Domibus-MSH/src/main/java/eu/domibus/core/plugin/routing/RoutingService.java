@@ -215,6 +215,7 @@ public class RoutingService {
     private void setActivationStatus(BackendFilter backendFilter) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
         backendFilter.setActive(isEnabled(backendConnector));
+        backendFilter.setEnabledPropertyName(getEnabledPropertyName(backendConnector));
     }
 
     private boolean isEnabled(BackendConnector<?, ?> backendConnector) {
@@ -223,6 +224,14 @@ public class RoutingService {
             return true;
         }
         return ((EnableAware) backendConnector).isEnabled(domainContextProvider.getCurrentDomain().getCode());
+    }
+
+    private String getEnabledPropertyName(BackendConnector<?, ?> backendConnector) {
+        if (!(backendConnector instanceof EnableAware)) {
+            LOG.trace("BackEndConnector [{}] is not EnableAware: no enabled property", backendConnector.getName());
+            return null;
+        }
+        return ((EnableAware) backendConnector).getDomainEnabledPropertyName();
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
