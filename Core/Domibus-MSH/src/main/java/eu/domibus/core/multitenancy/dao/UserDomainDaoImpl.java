@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
     }
 
     @Override
-    public String findDomainByUser(String userName) {
+    public String findDomain(String userName) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity == null) {
             return null;
@@ -36,7 +37,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
     }
 
     @Override
-    public String findPreferredDomainByUser(String userName) {
+    public String findPreferredDomain(String userName) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity == null) {
             return null;
@@ -52,7 +53,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void setDomainByUser(String userName, String domainCode) {
+    public void updateOrCreateUserDomain(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             userDomainEntity.setDomain(domainCode);
@@ -67,22 +68,22 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void setPreferredDomainByUser(String userName, String domainCode) {
+    public void updateOrCreateUserPreferredDomain(String userName, String preferredDomainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
-            userDomainEntity.setPreferredDomain(domainCode);
+            userDomainEntity.setPreferredDomain(preferredDomainCode);
             this.update(userDomainEntity);
         } else {
             userDomainEntity = new UserDomainEntity();
             userDomainEntity.setUserName(userName);
-            userDomainEntity.setPreferredDomain(domainCode);
+            userDomainEntity.setPreferredDomain(preferredDomainCode);
             this.create(userDomainEntity);
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void deleteDomainByUser(String userName) {
+    public void deleteUserDomain(String userName) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             this.delete(userDomainEntity);
@@ -98,6 +99,14 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
             LOG.trace("User domain not found for [{}]", userName);
             return null;
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int deleteByDomain(String domain) {
+        Query query = em.createNamedQuery("UserDomainEntity.deleteByDomain");
+        query.setParameter("DOMAIN", domain);
+        return query.executeUpdate();
     }
 
 }

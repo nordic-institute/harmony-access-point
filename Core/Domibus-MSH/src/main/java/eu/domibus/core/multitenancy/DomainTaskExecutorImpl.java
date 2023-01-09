@@ -49,6 +49,16 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             throw new DomainTaskException("Could not execute task", e);
         }
     }
+    @Override
+    public <T extends Object> T submit(Callable<T> task, Domain domain) {
+        DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
+        final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
+        try {
+            return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new DomainTaskException("Could not execute task", e);
+        }
+    }
 
     @Override
     public void submit(Runnable task) {
