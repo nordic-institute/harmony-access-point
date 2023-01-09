@@ -93,12 +93,12 @@ import java.util.ArrayList;
     }
 
     private void setDomainByUser(String user, String domainCode) {
-        userDomainDao.updateOrCreateDomain(user, domainCode);
+        userDomainDao.updateOrCreateUserDomain(user, domainCode);
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
     }
 
     private void setPreferredDomainByUser(String user, String domainCode) {
-        userDomainDao.updateOrCreatePreferredDomain(user, domainCode);
+        userDomainDao.updateOrCreateUserPreferredDomain(user, domainCode);
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.PREFERRED_USER_DOMAIN_CACHE);
     }
 

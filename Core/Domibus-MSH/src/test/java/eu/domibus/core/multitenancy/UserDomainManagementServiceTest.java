@@ -62,13 +62,13 @@ public class UserDomainManagementServiceTest {
         userDomainManagementService.onDomainAdded(domain);
 
         new FullVerifications(){{
-            userDomainDao.updateOrCreateDomain("pluginUser1", domain.getCode());
+            userDomainDao.updateOrCreateUserDomain("pluginUser1", domain.getCode());
             times = 1;
-            userDomainDao.updateOrCreateDomain("pluginUser2", domain.getCode());
+            userDomainDao.updateOrCreateUserDomain("pluginUser2", domain.getCode());
             times = 1;
-            userDomainDao.updateOrCreateDomain("user1", domain.getCode());
+            userDomainDao.updateOrCreateUserDomain("user1", domain.getCode());
             times = 1;
-            userDomainDao.updateOrCreateDomain("user2", domain.getCode());
+            userDomainDao.updateOrCreateUserDomain("user2", domain.getCode());
             times = 1;
         }};
     }

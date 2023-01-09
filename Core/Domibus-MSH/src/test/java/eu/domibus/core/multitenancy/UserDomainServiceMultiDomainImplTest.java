@@ -79,7 +79,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateDomain(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateUserDomain(user, domainCode));
         }};
     }
 
@@ -91,7 +91,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setPreferredDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreatePreferredDomain(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateUserPreferredDomain(user, domainCode));
         }};
     }
 

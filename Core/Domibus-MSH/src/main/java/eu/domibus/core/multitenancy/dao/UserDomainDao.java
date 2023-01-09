@@ -12,9 +12,9 @@ public interface UserDomainDao {
 
     String findPreferredDomain(String userName);
 
-    void updateOrCreateDomain(String userName, String domainCode);
+    void updateOrCreateUserDomain(String userName, String domainCode);
 
-    void updateOrCreatePreferredDomain(String userName, String preferredDomainCode);
+    void updateOrCreateUserPreferredDomain(String userName, String preferredDomainCode);
 
     void deleteUserDomain(String userName);
 

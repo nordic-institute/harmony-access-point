@@ -53,7 +53,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void updateOrCreateDomain(String userName, String domainCode) {
+    public void updateOrCreateUserDomain(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             userDomainEntity.setDomain(domainCode);
@@ -68,7 +68,7 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void updateOrCreatePreferredDomain(String userName, String preferredDomainCode) {
+    public void updateOrCreateUserPreferredDomain(String userName, String preferredDomainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             userDomainEntity.setPreferredDomain(preferredDomainCode);

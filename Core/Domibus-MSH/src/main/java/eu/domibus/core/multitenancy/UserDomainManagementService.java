@@ -49,7 +49,7 @@ public class UserDomainManagementService implements DomainsAware {
 
         domainTaskExecutor.submit(() -> {
             for (String userName : userNameToAdd) {
-                userDomainDao.updateOrCreateDomain(userName, domain.getCode());
+                userDomainDao.updateOrCreateUserDomain(userName, domain.getCode());
                 LOG.info("DomainUser [{}] added for domain [{}]", userName, domain.getCode());
             }
         });
