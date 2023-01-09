@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService, PropertyListModel, PropertyModel} from './support/properties.service';
 import {SecurityService} from '../security/security.service';
@@ -10,7 +18,6 @@ import {HttpClient} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MAT_CHECKBOX_CLICK_ACTION} from '@angular/material/checkbox';
-import {SessionExpiredDialogComponent} from '../security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {AddNestedPropertyDialogComponent} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
@@ -29,6 +36,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
   showGlobalPropertiesControl: boolean;
 
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
+  private inLostFocus: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private propertiesService: PropertiesService,
               private alertService: AlertService, private securityService: SecurityService, private changeDetector: ChangeDetectorRef,
@@ -134,13 +142,23 @@ export class PropertiesComponent extends mix(BaseListComponent)
   }
 
   onPropertyValueFocus(row) {
+    if (this.inLostFocus) {
+      return;
+    }
     row.currentValueSet = true;
     row.currentValue = row.value;
     this.alertService.clearAlert();
   }
 
   onPropertyValueBlur(row) {
-    setTimeout(() => this.revertProperty(row), 1500);
+    if (this.inLostFocus) {
+      return;
+    }
+    this.inLostFocus = true;
+    setTimeout(() => {
+      this.revertProperty(row);
+      this.inLostFocus = false;
+    }, 1000);
   }
 
   canUpdate(row): boolean {
