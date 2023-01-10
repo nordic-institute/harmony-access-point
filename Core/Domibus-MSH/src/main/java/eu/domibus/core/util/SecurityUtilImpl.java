@@ -1,8 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Component;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Component;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
-
-import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
 
 
 /**
@@ -25,23 +22,14 @@ public class SecurityUtilImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityUtilImpl.class);
 
-    public String getSecurityAlgorithm(SecurityProfile profile) {
+    private final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
-        if (profile == null) {
-            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
-            return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-        }
+    public SecurityUtilImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader) {
+        this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
+    }
 
-        switch (profile) {
-            case ECC: return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
-            case RSA:
-            default: {
-                if (profile != RSA) {
-                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", profile);
-                }
-                return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-            }
-        }
+    public String getSecurityAlgorithm() {
+        return domibusAlgorithmSuiteLoader.getAlgorithmSuite().getAlgorithmSuiteType().getAsymmetricSignature();
     }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {

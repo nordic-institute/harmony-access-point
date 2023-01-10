@@ -57,6 +57,8 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     protected DomibusBus domibusBus;
 
+    private AlgorithmSuite algorithmSuite;
+
     public DomibusAlgorithmSuiteLoader(final DomibusBus bus) {
         this.domibusBus = bus;
     }
@@ -69,6 +71,10 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
         }
         domibusBus.setExtension(this, AlgorithmSuiteLoader.class);
         registerBuilders();
+    }
+
+    public AlgorithmSuite getAlgorithmSuite() {
+        return algorithmSuite;
     }
 
     /**
@@ -102,7 +108,8 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     @Override
     public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
-        return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
+        algorithmSuite = new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
+        return algorithmSuite;
     }
 
     public static class DomibusAlgorithmSuite extends AlgorithmSuite {
@@ -161,7 +168,6 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
         }
-
 
         DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
             super(version, nestedPolicy);
