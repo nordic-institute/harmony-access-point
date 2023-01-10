@@ -1,12 +1,15 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.web.rest.MessageFilterResource;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +32,8 @@ public class MessageFilterResourceIT extends AbstractIT {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+    @Autowired
     private MessageFilterResource messageFilterResource;
 
     private MockMvc mockMvc;
@@ -40,6 +45,8 @@ public class MessageFilterResourceIT extends AbstractIT {
 
     @Test
     public void getMessageFilter() throws Exception {
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
+                .thenReturn(new BackendConnectorMock("wsPlugin"));
 
         mockMvc.perform(get(TEST_ENDPOINT_RESOURCE))
                 .andExpect(status().is2xxSuccessful())
