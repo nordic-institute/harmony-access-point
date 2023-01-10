@@ -46,7 +46,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
-        checkMessageAuthorization(messageId);
+        checkMessageAuthorization(messageId, eu.domibus.common.MSHRole.RECEIVING);
 
         return messageRetriever.downloadMessage(messageId, markAsDownloaded);
     }
@@ -65,7 +65,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public void markMessageAsDownloaded(String messageId) {
-        checkMessageAuthorization(messageId);
+        checkMessageAuthorization(messageId, eu.domibus.common.MSHRole.RECEIVING);
         messageRetriever.markMessageAsDownloaded(messageId);
     }
 
@@ -147,7 +147,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         checkMessageAuthorization(userMessage);
     }
 
-    private void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
+    protected void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
         checkUnsecure();
 
         MSHRole role = MSHRole.valueOf(mshRole.name());
