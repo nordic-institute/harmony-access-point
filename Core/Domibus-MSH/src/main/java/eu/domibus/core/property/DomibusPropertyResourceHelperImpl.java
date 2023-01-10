@@ -179,7 +179,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     protected void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-        DomibusProperty prop = createProperty(propMeta, propertyValue);
+        DomibusProperty prop = createProperty(propMeta, propertyValue, propertyValue);
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
     }
@@ -234,13 +234,18 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-        return createProperty(propMeta, propertyValue);
+        String usedValue = propertyValue;
+        if(propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC){
+            usedValue = String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
+        }
+        return createProperty(propMeta, propertyValue, usedValue);
     }
 
-    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue) {
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue, String usedValue) {
         DomibusProperty prop = new DomibusProperty();
         prop.setMetadata(propMeta);
         prop.setValue(propertyValue);
+        prop.setUsedValue(usedValue);
         return prop;
     }
 

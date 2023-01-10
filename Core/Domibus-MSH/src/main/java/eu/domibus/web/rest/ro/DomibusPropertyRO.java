@@ -1,7 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.api.property.DomibusPropertyMetadata;
-
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -35,6 +33,7 @@ public class DomibusPropertyRO {
 
     private String value;
 
+    private String usedValue;
 
     public String getValue() {
         return value;
@@ -44,6 +43,13 @@ public class DomibusPropertyRO {
         this.value = value;
     }
 
+    public String getUsedValue() {
+        return usedValue;
+    }
+
+    public void setUsedValue(String usedValue) {
+        this.usedValue = usedValue;
+    }
 
     public String getName() {
         return name;

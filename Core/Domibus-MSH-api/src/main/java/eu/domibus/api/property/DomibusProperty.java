@@ -9,6 +9,8 @@ package eu.domibus.api.property;
 public class DomibusProperty {
     private String value;
 
+    private String usedValue;
+
     private DomibusPropertyMetadata metadata;
 
     public String getValue() {
@@ -17,6 +19,14 @@ public class DomibusProperty {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getUsedValue() {
+        return usedValue;
+    }
+
+    public void setUsedValue(String usedValue) {
+        this.usedValue = usedValue;
     }
 
     public DomibusPropertyMetadata getMetadata() {
