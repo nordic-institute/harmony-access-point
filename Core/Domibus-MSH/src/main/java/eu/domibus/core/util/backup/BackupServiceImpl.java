@@ -30,6 +30,7 @@ public class BackupServiceImpl implements BackupService {
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+    protected static final String BACKUP_FOLDER_NAME ="backups";
 
     @Autowired
     protected DateUtil dateUtil;
@@ -83,7 +84,10 @@ public class BackupServiceImpl implements BackupService {
             return;
         }
 
-        List<File> backups = getBackupFilesOf(originalFile);
+        String location = Paths.get(originalFile.getParentFile().getPath(), BACKUP_FOLDER_NAME).toString();
+        File backupsFile = Paths.get(location, originalFile.getName()).toFile();
+        List<File> backups = getBackupFilesOf(backupsFile);
+
         if (backups.size() <= maxFilesToKeep) {
             LOG.debug("Maximum number of allowed backups [{}] has not been reached for file [{}], so exiting.", maxFilesToKeep, originalFile.getName());
             return;
