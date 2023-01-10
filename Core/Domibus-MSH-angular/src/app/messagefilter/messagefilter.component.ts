@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialog} from '@angular/material';
 import {AlertService} from '../common/alert/alert.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
@@ -13,6 +12,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {ManageBackendsComponent} from './manageBackends-form/manageBackends-form.component';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -33,7 +33,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableSave: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog) {
+              protected dialogsService: DialogsService) {
     super();
   }
 
@@ -64,7 +64,11 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
             currentFilter.persisted, currentFilter.active, currentFilter.enabledPropertyName);
           newRows.push(backendEntry);
           if (!this.backendConnectors.some(el => el.name == backendEntry.backendName)) {
-            this.backendConnectors.push({name: backendEntry.backendName, active: backendEntry.active, enabledPropertyName: backendEntry.enabledPropertyName});
+            this.backendConnectors.push({
+              name: backendEntry.backendName,
+              active: backendEntry.active,
+              enabledPropertyName: backendEntry.enabledPropertyName
+            });
           }
         }
         this.areFiltersPersisted = result.areFiltersPersisted;
@@ -96,25 +100,27 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     let activeConnector = activeConnectors[0];
     let backendEntry = new BackendFilterEntry(0, this.rows.length + 1, activeConnector.name, [], false,
       activeConnector.active, null);
-    const ok = await this.dialog.open(EditMessageFilterComponent, {
+    const ok = await this.dialogsService.openAndThen(EditMessageFilterComponent, {
       data: {
         backendConnectors: activeConnectors,
         entity: backendEntry
       }
-    }).afterClosed().toPromise();
-    if (ok) {
-      if (this.findRowLike(backendEntry) == -1) {
-        super.rows = [...this.rows, backendEntry];
-        super.count = this.rows.length + 1;
-
-        this.setDirty(true);
-      } else {
-        this.alertService.error('Impossible to insert a duplicate entry');
-      }
+    });
+    if (!ok) {
+      return;
     }
+    if (this.findRowLike(backendEntry) == -1) {
+      super.rows = [...this.rows, backendEntry];
+      super.count = this.rows.length + 1;
+
+      this.setDirty(true);
+    } else {
+      this.alertService.error('Impossible to insert a duplicate entry');
+    }
+
   }
 
-  edit(row?) {
+  async edit(row?) {
     row = row || this.selected[0];
 
     if (!row.active) {
@@ -123,31 +129,33 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     }
 
     const backendEntry = JSON.parse(JSON.stringify(row));
-    this.dialog.open(EditMessageFilterComponent, {
+    const ok = await this.dialogsService.openAndThen(EditMessageFilterComponent, {
       data: {
         backendConnectors: this.backendConnectors,
         entity: backendEntry
       }
-    }).afterClosed().toPromise().then(ok => {
-      if (ok) {
-        let backendEntryPos = this.findRowLike(backendEntry);
-        if (backendEntryPos == -1) {
-          this.rows.splice(this.rowNumber, 1, backendEntry);
-          super.rows = [...this.rows];
-          super.count = this.rows.length;
+    })
+    if (!ok) {
+      return;
+    }
 
-          this.setDirty(true);
-        } else {
-          if (backendEntryPos != this.rowNumber) {
-            this.alertService.error('Impossible to insert a duplicate entry');
-          }
-        }
+    let backendEntryPos = this.findRowLike(backendEntry);
+    if (backendEntryPos == -1) {
+      this.rows.splice(this.rowNumber, 1, backendEntry);
+      super.rows = [...this.rows];
+      super.count = this.rows.length;
 
-        setTimeout(() => {
-          document.getElementById('pluginRow' + (this.rowNumber) + '_id').click();
-        }, 50);
+      this.setDirty(true);
+    } else {
+      if (backendEntryPos != this.rowNumber) {
+        this.alertService.error('Impossible to insert a duplicate entry');
       }
-    });
+    }
+
+    setTimeout(() => {
+      document.getElementById('pluginRow' + (this.rowNumber) + '_id').click();
+    }, 50);
+
   }
 
   get csvUrl(): string {
@@ -271,11 +279,11 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   }
 
   async manageBackends() {
-    const ok = await this.dialog.open(ManageBackendsComponent, {
+    await this.dialogsService.openAndThen(ManageBackendsComponent, {
       data: {
         backendConnectors: this.backendConnectors,
       }
-    }).afterClosed().toPromise();
+    });
     this.loadServerData();
   }
 }
