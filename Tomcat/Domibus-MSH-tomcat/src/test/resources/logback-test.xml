@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
-    <property name="encoder" value="%d{ISO8601} %5p %c{1}:%L - %m%n" scope="global"/>
-    <property name="encoderPatternColor" value="%d{HH:mm:ss,SSS} %boldGreen([%7.-7X{d_domain}]) %highlight([%5.5X{d_user}] [%8.-8X{d_messageId}] %5p) %50.-50(.\(%F:%L\\)) - %m%n" scope="global"/>
-
+    <conversionRule conversionWord="domibusLine" converterClass="eu.domibus.logging.DomibusLineOfCallerConverter"/>
+    <property name="encoder" value="%d{ISO8601} %5p %c{1}:%domibusLine - %m%n" scope="global"/>
+    <property name="encoderPatternColor"
+              value="%d{HH:mm:ss,SSS} %boldGreen([%7.-7X{d_domain}]) %highlight([%5.5X{d_user}] [%8.-8X{d_messageId}] %5p) %50.-50(.\(%c{1}:%domibusLine\\)) - %m%n"
+              scope="global"/>
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <Target>System.out</Target>
         <encoder>
@@ -12,8 +13,8 @@
     </appender>
     <logger name="eu.domibus" level="DEBUG"/>
     <logger name="org.h2" level="TRACE"/>
-<!--    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.type" level="TRACE" />-->
+    <!--    <logger name="org.hibernate.SQL" level="DEBUG" />
+        <logger name="org.hibernate.type" level="TRACE" />-->
 
     <root level="INFO">
         <appender-ref ref="stdout"/>
