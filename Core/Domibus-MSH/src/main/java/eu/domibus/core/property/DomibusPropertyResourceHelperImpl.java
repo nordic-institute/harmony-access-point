@@ -234,11 +234,26 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-        String usedValue = propertyValue;
-        if(propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC){
-            usedValue = String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
-        }
+        String usedValue = null;
+        usedValue = getUsedValue(propMeta, propertyValue);
         return createProperty(propMeta, propertyValue, usedValue);
+    }
+
+    private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
+        if (propMeta.isComposable()) {
+            return propertyValue;
+        }
+
+        switch (propMeta.getTypeAsEnum()) {
+            case NUMERIC:
+            case POSITIVE_DECIMAL:
+            case POSITIVE_INTEGER:
+                return String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
+            case BOOLEAN:
+                return String.valueOf(domibusPropertyProvider.getBooleanProperty(propMeta.getName()));
+            default:
+                return propertyValue;
+        }
     }
 
     protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue, String usedValue) {
