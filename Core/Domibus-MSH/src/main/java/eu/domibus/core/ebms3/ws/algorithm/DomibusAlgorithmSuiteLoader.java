@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -117,6 +118,8 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                             SPConstants.KW_RSA_OAEP,
                             SPConstants.P_SHA1_L128,
                             SPConstants.P_SHA1_L128,
+                            null,
+                            AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm(),
                             128, 128, 128, 256, 1024, 4096
                     )
             );
@@ -131,6 +134,8 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                             WSS4JConstants.KEYTRANSPORT_RSAOAEP_XENC11,
                             SPConstants.P_SHA1_L128,
                             SPConstants.P_SHA1_L128,
+                            null,
+                            AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm(),
                             128, 128, 128, 256, 1024, 4096
                     )
             );
@@ -146,9 +151,11 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                             DomibusAlgorithmSuiteLoader.AES128_GCM_ALGORITHM,
                             SPConstants.KW_AES128,
                             BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC, //TODO: replace with WSS4JConstants.ECC_???,
-                    SPConstants.P_SHA1_L128,
-                    SPConstants.P_SHA1_L128,
-                    128, 128, 128, 256, 1024, 4096
+                            SPConstants.P_SHA1_L128,
+                            SPConstants.P_SHA1_L128,
+                            null,
+                            AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm(),
+                            128, 128, 128, 256, 1024, 4096
                     )
             );
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);

@@ -11,6 +11,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
 
+import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
+
 
 /**
  * Provides functionality for security certificates configuration
@@ -30,7 +32,16 @@ public class SecurityUtilImpl {
             return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
         }
 
-        return profile.getAlgorithm();
+        switch (profile) {
+            case ECC: return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
+            case RSA:
+            default: {
+                if (profile != RSA) {
+                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", profile);
+                }
+                return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
+            }
+        }
     }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
