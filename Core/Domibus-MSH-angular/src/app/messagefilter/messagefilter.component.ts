@@ -13,6 +13,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {ManageBackendsComponent} from './manageBackends-form/manageBackends-form.component';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   moduleId: module.id,
@@ -33,7 +34,7 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
   enableSave: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog) {
+              public dialog: MatDialog, protected dialogsService: DialogsService) {
     super();
   }
 
