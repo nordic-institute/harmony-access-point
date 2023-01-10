@@ -228,4 +228,9 @@ export class PropertiesComponent extends mix(BaseListComponent)
       return false;
     }
   }
+
+  syncValues(row: any) {
+    row.value = row.usedValue;
+    this.updateProperty(row);
+  }
 }

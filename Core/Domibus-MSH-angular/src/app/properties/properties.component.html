@@ -60,11 +60,18 @@
   <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <div class="input-group property-view" *ngIf="row.composable">
       <button mat-icon-button [disabled]="!row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
-        <mat-icon mat-tooltip="New" mdTooltipPosition="above">note_add</mat-icon>
+        <mat-icon matTooltip="New" mdTooltipPosition="above">note_add</mat-icon>
       </button>
     </div>
     <div class="input-group property-view" *ngIf="!row.writable">
       {{row.value}}
+
+      <div *ngIf="row.value != row.usedValue" style="margin-top: 5px; margin-left: 5px; color: red;">
+        <mat-icon matTooltip="This is the actually used value."
+                  style="vertical-align: bottom;color: red;">error</mat-icon>
+        <div style="display: inline-block;"> Actual value {{row.usedValue}}</div>
+      </div>
+
     </div>
     <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
       <input matInput type="text" autocomplete="off" class="form-control property-value"
@@ -77,12 +84,18 @@
 
       <span class="property-edit-buttons input-group-addon">
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon>
+            <mat-icon matTooltip="Save" mdTooltipPosition="above">save</mat-icon>
           </button>
           <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon>
+            <mat-icon matTooltip="Undo" mdTooltipPosition="above">undo</mat-icon>
           </button>
         </span>
+    </div>
+
+    <div *ngIf="row.value != row.usedValue" style="margin-top: 5px; margin-left: 5px; color: red;">
+      <mat-icon (click)="syncValues(row)" matTooltip="This is the actually used value. Click to fix in file."
+                style="vertical-align: bottom;color: red; cursor: pointer;">error</mat-icon>
+      <div style="display: inline-block;"> Actual value {{row.usedValue}}</div>
     </div>
 
   </ng-template>
