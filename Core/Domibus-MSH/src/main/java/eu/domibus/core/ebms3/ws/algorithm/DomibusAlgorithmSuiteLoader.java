@@ -55,9 +55,10 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     //TODO: check below value for correctness when the ECC library is chosen
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC = "Basic128GCMSha256MgfSha256ECC";
 
+    protected static Map<String, AlgorithmSuite.AlgorithmSuiteType> algorithmSuiteTypesCopy;
+
     protected DomibusBus domibusBus;
 
-    private AlgorithmSuite algorithmSuite;
 
     public DomibusAlgorithmSuiteLoader(final DomibusBus bus) {
         this.domibusBus = bus;
@@ -71,10 +72,6 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
         }
         domibusBus.setExtension(this, AlgorithmSuiteLoader.class);
         registerBuilders();
-    }
-
-    public AlgorithmSuite getAlgorithmSuite() {
-        return algorithmSuite;
     }
 
     /**
@@ -108,8 +105,7 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     @Override
     public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
-        algorithmSuite = new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
-        return algorithmSuite;
+        return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
     }
 
     public static class DomibusAlgorithmSuite extends AlgorithmSuite {
@@ -167,6 +163,12 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
             );
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
+
+            algorithmSuiteTypesCopy = new HashMap<>(ALGORITHM_SUITE_TYPES);
+        }
+
+        public static Map<String, AlgorithmSuiteType> getAlgorithmSuiteTypes() {
+            return algorithmSuiteTypesCopy;
         }
 
         DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {

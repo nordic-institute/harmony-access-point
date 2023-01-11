@@ -115,7 +115,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
 
-            String securityAlgorithm = securityUtil.getSecurityAlgorithm();
+            String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
 
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);

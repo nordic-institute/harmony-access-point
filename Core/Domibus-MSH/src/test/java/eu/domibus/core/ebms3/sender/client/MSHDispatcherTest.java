@@ -144,7 +144,7 @@ public class MSHDispatcherTest {
             mshDispatcher.isDispatchClientCacheActivated();
             result = cacheable;
 
-            securityUtil.getSecurityAlgorithm();
+            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
             result = algorithm;
 
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
@@ -190,7 +190,7 @@ public class MSHDispatcherTest {
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
 
-            securityUtil.getSecurityAlgorithm();
+            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
             result = algorithm;
 
             dispatch.invoke(requestSoapMessage);

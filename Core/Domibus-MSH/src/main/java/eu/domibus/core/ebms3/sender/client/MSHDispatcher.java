@@ -66,7 +66,7 @@ public class MSHDispatcher {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.
-                getClient(domain.getCode(), endpoint, securityUtil.getSecurityAlgorithm(), policy, pModeKey, cacheable).get();
+                getClient(domain.getCode(), endpoint, securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile()), policy, pModeKey, cacheable).get();
 
         final SOAPMessage result;
         try {

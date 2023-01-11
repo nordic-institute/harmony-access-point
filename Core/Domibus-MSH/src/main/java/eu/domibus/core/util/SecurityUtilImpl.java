@@ -1,15 +1,21 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
+import java.util.Map;
 
+import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
+import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC;
+import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
 
 /**
  * Provides functionality for security certificates configuration
@@ -19,17 +25,27 @@ import java.util.Enumeration;
  */
 @Component
 public class SecurityUtilImpl {
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityUtilImpl.class);
 
-    private final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
+    public String getSecurityAlgorithm(SecurityProfile profile) {
+        Map<String, AlgorithmSuite.AlgorithmSuiteType> algorithmSuiteTypes = DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite.getAlgorithmSuiteTypes();
 
-    public SecurityUtilImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader) {
-        this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
-    }
+        if (profile == null) {
+            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
+            return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+        }
 
-    public String getSecurityAlgorithm() {
-        return domibusAlgorithmSuiteLoader.getAlgorithmSuite().getAlgorithmSuiteType().getAsymmetricSignature();
+        switch (profile) {
+            case ECC:
+                return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).getAsymmetricSignature();
+            case RSA:
+            default: {
+                if (profile != RSA) {
+                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", profile);
+                }
+                return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+            }
+        }
     }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
