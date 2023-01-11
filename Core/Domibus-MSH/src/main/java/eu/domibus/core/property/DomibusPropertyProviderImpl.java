@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -95,24 +95,28 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Integer getIntegerProperty(String propertyName) {
+        checkIntegerProperty(propertyName);
         String value = getProperty(propertyName);
         return primitivePropertyTypesManager.getIntegerInternal(propertyName, value);
     }
 
     @Override
     public Long getLongProperty(String propertyName) {
+        checkLongProperty(propertyName);
         String value = getProperty(propertyName);
         return primitivePropertyTypesManager.getLongInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(String propertyName) {
+        checkBooleanProperty(propertyName);
         String value = getProperty(propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, value);
     }
 
     @Override
     public Boolean getBooleanProperty(Domain domain, String propertyName) {
+        checkBooleanProperty(propertyName);
         String domainValue = getProperty(domain, propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, domainValue);
     }
@@ -281,5 +285,26 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             domainTitle = domain.getCode();
         }
         return domainTitle;
+    }
+
+    private void checkIntegerProperty(String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (!propMeta.getTypeAsEnum().isNumeric()) {
+            throw new DomibusPropertyException(String.format("Cannot call getIntegerProperty because property [%s] has [%s] type.", propertyName, propMeta.getType()));
+        }
+    }
+
+    private void checkLongProperty(String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (!propMeta.getTypeAsEnum().isNumeric()) {
+            throw new DomibusPropertyException(String.format("Cannot call getLongProperty because property [%s] has [%s] type.", propertyName, propMeta.getType()));
+        }
+    }
+
+    private void checkBooleanProperty(String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (!propMeta.getTypeAsEnum().isBoolean()) {
+            throw new DomibusPropertyException(String.format("Cannot call getBooleanProperty because property [%s] has [%s] type.", propertyName, propMeta.getType()));
+        }
     }
 }
