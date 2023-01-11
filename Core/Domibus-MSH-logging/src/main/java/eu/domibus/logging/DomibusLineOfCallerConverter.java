@@ -22,14 +22,15 @@ public class DomibusLineOfCallerConverter extends LineOfCallerConverter {
 
         //because the DomibusLoggers are proxies over actual Loggers we can get incorrect line numbers (negative values)
         //we need to exclude the first few levels of the caller stack to get to the actual invocation of the logger method
-        StackTraceElement[] callerDataStack = event.getCallerData();
-        if (callerDataStack == null) {
+        StackTraceElement[] callerStack = event.getCallerData();
+        if (callerStack == null) {
             return CallerData.NA;
         }
-        for (int i = 0; i < callerDataStack.length; i++) {
-            if (callerDataStack[i].getClassName().startsWith(LOGGER_FACTORY_CLASS_NAME)
-                    && i + 2 < callerDataStack.length) {
-                return String.valueOf(callerDataStack[i + 2].getLineNumber());
+        for (int i = 0; i < callerStack.length; i++) {
+            int indexOfMethodCallingTheProxy = i + 2;
+            if (callerStack[i].getClassName().startsWith(LOGGER_FACTORY_CLASS_NAME)
+                    && indexOfMethodCallingTheProxy < callerStack.length) {
+                return String.valueOf(callerStack[indexOfMethodCallingTheProxy].getLineNumber());
             }
         }
         return CallerData.NA;
