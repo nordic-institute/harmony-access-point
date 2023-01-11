@@ -5,17 +5,14 @@ import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.wss4j.policy.model.AlgorithmSuite;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
-import java.util.Map;
 
+import static eu.domibus.common.model.configuration.SecurityProfile.ECC;
 import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
-import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC;
-import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
 
 /**
  * Provides functionality for security certificates configuration
@@ -23,7 +20,7 @@ import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BAS
  * @author Lucian FURCA
  * @since 5.1
  */
-@Component
+@Service
 public class SecurityUtilImpl {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityUtilImpl.class);
 
@@ -33,23 +30,25 @@ public class SecurityUtilImpl {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
     }
 
-    public String getSecurityAlgorithm(SecurityProfile profile) {
-        Map<String, AlgorithmSuite.AlgorithmSuiteType> algorithmSuiteTypes = domibusAlgorithmSuiteLoader.getAlgorithmSuiteTypes();
-
-        if (profile == null) {
+    /**
+     * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA_SHA256
+     * correspondent if no security profile is defined
+     *
+     * @param securityProfile the configured security profile
+     * @return the Asymmetric Signature Algorithm
+     */
+    public String getSecurityAlgorithm(SecurityProfile securityProfile) {
+        if (securityProfile == null) {
             LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
-            return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+            return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
         }
 
-        switch (profile) {
+        switch (securityProfile) {
             case ECC:
-                return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).getAsymmetricSignature();
+                return domibusAlgorithmSuiteLoader.getAsymmetricSignature(ECC);
             case RSA:
             default: {
-                if (profile != RSA) {
-                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", profile);
-                }
-                return algorithmSuiteTypes.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+                return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
             }
         }
     }

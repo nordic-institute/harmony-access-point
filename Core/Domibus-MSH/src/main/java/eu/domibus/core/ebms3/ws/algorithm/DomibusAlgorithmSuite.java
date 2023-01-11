@@ -1,0 +1,148 @@
+package eu.domibus.core.ebms3.ws.algorithm;
+
+import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
+import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.neethi.Assertion;
+import org.apache.neethi.Policy;
+import org.apache.wss4j.common.WSS4JConstants;
+import org.apache.wss4j.policy.SPConstants;
+import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
+import org.apache.wss4j.policy.model.AlgorithmSuite;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
+import static org.apache.wss4j.common.WSS4JConstants.MGF_SHA256;
+
+public class DomibusAlgorithmSuite extends AlgorithmSuite {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuite.class);
+
+    public static final String AES128_GCM_ALGORITHM = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+
+    public static final String BASIC_128_GCM_SHA_256_RSA = "Basic128GCMSha256";
+
+    public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA = "Basic128GCMSha256MgfSha256";
+
+    //TODO: check below value for correctness when the ECC library is chosen
+    public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC = "Basic128GCMSha256MgfSha256ECC";
+
+    protected Map<String, AlgorithmSuiteType> algorithmSuiteTypesCopy;
+
+    static {
+        ALGORITHM_SUITE_TYPES.put(
+                BASIC_128_GCM_SHA_256_RSA,
+                new AlgorithmSuiteType(
+                        BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
+                        SPConstants.SHA256,
+                        AES128_GCM_ALGORITHM,
+                        SPConstants.KW_AES128,
+                        SPConstants.KW_RSA_OAEP,
+                        SPConstants.P_SHA1_L128,
+                        SPConstants.P_SHA1_L128,
+                        null,
+                        AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm(),
+                        128, 128, 128, 256, 1024, 4096
+                )
+        );
+
+        ALGORITHM_SUITE_TYPES.put(
+                BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
+                new AlgorithmSuiteType(
+                        BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
+                        SPConstants.SHA256,
+                        AES128_GCM_ALGORITHM,
+                        SPConstants.KW_AES128,
+                        WSS4JConstants.KEYTRANSPORT_RSAOAEP_XENC11,
+                        SPConstants.P_SHA1_L128,
+                        SPConstants.P_SHA1_L128,
+                        null,
+                        AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm(),
+                        128, 128, 128, 256, 1024, 4096
+                )
+        );
+        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setMGFAlgo(MGF_SHA256);
+        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setEncryptionDigest(SPConstants.SHA256);
+
+
+        ALGORITHM_SUITE_TYPES.put(
+                BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
+                new AlgorithmSuiteType(
+                        BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
+                        SPConstants.SHA256,
+                        AES128_GCM_ALGORITHM,
+                        SPConstants.KW_AES128,
+                        BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC, //TODO: replace with WSS4JConstants.ECC_???,
+                        SPConstants.P_SHA1_L128,
+                        SPConstants.P_SHA1_L128,
+                        null,
+                        AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm(),
+                        128, 128, 128, 256, 1024, 4096
+                )
+        );
+        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);
+        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
+    }
+
+    DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
+        super(version, nestedPolicy);
+    }
+
+    @Override
+    protected AbstractSecurityAssertion cloneAssertion(final Policy nestedPolicy) {
+        return new DomibusAlgorithmSuite(this.getVersion(), nestedPolicy);
+    }
+
+    @Override
+    protected void parseCustomAssertion(final Assertion assertion) {
+        final String assertionName = assertion.getName().getLocalPart();
+        final String assertionNamespace = assertion.getName().getNamespaceURI();
+        if (!DomibusAlgorithmSuiteLoader.E_DELIVERY_ALGORITHM_NAMESPACE.equals(assertionNamespace)) {
+            return;
+        }
+
+        if (BASIC_128_GCM_SHA_256_RSA.equals(assertionName)) {
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_RSA));
+            getAlgorithmSuiteType().setNamespace(assertionNamespace);
+        } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA));
+            getAlgorithmSuiteType().setNamespace(assertionNamespace);
+        } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC.equals(assertionName)) {
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC));
+            getAlgorithmSuiteType().setNamespace(assertionNamespace);
+        }
+    }
+
+    /**
+     * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA correspondent
+     * if no security profile is defined
+     *
+     * @param securityProfile the configured security profile
+     * @return the Asymmetric Signature Algorithm
+     */
+    public String getAsymmetricSignature(SecurityProfile securityProfile) {
+        if (algorithmSuiteTypesCopy == null) {
+            algorithmSuiteTypesCopy = new HashMap<>(ALGORITHM_SUITE_TYPES);
+        }
+
+        if (securityProfile == null) {
+            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
+            return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+        }
+
+        switch (securityProfile) {
+            case ECC:
+                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).getAsymmetricSignature();
+            case RSA:
+            default: {
+                if (securityProfile != RSA) {
+                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", securityProfile);
+                }
+                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+            }
+        }
+    }
+}
