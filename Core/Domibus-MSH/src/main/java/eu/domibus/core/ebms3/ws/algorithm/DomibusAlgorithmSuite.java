@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.ws.algorithm;
 
 import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
 import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.neethi.Assertion;
@@ -14,7 +15,6 @@ import org.apache.wss4j.policy.model.AlgorithmSuite;
 import java.util.HashMap;
 import java.util.Map;
 
-import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
 import static org.apache.wss4j.common.WSS4JConstants.MGF_SHA256;
 
 public class DomibusAlgorithmSuite extends AlgorithmSuite {
@@ -121,9 +121,10 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
      * if no security profile is defined
      *
      * @param securityProfile the configured security profile
+     * @throws ConfigurationException exception thrown when an invalid security profile is set
      * @return the Asymmetric Signature Algorithm
      */
-    public String getAsymmetricSignature(SecurityProfile securityProfile) {
+    public String getAsymmetricSignature(SecurityProfile securityProfile) throws ConfigurationException {
         if (algorithmSuiteTypesCopy == null) {
             algorithmSuiteTypesCopy = new HashMap<>(ALGORITHM_SUITE_TYPES);
         }
@@ -137,11 +138,11 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
             case ECC:
                 return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).getAsymmetricSignature();
             case RSA:
-            default: {
-                if (securityProfile != RSA) {
-                    LOG.info("Unsupported security profile specified: [{}] defaulting to RSA_SHA256 algorithm.", securityProfile);
-                }
                 return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+            default: {
+                String errorMessage = "Unsupported security profile specified: [" + securityProfile + "]";
+                LOG.warn(errorMessage);
+                throw new ConfigurationException(errorMessage);
             }
         }
     }

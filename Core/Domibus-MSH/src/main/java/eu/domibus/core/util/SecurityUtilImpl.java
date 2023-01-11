@@ -4,6 +4,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -36,13 +37,14 @@ public class SecurityUtilImpl {
      * correspondent if no security profile is defined
      *
      * @param legConfiguration the leg configuration containing the security profile
+     * @throws ConfigurationException thrown when the legConfiguration contains an invalid security profile
      * @return the Asymmetric Signature Algorithm
      */
-    public String getSecurityAlgorithm(LegConfiguration legConfiguration) {
+    public String getSecurityAlgorithm(LegConfiguration legConfiguration) throws ConfigurationException {
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
 
         if (securityProfile == null) {
-            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
+            LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
             return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
         }
 
@@ -50,8 +52,11 @@ public class SecurityUtilImpl {
             case ECC:
                 return domibusAlgorithmSuiteLoader.getAsymmetricSignature(ECC);
             case RSA:
-            default: {
                 return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
+            default: {
+                String errorMessage = "The leg configuration contains an unsupported security profile: [" + securityProfile + "]";
+                LOG.warn(errorMessage);
+                throw new ConfigurationException(errorMessage);
             }
         }
     }
