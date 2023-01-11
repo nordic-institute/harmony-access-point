@@ -240,19 +240,24 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
-        if (propMeta.isComposable()) {
+        if (propMeta.isComposable() || StringUtils.isEmpty(propertyValue)) {
             return propertyValue;
         }
 
-        switch (propMeta.getTypeAsEnum()) {
-            case NUMERIC:
-            case POSITIVE_DECIMAL:
-            case POSITIVE_INTEGER:
-                return String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
-            case BOOLEAN:
-                return String.valueOf(domibusPropertyProvider.getBooleanProperty(propMeta.getName()));
-            default:
-                return propertyValue;
+        try {
+            switch (propMeta.getTypeAsEnum()) {
+                case NUMERIC:
+                case POSITIVE_DECIMAL:
+                case POSITIVE_INTEGER:
+                    return String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
+                case BOOLEAN:
+                    return String.valueOf(domibusPropertyProvider.getBooleanProperty(propMeta.getName()));
+                default:
+                    return propertyValue;
+            }
+        } catch (Exception ex) {
+            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]", propMeta.getName(), ex);
+            return propertyValue;
         }
     }
 
