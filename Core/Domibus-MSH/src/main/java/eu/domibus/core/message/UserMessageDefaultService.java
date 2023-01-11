@@ -53,7 +53,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
@@ -665,12 +664,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public UserMessage getByMessageId(String messageId) {
-        final UserMessage userMessage;
-        try {
-            userMessage = userMessageDao.findByMessageId(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found.", exception);
-        }
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

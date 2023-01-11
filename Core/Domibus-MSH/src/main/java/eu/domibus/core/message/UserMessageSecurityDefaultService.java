@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
@@ -14,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.NonUniqueResultException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,12 +119,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     // we keep this for back-ward compatibility
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId){
-        UserMessage userMessage;
-        try {
-            userMessage = userMessageDao.findByMessageId(messageId);
-        } catch (NonUniqueResultException exception) {
-            throw new MessagingException("Duplicate message Id found.", exception);
-        }
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

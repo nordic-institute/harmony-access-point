@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -14,6 +15,7 @@ import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,6 +192,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
             return MessageStatus.NOT_FOUND;
+        } catch (NonUniqueResultException exception) {
+            throw new DuplicateMessageFoundException(messageId, exception);
         }
     }
 
@@ -247,10 +251,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     // keep this until we remove the deprecated ext methods
     public UserMessageLog findByMessageId(String messageId) {
+        UserMessageLog userMessageLog;
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
+        try {
+            userMessageLog = DataAccessUtils.singleResult(query.getResultList());
 
-        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            throw new DuplicateMessageFoundException(messageId, ex);
+        }
         if (userMessageLog == null) {
             LOG.info("Did not find any UserMessageLog for message with [{}]=[{}]", STR_MESSAGE_ID, messageId);
             return null;

@@ -22,8 +22,12 @@ import javax.validation.constraints.NotNull;
         }
 )
 @NamedQueries({
-        @NamedQuery(name = "UserDomainEntity.findByUserName", query = "FROM UserDomainEntity u where u.userName=:USER_NAME"),
-        @NamedQuery(name = "UserDomainEntity.findPreferredDomains", query = "FROM UserDomainEntity u where u.preferredDomain is not null"),
+        @NamedQuery(name = "UserDomainEntity.findByUserName",
+                query = "FROM UserDomainEntity u where u.userName=:USER_NAME"),
+        @NamedQuery(name = "UserDomainEntity.deleteByDomain",
+                query = "DELETE FROM UserDomainEntity u where u.domain=:DOMAIN"),
+        @NamedQuery(name = "UserDomainEntity.findPreferredDomains",
+                query = "FROM UserDomainEntity u where u.preferredDomain is not null"),
 })
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName("UserDomain")
