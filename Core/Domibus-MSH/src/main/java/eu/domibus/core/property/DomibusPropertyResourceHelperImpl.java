@@ -244,19 +244,18 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
             return propertyValue;
         }
 
+        String propertyName = propMeta.getName();
+        DomibusPropertyMetadata.Type propertyType = propMeta.getTypeAsEnum();
         try {
-            switch (propMeta.getTypeAsEnum()) {
-                case NUMERIC:
-                case POSITIVE_DECIMAL:
-                case POSITIVE_INTEGER:
-                    return String.valueOf(domibusPropertyProvider.getLongProperty(propMeta.getName()));
-                case BOOLEAN:
-                    return String.valueOf(domibusPropertyProvider.getBooleanProperty(propMeta.getName()));
-                default:
-                    return propertyValue;
+            if (propertyType.isNumeric()) {
+                return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
             }
+            if (propertyType.isBoolean()) {
+                return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));
+            }
+            return propertyValue;
         } catch (Exception ex) {
-            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]", propMeta.getName(), ex);
+            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]", propertyName, ex);
             return propertyValue;
         }
     }
