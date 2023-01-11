@@ -74,7 +74,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
         message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
 
-        final String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+        final String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration);
         message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
         message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
 

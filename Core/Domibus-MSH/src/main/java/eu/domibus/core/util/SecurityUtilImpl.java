@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.logging.DomibusLogger;
@@ -34,10 +35,12 @@ public class SecurityUtilImpl {
      * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA_SHA256
      * correspondent if no security profile is defined
      *
-     * @param securityProfile the configured security profile
+     * @param legConfiguration the leg configuration containing the security profile
      * @return the Asymmetric Signature Algorithm
      */
-    public String getSecurityAlgorithm(SecurityProfile securityProfile) {
+    public String getSecurityAlgorithm(LegConfiguration legConfiguration) {
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+
         if (securityProfile == null) {
             LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
             return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
