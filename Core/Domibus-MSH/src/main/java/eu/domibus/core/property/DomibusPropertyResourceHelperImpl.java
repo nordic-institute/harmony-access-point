@@ -240,7 +240,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
-        if (propMeta.isComposable() || StringUtils.isEmpty(propertyValue)) {
+        if (propMeta.isComposable()) {
             return propertyValue;
         }
 
@@ -256,7 +256,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
             return propertyValue;
         } catch (Exception ex) {
             LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]", propertyName, ex);
-            return propertyValue;
+            return StringUtils.EMPTY;
         }
     }
 
