@@ -27,8 +27,14 @@ import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader.BAS
 public class SecurityUtilImpl {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityUtilImpl.class);
 
+    private final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
+
+    public SecurityUtilImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader) {
+        this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
+    }
+
     public String getSecurityAlgorithm(SecurityProfile profile) {
-        Map<String, AlgorithmSuite.AlgorithmSuiteType> algorithmSuiteTypes = DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite.getAlgorithmSuiteTypes();
+        Map<String, AlgorithmSuite.AlgorithmSuiteType> algorithmSuiteTypes = domibusAlgorithmSuiteLoader.getAlgorithmSuiteTypes();
 
         if (profile == null) {
             LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");

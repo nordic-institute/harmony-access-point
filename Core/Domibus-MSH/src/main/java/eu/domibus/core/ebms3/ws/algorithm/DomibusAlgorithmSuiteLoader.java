@@ -108,6 +108,10 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
         return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
     }
 
+    public Map<String, AlgorithmSuite.AlgorithmSuiteType> getAlgorithmSuiteTypes() {
+        return algorithmSuiteTypesCopy;
+    }
+
     public static class DomibusAlgorithmSuite extends AlgorithmSuite {
 
         static {
@@ -165,10 +169,6 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
 
             algorithmSuiteTypesCopy = new HashMap<>(ALGORITHM_SUITE_TYPES);
-        }
-
-        public static Map<String, AlgorithmSuiteType> getAlgorithmSuiteTypes() {
-            return algorithmSuiteTypesCopy;
         }
 
         DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
