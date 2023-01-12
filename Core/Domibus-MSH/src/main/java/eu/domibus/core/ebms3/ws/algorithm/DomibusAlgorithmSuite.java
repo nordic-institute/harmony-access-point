@@ -117,28 +117,28 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
     }
 
     /**
-     * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA correspondent
+     * Retrieves the Algorithm Suite Type corresponding to the security profile, defaulting to the RSA correspondent
      * if no security profile is defined
      *
      * @param securityProfile the configured security profile
      * @throws ConfigurationException exception thrown when an invalid security profile is set
-     * @return the Asymmetric Signature Algorithm
+     * @return the Algorithm Suite Type for a security profile
      */
-    public String getAsymmetricSignature(SecurityProfile securityProfile) throws ConfigurationException {
+    public AlgorithmSuiteType getAlgorithmSuiteType(SecurityProfile securityProfile) throws ConfigurationException {
         if (algorithmSuiteTypesCopy == null) {
             algorithmSuiteTypesCopy = new HashMap<>(ALGORITHM_SUITE_TYPES);
         }
 
         if (securityProfile == null) {
             LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
-            return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+            return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
         }
 
         switch (securityProfile) {
             case ECC:
-                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).getAsymmetricSignature();
+                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC);
             case RSA:
-                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
+                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
             default: {
                 String errorMessage = "Unsupported security profile specified: [" + securityProfile + "]";
                 LOG.error(errorMessage);

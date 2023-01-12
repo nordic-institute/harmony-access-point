@@ -98,7 +98,7 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
         return domibusAlgorithmSuite;
     }
 
-    public String getAsymmetricSignature(SecurityProfile securityProfile) {
-        return domibusAlgorithmSuite.getAsymmetricSignature(securityProfile);
+    public AlgorithmSuiteType getAlgorithmSuiteType(SecurityProfile securityProfile) {
+        return domibusAlgorithmSuite.getAlgorithmSuiteType(securityProfile);
     }
 }
