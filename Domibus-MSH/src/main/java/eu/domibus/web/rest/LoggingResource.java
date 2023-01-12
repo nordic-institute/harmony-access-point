@@ -62,6 +62,7 @@ public class LoggingResource {
      * @return response of the operation
      */
     @PostMapping(value = "/loglevel")
+    @PreAuthorize("@authUtils.isAPAdmin()")
     public ResponseEntity<String> setLogLevel(@RequestBody @Valid LoggingLevelRO request) {
         final String name = request.getName();
         final String level = request.getLevel();
@@ -115,6 +116,7 @@ public class LoggingResource {
      * @return string for success or error
      */
     @PostMapping(value = "/reset")
+    @PreAuthorize("@authUtils.isAPAdmin()")
     public ResponseEntity<String> resetLogging() {
 
         //reset log level on current server
