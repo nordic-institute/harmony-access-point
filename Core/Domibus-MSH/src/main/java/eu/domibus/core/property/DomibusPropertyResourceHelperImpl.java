@@ -254,7 +254,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
             }
             return propertyValue;
         } catch (Exception ex) {
-            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]", propertyName, ex);
+            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]; returning empty.", propertyName, ex);
             return StringUtils.EMPTY;
         }
     }
