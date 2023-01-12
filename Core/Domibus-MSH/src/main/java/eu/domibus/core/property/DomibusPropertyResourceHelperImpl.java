@@ -234,8 +234,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-        String usedValue = null;
-        usedValue = getUsedValue(propMeta, propertyValue);
+        String usedValue = getUsedValue(propMeta, propertyValue);
         return createProperty(propMeta, propertyValue, usedValue);
     }
 
