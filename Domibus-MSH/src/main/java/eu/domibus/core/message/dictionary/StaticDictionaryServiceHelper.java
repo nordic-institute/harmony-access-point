@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0.3
+ */
 @Service
 public class StaticDictionaryServiceHelper {
 
