@@ -55,7 +55,7 @@ public class SecurityUtilImpl {
                 return domibusAlgorithmSuiteLoader.getAsymmetricSignature(RSA);
             default: {
                 String errorMessage = "The leg configuration contains an unsupported security profile: [" + securityProfile + "]";
-                LOG.warn(errorMessage);
+                LOG.error(errorMessage);
                 throw new ConfigurationException(errorMessage);
             }
         }

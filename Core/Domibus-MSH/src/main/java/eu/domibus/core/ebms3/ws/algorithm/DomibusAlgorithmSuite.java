@@ -141,7 +141,7 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
                 return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).getAsymmetricSignature();
             default: {
                 String errorMessage = "Unsupported security profile specified: [" + securityProfile + "]";
-                LOG.warn(errorMessage);
+                LOG.error(errorMessage);
                 throw new ConfigurationException(errorMessage);
             }
         }
