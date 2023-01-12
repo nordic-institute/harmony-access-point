@@ -42,3 +42,8 @@
 .field-spacing {
   margin-right: 30px;
 }
+
+.wrong-value {
+  border: solid 0.5px red;
+  color: red;
+}

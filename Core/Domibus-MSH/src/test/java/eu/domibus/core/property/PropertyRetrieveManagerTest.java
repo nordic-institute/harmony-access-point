@@ -128,7 +128,7 @@ public class PropertyRetrieveManagerTest {
         }};
     }
 
-    @Test
+    @Test(expected = DomibusPropertyException.class)
     public void getProperty_MultiTenancy_NotDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.SUPER, true);
 
@@ -218,7 +218,7 @@ public class PropertyRetrieveManagerTest {
         }};
     }
 
-    @Test
+    @Test(expected = DomibusPropertyException.class)
     public void getProperty_MultiTenancy_NullDomain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 

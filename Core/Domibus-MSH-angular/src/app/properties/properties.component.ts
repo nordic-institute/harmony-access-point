@@ -138,11 +138,15 @@ export class PropertiesComponent extends mix(BaseListComponent)
 
   public setServerResults(result: PropertyListModel) {
     super.count = result.count;
-    super.rows = result.items;
+    let rows = result.items;
+    rows.forEach(row => row.originalValue = row.value);
+    super.rows = rows;
   }
 
-  onPropertyValueFocus(row) {
-    if (this.inLostFocus) {
+  onPropertyValueFocus(row: PropertyModel) {
+    if (row.timeoutId) {
+      clearTimeout(row.timeoutId);
+      row.timeoutId = null;
       return;
     }
     row.currentValueSet = true;
@@ -150,29 +154,26 @@ export class PropertiesComponent extends mix(BaseListComponent)
     this.alertService.clearAlert();
   }
 
-  onPropertyValueBlur(row) {
-    if (this.inLostFocus) {
-      return;
-    }
-    this.inLostFocus = true;
-    setTimeout(() => {
+  onPropertyValueBlur(row: PropertyModel) {
+    row.timeoutId = setTimeout(() => {
       this.revertProperty(row);
-      this.inLostFocus = false;
-    }, 1000);
+      row.timeoutId = null;
+    }, 500);
   }
 
-  canUpdate(row): boolean {
+  canUpdate(row: PropertyModel): boolean {
     if (row && !row.currentValueSet) {
       return false;
     }
     return row && row.currentValue != row.value;
   }
 
-  private async updateProperty(row) {
+  async updateProperty(row: PropertyModel) {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
       await this.propertiesService.updateProperty(row, this.filter.showDomain);
+      row.originalValue = row.usedValue;
       this.alertService.success('Successfully updated the property ' + row.name);
     } catch (ex) {
       row.currentValue = row.oldValue;
@@ -183,7 +184,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     }
   }
 
-  private revertProperty(row) {
+  revertProperty(row: PropertyModel) {
     row.value = row.currentValue;
   }
 
@@ -191,7 +192,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
   }
 
-  canWriteProperty(row) {
+  canWriteProperty(row: PropertyModel) {
     return row.writable && !row.composable;
   }
 
@@ -220,12 +221,17 @@ export class PropertiesComponent extends mix(BaseListComponent)
     }
   }
 
-  private async propertyExists(propertyName: string): Promise<boolean> {
+  async propertyExists(propertyName: string): Promise<boolean> {
     try {
       const existing = await this.propertiesService.getProperty(propertyName);
       return existing != null;
     } catch (ex) {
       return false;
     }
+  }
+
+  syncValues(row: PropertyModel) {
+    row.value = row.usedValue;
+    this.updateProperty(row);
   }
 }

@@ -179,7 +179,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     protected void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-        DomibusProperty prop = createProperty(propMeta, propertyValue);
+        DomibusProperty prop = createProperty(propMeta, propertyValue, propertyValue);
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
     }
@@ -234,13 +234,36 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-        return createProperty(propMeta, propertyValue);
+        String usedValue = getUsedValue(propMeta, propertyValue);
+        return createProperty(propMeta, propertyValue, usedValue);
     }
 
-    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue) {
+    private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
+        if (propMeta.isComposable()) {
+            return propertyValue;
+        }
+
+        String propertyName = propMeta.getName();
+        DomibusPropertyMetadata.Type propertyType = propMeta.getTypeAsEnum();
+        try {
+            if (propertyType.isNumeric()) {
+                return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
+            }
+            if (propertyType.isBoolean()) {
+                return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));
+            }
+            return propertyValue;
+        } catch (Exception ex) {
+            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]; returning empty.", propertyName, ex);
+            return StringUtils.EMPTY;
+        }
+    }
+
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue, String usedValue) {
         DomibusProperty prop = new DomibusProperty();
         prop.setMetadata(propMeta);
         prop.setValue(propertyValue);
+        prop.setUsedValue(usedValue);
         return prop;
     }
 

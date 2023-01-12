@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,8 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_TIMEOUT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -33,12 +33,11 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void setProperty_readonly() {
-        String propertyName = DOMIBUS_DISPATCHER_TIMEOUT;
         boolean isDomain = true;
         String propertyValue = "100";
 
         try {
-            configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
+            configurationPropertyResourceHelper.setPropertyValue(DOMIBUS_DISPATCHER_TIMEOUT, isDomain, propertyValue);
             Assert.fail();
         } catch (DomibusPropertyException ex) {
             Assert.assertTrue(ex.getMessage().contains("it is not writable"));
@@ -152,5 +151,24 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         } catch (DomibusPropertyException ex) {
             Assert.assertTrue(ex.getMessage().contains("Unknown property"));
         }
+    }
+
+    @Test
+    public void testGetPropertyWithValidValue() {
+        DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL);
+        Assert.assertEquals(result.getUsedValue(), result.getValue());
+    }
+
+    @Test
+    public void testGetPropertyWithInvalidValue() {
+        DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+        Assert.assertNotEquals(result.getUsedValue(), result.getValue());
+    }
+
+    @Test
+    public void testGetPropertyDefaultInvalidValue() {
+        DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_PROXY_HTTP_PORT);
+        Assert.assertEquals(StringUtils.EMPTY, result.getValue());
+        Assert.assertEquals(StringUtils.EMPTY, result.getUsedValue());
     }
 }

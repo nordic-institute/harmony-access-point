@@ -60,14 +60,21 @@
   <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <div class="input-group property-view" *ngIf="row.composable">
       <button mat-icon-button [disabled]="!row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
-        <mat-icon mat-tooltip="New" mdTooltipPosition="above">note_add</mat-icon>
+        <mat-icon matTooltip="New" matTooltipPosition="above">note_add</mat-icon>
       </button>
     </div>
     <div class="input-group property-view" *ngIf="!row.writable">
-      {{row.value}}
+      <span [class.wrong-value]="row.value != null && row.originalValue != row.usedValue">{{row.value}}</span>
+
+      <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
+        <mat-icon matTooltip="This is the value actually used in Domibus."
+                  style="vertical-align: bottom;color: red;">error</mat-icon>
+        <div style="display: inline-block;"> Actual value: {{row.usedValue}}</div>
+      </div>
+
     </div>
     <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
-      <input matInput type="text" autocomplete="off" class="form-control property-value"
+      <input matInput type="text" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
              [(ngModel)]="row.value"
              (focus)="onPropertyValueFocus(row)"
              (blur)="onPropertyValueBlur(row)"
@@ -77,12 +84,18 @@
 
       <span class="property-edit-buttons input-group-addon">
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon>
+            <mat-icon matTooltip="Save" matTooltipPosition="above">save</mat-icon>
           </button>
           <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon>
+            <mat-icon matTooltip="Undo" matTooltipPosition="above">undo</mat-icon>
           </button>
         </span>
+
+      <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
+        <mat-icon (click)="syncValues(row)" matTooltip="This is the value actually used in Domibus. Click to fix in file."
+                  style="vertical-align: bottom;color: red; cursor: pointer;">error</mat-icon>
+        <div style="display: inline-block;"> Actual value: {{row.usedValue}}</div>
+      </div>
     </div>
 
   </ng-template>

@@ -58,8 +58,8 @@ public class PropertyRetrieveManager {
                 LOG.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
                 return getDomainOrDefaultValue(prop, currentDomain);
             }
-            LOG.error("Property [{}] is not applicable for a specific domain (it is global or super), so null was returned for domain [{}].", propertyName, currentDomain);
-            return null;
+            throw new DomibusPropertyException(
+                    String.format("Property [%s] is not applicable for a specific domain (it is global or super), so null was returned for domain [%s].", propertyName, currentDomain));
         }
         //current domain being null, it is super or global property (but not both)
         if (prop.isGlobal()) {
@@ -70,8 +70,8 @@ public class PropertyRetrieveManager {
             LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
             return getSuperOrDefaultValue(prop);
         }
-        LOG.error("Property [{}] is not applicable for global or super usage, so null was returned (as current domain is null).", propertyName);
-        return null;
+        throw new DomibusPropertyException(
+                String.format("Property [%s] is not applicable for global or super usage, so null was returned (as current domain is null).", propertyName));
     }
 
     public String getInternalProperty(Domain domain, String propertyName) {

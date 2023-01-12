@@ -1,11 +1,11 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -131,10 +134,14 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void getIntegerProperty() {
+    public void getIntegerProperty(@Injectable DomibusPropertyMetadata propMeta) {
         String val = "2";
         Integer intVal = Integer.valueOf(val);
         new Expectations(domibusPropertyProvider) {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.POSITIVE_INTEGER;
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
             primitivePropertyTypesManager.getIntegerInternal(propertyName, val);
@@ -147,11 +154,15 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void getLongProperty() {
+    public void getLongProperty(@Injectable DomibusPropertyMetadata propMeta) {
         String val = "2";
         Long longVal = Long.valueOf(val);
 
         new Expectations(domibusPropertyProvider) {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.NUMERIC;
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
             primitivePropertyTypesManager.getLongInternal(propertyName, val);
@@ -164,11 +175,15 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void getBooleanProperty() {
+    public void getBooleanProperty(@Injectable DomibusPropertyMetadata propMeta) {
         String val = "true";
         Boolean boolVal = Boolean.valueOf(val);
 
         new Expectations(domibusPropertyProvider) {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.BOOLEAN;
             domibusPropertyProvider.getProperty(propertyName);
             result = val;
             primitivePropertyTypesManager.getBooleanInternal(propertyName, val);
@@ -181,11 +196,15 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void getBooleanDomainProperty() {
+    public void getBooleanDomainProperty(@Injectable DomibusPropertyMetadata propMeta) {
         String val = "true";
         Boolean boolVal = Boolean.valueOf(val);
 
         new Expectations(domibusPropertyProvider) {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            propMeta.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.BOOLEAN;
             domibusPropertyProvider.getProperty(domain, propertyName);
             result = val;
             primitivePropertyTypesManager.getBooleanInternal(propertyName, val);
@@ -352,7 +371,7 @@ public class DomibusPropertyProviderImplTest {
 
         // THEN
         Assert.assertEquals("Should have returned a list containing all the individual elements when getting " +
-                "the comma separated property values for a property having a comma separated list type and a valid value",
+                        "the comma separated property values for a property having a comma separated list type and a valid value",
                 Arrays.asList("value1", "value2", "value3", "value4", "value5"), result);
     }
 }

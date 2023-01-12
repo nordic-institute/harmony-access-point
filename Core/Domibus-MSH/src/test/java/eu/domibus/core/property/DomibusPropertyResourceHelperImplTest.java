@@ -383,7 +383,7 @@ public class DomibusPropertyResourceHelperImplTest {
         String propertyValue = "prop value";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.createProperty(propMeta, propertyValue);
+            configurationPropertyResourceHelper.createProperty(propMeta, propertyValue, propertyValue);
             result = prop;
         }};
 

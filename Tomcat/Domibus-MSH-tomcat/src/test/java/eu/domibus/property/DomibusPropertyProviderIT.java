@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
@@ -263,10 +264,22 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propertyValue = "TeamA";
         domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_UI_SUPPORT_TEAM_NAME, propertyValue);
 
+        String propVal = domibusPropertyProvider.getProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+
         File propertyFile = getPropertyFile();
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         String lastLine = lines.get(lines.size() - 1);
         Assert.assertEquals(lastLine, DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue);
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void testCallInvalidTypeMethod() {
+        domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void testCallInvalidTypeMethod2() {
+        domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_SUPPORT_TEAM_NAME);
     }
 
     private void testSetPropertyWithName(String propertyName) throws IOException {
