@@ -38,6 +38,7 @@ public class StaticDictionaryServiceHelper {
         createEntries();
 
         //thread can be reused when creating statuses for domains; flush and clear the entity manager after the statuses are created for each domain to avoid issue encountered in EDELIVERY-10595
+        messageStatusDao.flush();
         messageStatusDao.clearEntityManager();
     }
 }
