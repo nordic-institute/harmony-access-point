@@ -16,7 +16,7 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.util.SecurityUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -59,18 +59,18 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final UserMessageErrorCreator userMessageErrorCreator;
 
-    private final SecurityUtilImpl securityUtil;
+    private final SecurityProfileService securityProfileService;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator, SecurityUtilImpl securityUtil) {
+                                        UserMessageErrorCreator userMessageErrorCreator, SecurityProfileService securityProfileService) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
-        this.securityUtil = securityUtil;
+        this.securityProfileService = securityProfileService;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
 
-            String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+            String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
 
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);

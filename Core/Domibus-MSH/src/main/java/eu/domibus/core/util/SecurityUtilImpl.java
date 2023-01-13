@@ -1,16 +1,13 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
-import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
-
 
 /**
  * Provides functionality for security certificates configuration
@@ -18,20 +15,9 @@ import java.util.Enumeration;
  * @author Lucian FURCA
  * @since 5.1
  */
-@Component
+@Service
 public class SecurityUtilImpl {
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityUtilImpl.class);
-
-    public String getSecurityAlgorithm(SecurityProfile profile) {
-
-        if (profile == null) {
-            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
-            return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-        }
-
-        return profile.getAlgorithm();
-    }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
         if (store1 == null && store2 == null) {

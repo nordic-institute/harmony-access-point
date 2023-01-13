@@ -14,12 +14,12 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.core.util.SecurityUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -70,7 +70,7 @@ public class SetPolicyInServerInterceptorTest {
     UserMessageErrorCreator userMessageErrorCreator;
 
     @Injectable
-    SecurityUtilImpl securityUtil;
+    SecurityProfileService securityProfileService;
 
     @Test
     public void processPluginNotification(final @Injectable EbMS3Exception ebMS3Exception,
