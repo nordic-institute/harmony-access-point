@@ -78,7 +78,7 @@ public class RoutingService {
         backendFiltersCache.remove(currentDomain);
     }
 
-    protected List<BackendFilter> getBackendFiltersWithCache() {
+    public List<BackendFilter> getBackendFiltersWithCache() {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         LOG.trace("Get backend filters with cache for domain [{}]", currentDomain);
         List<BackendFilter> backendFilters = backendFiltersCache.get(currentDomain);
@@ -252,6 +252,10 @@ public class RoutingService {
         LOG.debug("Update BackendFilterEntities [{}]", backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 
+        refreshBackendFilters();
+    }
+
+    public void refreshBackendFilters() {
         invalidateBackendFiltersCache();
         signalService.signalMessageFiltersUpdated();
     }
