@@ -78,6 +78,10 @@ public abstract class BasicDao<T extends DomibusBaseEntity> {
         em.flush();
     }
 
+    public void clearEntityManager() {
+        em.clear();
+    }
+
     public T merge(final T entity) {
         return em.merge(entity);
     }
