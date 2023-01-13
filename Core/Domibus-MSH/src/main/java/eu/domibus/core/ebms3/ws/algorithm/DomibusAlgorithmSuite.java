@@ -15,6 +15,8 @@ import org.apache.wss4j.policy.model.AlgorithmSuite;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.domibus.common.model.configuration.SecurityProfile.ECC;
+import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
 import static org.apache.wss4j.common.WSS4JConstants.MGF_SHA256;
 
 public class DomibusAlgorithmSuite extends AlgorithmSuite {
@@ -34,23 +36,7 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
 
     static {
         ALGORITHM_SUITE_TYPES.put(
-                BASIC_128_GCM_SHA_256_RSA,
-                new AlgorithmSuiteType(
-                        BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
-                        SPConstants.SHA256,
-                        AES128_GCM_ALGORITHM,
-                        SPConstants.KW_AES128,
-                        SPConstants.KW_RSA_OAEP,
-                        SPConstants.P_SHA1_L128,
-                        SPConstants.P_SHA1_L128,
-                        null,
-                        AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm(),
-                        128, 128, 128, 256, 1024, 4096
-                )
-        );
-
-        ALGORITHM_SUITE_TYPES.put(
-                BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
+                RSA.getProfile(),
                 new AlgorithmSuiteType(
                         BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
                         SPConstants.SHA256,
@@ -64,12 +50,12 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
                         128, 128, 128, 256, 1024, 4096
                 )
         );
-        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setMGFAlgo(MGF_SHA256);
-        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setEncryptionDigest(SPConstants.SHA256);
+        ALGORITHM_SUITE_TYPES.get(RSA.getProfile()).setMGFAlgo(MGF_SHA256);
+        ALGORITHM_SUITE_TYPES.get(RSA.getProfile()).setEncryptionDigest(SPConstants.SHA256);
 
 
         ALGORITHM_SUITE_TYPES.put(
-                BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
+                ECC.getProfile(),
                 new AlgorithmSuiteType(
                         BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
                         SPConstants.SHA256,
@@ -83,8 +69,8 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
                         128, 128, 128, 256, 1024, 4096
                 )
         );
-        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);
-        ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
+        ALGORITHM_SUITE_TYPES.get(ECC.getProfile()).setMGFAlgo(MGF_SHA256);
+        ALGORITHM_SUITE_TYPES.get(ECC.getProfile()).setEncryptionDigest(SPConstants.SHA256);
     }
 
     DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
@@ -104,14 +90,11 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
             return;
         }
 
-        if (BASIC_128_GCM_SHA_256_RSA.equals(assertionName)) {
-            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_RSA));
-            getAlgorithmSuiteType().setNamespace(assertionNamespace);
-        } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
-            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA));
+        if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(RSA.getProfile()));
             getAlgorithmSuiteType().setNamespace(assertionNamespace);
         } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC.equals(assertionName)) {
-            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC));
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(ECC.getProfile()));
             getAlgorithmSuiteType().setNamespace(assertionNamespace);
         }
     }
@@ -131,14 +114,14 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
 
         if (securityProfile == null) {
             LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
-            return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
+            return algorithmSuiteTypesCopy.get(RSA.getProfile());
         }
 
         switch (securityProfile) {
             case ECC:
-                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC);
+                return algorithmSuiteTypesCopy.get(ECC.getProfile());
             case RSA:
-                return algorithmSuiteTypesCopy.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
+                return algorithmSuiteTypesCopy.get(RSA.getProfile());
             default: {
                 String errorMessage = "Unsupported security profile specified: [" + securityProfile + "]";
                 LOG.error(errorMessage);
