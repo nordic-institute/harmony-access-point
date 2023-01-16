@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0.3
+ */
 @Transactional
 public class StaticDictionaryServiceImplTestIT extends AbstractIT {
 

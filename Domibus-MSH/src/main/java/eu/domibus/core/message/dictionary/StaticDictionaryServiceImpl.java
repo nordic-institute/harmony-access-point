@@ -74,7 +74,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     private Runnable createEntriesCall() {
         return () -> {
             try {
-                staticDictionaryServiceHelper.createEntriesAndClearEntityManager();
+                staticDictionaryServiceHelper.createEntries();
             } catch (Exception e) {
                 LOG.error("Error while creating static dictionary entries", e);
             }

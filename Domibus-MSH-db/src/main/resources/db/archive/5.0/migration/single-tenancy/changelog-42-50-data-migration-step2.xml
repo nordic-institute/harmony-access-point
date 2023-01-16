@@ -27,6 +27,12 @@ END;
 CALL MIGRATE_42_TO_50_migrate
 //
         </sql>
+
+        <!-- update the values of the sequences to avoid negative values returned by the Hibernate PooledOptimizer -->
+        <sql dbms="mysql" endDelimiter="\n//">
+UPDATE DOMIBUS_SCALABLE_SEQUENCE SET NEXT_VAL = 100 where NEXT_VAL &lt; 100;
+//
+        </sql>
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-9209-single-tenancy-clean">

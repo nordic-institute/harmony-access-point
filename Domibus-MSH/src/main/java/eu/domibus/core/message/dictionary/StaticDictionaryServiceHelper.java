@@ -32,13 +32,4 @@ public class StaticDictionaryServiceHelper {
         Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
         Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
     }
-
-    @Transactional
-    public void createEntriesAndClearEntityManager() {
-        createEntries();
-
-        //thread can be reused when creating statuses for domains; flush and clear the entity manager after the statuses are created for each domain to avoid issue encountered in EDELIVERY-10595
-        messageStatusDao.flush();
-        messageStatusDao.clearEntityManager();
-    }
 }
