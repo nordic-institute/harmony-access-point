@@ -51,6 +51,7 @@ public class UserDomainManagementService implements DomainsAware {
             for (String userName : userNameToAdd) {
                 userDomainDao.updateOrCreateUserDomain(userName, domain.getCode());
                 LOG.info("DomainUser [{}] added for domain [{}]", userName, domain.getCode());
+                domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
             }
         });
     }
