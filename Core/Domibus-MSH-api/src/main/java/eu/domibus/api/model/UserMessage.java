@@ -23,7 +23,7 @@ import java.util.Set;
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
         @NamedQuery(name = "UserMessage.findTestMessageFromPartyToPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true " +
+                        "where um.testMessage=true and um.mshRole.role=:MSH_ROLE " +
                         "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
         @NamedQuery(name = "UserMessage.findTestMessageToPartyDesc",
