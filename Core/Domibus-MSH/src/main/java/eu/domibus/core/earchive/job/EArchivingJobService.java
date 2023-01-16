@@ -248,7 +248,6 @@ public class EArchivingJobService {
             }
             results.add(message);
         }
-        LOG.debug("eArchive maximum payload limit is [{}] not exceeded; returning [{}] messages.", batchPayloadMaxSize, results.size());
         return results;
     }
 
