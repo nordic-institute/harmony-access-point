@@ -60,7 +60,7 @@ public class BackupServiceImpl implements BackupService {
             return;
         }
 
-        File backupsFile = Paths.get(location, originalFile.getName()).toFile();
+        File backupsFile = Paths.get(location, originalFile.getName() + BACKUP_EXT).toFile();
         List<File> backups = getBackupFilesOf(backupsFile);
         if (CollectionUtils.isEmpty(backups)) {
             LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
@@ -84,8 +84,8 @@ public class BackupServiceImpl implements BackupService {
             return;
         }
 
-        String location = Paths.get(originalFile.getParentFile().getPath(), BACKUP_FOLDER_NAME).toString();
-        File backupsFile = Paths.get(location, originalFile.getName()).toFile();
+        File backupsFile = Paths.get(originalFile.getParentFile().getPath(), BACKUP_FOLDER_NAME, originalFile.getName() + BACKUP_EXT).toFile();
+
         List<File> backups = getBackupFilesOf(backupsFile);
 
         if (backups.size() <= maxFilesToKeep) {
@@ -97,7 +97,7 @@ public class BackupServiceImpl implements BackupService {
         backups.subList(maxFilesToKeep, backups.size())
                 .forEach(file -> {
                     try {
-                        LOG.debug("Deleting backup file [{}].", originalFile.getName());
+                        LOG.debug("Deleting backup file [{}].", file.getName());
                         FileUtils.delete(file);
                     } catch (IOException e) {
                         exceptions.add(String.format("Could not delete backup file [%s] due to [%s].", file.getName(), e.getMessage()));
@@ -108,14 +108,14 @@ public class BackupServiceImpl implements BackupService {
         }
     }
 
-    private List<File> getBackupFilesOf(File originalFile) {
-        File[] files = originalFile.getParentFile().listFiles();
+    private List<File> getBackupFilesOf(File backupFile) {
+        File[] files = backupFile.getParentFile().listFiles();
         if (files == null) {
-            LOG.info("File [{}] does not exist.", originalFile.getParentFile());
+            LOG.info("File [{}] does not exist.", backupFile.getParentFile());
             return Collections.emptyList();
         }
         return Arrays.stream(files)
-                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
+                .filter(file -> file.getName().startsWith(backupFile.getName()))
                 .sorted(Comparator.comparing(File::lastModified).reversed())
                 .collect(Collectors.toList());
     }
