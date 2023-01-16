@@ -47,7 +47,7 @@ import java.util.ArrayList;
     public String getDomainForUser(String userName) {
         LOG.debug("Searching domain for user named [{}]", userName);
         String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomain(userName));
-        LOG.debug("Found domain [{}] for user named[{}]", domain, userName);
+        LOG.debug("Found domain [{}] for user named [{}]", domain, userName);
         return domain;
     }
 
