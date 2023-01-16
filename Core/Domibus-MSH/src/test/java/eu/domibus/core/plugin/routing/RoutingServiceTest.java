@@ -204,7 +204,7 @@ public class RoutingServiceTest {
             backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
             result = backendFilters;
         }};
-        List<BackendFilter> actual = routingService.getBackendFiltersUncached();
+        List<BackendFilter> actual = routingService.getBackendFilters();
 
         assertEquals(backendFilters, actual);
 
@@ -225,7 +225,7 @@ public class RoutingServiceTest {
             result = backendFilterEntityList;
         }};
 
-        routingService.getBackendFiltersUncached();
+        routingService.getBackendFilters();
 
         new FullVerifications() {{
             backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
@@ -647,7 +647,8 @@ public class RoutingServiceTest {
     public void testGetBackendFiltersWithCache(@Injectable BackendFilter backendFilter1,
                                                @Injectable BackendFilter backendFilter2,
                                                @Injectable AbstractBackendConnector backendEnableAware1,
-                                               @Injectable BackendConnector<?, ?> backend2
+                                               @Injectable BackendConnector<?, ?> backend2,
+                                               @Injectable List<BackendFilterEntity> backendFilterEntities
     ) {
         List<BackendFilter> backendFilters = asList(backendFilter1, backendFilter2);
         routingService.domainContextProvider = domainContextProvider;
@@ -656,7 +657,10 @@ public class RoutingServiceTest {
             domainContextProvider.getCurrentDomain();
             result = new Domain("default", "default");
 
-            routingService.getBackendFilters();
+            backendFilterDao.findAll();
+            result = backendFilterEntities;
+
+            backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
             result = backendFilters;
 
             backendFilter1.getBackendName();
@@ -687,7 +691,7 @@ public class RoutingServiceTest {
         assertNotNull(backendFiltersWithCache1);
 
         new Verifications() {{
-            routingService.getBackendFiltersUncached();
+            routingService.getBackendFilters();
             times = 1;
 
             backendFilter1.setActive(true);
@@ -695,7 +699,6 @@ public class RoutingServiceTest {
 
             backendFilter2.setActive(true);
             times = 1;
-
         }};
     }
 

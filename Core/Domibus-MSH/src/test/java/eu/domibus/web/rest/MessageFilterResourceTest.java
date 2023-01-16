@@ -161,7 +161,7 @@ public class MessageFilterResourceTest {
 
         new Expectations() {{
 
-            routingService.getBackendFiltersUncached();
+            routingService.getBackendFiltersWithCache();
             result = backendFilters;
 
             backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
