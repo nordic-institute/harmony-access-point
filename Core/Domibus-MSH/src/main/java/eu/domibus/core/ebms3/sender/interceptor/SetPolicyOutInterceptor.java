@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.SecurityUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -47,7 +47,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected SecurityUtilImpl securityUtil;
+    protected SecurityProfileService securityProfileService;
 
     public SetPolicyOutInterceptor() {
         super(Phase.SETUP);
@@ -74,7 +74,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
         message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
 
-        final String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+        final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
         message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
         message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
 

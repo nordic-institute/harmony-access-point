@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,9 +14,7 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.builders.xml.XMLPrimitiveAssertionBuilder;
-import org.apache.wss4j.common.WSS4JConstants;
 import org.apache.wss4j.policy.SPConstants;
-import org.apache.wss4j.policy.model.AbstractSecurityAssertion;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
@@ -25,7 +24,7 @@ import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.wss4j.dom.WSConstants.MGF_SHA256;
+import static eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuite.*;
 
 
 /**
@@ -46,15 +45,9 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";
 
-    public static final String AES128_GCM_ALGORITHM = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-    public static final String BASIC_128_GCM_SHA_256_RSA = "Basic128GCMSha256";
-
-    public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA = "Basic128GCMSha256MgfSha256";
-
-    //TODO: check below value for correctness when the ECC library is chosen
-    public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC = "Basic128GCMSha256MgfSha256ECC";
-
     protected DomibusBus domibusBus;
+
+    protected DomibusAlgorithmSuite domibusAlgorithmSuite;
 
     public DomibusAlgorithmSuiteLoader(final DomibusBus bus) {
         this.domibusBus = bus;
@@ -101,88 +94,11 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     @Override
     public AlgorithmSuite getAlgorithmSuite(final Bus bus, final SPConstants.SPVersion version, final Policy nestedPolicy) {
-        return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(version, nestedPolicy);
+        domibusAlgorithmSuite = new DomibusAlgorithmSuite(version, nestedPolicy);
+        return domibusAlgorithmSuite;
     }
 
-    public static class DomibusAlgorithmSuite extends AlgorithmSuite {
-
-        static {
-            ALGORITHM_SUITE_TYPES.put(
-                    BASIC_128_GCM_SHA_256_RSA,
-                    new AlgorithmSuiteType(
-                            BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
-                            SPConstants.SHA256,
-                            DomibusAlgorithmSuiteLoader.AES128_GCM_ALGORITHM,
-                            SPConstants.KW_AES128,
-                            SPConstants.KW_RSA_OAEP,
-                            SPConstants.P_SHA1_L128,
-                            SPConstants.P_SHA1_L128,
-                            128, 128, 128, 256, 1024, 4096
-                    )
-            );
-
-            ALGORITHM_SUITE_TYPES.put(
-                    BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
-                    new AlgorithmSuiteType(
-                            BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
-                            SPConstants.SHA256,
-                            DomibusAlgorithmSuiteLoader.AES128_GCM_ALGORITHM,
-                            SPConstants.KW_AES128,
-                            WSS4JConstants.KEYTRANSPORT_RSAOAEP_XENC11,
-                            SPConstants.P_SHA1_L128,
-                            SPConstants.P_SHA1_L128,
-                            128, 128, 128, 256, 1024, 4096
-                    )
-            );
-            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setMGFAlgo(MGF_SHA256);
-            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA).setEncryptionDigest(SPConstants.SHA256);
-
-
-            ALGORITHM_SUITE_TYPES.put(
-                    BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
-                    new AlgorithmSuiteType(
-                            BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC,
-                            SPConstants.SHA256,
-                            DomibusAlgorithmSuiteLoader.AES128_GCM_ALGORITHM,
-                            SPConstants.KW_AES128,
-                            BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC, //TODO: replace with WSS4JConstants.ECC_???,
-                    SPConstants.P_SHA1_L128,
-                    SPConstants.P_SHA1_L128,
-                    128, 128, 128, 256, 1024, 4096
-                    )
-            );
-            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setMGFAlgo(MGF_SHA256);
-            ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC).setEncryptionDigest(SPConstants.SHA256);
-        }
-
-
-        DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
-            super(version, nestedPolicy);
-        }
-
-        @Override
-        protected AbstractSecurityAssertion cloneAssertion(final Policy nestedPolicy) {
-            return new DomibusAlgorithmSuiteLoader.DomibusAlgorithmSuite(this.getVersion(), nestedPolicy);
-        }
-
-        @Override
-        protected void parseCustomAssertion(final Assertion assertion) {
-            final String assertionName = assertion.getName().getLocalPart();
-            final String assertionNamespace = assertion.getName().getNamespaceURI();
-            if (!DomibusAlgorithmSuiteLoader.E_DELIVERY_ALGORITHM_NAMESPACE.equals(assertionNamespace)) {
-                return;
-            }
-
-            if (BASIC_128_GCM_SHA_256_RSA.equals(assertionName)) {
-                setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_RSA));
-                getAlgorithmSuiteType().setNamespace(assertionNamespace);
-            } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
-                setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA));
-                getAlgorithmSuiteType().setNamespace(assertionNamespace);
-            } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC.equals(assertionName)) {
-                setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC));
-                getAlgorithmSuiteType().setNamespace(assertionNamespace);
-            }
-        }
+    public AlgorithmSuiteType getAlgorithmSuiteType(SecurityProfile securityProfile) {
+        return domibusAlgorithmSuite.getAlgorithmSuiteType(securityProfile);
     }
 }
