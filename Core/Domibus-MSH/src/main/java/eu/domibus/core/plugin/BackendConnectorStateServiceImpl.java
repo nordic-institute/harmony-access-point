@@ -81,6 +81,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     private void resumeJobs(String backendName, Domain domain) {
         String[] jobNames = getJobNames(backendName);
         if (jobNames == null) {
+            LOG.debug("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
         domibusScheduler.resumeJobs(domain, jobNames);
@@ -89,7 +90,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     private void pauseJobs(String backendName, Domain domain) {
         String[] jobNames = getJobNames(backendName);
         if (jobNames == null) {
-            LOG.info("Could not find any job names for the plugin called [{}]; exiting.", backendName);
+            LOG.debug("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
         domibusScheduler.pauseJobs(domain, jobNames);
