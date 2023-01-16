@@ -226,7 +226,7 @@ public class TestService {
         try {
             deleteByDifference(userMessages, all);
         } catch (Exception ex) {
-            LOG.warn("Could not delete old test messages from party [{}]", party, ex);
+            LOG.warn("Could not delete test message history from party [{}]", party, ex);
         }
     }
 
@@ -346,7 +346,7 @@ public class TestService {
         try {
             deleteByDifference(userMessages, all);
         } catch (Exception ex) {
-            LOG.warn("Could not delete old test messages to party [{}]", toParty, ex);
+            LOG.warn("Could not delete test message history to party [{}]", toParty, ex);
         }
     }
 

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Job that's deleting old test messages on the receiving side (c3)
+ * Job that's deleting test message history on the receiving side (c3)
  *
  * @author Ion Perpegel
  * @since 5.1
