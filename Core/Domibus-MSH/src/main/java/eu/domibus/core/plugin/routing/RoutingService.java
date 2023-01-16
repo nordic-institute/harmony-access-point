@@ -78,7 +78,7 @@ public class RoutingService {
         backendFiltersCache.remove(currentDomain);
     }
 
-    protected List<BackendFilter> getBackendFiltersWithCache() {
+    public List<BackendFilter> getBackendFiltersWithCache() {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         LOG.trace("Get backend filters with cache for domain [{}]", currentDomain);
         List<BackendFilter> backendFilters = backendFiltersCache.get(currentDomain);
@@ -89,7 +89,7 @@ public class RoutingService {
                 backendFilters = backendFiltersCache.get(currentDomain);
                 if (backendFilters == null) {
                     LOG.debug("Initializing backendFilterCache for domain [{}]", currentDomain);
-                    backendFilters = getBackendFiltersUncached();
+                    backendFilters = getBackendFilters();
                     backendFiltersCache.put(currentDomain, backendFilters);
                 }
             }
@@ -199,17 +199,13 @@ public class RoutingService {
         return backendFilters;
     }
 
-    public List<BackendFilter> getBackendFiltersUncached() {
-        List<BackendFilter> backendFiltersUncached = getBackendFilters();
-        for (BackendFilter backendFilter : backendFiltersUncached) {
-            setActivationStatus(backendFilter);
-        }
-        return backendFiltersUncached;
-    }
-
     protected List<BackendFilter> getBackendFilters() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-        return backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
+        List<BackendFilter> filters = backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
+        for (BackendFilter backendFilter : filters) {
+            setActivationStatus(backendFilter);
+        }
+        return filters;
     }
 
     private void setActivationStatus(BackendFilter backendFilter) {
@@ -252,6 +248,10 @@ public class RoutingService {
         LOG.debug("Update BackendFilterEntities [{}]", backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 
+        refreshBackendFilters();
+    }
+
+    public void refreshBackendFilters() {
         invalidateBackendFiltersCache();
         signalService.signalMessageFiltersUpdated();
     }

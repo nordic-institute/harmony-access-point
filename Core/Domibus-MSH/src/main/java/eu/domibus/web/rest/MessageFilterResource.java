@@ -78,7 +78,7 @@ public class MessageFilterResource extends BaseResource {
 
     protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
-        List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
+        List<BackendFilter> backendFilters = routingService.getBackendFiltersWithCache();
         List<MessageFilterRO> messageFilterResultROS = backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
             if (StringUtils.isEmpty(messageFilter.getEntityId())) {
