@@ -23,22 +23,22 @@ import java.util.Set;
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
         @NamedQuery(name = "UserMessage.findTestMessageFromPartyToPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true " +
+                        "where um.testMessage=true and um.mshRole.role=:MSH_ROLE " +
                         "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
         @NamedQuery(name = "UserMessage.findTestMessageToPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true " +
+                        "where um.testMessage=true and um.mshRole.role=:MSH_ROLE " +
                         "and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
         @NamedQuery(name = "UserMessage.findSentTestMessageWithStatusDesc",
                 query = "select uml.userMessage from UserMessageLog uml " +
-                        "where uml.userMessage.testMessage=true " +
+                        "where uml.userMessage.testMessage=true and uml.userMessage.mshRole.role=:MSH_ROLE " +
                         "and uml.userMessage.partyInfo.to.toPartyId.value=:PARTY_ID and uml.messageStatus.messageStatus=:STATUS " +
                         "order by uml.userMessage.entityId desc"),
         @NamedQuery(name = "UserMessage.findTestMessageFromPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true and um.partyInfo.from.fromPartyId.value=:PARTY_ID " +
+                        "where um.testMessage=true and um.mshRole.role=:MSH_ROLE and um.partyInfo.from.fromPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
 })
 @NamedNativeQueries({

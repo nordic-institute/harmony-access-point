@@ -187,6 +187,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyToPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
         query.setParameter(SENDER_PARTY_ID, senderPartyId);
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
@@ -194,12 +195,14 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public List<UserMessage> findTestMessagesToParty(String partyId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageToPartyWithStatus(String partyId, MessageStatus messageStatus) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setParameter("STATUS", messageStatus);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
@@ -208,12 +211,14 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public List<UserMessage> findTestMessagesFromParty(String partyId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
+        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageFromParty(String partyId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
+        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
