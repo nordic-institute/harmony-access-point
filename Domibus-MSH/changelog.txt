@@ -1,5 +1,11 @@
 Domibus 5.0.3
-    - Fixed partition creation issue
+    - Fixed partition creation/dropping issue
+    - Fixed the error when trying to use a PKCS12 format for the keystore
+    - Created an API to move messages in final status to DELETED
+    - Fixed issue when fsplugin.messages.location to point another disk (Windows) files are not picked up
+    - Fixed issue causing that after DB migration from 4.2.11 to 5.0.1, Domibus fails to start at first two attempts
+    - Fixed OWASP vulnerabilities
+    - Fix for show domain checkbox is not present in property page
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors
