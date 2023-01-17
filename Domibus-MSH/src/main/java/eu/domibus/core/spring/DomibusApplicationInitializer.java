@@ -57,11 +57,11 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
         LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
 
+        configureLogging(domibusConfigLocation);
+
         BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
         bouncyCastleInitializer.registerBouncyCastle();
         bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
-
-        configureLogging(domibusConfigLocation);
 
         PluginClassLoader pluginClassLoader = createPluginClassLoader(domibusConfigLocation);
         Thread.currentThread().setContextClassLoader(pluginClassLoader);

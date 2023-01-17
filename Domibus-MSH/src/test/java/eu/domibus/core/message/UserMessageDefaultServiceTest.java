@@ -46,6 +46,7 @@ import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -211,6 +212,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private FileServiceUtil fileServiceUtil;
+
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -396,7 +400,7 @@ public class UserMessageDefaultServiceTest {
         }
     }
 
-    @Test(expected = UserMessageException.class)
+    @Test(expected = MessageNotFoundException.class)
     public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
@@ -989,6 +993,24 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    public void deleteMessageInFinalStatus(@Injectable  UserMessageLog userMessageLog) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getNonDeletedUserMessageLog(messageId);
+            result = userMessageLog;
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+        }};
+
+        userMessageDefaultService.deleteMessageInFinalStatus(messageId);
+
+        new FullVerificationsInOrder() {{
+        }};
+    }
+
+    @Test
     public void deleteMessagesDuringPeriod() {
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
@@ -997,16 +1019,38 @@ public class UserMessageDefaultServiceTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
+            userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+        userMessageDefaultService.deleteMessagesNotInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void deleteMessagesInFinalStatusDuringPeriod(@Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        final List<String> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(messageId);
+
+        final String originalUserFromSecurityContext = "C4";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
+            result = messagesToDelete;
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+        }};
+        userMessageDefaultService.deleteMessagesInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+
+        new FullVerifications(userMessageDefaultService) {{
+            userMessageDefaultService.findAndSetFinalStatusMessageAsDeleted(messageId, userMessageLog);
+            times = 1;
+        }};
     }
 
     @Test
@@ -1037,18 +1081,20 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
+        String messageId = "messageId";
+
         new Expectations(userMessageDefaultService) {{
             messagesLogService.findUserMessageById(anyString);
             result = deletedMessage;
             deletedMessage.getDeleted();
             result = new Date();
-
         }};
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent(messageId);
             Assert.fail();
         }catch(MessagingException ex){
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
+            Assert.assertTrue(ex.getMessage().contains("Message content is no longer available for message id:"));
+            Assert.assertTrue(ex.getMessage().contains(messageId));
         }
     }
 
@@ -1066,16 +1112,19 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void test_checkCanDownloadWhenNoMessage() {
+        String messageId = "messageId";
+
         new Expectations() {{
             messagesLogService.findUserMessageById(anyString);
             result = null;
         }};
 
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent(messageId);
             Assert.fail();
         }catch(MessagingException ex){
-            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
+            Assert.assertTrue(ex.getMessage().contains("does not exist"));
+            Assert.assertTrue(ex.getMessage().contains(messageId));
         }
     }
 }

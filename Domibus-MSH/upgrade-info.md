@@ -1,5 +1,10 @@
 # Domibus upgrade information
-
+## Domibus 5.0.3 (from 5.0.2):
+                - Replace the Domibus war
+  ### Partitioning only (oracle)
+                    - Run as sys:
+                            GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+                    - Run as edelivery_user partitions-procedures.sql to replace the PARTITIONSGEN procedure
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
@@ -308,11 +313,14 @@
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
-## Domibus 4.2.10 (from 4.2.11):
+## Domibus 4.2.12 (from 4.2.11):
                 - Replace the Domibus war
-## Domibus 4.2.9 (from 4.2.10):
+                - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
+## Domibus 4.2.11 (from 4.2.10):
                 - Replace the Domibus war
-## Domibus 4.2.8 (from 4.2.9):
+## Domibus 4.2.10 (from 4.2.9):
+                - Replace the Domibus war
+## Domibus 4.2.9 (from 4.2.8):
                 - Replace the Domibus war
  ## Domibus 4.2.8 (from 4.2.7):
                 - Replace the Domibus war

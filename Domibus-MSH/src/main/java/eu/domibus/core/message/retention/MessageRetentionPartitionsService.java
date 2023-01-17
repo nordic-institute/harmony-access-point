@@ -65,7 +65,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected PartitionsConfigurationManager partitionsConfigurationManager;
 
 
-    public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
+    public static final String DEFAULT_PARTITION_NAME = "P1970"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                              UserMessageDao userMessageDao,

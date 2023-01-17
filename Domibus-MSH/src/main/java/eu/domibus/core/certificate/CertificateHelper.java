@@ -1,10 +1,12 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.pki.DomibusCertificateException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -36,7 +38,16 @@ public class CertificateHelper {
                     return;
                 }
         }
-        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
+        throw new DomibusCertificateException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
+    }
+
+    public void validateStoreFileName(String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        List<String> validTypes = Arrays.asList(P_12, PFX, JKS);
+        if (validTypes.contains(fileType)) {
+            return;
+        }
+        throw new DomibusCertificateException("Keystore file type [" + fileType + "] is not a valid type. Valid types are " + validTypes);
     }
 
     public String getStoreType(String storeFileName) {

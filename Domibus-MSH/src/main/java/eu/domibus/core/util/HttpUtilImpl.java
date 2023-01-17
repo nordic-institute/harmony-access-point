@@ -1,7 +1,9 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.HttpUtil;
+import eu.domibus.core.proxy.DomibusProxyException;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -10,10 +12,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -43,64 +47,68 @@ public class HttpUtilImpl implements HttpUtil {
     public static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
 
     @Autowired
-    DomibusProxyService domibusProxyService;
+    private DomibusProxyService domibusProxyService;
 
     @Autowired
-    ProxyUtil proxyUtil;
+    private ProxyUtil proxyUtil;
 
     // we have a cyclic dependency: DomibusX509TrustManager->MultiDomainCryptoServiceImpl->DomainCryptoServiceFactory->CertificateServiceImpl->CRLServiceImpl->CRLUtil->HttpUtilImpl
     @Lazy
     @Autowired
-    DomibusX509TrustManager domibusX509TrustManager;
+    private DomibusX509TrustManager domibusX509TrustManager;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     public ByteArrayInputStream downloadURL(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        HttpClientBuilder httpClientBuilder = getHttpClientBuilder(url);
-        CredentialsProvider credentialsProvider = proxyUtil.getConfiguredCredentialsProvider();
-        if (credentialsProvider != null) {
-            httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+        RequestConfig.Builder requestConfig = RequestConfig.custom();
+        SocketConfig.Builder socketConfig = SocketConfig.custom();
+        int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
+        if (httpTimeout > 0) {
+            int httpTimeoutMilis = (int) (httpTimeout * DateUtils.MILLIS_PER_SECOND);
+            LOG.debug("Configure the HTTP client with httpTimeout: [{}]", httpTimeout);
+            requestConfig.setConnectTimeout(httpTimeoutMilis)
+                    .setConnectionRequestTimeout(httpTimeoutMilis)
+                    .setSocketTimeout(httpTimeoutMilis);
+            socketConfig.setSoTimeout(httpTimeoutMilis);
         }
 
+        HttpHost proxy = null;
+        if (domibusProxyService.useProxy()) {
+            LOG.debug("Configure HTTP client with proxy: [{}]", proxy);
+            proxy = proxyUtil.getConfiguredProxy();
+            requestConfig.setProxy(proxy);
+        }
+        RequestConfig config = requestConfig.build();
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setConfig(config);
+
+        LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy == null ? "no proxy" : proxy);
+        HttpClientBuilder httpClientBuilder = getHttpClientBuilder(url)
+                .setDefaultSocketConfig(socketConfig.build())
+                .setDefaultCredentialsProvider(proxyUtil.getConfiguredCredentialsProvider());
         try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
-
-            RequestConfig.Builder builder = RequestConfig.custom();
-            int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
-            if (httpTimeout > 0) {
-                LOG.debug("Configure the http client with httpTimeout: [{}]", httpTimeout);
-                int httpTimeoutMilis = (int) (httpTimeout * DateUtils.MILLIS_PER_SECOND);
-                builder.setConnectTimeout(httpTimeoutMilis)
-                        .setConnectionRequestTimeout(httpTimeoutMilis)
-                        .setSocketTimeout(httpTimeoutMilis);
-            }
-
-            HttpHost proxy = null;
-            if (domibusProxyService.useProxy()) {
-                LOG.debug("Configure http client with proxy: [{}]", proxy);
-                proxy = proxyUtil.getConfiguredProxy();
-                builder.setProxy(proxy);
-            }
-
-            RequestConfig config = builder.build();
-            HttpGet httpGet = new HttpGet(url);
-            httpGet.setConfig(config);
-
-            LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy == null ? "no proxy" : proxy);
             return getByteArrayInputStream(httpClient, httpGet);
         }
     }
 
     private ByteArrayInputStream getByteArrayInputStream(CloseableHttpClient httpclient, HttpGet httpGet) throws IOException {
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED) {
+                throw new DomibusProxyException("A proxy authentication error occurred when executing the request " + httpGet.getRequestLine());
+            }
+            if (statusCode >= 400 && statusCode < 600) {
+                throw new DomibusCoreException("An HTTP client or server error occurred when executing the request " + httpGet.getRequestLine() + ": " + response.getStatusLine());
+            }
             return new ByteArrayInputStream(IOUtils.toByteArray(response.getEntity().getContent()));
         }
     }
 
     protected HttpClientBuilder getHttpClientBuilder(String url) throws NoSuchAlgorithmException, KeyManagementException {
         HttpClientBuilder httpClientBuilder = HttpClients.custom();
-        if (StringUtils.startsWith(url, "https")) {
-            LOG.debug("Https client builder for [{}]", url);
+        if (StringUtils.startsWithIgnoreCase(url, "https")) {
+            LOG.debug("HTTPS client builder for [{}]", url);
             httpClientBuilder.setSSLSocketFactory(getSSLConnectionSocketFactory());
         }
         return httpClientBuilder;
@@ -113,16 +121,14 @@ public class HttpUtilImpl implements HttpUtil {
             sslContext = SSLContext.getInstance(DEFAULT_SSL_PROTOCOL);
             sslContext.init(null, new TrustManager[]{domibusX509TrustManager}, null);
         } catch (NoSuchAlgorithmException | KeyManagementException exc) {
-            LOG.warn("Could not instantiate sslContext", exc);
+            LOG.warn("Could not instantiate the SSL context", exc);
             throw exc;
         }
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+        return new SSLConnectionSocketFactory(
                 sslContext,
                 null,
                 null,
                 NoopHostnameVerifier.INSTANCE);
-
-        return sslsf;
     }
 
 }

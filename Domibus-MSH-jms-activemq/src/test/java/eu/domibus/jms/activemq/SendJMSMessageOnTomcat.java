@@ -17,7 +17,7 @@ public class SendJMSMessageOnTomcat {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue("domibus.backend.jms.inQueue");
             producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
             MapMessage messageMap = session.createMapMessage();
 

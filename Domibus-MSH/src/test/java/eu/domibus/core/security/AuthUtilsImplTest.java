@@ -459,7 +459,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void isAdminMultiAware_multiTenant() {
+    public void isAPAdmin_multiTenant() {
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
@@ -468,14 +468,14 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        assertTrue(authUtilsImpl.isAdminMultiAware());
+        assertTrue(authUtilsImpl.isAPAdmin());
 
         new FullVerifications() {
         };
     }
 
     @Test
-    public void isAdminMultiAware_MonoTenant() {
+    public void isAPAdmin_singleTenant() {
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
@@ -484,7 +484,7 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        assertTrue(authUtilsImpl.isAdminMultiAware());
+        assertTrue(authUtilsImpl.isAPAdmin());
 
         new FullVerifications() {
         };

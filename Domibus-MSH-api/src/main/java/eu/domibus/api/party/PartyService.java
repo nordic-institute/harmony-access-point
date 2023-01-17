@@ -89,4 +89,6 @@ public interface PartyService {
      * @return Party Identifier Name
      */
     Party getGatewayParty();
+
+    List<String> getGatewayPartyIdentifiers();
 }

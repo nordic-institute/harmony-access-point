@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
@@ -68,6 +69,9 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    CertificateHelper certificateHelper;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

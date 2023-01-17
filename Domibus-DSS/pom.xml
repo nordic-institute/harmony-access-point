@@ -7,7 +7,7 @@
     <parent>
         <artifactId>domibus</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>5.0.2</version>
+        <version>5.0.3-SNAPSHOT</version>
     </parent>
     <artifactId>dss-domibus</artifactId>
     <packaging>pom</packaging>

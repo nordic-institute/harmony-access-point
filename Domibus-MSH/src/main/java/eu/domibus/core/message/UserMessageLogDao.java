@@ -24,7 +24,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -143,16 +146,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return true;
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+    public List<String> findMessagesToDeleteNotInFinalStatus(String originalUser, Long startDate, Long endDate) {
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndWithoutStatusDuringPeriod", originalUser, startDate, endDate);
+    }
 
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+    public List<String> findMessagesToDeleteInFinalStatus(String originalUser, Long startDate, Long endDate) {
+        return findMessagesWithUserDuringPeriod("UserMessageLog.findMessagesWithSenderAndRecipientAndStatusDuringPeriod", originalUser, startDate, endDate);
+    }
+
+    private List<String> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery(queryName, String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
-
     /**
      * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
      *

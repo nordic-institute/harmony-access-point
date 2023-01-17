@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
@@ -62,16 +63,19 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected final DomainTaskExecutor domainTaskExecutor;
 
+    private final CertificateHelper certificateHelper;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
-                                             DomainTaskExecutor domainTaskExecutor) {
+                                             DomainTaskExecutor domainTaskExecutor, CertificateHelper certificateHelper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
+        this.certificateHelper = certificateHelper;
     }
 
     public void init() {
@@ -118,7 +122,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         KeyStore old = getKeyStore();
         final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
         super.setKeyStore(current);
-
+        super.clearCache();
+        
         if (areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
         } else {
@@ -130,6 +135,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public void resetKeyStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), location);
+
         replaceKeyStore(location, password);
     }
 
@@ -137,6 +144,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public void resetTrustStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), location);
+
         replaceTrustStore(location, password);
     }
 

@@ -50,7 +50,9 @@ public class ConnectionMonitoringServiceImplTest {
     public void isMonitoringEnabled() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            returns("", "blue_gw");
+            returns("", "domibus-green", "domibus-blue>domibus-red");
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            returns(new ArrayList<>(), Arrays.asList("domibus-green"), Arrays.asList("domibus-blue>domibus-red"));
         }};
 
         boolean res = connectionMonitoringService.isMonitoringEnabled();
@@ -59,6 +61,8 @@ public class ConnectionMonitoringServiceImplTest {
         boolean res2 = connectionMonitoringService.isMonitoringEnabled();
         Assert.assertTrue(res2);
 
+        boolean res3 = connectionMonitoringService.isMonitoringEnabled();
+        Assert.assertTrue(res3);
     }
 
     @Test
@@ -190,14 +194,4 @@ public class ConnectionMonitoringServiceImplTest {
 
     }
 
-    @Test
-    public void transformToNewFormatTest() {
-        String selfParty = "self";
-        String partyId1 = "partyId1";
-        String partyId2 = "partyId2";
-        String enabledPair = "self>partyId1,self>partyId2";
-
-        String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
-        Assert.assertEquals(enabledPair, res);
-    }
 }
