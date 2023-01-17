@@ -52,29 +52,29 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public void backupFileIfOlderThan(File originalFile, String subFolder, Integer periodInHours) throws IOException {
-        String location = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
+        String backupLocation = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
 
         if (periodInHours == 0) {
             LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
-            backupFileInLocation(originalFile, location);
+            backupFileInLocation(originalFile, backupLocation);
             return;
         }
 
-        File backupsFile = Paths.get(location, originalFile.getName() + BACKUP_EXT).toFile();
+        File backupsFile = Paths.get(backupLocation, originalFile.getName() + BACKUP_EXT).toFile();
         List<File> backups = getBackupFilesOf(backupsFile);
         if (CollectionUtils.isEmpty(backups)) {
-            LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
-            backupFileInLocation(originalFile, location);
+            LOG.debug("No backups found so backing up file [{}]", backupsFile.getName());
+            backupFileInLocation(originalFile, backupLocation);
             return;
         }
 
         long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
         if (elapsed < Duration.ofHours(periodInHours).toMillis()) {
-            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", originalFile.getName());
+            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", backupsFile.getName());
             return;
         }
 
-        backupFileInLocation(originalFile, location);
+        backupFileInLocation(originalFile, backupLocation);
     }
 
     @Override
