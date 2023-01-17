@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
@@ -46,9 +47,6 @@ public class SetPolicyInServerInterceptorTest {
     SetPolicyInServerInterceptor setPolicyInServerInterceptor;
 
     @Injectable
-    BackendNotificationService backendNotificationService;
-
-    @Injectable
     UserMessageHandlerService userMessageHandlerService;
 
     @Injectable
@@ -73,45 +71,18 @@ public class SetPolicyInServerInterceptorTest {
     SecurityProfileService securityProfileService;
 
     @Test
-    public void processPluginNotification(final @Injectable EbMS3Exception ebMS3Exception,
-                                          final @Injectable LegConfiguration legConfiguration,
-                                          final @Injectable Ebms3Messaging messaging,
-                                          final @Injectable Ebms3UserMessage ebms3UserMessage,
-                                          final @Injectable UserMessage userMessage,
-                                          final @Injectable PartInfo partInfo,
-                                          final @Injectable ErrorResult errorResult,
-                                          final @Injectable TestMessageValidator testMessageValidator,
-                                          final @Injectable UserMessageErrorCreator userMessageErrorCreator) {
-        List<PartInfo> partInfos = Arrays.asList(partInfo);
-
-        new Expectations(setPolicyInServerInterceptor) {{
-            messaging.getUserMessage();
-            result = ebms3UserMessage;
-
-            ebms3Converter.convertFromEbms3(ebms3UserMessage);
-            result = userMessage;
-
-            testMessageValidator.checkTestMessage(userMessage);
-            result = false;
-
-            legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
-            result = true;
-        }};
-
-        //tested method
-        setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
-
-        new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
-        }};
-    }
-
-    @Test
     public void logIncomingMessaging(final @Injectable SoapMessage soapMessage,
                                      final @Injectable TestMessageValidator testMessageValidator) throws Exception {
 
         //tested method
-        setPolicyInServerInterceptor.logIncomingMessaging(soapMessage);
+        EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                .message("no valid security policy found")
+                .refToMessageId("unknown")
+                .cause(new NullPointerException())
+                .mshRole(MSHRole.RECEIVING)
+                .build();
+        setPolicyInServerInterceptor.logIncomingMessagingException(soapMessage, ex);
 
         new Verifications() {{
             soapService.getMessagingAsRAWXml(soapMessage);
