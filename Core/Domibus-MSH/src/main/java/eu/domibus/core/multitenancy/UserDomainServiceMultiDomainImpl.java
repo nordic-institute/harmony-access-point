@@ -37,17 +37,17 @@ import java.util.ArrayList;
     protected AuthUtils authUtils;
 
     /**
-     * Get the domain associated to the provided user from the general schema. <br>
+     * Get the domain associated to the provided user name from the general schema. <br>
      * This is done in a separate thread as the DB connection is cached per thread and cannot be changed anymore to the schema of the associated domain
      *
      * @return the domain code of the user
      */
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.USER_DOMAIN_CACHE, key = "#user")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.USER_DOMAIN_CACHE, key = "#userName")
     @Override
-    public String getDomainForUser(String user) {
-        LOG.debug("Searching domain for user [{}]", user);
-        String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomain(user));
-        LOG.debug("Found domain [{}] for user [{}]", domain, user);
+    public String getDomainForUser(String userName) {
+        LOG.debug("Searching domain for user named [{}]", userName);
+        String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomain(userName));
+        LOG.debug("Found domain [{}] for user named [{}]", domain, userName);
         return domain;
     }
 

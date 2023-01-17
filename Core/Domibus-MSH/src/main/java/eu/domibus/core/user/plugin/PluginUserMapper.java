@@ -45,7 +45,8 @@ public class PluginUserMapper {
         user.setAuthenticationType(userEntity.getAuthenticationType().name());
         user.setSuspended(userEntity.isSuspended());
 
-        String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
+        String uniqueIdentifier = userEntity.getUniqueIdentifier();
+        String domainCode = userDomainService.getDomainForUser(uniqueIdentifier);
         user.setDomain(domainCode);
 
         if (userEntity.isBasic()) {
