@@ -107,7 +107,7 @@ public class WSSendMessageListener implements MessageListener {
 
     private void putMDCDomibusId(WSBackendMessageLogEntity backendMessage, String messageId) {
         if (backendMessage.getType() == DELETED_BATCH) {
-            LOG.info("First messageId for batch: [{}]", messageId);
+            LOG.info("MessageIds for DELETED_BATCH: [{}]", backendMessage.getMessageIds());
             return;
         }
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
