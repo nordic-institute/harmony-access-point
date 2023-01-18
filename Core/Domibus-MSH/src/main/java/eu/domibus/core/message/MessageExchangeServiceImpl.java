@@ -363,7 +363,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        String alias = securityProfileService.getAliasForDecrypting(legConfiguration, receiverName);
+        String alias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverName);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
