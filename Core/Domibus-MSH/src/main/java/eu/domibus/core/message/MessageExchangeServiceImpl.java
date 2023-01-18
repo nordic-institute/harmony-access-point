@@ -18,7 +18,6 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -26,11 +25,11 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -118,6 +117,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Autowired
     protected MessageIdGenerator messageIdGenerator;
+
+    @Autowired
+    protected SecurityProfileService securityProfileService;
 
     /**
      * {@inheritDoc}
@@ -361,11 +363,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        String alias = receiverName;
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        if (securityProfile != null) {
-            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_decrypt";
-        }
+        String alias = securityProfileService.getAliasForDecrypting(legConfiguration, receiverName);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
@@ -409,11 +407,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        String alias = senderName;
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        if (securityProfile != null) {
-            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
-        }
+        String alias = securityProfileService.getAliasForSigning(legConfiguration, senderName);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + alias + "]";

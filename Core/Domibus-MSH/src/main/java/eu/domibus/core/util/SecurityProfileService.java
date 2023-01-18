@@ -7,6 +7,7 @@ import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +46,23 @@ public class SecurityProfileService {
         }
         final AlgorithmSuite.AlgorithmSuiteType algorithmSuiteType = domibusAlgorithmSuiteLoader.getAlgorithmSuiteType(securityProfile);
         return algorithmSuiteType.getAsymmetricSignature();
+    }
+
+    public String getAliasForSigning(LegConfiguration legConfiguration, String senderName) {
+        String alias = senderName;
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        if (securityProfile != null) {
+            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
+        }
+        return alias;
+    }
+
+    public String getAliasForDecrypting(LegConfiguration legConfiguration, String receiverName) {
+        String alias = receiverName;
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        if (securityProfile != null) {
+            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_decrypt";
+        }
+        return alias;
     }
 }
