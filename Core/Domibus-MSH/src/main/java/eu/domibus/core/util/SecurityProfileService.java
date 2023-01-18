@@ -58,6 +58,15 @@ public class SecurityProfileService {
         return alias;
     }
 
+    public String getAliasForSigning(SecurityProfile securityProfile, String senderName) {
+        String alias = senderName;
+        if (securityProfile != null) {
+            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
+        }
+        LOG.info("The following alias was determined for signing: [{}]", alias);
+        return alias;
+    }
+
     public String getAliasForEncrypting(LegConfiguration legConfiguration, String receiverName) {
         String alias = receiverName;
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();

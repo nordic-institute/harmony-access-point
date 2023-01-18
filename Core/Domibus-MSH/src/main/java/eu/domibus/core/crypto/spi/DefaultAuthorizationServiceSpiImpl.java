@@ -5,9 +5,11 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
@@ -15,7 +17,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import org.apache.commons.lang3.BooleanUtils;
@@ -69,19 +71,33 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     @Autowired
     CertificateService certificateService;
 
+    @Autowired
+    protected SecurityProfileService securityProfileService;
+
+    @Autowired
+    protected PModeService pModeService;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, UserMessageDTO userMessageDTO, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
-        doAuthorize(signingCertificate, userMessagePmodeData.getPartyName());
+        final String mpcName;
+        try {
+            mpcName = pModeService.findMpcName(userMessageDTO.getMpc());
+        } catch (Exception e) {
+            throw new AuthorizationException(e);
+        }
+
+        PullContext pullContext = getPullContext(mpcName);
+        SecurityProfile securityProfile = pullContext.getProcess().getLegs().iterator().next().getSecurity().getProfile();
+
+        String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
+
+        doAuthorize(signingCertificate, alias);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
-        String mpc = pullRequestPmodeData.getMpcName();
+    private PullContext getPullContext(String mpc) {
         if (mpc == null) {
             LOG.error("Mpc is null, cannot authorize against a null mpc");
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc");
@@ -106,19 +122,56 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.error("Default authorization of Pull Request requires one initiator per pull process");
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
         }
+
+        return pullContext;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
+//        String mpc = pullRequestPmodeData.getMpcName();
+//        if (mpc == null) {
+//            LOG.error("Mpc is null, cannot authorize against a null mpc");
+//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc");
+//        }
+//
+//        String mpcQualified;
+//        try {
+//            mpcQualified = pModeProvider.findMpcUri(mpc);
+//        } catch (EbMS3Exception e) {
+//            LOG.error("Could not find mpc [{}]", mpc, e);
+//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not find mpc " + mpc, e);
+//        }
+//
+//        PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
+//        if (pullContext == null || pullContext.getProcess() == null) {
+//            LOG.error("Could not extract process on mpc [{}]", mpc);
+//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not extract process on mpc [{}]" + mpc);
+//        }
+//
+//        if (CollectionUtils.isEmpty(pullContext.getProcess().getInitiatorParties()) ||
+//                pullContext.getProcess().getInitiatorParties().size() > 1) {
+//            LOG.error("Default authorization of Pull Request requires one initiator per pull process");
+//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
+//        }
+
+        PullContext pullContext = getPullContext(pullRequestPmodeData.getMpcName());
         Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next();
         String initiatorName = initiator.getName();
+        SecurityProfile securityProfile = pullContext.getProcess().getLegs().iterator().next().getSecurity().getProfile();
 
-        doAuthorize(signingCertificate, initiatorName);
+        String alias = securityProfileService.getAliasForSigning(securityProfile, initiatorName);
+
+        doAuthorize(signingCertificate, alias);
     }
 
-    protected void doAuthorize(X509Certificate signingCertificate, String initiatorName) {
-        authorizeAgainstTruststoreAlias(signingCertificate, initiatorName);
+    protected void doAuthorize(X509Certificate signingCertificate, String alias) {
+        authorizeAgainstTruststoreAlias(signingCertificate, alias);
         authorizeAgainstCertificateSubjectExpression(signingCertificate);
-        authorizeAgainstCertificateCNMatch(signingCertificate, initiatorName);
-        authorizeAgainstCertificatePolicyMatch(signingCertificate, initiatorName);
+        authorizeAgainstCertificateCNMatch(signingCertificate, alias);
+        authorizeAgainstCertificatePolicyMatch(signingCertificate, alias);
     }
-
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
