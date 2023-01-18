@@ -48,6 +48,9 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     @Column(name = "MESSAGE_ID", nullable = false)
     private String messageId;
 
+    @Column(name = "MESSAGE_IDS", nullable = true)
+    private String messageIds;
+
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
@@ -140,6 +143,14 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getMessageIds() {
+        return messageIds;
+    }
+
+    public void setMessageIds(String messageIds) {
+        this.messageIds = messageIds;
     }
 
     public String getFinalRecipient() {

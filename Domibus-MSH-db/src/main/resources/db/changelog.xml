@@ -75,6 +75,10 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="MESSAGE_IDS" type="LONGBLOB">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
 
