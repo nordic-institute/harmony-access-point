@@ -107,8 +107,14 @@ public class WSPluginBackendScheduleRetryService {
 
     @Transactional
     public void schedule(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        String idsJoined = join(";", messageIds);
+        String idsJoinedAndTruncated = StringUtils.truncate(idsJoined, 1000);
+        if (StringUtils.equals(idsJoined, idsJoinedAndTruncated)) {
+            LOG.warn("Message ids [{}] where truncated to fit into 1000 characters [{}],", idsJoined, idsJoinedAndTruncated);
+        }
+        
         WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(
-                join(";", messageIds), messageType, finalRecipient, rule);
+                idsJoinedAndTruncated, messageType, finalRecipient, rule);
         wsBackendMessageLogDao.create(backendMessage);
         LOG.info("Scheduling messageType: [{}] backend message id [{}] for [{}] domibus messagesIds [{}] to be sent", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
         scheduleBackendMessage(backendMessage);
