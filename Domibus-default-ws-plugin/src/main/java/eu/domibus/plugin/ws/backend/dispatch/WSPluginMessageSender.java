@@ -39,7 +39,6 @@ public class WSPluginMessageSender extends Slf4jEventSender {
 
     protected final WSPluginBackendReliabilityService reliabilityService;
 
-
     protected final WSPluginDispatchRulesService rulesService;
 
     protected final WSPluginMessageBuilder messageBuilder;
@@ -86,16 +85,17 @@ public class WSPluginMessageSender extends Slf4jEventSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(backendMessage);
             SOAPMessage soapSent = dispatcher.dispatch(soapMessage, endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
+            String messageId = getMessageId(backendMessage);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
-                    getMessageId(backendMessage),
+                    messageId,
                     endpoint);
 
             if (isCxfLoggingInfoEnabled()) {
                 LOG.info("The soap message push notification sent to C4 for message with id [{}] is: [{}]",
-                        getMessageId(backendMessage), getRawXMLMessage(soapSent));
+                        messageId, getRawXMLMessage(soapSent));
                 LOG.info("The soap message received from C4 for id [{}] is: [{}]",
-                        getMessageId(backendMessage), getRawXMLMessage(soapMessage));
+                        messageId, getRawXMLMessage(soapMessage));
             }
 
             if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
