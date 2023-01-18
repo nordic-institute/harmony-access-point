@@ -18,6 +18,7 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -29,6 +30,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -359,14 +361,20 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
+        String alias = receiverName;
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        if (securityProfile != null) {
+            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_decrypt";
+        }
+
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
-            String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
+            String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
             try {
-                boolean certificateChainValid = multiDomainCertificateProvider.isCertificateChainValid(domainProvider.getCurrentDomain(), receiverName);
+                boolean certificateChainValid = multiDomainCertificateProvider.isCertificateChainValid(domainProvider.getCurrentDomain(), alias);
                 if (!certificateChainValid) {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
-                LOG.info("Receiver certificate exists and is valid [{}]", receiverName);
+                LOG.info("Receiver certificate exists and is valid [{}]", alias);
             } catch (DomibusCertificateException | CryptoException e) {
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, e);
             }
@@ -400,17 +408,25 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
+
+        String alias = senderName;
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        if (securityProfile != null) {
+            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
+        }
+
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
-            String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + senderName + "]";
+            String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + alias + "]";
             try {
-                X509Certificate certificate = multiDomainCertificateProvider.getCertificateFromKeystore(domainProvider.getCurrentDomain(), senderName);
+                X509Certificate certificate = multiDomainCertificateProvider.getCertificateFromKeystore(domainProvider.getCurrentDomain(), alias);
                 if (certificate == null) {
-                    throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, "Cannot send message: sender[" + senderName + "] certificate not found in Keystore");
+                    throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, "Cannot send message: " +
+                            "sender[" + senderName + "] certificate with alias [" + alias + "] not found in Keystore");
                 }
                 if (!certificateService.isCertificateValid(certificate)) {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
-                LOG.info("Sender certificate exists and is valid [{}]", senderName);
+                LOG.info("Sender certificate exists and is valid [{}]", alias);
             } catch (DomibusCertificateException | KeyStoreException | CryptoException ex) {
                 // Is this an error and we stop the sending or we just log a warning that we were not able to validate the cert?
                 // my opinion is that since the option is enabled, we should validate no matter what => this is an error
