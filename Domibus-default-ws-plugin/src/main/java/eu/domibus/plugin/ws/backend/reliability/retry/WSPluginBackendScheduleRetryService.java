@@ -35,6 +35,7 @@ import static java.lang.String.join;
 public class WSPluginBackendScheduleRetryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendScheduleRetryService.class);
+    public static final String MESSAGE_ID_SEPARATOR = ";";
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 
@@ -124,7 +125,7 @@ public class WSPluginBackendScheduleRetryService {
             String finalRecipient,
             WSPluginDispatchRule rule) {
         WSBackendMessageLogEntity entity = createWsBackendMessageLogEntity(messageIds.get(0), messageType, finalRecipient, rule);
-        entity.setMessageIds(join(";", messageIds));
+        entity.setMessageIds(join(MESSAGE_ID_SEPARATOR, messageIds));
         return entity;
     }
 

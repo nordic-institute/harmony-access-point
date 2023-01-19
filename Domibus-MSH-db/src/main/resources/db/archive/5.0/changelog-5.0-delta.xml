@@ -42,7 +42,7 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MESSAGE_IDS" type="LONGBLOB">
+            <column name="MESSAGE_IDS" type="CLOB">
                 <constraints nullable="true"/>
             </column>
 
