@@ -38,7 +38,8 @@ public class AuthorizationServiceDelegate implements eu.domibus.api.authorizatio
     public void authorize(
             List<X509Certificate> signingCertificateTrustChain,
             X509Certificate signingCertificate,
-            UserMessage userMessage) {
+            UserMessage userMessage,
+            String securityProfile) {
         Service service = userMessage.getCollaborationInfo().getService();
         String serviceName = pModeService.findServiceName(service.getValue(), service.getType());
         String actionName = pModeService.findActionName(userMessage.getCollaborationInfo().getAction());
@@ -51,7 +52,7 @@ public class AuthorizationServiceDelegate implements eu.domibus.api.authorizatio
             }
         }
         UserMessageDTO userMessageDTO = domibusExtMapper.userMessageToUserMessageDTO(userMessage);
-        UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData(serviceName, actionName, partyName);
+        UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData(serviceName, actionName, partyName, securityProfile);
         authorizationSpiProviderImpl.getAuthorizationService().authorize(signingCertificateTrustChain, signingCertificate, userMessageDTO, userMessagePmodeData);
     }
 

@@ -5,7 +5,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.Party;
@@ -74,30 +73,21 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     @Autowired
     protected SecurityProfileService securityProfileService;
 
-    @Autowired
-    protected PModeService pModeService;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, UserMessageDTO userMessageDTO, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
-        final String mpcName;
-        try {
-            mpcName = pModeService.findMpcName(userMessageDTO.getMpc());
-        } catch (Exception e) {
-            throw new AuthorizationException(e);
-        }
-
-        PullContext pullContext = getPullContext(mpcName);
-        SecurityProfile securityProfile = pullContext.getProcess().getLegs().iterator().next().getSecurity().getProfile();
-
-        String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
-
+        String alias = securityProfileService.getAliasForSigning(SecurityProfile.valueOf(userMessagePmodeData.getSecurityProfile()), userMessagePmodeData.getPartyName());
         doAuthorize(signingCertificate, alias);
     }
 
-    private PullContext getPullContext(String mpc) {
+    /**
+     * {@inheritDoc}
+     */
+    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
+        String mpc = pullRequestPmodeData.getMpcName();
         if (mpc == null) {
             LOG.error("Mpc is null, cannot authorize against a null mpc");
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc");
@@ -123,40 +113,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
         }
 
-        return pullContext;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
-//        String mpc = pullRequestPmodeData.getMpcName();
-//        if (mpc == null) {
-//            LOG.error("Mpc is null, cannot authorize against a null mpc");
-//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Mpc is null, cannot authorize against a null mpc");
-//        }
-//
-//        String mpcQualified;
-//        try {
-//            mpcQualified = pModeProvider.findMpcUri(mpc);
-//        } catch (EbMS3Exception e) {
-//            LOG.error("Could not find mpc [{}]", mpc, e);
-//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not find mpc " + mpc, e);
-//        }
-//
-//        PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpcQualified);
-//        if (pullContext == null || pullContext.getProcess() == null) {
-//            LOG.error("Could not extract process on mpc [{}]", mpc);
-//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_OTHER, "Could not extract process on mpc [{}]" + mpc);
-//        }
-//
-//        if (CollectionUtils.isEmpty(pullContext.getProcess().getInitiatorParties()) ||
-//                pullContext.getProcess().getInitiatorParties().size() > 1) {
-//            LOG.error("Default authorization of Pull Request requires one initiator per pull process");
-//            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
-//        }
-
-        PullContext pullContext = getPullContext(pullRequestPmodeData.getMpcName());
         Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next();
         String initiatorName = initiator.getName();
         SecurityProfile securityProfile = pullContext.getProcess().getLegs().iterator().next().getSecurity().getProfile();

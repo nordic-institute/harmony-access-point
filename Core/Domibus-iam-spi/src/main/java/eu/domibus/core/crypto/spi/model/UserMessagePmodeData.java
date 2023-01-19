@@ -12,10 +12,13 @@ public class UserMessagePmodeData {
 
     private final String partyName;
 
-    public UserMessagePmodeData(String serviceName, String actionName, String partyName) {
+    private final String securityProfile;
+
+    public UserMessagePmodeData(String serviceName, String actionName, String partyName, String securityProfile) {
         this.serviceName = serviceName;
         this.actionName = actionName;
         this.partyName = partyName;
+        this.securityProfile = securityProfile;
     }
 
     public String getServiceName() {
@@ -28,5 +31,9 @@ public class UserMessagePmodeData {
 
     public String getPartyName() {
         return partyName;
+    }
+
+    public String getSecurityProfile() {
+        return securityProfile;
     }
 }

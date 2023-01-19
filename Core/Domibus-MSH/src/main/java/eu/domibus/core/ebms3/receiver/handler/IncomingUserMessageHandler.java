@@ -74,7 +74,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
             userMessage.setMessageFragment(true);
         }
 
-        authorizationService.authorizeUserMessage(request, userMessage);
+        String securityProfile = legConfiguration.getSecurity().getProfile().getProfile();
+        authorizationService.authorizeUserMessage(request, userMessage, securityProfile);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
         attachmentCleanupService.cleanAttachments(request);
         return response;
