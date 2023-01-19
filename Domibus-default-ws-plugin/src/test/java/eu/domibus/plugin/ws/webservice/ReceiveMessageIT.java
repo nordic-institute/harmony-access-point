@@ -20,6 +20,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 
@@ -98,6 +99,8 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         messageRetentionDefaultService.deleteAllMessages();
 
         Thread.sleep(1000);
+
+        Mockito.verify(dispatch, Mockito.times(1)).invoke(Mockito.any(SOAPMessage.class));
     }
 
     @Test
