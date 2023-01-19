@@ -7,6 +7,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
@@ -32,6 +33,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
@@ -115,7 +117,11 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
         Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next();
         String initiatorName = initiator.getName();
-        SecurityProfile securityProfile = pullContext.getProcess().getLegs().iterator().next().getSecurity().getProfile();
+        SecurityProfile securityProfile = null;
+        Set<LegConfiguration> legConfigurations = pullContext.getProcess().getLegs();
+        if (legConfigurations.iterator().hasNext()) {
+            securityProfile = legConfigurations.iterator().next().getSecurity().getProfile();
+        }
 
         String alias = securityProfileService.getAliasForSigning(securityProfile, initiatorName);
 
