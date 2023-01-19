@@ -65,6 +65,7 @@ public abstract class AbstractIT {
 
     @Autowired
     protected DomibusConditionUtil domibusConditionUtil;
+
     @Autowired
     protected ConfigurableEnvironment environment;
 

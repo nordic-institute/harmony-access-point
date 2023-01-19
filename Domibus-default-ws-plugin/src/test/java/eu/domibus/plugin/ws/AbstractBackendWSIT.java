@@ -75,6 +75,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     @Autowired
     DomibusConditionUtil domibusConditionUtil;
+
     @Autowired
     PModeUtil pModeUtil;
 

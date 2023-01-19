@@ -60,7 +60,7 @@ public class WSSendMessageListener implements MessageListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(Message message) {
-        authUtils.runWithSecurityContext(()-> doOnMessage(message),
+        authUtils.runWithSecurityContext(() -> doOnMessage(message),
                 "wsplugin_backend_notif", "wsplugin_backend_notif", AuthRole.ROLE_ADMIN);
     }
 
@@ -74,7 +74,7 @@ public class WSSendMessageListener implements MessageListener {
             messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             id = message.getLongProperty(ID);
             type = message.getStringProperty(TYPE);
-       } catch (JMSException e) {
+        } catch (JMSException e) {
             LOG.error("Unable to extract domainCode or fileName from JMS message", e);
             return;
         }
@@ -106,8 +106,8 @@ public class WSSendMessageListener implements MessageListener {
     }
 
     private void putMDCDomibusId(WSBackendMessageLogEntity backendMessage, String messageId) {
-        if(backendMessage.getType() == DELETED_BATCH){
-            LOG.info("messageId: [{}]", messageId);
+        if (backendMessage.getType() == DELETED_BATCH) {
+            LOG.debug("MessageIds for DELETED_BATCH: [{}]", backendMessage.getMessageIds());
             return;
         }
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

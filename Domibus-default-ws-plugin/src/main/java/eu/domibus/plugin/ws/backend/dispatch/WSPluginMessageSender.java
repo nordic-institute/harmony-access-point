@@ -39,7 +39,6 @@ public class WSPluginMessageSender extends Slf4jEventSender {
 
     protected final WSPluginBackendReliabilityService reliabilityService;
 
-
     protected final WSPluginDispatchRulesService rulesService;
 
     protected final WSPluginMessageBuilder messageBuilder;
@@ -74,7 +73,7 @@ public class WSPluginMessageSender extends Slf4jEventSender {
     @Timer(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     @Counter(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     public void sendNotification(final WSBackendMessageLogEntity backendMessage) {
-        LOG.debug("Rule [{}] Send notification backend notification [{}] for backend message id [{}]",
+        LOG.debug("Rule [{}] Send backend notification [{}] for backend message entity id [{}]",
                 backendMessage.getRuleName(),
                 backendMessage.getType(),
                 backendMessage.getEntityId());
@@ -86,16 +85,17 @@ public class WSPluginMessageSender extends Slf4jEventSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(backendMessage);
             SOAPMessage soapSent = dispatcher.dispatch(soapMessage, endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
+            String messageId = getMessageId(backendMessage);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
-                    backendMessage.getMessageId(),
+                    messageId,
                     endpoint);
 
             if (isCxfLoggingInfoEnabled()) {
                 LOG.info("The soap message push notification sent to C4 for message with id [{}] is: [{}]",
-                        backendMessage.getMessageId(), getRawXMLMessage(soapSent));
+                        messageId, getRawXMLMessage(soapSent));
                 LOG.info("The soap message received from C4 for id [{}] is: [{}]",
-                        backendMessage.getMessageId(), getRawXMLMessage(soapMessage));
+                        messageId, getRawXMLMessage(soapMessage));
             }
 
             if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
@@ -108,6 +108,13 @@ public class WSPluginMessageSender extends Slf4jEventSender {
             reliabilityService.handleReliability(backendMessage, dispatchRule);
             LOG.error("Error occurred when sending backend message with ID [{}]", backendMessage.getEntityId(), t);
         }
+    }
+
+    private String getMessageId(WSBackendMessageLogEntity backendMessage) {
+        if (backendMessage.getType() == WSBackendMessageType.DELETED_BATCH) {
+            return backendMessage.getMessageIds();
+        }
+        return backendMessage.getMessageId();
     }
 
     protected boolean isCxfLoggingInfoEnabled() {
