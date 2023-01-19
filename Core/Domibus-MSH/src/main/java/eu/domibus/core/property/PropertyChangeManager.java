@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.ext.domain.DomainDTO;
@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -89,12 +91,30 @@ public class PropertyChangeManager {
         //keep old value in case of an exception
         String oldValue = getInternalPropertyValue(domain, propertyName);
 
+        validateNumericMaxValue(propertyValue, propMeta);
+
         //try to set the new value
         doSetPropertyValue(domain, propertyName, propertyValue);
 
         //let the custom property listeners do their job
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
     }
+
+    protected void validateNumericMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum().isNumeric()) {
+            if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC) {
+                //Numeric type property accepts negative values also. So setting the max limit to the half of Long.MAX_VALUE.
+                if (new BigDecimal(propertyValue).compareTo(BigDecimal.valueOf(Long.MAX_VALUE / 2)) > 0) {
+                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum long value allowed", propertyValue));
+                }
+            }
+
+            if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
+            }
+        }
+    }
+
 
     private String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {

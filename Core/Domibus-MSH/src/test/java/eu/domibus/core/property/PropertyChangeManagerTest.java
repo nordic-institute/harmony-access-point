@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.Expectations;
@@ -14,6 +14,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,6 +84,7 @@ public class PropertyChangeManagerTest {
                 new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_EMAIL, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadata.Usage.DOMAIN, false),
+                new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, DomibusPropertyMetadata.Type.POSITIVE_DECIMAL, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT),
         }).collect(Collectors.toMap(DomibusPropertyMetadata::getName, x -> x));
     }
@@ -250,5 +252,26 @@ public class PropertyChangeManagerTest {
             propertySources.get(DomibusPropertiesPropertySource.NAME);
             domibusPropertiesPropertySource.setProperty(propertyName, propertyValue);
         }};
+    }
+
+    @Test
+    public void setPropertyValue_InValidInteger() {
+        String propValue = "123232323823333333333333333333333333333333333232323";
+        String propertyName = DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN;
+        DomibusPropertyMetadata propMeta = props.get(DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
+        String oldValue = "24";
+
+        new Expectations() {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            propertyRetrieveManager.getInternalProperty(domain, propertyName);
+            result = oldValue;
+        }};
+
+        try {
+            propertyChangeManager.setPropertyValue(domain, propertyName, propValue, true);
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [123232323823333333333333333333333333333333333232323] is greater than the maximum integer value allowed");
+        }
     }
 }
