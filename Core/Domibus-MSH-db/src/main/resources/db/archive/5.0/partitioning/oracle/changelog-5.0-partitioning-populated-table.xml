@@ -34,7 +34,7 @@
             CREATE OR REPLACE PROCEDURE PARTITION_USER_MESSAGE(schema_name IN VARCHAR2) IS
             BEGIN
                 DECLARE
-                    tmp_table  VARCHAR2(100) := schema_name || '.TMP_TB_USER_MESSAGE ';
+                    tmp_table  VARCHAR2(100) := schema_name || '.TMP_TB_USER_MESSAGE';
                     num_errors PLS_INTEGER;
                 BEGIN
                     LOG_DOMIBUS('Starting for schema_name=' || schema_name);
@@ -82,7 +82,7 @@
                         WHERE table_name = 'TMP_TB_USER_MESSAGE'
                         )
                         LOOP
-                            DBMS_OUTPUT.put_line(q.sql_text);
+                            LOG_DOMIBUS('execute ' || q.sql_text);
                             EXECUTE IMMEDIATE q.sql_text;
                         END LOOP;
 
@@ -103,6 +103,13 @@
                                                             FALSE,
                                                             num_errors);
                     LOG_DOMIBUS('done (Number of errors=' || num_errors || ')');
+
+                    IF num_errors > 0 THEN
+                        LOG_DOMIBUS('Aborting...');
+                        DBMS_REDEFINITION.ABORT_REDEF_TABLE(schema_name, 'TB_USER_MESSAGE', 'TMP_TB_USER_MESSAGE');
+                        LOG_DOMIBUS('Table partition ended with errors');
+                        RETURN;
+                    END IF;
 
                     LOG_DOMIBUS('Resynchronizing with the original table...');
                     DBMS_REDEFINITION.SYNC_INTERIM_TABLE(schema_name,
