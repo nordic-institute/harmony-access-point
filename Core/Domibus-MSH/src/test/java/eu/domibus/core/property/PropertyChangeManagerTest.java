@@ -258,15 +258,12 @@ public class PropertyChangeManagerTest {
         String propertyName = DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN;
         String propertyValue = "12.555";
         Integer defaultValue = 24;
-        Integer propIntValue = null;
+        Integer propIntValue;
         new Expectations(propertyChangeManager) {{
             propertyChangeManager.getInternalPropertyValue(domain, propertyName);
             result = propertyValue;
         }};
-        try {
-            propIntValue = propertyChangeManager.getPropertyValueAsInteger(domain, propertyName, defaultValue);
-        } catch (NumberFormatException ex) {
-            Assert.assertEquals(propIntValue, defaultValue);
-        }
+        propIntValue = propertyChangeManager.getPropertyValueAsInteger(domain, propertyName, defaultValue);
+        Assert.assertEquals(propIntValue, defaultValue);
     }
 }
