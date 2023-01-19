@@ -3,17 +3,16 @@ package eu.domibus.plugin.ws.webservice;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
-import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatcher;
-import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,8 +31,18 @@ import java.util.UUID;
  */
 public class ReceiveMessageIT extends AbstractBackendWSIT {
 
+    @Configuration
+    static class ContextConfiguration {
+        @Primary
+        @Bean
+        public WSPluginDispatchClientProvider wsPluginDispatchClientProvider() {
+            return Mockito.mock(WSPluginDispatchClientProvider.class);
+        }
+    }
+
     @Autowired
     MSHWebservice mshWebserviceTest;
+
     @Autowired
     SoapSampleUtil soapSampleUtil;
 
@@ -74,9 +83,12 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         String filename = "SOAPMessage2.xml";
         String messageId = UUID.randomUUID() + "@domibus.eu";
 
-//        Dispatch<SOAPMessage> dispatch = Mockito.mock(Dispatch.class);
-//        Mockito.when(wsPluginDispatchClientProvider.getClient("default", "http://localhost:8080/backend"))
-//                .thenReturn(dispatch);
+        Dispatch dispatch = Mockito.mock(Dispatch.class);
+        SOAPMessage reply = Mockito.mock(SOAPMessage.class);
+        Mockito.when(dispatch.invoke(Mockito.any(SOAPMessage.class)))
+                .thenReturn(reply);
+        Mockito.when(wsPluginDispatchClientProvider.getClient(Mockito.any(String.class), Mockito.any(String.class)))
+                .thenReturn(dispatch);
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);

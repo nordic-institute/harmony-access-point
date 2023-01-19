@@ -66,7 +66,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Configuration
     static class ContextConfiguration {
 
-
         @Primary
         @Bean
         public RoutingService routingService() {
