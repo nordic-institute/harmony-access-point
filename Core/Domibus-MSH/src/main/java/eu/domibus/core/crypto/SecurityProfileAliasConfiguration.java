@@ -1,6 +1,6 @@
 package eu.domibus.core.crypto;
 
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.api.security.SecurityProfile;
 import org.apache.wss4j.common.crypto.Merlin;
 
 import java.util.Objects;

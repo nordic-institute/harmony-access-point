@@ -6,10 +6,11 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
@@ -19,6 +20,7 @@ import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.ext.domain.PullRequestDTO;
+import eu.domibus.ext.domain.SecurityProfileDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -75,13 +77,19 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     @Autowired
     protected SecurityProfileService securityProfileService;
 
+    @Autowired
+    protected DomibusCoreMapper domibusCoreMapper;
+
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, UserMessageDTO userMessageDTO, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
-        String alias = securityProfileService.getAliasForSigning(SecurityProfile.valueOf(userMessagePmodeData.getSecurityProfile()), userMessagePmodeData.getPartyName());
+    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate,
+                          UserMessageDTO userMessageDTO, SecurityProfileDTO securityProfileDTO, UserMessagePmodeData userMessagePmodeData)
+            throws AuthorizationException {
+        String alias = securityProfileService.getAliasForSigning(domibusCoreMapper.securityProfileExtToSecurityProfileApi(securityProfileDTO.getSecurityProfile()),
+                userMessagePmodeData.getPartyName());
         doAuthorize(signingCertificate, alias);
     }
 

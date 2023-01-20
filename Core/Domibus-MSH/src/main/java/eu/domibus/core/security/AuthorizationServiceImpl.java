@@ -5,6 +5,7 @@ import eu.domibus.api.authorization.AuthorizationService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
@@ -55,7 +56,7 @@ public class AuthorizationServiceImpl {
         authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(), mpc);
     }
 
-    public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage, String securityProfile) throws EbMS3Exception {
+    public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage, SecurityProfile securityProfile) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }

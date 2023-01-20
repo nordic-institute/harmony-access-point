@@ -5,9 +5,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.RegexUtil;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.*;
+import eu.domibus.common.model.configuration.Security;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
@@ -17,6 +21,7 @@ import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
 import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.ext.domain.SecurityProfileDTO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
@@ -75,6 +80,9 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Injectable
     SecurityProfileService securityProfileService;
+
+    @Injectable
+    DomibusCoreMapper domibusCoreMapper;
 
     PKIUtil pkiUtil = new PKIUtil();
 
@@ -409,8 +417,9 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Test
     public void authorizeUserMessageTest() {
-        UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData("service", "action", ALIAS_TEST_AUTH, "RSA");
+        UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData("service", "action", ALIAS_TEST_AUTH);
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
+        SecurityProfileDTO securityProfileDTO = new SecurityProfileDTO();
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
@@ -420,7 +429,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = false;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, userMessagePmodeData);
+        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, securityProfileDTO, userMessagePmodeData);
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(signingCertificate, ALIAS_TEST_AUTH);

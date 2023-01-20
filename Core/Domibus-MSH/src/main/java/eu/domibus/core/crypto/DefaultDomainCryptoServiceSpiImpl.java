@@ -9,7 +9,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;

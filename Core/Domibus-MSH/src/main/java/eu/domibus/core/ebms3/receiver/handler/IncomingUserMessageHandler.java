@@ -7,11 +7,12 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.UserMessagePayloadService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -74,7 +75,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
             userMessage.setMessageFragment(true);
         }
 
-        String securityProfile = legConfiguration.getSecurity().getProfile().getProfile();
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         authorizationService.authorizeUserMessage(request, userMessage, securityProfile);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
         attachmentCleanupService.cleanAttachments(request);

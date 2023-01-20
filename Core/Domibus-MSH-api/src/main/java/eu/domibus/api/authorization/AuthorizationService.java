@@ -1,5 +1,6 @@
 package eu.domibus.api.authorization;
 
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.security.cert.X509Certificate;
@@ -22,7 +23,7 @@ public interface AuthorizationService {
             List<X509Certificate> signingCertificateTrustChain,
             X509Certificate signingCertificate,
             UserMessage userMessage,
-            String securityProfile);
+            SecurityProfile securityProfile);
 
 
     /**
