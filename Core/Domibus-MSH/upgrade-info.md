@@ -9,22 +9,35 @@
                         - multitenancy:
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
-                    o [Mysql only]
-                        The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
-                            - the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                                    mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                    mysql -u root -p domibus < mysql-5.1-data-migration.ddl
-                                or, for multitenancy:
-                                    mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                    mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
-                            - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
-                                    GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
-                              and then specifying the target databases as part of the command. For example, for single tenancy:
-                                     mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                     mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
-                                 or, for multitenancy:
-                                     mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                     mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+                        - partitioning the database:
+                              - To run the partitioning scripts please make sure following grants are added to the user:
+                                  GRANT REDEFINE ANY TABLE  TO [domibus_user];
+                                  GRANT CREATE MATERIALIZED VIEW TO [domibus_user];
+                                  GRANT EXECUTE ON DBMS_REDEFINITION TO [domibus_user];
+                                  GRANT SELECT ON USER_CONSTRAINTS TO [domibus_user];
+                              - create stored procedures: oracle-5.0-partitioning-populated-table.ddl
+                              - execute these commands:
+                                  SET SERVEROUTPUT ON;
+                                  EXECUTE PARTITION_USER_MESSAGE('DOMIBUS');
+                                  SET SERVEROUTPUT OFF;
+                              - partition detail tables: oracle-5.0-partition-detail-tables.sql
+                              - create partitioning job: oracle-5.0-create-partitions-job.sql
+                  o [Mysql only]
+                      The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
+                          - the root user, specifying the target databases as part of the command. For example, for single tenancy:
+                                  mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                  mysql -u root -p domibus < mysql-5.1-data-migration.ddl
+                              or, for multitenancy:
+                                  mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                          - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
+                                  GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
+                            and then specifying the target databases as part of the command. For example, for single tenancy:
+                                   mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                   mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
+                               or, for multitenancy:
+                                   mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
