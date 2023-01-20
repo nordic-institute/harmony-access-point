@@ -543,11 +543,6 @@ public class DomibusPropertyResourceHelperImplTest {
     @Test
     public void validatePositiveDecimalMaxValue(@Injectable DomibusPropertyMetadata propMeta) {
         String propValue = "2147483647.99";
-        new Expectations() {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.POSITIVE_DECIMAL;
-        }};
-
         try {
             configurationPropertyResourceHelper.validatePositiveDecimalMaxValue(propValue, propMeta);
         } catch (DomibusPropertyException ex) {
@@ -558,11 +553,6 @@ public class DomibusPropertyResourceHelperImplTest {
     @Test
     public void validatePositiveIntegerMaxValue(@Injectable DomibusPropertyMetadata propMeta) {
         String propValue = "2147483649";
-        new Expectations() {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.POSITIVE_INTEGER;
-        }};
-
         try {
             configurationPropertyResourceHelper.validatePositiveIntegerMaxValue(propValue, propMeta);
         } catch (DomibusPropertyException ex) {
@@ -573,10 +563,6 @@ public class DomibusPropertyResourceHelperImplTest {
     @Test
     public void validateNumericPropertyValueRange(@Injectable DomibusPropertyMetadata propMeta) {
         String propValue = "-9223372036854775809";
-        new Expectations() {{
-            propMeta.getTypeAsEnum();
-            result = DomibusPropertyMetadata.Type.NUMERIC;
-        }};
 
         try {
             configurationPropertyResourceHelper.validateNumericPropertyValueRange(propValue, propMeta);
