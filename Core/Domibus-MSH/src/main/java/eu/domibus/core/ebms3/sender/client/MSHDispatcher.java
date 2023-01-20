@@ -1,18 +1,18 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.util.SecurityUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
@@ -56,7 +56,7 @@ public class MSHDispatcher {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
-    protected SecurityUtilImpl securityUtil;
+    protected SecurityProfileService securityProfileService;
 
     @Timer(clazz = MSHDispatcher.class,value = "dispatch")
     @Counter(clazz = MSHDispatcher.class,value = "dispatch")
@@ -66,7 +66,7 @@ public class MSHDispatcher {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.
-                getClient(domain.getCode(), endpoint, securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile()), policy, pModeKey, cacheable).get();
+                getClient(domain.getCode(), endpoint, securityProfileService.getSecurityAlgorithm(legConfiguration), policy, pModeKey, cacheable).get();
 
         final SOAPMessage result;
         try {

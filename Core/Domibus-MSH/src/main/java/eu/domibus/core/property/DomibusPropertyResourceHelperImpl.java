@@ -13,6 +13,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -162,6 +164,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         validatePropertyLength(propertyName, propertyValue);
 
         validatePropertyValue(propertyValue, propMeta);
+
+        validateNumericPropertyMinAndMaxValue(propertyValue, propMeta);
     }
 
     protected void validatePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
@@ -179,7 +183,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     protected void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-        DomibusProperty prop = createProperty(propMeta, propertyValue);
+        DomibusProperty prop = createProperty(propMeta, propertyValue, propertyValue);
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
     }
@@ -215,6 +219,52 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         }
     }
 
+    protected void validateNumericPropertyMinAndMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (!propMeta.getTypeAsEnum().isNumeric()) {
+            LOG.debug("Validated property value [{}] is not the type of numeric, positive integer and positive decimal, exiting.", propertyValue);
+            return;
+        }
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC) {
+            validateNumericPropertyValueRange(propertyValue, propMeta);
+        }
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_INTEGER) {
+            validatePositiveIntegerMaxValue(propertyValue, propMeta);
+        }
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_DECIMAL) {
+            validatePositiveDecimalMaxValue(propertyValue, propMeta);
+        }
+    }
+
+    protected void validateNumericPropertyValueRange(String propertyValue, DomibusPropertyMetadata propMeta) {
+        //Numeric type property accepts negative values also. So the numeric value range is from Long.MIN_VALUE to Long.MAX_VALUE.
+        BigDecimal propVal = new BigDecimal(propertyValue);
+
+        if ((propVal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0) || (propVal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)) {
+            throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is not in the long value range", propertyValue));
+        }
+
+    }
+
+    protected void validatePositiveIntegerMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+            if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
+            }
+    }
+
+    protected void validatePositiveDecimalMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+
+            String values[] = propertyValue.split("\\.");
+            if (values.length > 1) {
+                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1)) > 0) {
+                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+                }
+            } else {
+                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+                }
+            }
+    }
+
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         // check property metadata is declared
         if (globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
@@ -234,13 +284,36 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
         String propertyValue = domibusPropertyProvider.getProperty(propMeta.getName());
-        return createProperty(propMeta, propertyValue);
+        String usedValue = getUsedValue(propMeta, propertyValue);
+        return createProperty(propMeta, propertyValue, usedValue);
     }
 
-    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue) {
+    private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
+        if (propMeta.isComposable()) {
+            return propertyValue;
+        }
+
+        String propertyName = propMeta.getName();
+        DomibusPropertyMetadata.Type propertyType = propMeta.getTypeAsEnum();
+        try {
+            if (propertyType.isNumeric()) {
+                return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
+            }
+            if (propertyType.isBoolean()) {
+                return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));
+            }
+            return propertyValue;
+        } catch (Exception ex) {
+            LOG.warn("Encountered error while calling strong typed version of getProperty for [{}]; returning empty.", propertyName, ex);
+            return StringUtils.EMPTY;
+        }
+    }
+
+    protected DomibusProperty createProperty(DomibusPropertyMetadata propMeta, String propertyValue, String usedValue) {
         DomibusProperty prop = new DomibusProperty();
         prop.setMetadata(propMeta);
         prop.setValue(propertyValue);
+        prop.setUsedValue(usedValue);
         return prop;
     }
 

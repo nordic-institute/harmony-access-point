@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.SecurityUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -108,7 +108,7 @@ public class MSHDispatcherTest {
     DomainContextProvider domainContextProvider;
 
     @Injectable
-    SecurityUtilImpl securityUtil;
+    SecurityProfileService securityProfileService;
 
     @Tested
     MSHDispatcher mshDispatcher;
@@ -144,7 +144,7 @@ public class MSHDispatcherTest {
             mshDispatcher.isDispatchClientCacheActivated();
             result = cacheable;
 
-            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+            securityProfileService.getSecurityAlgorithm(legConfiguration);
             result = algorithm;
 
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
@@ -190,7 +190,7 @@ public class MSHDispatcherTest {
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
 
-            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
+            securityProfileService.getSecurityAlgorithm(legConfiguration);
             result = algorithm;
 
             dispatch.invoke(requestSoapMessage);

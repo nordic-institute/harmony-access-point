@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -15,11 +16,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
@@ -44,8 +49,8 @@ public class TruststoreResource extends TruststoreResourceBase {
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService);
+                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -84,11 +89,24 @@ public class TruststoreResource extends TruststoreResourceBase {
         return getTrustStoreEntries();
     }
 
+    @PostMapping(value = "/entries")
+    public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+        return addCertificate(certificateFile, alias);
+    }
+
+    @DeleteMapping(value = "/entries/{alias:.+}")
+    public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
+        return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+    }
+
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isChangedOnDisk(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")
@@ -115,11 +133,18 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Override
     protected String getStoreName() {
         return "truststore";
+    }
+
+    @Override
+    protected void doAddCertificate(String alias, byte[] fileContent) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
+        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 }

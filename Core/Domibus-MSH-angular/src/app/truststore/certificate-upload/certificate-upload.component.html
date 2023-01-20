@@ -7,7 +7,7 @@
       <mat-card-content>
 
         <label class="custom-file-upload">
-          <input #fileInput type="file" id="truststore" accept=".cer" (change)="selectFile()" style="display: none;">
+          <input #fileInput type="file" id="truststore" accept=".cer,.pem" (change)="selectFile()" style="display: none;">
           <span class="custom-file-upload-inner">Choose File </span>
         </label>
         {{selectedFileName}}

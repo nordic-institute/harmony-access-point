@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import static eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider.
 public class DispatchClientChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -31,6 +31,6 @@ public class DispatchClientChangeListener implements DomibusPropertyChangeListen
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        this.domibusCacheService.clearCache(DomibusCacheService.DISPATCH_CLIENT);
+        this.domibusLocalCacheService.clearCache(DomibusLocalCacheService.DISPATCH_CLIENT);
     }
 }

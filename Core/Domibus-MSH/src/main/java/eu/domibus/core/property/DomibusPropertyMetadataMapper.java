@@ -21,6 +21,7 @@ public interface DomibusPropertyMetadataMapper {
     default DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty entity) {
         DomibusPropertyRO res = propertyMetadataApiToPropertyRO(entity.getMetadata());
         res.setValue(entity.getValue());
+        res.setUsedValue(entity.getUsedValue());
         return res;
     }
 

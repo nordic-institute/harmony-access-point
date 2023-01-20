@@ -72,4 +72,6 @@ public interface EventService {
     boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event event, int frequency);
 
     eu.domibus.core.alerts.model.persist.Event getOrCreatePersistedEvent(Event event);
+
+    void enqueueMonitoringEvent(String messageId, MSHRole role, MessageStatus messageStatus, MessageStatus newStatus, String fromParty, String toParty);
 }

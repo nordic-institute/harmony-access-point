@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import {PropertiesService, PropertyListModel, PropertyModel} from './support/properties.service';
 import {SecurityService} from '../security/security.service';
@@ -10,7 +18,6 @@ import {HttpClient} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MAT_CHECKBOX_CLICK_ACTION} from '@angular/material/checkbox';
-import {SessionExpiredDialogComponent} from '../security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {AddNestedPropertyDialogComponent} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
@@ -29,6 +36,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
   showGlobalPropertiesControl: boolean;
 
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
+  private inLostFocus: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private propertiesService: PropertiesService,
               private alertService: AlertService, private securityService: SecurityService, private changeDetector: ChangeDetectorRef,
@@ -130,31 +138,42 @@ export class PropertiesComponent extends mix(BaseListComponent)
 
   public setServerResults(result: PropertyListModel) {
     super.count = result.count;
-    super.rows = result.items;
+    let rows = result.items;
+    rows.forEach(row => row.originalValue = row.value);
+    super.rows = rows;
   }
 
-  onPropertyValueFocus(row) {
+  onPropertyValueFocus(row: PropertyModel) {
+    if (row.timeoutId) {
+      clearTimeout(row.timeoutId);
+      row.timeoutId = null;
+      return;
+    }
     row.currentValueSet = true;
     row.currentValue = row.value;
     this.alertService.clearAlert();
   }
 
-  onPropertyValueBlur(row) {
-    setTimeout(() => this.revertProperty(row), 1500);
+  onPropertyValueBlur(row: PropertyModel) {
+    row.timeoutId = setTimeout(() => {
+      this.revertProperty(row);
+      row.timeoutId = null;
+    }, 500);
   }
 
-  canUpdate(row): boolean {
+  canUpdate(row: PropertyModel): boolean {
     if (row && !row.currentValueSet) {
       return false;
     }
     return row && row.currentValue != row.value;
   }
 
-  private async updateProperty(row) {
+  async updateProperty(row: PropertyModel) {
     try {
       row.oldValue = row.currentValue;
       row.currentValue = row.value;
       await this.propertiesService.updateProperty(row, this.filter.showDomain);
+      row.originalValue = row.usedValue;
       this.alertService.success('Successfully updated the property ' + row.name);
     } catch (ex) {
       row.currentValue = row.oldValue;
@@ -165,7 +184,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     }
   }
 
-  private revertProperty(row) {
+  revertProperty(row: PropertyModel) {
     row.value = row.currentValue;
   }
 
@@ -173,7 +192,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     return PropertiesService.PROPERTIES_URL + '/csv' + '?' + this.createAndSetParameters();
   }
 
-  canWriteProperty(row) {
+  canWriteProperty(row: PropertyModel) {
     return row.writable && !row.composable;
   }
 
@@ -202,12 +221,17 @@ export class PropertiesComponent extends mix(BaseListComponent)
     }
   }
 
-  private async propertyExists(propertyName: string): Promise<boolean> {
+  async propertyExists(propertyName: string): Promise<boolean> {
     try {
       const existing = await this.propertiesService.getProperty(propertyName);
       return existing != null;
     } catch (ex) {
       return false;
     }
+  }
+
+  syncValues(row: PropertyModel) {
+    row.value = row.usedValue;
+    this.updateProperty(row);
   }
 }

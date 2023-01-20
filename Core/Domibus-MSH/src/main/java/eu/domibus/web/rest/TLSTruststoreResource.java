@@ -2,6 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -33,8 +35,8 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
-                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
+                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
@@ -63,15 +65,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @PostMapping(value = "/entries")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
-        if (StringUtils.isBlank(alias)) {
-            throw new RequestValidationException("Please provide an alias for the certificate.");
-        }
-
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-
-        tlsCertificateManager.addCertificate(fileContent, alias);
-
-        return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
+        return addCertificate(certificateFile, alias);
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
@@ -100,9 +94,14 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return tlsCertificateManager.getTrustStoreEntries();
     }
 
-
     @Override
     protected String getStoreName() {
         return "tlsTruststore";
     }
+
+    @Override
+    protected void doAddCertificate(String alias, byte[] fileContent) {
+        tlsCertificateManager.addCertificate(fileContent, alias);
+    }
+
 }

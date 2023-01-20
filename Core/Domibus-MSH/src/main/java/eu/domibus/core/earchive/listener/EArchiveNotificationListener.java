@@ -17,12 +17,9 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.time.OffsetDateTime;
@@ -32,14 +29,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED;
-import static eu.domibus.archive.client.configuration.EArchiveConfiguration.EARCHIVING_CLIENT_BEAN;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @Component
-public class EArchiveNotificationListener implements MessageListener, ApplicationContextAware {
+public class EArchiveNotificationListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListener.class);
 
@@ -51,32 +47,23 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private ArchiveWebhookApi earchivingClientApi;
-
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
-    private ApplicationContext applicationContext;
+    private final ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider;
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
-            EArchiveBatchUtils eArchiveBatchUtils) {
+            EArchiveBatchUtils eArchiveBatchUtils,
+            ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
-    }
-
-    @PostConstruct
-    public void initEarchivingClientApi() {
-        earchivingClientApi = (ArchiveWebhookApi) applicationContext.getBean(EARCHIVING_CLIENT_BEAN);
-    }
-
-    void setEarchivingClientApi(ArchiveWebhookApi earchivingClientApi) {
-        this.earchivingClientApi = earchivingClientApi;
+        this.archiveWebhookApiProvider = archiveWebhookApiProvider;
     }
 
     @Override
@@ -90,27 +77,31 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
         }
-        jmsUtil.setDomain(message);
+
+        jmsUtil.setCurrentDomainFromMessage(message);
 
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
         LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", notificationType, batchId, entityId);
 
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
+        ArchiveWebhookApi eArchivingClientApi = getEArchivingClientApi();
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
-            earchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
+            eArchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatch);
-            earchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
+            eArchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
     }
 
-
+    protected ArchiveWebhookApi getEArchivingClientApi() {
+        return archiveWebhookApiProvider.getObject();
+    }
 
     protected BatchNotification buildBatchNotification(EArchiveBatchEntity eArchiveBatch) {
         BatchNotification batchNotification = new BatchNotification();
@@ -130,12 +121,12 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
         return batchNotification;
     }
 
-    protected BatchNotification setStartDateAndEndDateInNotification(EArchiveBatchEntity eArchiveBatch, BatchNotification batchNotification) {
+    protected void setStartDateAndEndDateInNotification(EArchiveBatchEntity eArchiveBatch, BatchNotification batchNotification) {
 
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         if (BooleanUtils.isNotTrue(isNotificationWithStartAndEndDate)) {
             LOG.debug("eArchive client with batch Id [{}] needs to receive notifications without message start date and end date [{}]", eArchiveBatch.getBatchId(), isNotificationWithStartAndEndDate);
-            return batchNotification;
+            return;
         }
         List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
         Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
@@ -149,12 +140,6 @@ public class EArchiveNotificationListener implements MessageListener, Applicatio
         }
         LOG.debug("eArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, eArchiveBatch.getBatchId());
 
-        return batchNotification;
     }
 
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 }

@@ -6,6 +6,7 @@ import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
@@ -20,6 +21,7 @@ import org.roda_project.commons_ip2.model.MetsWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -42,7 +44,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistence.class);
     public static final String BATCH_JSON = "batch.json";
     public static final String FOLDER_REPRESENTATION_1 = IPConstants.REPRESENTATIONS_FOLDER + "representation1" + IPConstants.ZIP_PATH_SEPARATOR;
-    public static final String FOLDER_REPRESENTATION_1_NEW = IPConstants.REPRESENTATIONS_FOLDER + "representation1";
     public static final String BATCH_JSON_PATH = FOLDER_REPRESENTATION_1 + IPConstants.DATA_FOLDER + BATCH_JSON;
 
     protected final EArchiveFileStorageProvider storageProvider;
@@ -76,10 +77,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
     public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds, Date messageStartDate, Date messageEndDate) {
         String batchId = batchEArchiveDTO.getBatchId();
-        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
+        LOG.info("Create eArchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
             com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("createEArkSipStructure", "batchDirectory", "timer")).time();
-            Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
+            EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
+            File storageDirectory = currentStorage.getStorageDirectory();
+            String absolutePath = storageDirectory.getAbsolutePath();
+            Path batchDirectory = Paths.get(absolutePath, batchId);
             methodTimer.stop();
             com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
             FileUtils.forceMkdir(batchDirectory.toFile());
@@ -154,10 +158,11 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
         for (Map.Entry<String, ArchivingFileDTO> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
-            String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageId.getMessageId() + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
+            String messageFolder = messageId.getMessageId();
+            String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageFolder + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
             com.codahale.metrics.Timer.Context getPath = metricRegistry.timer(name("addUserMessage", "getPath", "timer")).time();
-            Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
+            Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageFolder);
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
             getPath.stop();
 

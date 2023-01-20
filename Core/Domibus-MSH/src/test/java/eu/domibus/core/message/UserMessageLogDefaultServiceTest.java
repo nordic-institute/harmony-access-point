@@ -185,19 +185,16 @@ public class UserMessageLogDefaultServiceTest {
 
     @Test
     public void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
-                                        @Injectable final UserMessageLog userMessageLog, @Injectable ConnectionMonitoringModuleConfiguration configuration) {
+                                        @Injectable final UserMessageLog userMessageLog) {
 
         new Expectations() {{
             userMessage.isTestMessage();
             result = true;
-            alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
-            result = configuration;
         }};
 
         userMessageLogDefaultService.setMessageAsDeleted(userMessage, userMessageLog);
 
         new Verifications() {{
-
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.DELETED);
             times = 1;
         }};

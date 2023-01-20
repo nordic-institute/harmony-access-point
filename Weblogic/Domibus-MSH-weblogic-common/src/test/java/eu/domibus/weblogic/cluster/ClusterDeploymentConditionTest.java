@@ -1,5 +1,6 @@
 package eu.domibus.weblogic.cluster;
 
+import eu.domibus.api.cluster.ClusterDeploymentCondition;
 import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;

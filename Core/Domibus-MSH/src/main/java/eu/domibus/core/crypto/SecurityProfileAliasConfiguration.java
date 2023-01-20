@@ -21,11 +21,14 @@ public class SecurityProfileAliasConfiguration {
 
     private SecurityProfile securityProfile;
 
-    public SecurityProfileAliasConfiguration(String alias, String password, Merlin merlin, SecurityProfile securityProfile) {
+    private String description;
+
+    public SecurityProfileAliasConfiguration(String alias, String password, Merlin merlin, SecurityProfile securityProfile, String desc) {
         this.alias = alias;
         this.password = password;
         this.merlin = merlin;
         this.securityProfile = securityProfile;
+        this.description = desc;
     }
 
     public String getAlias() {
@@ -58,6 +61,14 @@ public class SecurityProfileAliasConfiguration {
 
     public void setSecurityProfile(SecurityProfile securityProfile) {
         this.securityProfile = securityProfile;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

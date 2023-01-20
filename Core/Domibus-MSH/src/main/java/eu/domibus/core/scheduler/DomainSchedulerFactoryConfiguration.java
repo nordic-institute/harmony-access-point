@@ -499,7 +499,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(connectionMonitoringSelfJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_SELF_CRON));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        obj.setStartDelay(JOB_START_LONG_DELAY_IN_MS);
         return obj;
     }
 
@@ -522,7 +522,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(deleteTestMessageHistoryJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DELETE_RECEIVED_TEST_MESSAGE_HISTORY_CRON));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        obj.setStartDelay(JOB_START_LONG_DELAY_IN_MS);
         return obj;
     }
 

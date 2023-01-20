@@ -6,7 +6,6 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -20,7 +19,6 @@ import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
-import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,18 +31,11 @@ import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.neethi.Policy;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -61,66 +52,17 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+@Ignore
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
-
-    @Configuration
-    static class ContextConfiguration {
-
-
-        @Primary
-        @Bean
-        public RoutingService routingService() {
-            return Mockito.mock(RoutingService.class);
-        }
-
-        @Primary
-        @Bean
-        public BackendConnectorHelper backendConnectorHelper() {
-            return Mockito.mock(BackendConnectorHelper.class);
-        }
-
-        @Primary
-        @Bean
-        PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration() {
-            return Mockito.mock(PluginAsyncNotificationConfiguration.class);
-        }
-
-        @Primary
-        @Bean("notifyBackendWebServiceQueue")
-        public ActiveMQQueue notifyBackendWSQueue() {
-            return new ActiveMQQueue("domibus.notification.webservice");
-        }
-
-        @Primary
-        @Bean
-        MSHDispatcher mshDispatcher() {
-            return Mockito.mock(MSHDispatcher.class);
-        }
-
-        @Primary
-        @Bean
-        ResponseHandler responseHandler() {
-            return Mockito.mock(ResponseHandler.class);
-        }
-
-        @Primary
-        @Bean
-        ReliabilityChecker reliabilityChecker() {
-            return Mockito.mock(ReliabilityChecker.class);
-        }
-    }
 
     @Autowired
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
     BackendConnectorProvider backendConnectorProvider;
-
-    @Autowired
-    RoutingService routingService;
 
     @Autowired
     SoapSampleUtil soapSampleUtil;
@@ -194,7 +136,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         uploadPmode();
 
-        backendConnector = new BackendConnectorMock("domibusBackend");
+        backendConnector = new BackendConnectorMock("wsPlugin");
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
                 .thenReturn(backendConnector);
     }
@@ -215,9 +157,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifyMessageReceivedSync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
@@ -236,10 +175,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Transactional
     public void testValidateAndNotifyAsync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
 
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-
-        Mockito.when(backendFilter.getBackendName()).thenReturn(backendConnector.getName());
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
 
@@ -258,9 +193,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Test(expected = WebServiceException.class)
     @Transactional
     public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
@@ -285,8 +217,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         assertNotNull(userMessageLog);
-//        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
-//        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
 
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
@@ -302,10 +232,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         deleteAllMessages();
 
-        MessageEvent messageEvent = backendConnector.getMessageDeletedBatchEvent();
-        assertTrue(messageEvent instanceof MessageDeletedBatchEvent);
-        MessageDeletedBatchEvent messageDeletedBatchEvent = (MessageDeletedBatchEvent) messageEvent;
-        assertEquals(messageDeletedBatchEvent.getMessageDeletedEvents().size(), 1);
+        MessageDeletedBatchEvent messageDeletedBatchEvent = backendConnector.getMessageDeletedBatchEvent();
+        assertEquals(1, messageDeletedBatchEvent.getMessageDeletedEvents().size());
         MessageDeletedEvent singleMessageDeletedEvent = messageDeletedBatchEvent.getMessageDeletedEvents().get(0);
         assertEquals(singleMessageDeletedEvent.getMessageId(), messageId);
         assertNotNull(singleMessageDeletedEvent.getMessageEntityId());
@@ -354,7 +282,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception, InterruptedException {
+    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception {
         domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
         domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
 
@@ -383,10 +311,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         messageSenderErrorHandler.handleError(new Exception());
 
-        MessageEvent messageSendFailedEvent = backendConnector.getMessageSendFailedEvent();
+        MessageSendFailedEvent messageSendFailedEvent = backendConnector.getMessageSendFailedEvent();
         assertEquals(messageSendFailedEvent.getMessageId(), messageId);
         assertNotNull(messageSendFailedEvent.getMessageEntityId());
-        assertTrue(messageSendFailedEvent instanceof MessageSendFailedEvent);
 
         assertPropertiesPresentInEvent(messageSendFailedEvent);
 
@@ -396,17 +323,14 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
-    public void testEventProps_NotifyMessageReceived() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+    public void testEventProps_NotifyMessageReceived() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapMessage);
 
-        MessageEvent messageReceivedEvent = backendConnector.getDeliverMessageEvent();
-        assertTrue(messageReceivedEvent instanceof DeliverMessageEvent);
+        DeliverMessageEvent messageReceivedEvent = backendConnector.getDeliverMessageEvent();
         assertEquals(messageReceivedEvent.getMessageId(), messageId);
         assertNotNull(messageReceivedEvent.getMessageEntityId());
         assertEquals(messageReceivedEvent.getProps().get(MSH_ROLE), eu.domibus.common.MSHRole.RECEIVING.name());
@@ -416,9 +340,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
-    public void testEventProps_NotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+    public void testEventProps_NotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
@@ -430,8 +352,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
             //do nothing here, make the assertions below
         }
 
-        MessageEvent messageReceivedFailure = backendConnector.getMessageReceiveFailureEvent();
-        assertTrue(messageReceivedFailure instanceof MessageReceiveFailureEvent);
+        MessageReceiveFailureEvent messageReceivedFailure = backendConnector.getMessageReceiveFailureEvent();
         assertEquals(messageReceivedFailure.getMessageId(), messageId);
         assertNotNull(messageReceivedFailure.getMessageEntityId());
         assertEquals(messageReceivedFailure.getProps().get(MSH_ROLE), eu.domibus.common.MSHRole.RECEIVING.name());

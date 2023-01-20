@@ -8,15 +8,17 @@ import java.util.List;
  */
 public interface UserDomainDao {
 
-    String findDomainByUser(String userName);
+    String findDomain(String userName);
 
-    String findPreferredDomainByUser(String userName);
-    
-    void setDomainByUser(String userName, String domainCode);
-    
-    void setPreferredDomainByUser(String userName, String domainCode);
+    String findPreferredDomain(String userName);
 
-    void deleteDomainByUser(String userName);
+    void updateOrCreateUserDomain(String userName, String domainCode);
+
+    void updateOrCreateUserPreferredDomain(String userName, String preferredDomainCode);
+
+    void deleteUserDomain(String userName);
+
+    int deleteByDomain(String domain);
 
     List<UserDomainEntity> listPreferredDomains();
 

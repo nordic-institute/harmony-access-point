@@ -6,7 +6,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.*;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,21 +111,24 @@ public class UserMessageDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindLastTestMessageId() {
-        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage("msg-test-0");
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage(this.getClass().getName() + "msg-test-0");
+        String msgId = this.getClass().getName() + "msg-test-1";
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(msgId);
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         String senderPartyId = "domibus-blue";
         ActionEntity actionEntity = actionDao.findOrCreateAction(Ebms3Constants.TEST_ACTION);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(senderPartyId, testParty);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, testParty);
         assertNotNull(userMessage);
-        assertEquals("msg-test-1", userMessage.getMessageId());
+        assertEquals(msgId, userMessage.getMessageId());
 
         SignalMessage signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, testParty);
         assertNotNull(signalMessage);
-        assertEquals("msg-test-1", signalMessage.getRefToMessageId());
-        assertEquals("msg-test-1", signalMessage.getUserMessage().getMessageId());
+        assertEquals(msgId, signalMessage.getRefToMessageId());
+        assertEquals(msgId, signalMessage.getUserMessage().getMessageId());
+
+        messageDaoTestUtil.deleteMessages(Arrays.asList(testMessageOlder.getEntityId(), testMessage.getEntityId()));
     }
 
 }

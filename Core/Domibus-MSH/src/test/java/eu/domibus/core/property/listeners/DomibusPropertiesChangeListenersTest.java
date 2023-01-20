@@ -13,7 +13,7 @@ import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
@@ -119,7 +119,7 @@ public class DomibusPropertiesChangeListenersTest {
     protected GatewayConfigurationValidator gatewayConfigurationValidator;
 
     @Injectable
-    private DomibusCacheService domibusCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
     protected PModeProvider pModeProvider;
@@ -213,7 +213,7 @@ public class DomibusPropertiesChangeListenersTest {
             domibusProxyService.resetProxy();
             messageListenerContainerInitializer.setConcurrency((Domain) any, anyString, anyString);
             domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);
-            domibusCacheService.clearCache(anyString);
+            domibusLocalCacheService.clearCache(anyString);
             pModeProvider.refresh();
             blacklistValidators.forEach((Consumer) any);
 

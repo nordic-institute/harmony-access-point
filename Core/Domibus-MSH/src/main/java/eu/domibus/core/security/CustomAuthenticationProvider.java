@@ -58,7 +58,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         try {
             if (authentication instanceof X509CertificateAuthentication) {
                 LOG.debug("Authenticating using the X509 certificate from the request");
-                authentication.setAuthenticated(x509CertificateService.isClientX509CertificateValid((X509Certificate[]) authentication.getCredentials()));
+                boolean clientX509CertificateValid = isClientX509CertificateValid((X509Certificate[]) authentication.getCredentials());
+                authentication.setAuthenticated(clientX509CertificateValid);
 
                 AuthenticationEntity authenticationEntity = securityAuthenticationDAO.findByCertificateId(authentication.getName());
                 ((X509CertificateAuthentication) authentication).setOriginalUser(authenticationEntity.getOriginalUser());
@@ -99,6 +100,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new AuthenticationServiceException("Couldn't authenticate the principal " + authentication.getPrincipal(), exception);
         }
         return authentication;
+    }
+
+    private boolean isClientX509CertificateValid(X509Certificate[] credentials) {
+        x509CertificateService.validateClientX509Certificates(credentials);
+        return true;
     }
 
     private boolean checkUserAccount(AuthenticationEntity user, String password) {

@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
+import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 
 import java.util.List;
@@ -39,4 +40,6 @@ public interface ErrorLogService {
     List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role);
 
     List<ErrorLogEntry> getErrorsForMessage(String messageId);
+
+    ErrorResultImpl convert(ErrorLogEntry errorLogEntry);
 }

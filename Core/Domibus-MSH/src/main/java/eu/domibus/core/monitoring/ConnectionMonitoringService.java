@@ -28,7 +28,5 @@ public interface ConnectionMonitoringService {
 
     void sendTestMessageToMyself();
 
-    boolean isDeleteHistoryEnabled();
-
-    void deleteReceivedTestMessageHistoryIfApplicable();
+    void deleteReceivedTestMessageHistory();
 }

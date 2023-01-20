@@ -42,26 +42,27 @@ public class EArchiveFileStorage {
 
     @PostConstruct
     public void init() {
-        final String eArchiveActive = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_ACTIVE);
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            LOG.info("eArchiving is not activated for domain [{}]", domain);
             return;
         }
-        final String location = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
+        final String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
         if (StringUtils.isBlank(location)) {
-            throw new ConfigurationException("No file system storage defined for earchiving but the earchiving is activated.");
+            throw new ConfigurationException("No file system storage defined for eArchiving but the eArchiving is activated.");
         }
 
         Path path = getPath(location);
 
         storageDirectory = path.toFile();
-        LOG.info("Initialized eArchiving folder on path [{}] for domain [{}]", path, this.domain);
+        LOG.info("Initialized eArchiving folder on path [{}] for domain [{}]", path, domain);
     }
 
     private Path getPath(String location) {
         Path path = fileSystemUtil.createLocation(location);
 
         if (path == null) {
-            throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");
+            throw new ConfigurationException("There was an error initializing the eArchiving folder but the eArchiving is activated.");
         }
         return path;
     }
@@ -76,10 +77,4 @@ public class EArchiveFileStorage {
         }
         return storageDirectory;
     }
-
-    public void reset() {
-        storageDirectory = null;
-        init();
-    }
-
 }

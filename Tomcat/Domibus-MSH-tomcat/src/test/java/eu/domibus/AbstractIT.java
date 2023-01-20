@@ -7,13 +7,15 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserRoleDao;
@@ -102,12 +104,15 @@ public abstract class AbstractIT {
     protected DomibusProxyService domibusProxyService;
 
     @Autowired
+    protected TruststoreDao truststoreDao;
+
+    @Autowired
     protected UserRoleDao userRoleDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    private static boolean springContextInitialized = false;
+    public static boolean springContextInitialized = false;
 
     @Autowired
     private StaticDictionaryService staticDictionaryService;
@@ -125,9 +130,8 @@ public abstract class AbstractIT {
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
-        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
-//        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL, "service:jmx:rmi:///jndi/rmi://localhost:" + activeMQConnectorPort + "/jmxrmi");
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort)); // see EDELIVERY-10294 and check if this can be removed
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
 
@@ -266,6 +270,30 @@ public abstract class AbstractIT {
             body = body.replaceAll(key, toReplace.get(key));
         }
         return body;
+    }
+
+    protected void createStore(String domibusKeystoreName, String filePath) throws IOException {
+        if(truststoreDao.existsWithName(domibusKeystoreName)) {
+            LOG.info("truststore already created");
+            return;
+        }
+        LOG.info("create truststore [{}]", domibusKeystoreName);
+        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+        domibusTruststoreEntity.setName(domibusKeystoreName);
+        domibusTruststoreEntity.setType("JKS");
+        domibusTruststoreEntity.setPassword("test123");
+        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+            domibusTruststoreEntity.setContent(trustStoreBytes);
+            truststoreDao.create(domibusTruststoreEntity);
+        }
+    }
+
+    protected void removeStore(String domibusKeystoreName) {
+        if (truststoreDao.existsWithName(domibusKeystoreName)) {
+            TruststoreEntity trust = truststoreDao.findByName(domibusKeystoreName);
+            truststoreDao.delete(trust);
+        }
     }
 
 }

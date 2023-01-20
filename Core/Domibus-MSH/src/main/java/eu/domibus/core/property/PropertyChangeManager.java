@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.ext.domain.DomainDTO;
@@ -53,7 +53,7 @@ public class PropertyChangeManager {
 
     private final ConfigurableEnvironment environment;
 
-    private final DomibusCacheService domibusCacheService;
+    private final DomibusLocalCacheService domibusLocalCacheService;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
@@ -69,14 +69,14 @@ public class PropertyChangeManager {
                                  ConfigurableEnvironment environment,
                                  // needs to be lazy because we do have a conceptual cyclic dependency:
                                  // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
-                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService,
+                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusLocalCacheService domibusLocalCacheService,
                                  DomibusConfigurationService domibusConfigurationService, BackupService backupService, DomibusCoreMapper coreMapper, RegexUtil regexUtil) {
         this.propertyRetrieveManager = propertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderHelper = propertyProviderHelper;
         this.environment = environment;
         this.propertyChangeNotifier = propertyChangeNotifier;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
         this.domibusConfigurationService = domibusConfigurationService;
         this.backupService = backupService;
         this.coreMapper = coreMapper;
@@ -96,7 +96,7 @@ public class PropertyChangeManager {
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
     }
 
-    private String getInternalPropertyValue(Domain domain, String propertyName) {
+    protected String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
             return propertyRetrieveManager.getInternalProperty(propertyName);
         }
@@ -134,7 +134,7 @@ public class PropertyChangeManager {
                 // revert to old value
                 doSetPropertyValue(domain, propertyName, oldValue);
                 //clear the cache manually here since we are not calling the set method through dispatcher class
-                domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, propMeta));
+                domibusLocalCacheService.evict(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, propMeta));
                 // the original property set failed likely due to the change listener validation so, there is no side effect produced and no need to call the listener again
 //                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
                 throw ex;
@@ -252,7 +252,13 @@ public class PropertyChangeManager {
             LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
             File propertyFile = getFile(configurationFileName);
             if (!Files.exists(propertyFile.toPath())) {
-                throw new DomibusPropertyException(String.format("Properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+                LOG.info("Properties file for module [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), configurationFileName);
+                try {
+                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+                } catch (IOException e) {
+                    throw new DomibusPropertyException(String.format("Could not create the properties file for module [%s] at the location [%s].",
+                            propMeta.getName(), domain, configurationFileName), e);
+                }
             }
             return propertyFile;
         }
@@ -355,7 +361,7 @@ public class PropertyChangeManager {
     private void manageBackups(File configurationFile, Domain domain) {
         Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, 24);
         try {
-            backupService.backupFileIfOlderThan(configurationFile, period);
+            backupService.backupFileIfOlderThan(configurationFile,"backups", period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }
@@ -368,7 +374,7 @@ public class PropertyChangeManager {
         }
     }
 
-    private Integer getPropertyValueAsInteger(Domain domain, String propertyName, int defaultValue) {
+    protected Integer getPropertyValueAsInteger(Domain domain, String propertyName, int defaultValue) {
         Integer timeout;
         String propVal = null;
         try {
@@ -380,5 +386,4 @@ public class PropertyChangeManager {
         }
         return timeout;
     }
-
 }

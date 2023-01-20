@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -53,6 +54,12 @@ public class TruststoreResourceTest {
     @Injectable
     private AuditService auditService;
 
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
     @Test
     public void replaceTruststore(@Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
         final byte[] fileContent = new byte[]{1, 0, 1};
@@ -77,7 +84,7 @@ public class TruststoreResourceTest {
     public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
 
         new Expectations() {{
-            certificateService.getTrustStoreEntries(anyString);
+            certificateService.getStoreEntries(anyString);
             result = trustStoreEntries;
         }};
 

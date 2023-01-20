@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -361,8 +362,11 @@ public class DomibusPropertyMetadata {
      * More types can be added later without any breaking changes
      */
     public enum Type {
+        POSITIVE_INTEGER("^[0-9]+$"),
+        POSITIVE_DECIMAL("^[0-9]+(\\.[0-9]{1,2})?$"),
         NUMERIC("^-?[0-9]+(\\.[0-9]{1,2})?$"),
         BOOLEAN("^(true|false)$"),
+
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
         EMAIL("^(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,})[\\s\\;]*)*$"),
         CRON(new CronValidator()),
@@ -403,6 +407,18 @@ public class DomibusPropertyMetadata {
 
         public DomibusPropertyValidator getValidator() {
             return validator;
+        }
+
+        public boolean isNumeric() {
+            return getNumericTypes().contains(this);
+        }
+
+        public boolean isBoolean() {
+            return this == BOOLEAN;
+        }
+
+        private List<Type> getNumericTypes() {
+            return Arrays.asList(POSITIVE_INTEGER, POSITIVE_DECIMAL, NUMERIC);
         }
     }
 

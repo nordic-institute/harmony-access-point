@@ -1,8 +1,10 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.cache.DomibusCacheDynamicExpiryPolicy;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,8 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL;
-import static eu.domibus.core.cache.DomibusCacheConfiguration.CACHE_MANAGER;
-import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /**
  * Class enables dynamic update of the cache TTL for ehcache 3.x provider for the properties:
@@ -47,7 +48,7 @@ public class DynamicDiscoveryCacheTTLChangeListener implements DomibusPropertyCh
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
 
-    public DynamicDiscoveryCacheTTLChangeListener(@Qualifier(value = CACHE_MANAGER) CacheManager cacheManager, DomibusPropertyProvider domibusPropertyProvider) {
+    public DynamicDiscoveryCacheTTLChangeListener(@Qualifier(value = DomibusCacheConstants.CACHE_MANAGER) CacheManager cacheManager, DomibusPropertyProvider domibusPropertyProvider) {
         this.cacheManager = cacheManager;
         // initialize property to cache mapping
         this.propertyCacheMapping = new HashMap<>();

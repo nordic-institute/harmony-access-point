@@ -4,7 +4,9 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -56,6 +58,13 @@ public class TruststoreResourceBaseTest {
 
     @Injectable
     private AuditService auditService;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
 
     @Test
     public void replaceTruststoreOK() {
@@ -192,6 +201,31 @@ public class TruststoreResourceBaseTest {
 
         new Verifications() {{
             truststoreResourceBase.auditDownload(1L);
+        }};
+
+    }
+
+    @Test
+    public void testDownload_MultiTenancy() {
+
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        new Expectations(truststoreResourceBase) {{
+            truststoreResourceBase.getTrustStoreContent();
+            result = new TrustStoreContentDTO(1L, fileContent);
+
+            domainContextProvider.getCurrentDomainSafely();
+            result = new Domain("default", "default");
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+        }};
+
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
+
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+        new Verifications() {{
+            truststoreResourceBase.auditDownload(1L);
+            Assert.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains("default"));
         }};
 
     }

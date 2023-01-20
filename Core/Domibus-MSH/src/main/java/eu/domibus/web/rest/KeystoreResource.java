@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -47,8 +48,8 @@ public class KeystoreResource extends TruststoreResourceBase {
     public KeystoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                             DomainContextProvider domainProvider, CertificateService certificateService,
                             PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                            MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService);
+                            MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -74,7 +75,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected TrustStoreContentDTO getTrustStoreContent() {
-        return certificateService.getTruststoreContent(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.getStoreContent(DOMIBUS_KEYSTORE_NAME);
     }
 
     @PostMapping(value = "/reset")
@@ -93,7 +94,7 @@ public class KeystoreResource extends TruststoreResourceBase {
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the keystore has changed on disk for the current domain");
-        return certificateService.isChangedOnDisk(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(DOMIBUS_KEYSTORE_NAME);
     }
 
     @GetMapping(path = "/csv")
@@ -104,7 +105,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getTrustStoreEntries(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
     }
 
     @GetMapping(value = "/download", produces = "application/octet-stream")
@@ -126,5 +127,9 @@ public class KeystoreResource extends TruststoreResourceBase {
     @Override
     protected String getStoreName() {
         return "keystore";
+    }
+
+    @Override
+    protected void doAddCertificate(String alias, byte[] fileContent) {
     }
 }

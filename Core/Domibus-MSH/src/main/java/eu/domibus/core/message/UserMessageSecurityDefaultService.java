@@ -6,7 +6,6 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -119,7 +118,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     // we keep this for back-ward compatibility
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId){
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);

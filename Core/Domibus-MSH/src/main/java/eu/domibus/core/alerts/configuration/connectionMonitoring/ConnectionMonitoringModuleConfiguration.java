@@ -1,10 +1,13 @@
 package eu.domibus.core.alerts.configuration.connectionMonitoring;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.configuration.generic.FrequencyAlertConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+
+import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.ALL_PARTIES;
 
 /**
  * @author Ion Perpegel
@@ -21,7 +24,7 @@ public class ConnectionMonitoringModuleConfiguration extends FrequencyAlertConfi
     public boolean shouldGenerateAlert(MessageStatus messageStatus, String toParty) {
         return isActive()
                 && MessageStatus.getUnsuccessfulStates().contains(messageStatus)
-                && enabledParties.contains(toParty);
+                && (enabledParties.stream().anyMatch(party -> StringUtils.equalsAnyIgnoreCase(party, toParty, ALL_PARTIES)));
     }
 
     public void setEnabledParties(List<String> enabledParties) {

@@ -25,7 +25,7 @@ public class EArchivingCleanupJob extends DomibusQuartzJobBean {
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("Expire batches");
         eArchivingRetentionService.expireBatches();
-        LOG.debug("Start cleaning stored earchive batches");
+        LOG.debug("Start cleaning stored eArchive batches");
         eArchivingRetentionService.cleanStoredBatches();
     }
 

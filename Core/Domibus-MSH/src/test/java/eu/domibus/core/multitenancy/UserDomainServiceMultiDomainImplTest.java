@@ -2,8 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import mockit.*;
 import org.junit.Test;
@@ -13,7 +12,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.concurrent.Callable;
 
@@ -30,7 +28,7 @@ public class UserDomainServiceMultiDomainImplTest {
     protected UserDomainDao userDomainDao;
 
     @Injectable
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
     protected AuthUtils authUtils;
@@ -47,7 +45,7 @@ public class UserDomainServiceMultiDomainImplTest {
         String domain = "domain1";
 
         new Expectations() {{
-            userDomainDao.findDomainByUser(user);
+            userDomainDao.findDomain(user);
             result = domain;
         }};
 
@@ -63,7 +61,7 @@ public class UserDomainServiceMultiDomainImplTest {
         String domain = "domain1";
 
         new Expectations() {{
-            userDomainDao.findPreferredDomainByUser(user);
+            userDomainDao.findPreferredDomain(user);
             result = domain;
         }};
 
@@ -81,7 +79,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setDomainByUser(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateUserDomain(user, domainCode));
         }};
     }
 
@@ -93,7 +91,7 @@ public class UserDomainServiceMultiDomainImplTest {
         userDomainServiceMultiDomainImpl.setPreferredDomainForUser(user, domainCode);
 
         new Verifications() {{
-            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setPreferredDomainByUser(user, domainCode));
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.updateOrCreateUserPreferredDomain(user, domainCode));
         }};
     }
 

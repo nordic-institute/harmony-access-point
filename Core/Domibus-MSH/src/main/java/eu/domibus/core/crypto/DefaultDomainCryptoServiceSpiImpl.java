@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
@@ -70,26 +71,31 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    private final CertificateHelper certificateHelper;
 
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
-                                             SecurityUtilImpl securityUtil) {
+                                             SecurityUtilImpl securityUtil, CertificateHelper certificateHelper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
+        this.certificateHelper = certificateHelper;
     }
 
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
+
         createSecurityProfileAliasConfigurations();
+
         initTrustStore();
         initKeyStore();
+
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
@@ -297,7 +303,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadTrustStoreProperties();
 
         KeyStore old = getTrustStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setTrustStore(current));
 
@@ -313,9 +319,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadKeystoreProperties();
 
         KeyStore old = getKeyStore();
-        final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+        final KeyStore current = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
         securityProfileAliasConfigurations.forEach(
-                securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setKeyStore(current));
+                securityProfileConfiguration -> {
+                    Merlin merlin = securityProfileConfiguration.getMerlin();
+                    merlin.setKeyStore(current);
+                    merlin.clearCache();
+                });
 
         if (securityUtil.areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
@@ -328,6 +338,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetKeyStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), location);
+
+        LOG.info("Replacing the keystore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceKeyStore(location, password);
     }
 
@@ -335,7 +348,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), location);
+
+        LOG.info("Replacing the truststore with the content of the disk file named [{}] on domain [{}].", location, domain);
         replaceTrustStore(location, password);
+    }
+
+    @Override
+    public void resetSecurityProfiles() {
+        LOG.info("Resetting security profiles on domain [{}]", domain);
+        init();
     }
 
     @Override
@@ -441,7 +463,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadTrustStoreProperties();
 
-            KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+            KeyStore trustStore = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setTrustStore(trustStore));
         }, domain);
@@ -469,7 +491,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadKeystoreProperties();
 
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+            KeyStore keyStore = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setKeyStore(keyStore));
         }, domain);
@@ -481,16 +503,22 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
+        String desc = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
+
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
-            LOG.error("The private key password corresponding to the alias=[{}] was not set for domain [{}]: ", aliasValue, domain);
-            throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
+            String message = String.format("The private key password corresponding to the alias=[%s] was not set for domain [%s]: ", aliasValue, domain);
+            throw new ConfigurationException(message);
         }
-        if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
-            LOG.error("Keystore alias [{}] already defined for domain [{}]", aliasValue, domain);
-            throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
+        Optional<SecurityProfileAliasConfiguration> existing = securityProfileAliasConfigurations.stream()
+                .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
+                .findFirst();
+        if (existing.isPresent()) {
+            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                    aliasValue, desc, domain, existing.get().getDescription());
+            throw new ConfigurationException(message);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
-            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
+            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, desc);
             securityProfileAliasConfigurations.add(profileAliasConfiguration);
         }
     }
@@ -573,12 +601,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getKeystoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getType();
     }
 
     private String getKeystorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_KEYSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getPassword();
     }
 
@@ -607,12 +635,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected String getTrustStorePassword() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getPassword();
     }
 
     protected String getTrustStoreType() {
-        TruststoreInfo trust = certificateService.getTruststoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getType();
     }
 

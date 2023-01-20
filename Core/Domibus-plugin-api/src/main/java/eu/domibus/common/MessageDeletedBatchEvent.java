@@ -1,5 +1,7 @@
 package eu.domibus.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -24,16 +26,19 @@ public class MessageDeletedBatchEvent implements MessageEvent, Serializable {
     }
 
     @Override
+    @JsonIgnore //this property will be present on each individual MessageDeleteEvent from the batch
     public String getMessageId() {
         return null;
     }
 
     @Override
+    @JsonIgnore //this property will be present on each individual MessageDeleteEvent from the batch
     public Long getMessageEntityId() {
         return null;
     }
 
     @Override
+    @JsonIgnore //this property will be present on each individual MessageDeleteEvent from the batch
     public Map<String, String> getProps() {
         return null;
     }

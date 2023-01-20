@@ -262,15 +262,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
-     * @return True if password encryption is active
-     */
-    public boolean isPasswordEncryptionActive() {
-        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE);
-        return BooleanUtils.toBoolean(passwordEncryptionActive);
-    }
-
-
-    /**
      * get the base (mapped to default) and other domains property
      *
      * @param domain

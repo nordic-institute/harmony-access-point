@@ -204,11 +204,11 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       await this.connectionsMonitorService.setDeleteHistoryState(row.senderPartyId, row.partyId, newValue);
       row.deleteHistory = newValue;
       this.refreshAllDeleteOld();
-      this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
+      this.alertService.success(`Delete history ${newValueText} for <b>${row.partyId}</b>`);
     } catch (err) {
       row.deleteHistory = !newValue;
       this.refreshAllDeleteOld();
-      this.alertService.exception(`Delete old could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
+      this.alertService.exception(`Delete history could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
@@ -296,10 +296,10 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     });
     try {
       await this.connectionsMonitorService.setDeleteHistoryStateForAll(this.currentSenderPartyId, active, newState);
-      this.alertService.success(`Delete old ${newStateText} for all parties`);
+      this.alertService.success(`Delete history ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.deleteHistory = row['originalDeleteOld']);
-      this.alertService.exception(`Delete old could not be ${newStateText} for all parties`, err);
+      this.alertService.exception(`Delete history could not be ${newStateText} for all parties`, err);
     }
   }
 

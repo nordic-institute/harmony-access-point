@@ -288,7 +288,15 @@ public class CsvServiceImplTest {
 
     @Test
     public void getCsvFilename() {
-        String test = csvServiceImpl.getCsvFilename("test");
+        String test = csvServiceImpl.getCsvFilename("test", "");
+        Assert.assertThat(test, CoreMatchers.containsString("test_datatable_"));
+        Assert.assertThat(test, CoreMatchers.containsString(".csv"));
+    }
+
+    @Test
+    public void getCsvFilename_domain() {
+        String test = csvServiceImpl.getCsvFilename("test", "default");
+        Assert.assertThat(test, CoreMatchers.containsString("default"));
         Assert.assertThat(test, CoreMatchers.containsString("test_datatable_"));
         Assert.assertThat(test, CoreMatchers.containsString(".csv"));
     }

@@ -2,11 +2,12 @@ package eu.domibus.archive.client.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.archive.client.api.ArchiveWebhookApi;
-import eu.domibus.archive.client.invoker.ApiClient;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.archive.client.api.ArchiveWebhookApi;
+import eu.domibus.archive.client.invoker.ApiClient;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -28,9 +29,9 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
-import static org.springframework.beans.factory.config.ConfigurableBeanFactory.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
 
 /**
  * @author Gabriel Maier
@@ -50,14 +51,18 @@ public class EArchiveConfiguration {
 
     private final ObjectMapper objectMapper;
 
+    private final DomainContextProvider domainContextProvider;
+
     public EArchiveConfiguration(DomibusPropertyProvider domibusPropertyProvider,
                                  DomibusProxyService domibusProxyService,
-                                 @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
+                                 @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper, DomainContextProvider domainContextProvider) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
         this.objectMapper = objectMapper;
+        this.domainContextProvider = domainContextProvider;
     }
 
+    // EDELIVERY-10563 to tro to get rid ofprimary annotation
     @Bean(EARCHIVING_CLIENT_BEAN)
     @Scope(SCOPE_PROTOTYPE)
     @Primary
@@ -69,25 +74,30 @@ public class EArchiveConfiguration {
         }
         LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);
 
-        RestTemplate restTemplate = getRestTemplate();
+        RestTemplate restTemplate = restTemplate();
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(restUrl);
 
-        ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
-        earchivingClientApi.setApiClient(apiClient);
+        ArchiveWebhookApi eArchivingClientApi = new ArchiveWebhookApi();
+        eArchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
         if (StringUtils.isNotBlank(username)) {
-            earchivingClientApi.getApiClient().setUsername(username);
+            eArchivingClientApi.getApiClient().setUsername(username);
             String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
-            earchivingClientApi.getApiClient().setPassword(password);
+            eArchivingClientApi.getApiClient().setPassword(password);
         }
-        return earchivingClientApi;
+        return eArchivingClientApi;
     }
 
+    // EDELIVERY-10563 to tro to remove the bean annotation altogether
     @Bean(EARCHIVING_REST_TEMPLATE_BEAN)
     @Scope(SCOPE_PROTOTYPE)
-    public RestTemplate getRestTemplate() {
+    public RestTemplate restTemplate() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return new RestTemplate();
+        }
+
         int timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_NOTIFICATION_TIMEOUT);
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout)

@@ -270,7 +270,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void sendSourceMessageReceipt(String sourceMessageId, String pModeKey) {
         SOAPMessage receiptMessage;
         try {
-            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
+            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.RECEIVING, false);
         } catch (EbMS3Exception e) {
             throw new SplitAndJoinException("Error generating the source message receipt", e);
         }
@@ -504,14 +504,14 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
-        final String messageId = userMessage.getMessageId();
+        final long userMessageEntityId = userMessage.getEntityId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, userMessage.getMshRole().getRole());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(userMessageEntityId);
         }
-        final boolean messageExpired = isMessageExpired(messageId, userMessageLog.getReceived(), joinInterval);
+        final boolean messageExpired = isMessageExpired(userMessage.getMessageId(), userMessageLog.getReceived(), joinInterval);
         if (messageExpired) {
             LOG.debug("Message group [{}] is expired", groupId);
             return true;

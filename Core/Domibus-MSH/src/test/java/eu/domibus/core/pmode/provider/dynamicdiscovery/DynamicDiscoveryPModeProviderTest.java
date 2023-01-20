@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -15,7 +16,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.EventServiceImpl;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
@@ -35,9 +36,6 @@ import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import eu.europa.ec.dynamicdiscovery.model.Endpoint;
-import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;
-import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
 import mockit.Injectable;
 import mockit.Verifications;
 import org.junit.Before;
@@ -51,10 +49,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.bind.JAXBContext;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -66,6 +64,7 @@ import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFr
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDiscoveryPModeProviderTest {
 
@@ -98,9 +97,6 @@ public class DynamicDiscoveryPModeProviderTest {
     private static final String UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE = "unknownInitiatorPartyIdValue";
     private static final String UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE = "unknownInitiatorPartyIdType";
     private static final Domain DOMAIN = new Domain("default", "Default");
-
-    private static final String PROCESSIDENTIFIER_ID = "testIdentifierId";
-    private static final String PROCESSIDENTIFIER_SCHEME = "testIdentifierScheme";
     private static final String ADDRESS = "http://localhost:9090/anonymous/msh";
     private static final String DISCOVERY_ZONE = "acc.edelivery.tech.ec.europa.eu";
 
@@ -139,6 +135,8 @@ public class DynamicDiscoveryPModeProviderTest {
     @Mock
     FinalRecipientService finalRecipientService;
 
+    @Mock
+    private X509CertificateService x509CertificateService;
 
     @Before
     public void initMocks() {
@@ -152,8 +150,6 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(CertificateDaoImpl.class),
                 Mockito.spy(EventService.class),
                 Mockito.spy(MultiDomainPModeProvider.class),
-//                Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
-//                Mockito.spy(ExpiredCertificateConfigurationManager.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
@@ -162,18 +158,19 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
                 Mockito.spy(DomibusCoreMapper.class),
-                Mockito.spy(AlertConfigurationService.class));
+                Mockito.spy(AlertConfigurationService.class),
+                Mockito.spy(AuditService.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
-        InputStream xmlStream = new FileInputStream(new File(RESOURCE_PATH + resourceXML));
+        InputStream xmlStream = Files.newInputStream(new File(RESOURCE_PATH + resourceXML).toPath());
         JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
 
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(false, jaxbContext, xmlStream, null);
         assertNotNull(unmarshallerResult.getResult());
         assertTrue(unmarshallerResult.getResult() instanceof Configuration);
-        Configuration testData = (Configuration) unmarshallerResult.getResult();
+        Configuration testData = unmarshallerResult.getResult();
         assertTrue(initializeConfiguration(testData));
 
         return testData;
@@ -210,10 +207,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Test
     public void testUseDynamicDiscovery() {
-        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
         assertFalse(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
 
-        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
         assertTrue(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
     }
 
@@ -224,7 +221,7 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
-        EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(PROCESSIDENTIFIER_ID, PROCESSIDENTIFIER_SCHEME, ADDRESS, ALIAS_CN_AVAILABLE);
+        EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(ADDRESS);
         doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
         doReturn(KeyStore.getInstance(KeyStore.getDefaultType())).when(multiDomainCertificateProvider).getTrustStore(DomainService.DEFAULT_DOMAIN);
         doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
@@ -244,7 +241,7 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
-        EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(PROCESSIDENTIFIER_ID, PROCESSIDENTIFIER_SCHEME, null, ALIAS_CN_AVAILABLE);
+        EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(null);
         doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
         doReturn(null).when(multiDomainCertificateProvider).getTrustStore(null);
         doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
@@ -272,7 +269,7 @@ public class DynamicDiscoveryPModeProviderTest {
         expectedPartyIType.setValue(UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE);
         expectedIdentifier.setPartyIdType(expectedPartyIType);
         expectedParty.getIdentifiers().add(expectedIdentifier);
-        expectedParty.setEndpoint(dynamicDiscoveryPModeProvider.MSH_ENDPOINT);
+        expectedParty.setEndpoint(DynamicDiscoveryPModeProvider.MSH_ENDPOINT);
         assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(expectedParty));
     }
 
@@ -291,8 +288,8 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
-        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
+        doReturn("false").when(domibusPropertyProvider).getProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
+        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         try {
             partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
@@ -302,8 +299,8 @@ public class DynamicDiscoveryPModeProviderTest {
             assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
-        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DOMIBUS_SMLZONE));
-        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(DOMIBUS_SMLZONE);
+        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
@@ -442,13 +439,9 @@ public class DynamicDiscoveryPModeProviderTest {
      */
     private UserMessage buildUserMessageForDoDynamicThingsWithArguments(String action, String serviceValue, String serviceType, String toPartyId, String toPartyIdType, String fromPartyId, String fromPartyIdType, String messageId) {
 
-        ObjectFactory ebmsObjectFactory = new ObjectFactory();
-
         UserMessage userMessageToBuild = new UserMessage();
 
-
         userMessageToBuild.setMessageId(messageId);
-
 
         ServiceEntity serviceObject = new ServiceEntity();
         serviceObject.setValue(serviceValue);
@@ -490,14 +483,10 @@ public class DynamicDiscoveryPModeProviderTest {
         return userMessageToBuild;
     }
 
-    private EndpointInfo buildAS4EndpointWithArguments(String processIdentifierId, String processIdentifierScheme, String address, String alias) {
-        ProcessIdentifier processIdentifier = new ProcessIdentifier(processIdentifierId, processIdentifierScheme);
-        TransportProfile transportProfile = new TransportProfile("bdxr-transport-ebms3-as4-v1p0");
-        X509Certificate x509Certificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, alias, CERT_PASSWORD);
+    private EndpointInfo buildAS4EndpointWithArguments(String address) {
+        X509Certificate x509Certificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, CERT_PASSWORD);
 
-        Endpoint endpoint = new Endpoint(processIdentifier, transportProfile, address, x509Certificate);
-
-        return new EndpointInfo(endpoint.getAddress(), endpoint.getCertificate());
+        return new EndpointInfo(address, x509Certificate);
     }
 
 

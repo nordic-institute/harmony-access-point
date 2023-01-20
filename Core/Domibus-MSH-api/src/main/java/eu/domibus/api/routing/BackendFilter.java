@@ -24,6 +24,8 @@ public class BackendFilter implements Serializable, Comparable {
 
     private boolean active;
 
+    private String enabledPropertyName;
+
     public String getEntityId() {
         return entityId;
     }
@@ -64,6 +66,14 @@ public class BackendFilter implements Serializable, Comparable {
         this.active = active;
     }
 
+    public String getEnabledPropertyName() {
+        return enabledPropertyName;
+    }
+
+    public void setEnabledPropertyName(String enabledPropertyName) {
+        this.enabledPropertyName = enabledPropertyName;
+    }
+
     @Override
     public int compareTo(Object o) {
         return StringUtils.compareIgnoreCase(entityId, ((BackendFilter)o).getEntityId());
@@ -83,6 +93,7 @@ public class BackendFilter implements Serializable, Comparable {
                 .append(active, that.active)
                 .append(routingCriterias, that.routingCriterias)
                 .append(backendName, that.backendName)
+                .append(enabledPropertyName, that.enabledPropertyName)
                 .isEquals();
     }
 
@@ -94,6 +105,7 @@ public class BackendFilter implements Serializable, Comparable {
                 .append(routingCriterias)
                 .append(backendName)
                 .append(active)
+                .append(enabledPropertyName)
                 .toHashCode();
     }
 
@@ -105,6 +117,7 @@ public class BackendFilter implements Serializable, Comparable {
                 .append("routingCriterias", routingCriterias)
                 .append("backendName", backendName)
                 .append("active", active)
+                .append("enabledPropertyName", enabledPropertyName)
                 .toString();
     }
 }

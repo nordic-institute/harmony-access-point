@@ -4,14 +4,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_LOCATION;
 
 /**
  * @author Ion Perpegel
@@ -30,22 +29,17 @@ public class KeystoreChangeListener implements DomibusPropertyChangeListener {
 
     private final GatewayConfigurationValidator gatewayConfigurationValidator;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     public KeystoreChangeListener(MultiDomainCryptoService multiDomainCryptoService,
                                   DomainService domainService,
-                                  GatewayConfigurationValidator gatewayConfigurationValidator,
-                                  DomibusPropertyProvider domibusPropertyProvider) {
+                                  GatewayConfigurationValidator gatewayConfigurationValidator) {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainService = domainService;
         this.gatewayConfigurationValidator = gatewayConfigurationValidator;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION)
-                || StringUtils.startsWith(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
     }
 
     @Override
@@ -54,13 +48,9 @@ public class KeystoreChangeListener implements DomibusPropertyChangeListener {
 
         Domain domain = domainService.getDomain(domainCode);
 
-        if (StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION)) {
-            multiDomainCryptoService.resetKeyStore(domain);
+        multiDomainCryptoService.resetKeyStore(domain);
 
-            gatewayConfigurationValidator.validateCertificates();
-        } else {
-            multiDomainCryptoService.refreshKeyStore(domain);
-        }
+        gatewayConfigurationValidator.validateCertificates();
     }
 
 }

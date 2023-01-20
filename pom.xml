@@ -29,7 +29,7 @@
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.12</springdoc.version>
         <io.swagger.core.v3.version>2.2.4</io.swagger.core.v3.version>
-        <swagger-ui.version>4.13.0</swagger-ui.version>
+        <swagger-ui.version>4.15.5</swagger-ui.version>
         <hibernate.version>5.6.12.Final</hibernate.version>
         <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
@@ -69,7 +69,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.12</dropwizard.metrics.version>
-        <owasp.dependency.check.version>7.2.1</owasp.dependency.check.version>
+        <owasp.dependency.check.version>7.4.4</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
@@ -77,12 +77,11 @@
         <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.68</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
-        <xbean-spring.version>4.20</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
-        <!-- normally we use the version brought by activemq-spring but 4.21 has an issue so this is an exception -->
-        <!-- the issue is that it cannot inject a property: domibus-msh-test-common tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
+        <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
+        <!--suppress UnresolvedMavenProperty -->
         <sonar.jacoco.codeCoveragePath>${maven.multiModuleProjectDirectory}/target</sonar.jacoco.codeCoveragePath>
         <sonar.jacoco.reportPath>${sonar.jacoco.codeCoveragePath}/jacoco-ut.exec</sonar.jacoco.reportPath>
         <sonar.jacoco.itReportPath>${sonar.jacoco.codeCoveragePath}/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -161,6 +160,7 @@
         <httpmime.version>4.5.13</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
+        <hazelcast-all.version>4.2.5</hazelcast-all.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -244,6 +244,13 @@
                 <scope>provided</scope>
             </dependency>
             <!-- End Domibus modules -->
+
+            <!-- Hazelcast  -->
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-all</artifactId>
+                <version>${hazelcast-all.version}</version>
+            </dependency>
 
             <!-- MapStruct  -->
             <dependency>
@@ -1313,6 +1320,7 @@
                         <execution>
                             <id>default-test</id>
                             <configuration>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <argLine>-server -ea -Duser.language=en -Xms512m -Xmx1024m ${surefire.argLine}
                                 </argLine>
                                 <excludes>
@@ -1335,9 +1343,11 @@
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
+                                <!--suppress UnresolvedMavenProperty -->
                                 <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
+                                <!--suppress UnresolvedMavenProperty -->
                                 <skipTests>${skipITs}</skipTests>
                             </configuration>
                         </execution>

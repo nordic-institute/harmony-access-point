@@ -1,11 +1,13 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.usermessage.UserMessageDownloadEvent;
 import eu.domibus.common.ErrorResult;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -15,13 +17,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service used for retrieving messages (split from DatabaseMessageHandler)
@@ -53,34 +54,36 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
+    @Transactional
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
         return downloadMessage(messageId, true);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
-        if(markAsDownloaded) {
-            markMessageAsDownloaded(userMessage);
+        if (markAsDownloaded) {
+            markMessageAsDownloaded(userMessage.getMessageId());
         }
         return messagingService.getSubmission(userMessage);
     }
 
     @Override
+    @Transactional
     public Submission downloadMessage(final Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         return downloadMessage(messageEntityId);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Submission downloadMessage(final Long messageEntityId) throws MessageNotFoundException {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        markMessageAsDownloaded(userMessage);
+        markMessageAsDownloaded(userMessage.getMessageId());
         return messagingService.getSubmission(userMessage);
     }
 
@@ -115,14 +118,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        //try both
-        eu.domibus.common.MessageStatus status = getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
-        if (status != eu.domibus.common.MessageStatus.NOT_FOUND) {
-            LOG.debug("Found status for message id [{}] and RECEIVING role", messageId);
-            return status;
-        }
-        LOG.debug("Returning status for message id [{}] and SENDING role since there is no one with RECEIVING role.", messageId);
-        return getStatus(messageId, eu.domibus.common.MSHRole.SENDING);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatusById(messageId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
@@ -140,13 +137,16 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        List<? extends ErrorResult> errors = getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
-        if (CollectionUtils.isNotEmpty(errors)) {
-            LOG.debug("Returning Errors for message id [{}] and RECEIVING role", messageId);
-            return errors;
+        try {
+            userMessageLogService.findByMessageId(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+        } catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageFoundException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message." + "[" + messageId + "] ", exception);
         }
-        LOG.debug("Returning Errors for message id [{}] and SENDING role", messageId);
-        return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.SENDING);
+        List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
+
+        return errorsForMessage.stream().map(errorLogEntry -> errorLogService.convert(errorLogEntry)).collect(Collectors.toList());
     }
 
     @Override
@@ -157,12 +157,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public void markMessageAsDownloaded(String messageId) {
+        LOG.info("Setting the status of the message with id [{}] to downloaded", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
-        markMessageAsDownloaded(userMessage);
-    }
-
-    private void markMessageAsDownloaded(UserMessage userMessage) {
-        LOG.info("Setting the status of the message with id [{}] to downloaded", userMessage.getMessageId());
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());

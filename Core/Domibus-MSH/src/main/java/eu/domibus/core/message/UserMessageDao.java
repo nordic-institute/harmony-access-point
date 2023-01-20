@@ -1,7 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.*;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageProperty;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
@@ -11,6 +14,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,26 +96,20 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     // we keep this until deprecated ext methods are deleted
     @Transactional
     public UserMessage findByMessageId(String messageId) {
+        UserMessage result;
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        List<UserMessage> results = query.getResultList();
-        if (CollectionUtils.isEmpty(results)) {
+        try {
+            result = DataAccessUtils.singleResult(query.getResultList());
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            throw new DuplicateMessageFoundException(messageId, ex);
+        }
+        if (result == null) {
             LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
             return null;
         }
-        UserMessage result;
-        if (results.size() == 1) {
-            result = results.get(0);
-        } else {
-            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
-            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
-                    .orElse(results.get(0));
-        }
 
-        if (result != null) {
-            initializeChildren(result);
-        }
-        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
+        initializeChildren(result);
         return result;
     }
 
@@ -185,47 +183,42 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
 
-    public UserMessage findLastTestMessageToParty(String senderPartyId, String partyId) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
+    public UserMessage findLastTestMessageFromPartyToParty(String senderPartyId, String partyId) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyToPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
         query.setParameter(SENDER_PARTY_ID, senderPartyId);
-        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<UserMessage> findTestMessagesToParty(String partyId) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
-        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageToPartyWithStatus(String partyId, MessageStatus messageStatus) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
-        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setParameter("STATUS", messageStatus);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<UserMessage> findTestMessagesFromParty(String partyId) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
-        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageFromParty(String partyId) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
-        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

@@ -79,7 +79,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+            return certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
         } catch (ConfigurationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
@@ -87,7 +87,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
+        return certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
@@ -117,14 +117,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void persistTruststoresIfApplicable() {
+    public void persistTruststores() {
         final List<Domain> domains = domainService.getDomains();
-        persistTruststoresIfApplicable(domains);
+        persistTruststores(domains);
     }
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        persistTruststoresIfApplicable(Arrays.asList(domain));
+        persistTruststores(Arrays.asList(domain));
     }
 
     @Override
@@ -133,11 +133,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void removeTruststore(Domain domain) {
-        certificateService.removeTruststore(TLS_TRUSTSTORE_NAME, domain);
+        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
     }
 
-    private void persistTruststoresIfApplicable(List<Domain> domains) {
-        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
+    private void persistTruststores(List<Domain> domains) {
+        certificateService.persistStores(TLS_TRUSTSTORE_NAME, true,
                 () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
                 domains);
     }

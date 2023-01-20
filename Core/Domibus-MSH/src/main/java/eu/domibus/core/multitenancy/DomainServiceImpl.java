@@ -1,11 +1,12 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -36,19 +37,19 @@ public class DomainServiceImpl implements DomainService {
 
     protected final DomainDao domainDao;
 
-    private final DomibusCacheService domibusCacheService;
+    private final DomibusLocalCacheService domibusLocalCacheService;
 
     private final DbSchemaUtil dbSchemaUtil;
 
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
                              DomibusConfigurationService domibusConfigurationService,
                              DomainDao domainDao,
-                             DomibusCacheService domibusCacheService,
+                             DomibusLocalCacheService domibusLocalCacheService,
                              DbSchemaUtil dbSchemaUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
         this.dbSchemaUtil = dbSchemaUtil;
     }
 
@@ -74,7 +75,7 @@ public class DomainServiceImpl implements DomainService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_CODE_CACHE)
     @Override
     public Domain getDomain(String code) {
         LOG.trace("Getting domain with code [{}]", code);
@@ -94,7 +95,7 @@ public class DomainServiceImpl implements DomainService {
         return null;
     }
 
-    @Cacheable(value = DomibusCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMAIN_BY_SCHEDULER_CACHE, key = "#schedulerName")
     @Override
     public Domain getDomainForScheduler(String schedulerName) {
         if (DEFAULT_QUARTZ_SCHEDULER_NAME.equalsIgnoreCase(schedulerName)) {
@@ -127,7 +128,7 @@ public class DomainServiceImpl implements DomainService {
         }
 
         domainDao.refreshDomain(domain);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
     @Override
@@ -172,21 +173,18 @@ public class DomainServiceImpl implements DomainService {
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomibusDomainException("Domain is empty.");
         }
-
-        Domain domain = findByCode(domainCode, getDomains());
-        if (domain == null) {
-            throw new DomibusDomainException(String.format("Domain [%s] is not enabled.", domainCode));
-        }
+        findByCode(domainCode, getDomains());
     }
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
-        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
+        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode))
+                .findAny().orElseThrow(() -> new DomibusDomainException(String.format("Domain [%s] is not in the list of valid domains. Please check the domain configuration and database schema.", domainCode)));
     }
 
     private void clearCaches(Domain domain) {
         LOG.info("Clear db schema and domain by code caches for domain [{}]", domain);
         dbSchemaUtil.removeCachedDatabaseSchema(domain);
-        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
 }

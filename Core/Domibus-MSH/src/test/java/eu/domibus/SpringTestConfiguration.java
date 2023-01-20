@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.crypto.DomainCryptoServiceFactory;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
@@ -75,8 +75,8 @@ public class SpringTestConfiguration {
     }
 
     @Bean
-    DomibusCacheService domibusCacheService() {
-        return Mockito.mock(DomibusCacheService.class);
+    DomibusLocalCacheService domibusCacheService() {
+        return Mockito.mock(DomibusLocalCacheService.class);
     }
 
     @Bean

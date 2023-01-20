@@ -83,10 +83,8 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
         wsMessageLogService.create(wsMessageLogEntity);
 
-        boolean submitMessageSent = wsPluginBackendService.send(event, SUBMIT_MESSAGE);
-        if (BooleanUtils.isNotTrue(submitMessageSent)) {
-            wsPluginBackendService.send(event, RECEIVE_SUCCESS);
-        }
+        wsPluginBackendService.send(event, SUBMIT_MESSAGE);
+        wsPluginBackendService.send(event, RECEIVE_SUCCESS);
     }
 
     /**

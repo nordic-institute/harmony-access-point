@@ -240,15 +240,14 @@ public class EArchivingJobService {
         List<EArchiveBatchUserMessage> results = new ArrayList<>();
         long totalPayloadSize = 0;
         for (EArchiveBatchUserMessage message : messagesForArchiving) {
-            final long totalLength = partInfoService.findPartInfoTotalLength(message.getEntityId());
+            final long totalLength = partInfoService.findPartInfoTotalLength(message.getUserMessageEntityId());
             totalPayloadSize += totalLength;
             if (totalPayloadSize >= batchPayloadMaxSize) {
-                LOG.debug("Reached the limit of [{}]; exiting", batchPayloadMaxSize);
+                LOG.info("Reached the eArchive maximum payload limit of [{}]; stopping at [{}] messages", batchPayloadMaxSize, results.size());
                 break;
             }
             results.add(message);
         }
-        LOG.debug("BatchPayloadMaxSize is [{}]; returning [{}] messages.", batchPayloadMaxSize, results.size());
         return results;
     }
 
@@ -268,8 +267,7 @@ public class EArchivingJobService {
         if (property == null || continuousLastUpdatedDate == null) {
             if (property == null) {
                 LOG.error("The configuration is incorrect: [{}] is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
-            }
-            else {
+            } else {
                 LOG.error("The configuration is incorrect: the continuous job start date is undefined");
             }
             eArchivingEventService.sendEventStartDateStopped();

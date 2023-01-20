@@ -19,6 +19,13 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -43,15 +50,41 @@
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql</destinationFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-dictionary-tables.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-dictionary-tables.sql</destinationFile>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-dictionary-tables.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-delete-dictionary-tables.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-multi-tenancy-rights.sql</destinationFile>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-multi-tenancy-rights.sql
+                                    </destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/sql-scripts/oracle-5.0-create-partitions-job.sql
+                                    </destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/partition-detail-tables-5.0.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/sql-scripts/oracle-5.0-partition-detail-tables.sql
+                                    </destinationFile>
                                 </fileSet>
                             </fileSets>
                         </configuration>
@@ -87,6 +120,7 @@
                     <outputFileEncoding>UTF-8</outputFileEncoding>
                     <expressionVars>
                         <property>
+                            <!--Override this property with the correct value where migrating to an older version -->
                             <name>DomibusVersion</name>
                             <value>${project.version}</value>
                         </property>
@@ -201,6 +235,27 @@
                         </configuration>
                     </execution>
                     <!-- 5.0 end here -->
+
+                    <!-- partitioning 5.0 populated table starts here -->
+                    <execution>
+                        <id>generate-oracle-script-partitioning-populated-table-to-5.0</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning-populated-table.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning-populated-table.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-populated-table.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- partitioning 5.0 populated table ends here -->
                     <!-- partitioning ends here -->
 
                     <!-- 5.1 starts here -->
@@ -478,6 +533,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0.2</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <execution>
@@ -496,6 +557,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0.2</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <!-- delta 5.0.1 to 5.0.2 ends here -->
@@ -517,6 +584,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0.1</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <execution>
@@ -535,6 +608,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0.1</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <!-- delta 5.0 to 5.0.1 ends here -->
@@ -556,6 +635,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <execution>
@@ -574,6 +659,13 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0</value>
+                                </property>
+                            </expressionVars>
+
                         </configuration>
                     </execution>
                     <execution>
@@ -592,6 +684,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <execution>
@@ -610,6 +708,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <!-- delta 4.2.9 to 5.0 ends here -->

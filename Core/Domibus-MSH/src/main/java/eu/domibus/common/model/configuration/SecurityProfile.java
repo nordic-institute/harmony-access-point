@@ -1,8 +1,8 @@
 package eu.domibus.common.model.configuration;
 
-
 public enum SecurityProfile {
-    RSA("RSA"), ECC("ECC");
+    RSA("RSA"),
+    ECC("ECC");
 
     private final String profile;
 

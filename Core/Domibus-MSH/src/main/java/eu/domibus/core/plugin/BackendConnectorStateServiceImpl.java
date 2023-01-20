@@ -6,6 +6,7 @@ import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,13 +33,15 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     protected final MessageListenerContainerInitializer messageListenerContainerInitializer;
     protected final DomibusScheduler domibusScheduler;
     protected final BackendConnectorProvider backendConnectorProvider;
+    protected final RoutingService routingService;
 
     public BackendConnectorStateServiceImpl(DomainService domainService, MessageListenerContainerInitializer messageListenerContainerInitializer,
-                                            DomibusScheduler domibusScheduler, BackendConnectorProvider backendConnectorProvider) {
+                                            DomibusScheduler domibusScheduler, BackendConnectorProvider backendConnectorProvider, RoutingService routingService) {
         this.domainService = domainService;
         this.messageListenerContainerInitializer = messageListenerContainerInitializer;
         this.domibusScheduler = domibusScheduler;
         this.backendConnectorProvider = backendConnectorProvider;
+        this.routingService = routingService;
     }
 
     @Override
@@ -50,12 +53,9 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
 
-        String[] jobNames = getJobNames(backendName);
-        if (jobNames == null) {
-            return;
-        }
+        resumeJobs(backendName, domain);
 
-        domibusScheduler.resumeJobs(domain, jobNames);
+        routingService.refreshBackendFilters();
     }
 
     @Override
@@ -73,9 +73,24 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
 
+        pauseJobs(backendName, domain);
+
+        routingService.refreshBackendFilters();
+    }
+
+    private void resumeJobs(String backendName, Domain domain) {
         String[] jobNames = getJobNames(backendName);
         if (jobNames == null) {
-            LOG.info("Could not find any job names for the plugin called [{}]; exiting.", backendName);
+            LOG.debug("Could not find any job names for the plugin called [{}]; exiting.", backendName);
+            return;
+        }
+        domibusScheduler.resumeJobs(domain, jobNames);
+    }
+    
+    private void pauseJobs(String backendName, Domain domain) {
+        String[] jobNames = getJobNames(backendName);
+        if (jobNames == null) {
+            LOG.debug("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
         domibusScheduler.pauseJobs(domain, jobNames);

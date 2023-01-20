@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -41,7 +41,7 @@ public class CRLServiceImplTest {
     X509CRL x509CRL;
 
     @Injectable
-    DomibusCacheService domibusCacheService;
+    DomibusLocalCacheService domibusLocalCacheService;
 
     PKIUtil pkiUtil = new PKIUtil();
 
@@ -213,7 +213,7 @@ public class CRLServiceImplTest {
         crlService.resetCacheCrlProtocols();
 
         new Verifications() {{
-            domibusCacheService.clearCache(domibusCacheService.CRL_BY_CERT);
+            domibusLocalCacheService.clearCache(domibusLocalCacheService.CRL_BY_CERT);
         }};
     }
 }

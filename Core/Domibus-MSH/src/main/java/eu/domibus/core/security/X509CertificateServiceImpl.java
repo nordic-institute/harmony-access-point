@@ -2,12 +2,11 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.X509CertificateService;
+import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.certificate.crl.DomibusCRLException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.CertificateExpiredException;
@@ -26,11 +25,14 @@ public class X509CertificateServiceImpl implements X509CertificateService {
 
     private static final Locale LOCALE = Locale.US;
 
-    @Autowired
-    CRLService crlService;
+    final CRLService crlService;
+
+    public X509CertificateServiceImpl(CRLService crlService) {
+        this.crlService = crlService;
+    }
 
     @Override
-    public boolean isClientX509CertificateValid(final X509Certificate[] certificates) throws AuthenticationException {
+    public void validateClientX509Certificates(final X509Certificate... certificates) throws AuthenticationException {
         if (certificates != null) {
             Date today = Calendar.getInstance().getTime();
             DateFormat df = new SimpleDateFormat("MMM d hh:mm:ss yyyy zzz", LOCALE);
@@ -53,6 +55,5 @@ public class X509CertificateServiceImpl implements X509CertificateService {
                 }
             }
         }
-        return true;
     }
 }

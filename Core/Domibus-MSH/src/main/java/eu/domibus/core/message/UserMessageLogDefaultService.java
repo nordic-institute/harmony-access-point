@@ -2,10 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
@@ -108,13 +104,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         } else {
-            final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
-            String fromParty = userMessage.getPartyInfo().getFromParty();
-            String toParty = userMessage.getPartyInfo().getToParty();
-            if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
-                eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
-                        new EventProperties(userMessage.getMessageId(), messageLog.getMshRole().getRole().name(), messageLog.getMessageStatus().name(), fromParty, toParty));
-            }
+            eventService.enqueueMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(), messageLog.getMessageStatus(),
+                    newStatus, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
     }
@@ -168,8 +159,18 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Override
+    public MessageStatus getMessageStatusById(String messageId) {
+        return userMessageLogDao.getMessageStatusById(messageId);
+    }
+
+    @Override
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
+    }
+
+    @Override
+    public UserMessageLog findByMessageId(String messageId) {
+        return userMessageLogDao.findByMessageId(messageId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

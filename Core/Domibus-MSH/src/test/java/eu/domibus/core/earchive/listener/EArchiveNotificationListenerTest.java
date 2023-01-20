@@ -18,6 +18,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 
 import javax.jms.Message;
@@ -46,9 +47,9 @@ public class EArchiveNotificationListenerTest {
     @Injectable
     private EArchiveBatchUtils eArchiveBatchUtils;
     @Injectable
-    private ArchiveWebhookApi earchivingClientApi;
+    private ArchiveWebhookApi eArchivingClientApi;
     @Injectable
-    private ApplicationContext applicationContext;
+    ObjectProvider<ArchiveWebhookApi> objectProvider;
 
     private final long entityId = 1L;
 
@@ -60,7 +61,6 @@ public class EArchiveNotificationListenerTest {
                                      @Injectable BatchNotification batchNotification) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        eArchiveNotificationListener.setEarchivingClientApi(earchivingClientApi);
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
@@ -93,7 +93,6 @@ public class EArchiveNotificationListenerTest {
                                                @Injectable ArchiveWebhookApi apiClient) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        eArchiveNotificationListener.setEarchivingClientApi(earchivingClientApi);
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();

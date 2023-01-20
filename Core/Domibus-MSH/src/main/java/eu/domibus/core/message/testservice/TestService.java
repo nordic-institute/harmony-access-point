@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
-import eu.domibus.api.party.PartyService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
@@ -13,8 +11,8 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,8 +38,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
 
 /**
  * @author Cosmin Baciu
@@ -73,15 +69,11 @@ public class TestService {
 
     private final UserMessageService userMessageService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
-    private final PartyService partyService;
-
-    private ActionDictionaryService actionDictionaryService;
+    private final ConnectionMonitoringHelper connectionMonitoringHelper;
 
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
                        SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
-                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider, PartyService partyService, ActionDictionaryService actionDictionaryService) {
+                       UserMessageService userMessageService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
         this.userMessageLogDao = userMessageLogDao;
@@ -89,16 +81,14 @@ public class TestService {
         this.signalMessageDao = signalMessageDao;
         this.errorLogService = errorLogService;
         this.userMessageService = userMessageService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
-        this.partyService = partyService;
-        this.actionDictionaryService = actionDictionaryService;
+        this.connectionMonitoringHelper = connectionMonitoringHelper;
     }
 
     public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", senderParty, receiverParty);
 
-        validateSender(senderParty);
-        validateReceiver(receiverParty);
+        connectionMonitoringHelper.validateSender(senderParty);
+        connectionMonitoringHelper.validateReceiver(receiverParty);
 
         Submission messageData = createSubmission(senderParty);
 
@@ -108,7 +98,7 @@ public class TestService {
 
         String result = messageSubmitter.submit(messageData, BACKEND_NAME);
 
-        deleteSentHistoryIfApplicable(receiverParty);
+        deleteSentHistory(receiverParty);
 
         return result;
     }
@@ -116,7 +106,7 @@ public class TestService {
     public String submitTestDynamicDiscovery(String senderParty, String receiverParty, String receiverType) throws MessagingProcessingException, IOException {
         LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", senderParty, receiverParty, receiverType);
 
-        validateSender(senderParty);
+        connectionMonitoringHelper.validateSender(senderParty);
 
         Submission messageData = createSubmission(senderParty);
 
@@ -160,7 +150,6 @@ public class TestService {
     /**
      * This method retrieves the last test Sent User Message for the given party Id
      *
-     *
      * @param senderPartyId
      * @param partyId
      * @return TestServiceMessageInfoRO
@@ -169,9 +158,9 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(senderPartyId, partyId);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, partyId);
         if (userMessage == null) {
-            LOG.debug("Could not find last user message for party [{}]", partyId);
+            LOG.debug("Could not find last test user message sent for party [{}]", partyId);
             return null;
         }
 
@@ -183,7 +172,8 @@ public class TestService {
      * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
      * including errors if an acceptable signal message cannot be found.
      *
-     * @param partyId, userMessageId
+     * @param partyId
+     * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
@@ -201,7 +191,8 @@ public class TestService {
     /**
      * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
      *
-     * @param partyId, userMessageId
+     * @param partyId
+     * @param userMessageId
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
      */
@@ -235,7 +226,7 @@ public class TestService {
         try {
             deleteByDifference(userMessages, all);
         } catch (Exception ex) {
-            LOG.warn("Could not delete old test messages from party [{}]", party, ex);
+            LOG.warn("Could not delete test message history from party [{}]", party, ex);
         }
     }
 
@@ -295,20 +286,6 @@ public class TestService {
         return submission;
     }
 
-    protected void validateReceiver(String receiverParty) {
-        List<String> toParties = partyService.findPushToPartyNamesForTest();
-        if (!toParties.contains(receiverParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
-        }
-    }
-
-    protected void validateSender(String senderParty) {
-        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
-        if (!fromParties.contains(senderParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
-        }
-    }
-
     protected TestErrorsInfoRO getErrorsForMessage(String userMessageId) {
         List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
         if (CollectionUtils.isEmpty(errorLogEntries)) {
@@ -355,9 +332,9 @@ public class TestService {
         return messageInfoRO;
     }
 
-    protected void deleteSentHistoryIfApplicable(String toParty) {
-        List<String> partyList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-        if (!partyList.contains(toParty)) {
+    protected void deleteSentHistory(String toParty) {
+        List<String> partyList = connectionMonitoringHelper.getDeleteHistoryForParties();
+        if (partyList.stream().noneMatch(pair -> StringUtils.equals(connectionMonitoringHelper.getDestinationParty(pair), toParty))) {
             LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);
             return;
         }
@@ -369,7 +346,7 @@ public class TestService {
         try {
             deleteByDifference(userMessages, all);
         } catch (Exception ex) {
-            LOG.warn("Could not delete old test messages to party [{}]", toParty, ex);
+            LOG.warn("Could not delete test message history to party [{}]", toParty, ex);
         }
     }
 
@@ -410,7 +387,7 @@ public class TestService {
         // find last received message
         UserMessage lastReceivedSuccess = getLastTestReceived(party);
         if (lastReceivedSuccess != null) {
-            LOG.debug("Adding the last received successful message [{}]", lastReceivedSuccess.getMessageId());
+            LOG.debug("Adding the last received message [{}]", lastReceivedSuccess.getMessageId());
             userMessages.add(lastReceivedSuccess);
         }
 
@@ -429,7 +406,7 @@ public class TestService {
     private UserMessage getLastTestReceived(String partyId) {
         UserMessage userMessage = userMessageDao.findLastTestMessageFromParty(partyId);
         if (userMessage == null) {
-            LOG.debug("Could not find last received user message for party [{}]", partyId);
+            LOG.debug("Could not find any received user message from party [{}]", partyId);
             return null;
         }
         return userMessage;
@@ -438,7 +415,7 @@ public class TestService {
     private void deleteByDifference(List<UserMessage> except, List<UserMessage> all) {
         List<Long> toDelete = all.stream()
                 .filter(el -> except.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
-                .map(el -> el.getEntityId())
+                .map(AbstractBaseEntity::getEntityId)
                 .collect(Collectors.toList());
         LOG.debug("Deleting messages with ids [{}]", toDelete);
         userMessageService.deleteMessagesWithIDs(toDelete);

@@ -4,7 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
@@ -22,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,12 +50,18 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final AuditService auditService;
 
+    protected final DomainContextProvider domainContextProvider;
+
+    protected final DomibusConfigurationService domibusConfigurationService;
+
     public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
+                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
         this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
         this.auditService = auditService;
+        this.domainContextProvider = domainContextProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -75,6 +86,13 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
         ByteArrayResource resource = new ByteArrayResource(content.getContent());
 
+        String fileName = getStoreName();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+
+        if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
+            fileName = getStoreName() + "_" + domain.getName();
+        }
+
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
@@ -84,7 +102,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + getStoreName() + ".jks")
+                .header("content-disposition", "attachment; filename=" + fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER) + ".jks")
                 .body(resource);
     }
 
@@ -118,4 +136,18 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 ),
                 Arrays.asList("fingerprints", "certificateExpiryAlertDays"), moduleName);
     }
+
+    protected String addCertificate(MultipartFile certificateFile, String alias) {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        doAddCertificate(alias, fileContent);
+
+        return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+    }
+
+    protected abstract void doAddCertificate(String alias, byte[] fileContent);
 }

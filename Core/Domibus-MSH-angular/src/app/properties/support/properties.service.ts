@@ -88,6 +88,14 @@ export class PropertiesService {
 
 export interface PropertyModel {
   value: string;
+  originalValue: string;
+  usedValue: string;
+  oldValue: string;
+  currentValue: string;
+  currentValueSet: boolean;
+
+  timeoutId: number;
+
   name: string;
   type: string;
   usageText: string;

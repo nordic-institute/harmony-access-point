@@ -15,6 +15,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
+import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -36,7 +37,7 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes"})
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes", "JUnitMalformedDeclaration"})
 @RunWith(JMockit.class)
 public class RoutingServiceTest {
 
@@ -203,7 +204,7 @@ public class RoutingServiceTest {
             backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
             result = backendFilters;
         }};
-        List<BackendFilter> actual = routingService.getBackendFiltersUncached();
+        List<BackendFilter> actual = routingService.getBackendFilters();
 
         assertEquals(backendFilters, actual);
 
@@ -224,7 +225,7 @@ public class RoutingServiceTest {
             result = backendFilterEntityList;
         }};
 
-        routingService.getBackendFiltersUncached();
+        routingService.getBackendFilters();
 
         new FullVerifications() {{
             backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
@@ -248,6 +249,10 @@ public class RoutingServiceTest {
         final String actionCriteriaName = "ACTION";
 
         new Expectations() {{
+
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = criteriaList;
 
@@ -297,6 +302,10 @@ public class RoutingServiceTest {
         final String actionCriteriaName = "ACTION";
 
         new Expectations() {{
+
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = criteriaList;
 
@@ -347,6 +356,10 @@ public class RoutingServiceTest {
         final String actionCriteriaName = "ACTION";
 
         new Expectations() {{
+
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = criteriaList;
 
@@ -395,6 +408,9 @@ public class RoutingServiceTest {
         final String actionCriteriaName = "ACTION";
 
         new Expectations() {{
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = criteriaList;
 
@@ -445,6 +461,10 @@ public class RoutingServiceTest {
                                                                         @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                         @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
         new Expectations() {{
+
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = null;
         }};
@@ -476,6 +496,10 @@ public class RoutingServiceTest {
         final String fromCriteriaName = "FROM";
 
         new Expectations() {{
+
+            filter.isActive();
+            result = true;
+
             filter.getRoutingCriterias();
             result = criteriaList;
 
@@ -569,13 +593,13 @@ public class RoutingServiceTest {
 
         List<BackendFilterEntity> allBackendFilters = routingService.buildBackendFilterEntities(pluginToAdd, 0);
 
-        assertEquals(allBackendFilters.size(), 3);
-        assertEquals(allBackendFilters.get(2).getBackendName(), FS);
-        assertEquals(allBackendFilters.get(2).getIndex(), 2);
-        assertEquals(allBackendFilters.get(1).getBackendName(), JMS);
-        assertEquals(allBackendFilters.get(1).getIndex(), 1);
+        assertEquals(3, allBackendFilters.size());
+        assertEquals(FS, allBackendFilters.get(2).getBackendName());
+        assertEquals(2, allBackendFilters.get(2).getIndex());
+        assertEquals(JMS, allBackendFilters.get(1).getBackendName());
+        assertEquals(1, allBackendFilters.get(1).getIndex());
         assertTrue(WS_PLUGIN.getNames().contains(allBackendFilters.get(0).getBackendName()));
-        assertEquals(allBackendFilters.get(0).getIndex(), 0);
+        assertEquals(0, allBackendFilters.get(0).getIndex());
     }
 
     @Test
@@ -620,15 +644,43 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
+    public void testGetBackendFiltersWithCache(@Injectable BackendFilter backendFilter1,
+                                               @Injectable BackendFilter backendFilter2,
+                                               @Injectable AbstractBackendConnector backendEnableAware1,
+                                               @Injectable BackendConnector<?, ?> backend2,
+                                               @Injectable List<BackendFilterEntity> backendFilterEntities
+    ) {
+        List<BackendFilter> backendFilters = asList(backendFilter1, backendFilter2);
         routingService.domainContextProvider = domainContextProvider;
 
         new Expectations(routingService) {{
             domainContextProvider.getCurrentDomain();
-            result = new Domain();
+            result = new Domain("default", "default");
 
-            routingService.getBackendFiltersUncached();
+            backendFilterDao.findAll();
+            result = backendFilterEntities;
+
+            backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
             result = backendFilters;
+
+            backendFilter1.getBackendName();
+            result = "backendFilter1";
+
+            backendFilter2.getBackendName();
+            result = "backendFilter2";
+
+            backendConnectorProvider.getBackendConnector("backendFilter1");
+            result = backendEnableAware1;
+
+            backendConnectorProvider.getBackendConnector("backendFilter2");
+            result = backend2;
+
+            backendEnableAware1.isEnabled("default");
+            result = true;
+
+            backend2.getName();
+            result = "backendConnector";
+
         }};
 
         routingService.backendFiltersCache = new HashMap<>();
@@ -638,8 +690,14 @@ public class RoutingServiceTest {
         assertNotNull(backendFiltersWithCache);
         assertNotNull(backendFiltersWithCache1);
 
-        new FullVerifications() {{
-            routingService.getBackendFiltersUncached();
+        new Verifications() {{
+            routingService.getBackendFilters();
+            times = 1;
+
+            backendFilter1.setActive(true);
+            times = 1;
+
+            backendFilter2.setActive(true);
             times = 1;
         }};
     }
@@ -814,9 +872,10 @@ public class RoutingServiceTest {
             times = 1;
         }};
     }
+
     @Test
     public void ceateBackendFilters_updatesOldWsPluginBackendName(@Injectable BackendConnector backendConnector,
-                                                   @Injectable BackendFilterEntity dbBackendFilterEntity) {
+                                                                  @Injectable BackendFilterEntity dbBackendFilterEntity) {
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         backendFilterEntities.add(dbBackendFilterEntity);
 

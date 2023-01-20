@@ -14,6 +14,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
@@ -69,16 +70,13 @@ public class TestServiceTest {
     UserMessageDao userMessageDao;
 
     @Injectable
-    ActionDictionaryService actionDictionaryService;
-
-    @Injectable
     UserMessageService userMessageService;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    PartyService partyService;
 
     @Injectable
-    PartyService partyService;
+    ConnectionMonitoringHelper connectionMonitoringHelper;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -206,9 +204,9 @@ public class TestServiceTest {
         givenReceiver("receiver");
         givenReceiverPartyId("receiverPartyId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
-            testService.validateReceiver(anyString);
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
+            connectionMonitoringHelper.validateReceiver(anyString);
         }};
 
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
@@ -223,8 +221,8 @@ public class TestServiceTest {
         givenReceiverType("receiverType");
         givenFinalRecipientMessagePropertyContainsInitialValue("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
         }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();
@@ -239,9 +237,9 @@ public class TestServiceTest {
         givenReceiverPartyId("receiverPartyId");
         givenTheMessageIdentifier("messageId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
-            testService.validateReceiver(anyString);
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
+            connectionMonitoringHelper.validateReceiver(anyString);
         }};
 
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
@@ -256,8 +254,8 @@ public class TestServiceTest {
         givenReceiverType("receiverType");
         givenTheMessageIdentifier("messageId");
 
-        new Expectations(testService) {{
-            testService.validateSender("sender");
+        new Expectations() {{
+            connectionMonitoringHelper.validateSender("sender");
         }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();

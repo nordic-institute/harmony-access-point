@@ -1,10 +1,11 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.api.cache.DomibusLocalCacheService;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
@@ -65,7 +66,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     @Override
-    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_METADATA_CACHE, key = "#propertyName")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.DOMIBUS_PROPERTY_METADATA_CACHE, key = "#propertyName")
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         loadPropertiesIfNotFound(propertyName);
 
