@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.UserMessage;
@@ -84,6 +85,9 @@ public class IncomingUserMessageHandlerTest {
 
     @Injectable
     MshRoleDao mshRoleDao;
+
+    @Injectable
+    MetricRegistry metricRegistry;
 
     /**
      * Happy flow unit testing with actual data
