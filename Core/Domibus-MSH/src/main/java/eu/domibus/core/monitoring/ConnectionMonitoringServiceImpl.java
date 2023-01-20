@@ -24,7 +24,6 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.SENDER_RECEIVER_SEPARATOR;
 
 /**
@@ -43,6 +42,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     protected final TestService testService;
 
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.partyService = partyService;
@@ -157,6 +159,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         for (String partyPair : monitoredParties) {
+            com.codahale.metrics.Timer.Context testMessageTimer=null;
+            com.codahale.metrics.Counter testMessageCounter=null;
             String senderParty = connectionMonitoringHelper.getSourceParty(partyPair);
             String receiverParty = connectionMonitoringHelper.getDestinationParty(partyPair);
             try {
