@@ -30,6 +30,7 @@ public class BackupServiceImpl implements BackupService {
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+    protected static final String BACKUP_FOLDER_NAME ="backups";
 
     @Autowired
     protected DateUtil dateUtil;
@@ -51,29 +52,29 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public void backupFileIfOlderThan(File originalFile, String subFolder, Integer periodInHours) throws IOException {
-        String location = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
+        String backupLocation = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
 
         if (periodInHours == 0) {
             LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
-            backupFileInLocation(originalFile, location);
+            backupFileInLocation(originalFile, backupLocation);
             return;
         }
 
-        File backupsFile = Paths.get(location, originalFile.getName()).toFile();
+        File backupsFile = Paths.get(backupLocation, originalFile.getName() + BACKUP_EXT).toFile();
         List<File> backups = getBackupFilesOf(backupsFile);
         if (CollectionUtils.isEmpty(backups)) {
-            LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
-            backupFileInLocation(originalFile, location);
+            LOG.debug("No backups found so backing up file [{}]", backupsFile.getName());
+            backupFileInLocation(originalFile, backupLocation);
             return;
         }
 
         long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
         if (elapsed < Duration.ofHours(periodInHours).toMillis()) {
-            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", originalFile.getName());
+            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", backupsFile.getName());
             return;
         }
 
-        backupFileInLocation(originalFile, location);
+        backupFileInLocation(originalFile, backupLocation);
     }
 
     @Override
@@ -83,7 +84,10 @@ public class BackupServiceImpl implements BackupService {
             return;
         }
 
-        List<File> backups = getBackupFilesOf(originalFile);
+        File backupsFile = Paths.get(originalFile.getParentFile().getPath(), BACKUP_FOLDER_NAME, originalFile.getName() + BACKUP_EXT).toFile();
+
+        List<File> backups = getBackupFilesOf(backupsFile);
+
         if (backups.size() <= maxFilesToKeep) {
             LOG.debug("Maximum number of allowed backups [{}] has not been reached for file [{}], so exiting.", maxFilesToKeep, originalFile.getName());
             return;
@@ -93,7 +97,7 @@ public class BackupServiceImpl implements BackupService {
         backups.subList(maxFilesToKeep, backups.size())
                 .forEach(file -> {
                     try {
-                        LOG.debug("Deleting backup file [{}].", originalFile.getName());
+                        LOG.debug("Deleting backup file [{}].", file.getName());
                         FileUtils.delete(file);
                     } catch (IOException e) {
                         exceptions.add(String.format("Could not delete backup file [%s] due to [%s].", file.getName(), e.getMessage()));
@@ -104,14 +108,14 @@ public class BackupServiceImpl implements BackupService {
         }
     }
 
-    private List<File> getBackupFilesOf(File originalFile) {
-        File[] files = originalFile.getParentFile().listFiles();
+    private List<File> getBackupFilesOf(File backupFile) {
+        File[] files = backupFile.getParentFile().listFiles();
         if (files == null) {
-            LOG.info("File [{}] does not exist.", originalFile.getParentFile());
+            LOG.info("File [{}] does not exist.", backupFile.getParentFile());
             return Collections.emptyList();
         }
         return Arrays.stream(files)
-                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
+                .filter(file -> file.getName().startsWith(backupFile.getName()))
                 .sorted(Comparator.comparing(File::lastModified).reversed())
                 .collect(Collectors.toList());
     }
