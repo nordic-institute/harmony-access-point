@@ -44,6 +44,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.util.DomibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength;
+import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
@@ -408,13 +410,32 @@ public class WebServiceImpl implements WebServicePluginInterface {
         if (nbrMessagesToRepush > repushMaxCount) {
             throw new RePushFailedMessagesFault("Invalid argument", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Too many messages. the limit is [" + PROP_LIST_REPUSH_MESSAGES_MAXCOUNT + "]:" + repushMaxCount + ". Actual is: " + nbrMessagesToRepush));
         }
+        List<String> validMessageIds = getValidMessageIds(rePushFailedMessagesRequest);
         try {
-            wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
+            wsBackendMessageLogService.updateForRetry(validMessageIds);
         } catch (WSPluginException e) {
             throw new RePushFailedMessagesFault("RePush has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0009, "At least one message was not found"));
         }
 
         LOG.info("Messages updated for retry successfully");
+    }
+
+    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+        List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
+        List<String> trimmedMessageIds = null;
+        for (String messageId : messageIds) {
+
+            if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
+            }
+            MessageStatus messageStatus = MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(StringUtils.trim(messageId)).name());
+            if (!messageStatus.equals(MessageStatus.SEND_FAILURE)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "]" + " is not in failed status"));
+            }
+
+            trimmedMessageIds.add(StringUtils.trim(messageId));
+        }
+        return trimmedMessageIds;
     }
 
     /**
