@@ -363,7 +363,7 @@ public class DomibusPropertyMetadata {
      */
     public enum Type {
         POSITIVE_INTEGER("^[0-9]+$"),
-        POSITIVE_DECIMAL("^[0-9]+.[0-9]{1,2}$"),
+        POSITIVE_DECIMAL("^[0-9]+(\\.[0-9]{1,2})?$"),
         NUMERIC("^-?[0-9]+(\\.[0-9]{1,2})?$"),
         BOOLEAN("^(true|false)$"),
 
