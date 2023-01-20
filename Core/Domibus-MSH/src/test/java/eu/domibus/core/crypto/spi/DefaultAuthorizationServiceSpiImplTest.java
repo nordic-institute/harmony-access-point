@@ -419,7 +419,6 @@ public class DefaultAuthorizationServiceSpiImplTest {
     public void authorizeUserMessageTest() {
         UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData("service", "action", ALIAS_TEST_AUTH);
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
-        SecurityProfileDTO securityProfileDTO = new SecurityProfileDTO();
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
@@ -429,7 +428,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = false;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, securityProfileDTO, userMessagePmodeData);
+        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, SecurityProfileDTO.RSA, userMessagePmodeData);
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(signingCertificate, ALIAS_TEST_AUTH);

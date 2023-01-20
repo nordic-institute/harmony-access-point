@@ -1,25 +1,16 @@
 package eu.domibus.ext.domain;
 
-import java.io.Serializable;
+public enum SecurityProfileDTO {
+    RSA("RSA"),
+    ECC("ECC");
 
-public class SecurityProfileDTO implements Serializable {
+    private final String profile;
 
-    private static final long serialVersionUID = -340466687847652237L;
-
-    private SecurityProfile securityProfile;
-
-    public SecurityProfile getSecurityProfile() {
-        return securityProfile;
+    SecurityProfileDTO(final String profile) {
+        this.profile = profile;
     }
 
-    public void setSecurityProfile(SecurityProfile securityProfile) {
-        this.securityProfile = securityProfile;
-    }
-
-    @Override
-    public String toString() {
-        return "SecurityProfileDTO{" +
-                "securityProfile=" + securityProfile +
-                '}';
+    public String getProfile() {
+        return this.profile;
     }
 }

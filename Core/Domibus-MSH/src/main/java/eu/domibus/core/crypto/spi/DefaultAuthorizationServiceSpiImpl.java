@@ -88,8 +88,11 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate,
                           UserMessageDTO userMessageDTO, SecurityProfileDTO securityProfileDTO, UserMessagePmodeData userMessagePmodeData)
             throws AuthorizationException {
-        String alias = securityProfileService.getAliasForSigning(domibusCoreMapper.securityProfileExtToSecurityProfileApi(securityProfileDTO.getSecurityProfile()),
-                userMessagePmodeData.getPartyName());
+        SecurityProfile securityProfile = null;
+        if (securityProfileDTO.getProfile() != null) {
+            securityProfile = SecurityProfile.valueOf(securityProfileDTO.getProfile());
+        }
+        String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
         doAuthorize(signingCertificate, alias);
     }
 
