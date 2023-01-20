@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
@@ -65,7 +66,8 @@ public class WebServiceConfiguration {
                                          WSPluginPropertyManager wsPluginPropertyManager,
                                          AuthenticationExtService authenticationExtService,
                                          MessageExtService messageExtService,
-                                         WSPluginImpl wsPlugin) {
+                                         WSPluginImpl wsPlugin,
+                                         DateUtil dateUtil) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,
@@ -74,7 +76,8 @@ public class WebServiceConfiguration {
                 wsPluginPropertyManager,
                 authenticationExtService,
                 messageExtService,
-                wsPlugin);
+                wsPlugin,
+                dateUtil);
     }
 
 

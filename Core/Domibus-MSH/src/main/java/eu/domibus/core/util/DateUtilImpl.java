@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -103,6 +100,11 @@ public class DateUtilImpl implements DateUtil {
     @Override
     public Date getUtcDate() {
         return new Date();
+    }
+
+    @Override
+    public LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime){
+      return localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
     }
 
     @Override
