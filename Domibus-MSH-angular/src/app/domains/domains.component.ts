@@ -100,19 +100,6 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
     try {
       super.isLoading = true;
 
-      if (!active) {
-        let currentDomain = await this.domainService.retrieveCurrentDomain();
-        if (currentDomain && currentDomain.code == domain.code) {
-          throw `Cannot disable the current domain`;
-        }
-        let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
-        let users = await this.userService.getUsers();
-        let currentUser = users.find(u => u.userName == currentUserName);
-        if (currentUser.domain == domain.code) {
-          throw `Cannot disable the domain of the current user`;
-        }
-      }
-
       await this.domainService.setActiveState(domain, active);
       this.alertService.success(`Successfully ${active ? 'added' : 'removed'} domain ${domain.name}.`);
       super.isLoading = false;
