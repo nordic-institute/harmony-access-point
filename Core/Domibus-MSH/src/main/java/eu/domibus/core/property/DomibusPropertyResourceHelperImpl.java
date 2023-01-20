@@ -13,6 +13,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -162,6 +164,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         validatePropertyLength(propertyName, propertyValue);
 
         validatePropertyValue(propertyValue, propMeta);
+
+        validateNumericPropertyMinAndMaxValue(propertyValue, propMeta);
     }
 
     protected void validatePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
@@ -212,6 +216,50 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         if (propertyValue.length() > maxLength) {
             throw new DomibusPropertyException("Invalid property value [" + propertyValue + "] for property [" + propertyName + "]. " +
                     "Maximum accepted length is: " + maxLength);
+        }
+    }
+
+    protected void validateNumericPropertyMinAndMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (!propMeta.getTypeAsEnum().isNumeric()) {
+            return;
+        }
+        validateNumericPropertyValueRange(propertyValue, propMeta);
+        validatePositiveIntegerMaxValue(propertyValue, propMeta);
+        validatePositiveDecimalMaxValue(propertyValue, propMeta);
+    }
+
+    protected void validateNumericPropertyValueRange(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC) {
+            //Numeric type property accepts negative values also. So the numeric value range is from Long.MIN_VALUE to Long.MAX_VALUE.
+
+            BigDecimal propVal = new BigDecimal(propertyValue);
+
+            if ((propVal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0) || (propVal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is not in the long value range", propertyValue));
+            }
+        }
+    }
+
+    protected void validatePositiveIntegerMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_INTEGER) {
+            if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
+            }
+        }
+    }
+
+    protected void validatePositiveDecimalMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_DECIMAL) {
+            String values[] = propertyValue.split("\\.");
+            if (values.length > 1) {
+                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1)) > 0) {
+                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+                }
+            } else {
+                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+                }
+            }
         }
     }
 
