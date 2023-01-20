@@ -221,35 +221,38 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     protected void validateNumericPropertyMinAndMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
         if (!propMeta.getTypeAsEnum().isNumeric()) {
+            LOG.debug("Validated property value [{}] is not the type of numeric, positive integer and positive decimal, exiting.", propertyValue);
             return;
         }
-        validateNumericPropertyValueRange(propertyValue, propMeta);
-        validatePositiveIntegerMaxValue(propertyValue, propMeta);
-        validatePositiveDecimalMaxValue(propertyValue, propMeta);
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC) {
+            validateNumericPropertyValueRange(propertyValue, propMeta);
+        }
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_INTEGER) {
+            validatePositiveIntegerMaxValue(propertyValue, propMeta);
+        }
+        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_DECIMAL) {
+            validatePositiveDecimalMaxValue(propertyValue, propMeta);
+        }
     }
 
     protected void validateNumericPropertyValueRange(String propertyValue, DomibusPropertyMetadata propMeta) {
-        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.NUMERIC) {
-            //Numeric type property accepts negative values also. So the numeric value range is from Long.MIN_VALUE to Long.MAX_VALUE.
+        //Numeric type property accepts negative values also. So the numeric value range is from Long.MIN_VALUE to Long.MAX_VALUE.
+        BigDecimal propVal = new BigDecimal(propertyValue);
 
-            BigDecimal propVal = new BigDecimal(propertyValue);
-
-            if ((propVal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0) || (propVal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)) {
-                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is not in the long value range", propertyValue));
-            }
+        if ((propVal.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) < 0) || (propVal.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)) {
+            throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is not in the long value range", propertyValue));
         }
+
     }
 
     protected void validatePositiveIntegerMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_INTEGER) {
             if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
                 throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
             }
-        }
     }
 
     protected void validatePositiveDecimalMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-        if (propMeta.getTypeAsEnum() == DomibusPropertyMetadata.Type.POSITIVE_DECIMAL) {
+
             String values[] = propertyValue.split("\\.");
             if (values.length > 1) {
                 if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1)) > 0) {
@@ -260,7 +263,6 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                     throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
                 }
             }
-        }
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
