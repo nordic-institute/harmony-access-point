@@ -428,7 +428,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
             }
-            MessageStatus messageStatus = MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(StringUtils.trim(messageId)).name());
+            MessageStatus messageStatus = MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(StringUtils.trim(messageId), MSHRole.SENDING).name());
             if (!messageStatus.equals(MessageStatus.SEND_FAILURE)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "]" + " is not in failed status"));
             }
