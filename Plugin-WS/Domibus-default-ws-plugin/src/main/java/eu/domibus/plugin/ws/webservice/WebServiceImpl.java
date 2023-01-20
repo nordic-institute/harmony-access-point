@@ -377,7 +377,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
-        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  validateListPushFailedMessagesRequest(listPushFailedMessagesRequest);
+        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
 
         final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
@@ -407,9 +407,14 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return response;
     }
 
-    protected ListPushFailedMessagesRequest validateListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
+    protected ListPushFailedMessagesRequest getValidListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
         String messageId = listPushFailedMessagesRequest.getMessageId();
         ListPushFailedMessagesRequest pushFailedMessagesRequest= new ListPushFailedMessagesRequest();
+
+        if (StringUtils.isEmpty(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
 
         if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
             throw new ListPushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
