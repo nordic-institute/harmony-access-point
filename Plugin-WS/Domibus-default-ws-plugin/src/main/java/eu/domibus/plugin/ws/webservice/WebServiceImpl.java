@@ -400,7 +400,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     @Override
     @Transactional
-    public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+    public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault, ListPushFailedMessagesFault {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("rePushFailedMessages for domain [{}]", domainDTO);
 
@@ -420,17 +420,23 @@ public class WebServiceImpl implements WebServicePluginInterface {
         LOG.info("Messages updated for retry successfully");
     }
 
-    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault, ListPushFailedMessagesFault {
         List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
         List<String> trimmedMessageIds = null;
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
         for (String messageId : messageIds) {
 
+            if (StringUtils.isEmpty(messageId)) {
+                LOG.error(MESSAGE_ID_EMPTY);
+                throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+            }
             if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
             }
-            MessageStatus messageStatus = MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(StringUtils.trim(messageId), MSHRole.SENDING).name());
-            if (!messageStatus.equals(MessageStatus.SEND_FAILURE)) {
-                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "]" + " is not in failed status"));
+            pushFailedMessagesRequest.setMessageId(messageId);
+            ListPushFailedMessagesResponse response = listPushFailedMessages(pushFailedMessagesRequest);
+            if (!response.getMessageID().contains(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "]" + " is not in the list of push failed messages"));
             }
 
             trimmedMessageIds.add(StringUtils.trim(messageId));
