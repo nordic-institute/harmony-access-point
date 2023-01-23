@@ -506,7 +506,6 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   canMoveAll() {
-    console.log('this.filter.originalQueue =', this.filter.originalQueue)
     return !this.isBusy()
       && this.isDLQQueue()
       && this.rows.length
