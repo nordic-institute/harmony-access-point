@@ -127,7 +127,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 handleRunnableError(e, errorHandler);
-            } catch (ExecutionException | TimeoutException e) {
+            } catch (Exception e) {
                 handleRunnableError(e, errorHandler);
             }
         }

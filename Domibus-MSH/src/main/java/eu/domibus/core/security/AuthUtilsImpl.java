@@ -54,7 +54,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return null;
         }
 
-        return getOriginalUser();
+        return getOriginalUserOrNullIfAdmin();
     }
 
     /**
@@ -62,24 +62,23 @@ public class AuthUtilsImpl implements AuthUtils {
      * null value when the user has the role ROLE_ADMIN
      */
     @Override
-    public String getOriginalUser() {
+    public String getOriginalUserOrNullIfAdmin() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.error("Authentication is missing from the security context. Unsecured login is not allowed");
             throw new AuthenticationException("Authentication is missing from the security context. Unsecured login is not allowed");
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String originalUser = null;
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         if (!authorities.contains(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))
                 && !authorities.contains(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()))) {
-            originalUser = (String) authentication.getPrincipal();
-            LOG.debug("User [{}] has user role and finalRecipient [{}]", getAuthenticatedUser(), originalUser);
+            String user = (String) authentication.getPrincipal();
+            LOG.debug("User [{}] has user role and finalRecipient [{}]", getAuthenticatedUser(), user);
+            return user;
         } else {
             LOG.debug("User [{}] has admin role", getAuthenticatedUser());
+            return null;
         }
-
-        return originalUser;
     }
 
     @Override
@@ -124,6 +123,14 @@ public class AuthUtilsImpl implements AuthUtils {
     @Override
     public boolean isAdmin() {
         return checkAdminRights(AuthRole.ROLE_ADMIN);
+    }
+
+    @Override
+    public boolean isAPAdmin() {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return isSuperAdmin();
+        }
+        return isAdmin();
     }
 
     @Override
@@ -178,14 +185,6 @@ public class AuthUtilsImpl implements AuthUtils {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean isAdminMultiAware() {
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            return isSuperAdmin();
-        }
-        return isAdmin();
     }
 
     @Override

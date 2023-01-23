@@ -77,6 +77,7 @@
         <cve>CVE-2021-42340</cve>
         <cve>CVE-2022-23181</cve>
         <cve>CVE-2022-34305</cve>
+        <cve>CVE-2022-45143</cve>
     </suppress>
 
     <suppress>
@@ -306,6 +307,8 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
         <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
+        <!-- Domibus does not include h2 admin console -->
+        <cve>CVE-2022-45868</cve>
     </suppress>
 
     <suppress>
@@ -336,6 +339,8 @@
         <cve>CVE-2022-38751</cve>
         <cve>CVE-2022-38750</cve>
         <cve>CVE-2022-41854</cve>
+        <cve>CVE-2022-3064</cve>
+        <cve>CVE-2021-4235</cve>
         <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
         <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
     </suppress>
@@ -480,7 +485,7 @@
         <notes><![CDATA[
    file name: cxf-rt-.*.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-.*@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-.*@.*$</packageUrl>
         <!-- In Domibus, CXFServlet is not configured with any of the static-resources-list and redirect-query-check attributes -->
         <cve>CVE-2022-46363</cve>
         <!-- In Domibus the  XOP:Include in MTOM requests do not use the href parameter -->
@@ -507,4 +512,35 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.ws\.xmlschema/xmlschema\-core@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
+
+    <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-5.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus\-default\-ws\-plugin\-stub\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils-apache-commons:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils\-apache\-commons@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <!-- End CVE-2021-4277 -->
 </suppressions>

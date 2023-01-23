@@ -5,6 +5,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -12,6 +13,7 @@ import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.util.DateUtilImpl;
+import joptsimple.internal.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,7 @@ public class MessageDaoTestUtil {
 
     @Autowired
     UserMessageDao userMessageDao;
+
     @Autowired
     MpcDao mpcDao;
 
@@ -79,6 +82,9 @@ public class MessageDaoTestUtil {
     @Autowired
     MessageAcknowledgeConverter messageAcknowledgeConverter;
 
+    @Autowired
+    UserMessageDefaultService userMessageDefaultService;
+
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
     final static String RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
@@ -112,15 +118,26 @@ public class MessageDaoTestUtil {
     }
 
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
+        String originalSender = null, finalRecipient = null;
+        if (properties) {
+            originalSender = "originalSender1";
+            finalRecipient = "finalRecipient2";
+        }
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, isTestMessage, mpc, archivedAndExported, originalSender, finalRecipient);
+    }
+
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, String mpc, Date archivedAndExported,
+                                               String originalSender, String finalRecipient) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
 
-        if (properties) {
-            MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
-            MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", "finalRecipient2", "");
+        if (!Strings.isNullOrEmpty(originalSender) || !Strings.isNullOrEmpty(finalRecipient)) {
+            MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", originalSender, "");
+            MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", finalRecipient, "");
             userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
         }
+
         PartyInfo partyInfo = new PartyInfo();
         partyInfo.setFrom(createFrom(INITIATOR_ROLE, "domibus-blue"));
         partyInfo.setTo(createTo(RESPONDER_ROLE, "domibus-red"));
@@ -176,6 +193,11 @@ public class MessageDaoTestUtil {
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
         return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC, new Date());
+    }
+
+    @Transactional
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, String originalSender, String finalRecipient) {
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, MPC, new Date(), originalSender, finalRecipient);
     }
 
     @Transactional
@@ -260,5 +282,11 @@ public class MessageDaoTestUtil {
     @Transactional
     public List<UserMessageLog> getAllUserMessageLogs() {
         return em.createQuery("select uml from UserMessageLog uml", UserMessageLog.class).getResultList();
+    }
+
+    @Transactional
+    public void clear() {
+        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
+        userMessageDefaultService.deleteMessages(allMessages);
     }
 }

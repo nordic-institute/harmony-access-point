@@ -35,7 +35,7 @@ public class SynchronizedRunnable implements Runnable {
         LOG.trace("Trying to lock [{}]", lockKey);
 
         String threadName = Thread.currentThread().getName();
-        Thread.currentThread().setName(lockKey);
+        Thread.currentThread().setName(lockKey + "-" + System.nanoTime());
 
         try {
             // if this blocks, it means that another process has a write lock on the db record

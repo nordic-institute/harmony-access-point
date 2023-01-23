@@ -74,7 +74,7 @@ public class JmsUtilTest {
 
     @Test
     public void SetDomain() {
-        jmsUtil.setDomain(message);
+        jmsUtil.setCurrentDomainFromMessage(message);
 
         new FullVerifications(){{
             domainContextProvider.setCurrentDomain(DEFAULT);
@@ -83,7 +83,7 @@ public class JmsUtilTest {
 
     @Test
     public void SetDomain_noDomain() {
-        jmsUtil.setDomain(new ActiveMQTextMessage());
+        jmsUtil.setCurrentDomainFromMessage(new ActiveMQTextMessage());
 
         new FullVerifications(){{
             domainContextProvider.clearCurrentDomain();
