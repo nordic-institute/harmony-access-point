@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;

@@ -5,13 +5,12 @@ import eu.domibus.api.authorization.AuthorizationService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.converter.MessageCoreMapper;
-import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import javax.xml.soap.SOAPMessage;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
@@ -37,19 +35,11 @@ public class AuthorizationServiceImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceImpl.class);
 
-    protected static final String IAM_AUTHORIZATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
-
-    @Autowired
-    private List<AuthorizationServiceSpi> authorizationServiceSpis;
-
     @Autowired
     private CertificateService certificateService;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private PModeProvider pModeProvider;
 
     @Autowired
     private MessageCoreMapper messageCoreMapper;
@@ -66,12 +56,14 @@ public class AuthorizationServiceImpl {
         authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(), mpc);
     }
 
-    public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
+    public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage, SecurityProfile securityProfile) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),messageCoreMapper.userMessageToUserMessageApi(userMessage));
+
+        authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
+                messageCoreMapper.userMessageToUserMessageApi(userMessage), securityProfile);
     }
 
     private boolean isAuthorizationEnabled(SOAPMessage request) {

@@ -6,6 +6,7 @@ import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.process.Process;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.api.usermessage.domain.UserMessage;
@@ -55,6 +56,8 @@ public interface DomibusExtMapper {
 
     List<ProcessDTO> processListToProcessesDTO(List<Process> processList);
     Process processDTOToProcess(ProcessDTO processDTO);
+
+    SecurityProfileDTO securityProfileApiToDTO(SecurityProfile securityProfile);
 
     PartInfoDTO partInfoToDto(PartInfo partInfo);
 

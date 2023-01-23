@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
 
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
 
 /**
  * Provides services needed by the Security Profiles feature
@@ -42,15 +41,18 @@ public class SecurityProfileService {
 
         if (securityProfile == null) {
             LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
-            securityProfile = RSA;
+            securityProfile = SecurityProfile.RSA;
         }
         final AlgorithmSuite.AlgorithmSuiteType algorithmSuiteType = domibusAlgorithmSuiteLoader.getAlgorithmSuiteType(securityProfile);
         return algorithmSuiteType.getAsymmetricSignature();
     }
 
     public String getAliasForSigning(LegConfiguration legConfiguration, String senderName) {
+        return getAliasForSigning(legConfiguration.getSecurity().getProfile(), senderName);
+    }
+
+    public String getAliasForSigning(SecurityProfile securityProfile, String senderName) {
         String alias = senderName;
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         if (securityProfile != null) {
             alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
         }

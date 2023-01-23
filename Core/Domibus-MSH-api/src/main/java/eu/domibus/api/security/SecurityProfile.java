@@ -1,5 +1,9 @@
-package eu.domibus.common.model.configuration;
+package eu.domibus.api.security;
 
+/**
+ * @author Lucian FURCA
+ * @since 5.1
+ */
 public enum SecurityProfile {
     RSA("RSA"),
     ECC("ECC");

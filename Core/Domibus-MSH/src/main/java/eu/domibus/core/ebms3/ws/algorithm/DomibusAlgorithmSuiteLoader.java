@@ -1,7 +1,7 @@
 
 package eu.domibus.core.ebms3.ws.algorithm;
 
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
