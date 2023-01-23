@@ -62,6 +62,7 @@ public class LoggingResource {
      * @return response of the operation
      */
     @PostMapping(value = "/loglevel")
+    @PreAuthorize("@authUtils.isAPAdmin()")
     public ResponseEntity<String> setLogLevel(@RequestBody @Valid LoggingLevelRO request) {
         final String name = request.getName();
         final String level = request.getLevel();
@@ -79,7 +80,7 @@ public class LoggingResource {
     }
 
     @GetMapping(value = "/loglevel")
-    @PreAuthorize("@authUtils.isAdminMultiAware()")
+    @PreAuthorize("@authUtils.isAPAdmin()")
     public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request) {
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
         List<LoggingEntry> loggingLevel = loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses());
@@ -115,6 +116,7 @@ public class LoggingResource {
      * @return string for success or error
      */
     @PostMapping(value = "/reset")
+    @PreAuthorize("@authUtils.isAPAdmin()")
     public ResponseEntity<String> resetLogging() {
 
         //reset log level on current server
