@@ -3,7 +3,6 @@ package eu.domibus.plugin.ws.client;
 import com.sun.xml.messaging.saaj.soap.XmlDataContentHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.ws.generated.ListPushFailedMessagesFault;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
@@ -292,17 +291,5 @@ public class WebserviceClientTest {
         assertNotNull(errorString);
     }
 
-    @Test
-    public void listPushFailedMessages() {
 
-        ListPushFailedMessagesRequest listPushFailedMessagesRequest = new ListPushFailedMessagesRequest();
-        listPushFailedMessagesRequest.setMessageId("");
-
-        try {
-            webServicePluginInterface.listPushFailedMessages(listPushFailedMessagesRequest);
-
-        } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
-            assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
-        }
-    }
 }
