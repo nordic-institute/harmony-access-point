@@ -89,7 +89,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
                           UserMessageDTO userMessageDTO, SecurityProfileDTO securityProfileDTO, UserMessagePmodeData userMessagePmodeData)
             throws AuthorizationException {
         SecurityProfile securityProfile = null;
-        if (securityProfileDTO.getProfile() != null) {
+        if (securityProfileDTO != null && securityProfileDTO.getProfile() != null) {
             securityProfile = SecurityProfile.valueOf(securityProfileDTO.getProfile());
         }
         String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
