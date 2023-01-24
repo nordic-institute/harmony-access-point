@@ -520,7 +520,7 @@ export class JmsComponent extends mix(BaseListComponent)
     return !this.isBusy()
       && this.isDLQQueue()
       && this.rows.length
-      && this.filter.originalQueue != null
+      && this.filter.originalQueue
       && this.isFiltered();
   }
 
