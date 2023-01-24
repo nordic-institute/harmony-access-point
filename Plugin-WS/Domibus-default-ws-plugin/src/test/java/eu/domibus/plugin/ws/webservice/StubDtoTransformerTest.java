@@ -1,11 +1,17 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.api.util.DomibusStringUtil;
+import eu.domibus.core.util.DomibusStringImplUtil;
+import eu.domibus.ext.delegate.services.message.MessageServiceImpl;
+import eu.domibus.ext.exceptions.MessageExtException;
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.webService.generated.PayloadType;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import mockit.Injectable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,6 +20,9 @@ import javax.mail.util.ByteArrayDataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static org.mockito.Mockito.when;
 
 
 public class StubDtoTransformerTest {
@@ -67,7 +76,7 @@ public class StubDtoTransformerTest {
         submissionObj.addPayload(objPayload1);
 
         UserMessage objUserMessage = new UserMessage();
-        StubDtoTransformer testObj = new StubDtoTransformer();
+        StubDtoTransformer testObj = new StubDtoTransformer(null);
         objUserMessage = testObj.transformFromSubmission(submissionObj, objUserMessage);
 
         Assert.assertEquals("1234", objUserMessage.getMessageInfo().getMessageId());
@@ -171,7 +180,7 @@ public class StubDtoTransformerTest {
         Messaging ebmsHeaderInfo = new Messaging();
         ebmsHeaderInfo.setUserMessage(userMessageObj);
 
-        StubDtoTransformer testObj = new StubDtoTransformer();
+        StubDtoTransformer testObj = new StubDtoTransformer(null);
         Submission objSubmission = testObj.transformToSubmission(ebmsHeaderInfo);
 
         Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
@@ -200,13 +209,33 @@ public class StubDtoTransformerTest {
         LOG.info("Completed with test case: testTransformFromMessaging_HappyFlow");
     }
 
+    private static class MockMessageServiceImpl implements MessageExtService {
+
+        public MockMessageServiceImpl() {
+                  }
+
+        @Override
+        public String cleanMessageIdentifier(String messageId) throws MessageExtException {
+            return null;
+        }
+
+        @Override
+        public boolean isTrimmedStringLengthLongerThanDefaultMaxLength(String messageId) {
+            return false;
+        }
+
+        @Override
+        public String sanitizeFileName(String fileName) {
+            return "fileName";
+        }
+    }
+
     /**
      * Testing transform from Messaging to Submission class for ws plugin implementation of Domibus! BUG - EDELIVER - 1371
      * Any leading/trailing white spaces in Messaging/UserMessage/PartyInfo/From/PartyId or
      * Messaging/UserMessage/PartyInfo/To/PartyId or Messaging/UserMessage/CollaborationInfo/Service
      * should be trimmed.
      */
-
     @Test
     public void transformFromMessaging_trimWhiteSpace() {
         LOG.info("Started with test case: testTransformFromMessaging_TrimWhiteSpace");
@@ -283,7 +312,7 @@ public class StubDtoTransformerTest {
         userMessageObj.setPayloadInfo(objPayloadInfo);
     /*UserMessage.PayLoadInfo population end*/
 
-        eu.domibus.plugin.ws.webservice.StubDtoTransformer testObj = new StubDtoTransformer();
+        eu.domibus.plugin.ws.webservice.StubDtoTransformer testObj = new StubDtoTransformer( new MockMessageServiceImpl());
         Submission objSubmission = testObj.transformFromMessaging(userMessageObj);
 
         Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);

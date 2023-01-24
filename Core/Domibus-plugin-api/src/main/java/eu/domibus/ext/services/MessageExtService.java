@@ -18,4 +18,8 @@ public interface MessageExtService {
      * @throws MessageExtException when something wrong occurs while trying to clean the message identifier
      */
     String cleanMessageIdentifier(String messageId) throws MessageExtException;
+
+    boolean isTrimmedStringLengthLongerThanDefaultMaxLength(String messageId);
+
+    String sanitizeFileName(String fileName);
 }

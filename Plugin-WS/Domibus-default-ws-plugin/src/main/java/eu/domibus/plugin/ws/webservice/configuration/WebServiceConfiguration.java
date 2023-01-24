@@ -67,7 +67,7 @@ public class WebServiceConfiguration {
                                          AuthenticationExtService authenticationExtService,
                                          MessageExtService messageExtService,
                                          WSPluginImpl wsPlugin,
-                                         DateUtil dateUtil) {
+                                         DateExtService dateUtil) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,

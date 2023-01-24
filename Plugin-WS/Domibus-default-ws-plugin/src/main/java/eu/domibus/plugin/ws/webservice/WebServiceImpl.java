@@ -1,16 +1,12 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
-import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -40,15 +36,11 @@ import javax.xml.ws.soap.SOAPBinding;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static eu.domibus.api.util.DomibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
@@ -99,7 +91,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private WSPluginImpl wsPlugin;
 
-    private DateUtil dateUtil;
+    private DateExtService dateUtil;
 
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
@@ -110,7 +102,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
                           AuthenticationExtService authenticationExtService,
                           MessageExtService messageExtService,
                           WSPluginImpl wsPlugin,
-                          DateUtil dateUtil) {
+                          DateExtService dateUtil) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
@@ -416,8 +408,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
             throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
         }
 
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
-            throw new ListPushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new ListPushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
         }
 
         pushFailedMessagesRequest.setMessageId(StringUtils.trim(messageId));

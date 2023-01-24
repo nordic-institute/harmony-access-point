@@ -69,7 +69,7 @@ public class WebServicePluginImplTest {
     private WSPluginImpl wsPlugin;
 
     @Injectable
-    private DateUtil dateUtil;
+    private DateExtService dateUtil;
 
 
     @Test(expected = SubmitMessageFault.class)

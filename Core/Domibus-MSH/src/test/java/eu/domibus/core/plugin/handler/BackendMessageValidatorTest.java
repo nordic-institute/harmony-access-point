@@ -13,6 +13,7 @@ import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.api.property.DomibusGeneralConstants;
+import eu.domibus.core.util.DomibusStringImplUtil;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.*;
@@ -29,7 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE;
-import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
 import static eu.domibus.core.plugin.handler.BackendMessageValidator.MESSAGE_WITH_ID_STR;
 
 /**
@@ -45,7 +45,10 @@ public class BackendMessageValidatorTest {
     private static final String RESPONDER_ROLE_NAME = "defaultResponderRole";
     private static final String INITIATOR_ROLE_VALUE = "defaultInitiator";
     private static final String RESPONDER_ROLE_VALUE = "defaultResponder";
+  /*  public static final String ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH = " is too long (over 255 characters).";
+    public static final String ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024 = " is too long (over 1024 characters).";*/
     private static final String MESS_ID = UUID.randomUUID().toString();
+
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -70,6 +73,9 @@ public class BackendMessageValidatorTest {
 
     @Tested
     private BackendMessageValidator backendMessageValidatorObj;
+
+    @Injectable
+    private DomibusStringImplUtil domibusStringUtil;
 
     @Test
     public void validateMessageId() throws Exception {
@@ -542,7 +548,7 @@ public class BackendMessageValidatorTest {
 
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("From PartyId" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
@@ -563,7 +569,7 @@ public class BackendMessageValidatorTest {
         submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("From PartyIdType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
@@ -593,7 +599,7 @@ public class BackendMessageValidatorTest {
     @Test
     public void validateFromRole_FromRoleTooLong() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("From Role" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromRole(StringUtils.repeat("X", 256));
 
     }
@@ -622,7 +628,7 @@ public class BackendMessageValidatorTest {
         submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 256), "        "));
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To PartyId" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
@@ -643,7 +649,7 @@ public class BackendMessageValidatorTest {
         submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To PartyIdType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
     }
 
@@ -676,7 +682,7 @@ public class BackendMessageValidatorTest {
         submission.setToRole(StringUtils.repeat("X", 256));
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To Role" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToRoleForPModeMatch(submission);
     }
 
@@ -702,7 +708,7 @@ public class BackendMessageValidatorTest {
         String type = "\t";
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Service" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("Service" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateService(value, type);
     }
 
@@ -721,7 +727,7 @@ public class BackendMessageValidatorTest {
         String type = StringUtils.repeat("X", 256);
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("ServiceType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("ServiceType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateService(value, type);
     }
 
@@ -739,7 +745,7 @@ public class BackendMessageValidatorTest {
     @Test
     public void validateAction_ActionTooLong() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Action" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("Action" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateAction(StringUtils.repeat("X", 256));
     }
 
