@@ -87,14 +87,12 @@ import java.util.Date;
                         "and uml.received < :DATE                                                                     "+
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)"+
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
-                        "left join um.messageProperties p  "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
-                        "and p.name = 'finalRecipient'                                                                  " +
                         "and mpc.value = :MPC                                                                           " +
                         "and uml.downloaded is not null and uml.downloaded < :DATE                                      " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
