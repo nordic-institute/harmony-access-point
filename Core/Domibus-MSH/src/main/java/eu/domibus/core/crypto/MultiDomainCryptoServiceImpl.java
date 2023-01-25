@@ -250,14 +250,14 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void persistStores() {
+    public void persistStoresFromDB() {
         final List<Domain> domains = domainService.getDomains();
-        persistStores(domains);
+        persistStoresFromDB(domains);
     }
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        persistStores(Arrays.asList(domain));
+        persistStoresFromDB(Arrays.asList(domain));
     }
 
     @Override
@@ -298,15 +298,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
 
-    protected void persistStores(List<Domain> domains) {
-        certificateService.persistStores(DOMIBUS_TRUSTSTORE_NAME, false,
+    protected void persistStoresFromDB(List<Domain> domains) {
+        certificateService.persistStoresFromDB(DOMIBUS_TRUSTSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
                 () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD),
                 domains
         );
 
-        certificateService.persistStores(DOMIBUS_KEYSTORE_NAME, false,
+        certificateService.persistStoresFromDB(DOMIBUS_KEYSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE),
                 () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD),

@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -151,7 +152,7 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(EventService.class),
                 Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(CertificateHelper.class),
-                Mockito.spy(DomainService.class),
+                Mockito.spy(KeystorePersistenceService.class), Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
                 Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),

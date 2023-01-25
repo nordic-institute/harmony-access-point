@@ -113,8 +113,8 @@ public class DomibusContextRefreshedListener {
      */
     protected void executeSynchronized() {
         messageDictionaryService.createStaticDictionaryEntries();
-        multiDomainCryptoService.persistStores();
-        tlsCertificateManager.persistStores();
+        multiDomainCryptoService.persistStoresFromDB();
+        tlsCertificateManager.persistStoresFromDB();
         domibusPropertyValidatorService.enforceValidation();
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
