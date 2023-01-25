@@ -57,7 +57,7 @@ public class DomibusLineOfCallerConverterTest {
                 }
             }
         };
-        inMemoryAppender.setFile("out.log");
+        inMemoryAppender.setFile("target/out.log");
         inMemoryAppender.setName("inMemoryAppender");
         inMemoryAppender.setContext(loggerContext);
         inMemoryAppender.setEncoder(logLayoutEncoder);
