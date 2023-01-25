@@ -61,7 +61,7 @@ public class WSPluginMessageSender {
     @Timer(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     @Counter(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     public void sendNotification(final WSBackendMessageLogEntity backendMessage) {
-        LOG.debug("Rule [{}] Send notification backend notification [{}] for backend message id [{}]",
+        LOG.debug("Rule [{}] Send backend notification [{}] for backend message entity id [{}]",
                 backendMessage.getRuleName(),
                 backendMessage.getType(),
                 backendMessage.getEntityId());
@@ -72,15 +72,16 @@ public class WSPluginMessageSender {
             LOG.debug("Endpoint identified: [{}]", endpoint);
             dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
+            String messageId = getMessageId(backendMessage);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
-                    backendMessage.getMessageId(),
+                    messageId,
                     endpoint);
 
             if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
                 boolean markAsDownloaded = domibusPropertyExtService.getBooleanProperty(PUSH_MARK_AS_DOWNLOADED);
                 LOG.debug("Found the property [{}] set to [{}]", PUSH_MARK_AS_DOWNLOADED, markAsDownloaded);
-                wsPlugin.downloadMessage(backendMessage.getMessageId(), null, markAsDownloaded);
+                wsPlugin.downloadMessage(messageId, null, markAsDownloaded);
             }
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
             if (dispatchRule == null) {
@@ -91,4 +92,10 @@ public class WSPluginMessageSender {
         }
     }
 
+    private String getMessageId(WSBackendMessageLogEntity backendMessage) {
+        if (backendMessage.getType() == WSBackendMessageType.DELETED_BATCH) {
+            return backendMessage.getMessageIds();
+        }
+        return backendMessage.getMessageId();
+    }
 }

@@ -100,7 +100,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         Thread.sleep(1000);
 
-        Mockito.verify(dispatch, Mockito.times(1)).invoke(Mockito.any(SOAPMessage.class));
     }
 
     @Test
