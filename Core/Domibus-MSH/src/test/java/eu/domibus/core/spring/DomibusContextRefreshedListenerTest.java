@@ -105,7 +105,7 @@ public class DomibusContextRefreshedListenerTest {
         domibusContextRefreshedListener.onApplicationEvent(event);
 
         new FullVerifications() {{
-            tlsCertificateManager.persistTruststores();
+            tlsCertificateManager.persistStores();
             times = 1;
 
             multiDomainCryptoService.persistStores();

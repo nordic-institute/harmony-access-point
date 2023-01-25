@@ -117,7 +117,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void persistTruststores() {
+    public void persistStores() {
         final List<Domain> domains = domainService.getDomains();
         persistTruststores(domains);
     }
