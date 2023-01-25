@@ -290,6 +290,12 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     private String getUsedValue(DomibusPropertyMetadata propMeta, String propertyValue) {
         if (propMeta.isComposable()) {
+            LOG.debug("Property [{}] is composable so no primitive type verification", propMeta.getName());
+            return propertyValue;
+        }
+
+        if (StringUtils.isEmpty(propertyValue)) {
+            LOG.debug("Value of property [{}] is empty so no primitive type verification", propMeta.getName());
             return propertyValue;
         }
 

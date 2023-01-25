@@ -107,10 +107,8 @@ public class GatewayConfigurationValidator implements DomainsAware {
         }
 
         //check if the aliases defined in domibus.properties exist in the Keystore
-        final String privateKeyRsaAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS);
         final String privateKeyRsaSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS);
         final String privateKeyRsaDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS);
-        final String privateKeyEccAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS);
         final String privateKeyEccSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS);
         final String privateKeyEccDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS);
 
@@ -126,17 +124,11 @@ public class GatewayConfigurationValidator implements DomainsAware {
             return;
         }
 
-        if (privateKeyRsaAlias != null) {
-            validateAlias(privateKeyRsaAlias, keyStore, domain);
-        }
         if (privateKeyRsaSignAlias != null) {
             validateAlias(privateKeyRsaSignAlias, keyStore, domain);
         }
         if (privateKeyRsaDecryptAlias != null) {
             validateAlias(privateKeyRsaDecryptAlias, keyStore, domain);
-        }
-        if (privateKeyEccAlias != null) {
-            validateAlias(privateKeyEccAlias, keyStore, domain);
         }
         if (privateKeyEccSignAlias != null) {
             validateAlias(privateKeyEccSignAlias, keyStore, domain);

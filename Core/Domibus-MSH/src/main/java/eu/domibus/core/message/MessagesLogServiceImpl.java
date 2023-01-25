@@ -30,7 +30,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private final Set<MessageStatus> hasNoEnvelopes = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             MessageStatus.SEND_FAILURE,
             MessageStatus.WAITING_FOR_RETRY,
-            MessageStatus.SEND_ENQUEUED
+            MessageStatus.SEND_ENQUEUED,
+            MessageStatus.READY_TO_PULL
     )));
 
     private final UserMessageLogDao userMessageLogDao;
