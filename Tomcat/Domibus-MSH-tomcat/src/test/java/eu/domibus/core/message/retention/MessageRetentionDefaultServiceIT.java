@@ -50,8 +50,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     BackendConnectorHelper backendConnectorHelper;
-
-    //    @Captor
+    
     ArgumentCaptor<MessageStatusChangeEvent> argCaptor = ArgumentCaptor.forClass(MessageStatusChangeEvent.class);
 
     BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
