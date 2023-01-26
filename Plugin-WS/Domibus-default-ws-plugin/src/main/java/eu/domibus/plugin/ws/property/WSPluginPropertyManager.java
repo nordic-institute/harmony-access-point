@@ -61,6 +61,9 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
+
                 new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.WS_PLUGIN, Usage.GLOBAL),
 
                 new DomibusPropertyMetadataDTO(PUSH_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),

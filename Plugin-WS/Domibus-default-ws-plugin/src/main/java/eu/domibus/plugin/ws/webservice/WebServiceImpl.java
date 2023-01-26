@@ -6,10 +6,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -97,6 +94,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private WSPluginImpl wsPlugin;
 
+    private DateExtService dateUtil;
+
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
                           WSMessageLogService wsMessageLogService,
@@ -105,7 +104,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
                           WSPluginPropertyManager wsPluginPropertyManager,
                           AuthenticationExtService authenticationExtService,
                           MessageExtService messageExtService,
-                          WSPluginImpl wsPlugin) {
+                          WSPluginImpl wsPlugin,
+                          DateExtService dateUtil) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
@@ -115,6 +115,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         this.authenticationExtService = authenticationExtService;
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
+        this.dateUtil = dateUtil;
     }
 
     /**
@@ -371,11 +372,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
+        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
+
         final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
         LOG.debug("maxPushFailedMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        String finalRecipient = listPushFailedMessagesRequest.getFinalRecipient();
+        String finalRecipient = validListPushFailedMessagesRequest.getFinalRecipient();
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
             String originalUser = authenticationExtService.getOriginalUser();
             if (StringUtils.isNotEmpty(finalRecipient)) {
@@ -386,17 +389,42 @@ public class WebServiceImpl implements WebServicePluginInterface {
         LOG.info("Final Recipient is [{}]", finalRecipient);
 
         List<WSBackendMessageLogEntity> pending = wsBackendMessageLogService.findAllWithFilter(
-                listPushFailedMessagesRequest.getMessageId(),
-                listPushFailedMessagesRequest.getOriginalSender(),
+                validListPushFailedMessagesRequest.getMessageId(),
+                validListPushFailedMessagesRequest.getOriginalSender(),
                 finalRecipient,
-                listPushFailedMessagesRequest.getReceivedFrom(),
-                listPushFailedMessagesRequest.getReceivedTo(),
+                validListPushFailedMessagesRequest.getReceivedFrom(),
+                validListPushFailedMessagesRequest.getReceivedTo(),
                 intMaxPendingMessagesRetrieveCount);
 
         final Collection<String> ids = pending.stream()
                 .map(WSBackendMessageLogEntity::getMessageId).collect(Collectors.toList());
         response.getMessageID().addAll(ids);
         return response;
+    }
+
+    protected ListPushFailedMessagesRequest getValidListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
+        String messageId = listPushFailedMessagesRequest.getMessageId();
+        ListPushFailedMessagesRequest pushFailedMessagesRequest= new ListPushFailedMessagesRequest();
+
+        if (StringUtils.isEmpty(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
+
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new ListPushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+        }
+
+        pushFailedMessagesRequest.setMessageId(StringUtils.trim(messageId));
+        pushFailedMessagesRequest.setFinalRecipient(StringUtils.trim(listPushFailedMessagesRequest.getFinalRecipient()));
+        pushFailedMessagesRequest.setOriginalSender(StringUtils.trim(listPushFailedMessagesRequest.getOriginalSender()));
+        if (listPushFailedMessagesRequest.getReceivedFrom() != null) {
+            pushFailedMessagesRequest.setReceivedFrom(dateUtil.getUtcLocalDateTime(listPushFailedMessagesRequest.getReceivedFrom()));
+        }
+        if (listPushFailedMessagesRequest.getReceivedTo() != null) {
+            pushFailedMessagesRequest.setReceivedTo(dateUtil.getUtcLocalDateTime(listPushFailedMessagesRequest.getReceivedTo()));
+        }
+        return pushFailedMessagesRequest;
     }
 
     @Override
