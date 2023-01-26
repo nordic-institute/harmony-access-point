@@ -386,8 +386,19 @@ export class JmsComponent extends mix(BaseListComponent)
     this.deleteElements(this.selected);
   }
 
-  deleteAll() {
-    this.serverRemoveAll(this.currentSearchSelectedSource.name);
+  async deleteAll() {
+    const yes = await this.confirmDeleteAllDialog();
+    if (yes) {
+      this.serverRemoveAll(this.currentSearchSelectedSource.name);
+    }
+  }
+
+  private confirmDeleteAllDialog(): Promise<boolean> {
+    return this.dialogsService.openYesNoDialogDialog({
+      data: {
+        title: 'Are you sure you want to delete all messages?'
+      }
+    });
   }
 
   deleteElements(elements: any[]) {
@@ -509,7 +520,7 @@ export class JmsComponent extends mix(BaseListComponent)
     return !this.isBusy()
       && this.isDLQQueue()
       && this.rows.length
-      && this.filter.originalQueue != null
+      && this.filter.originalQueue
       && this.isFiltered();
   }
 

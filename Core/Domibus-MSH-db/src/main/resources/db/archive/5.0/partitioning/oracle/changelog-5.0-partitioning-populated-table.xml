@@ -9,7 +9,7 @@
     <changeSet author="maierga" id="Partition populated tables" dbms="oracle">
         <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
                  endDelimiter="\n/"/>
-        <sql>
+        <sql endDelimiter="\n/">
             CREATE OR REPLACE PROCEDURE LOG_DOMIBUS(message IN VARCHAR2) IS
             BEGIN
                 DECLARE
@@ -22,7 +22,13 @@
 
             -- Partition the TB_USER_MESSAGE when the database is populated with messages. Assumes the database has version 5.0
             -- Pass as a parameter the name of the schema where TB_USER_MESSAGE is located
-            -- Requirements: execution rights on the DBMS_REDEFINITION package (for eg. execute it as SYS);
+            -- Requirements: execution rights on the DBMS_REDEFINITION package
+            --      (for eg. execute it as SYS or give these grants to your edelivery_user
+            --          GRANT REDEFINE ANY TABLE  TO [edelivery_user];
+            --          GRANT CREATE MATERIALIZED VIEW TO [edelivery_user];
+            --          GRANT EXECUTE ON DBMS_REDEFINITION TO [edelivery_user];
+            --          GRANT SELECT ON USER_CONSTRAINTS TO [edelivery_user];
+            --      );
             --              depends on the procedures PARTITIONSGEN and LOG_DOMIBUS
             -- Example of usage:
             --             SET SERVEROUTPUT ON;
@@ -78,7 +84,7 @@
                     FOR q IN (
                         SELECT 'ALTER TABLE "' || owner || '"."' || table_name || '" DROP CONSTRAINT "' ||
                                CONSTRAINT_NAME || '"' AS sql_text
-                        FROM dba_constraints
+                        FROM USER_CONSTRAINTS
                         WHERE table_name = 'TMP_TB_USER_MESSAGE'
                         )
                         LOOP
@@ -129,7 +135,6 @@
                     LOG_DOMIBUS('Table partition ended with SUCCESS!');
                 END;
             END;
-            /
         </sql>
 
     </changeSet>

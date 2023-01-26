@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.ws.algorithm;
 
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
-import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,8 +15,8 @@ import org.apache.wss4j.policy.model.AlgorithmSuite;
 import java.util.HashMap;
 import java.util.Map;
 
-import static eu.domibus.common.model.configuration.SecurityProfile.ECC;
-import static eu.domibus.common.model.configuration.SecurityProfile.RSA;
+import static eu.domibus.api.security.SecurityProfile.ECC;
+import static eu.domibus.api.security.SecurityProfile.RSA;
 import static org.apache.wss4j.common.WSS4JConstants.MGF_SHA256;
 
 public class DomibusAlgorithmSuite extends AlgorithmSuite {

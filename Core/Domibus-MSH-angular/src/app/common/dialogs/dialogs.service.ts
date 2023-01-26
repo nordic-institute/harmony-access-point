@@ -82,7 +82,7 @@ export class DialogsService {
     return this.dialog.open(dialog, config).afterClosed().toPromise();
   }
 
-  private openYesNoDialogDialog(config: MatDialogConfig): Promise<boolean> {
+  public openYesNoDialogDialog(config: MatDialogConfig): Promise<boolean> {
     const defaultConfig = {
       data: {
         yesText: 'Yes',

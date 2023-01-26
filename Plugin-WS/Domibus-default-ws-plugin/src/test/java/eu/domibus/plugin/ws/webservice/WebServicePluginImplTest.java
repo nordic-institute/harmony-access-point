@@ -1,10 +1,13 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
+import eu.domibus.plugin.ws.generated.ListPushFailedMessagesFault;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
@@ -18,10 +21,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.ws.Holder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -62,6 +67,9 @@ public class WebServicePluginImplTest {
 
     @Injectable
     private WSPluginImpl wsPlugin;
+
+    @Injectable
+    private DateExtService dateUtil;
 
 
     @Test(expected = SubmitMessageFault.class)
@@ -209,4 +217,25 @@ public class WebServicePluginImplTest {
             assertEquals(statusFault.getMessage(), "Access point role is empty");
         }
     }
+
+    @Test
+    public void listPushFailedMessagesEmptyMessageId(@Injectable DomainDTO domainDTO, @Injectable  ListPushFailedMessagesRequest listPushFailedMessagesRequest) {
+
+        new Expectations() {
+            {
+                domainContextExtService.getCurrentDomainSafely();
+                result = domainDTO;
+
+                listPushFailedMessagesRequest.getMessageId();
+                result = "";
+            }};
+
+        try {
+            webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);
+
+        } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
+            assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
+        }
+    }
+
 }

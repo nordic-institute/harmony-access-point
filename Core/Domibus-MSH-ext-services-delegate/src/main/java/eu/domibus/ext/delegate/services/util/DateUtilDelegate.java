@@ -6,6 +6,7 @@ import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.services.DateExtService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -30,6 +31,13 @@ public class DateUtilDelegate implements DateExtService {
     public Date getUtcDate() {
         return dateUtil.getUtcDate();
     }
+
+
+    @Override
+    public LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime) {
+        return dateUtil.getUtcLocalDateTime(localDateTime);
+    }
+
 
     @Override
     public Long getIdPkDateHour(String date) {

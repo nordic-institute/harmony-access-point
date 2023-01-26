@@ -5,9 +5,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.RegexUtil;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.Security;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
@@ -15,8 +19,9 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService;
 import eu.domibus.core.util.RegexUtilImpl;
+import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.ext.domain.SecurityProfileDTO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
@@ -29,6 +34,7 @@ import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
@@ -71,6 +77,12 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Injectable
     CertificateService certificateService;
+
+    @Injectable
+    SecurityProfileService securityProfileService;
+
+    @Injectable
+    DomibusCoreMapper domibusCoreMapper;
 
     PKIUtil pkiUtil = new PKIUtil();
 
@@ -121,7 +133,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     @Test(expected = AuthorizationException.class)
     public void authorizeAgainstCertificateCNMatchTestExc() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        ;
+
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
@@ -137,7 +149,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     @Test
     public void authorizeAgainstCertificateCNMatchTestOk() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        ;
+
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
@@ -416,7 +428,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = false;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, userMessagePmodeData);
+        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, SecurityProfileDTO.RSA, userMessagePmodeData);
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(signingCertificate, ALIAS_TEST_AUTH);
@@ -435,6 +447,14 @@ public class DefaultAuthorizationServiceSpiImplTest {
         party.setName("initiator");
         process.addInitiator(party);
         PullContext pullContext = new PullContext(process, new Party(), testQualifiedMpc);
+        LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setName("myLegConfiguration");
+        Security security = new Security();
+        security.setProfile(SecurityProfile.RSA);
+        legConfiguration.setSecurity(security);
+        Set<LegConfiguration> legConfigurations = Collections.singleton(legConfiguration);
+        Set<Party> parties = Collections.singleton(new Party());
+
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = false;
@@ -446,6 +466,12 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = testQualifiedMpc;
             messageExchangeService.extractProcessOnMpc(testQualifiedMpc);
             result = pullContext;
+            messageExchangeService.extractProcessOnMpc(testQualifiedMpc).getProcess().getInitiatorParties();
+            result = parties;
+            messageExchangeService.extractProcessOnMpc(testQualifiedMpc).getProcess().getLegs();
+            result = legConfigurations;
+            legConfigurations.iterator().next().getSecurity().getProfile();
+            result = SecurityProfile.RSA;
         }};
 
         defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, pullRequestPmodeData);

@@ -1,13 +1,17 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
+import eu.domibus.core.ebms3.receiver.handler.AbstractIncomingMessageHandler;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -15,10 +19,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.core.monitoring.ConnectionMonitoringHelper.SENDER_RECEIVER_SEPARATOR;
 
 /**
@@ -30,11 +35,16 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
 
+    private final static String OUTGOING_TEST_MESSAGE = "outgoing-test-message";
+
     private final PartyService partyService;
 
     protected final TestService testService;
 
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     public ConnectionMonitoringServiceImpl(PartyService partyService, TestService testService, ConnectionMonitoringHelper connectionMonitoringHelper) {
         this.partyService = partyService;
@@ -149,13 +159,21 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         for (String partyPair : monitoredParties) {
+            com.codahale.metrics.Timer.Context testMessageTimer=null;
+            com.codahale.metrics.Counter testMessageCounter=null;
             String senderParty = connectionMonitoringHelper.getSourceParty(partyPair);
             String receiverParty = connectionMonitoringHelper.getDestinationParty(partyPair);
             try {
+                testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
+                testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
+                testMessageCounter.inc();
                 String testMessageId = testService.submitTest(senderParty, receiverParty);
                 LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
             } catch (IOException | MessagingProcessingException e) {
                 LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
+            } finally {
+                Optional.ofNullable(testMessageTimer).ifPresent(com.codahale.metrics.Timer.Context::stop);
+                Optional.ofNullable(testMessageCounter).ifPresent(Counter::dec);
             }
         }
     }

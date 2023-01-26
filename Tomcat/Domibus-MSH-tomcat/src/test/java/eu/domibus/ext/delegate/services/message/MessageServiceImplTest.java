@@ -1,5 +1,8 @@
 package eu.domibus.ext.delegate.services.message;
 
+import eu.domibus.api.util.DomibusStringUtil;
+import mockit.Injectable;
+import mockit.Tested;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,7 +11,10 @@ import org.junit.Test;
  */
 public class MessageServiceImplTest {
 
-    private MessageServiceImpl messageService = new MessageServiceImpl();
+    @Injectable
+    private DomibusStringUtil domibusStringUtil;
+
+    private MessageServiceImpl messageService = new MessageServiceImpl(domibusStringUtil);
 
     @Test
     public void trimsTheMessageIdWhenCleaningIt() {

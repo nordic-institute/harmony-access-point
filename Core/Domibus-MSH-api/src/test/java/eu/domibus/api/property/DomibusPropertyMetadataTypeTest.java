@@ -77,4 +77,23 @@ public class DomibusPropertyMetadataTypeTest {
         Assert.assertTrue(validator.isValid("bdxr-transport-ebms3-as4-v1p0"));
         Assert.assertFalse(validator.isValid("abc'abc"));
     }
+
+    @Test
+    public void testPositiveDecimalValidator() {
+        DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.POSITIVE_DECIMAL.getValidator();
+
+        Assert.assertTrue(validator.isValid("12.55"));
+        Assert.assertFalse(validator.isValid("12.555"));
+        Assert.assertFalse(validator.isValid("-12.55"));
+    }
+
+    @Test
+    public void testPositiveIntegerValidator() {
+        DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.POSITIVE_INTEGER.getValidator();
+
+        Assert.assertTrue(validator.isValid("0"));
+        Assert.assertTrue(validator.isValid("12555"));
+        Assert.assertFalse(validator.isValid("12.555"));
+        Assert.assertFalse(validator.isValid("-214"));
+    }
 }
