@@ -154,9 +154,11 @@ public interface CertificateService {
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
      *
      * @param trustName the name of the trust in DB
-     * @return the list of cewrtificates and their names
+     * @return the list of certificates and their names
      */
     List<TrustStoreEntry> getStoreEntries(String trustName);
+
+    List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
 
     TruststoreInfo getStoreInfo(String trustName);
 
@@ -168,7 +170,7 @@ public interface CertificateService {
      * @param alias              the name of the certificate
      * @param overwrite          if overwrite an existing certificate
      *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}
+     * @return the id of the store with {@param trustName}
      */
     Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
 
@@ -189,7 +191,7 @@ public interface CertificateService {
      * @param trustName the location of the trust on disc
      * @param alias     the certificate name
      *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
+     * @return the id of the store with {@param trustName}.
      */
     Long removeCertificate(String trustName, String alias);
 
@@ -199,7 +201,7 @@ public interface CertificateService {
      * @param trustName the location of the trust on disc
      * @param aliases   the list of certificate names
      *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
+     * @return the id of the store with {@param trustName}.
      */
     Long removeCertificates(String trustName, List<String> aliases);
 
@@ -207,7 +209,7 @@ public interface CertificateService {
      * Retrieves the content of the specified truststore
      * @param trustName the name of the trust in the db
      *
-     * @return the content and the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     * @return the content and the id of the store
      */
     TrustStoreContentDTO getStoreContent(String trustName);
 
@@ -241,4 +243,5 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreNewerOnDisk(String storeName);
+
 }

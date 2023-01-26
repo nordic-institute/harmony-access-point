@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.audit.AuditService;
@@ -79,7 +80,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            return certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
+            return certificateService.getStoreEntries(new KeystorePersistenceInfoImpl());
         } catch (ConfigurationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
@@ -140,6 +141,37 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         certificateService.persistStoresFromDB(TLS_TRUSTSTORE_NAME, true,
                 () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
                 domains);
+    }
+
+    class KeystorePersistenceInfoImpl implements KeystorePersistenceInfo {
+
+        @Override
+        public String getName() {
+            return TLS_TRUSTSTORE_NAME;
+        }
+
+        @Override
+        public Optional<String> getFilePath() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getFile);
+        }
+
+        @Override
+        public boolean isOptional() {
+            return true;
+        }
+
+        @Override
+        public String getType() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getType).orElse(null);
+        }
+
+        @Override
+        public String getPassword() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getPassword).orElse(null);
+        }
     }
 
     private Optional<String> getTrustFileLocation() {
