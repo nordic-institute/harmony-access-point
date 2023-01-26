@@ -17,6 +17,10 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Gabriel Maier
+ * @since 5.1
+ */
 public class DomibusLineOfCallerConverterTest {
     private static final String DOMIBUS_LINE_OF_CALLER_CLASS_NAME = DomibusLineOfCallerConverter.class.getName();
     private static final String PATTERN_RULE_REGISTRY = "PATTERN_RULE_REGISTRY";
