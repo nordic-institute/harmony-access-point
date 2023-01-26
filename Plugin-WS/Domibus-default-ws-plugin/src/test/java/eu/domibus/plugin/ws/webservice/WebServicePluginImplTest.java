@@ -7,16 +7,15 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.generated.ListPushFailedMessagesFault;
-import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
-import eu.domibus.plugin.ws.generated.StatusFault;
-import eu.domibus.plugin.ws.generated.SubmitMessageFault;
+import eu.domibus.plugin.ws.generated.*;
 import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -235,6 +235,31 @@ public class WebServicePluginImplTest {
 
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
             assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
+        }
+    }
+
+    @Test
+    public void rePushFailedMessages(@Injectable DomainDTO domainDTO, @Injectable  RePushFailedMessagesRequest rePushFailedMessagesRequest) {
+        String messageId = StringUtils.repeat("X", 256);
+        List<String> messageIds = new ArrayList<>();
+        messageIds.add(messageId);
+        new Expectations() {
+            {
+                domainContextExtService.getCurrentDomainSafely();
+                result = domainDTO;
+
+                wsPluginPropertyManager.getKnownIntegerPropertyValue(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT);
+                result =2;
+
+                rePushFailedMessagesRequest.getMessageID();
+                result = messageIds;
+            }};
+
+        try {
+            webServicePlugin.rePushFailedMessages(rePushFailedMessagesRequest);
+
+        } catch (RePushFailedMessagesFault | ListPushFailedMessagesFault pushFailedMessagesFault) {
+            assertEquals("Invalid Message Id. ", pushFailedMessagesFault.getMessage());
         }
     }
 
