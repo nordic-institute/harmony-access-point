@@ -2,7 +2,6 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -51,8 +50,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
-    protected final BackendNotificationService backendNotificationService;
-
     protected final TestMessageValidator testMessageValidator;
 
     protected final Ebms3Converter ebms3Converter;
@@ -62,11 +59,9 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     private final SecurityProfileService securityProfileService;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
-                                        BackendNotificationService backendNotificationService,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
                                         UserMessageErrorCreator userMessageErrorCreator, SecurityProfileService securityProfileService) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
-        this.backendNotificationService = backendNotificationService;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
@@ -121,12 +116,11 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
-        } catch (EbMS3Exception e) {
+        } catch (EbMS3Exception ex) {
             setBindingOperation(message);
-            LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
-            processPluginNotification(e, legConfiguration, ebms3Messaging);
-            logIncomingMessaging(message);
-            throw new Fault(e);
+            LOG.debug("", ex); // Those errors are expected (no PMode found, therefore DEBUG)
+            logIncomingMessagingException(message, ex);
+            throw new Fault(ex);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_NOT_FOUND, e, policyName); // Those errors are not expected
@@ -140,43 +134,14 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         }
     }
 
-    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Ebms3Messaging ebms3Messaging) {
-        if (ebms3Messaging == null || ebms3Messaging.getUserMessage() == null) {
-            LOG.debug("Messaging header is empty");
-            return;
-        }
-        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-
-        final String messageId = userMessage.getMessageId();
-        if (legConfiguration == null) {
-            if (e == null) {
-                // no pmode mismatch/misconfiguration issues
-                LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
-            } else {
-                // if pmode misconfigured in c3, then notify the plugins
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
-            }
-            return;
-        }
-        boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
-        try {
-            if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
-            }
-        } catch (Exception ex) {
-            LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
-        }
-    }
-
-    protected void logIncomingMessaging(SoapMessage message) {
+    protected void logIncomingMessagingException(SoapMessage message, EbMS3Exception ex) {
         if (message == null) {
             LOG.debug("SoapMessage is null");
             return;
         }
         try {
             String xml = soapService.getMessagingAsRAWXml(message);
-            LOG.error("EbMS3Exception caused by incoming message: {}", xml);
-
+            LOG.error("EbMS3Exception [{}] caused by incoming message: [{}]", ex, xml);
         } catch (ConverterException | IOException | EbMS3Exception | TransformerException e) {
             LOG.error("Error while getting Soap Envelope", e);
         }

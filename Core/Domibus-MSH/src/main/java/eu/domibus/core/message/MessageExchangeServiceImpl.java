@@ -25,6 +25,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
@@ -116,6 +117,9 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Autowired
     protected MessageIdGenerator messageIdGenerator;
+
+    @Autowired
+    protected SecurityProfileService securityProfileService;
 
     /**
      * {@inheritDoc}
@@ -359,14 +363,16 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
+        String alias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverName);
+
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
-            String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + receiverName + "]";
+            String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
             try {
-                boolean certificateChainValid = multiDomainCertificateProvider.isCertificateChainValid(domainProvider.getCurrentDomain(), receiverName);
+                boolean certificateChainValid = multiDomainCertificateProvider.isCertificateChainValid(domainProvider.getCurrentDomain(), alias);
                 if (!certificateChainValid) {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
-                LOG.info("Receiver certificate exists and is valid [{}]", receiverName);
+                LOG.info("Receiver certificate exists and is valid [{}]", alias);
             } catch (DomibusCertificateException | CryptoException e) {
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, e);
             }
@@ -400,17 +406,21 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
+
+        String alias = securityProfileService.getAliasForSigning(legConfiguration, senderName);
+
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
-            String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + senderName + "]";
+            String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + alias + "]";
             try {
-                X509Certificate certificate = multiDomainCertificateProvider.getCertificateFromKeystore(domainProvider.getCurrentDomain(), senderName);
+                X509Certificate certificate = multiDomainCertificateProvider.getCertificateFromKeystore(domainProvider.getCurrentDomain(), alias);
                 if (certificate == null) {
-                    throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, "Cannot send message: sender[" + senderName + "] certificate not found in Keystore");
+                    throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, "Cannot send message: " +
+                            "sender[" + senderName + "] certificate with alias [" + alias + "] not found in Keystore");
                 }
                 if (!certificateService.isCertificateValid(certificate)) {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
-                LOG.info("Sender certificate exists and is valid [{}]", senderName);
+                LOG.info("Sender certificate exists and is valid [{}]", alias);
             } catch (DomibusCertificateException | KeyStoreException | CryptoException ex) {
                 // Is this an error and we stop the sending or we just log a warning that we were not able to validate the cert?
                 // my opinion is that since the option is enabled, we should validate no matter what => this is an error

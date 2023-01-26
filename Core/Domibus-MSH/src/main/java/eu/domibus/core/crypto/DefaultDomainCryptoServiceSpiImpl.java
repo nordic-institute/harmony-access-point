@@ -9,7 +9,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.configuration.SecurityProfile;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
@@ -535,12 +535,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
 
         //RSA Profile
-        addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, SecurityProfile.RSA);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD, SecurityProfile.RSA);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD, SecurityProfile.RSA);
 
         //ECC Profile
-        addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, SecurityProfile.ECC);
 

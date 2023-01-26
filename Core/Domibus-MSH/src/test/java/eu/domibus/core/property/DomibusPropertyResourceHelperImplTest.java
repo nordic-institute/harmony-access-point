@@ -464,6 +464,7 @@ public class DomibusPropertyResourceHelperImplTest {
             configurationPropertyResourceHelper.validatePropertyName(propMeta, propertyName);
             configurationPropertyResourceHelper.validatePropertyLength(propertyName, propertyValue);
             configurationPropertyResourceHelper.validatePropertyValue(propertyValue, propMeta);
+            configurationPropertyResourceHelper.validateNumericPropertyMinAndMaxValue(propertyValue, propMeta);
         }};
     }
 
@@ -538,4 +539,35 @@ public class DomibusPropertyResourceHelperImplTest {
         runnable.run();
     }
 
+
+    @Test
+    public void validatePositiveDecimalMaxValue(@Injectable DomibusPropertyMetadata propMeta) {
+        String propValue = "2147483647.99";
+        try {
+            configurationPropertyResourceHelper.validatePositiveDecimalMaxValue(propValue, propMeta);
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483647.99] is greater than the maximum decimal value allowed");
+        }
+    }
+
+    @Test
+    public void validatePositiveIntegerMaxValue(@Injectable DomibusPropertyMetadata propMeta) {
+        String propValue = "2147483649";
+        try {
+            configurationPropertyResourceHelper.validatePositiveIntegerMaxValue(propValue, propMeta);
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483649] is greater than the maximum integer value allowed");
+        }
+    }
+
+    @Test
+    public void validateNumericPropertyValueRange(@Injectable DomibusPropertyMetadata propMeta) {
+        String propValue = "-9223372036854775809";
+
+        try {
+            configurationPropertyResourceHelper.validateNumericPropertyValueRange(propValue, propMeta);
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [-9223372036854775809] is not in the long value range");
+        }
+    }
 }

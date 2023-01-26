@@ -1,6 +1,7 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.security.SecurityProfile;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;

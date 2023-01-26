@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.ext.domain.DomainDTO;
@@ -96,7 +96,7 @@ public class PropertyChangeManager {
         signalPropertyValueChanged(domain, propertyName, propertyValue, broadcast, propMeta, oldValue);
     }
 
-    private String getInternalPropertyValue(Domain domain, String propertyName) {
+    protected String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
             return propertyRetrieveManager.getInternalProperty(propertyName);
         }
@@ -374,7 +374,7 @@ public class PropertyChangeManager {
         }
     }
 
-    private Integer getPropertyValueAsInteger(Domain domain, String propertyName, int defaultValue) {
+    protected Integer getPropertyValueAsInteger(Domain domain, String propertyName, int defaultValue) {
         Integer timeout;
         String propVal = null;
         try {
@@ -386,5 +386,4 @@ public class PropertyChangeManager {
         }
         return timeout;
     }
-
 }

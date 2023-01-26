@@ -1,5 +1,6 @@
 package eu.domibus.core.monitoring;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -44,6 +45,9 @@ public class ConnectionMonitoringServiceImplTest {
 
     @Injectable
     ConnectionMonitoringHelper connectionMonitoringHelper;
+
+    @Injectable
+    MetricRegistry metricRegistry;
 
     @Test
     public void sendTestMessages_NotApplicable() throws IOException, MessagingProcessingException {

@@ -1,12 +1,12 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.Expectations;
@@ -14,6 +14,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -250,5 +251,19 @@ public class PropertyChangeManagerTest {
             propertySources.get(DomibusPropertiesPropertySource.NAME);
             domibusPropertiesPropertySource.setProperty(propertyName, propertyValue);
         }};
+    }
+
+    @Test
+    public void getPropertyValueAsInteger(@Injectable Domain domain) {
+        String propertyName = DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN;
+        String propertyValue = "12.555";
+        Integer defaultValue = 24;
+        Integer propIntValue;
+        new Expectations(propertyChangeManager) {{
+            propertyChangeManager.getInternalPropertyValue(domain, propertyName);
+            result = propertyValue;
+        }};
+        propIntValue = propertyChangeManager.getPropertyValueAsInteger(domain, propertyName, defaultValue);
+        Assert.assertEquals(propIntValue, defaultValue);
     }
 }

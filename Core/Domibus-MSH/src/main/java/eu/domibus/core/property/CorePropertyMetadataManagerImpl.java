@@ -30,10 +30,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
 
@@ -104,10 +102,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_PROFILE_ORDER, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
 
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS, Usage.DOMAIN, false),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, Usage.DOMAIN, false),
 

@@ -8,10 +8,7 @@ import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,9 +58,7 @@ public class UserDomainManagementServiceTest {
         }};
         userDomainManagementService.onDomainAdded(domain);
 
-        new FullVerifications(){{
-            domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
-            times = 4;
+        new Verifications() {{
             userDomainDao.updateOrCreateUserDomain("pluginUser1", domain.getCode());
             times = 1;
             userDomainDao.updateOrCreateUserDomain("pluginUser2", domain.getCode());

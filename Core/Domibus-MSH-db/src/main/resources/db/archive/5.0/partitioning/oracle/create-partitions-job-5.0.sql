@@ -14,3 +14,4 @@ BEGIN
             auto_drop => FALSE,
             comments => 'Create partitions job');
 END;
+/
