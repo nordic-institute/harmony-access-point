@@ -5,6 +5,7 @@ import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.security.TrustStoreEntry;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -70,7 +71,9 @@ public interface DomainCryptoService {
 
     void removeCertificate(List<String> aliases);
 
-    String getTrustStoreType();
+    List<TrustStoreEntry> getKeyStoreEntries();
+
+    List<TrustStoreEntry> getTrustStoreEntries();
 
     TrustStoreContentDTO getTruststoreContent();
 
@@ -87,4 +90,5 @@ public interface DomainCryptoService {
     void resetStores();
 
     void resetSecurityProfiles();
+
 }

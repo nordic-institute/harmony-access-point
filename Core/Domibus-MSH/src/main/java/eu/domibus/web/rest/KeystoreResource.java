@@ -105,7 +105,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
+        return multiDomainCertificateProvider.getKeyStoreEntries(domainProvider.getCurrentDomain());
     }
 
     @GetMapping(value = "/download", produces = "application/octet-stream")

@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -238,6 +239,18 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     public void resetKeyStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.resetKeyStore();
+    }
+
+    @Override
+    public List<TrustStoreEntry> getKeyStoreEntries(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getKeyStoreEntries();
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getTrustStoreEntries();
     }
 
     @Override

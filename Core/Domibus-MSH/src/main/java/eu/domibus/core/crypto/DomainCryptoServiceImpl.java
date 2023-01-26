@@ -8,6 +8,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
@@ -222,8 +223,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.addCertificate(list, overwrite);
     }
 
-    public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+    @Override
+    public List<TrustStoreEntry> getKeyStoreEntries() {
+        KeyStore store = iamProvider.getKeyStore();
+        return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries() {
+        KeyStore store = iamProvider.getTrustStore();
+        return certificateService.getStoreEntries(store);
     }
 
     @Override

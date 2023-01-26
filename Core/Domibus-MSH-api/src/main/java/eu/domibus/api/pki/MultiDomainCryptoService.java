@@ -4,6 +4,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.security.TrustStoreEntry;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -72,6 +73,10 @@ public interface MultiDomainCryptoService extends DomainsAware {
     void reset(Domain domain);
 
     void resetKeyStore(Domain domain);
+
+    List<TrustStoreEntry> getKeyStoreEntries(Domain domain);
+
+    List<TrustStoreEntry> getTrustStoreEntries(Domain domain);
 
     TrustStoreContentDTO getTruststoreContent(Domain domain);
 

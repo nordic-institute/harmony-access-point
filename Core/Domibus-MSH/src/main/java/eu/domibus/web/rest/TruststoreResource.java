@@ -133,7 +133,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        return multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
     }
 
     @Override

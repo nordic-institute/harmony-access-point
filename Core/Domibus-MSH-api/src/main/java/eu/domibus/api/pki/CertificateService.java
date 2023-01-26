@@ -156,6 +156,8 @@ public interface CertificateService {
      */
     List<TrustStoreEntry> getStoreEntries(String trustName);
 
+    List<TrustStoreEntry> getStoreEntries(KeyStore store);
+
     List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
 
     KeyStoreInfo getStoreInfo(String trustName);
@@ -230,5 +232,6 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreNewerOnDisk(String storeName);
+
 
 }

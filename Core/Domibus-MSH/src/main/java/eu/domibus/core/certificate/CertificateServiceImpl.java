@@ -538,7 +538,8 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected List<TrustStoreEntry> getStoreEntries(final KeyStore store) {
+    @Override
+    public List<TrustStoreEntry> getStoreEntries(final KeyStore store) {
         try {
             List<TrustStoreEntry> storeEntries = new ArrayList<>();
             final Enumeration<String> aliases = store.aliases();
