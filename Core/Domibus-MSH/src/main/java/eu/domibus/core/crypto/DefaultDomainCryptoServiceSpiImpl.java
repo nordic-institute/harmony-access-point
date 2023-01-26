@@ -350,7 +350,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
-            certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_KEYSTORE_NAME);
+            KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+            certificateService.replaceStore(storeFileName, storeContent, storePassword, persistenceInfo);
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
@@ -609,7 +610,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-        Optional<String> storeLocation = persistenceInfo.getFilePath();
+        String storeLocation = persistenceInfo.getFilePath();
         try {
             loadKeystoreProperties();
 
@@ -633,7 +634,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private synchronized void reloadTrustStoreFromDisk() throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-        Optional<String> storeLocation = persistenceInfo.getFilePath();
+        String storeLocation = persistenceInfo.getFilePath();
         try {
             loadTrustStoreProperties();
 

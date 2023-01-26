@@ -164,7 +164,7 @@ public interface AuditService {
      */
     void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType);
 
-    void addStoreReplacedAudit(String storeName, Long storeEntityId);
+    void addStoreReplacedAudit(String storeName);
 
     void addStoreCreatedAudit(String storeName);
 }

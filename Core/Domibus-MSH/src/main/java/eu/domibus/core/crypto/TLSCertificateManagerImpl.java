@@ -64,10 +64,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-        Long entityId = certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
 
-        auditService.addTLSTruststoreUploadedAudit(entityId != null ? entityId.toString() : "tlstruststore");
+        auditService.addTLSTruststoreUploadedAudit(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
@@ -147,9 +147,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public Optional<String> getFilePath() {
+        public String getFilePath() {
             Optional<KeyStoreType> params = getTruststoreParams();
-            return params.map(KeyStoreType::getFile);
+            return params.map(KeyStoreType::getFile).get();
         }
 
         @Override

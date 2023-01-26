@@ -138,7 +138,9 @@ public interface CertificateService {
      * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
-    Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
+    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
+
+    void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
 
      /**
      * Returns the truststore pointed by the location/password parameters

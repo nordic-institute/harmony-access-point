@@ -10,6 +10,7 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
+import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -48,29 +49,31 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     private final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
+    private final BackupService backupService;
+
     public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper, TruststoreDao truststoreDao,
                                           PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider,
-                                          DomibusPropertyProvider domibusPropertyProvider, DomibusRawPropertyProvider domibusRawPropertyProvider) {
+                                          DomibusPropertyProvider domibusPropertyProvider, DomibusRawPropertyProvider domibusRawPropertyProvider, BackupService backupService) {
         this.certificateHelper = certificateHelper;
         this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
         this.domainContextProvider = domainContextProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+        this.backupService = backupService;
     }
-
 
     @Override
     public KeystorePersistenceInfo getTrustStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new TrustStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath().get());
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath());
         return persistenceInfo;
     }
 
     @Override
     public KeystorePersistenceInfo getKeyStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new KeyStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath().get());
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath());
         return persistenceInfo;
     }
 
@@ -78,9 +81,9 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
         KeyStoreInfo result = new KeyStoreInfo();
 
-        Optional<String> filePathHolder = keystorePersistenceInfo.getFilePath();
+        String filePath = keystorePersistenceInfo.getFilePath();
         String storeName = keystorePersistenceInfo.getName();
-        if (!filePathHolder.isPresent()) {
+        if (filePath == null) {
             if (keystorePersistenceInfo.isOptional()) {
                 LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
                 return result;
@@ -88,7 +91,6 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
             throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
         }
 
-        String filePath = filePathHolder.get();
         String storeType = keystorePersistenceInfo.getType();
         certificateHelper.validateStoreType(storeType, filePath);
 
@@ -107,9 +109,9 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     @Transactional
     public void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
         String storeName = keystorePersistenceInfo.getName();
-        Optional<String> filePathHolder = keystorePersistenceInfo.getFilePath();
+        String filePath = keystorePersistenceInfo.getFilePath();
         try {
-            if (!filePathHolder.isPresent()) {
+            if (filePath == null) {
                 if (keystorePersistenceInfo.isOptional()) {
                     LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
                     return;
@@ -117,7 +119,6 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
                 throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", storeName));
             }
 
-            String filePath = filePathHolder.get();
             certificateHelper.validateStoreType(keystorePersistenceInfo.getType(), filePath);
 
             File storeFile = new File(filePath);
@@ -137,7 +138,24 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
             truststoreDao.delete(persisted);
         } catch (Exception ex) {
             LOG.error(String.format("The store [%s], whose file location is [%s], could not be persisted! " +
-                    "Please check that the store file is present and the location property is set accordingly.", storeName, filePathHolder.get()), ex);
+                    "Please check that the store file is present and the location property is set accordingly.", storeName, filePath), ex);
+        }
+    }
+
+    @Override
+    public void saveToDisk(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
+        File storeFile = new File(persistenceInfo.getFilePath());
+
+        try {
+            backupService.backupFile(storeFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Files.write(storeFile.toPath(), storeContent);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -165,8 +183,8 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public Optional<String> getFilePath() {
-            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
+        public String getFilePath() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         }
 
         @Override
@@ -193,8 +211,8 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public Optional<String> getFilePath() {
-            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION));
+        public String getFilePath() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         }
 
         @Override
