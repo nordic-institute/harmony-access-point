@@ -17,6 +17,7 @@ import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -180,11 +181,9 @@ public class WebServicePluginImplTest {
         new Expectations() {{
             statusRequest.getMessageID();
             result = MESSAGE_ID;
-            times = 2;
 
             statusRequest.getAccessPointRole();
             result = MshRole.RECEIVING;
-            times = 2;
 
             messageExtService.cleanMessageIdentifier(MESSAGE_ID);
             result = MESSAGE_ID;
@@ -192,11 +191,13 @@ public class WebServicePluginImplTest {
 
             wsPlugin.getMessageRetriever();
             result = messageRetriever;
-            times = 1;
 
             messageRetriever.getStatus(MESSAGE_ID, MSHRole.RECEIVING);
             result = MessageStatus.ACKNOWLEDGED;
-            times = 1;
+
+            messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(MESSAGE_ID);
+            result = false;
+
         }};
         webServicePlugin.getStatusWithAccessPointRole(statusRequest);
         new FullVerifications() {
@@ -204,17 +205,37 @@ public class WebServicePluginImplTest {
     }
 
     @Test
-    public void getStatusWithEmptyAccessPointRole(
+    public void validateAccessPointRole(
             @Injectable StatusRequestWithAccessPointRole statusRequest) {
-        new Expectations() {{
-            statusRequest.getMessageID();
-            result = MESSAGE_ID;
-            times = 1;
-        }};
+
+        new Expectations() {
+            {
+                statusRequest.getAccessPointRole();
+                result = null;
+            }};
+
         try {
-            webServicePlugin.getStatusWithAccessPointRole(statusRequest);
+            webServicePlugin.validateAccessPointRole(statusRequest.getAccessPointRole());
         } catch (StatusFault statusFault) {
-            assertEquals(statusFault.getMessage(), "Access point role is empty");
+            assertEquals(statusFault.getMessage(), "Access point role is empty or invalid");
+        }
+    }
+
+
+    @Test
+    public void validateMessageId(
+            @Injectable StatusRequestWithAccessPointRole statusRequest) {
+
+        new Expectations() {
+            {
+                statusRequest.getMessageID();
+                result = "";
+            }};
+
+        try {
+            webServicePlugin.validateMessageId(statusRequest.getMessageID());
+        } catch (StatusFault statusFault) {
+            assertEquals(statusFault.getMessage(), "Message ID is empty");
         }
     }
 
