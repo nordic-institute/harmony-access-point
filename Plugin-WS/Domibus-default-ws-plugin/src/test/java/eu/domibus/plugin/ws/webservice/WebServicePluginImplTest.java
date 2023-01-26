@@ -239,7 +239,7 @@ public class WebServicePluginImplTest {
     }
 
     @Test
-    public void rePushFailedMessages(@Injectable DomainDTO domainDTO, @Injectable  RePushFailedMessagesRequest rePushFailedMessagesRequest) {
+    public void rePushFailedMessages(@Injectable DomainDTO domainDTO, @Injectable RePushFailedMessagesRequest rePushFailedMessagesRequest) {
         String messageId = StringUtils.repeat("X", 256);
         List<String> messageIds = new ArrayList<>();
         messageIds.add(messageId);
@@ -249,11 +249,12 @@ public class WebServicePluginImplTest {
                 result = domainDTO;
 
                 wsPluginPropertyManager.getKnownIntegerPropertyValue(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT);
-                result =2;
+                result = 2;
 
                 rePushFailedMessagesRequest.getMessageID();
                 result = messageIds;
-            }};
+            }
+        };
 
         try {
             webServicePlugin.rePushFailedMessages(rePushFailedMessagesRequest);
