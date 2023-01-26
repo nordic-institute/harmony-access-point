@@ -75,7 +75,7 @@
                                         ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql
                                     </sourceFile>
                                     <destinationFile>
-                                        ${project.build.directory}/sql-scripts/oracle-5.0-create-partitions-job.sql
+                                        ${project.build.directory}/db/scripts/oracle-5.0-create-partitions-job.sql
                                     </destinationFile>
                                 </fileSet>
                                 <fileSet>
@@ -83,7 +83,7 @@
                                         ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/partition-detail-tables-5.0.sql
                                     </sourceFile>
                                     <destinationFile>
-                                        ${project.build.directory}/sql-scripts/oracle-5.0-partition-detail-tables.sql
+                                        ${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql
                                     </destinationFile>
                                 </fileSet>
                             </fileSets>
