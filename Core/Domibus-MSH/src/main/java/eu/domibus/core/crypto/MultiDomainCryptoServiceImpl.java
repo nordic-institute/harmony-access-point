@@ -279,17 +279,17 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        removeTruststores(domain);
+        domainCertificateProviderMap.remove(domain);
+//        removeTruststores(domain);
     }
 
-    private void removeTruststores(Domain domain) {
-        certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
-        certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
-    }
+//    private void removeTruststores(Domain domain) {
+//        certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
+//        certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
+//    }
 
     protected void saveStoresFromDBToDisk(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);
-
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getTrustStorePersistenceInfo(), domains);
     }
 

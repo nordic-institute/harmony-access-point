@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -45,16 +46,20 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     private final ErrorHandlerService errorHandlerService;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public KeystoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                             DomainContextProvider domainProvider, CertificateService certificateService,
                             PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                            MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+                            MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
+                            DomibusConfigurationService domibusConfigurationService, KeystorePersistenceService keystorePersistenceService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
         this.errorHandlerService = errorHandlerService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -94,7 +99,7 @@ public class KeystoreResource extends TruststoreResourceBase {
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the keystore has changed on disk for the current domain");
-        return certificateService.isStoreNewerOnDisk(DOMIBUS_KEYSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(keystorePersistenceService.getKeyStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")

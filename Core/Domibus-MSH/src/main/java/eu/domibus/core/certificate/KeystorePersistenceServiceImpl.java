@@ -1,5 +1,6 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreInfo;
@@ -16,14 +17,17 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
@@ -67,14 +71,14 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     @Override
     public KeystorePersistenceInfo getTrustStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new TrustStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath());
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
         return persistenceInfo;
     }
 
     @Override
     public KeystorePersistenceInfo getKeyStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new KeyStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath());
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
         return persistenceInfo;
     }
 
@@ -82,7 +86,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
         KeyStoreInfo result = new KeyStoreInfo();
 
-        String filePath = keystorePersistenceInfo.getFilePath();
+        String filePath = keystorePersistenceInfo.getFileLocation();
         String storeName = keystorePersistenceInfo.getName();
         if (filePath == null) {
             if (keystorePersistenceInfo.isOptional()) {
@@ -110,7 +114,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     @Transactional
     public void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
         String storeName = keystorePersistenceInfo.getName();
-        String filePath = keystorePersistenceInfo.getFilePath();
+        String filePath = keystorePersistenceInfo.getFileLocation();
         try {
             if (filePath == null) {
                 if (keystorePersistenceInfo.isOptional()) {
@@ -145,24 +149,33 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     public void saveToDisk(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
-        File storeFile = new File(persistenceInfo.getFilePath());
+        File storeFile = new File(persistenceInfo.getFileLocation());
 
         try {
             backupService.backupFile(storeFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CryptoException("Could not backup store:", e);
         }
 
         try {
             Files.write(storeFile.toPath(), storeContent);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CryptoException("Could not persist store:", e);
         }
     }
 
     @Override
-    public void saveToDisk(KeyStore trustStore, KeystorePersistenceInfo persistenceInfo) {
+    public void saveToDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            String password = persistenceInfo.getPassword();
+            String decryptedPassword = decrypt(persistenceInfo.getName(), password);
+            store.store(byteStream, decryptedPassword.toCharArray());
+            byte[] content = byteStream.toByteArray();
 
+            saveToDisk(content, persistenceInfo.getType(), persistenceInfo);
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            throw new CryptoException("Could not persist store:", e);
+        }
     }
 
 
@@ -189,7 +202,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public String getFilePath() {
+        public String getFileLocation() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         }
 
@@ -217,7 +230,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public String getFilePath() {
+        public String getFileLocation() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
         }
 

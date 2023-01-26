@@ -65,9 +65,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -809,7 +808,6 @@ public class CertificateServiceImpl implements CertificateService {
 //            throw new CryptoException("Could not persist store named " + storeName, e);
 //        }
 //    }
-
     private String getPassToSave(String password, String trustName) {
         String passToSave = password;
         Boolean encrypted = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE);
@@ -820,32 +818,32 @@ public class CertificateServiceImpl implements CertificateService {
         return passToSave;
     }
 
-    protected void backupStore(String storeName) {
-        TruststoreEntity entity = truststoreDao.findByNameSafely(storeName);
-        if (entity != null) {
-            TruststoreEntity backup = new TruststoreEntity();
-            backup.setName(generateBackupName(entity.getName()));
-            backup.setType(entity.getType());
-            backup.setPassword(entity.getPassword());
-            backup.setContent(entity.getContent());
+//    protected void backupStore(String storeName) {
+//        TruststoreEntity entity = truststoreDao.findByNameSafely(storeName);
+//        if (entity != null) {
+//            TruststoreEntity backup = new TruststoreEntity();
+//            backup.setName(generateBackupName(entity.getName()));
+//            backup.setType(entity.getType());
+//            backup.setPassword(entity.getPassword());
+//            backup.setContent(entity.getContent());
+//
+//            truststoreDao.create(backup);
+//        } else {
+//            LOG.info("Could not find a store with the name [{}] so no backup performed.", storeName);
+//        }
+//    }
 
-            truststoreDao.create(backup);
-        } else {
-            LOG.info("Could not find a store with the name [{}] so no backup performed.", storeName);
-        }
-    }
-
-    /**
-     * Method returns backup name for the keystore.
-     *
-     * @param name - the initial name
-     * @return returns the backup name with timestamp
-     */
-    protected String generateBackupName(String name) {
-        return name + ".backup."
-                + LocalDateTime.now().format(BACKUP_SUFFIX_DATETIME_FORMATTER)
-                + "-" + (int) (Math.random() * 1000);
-    }
+//    /**
+//     * Method returns backup name for the keystore.
+//     *
+//     * @param name - the initial name
+//     * @return returns the backup name with timestamp
+//     */
+//    protected String generateBackupName(String name) {
+//        return name + ".backup."
+//                + LocalDateTime.now().format(BACKUP_SUFFIX_DATETIME_FORMATTER)
+//                + "-" + (int) (Math.random() * 1000);
+//    }
 
     @Override
     public void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains) {
@@ -1130,43 +1128,32 @@ public class CertificateServiceImpl implements CertificateService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void removeStore(String storeName, Domain domain) {
-        domainTaskExecutor.submit(() -> doRemoveStore(storeName, domain), domain);
-    }
+//    @Override
+//    public void removeStore(String storeName, Domain domain) {
+//        domainTaskExecutor.submit(() -> doRemoveStore(storeName, domain), domain);
+//    }
 
     @Override
-    public boolean isStoreNewerOnDisk(String storeName) {
-        String location;
-        if (DOMIBUS_TRUSTSTORE_NAME.equals(storeName)) {
-            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        } else if (DOMIBUS_KEYSTORE_NAME.equals(storeName)) {
-            location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-        } else {
-            throw new DomibusCertificateException("Invalid store name provided " + storeName);
-        }
-
-        TruststoreEntity persisted = getStoreEntitySafely(storeName);
-        if (persisted == null) {
-            LOG.info("The store [{}] is not present in the db", storeName);
-            return true;
-        }
-
-        File storeFile = createFileWithLocation(location);
-        if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
-            LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
-            return false;
-        }
-        LOG.info("The store [{}] on disk is newer than the one persisted.", storeName);
-
-        byte[] contentOnDisk = getStoreContentFromFile(location);
-        boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
-        if (different) {
-            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
-        } else {
-            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
-        }
-        return different;
+    public boolean isStoreNewerOnDisk(KeystorePersistenceInfo persistenceInfo) {
+        return false;
+//        String location = persistenceInfo.getFileLocation();
+//        String storeName = persistenceInfo.getName();
+//
+//        File storeFile = createFileWithLocation(location);
+//        if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
+//            LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
+//            return false;
+//        }
+//        LOG.info("The store [{}] on disk is newer than the one persisted.", storeName);
+//
+//        byte[] contentOnDisk = getStoreContentFromFile(location);
+//        boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
+//        if (different) {
+//            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
+//        } else {
+//            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+//        }
+//        return different;
     }
 
     private void doRemoveStore(String storeName, Domain domain) {

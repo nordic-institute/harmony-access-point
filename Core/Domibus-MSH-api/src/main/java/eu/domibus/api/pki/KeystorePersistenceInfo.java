@@ -21,7 +21,7 @@ public interface KeystorePersistenceInfo {
 
     String getName();
 
-    String getFilePath();
+    String getFileLocation();
 
     boolean isOptional();
 

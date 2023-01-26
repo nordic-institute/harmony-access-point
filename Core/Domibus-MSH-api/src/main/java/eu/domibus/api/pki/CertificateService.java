@@ -223,13 +223,13 @@ public interface CertificateService {
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
-    void removeStore(String domibusTruststoreName, Domain domain);
+//    void removeStore(String domibusTruststoreName, Domain domain);
 
     /**
      * Checks if the database saved store is different that the one on the disk
      * @param storeName the truststore or keystore
      * @return true if they are different
      */
-    boolean isStoreNewerOnDisk(String storeName);
+    boolean isStoreNewerOnDisk(KeystorePersistenceInfo storeName);
 
 }

@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -45,16 +46,19 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     private final CertificateService certificateService;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
                               MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
-                              DomibusConfigurationService domibusConfigurationService) {
+                              DomibusConfigurationService domibusConfigurationService, KeystorePersistenceService keystorePersistenceService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @PostMapping(value = "/save")
@@ -106,7 +110,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isStoreNewerOnDisk(DOMIBUS_TRUSTSTORE_NAME);
+        return certificateService.isStoreNewerOnDisk(keystorePersistenceService.getTrustStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")

@@ -610,7 +610,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-        String storeLocation = persistenceInfo.getFilePath();
+        String storeLocation = persistenceInfo.getFileLocation();
         try {
             loadKeystoreProperties();
 
@@ -634,7 +634,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private synchronized void reloadTrustStoreFromDisk() throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-        String storeLocation = persistenceInfo.getFilePath();
+        String storeLocation = persistenceInfo.getFileLocation();
         try {
             loadTrustStoreProperties();
 

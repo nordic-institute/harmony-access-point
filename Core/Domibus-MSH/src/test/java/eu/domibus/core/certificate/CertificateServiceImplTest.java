@@ -182,21 +182,21 @@ public class CertificateServiceImplTest {
         Assert.assertFalse(certificateService.isCertificateChainValid(certificateChain));
     }
 
-    @Test
-    public void testGenerateBackupName() {
-        // given
-        String name = "TestName";
-         // when
-        String result = certificateService.generateBackupName(name);
-        String result2 = certificateService.generateBackupName(name);
-        // then
-        assertNotNull(result);
-        assertNotNull(result2);
-        assertNotEquals(name, result);
-        assertNotEquals(name, result2);
-        // each new generated name must be different
-        assertNotEquals(result, result2);
-    }
+//    @Test
+//    public void testGenerateBackupName() {
+//        // given
+//        String name = "TestName";
+//         // when
+//        String result = certificateService.generateBackupName(name);
+//        String result2 = certificateService.generateBackupName(name);
+//        // then
+//        assertNotNull(result);
+//        assertNotNull(result2);
+//        assertNotEquals(name, result);
+//        assertNotEquals(name, result2);
+//        // each new generated name must be different
+//        assertNotEquals(result, result2);
+//    }
 
     @Test
     public void testCertificateChain() throws CertificateException {
@@ -1122,103 +1122,103 @@ public class CertificateServiceImplTest {
 //        }};
 //    }
 
-    @Test
-    public void throwsExceptionWhenFailingToPersistTheTrustStore_NoSuchAlgorithmException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                                          @Injectable KeyStore trustStore) throws Exception {
+//    @Test
+//    public void throwsExceptionWhenFailingToPersistTheTrustStore_NoSuchAlgorithmException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
+//                                                                                          @Injectable KeyStore trustStore) throws Exception {
+//
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Could not persist store:");
+//
+//        new MockUp<FileOutputStream>() {
+//            @Mock
+//            void $init(File file) { /* ignore */ }
+//
+//            @Mock
+//            void close() { /* ignore */}
+//        };
+//
+//        new Expectations(File.class) {{
+//            new File(TRUST_STORE_LOCATION);
+//            result = trustStoreFile;
+//            trustStoreFile.getParentFile();
+//            result = trustStoreDirectory;
+//            trustStoreDirectory.exists();
+//            result = true;
+//
+//            trustStoreFile.getAbsolutePath();
+//            result = "";
+//            trustStore.store((FileOutputStream) any, (char[]) any);
+//            result = new NoSuchAlgorithmException();
+//        }};
+//
+//        // When
+//        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//    }
 
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist store:");
+//    @Test
+//    public void throwsExceptionWhenFailingToPersistTheTrustStore_CertificateException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
+//                                                                                      @Injectable KeyStore trustStore) throws Exception {
+//
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Could not persist store:");
+//
+//        new MockUp<FileOutputStream>() {
+//            @Mock
+//            void $init(File file) { /* ignore */ }
+//
+//            @Mock
+//            void close() { /* ignore */}
+//        };
+//
+//        new Expectations(File.class) {{
+//            new File(TRUST_STORE_LOCATION);
+//            result = trustStoreFile;
+//            trustStoreFile.getParentFile();
+//            result = trustStoreDirectory;
+//            trustStoreDirectory.exists();
+//            result = true;
+//
+//            trustStoreFile.getAbsolutePath();
+//            result = "";
+//            trustStore.store((FileOutputStream) any, (char[]) any);
+//            result = new CertificateException();
+//        }};
+//
+//        // When
+//        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//    }
 
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-            trustStore.store((FileOutputStream) any, (char[]) any);
-            result = new NoSuchAlgorithmException();
-        }};
-
-        // When
-        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToPersistTheTrustStore_CertificateException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                                      @Injectable KeyStore trustStore) throws Exception {
-
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist store:");
-
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-            trustStore.store((FileOutputStream) any, (char[]) any);
-            result = new CertificateException();
-        }};
-
-        // When
-        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToPersistTheTrustStore_KeyStoreException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                                   @Injectable KeyStore trustStore) throws Exception {
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist store:");
-
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-            trustStore.store((FileOutputStream) any, (char[]) any);
-            result = new KeyStoreException();
-        }};
-
-        // When
-        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-    }
+//    @Test
+//    public void throwsExceptionWhenFailingToPersistTheTrustStore_KeyStoreException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
+//                                                                                   @Injectable KeyStore trustStore) throws Exception {
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Could not persist store:");
+//
+//        new MockUp<FileOutputStream>() {
+//            @Mock
+//            void $init(File file) { /* ignore */ }
+//
+//            @Mock
+//            void close() { /* ignore */}
+//        };
+//
+//        new Expectations(File.class) {{
+//            new File(TRUST_STORE_LOCATION);
+//            result = trustStoreFile;
+//            trustStoreFile.getParentFile();
+//            result = trustStoreDirectory;
+//            trustStoreDirectory.exists();
+//            result = true;
+//
+//            trustStoreFile.getAbsolutePath();
+//            result = "";
+//            trustStore.store((FileOutputStream) any, (char[]) any);
+//            result = new KeyStoreException();
+//        }};
+//
+//        // When
+//        certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//    }
 
 //    @Test
 //    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable List<CertificateEntry> certificates,
@@ -1457,31 +1457,31 @@ public class CertificateServiceImplTest {
 //        }};
 //    }
 
-    @Test
-    public void testBackupTruststore(@Injectable TruststoreEntity truststore) {
-        new Expectations(){{
-            truststoreDao.findByNameSafely(DOMIBUS_TRUSTSTORE_NAME);
-            result = truststore;
-
-            truststore.getName();
-            result = "Name";
-            truststore.getType();
-            result = "Type";
-            truststore.getPassword();
-            result = "Password";
-            truststore.getContent();
-            result = "Content".getBytes(StandardCharsets.UTF_8);
-
-        }};
-        certificateService.backupStore(DOMIBUS_TRUSTSTORE_NAME);
-
-        new Verifications() {{
-            TruststoreEntity backup;
-            truststoreDao.create(backup = withCapture());
-
-            MatcherAssert.assertThat(backup.getName(), CoreMatchers.containsString("Name"));
-        }};
-    }
+//    @Test
+//    public void testBackupTruststore(@Injectable TruststoreEntity truststore) {
+//        new Expectations(){{
+//            truststoreDao.findByNameSafely(DOMIBUS_TRUSTSTORE_NAME);
+//            result = truststore;
+//
+//            truststore.getName();
+//            result = "Name";
+//            truststore.getType();
+//            result = "Type";
+//            truststore.getPassword();
+//            result = "Password";
+//            truststore.getContent();
+//            result = "Content".getBytes(StandardCharsets.UTF_8);
+//
+//        }};
+//        certificateService.backupStore(DOMIBUS_TRUSTSTORE_NAME);
+//
+//        new Verifications() {{
+//            TruststoreEntity backup;
+//            truststoreDao.create(backup = withCapture());
+//
+//            MatcherAssert.assertThat(backup.getName(), CoreMatchers.containsString("Name"));
+//        }};
+//    }
 
 //    @Test
 //    public void doAddCertificates(@Injectable KeyStore trustStore,

@@ -92,29 +92,29 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
         KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
-        Long entityId = certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
-        if (entityId != null) {
+        boolean added = certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
+        if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateAddedAudit(entityId != null ? entityId.toString() : "tlstruststore");
+        auditService.addCertificateAddedAudit(TLS_TRUSTSTORE_NAME);
 
-        return entityId != null;
+        return added;
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
         KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
-        Long entityId = certificateService.removeCertificate(persistenceInfo, alias);
-        if (entityId != null) {
+        boolean removed = certificateService.removeCertificate(persistenceInfo, alias);
+        if (removed) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateRemovedAudit(entityId != null ? entityId.toString() : "tlstruststore");
+        auditService.addCertificateRemovedAudit(TLS_TRUSTSTORE_NAME);
 
-        return entityId != null;
+        return removed;
     }
 
     @Override
@@ -130,12 +130,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        removeTruststore(domain);
+//        removeTruststore(domain);
     }
 
-    private void removeTruststore(Domain domain) {
-        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
-    }
+//    private void removeTruststore(Domain domain) {
+//        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
+//    }
 
     private void persistStores(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(new KeystorePersistenceInfoImpl(), domains);
@@ -149,7 +149,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public String getFilePath() {
+        public String getFileLocation() {
             Optional<KeyStoreType> params = getTruststoreParams();
             return params.map(KeyStoreType::getFile).get();
         }
