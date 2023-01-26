@@ -1,7 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.util.DomibusStringUtil;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -9,10 +7,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.validation.constraints.AssertFalse;
-
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Soumya Chandran
+ * @since 5.1
+ */
 @RunWith(JMockit.class)
 public class DomibusStringUtilImplTest {
 
