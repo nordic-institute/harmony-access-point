@@ -62,8 +62,6 @@ import static org.junit.Assert.fail;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
 @RunWith(JMockit.class)
-//TODOIOANA
-@Ignore
 public class UserMessageDefaultServiceTest {
 
     public static final String MESSAGE_ID = "1000";

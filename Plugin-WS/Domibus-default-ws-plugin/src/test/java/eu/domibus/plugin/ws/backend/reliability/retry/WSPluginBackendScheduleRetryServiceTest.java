@@ -167,26 +167,29 @@ public class WSPluginBackendScheduleRetryServiceTest {
             entity2.setScheduled(true);
         }};
     }
-//TODOIOANA
-//    @Test
-//    public void send(@Injectable WSPluginDispatchRule rule,
-//                     @Injectable WSBackendMessageLogEntity backendMessage) {
-//        new Expectations(retryService) {{
-//            retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
-//            result = backendMessage;
-//
-//            backendMessage.getEntityId();
-//            result = 1L;
-//
-//            retryService.scheduleBackendMessage(backendMessage);
-//            times = 1;
-//        }};
-//
-//        retryService.schedule(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
-//
-//        new FullVerifications() {{
-//            wsBackendMessageLogDao.create(backendMessage);
-//            times = 1;
-//        }};
-//    }
+
+    @Test
+    public void send(@Injectable WSPluginDispatchRule rule,
+                     @Injectable WSBackendMessageLogEntity backendMessage) {
+
+        new Expectations(retryService) {{
+            retryService.createWsBackendMessageLogEntity((List<String>)any, WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
+            result = backendMessage;
+
+            backendMessage.getEntityId();
+            result = 1L;
+
+            retryService.scheduleBackendMessage(backendMessage);
+            times = 1;
+
+        }};
+
+        retryService.schedule(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
+
+        new FullVerifications() {{
+            wsBackendMessageLogDao.create(backendMessage);
+            times = 1;
+
+        }};
+    }
 }
