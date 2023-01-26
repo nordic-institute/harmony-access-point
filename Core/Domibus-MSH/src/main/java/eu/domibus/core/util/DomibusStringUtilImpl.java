@@ -11,7 +11,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
  * @since 5.1
  */
 @Component
-public class DomibusStringImplUtil implements DomibusStringUtil {
+public class DomibusStringUtilImpl implements DomibusStringUtil {
 
     public static final String ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH = " is too long (over 255 characters).";
     public static final String ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024 = " is too long (over 1024 characters).";

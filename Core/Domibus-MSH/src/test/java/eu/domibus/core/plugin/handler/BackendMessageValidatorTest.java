@@ -13,7 +13,7 @@ import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.api.property.DomibusGeneralConstants;
-import eu.domibus.core.util.DomibusStringImplUtil;
+import eu.domibus.core.util.DomibusStringUtilImpl;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.*;
@@ -45,8 +45,6 @@ public class BackendMessageValidatorTest {
     private static final String RESPONDER_ROLE_NAME = "defaultResponderRole";
     private static final String INITIATOR_ROLE_VALUE = "defaultInitiator";
     private static final String RESPONDER_ROLE_VALUE = "defaultResponder";
-  /*  public static final String ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH = " is too long (over 255 characters).";
-    public static final String ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024 = " is too long (over 1024 characters).";*/
     private static final String MESS_ID = UUID.randomUUID().toString();
 
 
@@ -75,7 +73,7 @@ public class BackendMessageValidatorTest {
     private BackendMessageValidator backendMessageValidatorObj;
 
     @Injectable
-    private DomibusStringImplUtil domibusStringUtil;
+    private DomibusStringUtilImpl domibusStringUtil;
 
     @Test
     public void validateMessageId() throws Exception {
@@ -84,7 +82,7 @@ public class BackendMessageValidatorTest {
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
 
-            userMessageLogDao.getMessageStatus(anyString, (MSHRole)any);
+            userMessageLogDao.getMessageStatus(anyString, (MSHRole) any);
             result = MessageStatus.NOT_FOUND;
         }};
 
@@ -139,11 +137,18 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
+
         /*Message Id containing non printable control characters should result in error*/
 
         /*Message id more than 255 characters long should result in error*/
         try {
             String messageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
+
+            new Expectations() {{
+                domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId6);
+                result = true;
+            }};
+
             backendMessageValidatorObj.validateMessageId(messageId6, MSHRole.SENDING);
             Assert.fail("Expected exception EBMS_0003 was not raised!");
         } catch (EbMS3Exception e2) {
@@ -208,18 +213,29 @@ public class BackendMessageValidatorTest {
         /*Message Id containing only non printable control characters should result in error*/
         try {
             String refTomessageId5 = "\b\u0010\u0030\u007F\u0001";
+
+            new Expectations() {{
+                domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(refTomessageId5);
+                result = true;
+            }};
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId5);
             Assert.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id containing non printable control characters should result in error*/
 
         /*Message id more than 255 characters long should result in error*/
         try {
             String refTomessageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
+
+            new Expectations() {{
+                domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(refTomessageId6);
+                result = true;
+            }};
+
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId6);
-            Assert.fail("Expected exception EBMS_0003 was not raised!");
+            Assert.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
@@ -243,7 +259,7 @@ public class BackendMessageValidatorTest {
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
 
-            userMessageLogDao.getMessageStatus(anyString, (MSHRole)any);
+            userMessageLogDao.getMessageStatus(anyString, (MSHRole) any);
             result = MessageStatus.NOT_FOUND;
         }};
 
@@ -441,6 +457,11 @@ public class BackendMessageValidatorTest {
         String type = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
         String value = "AgreementRefValue";
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(type);
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("AgreementRef Type is too long (over 255 characters)");
 
@@ -453,6 +474,11 @@ public class BackendMessageValidatorTest {
         //agreementRef.setPmode("AgreementRefPMode");
         String type = "AgreementRefType";
         String value = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(value);
+            result = true;
+        }};
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("AgreementRef Value is too long (over 255 characters)");
@@ -467,6 +493,12 @@ public class BackendMessageValidatorTest {
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("ConversationId is too long (over 255 characters)");
+
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(conversationId);
+            result = true;
+        }};
+
 
         backendMessageValidatorObj.validateConversationId(conversationId);
     }
@@ -546,9 +578,14 @@ public class BackendMessageValidatorTest {
         Submission submission = new Submission();
         submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 256), "        "));
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(submission.getFromParties().iterator().next().getPartyId());
+            result = true;
+        }};
+
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From PartyId" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("From PartyId" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
@@ -568,8 +605,13 @@ public class BackendMessageValidatorTest {
         Submission submission = new Submission();
         submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(submission.getFromParties().iterator().next().getPartyIdType());
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From PartyIdType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("From PartyIdType" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
@@ -598,9 +640,15 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateFromRole_FromRoleTooLong() throws EbMS3Exception {
+        String fromRole = StringUtils.repeat("X", 256);
+
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(fromRole);
+            result = true;
+        }};
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("From Role" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromRole(StringUtils.repeat("X", 256));
+        thrown.expectMessage("From Role" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        backendMessageValidatorObj.validateFromRole(fromRole);
 
     }
 
@@ -627,8 +675,13 @@ public class BackendMessageValidatorTest {
         Submission submission = new Submission();
         submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 256), "        "));
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(submission.getToParties().iterator().next().getPartyId());
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To PartyId" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To PartyId" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
@@ -648,8 +701,13 @@ public class BackendMessageValidatorTest {
         Submission submission = new Submission();
         submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(submission.getToParties().iterator().next().getPartyIdType());
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To PartyIdType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To PartyIdType" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
     }
 
@@ -680,9 +738,13 @@ public class BackendMessageValidatorTest {
         Submission submission = new Submission();
         submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
         submission.setToRole(StringUtils.repeat("X", 256));
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(submission.getToRole());
+            result = true;
+        }};
 
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("To Role" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("To Role" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToRoleForPModeMatch(submission);
     }
 
@@ -707,8 +769,12 @@ public class BackendMessageValidatorTest {
         String value = StringUtils.repeat("X", 256);
         String type = "\t";
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(value);
+            result = true;
+        }};
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Service" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("Service" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateService(value, type);
     }
 
@@ -726,8 +792,13 @@ public class BackendMessageValidatorTest {
         String value = StringUtils.repeat("X", 255);
         String type = StringUtils.repeat("X", 256);
 
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(type);
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("ServiceType" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        thrown.expectMessage("ServiceType" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateService(value, type);
     }
 
@@ -744,9 +815,16 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateAction_ActionTooLong() throws EbMS3Exception {
+        String action = StringUtils.repeat("X", 256);
+
+        new Expectations() {{
+            domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(action);
+            result = true;
+        }};
+
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Action" + DomibusStringImplUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateAction(StringUtils.repeat("X", 256));
+        thrown.expectMessage("Action" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
+        backendMessageValidatorObj.validateAction(action);
     }
 
     @Test
@@ -770,26 +848,32 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    public void validateSubmissionPayloadProperty_PayloadPropertyTooLong(@Mocked Submission.TypedProperty payloadProperty )throws EbMS3Exception{
-        new Expectations(){{
+    public void validateSubmissionPayloadProperty_PayloadPropertyTooLong(@Mocked Submission.TypedProperty payloadProperty) throws EbMS3Exception {
+        String payloadPropertyValue = StringUtils.rightPad("TestString", 1025, "Test1");
+        new Expectations() {{
             payloadProperty.getValue();
-            result = StringUtils.rightPad("TestString", 1025, "Test1");
+            result = payloadPropertyValue;
+
+            domibusStringUtil.isStringLengthLongerThan1024Chars(payloadPropertyValue);
+            result = true;
         }};
+
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("PartProperty is too long (over 1024 characters).");
         backendMessageValidatorObj.validateSubmissionPayloadProperty(payloadProperty, MSHRole.SENDING);
     }
 
     @Test
-    public void validateSubmissionPayload_MoreThan28Attachments(@Mocked Submission mockSubmission )throws EbMS3Exception{
+    public void validateSubmissionPayload_MoreThan28Attachments(@Mocked Submission mockSubmission) throws EbMS3Exception {
 
         Set<Submission.Payload> payloadSet = new HashSet<>();
-        for(int i = 0; i<(DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT+1); i++){
+        for (int i = 0; i < (DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT + 1); i++) {
             Submission.Payload mockPayload = new Submission.Payload(Integer.toString(i), null, null, true, null, null);
             payloadSet.add(mockPayload);
         }
 
-        new Expectations(){{
+        new Expectations() {{
             mockSubmission.getPayloads();
             result = payloadSet;
 

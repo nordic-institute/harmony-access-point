@@ -1,8 +1,5 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.util.DomibusStringUtil;
-import eu.domibus.core.util.DomibusStringImplUtil;
-import eu.domibus.ext.delegate.services.message.MessageServiceImpl;
 import eu.domibus.ext.exceptions.MessageExtException;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -11,7 +8,6 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.webService.generated.PayloadType;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
-import mockit.Injectable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,9 +16,6 @@ import javax.mail.util.ByteArrayDataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static org.mockito.Mockito.when;
 
 
 public class StubDtoTransformerTest {
