@@ -1,4 +1,6 @@
 # Domibus upgrade information
+## Domibus 5.0.4 (from 5.0.3):
+                - Replace the Domibus war
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
   ### Partitioning only (oracle)
