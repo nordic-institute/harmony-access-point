@@ -338,8 +338,10 @@ public class CsvServiceImplTest {
         new Expectations(csvServiceImpl){{
             field.getName();
             result = "errorSignalMessageId";
+
             csvServiceImpl.getExportedFields(errorLogROList, ErrorLogRO.class, null);
             result = activeFields;
+
             domibusStringUtil.unCamelCase("errorSignalMessageId");
             result = "Error Signal Message Id";
         }};
