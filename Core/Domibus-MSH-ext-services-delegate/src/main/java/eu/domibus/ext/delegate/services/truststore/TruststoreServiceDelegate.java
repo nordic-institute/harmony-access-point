@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.truststore;
 
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -50,7 +50,7 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
     @Override
     public byte[] downloadTruststoreContent() {
-        TrustStoreContentDTO content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+        KeyStoreContentDTO content = multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
         return content.getContent();
     }
 

@@ -1,7 +1,7 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -76,9 +76,11 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     List<TrustStoreEntry> getKeyStoreEntries(Domain domain);
 
+    KeyStoreInfo getKeyStoreContent(Domain domain);
+
     List<TrustStoreEntry> getTrustStoreEntries(Domain domain);
 
-    TrustStoreContentDTO getTruststoreContent(Domain domain);
+    KeyStoreInfo getTrustStoreContent(Domain domain);
 
     void saveStoresFromDBToDisk();
 
@@ -87,4 +89,5 @@ public interface MultiDomainCryptoService extends DomainsAware {
     void resetTrustStore(Domain domain);
 
     void resetSecurityProfiles(Domain domain);
+
 }

@@ -1,10 +1,10 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -16,7 +16,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +48,8 @@ public class TruststoreResource extends TruststoreResourceBase {
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
+                              DomibusConfigurationService domibusConfigurationService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
@@ -122,13 +122,13 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void auditDownload(Long entityId) {
-        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : getStoreName());
+    protected void auditDownload() {
+        auditService.addTruststoreDownloadedAudit(getStoreName());
     }
 
     @Override
-    protected TrustStoreContentDTO getTrustStoreContent() {
-        return multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+    protected KeyStoreInfo getTrustStoreContent() {
+        return multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
     }
 
     @Override

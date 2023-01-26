@@ -2,12 +2,13 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -87,8 +88,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
+    public KeyStoreInfo getTruststoreContent() {
+        return certificateService.getStoreContent(new KeystorePersistenceInfoImpl());
     }
 
     @Override

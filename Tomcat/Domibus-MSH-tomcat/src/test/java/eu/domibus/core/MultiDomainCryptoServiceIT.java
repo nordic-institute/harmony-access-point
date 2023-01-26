@@ -1,7 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
@@ -95,7 +95,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
         multiDomainCryptoService.saveStoresFromDBToDisk();
-        TrustStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
+        KeyStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
         multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);

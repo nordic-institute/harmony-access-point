@@ -1,11 +1,11 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -69,13 +69,13 @@ public class KeystoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void auditDownload(Long entityId) {
-        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : getStoreName());
+    protected void auditDownload() {
+        auditService.addTruststoreDownloadedAudit(getStoreName());
     }
 
     @Override
-    protected TrustStoreContentDTO getTrustStoreContent() {
-        return certificateService.getStoreContent(DOMIBUS_KEYSTORE_NAME);
+    protected KeyStoreInfo getTrustStoreContent() {
+        return multiDomainCertificateProvider.getKeyStoreContent(domainProvider.getCurrentDomain());
     }
 
     @PostMapping(value = "/reset")

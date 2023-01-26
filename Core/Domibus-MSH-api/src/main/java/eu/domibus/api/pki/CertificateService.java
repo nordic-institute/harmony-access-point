@@ -1,7 +1,7 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -211,7 +211,11 @@ public interface CertificateService {
      *
      * @return the content and the id of the store
      */
-    TrustStoreContentDTO getStoreContent(String trustName);
+    KeyStoreContentDTO getStoreContent(String trustName);
+
+    KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
+
+    KeyStoreInfo getStoreContent(KeyStore store, String storeName, String password);
 
     void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
 
@@ -232,6 +236,5 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreNewerOnDisk(String storeName);
-
 
 }

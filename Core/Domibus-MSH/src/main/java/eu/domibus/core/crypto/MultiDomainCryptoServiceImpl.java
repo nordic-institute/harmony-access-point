@@ -2,7 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
@@ -248,15 +248,21 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public KeyStoreInfo getKeyStoreContent(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getKeyStoreContent();
+    }
+
+    @Override
     public List<TrustStoreEntry> getTrustStoreEntries(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getTrustStoreEntries();
     }
 
     @Override
-    public TrustStoreContentDTO getTruststoreContent(Domain domain) {
+    public KeyStoreInfo getTrustStoreContent(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        return domainCertificateProvider.getTruststoreContent();
+        return domainCertificateProvider.getTrustStoreContent();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.truststore;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
@@ -56,7 +56,7 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
     @Override
     public byte[] downloadTLSTruststoreContent() {
-        TrustStoreContentDTO content;
+        KeyStoreContentDTO content;
         try {
             content = certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
             return content.getContent();

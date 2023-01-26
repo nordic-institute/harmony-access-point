@@ -1,12 +1,12 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
@@ -230,9 +230,27 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
+    public KeyStoreInfo getKeyStoreContent() {
+        KeyStore store = iamProvider.getKeyStore();
+        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        KeyStoreInfo result = certificateService.getStoreContent(store, DOMIBUS_KEYSTORE_NAME, password);
+        result.setType(store.getType());
+        return result;
+    }
+
+    @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
         KeyStore store = iamProvider.getTrustStore();
         return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public KeyStoreInfo getTrustStoreContent() {
+        KeyStore store = iamProvider.getTrustStore();
+        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        KeyStoreInfo result = certificateService.getStoreContent(store, DOMIBUS_TRUSTSTORE_NAME, password);
+        result.setType(store.getType());
+        return result;
     }
 
     @Override
@@ -272,11 +290,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     public void resetSecurityProfiles() {
         getIAMProvider();
         iamProvider.resetSecurityProfiles();
-    }
-
-    @Override
-    public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     private void getIAMProvider() {

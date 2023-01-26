@@ -2,10 +2,11 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
@@ -82,13 +83,12 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
-        TrustStoreContentDTO content = getTrustStoreContent();
+        KeyStoreInfo storeInfo = getTrustStoreContent();
 
-        ByteArrayResource resource = new ByteArrayResource(content.getContent());
+        ByteArrayResource resource = new ByteArrayResource(storeInfo.getContent());
 
-        String fileName = getStoreName();
         Domain domain = domainContextProvider.getCurrentDomainSafely();
-
+        String fileName = getStoreName();
         if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
             fileName = getStoreName() + "_" + domain.getName();
         }
@@ -98,7 +98,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
             status = HttpStatus.NO_CONTENT;
         }
 
-        auditDownload(content.getEntityId());
+        auditDownload();
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
@@ -106,9 +106,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 .body(resource);
     }
 
-    protected abstract void auditDownload(Long id);
+    protected abstract void auditDownload();
 
-    protected abstract TrustStoreContentDTO getTrustStoreContent();
+    protected abstract KeyStoreInfo getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetStoreEntries();

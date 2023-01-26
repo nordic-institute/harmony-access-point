@@ -1,8 +1,9 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -12,7 +13,6 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,12 +80,12 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void auditDownload(Long entityId) {
-        auditService.addTLSTruststoreDownloadedAudit(entityId != null ? entityId.toString() : "tlstruststore");
+    protected void auditDownload() {
+        auditService.addTLSTruststoreDownloadedAudit(getStoreName());
     }
 
     @Override
-    protected TrustStoreContentDTO getTrustStoreContent() {
+    protected KeyStoreInfo getTrustStoreContent() {
         return tlsCertificateManager.getTruststoreContent();
     }
 

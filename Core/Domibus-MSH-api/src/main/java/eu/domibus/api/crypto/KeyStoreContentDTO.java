@@ -4,13 +4,13 @@ package eu.domibus.api.crypto;
  * @author François Gautier
  * @since 5.0
  */
-public class TrustStoreContentDTO {
+public class KeyStoreContentDTO {
 
     private Long entityId;
 
     private byte[] content;
 
-    public TrustStoreContentDTO(Long entityId, byte[] content) {
+    public KeyStoreContentDTO(Long entityId, byte[] content) {
         this.entityId = entityId;
         this.content = content;
     }

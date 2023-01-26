@@ -1,7 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -190,7 +190,7 @@ public class TruststoreResourceBaseTest {
         final byte[] fileContent = new byte[]{1, 0, 1};
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.getTrustStoreContent();
-            result = new TrustStoreContentDTO(1L, fileContent);
+            result = new KeyStoreContentDTO(1L, fileContent);
         }};
 
         // When
@@ -200,7 +200,7 @@ public class TruststoreResourceBaseTest {
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
-            truststoreResourceBase.auditDownload(1L);
+            truststoreResourceBase.auditDownload();
         }};
 
     }
@@ -211,7 +211,7 @@ public class TruststoreResourceBaseTest {
         final byte[] fileContent = new byte[]{1, 0, 1};
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.getTrustStoreContent();
-            result = new TrustStoreContentDTO(1L, fileContent);
+            result = new KeyStoreContentDTO(1L, fileContent);
 
             domainContextProvider.getCurrentDomainSafely();
             result = new Domain("default", "default");
@@ -224,7 +224,7 @@ public class TruststoreResourceBaseTest {
 
         validateResponseEntity(responseEntity, HttpStatus.OK);
         new Verifications() {{
-            truststoreResourceBase.auditDownload(1L);
+            truststoreResourceBase.auditDownload();
             Assert.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains("default"));
         }};
 

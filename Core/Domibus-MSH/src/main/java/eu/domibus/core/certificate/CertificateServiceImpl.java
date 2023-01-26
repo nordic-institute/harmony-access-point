@@ -2,7 +2,7 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -456,9 +456,32 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public TrustStoreContentDTO getStoreContent(String storeName) {
+    public KeyStoreContentDTO getStoreContent(String storeName) {
         TruststoreEntity res = getStoreEntity(storeName);
-        return new TrustStoreContentDTO(res.getEntityId(), res.getContent());
+        return new KeyStoreContentDTO(res.getEntityId(), res.getContent());
+    }
+
+    @Override
+    public KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo) {
+        return keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
+    }
+
+    @Override
+    public KeyStoreInfo getStoreContent(KeyStore store, String storeName, String password) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            String decryptedPassword = decrypt(storeName, password);
+            store.store(byteStream, decryptedPassword.toCharArray());
+            byte[] content = byteStream.toByteArray();
+
+            KeyStoreInfo keyStoreInfo = new KeyStoreInfo();
+            keyStoreInfo.setName(storeName);
+            keyStoreInfo.setContent(content);
+            keyStoreInfo.setPassword(decryptedPassword);
+
+            return keyStoreInfo;
+        } catch (Exception e) {
+            throw new CryptoException("Could not persist store:", e);
+        }
     }
 
     @Override
