@@ -62,6 +62,8 @@ public class UserDomainManagementServiceTest {
         userDomainManagementService.onDomainAdded(domain);
 
         new FullVerifications(){{
+            domibusLocalCacheService.clearCache(DomibusLocalCacheService.USER_DOMAIN_CACHE);
+            times = 4;
             userDomainDao.updateOrCreateUserDomain("pluginUser1", domain.getCode());
             times = 1;
             userDomainDao.updateOrCreateUserDomain("pluginUser2", domain.getCode());
@@ -73,7 +75,7 @@ public class UserDomainManagementServiceTest {
         }};
     }
 
-    private  User getUser(String userName) {
+    private User getUser(String userName) {
         User user = new User();
         user.setUserName(userName);
         return user;

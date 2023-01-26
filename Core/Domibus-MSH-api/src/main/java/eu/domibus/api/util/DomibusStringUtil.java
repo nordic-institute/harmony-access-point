@@ -7,7 +7,7 @@ package eu.domibus.api.util;
 public interface DomibusStringUtil {
 
 
-    String uncamelcase(String str);
+    String unCamelCase(String str);
 
     boolean isStringLengthLongerThanDefaultMaxLength(String testString);
 

@@ -139,7 +139,7 @@ public class CsvServiceImpl implements CsvService {
             if (customColumnNames.get(varName.toUpperCase()) != null) {
                 varName = customColumnNames.get(varName.toUpperCase());
             }
-            fieldValues.add(domibusStringUtil.uncamelcase(varName));
+            fieldValues.add(domibusStringUtil.unCamelCase(varName));
         }
         writeCSVRow(csvBuilder, fieldValues);
     }

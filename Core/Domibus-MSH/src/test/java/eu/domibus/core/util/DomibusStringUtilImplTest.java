@@ -54,4 +54,13 @@ public class DomibusStringUtilImplTest {
 
         Assert.assertTrue(domibusStringUtil.isStringLengthLongerThan1024Chars(messageId));
     }
+
+    @Test
+    public void unCamelCase() {
+        String camelCaseString = "messageId";
+
+        String unCamelCaseString = domibusStringUtil.unCamelCase(camelCaseString);
+        Assert.assertNotEquals(unCamelCaseString, camelCaseString);
+        Assert.assertEquals(unCamelCaseString, "Message Id");
+    }
 }

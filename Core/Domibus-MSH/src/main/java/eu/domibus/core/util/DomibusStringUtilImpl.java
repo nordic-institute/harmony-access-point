@@ -20,7 +20,7 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     public static final String STRING_SANITIZE_REGEX = "[^\\w@.-]";
 
     @Override
-    public String uncamelcase(String str) {
+    public String unCamelCase(String str) {
         String result = str.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
         return result.substring(0, 1).toUpperCase() + result.substring(1);
     }
