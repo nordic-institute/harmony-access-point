@@ -2,7 +2,6 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -13,7 +12,7 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,8 +31,6 @@ import java.util.Optional;
 @Service
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
-
-    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
     private final TLSReaderService tlsReaderService;
 

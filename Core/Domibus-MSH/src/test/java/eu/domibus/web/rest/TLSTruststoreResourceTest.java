@@ -7,7 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.Expectations;

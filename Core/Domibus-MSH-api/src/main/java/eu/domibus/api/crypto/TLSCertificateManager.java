@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto.api;
+package eu.domibus.api.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.KeyStoreContentDTO;
@@ -15,6 +15,8 @@ import java.util.List;
  * @since 5.0
  */
 public interface TLSCertificateManager extends DomainsAware {
+
+    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
     /**
      * Replaces the truststore pointed by the clientauthentication.xml file with the one provided as parameters

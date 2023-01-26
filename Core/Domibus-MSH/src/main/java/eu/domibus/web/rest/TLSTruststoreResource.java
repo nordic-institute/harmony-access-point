@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreInfo;
@@ -10,7 +9,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.springframework.core.io.ByteArrayResource;

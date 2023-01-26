@@ -2,11 +2,13 @@ package eu.domibus.ext.delegate.services.truststore;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.KeyStoreContentDTO;
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -20,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
+
 /**
  * @author Soumya Chandran
  * @since 5.1
@@ -27,9 +31,9 @@ import java.util.List;
 @Service
 public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
-    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
-
     private final TLSReaderService tlsReaderService;
+
+    private final TLSCertificateManager tlsCertificateManager;
 
     private final SignalService signalService;
 
@@ -43,9 +47,11 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
     private final DomibusExtMapper domibusExtMapper;
 
-    public TLSTruststoreServiceDelegate(TLSReaderService tlsReaderService, SignalService signalService, DomainContextProvider domainProvider, CertificateService certificateService,
+    public TLSTruststoreServiceDelegate(TLSReaderService tlsReaderService, TLSCertificateManager tlsCertificateManager, SignalService signalService,
+                                        DomainContextProvider domainProvider, CertificateService certificateService,
                                         MultiPartFileUtil multiPartFileUtil, DomibusConfigurationService domibusConfigurationService, DomibusExtMapper domibusExtMapper) {
         this.tlsReaderService = tlsReaderService;
+        this.tlsCertificateManager = tlsCertificateManager;
         this.signalService = signalService;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
@@ -56,9 +62,9 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
     @Override
     public byte[] downloadTLSTruststoreContent() {
-        KeyStoreContentDTO content;
+        KeyStoreInfo content;
         try {
-            content = certificateService.getStoreContent(TLS_TRUSTSTORE_NAME);
+            content = tlsCertificateManager.getTruststoreContent();
             return content.getContent();
         } catch (Exception e) {
             throw new TruststoreExtException("Could not find truststore entity with name: " + TLS_TRUSTSTORE_NAME);
