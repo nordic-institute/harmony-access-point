@@ -2,17 +2,16 @@ package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.util.DomibusStringUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
@@ -31,10 +30,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.api.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-import static eu.domibus.api.util.DomibusStringUtil.*;
-import static eu.domibus.api.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
 import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -83,6 +81,10 @@ public class BackendMessageValidator {
     @Autowired
     private PropertyProfileValidator propertyProfileValidator;
 
+    @Autowired
+    private DomibusStringUtilImpl domibusStringUtil;
+
+
     /**
      * Validations pertaining to the field - UserMessage/MessageInfo/MessageId<br><br>
      * <b><u>As per ebms_core-3.0-spec-cs-02.pdf:</u></b><br>
@@ -117,11 +119,11 @@ public class BackendMessageValidator {
             return;
         }
 
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "MessageId", messageId);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("Value of MessageId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("Value of MessageId" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .refToMessageId(messageId)
                     .build();
         }
@@ -147,11 +149,11 @@ public class BackendMessageValidator {
         if (refToMessageId == null) {
             return;
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(refToMessageId)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(refToMessageId)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "RefToMessageId", refToMessageId);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("RefToMessageId value" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("RefToMessageId value" +DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
         validateMessageIdPattern(refToMessageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:RefToMessageId");
@@ -329,18 +331,18 @@ public class BackendMessageValidator {
                     .message("Mandatory field From PartyId is not provided.")
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyId())) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyId())) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_FROM_PARTY_ID, party.getPartyId());
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("From PartyId" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyIdType())) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyIdType())) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "From PartyIdType", party.getPartyIdType());
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("From PartyIdType" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
 
@@ -354,11 +356,11 @@ public class BackendMessageValidator {
                     .message("Mandatory field From Role is not provided.")
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(fromRole)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(fromRole)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "PartyInfo/From/Role", fromRole);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("From Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("From Role" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
     }
@@ -378,18 +380,18 @@ public class BackendMessageValidator {
                     .message("Mandatory field To PartyId is not provided.")
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyId())) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyId())) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_TO_PARTY_ID, toParty.getPartyId());
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("To PartyId" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyIdType())) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyIdType())) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "To PartyIdType", toParty.getPartyIdType());
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("To PartyIdType" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
 
@@ -409,11 +411,11 @@ public class BackendMessageValidator {
                     .message("Mandatory field To Role is not provided.")
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toRole)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(toRole)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "PartyInfo/To/Role", toRole);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("To Role" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
     }
@@ -445,18 +447,18 @@ public class BackendMessageValidator {
             LOG.debug("Optional field AgreementRef is null");
             return;
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(value)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(value)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef", value);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("AgreementRef Value" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("AgreementRef Value" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(type)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(type)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef Type", type);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("AgreementRef Type" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message("AgreementRef Type" + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
     }
@@ -470,18 +472,18 @@ public class BackendMessageValidator {
                     .build();
         }
 
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(serviceValue)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(serviceValue)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, SERVICE, serviceValue);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(SERVICE + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message(SERVICE + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(serviceType)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(serviceType)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, SERVICE_TYPE, serviceType);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(SERVICE_TYPE + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message(SERVICE_TYPE + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
     }
@@ -494,11 +496,11 @@ public class BackendMessageValidator {
                     .message("Mandatory field Action is not provided.")
                     .build();
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(action)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(action)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, ACTION, action);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(ACTION + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
+                    .message(ACTION + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH)
                     .build();
         }
     }
@@ -512,7 +514,7 @@ public class BackendMessageValidator {
             LOG.debug("Optional field ConversationId is null or empty");
             return;
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(conversationId)) {
+        if (domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(conversationId)) {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("ConversationId is too long (over 255 characters)")
@@ -578,11 +580,11 @@ public class BackendMessageValidator {
             return;
         }
         String payloadPropertyValue = payloadProperty.getValue();
-        if (DomibusStringUtil.isStringLengthLongerThan1024Chars(payloadPropertyValue)) {
+        if (domibusStringUtil.isStringLengthLongerThan1024Chars(payloadPropertyValue)) {
             LOG.businessError(VALUE_LONGER_THAN_STRING_LENGTH_1024, PART_PROPERTY, payloadPropertyValue);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(PART_PROPERTY + ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024)
+                    .message(PART_PROPERTY + DomibusStringUtilImpl.ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024)
                     .mshRole(mshRole)
                     .build();
         }

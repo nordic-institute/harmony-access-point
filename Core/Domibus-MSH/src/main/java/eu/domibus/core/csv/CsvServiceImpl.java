@@ -37,10 +37,12 @@ public class CsvServiceImpl implements CsvService {
     public static final String APPLICATION_EXCEL_STR = "application/ms-excel";
     private final DomibusPropertyProvider domibusPropertyProvider;
     private final List<CsvSerializer> csvSerializers;
+    private final DomibusStringUtil domibusStringUtil;
 
-    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider, List<CsvSerializer> csvSerializers) {
+    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider, List<CsvSerializer> csvSerializers, DomibusStringUtil domibusStringUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.csvSerializers = csvSerializers;
+        this.domibusStringUtil = domibusStringUtil;
     }
 
     @Override
@@ -137,7 +139,7 @@ public class CsvServiceImpl implements CsvService {
             if (customColumnNames.get(varName.toUpperCase()) != null) {
                 varName = customColumnNames.get(varName.toUpperCase());
             }
-            fieldValues.add(DomibusStringUtil.uncamelcase(varName));
+            fieldValues.add(domibusStringUtil.unCamelCase(varName));
         }
         writeCSVRow(csvBuilder, fieldValues);
     }
