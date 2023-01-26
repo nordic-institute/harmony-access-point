@@ -5,5 +5,7 @@ package eu.domibus.api.pki;
  * @since 5.1
  */
 public interface KeystorePersistenceService {
+    KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo);
+
     void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo);
 }

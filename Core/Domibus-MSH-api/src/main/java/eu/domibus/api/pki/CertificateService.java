@@ -12,8 +12,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author Cosmin Baciu
@@ -160,7 +158,7 @@ public interface CertificateService {
 
     List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
 
-    TruststoreInfo getStoreInfo(String trustName);
+    KeyStoreInfo getStoreInfo(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters

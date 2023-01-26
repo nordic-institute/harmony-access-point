@@ -423,25 +423,9 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
-        List<TrustStoreEntry> result = new ArrayList<>();
+        KeyStoreInfo storeInfo = keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
 
-        Optional<String> filePathHolder = keystorePersistenceInfo.getFilePath();
-        String storeName = keystorePersistenceInfo.getName();
-        if (!filePathHolder.isPresent()) {
-            if (keystorePersistenceInfo.isOptional()) {
-                LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
-                return result;
-            }
-            throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
-        }
-
-        String filePath = filePathHolder.get();
-        String storeType = keystorePersistenceInfo.getType();
-        certificateHelper.validateStoreType(storeType, filePath);
-
-        byte[] contentOnDisk = getStoreContentFromFile(filePath);
-        String password = decrypt(storeName, keystorePersistenceInfo.getPassword());
-        KeyStore store = loadStore(contentOnDisk, password, storeType);
+        KeyStore store = loadStore(storeInfo);
 
         return getStoreEntries(store);
     }
@@ -478,7 +462,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public TruststoreInfo getStoreInfo(String trustName) {
+    public KeyStoreInfo getStoreInfo(String trustName) {
         TruststoreEntity entity = getStoreEntity(trustName);
         return coreMapper.truststoreEntityToTruststoreInfo(entity);
     }
@@ -696,6 +680,14 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
         return keystore;
+    }
+
+    protected KeyStore loadStore(KeyStoreInfo storeInfo) {
+        try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
+            return loadStore(contentStream, storeInfo.getPassword(), storeInfo.getType());
+        } catch (Exception ex) {
+            throw new ConfigurationException("Exception loading store.", ex);
+        }
     }
 
     protected KeyStore loadStore(byte[] content, String password, String type) {

@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.TruststoreInfo;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -599,12 +599,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getKeystoreType() {
-        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
+        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getType();
     }
 
     private String getKeystorePassword() {
-        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
+        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
         return trust.getPassword();
     }
 
@@ -633,12 +633,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected String getTrustStorePassword() {
-        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getPassword();
     }
 
     protected String getTrustStoreType() {
-        TruststoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
         return trust.getType();
     }
 

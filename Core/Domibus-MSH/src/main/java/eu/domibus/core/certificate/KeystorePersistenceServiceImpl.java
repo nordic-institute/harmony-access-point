@@ -1,8 +1,11 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.logging.DomibusLogger;
@@ -17,7 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author Ion Perpegel
@@ -32,9 +34,45 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     protected final TruststoreDao truststoreDao;
 
-    public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper, TruststoreDao truststoreDao) {
+    private final PasswordDecryptionService passwordDecryptionService;
+
+    private final DomainContextProvider domainContextProvider;
+
+    public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper, TruststoreDao truststoreDao,
+                                          PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider) {
         this.certificateHelper = certificateHelper;
         this.truststoreDao = truststoreDao;
+        this.passwordDecryptionService = passwordDecryptionService;
+        this.domainContextProvider = domainContextProvider;
+    }
+
+    @Override
+    public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
+        KeyStoreInfo result = new KeyStoreInfo();
+
+        Optional<String> filePathHolder = keystorePersistenceInfo.getFilePath();
+        String storeName = keystorePersistenceInfo.getName();
+        if (!filePathHolder.isPresent()) {
+            if (keystorePersistenceInfo.isOptional()) {
+                LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
+                return result;
+            }
+            throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
+        }
+
+        String filePath = filePathHolder.get();
+        String storeType = keystorePersistenceInfo.getType();
+        certificateHelper.validateStoreType(storeType, filePath);
+
+        byte[] contentOnDisk = getStoreContentFromFile(filePath);
+        String password = decrypt(storeName, keystorePersistenceInfo.getPassword());
+
+        result.setContent(contentOnDisk);
+        result.setName(storeName);
+        result.setType(storeType);
+        result.setPassword(password);
+
+        return result;
     }
 
     @Override
@@ -83,5 +121,10 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         } catch (IOException e) {
             throw new DomibusCertificateException("Could not read store from [" + location + "]");
         }
+    }
+
+    private String decrypt(String trustName, String password) {
+        return passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
+                trustName + ".password", password);
     }
 }
