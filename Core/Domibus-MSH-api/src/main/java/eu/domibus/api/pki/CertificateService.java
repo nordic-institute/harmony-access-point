@@ -148,6 +148,8 @@ public interface CertificateService {
      */
     KeyStore getStore(String trustName);
 
+    KeyStore getStore(KeystorePersistenceInfo info);
+
     /**
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
      *
@@ -204,14 +206,6 @@ public interface CertificateService {
      * @return the id of the store with {@param trustName}.
      */
     Long removeCertificates(String trustName, List<String> aliases);
-
-    /**
-     * Retrieves the content of the specified truststore
-     * @param trustName the name of the trust in the db
-     *
-     * @return the content and the id of the store
-     */
-    KeyStoreContentDTO getStoreContent(String trustName);
 
     KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 

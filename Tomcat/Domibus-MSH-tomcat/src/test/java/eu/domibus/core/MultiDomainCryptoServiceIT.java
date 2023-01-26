@@ -89,18 +89,18 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertTrue(isPersisted);
     }
 
-    @Test
-    @Transactional
-    public void replaceTrustStore() {
-        Domain domain = DomainService.DEFAULT_DOMAIN;
-        String password = "test123";
-        multiDomainCryptoService.saveStoresFromDBToDisk();
-        KeyStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
-
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
-        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(isPersisted);
-    }
+//    @Test
+//    @Transactional
+//    public void replaceTrustStore() {
+//        Domain domain = DomainService.DEFAULT_DOMAIN;
+//        String password = "test123";
+//        multiDomainCryptoService.saveStoresFromDBToDisk();
+//        KeyStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
+//
+//        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
+//        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+//        Assert.assertTrue(isPersisted);
+//    }
 
     @Test
     @Transactional

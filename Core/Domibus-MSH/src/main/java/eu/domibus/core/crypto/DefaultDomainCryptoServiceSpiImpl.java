@@ -5,9 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -72,12 +70,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final CertificateHelper certificateHelper;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
-                                             SecurityUtilImpl securityUtil, CertificateHelper certificateHelper) {
+                                             SecurityUtilImpl securityUtil, CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -85,6 +85,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
         this.certificateHelper = certificateHelper;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     public void init() {
@@ -335,22 +336,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void resetKeyStore() {
-        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), location);
-
-        LOG.info("Replacing the keystore with the content of the disk file named [{}] on domain [{}].", location, domain);
-        replaceKeyStore(location, password);
+        reloadKeyStoreFromDisk();
     }
 
     @Override
     public void resetTrustStore() {
-        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), location);
-
-        LOG.info("Replacing the truststore with the content of the disk file named [{}] on domain [{}].", location, domain);
-        replaceTrustStore(location, password);
+        reloadTrustStoreFromDisk();
     }
 
     @Override
@@ -641,4 +632,39 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return trust.getType();
     }
 
+    private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {
+        loadKeystoreProperties();
+
+        KeyStore old = getTrustStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        final KeyStore current = certificateService.getStore(persistenceInfo);
+        if (securityUtil.areKeystoresIdentical(old, current)) {
+            LOG.debug("[{}] on disk and in memory are identical; exiting.", persistenceInfo.getName());
+            return;
+        }
+
+        LOG.info("Replacing the [{}] with the content of the disk file [{}] on domain [{}].", persistenceInfo.getName(), persistenceInfo.getFilePath(), domain);
+        securityProfileAliasConfigurations.forEach(securityProfileConfiguration
+                -> securityProfileConfiguration.getMerlin().setKeyStore(current));
+
+        signalService.signalKeyStoreUpdate(domain);
+    }
+
+    private synchronized void reloadTrustStoreFromDisk() throws CryptoSpiException {
+        loadTrustStoreProperties();
+
+        KeyStore old = getTrustStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        final KeyStore current = certificateService.getStore(persistenceInfo);
+        if (securityUtil.areKeystoresIdentical(old, current)) {
+            LOG.debug("[{}] on disk and in memory are identical; exiting.", persistenceInfo.getName());
+            return;
+        }
+
+        LOG.info("Replacing [{}] with the content of the disk file [{}] on domain [{}].", persistenceInfo.getName(), persistenceInfo.getFilePath(), domain);
+        securityProfileAliasConfigurations.forEach(securityProfileConfiguration
+                -> securityProfileConfiguration.getMerlin().setTrustStore(current));
+
+        signalService.signalTrustStoreUpdate(domain);
+    }
 }

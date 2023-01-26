@@ -2,7 +2,6 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
@@ -27,8 +26,6 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -59,13 +56,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected final DomainService domainService;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusLocalCacheService domibusLocalCacheService,
                                         CertificateHelper certificateHelper,
                                         DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
                                         DomibusRawPropertyProvider domibusRawPropertyProvider,
-                                        DomainService domainService) {
+                                        DomainService domainService, KeystorePersistenceService keystorePersistenceService) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusLocalCacheService = domibusLocalCacheService;
         this.certificateHelper = certificateHelper;
@@ -73,6 +72,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         this.certificateService = certificateService;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
         this.domainService = domainService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @Override
@@ -315,9 +315,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
 
     protected void saveStoresFromDBToDisk(List<Domain> domains) {
-        certificateService.saveStoresFromDBToDisk(new KeyStorePersistenceInfoImpl(), domains);
+        certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);
 
-        certificateService.saveStoresFromDBToDisk(new TrustStorePersistenceInfoImpl(), domains);
+        certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getTrustStorePersistenceInfo(), domains);
     }
 
     protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
@@ -339,62 +339,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         final KeyStore trustStore = getTrustStore(domain);
         final KeyStore keyStore = getKeyStore(domain);
         certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
-    }
-
-    class TrustStorePersistenceInfoImpl implements KeystorePersistenceInfo {
-
-        @Override
-        public String getName() {
-            return DOMIBUS_TRUSTSTORE_NAME;
-        }
-
-        @Override
-        public Optional<String> getFilePath() {
-            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
-        }
-
-        @Override
-        public boolean isOptional() {
-            return false;
-        }
-
-        @Override
-        public String getType() {
-            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
-        }
-
-        @Override
-        public String getPassword() {
-            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        }
-    }
-
-    class KeyStorePersistenceInfoImpl implements KeystorePersistenceInfo {
-
-        @Override
-        public String getName() {
-            return DOMIBUS_KEYSTORE_NAME;
-        }
-
-        @Override
-        public Optional<String> getFilePath() {
-            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION));
-        }
-
-        @Override
-        public boolean isOptional() {
-            return false;
-        }
-
-        @Override
-        public String getType() {
-            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE);
-        }
-
-        @Override
-        public String getPassword() {
-            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-        }
     }
 
 }

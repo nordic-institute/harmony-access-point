@@ -416,6 +416,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    public KeyStore getStore(KeystorePersistenceInfo keystorePersistenceInfo) {
+        KeyStoreInfo keyStoreInfo = getStoreContent(keystorePersistenceInfo);
+        return loadStore(keyStoreInfo);
+    }
+
+    @Override
     public List<TrustStoreEntry> getStoreEntries(String storeName) {
         final KeyStore store = getStore(storeName);
         return getStoreEntries(store);
@@ -453,12 +459,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Long removeCertificates(String trustName, List<String> aliases) {
         return doRemoveCertificates(trustName, aliases);
-    }
-
-    @Override
-    public KeyStoreContentDTO getStoreContent(String storeName) {
-        TruststoreEntity res = getStoreEntity(storeName);
-        return new KeyStoreContentDTO(res.getEntityId(), res.getContent());
     }
 
     @Override

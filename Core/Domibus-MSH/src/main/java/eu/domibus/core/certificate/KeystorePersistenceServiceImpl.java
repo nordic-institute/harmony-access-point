@@ -5,9 +5,11 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
@@ -38,12 +44,34 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     private final DomainContextProvider domainContextProvider;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    private final DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper, TruststoreDao truststoreDao,
-                                          PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider) {
+                                          PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider,
+                                          DomibusPropertyProvider domibusPropertyProvider, DomibusRawPropertyProvider domibusRawPropertyProvider) {
         this.certificateHelper = certificateHelper;
         this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
         this.domainContextProvider = domainContextProvider;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+    }
+
+
+    @Override
+    public KeystorePersistenceInfo getTrustStorePersistenceInfo() {
+        KeystorePersistenceInfo persistenceInfo = new TrustStorePersistenceInfoImpl();
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath().get());
+        return persistenceInfo;
+    }
+
+    @Override
+    public KeystorePersistenceInfo getKeyStorePersistenceInfo() {
+        KeystorePersistenceInfo persistenceInfo = new KeyStorePersistenceInfoImpl();
+        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFilePath().get());
+        return persistenceInfo;
     }
 
     @Override
@@ -113,6 +141,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
     }
 
+
     protected byte[] getStoreContentFromFile(String location) {
         File file = new File(location);
         Path path = Paths.get(file.getAbsolutePath());
@@ -126,5 +155,61 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     private String decrypt(String trustName, String password) {
         return passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
                 trustName + ".password", password);
+    }
+
+    class TrustStorePersistenceInfoImpl implements KeystorePersistenceInfo {
+
+        @Override
+        public String getName() {
+            return DOMIBUS_TRUSTSTORE_NAME;
+        }
+
+        @Override
+        public Optional<String> getFilePath() {
+            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
+        }
+
+        @Override
+        public boolean isOptional() {
+            return false;
+        }
+
+        @Override
+        public String getType() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        }
+
+        @Override
+        public String getPassword() {
+            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        }
+    }
+
+    class KeyStorePersistenceInfoImpl implements KeystorePersistenceInfo {
+
+        @Override
+        public String getName() {
+            return DOMIBUS_KEYSTORE_NAME;
+        }
+
+        @Override
+        public Optional<String> getFilePath() {
+            return Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION));
+        }
+
+        @Override
+        public boolean isOptional() {
+            return false;
+        }
+
+        @Override
+        public String getType() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE);
+        }
+
+        @Override
+        public String getPassword() {
+            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        }
     }
 }
