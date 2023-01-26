@@ -181,6 +181,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private FileServiceUtil fileServiceUtil;
 
+    @Autowired
+    private DomibusStringUtil domibusStringUtil;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -731,7 +734,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(domibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
