@@ -41,8 +41,6 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.util.DomibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength;
-import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
@@ -458,13 +456,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 LOG.error(MESSAGE_ID_EMPTY);
                 throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
             }
-            if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
-                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "]" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH));
+            if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
             }
             pushFailedMessagesRequest.setMessageId(messageId);
             ListPushFailedMessagesResponse response = listPushFailedMessages(pushFailedMessagesRequest);
             if (!response.getMessageID().contains(messageId)) {
-                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "]" + " is not in the list of push failed messages"));
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
             }
 
             trimmedMessageIds.add(StringUtils.trim(messageId));
