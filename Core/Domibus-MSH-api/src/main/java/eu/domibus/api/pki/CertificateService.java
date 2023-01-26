@@ -213,18 +213,7 @@ public interface CertificateService {
      */
     TrustStoreContentDTO getStoreContent(String trustName);
 
-    /**
-     * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time
-     *
-     * @param name the name of the truststore(can be domibus truststore and keystore and TLS trsustore)
-     * @param optional permits the location to be null without raising any exception
-     * @param filePathSupplier a supplier method that returns the file path on disc of the trust
-     * @param typeSupplier a supplier method that returns the type of the trust
-     * @param passwordSupplier a supplier method that returns the password of the trust
-     * @param domains in MT env it specifies for which domain to persist
-     */
-    void persistStoresFromDB(final String name, boolean optional,
-                             Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
 
     /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.

@@ -84,7 +84,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
@@ -94,7 +94,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     public void replaceTrustStore() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
         TrustStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
         multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
@@ -105,7 +105,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void replaceTrustStore2() throws IOException {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertEquals(2, trustStoreEntries.size());
@@ -122,7 +122,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getTrustStoreEntries() {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
         List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertEquals(2, trustStoreEntries.size());
     }
@@ -130,7 +130,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void addCertificate() throws IOException {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertEquals(2, trustStoreEntries.size());
@@ -149,7 +149,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getCertificateFromTruststore() throws KeyStoreException {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertEquals(2, trustStoreEntries.size());
@@ -165,7 +165,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getTrustStore() throws KeyStoreException, IOException {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());
         Assert.assertTrue(trustStore.containsAlias("blue_gw"));
@@ -183,7 +183,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void isCertificateChainValid() {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         String blue_gw = "blue_gw";
         boolean certificateChainValid = multiDomainCryptoService.isCertificateChainValid(domainContextProvider.getCurrentDomain(), blue_gw);
@@ -194,7 +194,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getDefaultX509Identifier() throws WSSecurityException {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         String blue_gw = "blue_gw";
         String defaultX509Identifier = multiDomainCryptoService.getDefaultX509Identifier(domainContextProvider.getCurrentDomain());
@@ -205,7 +205,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void removeCertificate()  {
-        multiDomainCryptoService.persistStoresFromDB();
+        multiDomainCryptoService.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertEquals(2, trustStoreEntries.size());

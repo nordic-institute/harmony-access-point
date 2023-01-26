@@ -65,7 +65,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.zone.ZoneRulesException;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -799,13 +798,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistStoresFromDB(String name, boolean optional,
-                                    Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
-                                    List<Domain> domains) {
+    public void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains) {
+        String name = keystorePersistenceInfo.getName();
         LOG.debug("Persisting the store [{}] for all domains if not yet exists.", name);
         for (Domain domain : domains) {
             try {
-                domainTaskExecutor.submit(() -> keystorePersistenceService.persistStoreFromDB(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
+                domainTaskExecutor.submit(() -> keystorePersistenceService.saveStoreFromDBToDisk(keystorePersistenceInfo), domain);
             } catch (DomibusCertificateException dce) {
                 LOG.warn("The store [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }

@@ -118,7 +118,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void persistStoresFromDB() {
+    public void saveStoresFromDBToDisk() {
         final List<Domain> domains = domainService.getDomains();
         persistStores(domains);
     }
@@ -138,9 +138,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void persistStores(List<Domain> domains) {
-        certificateService.persistStoresFromDB(TLS_TRUSTSTORE_NAME, true,
-                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
-                domains);
+        certificateService.saveStoresFromDBToDisk(new KeystorePersistenceInfoImpl(), domains);
     }
 
     class KeystorePersistenceInfoImpl implements KeystorePersistenceInfo {
@@ -172,21 +170,6 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             Optional<KeyStoreType> params = getTruststoreParams();
             return params.map(KeyStoreType::getPassword).orElse(null);
         }
-    }
-
-    private Optional<String> getTrustFileLocation() {
-        Optional<KeyStoreType> params = getTruststoreParams();
-        return params.map(k -> Optional.of(k.getFile())).orElse(Optional.empty());
-    }
-
-    private String getTrustType() {
-        Optional<KeyStoreType> params = getTruststoreParams();
-        return params.map(k -> k.getType()).orElse(null);
-    }
-
-    private String getTrustPassword() {
-        Optional<KeyStoreType> params = getTruststoreParams();
-        return params.map(k -> k.getPassword()).orElse(null);
     }
 
     protected Optional<KeyStoreType> getTruststoreParams() {

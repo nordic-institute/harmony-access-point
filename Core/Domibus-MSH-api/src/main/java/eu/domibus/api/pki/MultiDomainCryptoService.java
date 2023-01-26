@@ -75,7 +75,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     TrustStoreContentDTO getTruststoreContent(Domain domain);
 
-    void persistStoresFromDB();
+    void saveStoresFromDBToDisk();
 
     void refreshKeyStore(Domain currentDomain);
 

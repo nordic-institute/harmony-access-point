@@ -1,6 +1,7 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
@@ -38,11 +39,12 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     @Transactional
-    public void persistStoreFromDB(String storeName, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    public void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
+        String storeName = keystorePersistenceInfo.getName();
+        Optional<String> filePathHolder = keystorePersistenceInfo.getFilePath();
         try {
-            Optional<String> filePathHolder = filePathSupplier.get();
             if (!filePathHolder.isPresent()) {
-                if (optional) {
+                if (keystorePersistenceInfo.isOptional()) {
                     LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
                     return;
                 }
@@ -50,7 +52,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
             }
 
             String filePath = filePathHolder.get();
-            certificateHelper.validateStoreType(typeSupplier.get(), filePath);
+            certificateHelper.validateStoreType(keystorePersistenceInfo.getType(), filePath);
 
             File storeFile = new File(filePath);
             TruststoreEntity persisted = truststoreDao.findByNameSafely(storeName);
@@ -69,7 +71,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
             truststoreDao.delete(persisted);
         } catch (Exception ex) {
             LOG.error(String.format("The store [%s], whose file location is [%s], could not be persisted! " +
-                    "Please check that the store file is present and the location property is set accordingly.", storeName, filePathSupplier.get()), ex);
+                    "Please check that the store file is present and the location property is set accordingly.", storeName, filePathHolder.get()), ex);
         }
     }
 
