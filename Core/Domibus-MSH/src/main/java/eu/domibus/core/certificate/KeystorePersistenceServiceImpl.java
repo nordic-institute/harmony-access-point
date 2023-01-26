@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -157,6 +158,11 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveToDisk(KeyStore trustStore, KeystorePersistenceInfo persistenceInfo) {
+
     }
 
 

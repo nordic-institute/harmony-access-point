@@ -91,7 +91,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        Long entityId = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
+        KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
+        Long entityId = certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
         if (entityId != null) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
@@ -104,7 +105,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        Long entityId = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
+        KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
+        Long entityId = certificateService.removeCertificate(persistenceInfo, alias);
         if (entityId != null) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();

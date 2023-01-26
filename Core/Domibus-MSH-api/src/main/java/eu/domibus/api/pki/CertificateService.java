@@ -1,7 +1,6 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -176,7 +175,7 @@ public interface CertificateService {
      *
      * @return the id of the store with {@param trustName}
      */
-    Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(KeystorePersistenceInfo trustName, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
@@ -187,7 +186,7 @@ public interface CertificateService {
      *
      * @return true if at least one was added
      */
-    boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite);
+    boolean addCertificates(KeystorePersistenceInfo trustName, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
@@ -197,7 +196,7 @@ public interface CertificateService {
      *
      * @return the id of the store with {@param trustName}.
      */
-    Long removeCertificate(String trustName, String alias);
+    boolean removeCertificate(KeystorePersistenceInfo trustName, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
@@ -207,7 +206,7 @@ public interface CertificateService {
      *
      * @return the id of the store with {@param trustName}.
      */
-    Long removeCertificates(String trustName, List<String> aliases);
+    boolean removeCertificates(KeystorePersistenceInfo trustName, List<String> aliases);
 
     KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 

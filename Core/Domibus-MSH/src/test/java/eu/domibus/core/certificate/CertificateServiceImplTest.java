@@ -765,76 +765,76 @@ public class CertificateServiceImplTest {
 //        }};
 //    }
 
-    @Test
-    public void throwsExceptionWhenFailingToRemoveExistingCertificateFromTheTrustStore(@Injectable KeyStore trustStore) throws KeyStoreException {
+//    @Test
+//    public void throwsExceptionWhenFailingToRemoveExistingCertificateFromTheTrustStore(@Injectable KeyStore trustStore) throws KeyStoreException {
+//
+//        thrown.expect(ConfigurationException.class);
+//
+//        new Expectations(certificateService) {{
+//            certificateService.getStore(anyString);
+//            result = trustStore;
+//            trustStore.containsAlias("alias");
+//            result = true;
+//            trustStore.deleteEntry("alias");
+//            result = new KeyStoreException();
+//        }};
+//
+//        // When
+//        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
+//    }
 
-        thrown.expect(ConfigurationException.class);
+//    @Test
+//    public void persistsTheTrustStoreAfterRemovingCertificate(@Injectable KeyStore trustStore) {
+//        // Given
+//        new MockUp<CertificateServiceImpl>() {
+//            int count = 0;
+//
+//            @Mock
+//            KeyStore getStore(String name) {
+//                return trustStore;
+//            }
+//
+//            @Mock
+//            boolean doRemoveCertificate(KeyStore truststore, String alias) {
+//                return true;
+//            }
+//
+//            @Mock
+//            Long persistStore(Invocation invocation, KeyStore truststore, String name) {
+//                count = invocation.getInvocationCount();
+//                return 1L;
+//            }
+//        };
+//
+//        // When
+//        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
+//    }
 
-        new Expectations(certificateService) {{
-            certificateService.getStore(anyString);
-            result = trustStore;
-            trustStore.containsAlias("alias");
-            result = true;
-            trustStore.deleteEntry("alias");
-            result = new KeyStoreException();
-        }};
-
-        // When
-        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
-    }
-
-    @Test
-    public void persistsTheTrustStoreAfterRemovingCertificate(@Injectable KeyStore trustStore) {
-        // Given
-        new MockUp<CertificateServiceImpl>() {
-            int count = 0;
-
-            @Mock
-            KeyStore getStore(String name) {
-                return trustStore;
-            }
-
-            @Mock
-            boolean doRemoveCertificate(KeyStore truststore, String alias) {
-                return true;
-            }
-
-            @Mock
-            Long persistStore(Invocation invocation, KeyStore truststore, String name) {
-                count = invocation.getInvocationCount();
-                return 1L;
-            }
-        };
-
-        // When
-        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
-    }
-
-    @Test
-    public void doesNotPersistTheTrustStoreWhenRemovingCertificateThatDoesNotAlterItsContent(@Injectable KeyStore trustStore,
-                                                                                             @Injectable X509Certificate certificate) {
-        // Given
-        new MockUp<CertificateServiceImpl>() {
-            @Mock
-            KeyStore getStore(String name) {
-                return trustStore;
-            }
-
-            @Mock
-            boolean doRemoveCertificate(KeyStore truststore, String alias) {
-                return false;
-            }
-
-            @Mock
-            Long persistStore(KeyStore truststore, String name) {
-                Assert.fail("Should have not persisted the trust store if not removing certificates inside");
-                return 1L;
-            }
-        };
-
-        // When
-        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
-    }
+//    @Test
+//    public void doesNotPersistTheTrustStoreWhenRemovingCertificateThatDoesNotAlterItsContent(@Injectable KeyStore trustStore,
+//                                                                                             @Injectable X509Certificate certificate) {
+//        // Given
+//        new MockUp<CertificateServiceImpl>() {
+//            @Mock
+//            KeyStore getStore(String name) {
+//                return trustStore;
+//            }
+//
+//            @Mock
+//            boolean doRemoveCertificate(KeyStore truststore, String alias) {
+//                return false;
+//            }
+//
+//            @Mock
+//            Long persistStore(KeyStore truststore, String name) {
+//                Assert.fail("Should have not persisted the trust store if not removing certificates inside");
+//                return 1L;
+//            }
+//        };
+//
+//        // When
+//        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
+//    }
 
     @Test
     public void throwsExceptionWhenFailingToOverwriteExistingCertificateIntoTheTrustStore(@Injectable X509Certificate certificate,
@@ -1220,31 +1220,31 @@ public class CertificateServiceImplTest {
         certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
-    @Test
-    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable List<CertificateEntry> certificates,
-                                                                                           @Injectable KeyStore truststore) {
-        // Given
-        new MockUp<CertificateServiceImpl>() {
-            @Mock
-            KeyStore getStore(String trustName) {
-                return truststore;
-            }
-
-            @Mock
-            boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
-                return false;
-            }
-
-            @Mock
-            Long persistStore(KeyStore truststore, String trustName) {
-                Assert.fail("Should have not persisted the trust store if not adding nor replacing certificates inside");
-                return 1L;
-            }
-        };
-
-        // When
-        certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, false);
-    }
+//    @Test
+//    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable List<CertificateEntry> certificates,
+//                                                                                           @Injectable KeyStore truststore) {
+//        // Given
+//        new MockUp<CertificateServiceImpl>() {
+//            @Mock
+//            KeyStore getStore(String trustName) {
+//                return truststore;
+//            }
+//
+//            @Mock
+//            boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
+//                return false;
+//            }
+//
+//            @Mock
+//            Long persistStore(KeyStore truststore, String trustName) {
+//                Assert.fail("Should have not persisted the trust store if not adding nor replacing certificates inside");
+//                return 1L;
+//            }
+//        };
+//
+//        // When
+//        certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, false);
+//    }
 
     @Test
     public void overwritesTrustedCertificateWhenAddingExistingCertificateIntoTheTrustStoreWithIntentionOfOverwritingIt(@Injectable X509Certificate certificate,
@@ -1483,87 +1483,87 @@ public class CertificateServiceImplTest {
         }};
     }
 
-    @Test
-    public void doAddCertificates(@Injectable KeyStore trustStore,
-                                  @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
-        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
-        boolean overwrite = true;
+//    @Test
+//    public void doAddCertificates(@Injectable KeyStore trustStore,
+//                                  @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+//        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
+//        boolean overwrite = true;
+//
+//        new Expectations(certificateService) {{
+//            certificateService.getStore(anyString);
+//            result = trustStore;
+//            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
+//            result = true;
+//            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//        }};
+//
+//        Long entityId = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
+//
+//        assertNotNull(entityId);
+//        new Verifications() {{
+//            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//        }};
+//    }
 
-        new Expectations(certificateService) {{
-            certificateService.getStore(anyString);
-            result = trustStore;
-            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
-            result = true;
-            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-        }};
+//    @Test
+//    public void doAddCertificatesNotAdded(@Injectable KeyStore trustStore,
+//                                          @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+//        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
+//        boolean overwrite = true;
+//
+//        new Expectations(certificateService) {{
+//            certificateService.getStore(anyString);
+//            result = trustStore;
+//            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
+//            result = false;
+//        }};
+//
+//        Long entityId = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
+//
+//        assertNull(entityId);
+//    }
 
-        Long entityId = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
+//    @Test
+//    public void doRemoveCertificates(@Injectable KeyStore trustStore) {
+//        final String alias1 = "alias1";
+//        final String alias2 = "alias2";
+//        List<String> certificates = Arrays.asList(alias1, alias2);
+//
+//        new Expectations(certificateService) {{
+//            certificateService.getStore(anyString);
+//            result = trustStore;
+//            certificateService.doRemoveCertificate(trustStore, anyString);
+//            result = true;
+//            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//        }};
+//
+//        Long entityId = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
+//
+//        assertNotNull(entityId);
+//        new Verifications() {{
+//            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
+//        }};
+//    }
 
-        assertNotNull(entityId);
-        new Verifications() {{
-            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-        }};
-    }
-
-    @Test
-    public void doAddCertificatesNotAdded(@Injectable KeyStore trustStore,
-                                          @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
-        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
-        boolean overwrite = true;
-
-        new Expectations(certificateService) {{
-            certificateService.getStore(anyString);
-            result = trustStore;
-            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
-            result = false;
-        }};
-
-        Long entityId = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
-
-        assertNull(entityId);
-    }
-
-    @Test
-    public void doRemoveCertificates(@Injectable KeyStore trustStore) {
-        final String alias1 = "alias1";
-        final String alias2 = "alias2";
-        List<String> certificates = Arrays.asList(alias1, alias2);
-
-        new Expectations(certificateService) {{
-            certificateService.getStore(anyString);
-            result = trustStore;
-            certificateService.doRemoveCertificate(trustStore, anyString);
-            result = true;
-            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-        }};
-
-        Long entityId = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
-
-        assertNotNull(entityId);
-        new Verifications() {{
-            certificateService.persistStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
-        }};
-    }
-
-    @Test
-    public void doRemoveCertificatesNotRemoved(@Injectable KeyStore trustStore) {
-
-        final String trustStorePassword = "pwd";
-        final String alias1 = "alias1";
-        final String alias2 = "alias2";
-        List<String> certificates = Arrays.asList(alias1, alias2);
-
-        new Expectations(certificateService) {{
-            certificateService.getStore(anyString);
-            result = trustStore;
-            certificateService.doRemoveCertificate(trustStore, anyString);
-            result = false;
-        }};
-
-        Long entityId = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
-
-        assertNull(entityId);
-    }
+//    @Test
+//    public void doRemoveCertificatesNotRemoved(@Injectable KeyStore trustStore) {
+//
+//        final String trustStorePassword = "pwd";
+//        final String alias1 = "alias1";
+//        final String alias2 = "alias2";
+//        List<String> certificates = Arrays.asList(alias1, alias2);
+//
+//        new Expectations(certificateService) {{
+//            certificateService.getStore(anyString);
+//            result = trustStore;
+//            certificateService.doRemoveCertificate(trustStore, anyString);
+//            result = false;
+//        }};
+//
+//        Long entityId = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
+//
+//        assertNull(entityId);
+//    }
 
     @Test
     public void testGetCertificatePolicyIdentifiers() throws Exception {

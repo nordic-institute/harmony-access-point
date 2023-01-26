@@ -380,7 +380,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         List<CertificateEntry> certificates = Collections.singletonList(new CertificateEntry(alias, certificate));
-        boolean added = certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
+        boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates, overwrite);
         if (added) {
             refreshTrustStore();
         }
@@ -390,7 +390,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
-        boolean added = certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates2, overwrite);
+        boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates2, overwrite);
         if (added) {
             refreshTrustStore();
         }
@@ -398,17 +398,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        Long entityId = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, Collections.singletonList(alias));
-        if (entityId != null) {
+        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), Collections.singletonList(alias));
+        if (removed) {
             refreshTrustStore();
         }
-        return entityId != null;
+        return removed;
     }
 
     @Override
     public synchronized void removeCertificate(List<String> aliases) {
-        Long entityId = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
-        if (entityId != null) {
+        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
+        if (removed) {
             refreshTrustStore();
         }
     }

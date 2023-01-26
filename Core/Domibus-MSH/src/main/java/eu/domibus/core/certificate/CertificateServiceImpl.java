@@ -62,7 +62,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.zone.ZoneRulesException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -444,27 +443,27 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     @Override
-    public Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite) {
+    public boolean addCertificate(KeystorePersistenceInfo persistenceInfo, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
-        return doAddCertificates(trustName, certificates, overwrite);
+        return doAddCertificates(persistenceInfo, certificates, overwrite);
     }
 
     @Override
-    public boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
-        return doAddCertificates(trustName, certificates, overwrite) != null;
+    public boolean addCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+        return doAddCertificates(persistenceInfo, certificates, overwrite);
     }
 
     @Override
-    public Long removeCertificate(String trustName, String alias) {
+    public boolean removeCertificate(KeystorePersistenceInfo persistenceInfo, String alias) {
         List<String> aliases = Arrays.asList(alias);
-        return doRemoveCertificates(trustName, aliases);
+        return doRemoveCertificates(persistenceInfo, aliases);
     }
 
     @Override
-    public Long removeCertificates(String trustName, List<String> aliases) {
-        return doRemoveCertificates(trustName, aliases);
+    public boolean removeCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
+        return doRemoveCertificates(persistenceInfo, aliases);
     }
 
     @Override
@@ -565,14 +564,14 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-    private void restoreOriginalStore(String storeName, KeyStore store, ByteArrayOutputStream oldStoreContent, char[] oldPassword) {
-        try (InputStream stream = oldStoreContent.toInputStream()) {
-            store.load(stream, oldPassword);
-            LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getStoreEntries(storeName));
-        } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-            throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
-        }
-    }
+//    private void restoreOriginalStore(String storeName, KeyStore store, ByteArrayOutputStream oldStoreContent, char[] oldPassword) {
+//        try (InputStream stream = oldStoreContent.toInputStream()) {
+//            store.load(stream, oldPassword);
+//            LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getStoreEntries(storeName));
+//        } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+//            throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
+//        }
+//    }
 
     protected byte[] getStoreContentFromFile(String location) {
         File file = createFileWithLocation(location);
@@ -621,8 +620,8 @@ public class CertificateServiceImpl implements CertificateService {
     /**
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
      */
-    protected Long doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
-        KeyStore trustStore = getStore(trustName);
+    protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+        KeyStore trustStore = getStore(persistenceInfo);
 
         int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
@@ -633,17 +632,18 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (addedNr > 0) {
             LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
-            return persistStore(trustStore, trustName);
+            keystorePersistenceService.saveToDisk(trustStore, persistenceInfo);
+            return true;
         }
         LOG.trace("Added 0 certificates so exiting without persisting the store.");
-        return null;
+        return false;
     }
 
     /**
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
      */
-    protected Long doRemoveCertificates(String trustName, List<String> aliases) {
-        KeyStore trustStore = getStore(trustName);
+    protected boolean doRemoveCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
+        KeyStore trustStore = getStore(persistenceInfo);
 
         int removedNr = 0;
         for (String alias : aliases) {
@@ -654,10 +654,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (removedNr > 0) {
             LOG.debug("Removed [{}] certificates so persisting the store.", removedNr);
-            return persistStore(trustStore, trustName);
+            keystorePersistenceService.saveToDisk(trustStore, persistenceInfo);
+            return true;
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the store.");
-        return null;
+        return false;
     }
 
     protected boolean doAddCertificate(KeyStore keystore, X509Certificate certificate, String alias, boolean overwrite) {
@@ -759,24 +760,24 @@ public class CertificateServiceImpl implements CertificateService {
      * @return EntityId of the {@link TruststoreEntity}
      */
     // used for add/remove certificates ( the persisted store is the same as the one modified)
-    protected Long persistStore(KeyStore store, String storeName) throws CryptoException {
-        backupStore(storeName);
-
-        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            TruststoreEntity entity = truststoreDao.findByName(storeName);
-
-            String password = entity.getPassword();
-            String decryptedPassword = decrypt(storeName, password);
-            store.store(byteStream, decryptedPassword.toCharArray());
-            byte[] content = byteStream.toByteArray();
-
-            entity.setContent(content);
-            truststoreDao.update(entity);
-            return entity.getEntityId();
-        } catch (Exception e) {
-            throw new CryptoException("Could not persist store:", e);
-        }
-    }
+//    protected Long persistStore(KeyStore store, KeystorePersistenceInfo storeName) throws CryptoException {
+//        backupStore(storeName);
+//
+//        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+//            TruststoreEntity entity = truststoreDao.findByName(storeName);
+//
+//            String password = entity.getPassword();
+//            String decryptedPassword = decrypt(storeName, password);
+//            store.store(byteStream, decryptedPassword.toCharArray());
+//            byte[] content = byteStream.toByteArray();
+//
+//            entity.setContent(content);
+//            truststoreDao.update(entity);
+//            return entity.getEntityId();
+//        } catch (Exception e) {
+//            throw new CryptoException("Could not persist store:", e);
+//        }
+//    }
 
 //    protected Long persistStore(KeyStore keystore, String password, String storeType, String storeName) throws CryptoException {
 //        backupStore(storeName);
