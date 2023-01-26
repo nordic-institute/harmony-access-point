@@ -24,7 +24,7 @@ import java.util.Map;
 @Service
 public class PModeUtil {
 
-    protected static final int SERVICE_PORT = 9080;
+    protected static final int SERVICE_PORT = 8892;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeUtil.class);
 
