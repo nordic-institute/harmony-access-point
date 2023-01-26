@@ -156,22 +156,23 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-        doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
-    }
+        certificateHelper.validateStoreFileName(storeFileName);
 
-    @Override
-    public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        doReplaceTrustStore(domain, storeFileLocation, null, storePassword);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
+
+        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
+        saveCertificateAndLogRevocation(domain);
     }
 
     @Override
     public void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-        doReplaceKeyStore(domain, storeFileName, storeContent, storePassword);
-    }
+        certificateHelper.validateStoreFileName(storeFileName);
 
-    @Override
-    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        doReplaceKeyStore(domain, storeFileLocation, null, storePassword);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
+
+        saveCertificateAndLogRevocation(domain);
     }
 
     @Override
@@ -285,34 +286,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
         certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
     }
-
-    private void doReplaceKeyStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        if (storeContent != null) {
-            domainCertificateProvider.replaceKeyStore(storeContent, storeFileNameOrLocation, storePassword);
-        } else {
-            domainCertificateProvider.replaceKeyStore(storeFileNameOrLocation, storePassword);
-        }
-
-        saveCertificateAndLogRevocation(domain);
-    }
-
-    private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        if (storeContent != null) {
-            domainCertificateProvider.replaceTrustStore(storeContent, storeFileNameOrLocation, storePassword);
-        } else {
-            domainCertificateProvider.replaceTrustStore(storeFileNameOrLocation, storePassword);
-        }
-
-        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
-        saveCertificateAndLogRevocation(domain);
-    }
-
 
     protected void saveStoresFromDBToDisk(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);
