@@ -126,7 +126,7 @@ public interface CertificateService {
      * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
-    void replaceStore(String fileLocation, String filePassword, String trustName);
+//    void replaceStore(String fileLocation, String filePassword, String trustName);
 
     /**
      * Replaces the truststore pointed by the name with the one provided by content/password parameters
@@ -137,7 +137,7 @@ public interface CertificateService {
      * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
-    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
+//    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
 
@@ -147,7 +147,7 @@ public interface CertificateService {
      * @param trustName the location of the trust on disc
      * @return the truststore object
      */
-    KeyStore getStore(String trustName);
+//    KeyStore getStore(String trustName);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 
@@ -157,13 +157,13 @@ public interface CertificateService {
      * @param trustName the name of the trust in DB
      * @return the list of certificates and their names
      */
-    List<TrustStoreEntry> getStoreEntries(String trustName);
+//    List<TrustStoreEntry> getStoreEntries(String trustName);
 
     List<TrustStoreEntry> getStoreEntries(KeyStore store);
 
     List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
 
-    KeyStoreInfo getStoreInfo(String trustName);
+//    KeyStoreInfo getStoreInfo(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters

@@ -241,8 +241,8 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public void addStoreReplacedAudit(String storeName, Long storeEntityId) {
-        String id = storeName + ":" + storeEntityId;
+    public void addStoreReplacedAudit(String storeName) {
+        String id = storeName;
         auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
     }
 

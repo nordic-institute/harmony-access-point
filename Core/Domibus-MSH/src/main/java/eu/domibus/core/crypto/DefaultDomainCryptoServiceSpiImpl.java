@@ -327,7 +327,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
-            certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(storeFileName, storeContent, storePassword, keystorePersistenceService.getTrustStorePersistenceInfo());
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
@@ -338,13 +338,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     // not used currently
     public synchronized void replaceTrustStore(String storeLocation, String storePassword) throws CryptoSpiException {
-        try {
-            certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
-        } catch (CryptoException ex) {
-            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
-            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
-        }
-        refreshTrustStore();
+//        try {
+//            certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
+//        } catch (CryptoException ex) {
+//            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
+//            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
+//        }
+//        refreshTrustStore();
     }
 
     @Override
@@ -360,14 +360,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
+    // not used anymore
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
-        try {
-            certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
-        } catch (CryptoException ex) {
-            LOG.error("Error while replacing the keystore from [{}]", storeFileLocation);
-            throw new CryptoSpiException("Error while replacing the keystore from " + storeFileLocation, ex);
-        }
-        refreshKeyStore();
+//        try {
+//            certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
+//        } catch (CryptoException ex) {
+//            LOG.error("Error while replacing the keystore from [{}]", storeFileLocation);
+//            throw new CryptoSpiException("Error while replacing the keystore from " + storeFileLocation, ex);
+//        }
+//        refreshKeyStore();
     }
 
     @Override
@@ -429,7 +430,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadTrustStoreProperties();
 
-            KeyStore trustStore = certificateService.getStore(DOMIBUS_TRUSTSTORE_NAME);
+            KeyStore trustStore = certificateService.getStore(keystorePersistenceService.getTrustStorePersistenceInfo());
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setTrustStore(trustStore));
         }, domain);
@@ -457,7 +458,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         domainTaskExecutor.submit(() -> {
             loadKeystoreProperties();
 
-            KeyStore keyStore = certificateService.getStore(DOMIBUS_KEYSTORE_NAME);
+            KeyStore keyStore = certificateService.getStore(keystorePersistenceService.getKeyStorePersistenceInfo());
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> profileConfiguration.getMerlin().setKeyStore(keyStore));
         }, domain);
@@ -565,13 +566,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getKeystoreType() {
-        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
-        return trust.getType();
+        return keystorePersistenceService.getKeyStorePersistenceInfo().getType();
+//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
+//        return trust.getType();
     }
 
     private String getKeystorePassword() {
-        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
-        return trust.getPassword();
+        return keystorePersistenceService.getKeyStorePersistenceInfo().getPassword();
+//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
+//        return trust.getPassword();
     }
 
     protected Properties getTrustStoreProperties() {
@@ -599,13 +602,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected String getTrustStorePassword() {
-        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
-        return trust.getPassword();
+        return keystorePersistenceService.getTrustStorePersistenceInfo().getPassword();
+//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+//        return trust.getPassword();
     }
 
     protected String getTrustStoreType() {
-        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
-        return trust.getType();
+        return keystorePersistenceService.getTrustStorePersistenceInfo().getType();
+//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
+//        return trust.getType();
     }
 
     private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {

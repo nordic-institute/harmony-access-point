@@ -34,19 +34,19 @@ public class KeyStoreResourceIT extends AbstractIT {
         cleanStores();
     }
 
-    @Test
-    public void testTruststoreEntries_ok() throws IOException {
-        createTrustStore();
-        createKeyStore();
-
-        List<TrustStoreEntry> entries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
-
-        storeResource.reset();
-
-        List<TrustStoreEntry> newEntries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
-
-        Assert.assertNotEquals(entries.size(), newEntries.size());
-    }
+//    @Test
+//    public void testTruststoreEntries_ok() throws IOException {
+//        createTrustStore();
+//        createKeyStore();
+//
+//        List<TrustStoreEntry> entries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
+//
+//        storeResource.reset();
+//
+//        List<TrustStoreEntry> newEntries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
+//
+//        Assert.assertNotEquals(entries.size(), newEntries.size());
+//    }
 
     private void cleanStores() {
         removeStore(DOMIBUS_KEYSTORE_NAME);

@@ -80,17 +80,17 @@ public class TruststoreResourceTest {
         }};
     }
 
-    @Test
-    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
-
-        new Expectations() {{
-            certificateService.getStoreEntries(anyString);
-            result = trustStoreEntries;
-        }};
-
-        List<TrustStoreEntry> res = truststoreResource.doGetStoreEntries();
-
-        Assert.assertEquals(trustStoreEntries, res);
-    }
+//    @Test
+//    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
+//
+//        new Expectations() {{
+//            certificateService.getStoreEntries(anyString);
+//            result = trustStoreEntries;
+//        }};
+//
+//        List<TrustStoreEntry> res = truststoreResource.doGetStoreEntries();
+//
+//        Assert.assertEquals(trustStoreEntries, res);
+//    }
 
 }

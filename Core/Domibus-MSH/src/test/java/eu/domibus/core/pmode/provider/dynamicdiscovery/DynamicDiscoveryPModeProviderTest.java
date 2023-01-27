@@ -156,9 +156,9 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(DomainTaskExecutor.class),
                 Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
-                Mockito.spy(PasswordEncryptionService.class),
+//                Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-                Mockito.spy(DomibusCoreMapper.class),
+//                Mockito.spy(DomibusCoreMapper.class),
                 Mockito.spy(AlertConfigurationService.class),
                 Mockito.spy(AuditService.class));
     }

@@ -64,7 +64,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-        certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(fileName, fileContent, filePassword, new KeystorePersistenceInfoImpl());
         resetTLSTruststore();
 
         auditService.addTLSTruststoreUploadedAudit(TLS_TRUSTSTORE_NAME);

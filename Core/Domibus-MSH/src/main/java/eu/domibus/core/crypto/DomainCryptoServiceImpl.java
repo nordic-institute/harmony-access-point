@@ -3,10 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
@@ -59,14 +56,17 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected CertificateService certificateService;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public DomainCryptoServiceImpl(Domain domain,
                                    List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
                                    DomibusPropertyProvider domibusPropertyProvider,
-                                   CertificateService certificateService) {
+                                   CertificateService certificateService, KeystorePersistenceService keystorePersistenceService) {
         this.domain = domain;
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     public void init() {
@@ -222,10 +222,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     @Override
     public KeyStoreInfo getKeyStoreContent() {
         KeyStore store = iamProvider.getKeyStore();
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-        KeyStoreInfo result = certificateService.getStoreContent(store, DOMIBUS_KEYSTORE_NAME, password);
-        result.setType(store.getType());
-        return result;
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
     }
 
     @Override
@@ -237,10 +235,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     @Override
     public KeyStoreInfo getTrustStoreContent() {
         KeyStore store = iamProvider.getTrustStore();
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        KeyStoreInfo result = certificateService.getStoreContent(store, DOMIBUS_TRUSTSTORE_NAME, password);
-        result.setType(store.getType());
-        return result;
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
     }
 
     @Override

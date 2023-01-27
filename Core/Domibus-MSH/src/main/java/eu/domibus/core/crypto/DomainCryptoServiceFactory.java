@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.logging.DomibusLogger;
@@ -26,18 +27,23 @@ public class DomainCryptoServiceFactory {
 
     protected final CertificateService certificateService;
 
+    protected final KeystorePersistenceService keystorePersistenceService;
+
     public DomainCryptoServiceFactory(Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider,
                                       DomibusPropertyProvider domibusPropertyProvider,
-                                      CertificateService certificateService) {
+                                      CertificateService certificateService,
+                                      KeystorePersistenceService keystorePersistenceService) {
         this.domainCryptoServiceSpiListProvider = domainCryptoServiceSpiListProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
-        final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
+        final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(),
+                domibusPropertyProvider, certificateService, keystorePersistenceService);
         bean.init();
         return bean;
     }
