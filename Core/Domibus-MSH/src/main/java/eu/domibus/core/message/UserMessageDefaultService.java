@@ -479,7 +479,7 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId, mshRole);
 
         if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessageNotFoundException(MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
@@ -491,7 +491,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
-            throw new MessageNotFoundException(MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
+            throw new UserMessageException(MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
     }
@@ -499,8 +499,12 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
 
+        if(userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+
         if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessageNotFoundException(MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
@@ -513,7 +517,11 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         if (userMessageLog.getDeleted() != null) {
-            throw new MessageNotFoundException(MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]");
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
+        }
+
+        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
         }
 
         return userMessageLog;
@@ -688,7 +696,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
         UserMessageLog message = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (message == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessagingException("No message found for message id: " + messageId, null);
         }
         if (message.getDeleted() != null) {
             LOG.info("Could not find message content for message: [{}]", messageId);
@@ -699,7 +707,7 @@ public class UserMessageDefaultService implements UserMessageService {
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (contentLength > maxDownLoadSize) {
             LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
-            throw new MessageNotFoundException("Message content is no longer available for message id: " + messageId);
+            throw new MessagingException("The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
         }
     }
 

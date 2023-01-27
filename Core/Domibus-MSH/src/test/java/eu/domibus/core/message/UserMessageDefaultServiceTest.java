@@ -849,38 +849,12 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            userMessageLog.getDeleted();
-            result = null;
-
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
         }};
 
         final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         Assert.assertNotNull(message);
-    }
-
-    @Test
-    public void getMessageNotInFinalStatus_deleted(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        Date deleted = new Date();
-        new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-            result = userMessageLog;
-
-            userMessageLog.getDeleted();
-            result = deleted;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.ACKNOWLEDGED;
-        }};
-
-        try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            fail();
-        } catch (MessagingException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] in state [" + MessageStatus.ACKNOWLEDGED.name() + "] is already deleted. Delete time: [" + deleted + "]"));
-        }
     }
 
     @Test
@@ -891,9 +865,6 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            userMessageLog.getDeleted();
-            result = null;
-
             userMessageLog.getMessageStatus();
             result = MessageStatus.ACKNOWLEDGED;
         }};
@@ -901,7 +872,7 @@ public class UserMessageDefaultServiceTest {
         try {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             fail();
-        } catch (MessagingException ex) {
+        } catch (UserMessageException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
         }
     }
