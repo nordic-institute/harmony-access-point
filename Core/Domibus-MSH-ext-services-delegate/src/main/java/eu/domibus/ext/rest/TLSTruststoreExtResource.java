@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
@@ -28,6 +29,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
+
 /**
  * TLS Truststore Domibus services.
  * Domibus expose the REST API to upload and get the TLS truststore.
@@ -50,10 +53,13 @@ public class TLSTruststoreExtResource {
 
     final ExtExceptionHelper extExceptionHelper;
 
+    private final MultiPartFileUtil multiPartFileUtil;
 
-    public TLSTruststoreExtResource(TLSTruststoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper) {
+    public TLSTruststoreExtResource(TLSTruststoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
+                                    MultiPartFileUtil multiPartFileUtil) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.multiPartFileUtil = multiPartFileUtil;
     }
 
     @ExceptionHandler(TruststoreExtException.class)
@@ -65,7 +71,7 @@ public class TLSTruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = {"/entries"})
     public List<TrustStoreDTO> getTLSTruststoreEntries() {
-        return tlsTruststoreExtService.getTLSTrustStoreEntries();
+        return tlsTruststoreExtService.getTrustStoreEntries();
     }
 
     @Operation(summary = "Download TLS truststore", description = "Upload the TLS truststore file",
@@ -74,9 +80,9 @@ public class TLSTruststoreExtResource {
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
         byte[] content;
         try {
-            content = tlsTruststoreExtService.downloadTLSTruststoreContent();
+            content = tlsTruststoreExtService.downloadTruststoreContent();
         } catch (Exception e) {
-            LOG.error("Could not find TLS truststore.", e);
+            LOG.error("Could not download TLS truststore.", e);
             return ResponseEntity.notFound().build();
         }
         HttpStatus status = HttpStatus.OK;
@@ -96,10 +102,14 @@ public class TLSTruststoreExtResource {
     public String uploadTLSTruststoreFile(
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
+
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
         if (StringUtils.isBlank(password)) {
-            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TLS_TRUSTSTORE_PASSWORD);
+            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
-        tlsTruststoreExtService.uploadTLSTruststoreFile(truststoreFile, password);
+
+        tlsTruststoreExtService.uploadTruststoreFile(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -109,7 +119,13 @@ public class TLSTruststoreExtResource {
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
-        tlsTruststoreExtService.addTLSCertificate(certificateFile, alias);
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        tlsTruststoreExtService.addCertificate(fileContent, alias);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
@@ -118,7 +134,7 @@ public class TLSTruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsTruststoreExtService.removeTLSCertificate(alias);
+        tlsTruststoreExtService.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 

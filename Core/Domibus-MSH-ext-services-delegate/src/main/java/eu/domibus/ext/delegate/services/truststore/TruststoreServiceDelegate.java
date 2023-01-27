@@ -1,6 +1,5 @@
 package eu.domibus.ext.delegate.services.truststore;
 
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -12,10 +11,9 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.TruststoreExtService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -25,26 +23,21 @@ import java.util.List;
 @Service
 public class TruststoreServiceDelegate implements TruststoreExtService {
 
-    public static final String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
-
     private final MultiDomainCryptoService multiDomainCertificateProvider;
 
     private final DomainContextProvider domainProvider;
 
     private final CertificateService certificateService;
 
-    private final MultiPartFileUtil multiPartFileUtil;
-
     private final DomibusExtMapper domibusExtMapper;
 
 
     public TruststoreServiceDelegate(MultiDomainCryptoService multiDomainCertificateProvider,
                                      DomainContextProvider domainProvider, CertificateService certificateService,
-                                     MultiPartFileUtil multiPartFileUtil, DomibusExtMapper domibusExtMapper) {
+                                     DomibusExtMapper domibusExtMapper) {
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
-        this.multiPartFileUtil = multiPartFileUtil;
         this.domibusExtMapper = domibusExtMapper;
     }
 
@@ -57,31 +50,27 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
     @Override
     public List<TrustStoreDTO> getTrustStoreEntries() {
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
         return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
     }
 
     @Override
-    public void uploadTruststoreFile(MultipartFile truststoreFile, String password) {
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+    public void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, originalFilename, truststoreFileContent, password);
     }
 
     @Override
-    public void addCertificate(MultipartFile certificateFile, String alias) throws RequestValidationException {
-        if (StringUtils.isBlank(alias)) {
-            throw new RequestValidationException("Please provide an alias for the certificate.");
-        }
-
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-
-        certificateService.addCertificate(DOMIBUS_TRUSTSTORE_NAME, fileContent, alias, true);
+    public void addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        X509Certificate cert = certificateService.loadCertificateFromByteArray(certificateFile);
+        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 
     @Override
     public void removeCertificate(String alias) throws RequestValidationException {
-        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, alias);
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
     }
 }
 

@@ -1,7 +1,6 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.TrustStoreDTO;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,20 +28,19 @@ public interface TruststoreExtService {
 
     /**
      * Upload a new version of the truststore file
-     *
-     * @param file     truststore file wrapping class
+     *  @param file     truststore file wrapping class
+     * @param originalFilename
      * @param password of the truststore uploaded
      */
-    void uploadTruststoreFile(MultipartFile file, String password);
+    void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password);
 
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
-     *
-     * @param certificateFile the content of the certificate
+     *  @param certificateFile the content of the certificate
      * @param alias           the name of the certificate
      */
-    void addCertificate(MultipartFile certificateFile, String alias);
+    void addCertificate(byte[] certificateFile, String alias);
 
     /**
      * Removes the specified certificate from the truststore by the alias name

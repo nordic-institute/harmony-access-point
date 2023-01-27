@@ -9,7 +9,7 @@ import java.util.List;
  * All operations related to TLS truststore files
  *
  * @author Soumya Chandran
- * @since5.1
+ * @since 5.1
  */
 public interface TLSTruststoreExtService {
 
@@ -18,39 +18,36 @@ public interface TLSTruststoreExtService {
      *
      * @return byte[]
      */
-    byte[] downloadTLSTruststoreContent();
+    byte[] downloadTruststoreContent();
 
     /**
      * Returns TLS truststore files information
      *
      * @return list of {@code TrustStoreDTO}
      */
-    List<TrustStoreDTO> getTLSTrustStoreEntries();
+    List<TrustStoreDTO> getTrustStoreEntries();
 
     /**
      * Upload a new version of the TLS truststore file
      *
-     * @param file     TLS truststore file wrapping class
+     * @param truststoreFileContent     TLS truststore file wrapping class
      * @param password of the TLS truststore uploaded
      */
-    void uploadTLSTruststoreFile(MultipartFile file, String password);
-
+    void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password);
 
     /**
      * Adds the specified certificate to the TLS truststore pointed by the parameters
      *
-     * @param certificateFile the content of the certificate
+     * @param fileContent the content of the certificate
      * @param alias           the name of the certificate
      */
-
-    void addTLSCertificate(MultipartFile certificateFile, String alias);
+    void addCertificate(byte[] fileContent, String alias);
 
     /**
      * Removes the specified certificate from the TLS truststore by the alias name
      *
      * @param alias the certificate name
      */
-
-    void removeTLSCertificate(String alias);
+    void removeCertificate(String alias);
 }
 

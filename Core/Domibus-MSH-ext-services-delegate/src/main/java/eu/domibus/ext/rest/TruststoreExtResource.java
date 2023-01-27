@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
@@ -50,9 +51,12 @@ public class TruststoreExtResource {
 
     final ExtExceptionHelper extExceptionHelper;
 
-    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper) {
+    private final MultiPartFileUtil multiPartFileUtil;
+
+    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper, MultiPartFileUtil multiPartFileUtil) {
         this.truststoreExtService = truststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.multiPartFileUtil = multiPartFileUtil;
     }
 
     @ExceptionHandler(TruststoreExtException.class)
@@ -97,11 +101,13 @@ public class TruststoreExtResource {
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
 
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        truststoreExtService.uploadTruststoreFile(truststoreFile, password);
+        truststoreExtService.uploadTruststoreFile(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -112,7 +118,13 @@ public class TruststoreExtResource {
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
-        truststoreExtService.addCertificate(certificateFile, alias);
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        truststoreExtService.addCertificate(fileContent, alias);
 
         return "Certificate [" + alias + "] has been successfully added to the truststore.";
     }

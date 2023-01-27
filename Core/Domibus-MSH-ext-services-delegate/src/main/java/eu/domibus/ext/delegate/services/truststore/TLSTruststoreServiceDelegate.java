@@ -31,88 +31,50 @@ import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 @Service
 public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
-    private final TLSReaderService tlsReaderService;
-
     private final TLSCertificateManager tlsCertificateManager;
-
-    private final SignalService signalService;
-
-    private final DomainContextProvider domainProvider;
-
-    private final CertificateService certificateService;
-
-    private final MultiPartFileUtil multiPartFileUtil;
-
-    private final DomibusConfigurationService domibusConfigurationService;
 
     private final DomibusExtMapper domibusExtMapper;
 
-    public TLSTruststoreServiceDelegate(TLSReaderService tlsReaderService, TLSCertificateManager tlsCertificateManager, SignalService signalService,
-                                        DomainContextProvider domainProvider, CertificateService certificateService,
-                                        MultiPartFileUtil multiPartFileUtil, DomibusConfigurationService domibusConfigurationService, DomibusExtMapper domibusExtMapper) {
-        this.tlsReaderService = tlsReaderService;
+    public TLSTruststoreServiceDelegate(TLSCertificateManager tlsCertificateManager, DomibusExtMapper domibusExtMapper) {
         this.tlsCertificateManager = tlsCertificateManager;
-        this.signalService = signalService;
-        this.domainProvider = domainProvider;
-        this.certificateService = certificateService;
-        this.multiPartFileUtil = multiPartFileUtil;
-        this.domibusConfigurationService = domibusConfigurationService;
         this.domibusExtMapper = domibusExtMapper;
     }
 
     @Override
-    public byte[] downloadTLSTruststoreContent() {
+    public byte[] downloadTruststoreContent() {
         KeyStoreInfo content;
         try {
             content = tlsCertificateManager.getTruststoreContent();
             return content.getContent();
         } catch (Exception e) {
-            throw new TruststoreExtException("Could not find truststore entity with name: " + TLS_TRUSTSTORE_NAME);
+            throw new TruststoreExtException(e);
         }
-
     }
 
     @Override
-    public List<TrustStoreDTO> getTLSTrustStoreEntries() {
-        String errorMessage = "Could not find or read the client authentication file.";
+    public List<TrustStoreDTO> getTrustStoreEntries() {
         try {
-            if (domibusConfigurationService.isMultiTenantAware()) {
-                final String domainName = domainProvider.getCurrentDomain().getName();
-                errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
-            }
-            List<TrustStoreEntry> trustStoreEntries = certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
+            List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
             return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
         } catch (Exception ex) {
-            throw new TruststoreExtException(errorMessage);
+            throw new TruststoreExtException(ex);
         }
     }
 
     @Override
-    public void uploadTLSTruststoreFile(MultipartFile truststoreFile, String password) {
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-        certificateService.replaceStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password, TLS_TRUSTSTORE_NAME);
-        resetTLSTruststore();
+    public void uploadTruststoreFile(byte[] truststoreFileContent, String fileName, String password) {
+        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
     }
 
-    protected void resetTLSTruststore() {
-        Domain domain = domainProvider.getCurrentDomain();
-        String domainCode = domain != null ? domain.getCode() : null;
-        tlsReaderService.reset(domainCode);
-        signalService.signalTLSTrustStoreUpdate(domain);
+    @Override
+    public void addCertificate(byte[] fileContent, String alias) {
+        tlsCertificateManager.addCertificate(fileContent, alias);
     }
 
-    public void addTLSCertificate(MultipartFile certificateFile, String alias) throws RequestValidationException {
-        if (StringUtils.isBlank(alias)) {
-            throw new RequestValidationException("Please provide an alias for the certificate.");
-        }
-
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-
-        certificateService.addCertificate(TLS_TRUSTSTORE_NAME, fileContent, alias, true);
+    @Override
+    public void removeCertificate(String alias) {
+        tlsCertificateManager.removeCertificate(alias);
     }
 
-    public void removeTLSCertificate(String alias) throws RequestValidationException {
-        certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
-    }
 }
 
