@@ -111,6 +111,9 @@ public class WSSendMessageListenerTest {
 
             backendMessage.getType();
             result = WSBackendMessageType.DELETED_BATCH;
+
+            backendMessage.getMessageIds();
+            result = "messageIds";
         }};
         wsSendMessageListener.doOnMessage(message);
 
