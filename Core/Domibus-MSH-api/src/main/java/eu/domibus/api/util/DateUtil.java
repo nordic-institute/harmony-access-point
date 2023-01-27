@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -50,6 +51,12 @@ public interface DateUtil {
      * @return the current system {@code Date}, reflected in coordinated universal time (UTC)
      */
     Date getUtcDate();
+
+    /**
+     * @param localDateTime
+     * @return the localDateTime reflected in coordinated universal time (UTC)
+     */
+    LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime);
 
     long getDiffMinutesBetweenDates(Date date1, Date date2);
 

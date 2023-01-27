@@ -29,7 +29,6 @@ import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
-import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
@@ -149,7 +148,6 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.mock(DomibusPropertyProviderImpl.class),
                 Mockito.spy(CertificateDaoImpl.class),
                 Mockito.spy(EventService.class),
-                Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),

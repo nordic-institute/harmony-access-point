@@ -28,7 +28,6 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -98,8 +97,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final EventService eventService;
 
-    private final PModeProvider pModeProvider;
-
     private final CertificateHelper certificateHelper;
 
     protected final DomainService domainService;
@@ -124,7 +121,6 @@ public class CertificateServiceImpl implements CertificateService {
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
                                   EventService eventService,
-                                  PModeProvider pModeProvider,
                                   CertificateHelper certificateHelper,
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
@@ -138,7 +134,6 @@ public class CertificateServiceImpl implements CertificateService {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
         this.eventService = eventService;
-        this.pModeProvider = pModeProvider;
         this.certificateHelper = certificateHelper;
         this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
@@ -968,7 +963,6 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.info("Certificate Expired Module is not active; returning.");
             return;
         }
-        final String accessPoint = getAccessPointName();
         final Integer revokedDuration = configuration.getDelay();
         final Integer revokedFrequency = configuration.getFrequency();
         Date endNotification = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant());
@@ -979,17 +973,8 @@ public class CertificateServiceImpl implements CertificateService {
             certificate.setAlertExpiredNotificationDate(Date.from(ZonedDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant()));
             certificateDao.saveOrUpdate(certificate);
             final String alias = certificate.getAlias();
-            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
-            eventService.enqueueCertificateExpiredEvent(accessPointOrAlias, alias, certificate.getNotAfter());
+            eventService.enqueueCertificateExpiredEvent(alias, certificate.getNotAfter());
         });
-    }
-
-    private String getAccessPointName() {
-        String partyName = null;
-        if (pModeProvider.isConfigurationLoaded()) {
-            partyName = pModeProvider.getGatewayParty().getName();
-        }
-        return partyName;
     }
 
     protected boolean checkValidity(X509Certificate cert) {
@@ -1012,7 +997,6 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.info("Imminent Expiration Certificate Module is not active; returning.");
             return;
         }
-        final String accessPoint = getAccessPointName();
         final Integer imminentExpirationDelay = configuration.getDelay();
         final Integer imminentExpirationFrequency = configuration.getFrequency();
 
@@ -1025,9 +1009,9 @@ public class CertificateServiceImpl implements CertificateService {
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);
             certificateDao.saveOrUpdate(certificate);
+
             final String alias = certificate.getAlias();
-            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
-            eventService.enqueueImminentCertificateExpirationEvent(accessPointOrAlias, alias, certificate.getNotAfter());
+            eventService.enqueueImminentCertificateExpirationEvent(alias, certificate.getNotAfter());
         });
     }
 

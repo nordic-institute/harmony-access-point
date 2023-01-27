@@ -13,6 +13,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -206,6 +207,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private FileServiceUtil fileServiceUtil;
+
+    @Injectable
+    private DomibusStringUtil domibusStringUtil;
 
     @Test
     public void testGetFinalRecipient(@Injectable final UserMessage userMessage) {

@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,6 +15,12 @@ public interface DateExtService {
      * @return the current system {@code Date}, reflected in coordinated universal time (UTC)
      */
     Date getUtcDate();
+
+    /**
+     * @param localDateTime
+     * @return the localDateTime reflected in coordinated universal time (UTC)
+     */
+    LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime);
 
     /**
      * Parse a string date to an ID_PK

@@ -3,16 +3,19 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.common.MessageStatusChangeEvent;
+import eu.domibus.common.NotificationType;
 import eu.domibus.core.message.DeleteMessageAbstractIT;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,22 +35,30 @@ import static org.junit.Assert.*;
 public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     public static final String MPC_URI = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
-    @Autowired
-    private RoutingService routingService;
+
     @Autowired
     private UserMessageLogDao userMessageLogDao;
+
     @Autowired
     private PartInfoDao partInfoDao;
+
     @Autowired
     private MessageStatusDao messageStatusDao;
+
     @Autowired
     private MessageRetentionDefaultService service;
 
+    @Autowired
+    BackendConnectorHelper backendConnectorHelper;
+    
+    ArgumentCaptor<MessageStatusChangeEvent> argCaptor = ArgumentCaptor.forClass(MessageStatusChangeEvent.class);
+
+    BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+
     @PostConstruct
-    public void setupInfrastructure(){
-        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+    public void setupInfrastructure() {
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-  }
+    }
 
 
     @Test
@@ -135,6 +146,9 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         String messageId = receiveMessageToDelete();
         setMessageStatus(messageId, MessageStatus.DOWNLOADED);
         makeMessageFieldOlder(messageId, "downloaded", 10);
+
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(backendConnector)).thenReturn(Arrays.asList(NotificationType.MESSAGE_STATUS_CHANGE));
+
         //when
         service.deleteExpiredDownloadedMessages(MPC_URI, 100, false);
         //then
@@ -143,7 +157,14 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
                 CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
+
+        Mockito.verify(backendConnector, Mockito.times(1)).messageStatusChanged(argCaptor.capture());
+        MessageStatusChangeEvent event = argCaptor.getValue();
+        assertEquals(eu.domibus.common.MessageStatus.DOWNLOADED, event.getFromStatus());
+        assertEquals(eu.domibus.common.MessageStatus.DELETED, event.getToStatus());
+        assertEquals(messageId, event.getMessageId());
     }
+
 
     @Test
     public void deleteExpiredSent_deletesAll_ifIsDeleteMessageMetadataAndZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
@@ -203,7 +224,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
     }
 
     private void makeMessageFieldOlder(String messageId, String field, int nrMinutesBack) {
-        Date date = DateUtils.addMinutes(new Date(), nrMinutesBack  * -1);
+        Date date = DateUtils.addMinutes(new Date(), nrMinutesBack * -1);
         em.createQuery("update UserMessageLog set " + field + "=:DATE where userMessage.entityId in (select entityId from UserMessage where messageId=:MESSAGE_ID)")
                 .setParameter("MESSAGE_ID", messageId)
                 .setParameter("DATE", date)

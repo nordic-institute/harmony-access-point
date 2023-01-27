@@ -30,20 +30,18 @@ public interface EventService {
     /**
      * Will create a certificate imminent expiration event and enqueue it to the alert/event monitoring queue.
      *
-     * @param accessPoint    the access point at which the certificate will expire.
      * @param alias          the alias of the certificate.
      * @param expirationDate the expiration date.
      */
-    void enqueueImminentCertificateExpirationEvent(String accessPoint, String alias, Date expirationDate);
+    void enqueueImminentCertificateExpirationEvent(String alias, Date expirationDate);
 
     /**
      * Will create a certificate expired event and enqueue it to the alert/event monitoring queue.
      *
-     * @param accessPoint    the access point at which the certificate will expire.
      * @param alias          the alias of the certificate.
      * @param expirationDate the expiration date.
      */
-    void enqueueCertificateExpiredEvent(String accessPoint, String alias, Date expirationDate);
+    void enqueueCertificateExpiredEvent(String alias, Date expirationDate);
 
     /**
      * Save an event.

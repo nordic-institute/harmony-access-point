@@ -186,6 +186,9 @@ public class UserMessageDefaultService implements UserMessageService {
     private FileServiceUtil fileServiceUtil;
 
     @Autowired
+    private DomibusStringUtil domibusStringUtil;
+
+    @Autowired
     private PlatformTransactionManager transactionManager;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
@@ -479,7 +482,7 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId, mshRole);
 
         if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
-            throw new UserMessageException(MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
@@ -491,7 +494,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
     }
@@ -504,7 +507,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new UserMessageException(MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
@@ -583,10 +586,11 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_MESSAGE_ROLE})
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId, MSHRole mshRole) {
         LOG.debug("Deleting message [{}]", messageId);
+
         //add messageId to MDC map
         addMessageIdToMDC(messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
@@ -820,7 +824,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(domibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }

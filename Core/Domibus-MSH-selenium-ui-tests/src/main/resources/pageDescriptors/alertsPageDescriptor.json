@@ -73,13 +73,11 @@
       "DESCRIPTION"
     ],
     "CERT_IMMINENT_EXPIRATION": [
-      "ACCESS_POINT",
       "ALIAS",
       "EXPIRATION_DATE FROM",
       "EXPIRATION_DATE TO"
     ],
     "CERT_EXPIRED": [
-      "ACCESS_POINT",
       "ALIAS",
       "EXPIRATION_DATE FROM",
       "EXPIRATION_DATE TO"
