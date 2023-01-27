@@ -1,8 +1,5 @@
 package eu.domibus.core.message.dictionary;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -11,11 +8,6 @@ import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,31 +22,18 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StaticDictionaryServiceImpl.class);
 
-    protected MessageStatusDao messageStatusDao;
-    protected NotificationStatusDao notificationStatusDao;
-    protected MshRoleDao mshRoleDao;
+    protected StaticDictionaryServiceHelper staticDictionaryServiceHelper;
     protected DomibusConfigurationService domibusConfigurationService;
     protected DomainTaskExecutor domainTaskExecutor;
     protected DomainService domainService;
-    protected PlatformTransactionManager transactionManager;
 
-    public StaticDictionaryServiceImpl(MessageStatusDao messageStatusDao,
-                                       NotificationStatusDao notificationStatusDao,
-                                       MshRoleDao mshRoleDao,
-                                       DomibusConfigurationService domibusConfigurationService,
-                                       DomainTaskExecutor domainTaskExecutor,
-                                       DomainService domainService,
-                                       PlatformTransactionManager transactionManager) {
-        this.messageStatusDao = messageStatusDao;
-        this.notificationStatusDao = notificationStatusDao;
-        this.mshRoleDao = mshRoleDao;
+    public StaticDictionaryServiceImpl(StaticDictionaryServiceHelper staticDictionaryServiceHelper, DomibusConfigurationService domibusConfigurationService, DomainTaskExecutor domainTaskExecutor, DomainService domainService) {
+        this.staticDictionaryServiceHelper = staticDictionaryServiceHelper;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainTaskExecutor = domainTaskExecutor;
         this.domainService = domainService;
-        this.transactionManager = transactionManager;
     }
 
-    @Transactional
     public void createStaticDictionaryEntries() {
         LOG.debug("Start checking and creating static dictionary entries if missing");
 
@@ -85,32 +64,20 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     }
 
     private void createEntries(List<Domain> domains) {
-        Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall());
+        Runnable createEntriesCall = createEntriesCall();
         for (Domain domain : domains) {
             LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
-            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 3L, TimeUnit.MINUTES);
+            domainTaskExecutor.submit(createEntriesCall, domain, true, 3L, TimeUnit.MINUTES);
         }
-    }
-
-    private Runnable transactionWrappedCall(Runnable createEntriesCall) {
-        return () -> {
-            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        createEntriesCall.run();
-                    } catch (Exception e) {
-                        LOG.error("Error while creating static dictionary entries", e);
-                    }
-                }
-            });
-        };
     }
 
     private Runnable createEntriesCall() {
         return () -> {
-            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
-            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
-            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
+            try {
+                staticDictionaryServiceHelper.createEntries();
+            } catch (Exception e) {
+                LOG.error("Error while creating static dictionary entries", e);
+            }
         };
     }
 

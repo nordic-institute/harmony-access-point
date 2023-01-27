@@ -58,7 +58,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     public void validateUserAccess(UserMessage userMessage) {
-        String authOriginalUser = authUtils.getOriginalUser();
+        String authOriginalUser = authUtils.getOriginalUserOrNullIfAdmin();
         List<String> propertyNames = new ArrayList<>();
         propertyNames.add(MessageConstants.ORIGINAL_SENDER);
         propertyNames.add(MessageConstants.FINAL_RECIPIENT);

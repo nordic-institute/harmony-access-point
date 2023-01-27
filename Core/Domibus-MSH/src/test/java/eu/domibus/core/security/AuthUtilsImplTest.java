@@ -470,7 +470,7 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        assertTrue(authUtilsImpl.isAdminMultiAware());
+        assertTrue(authUtilsImpl.isAPAdmin());
 
         new FullVerifications() {
         };
@@ -486,7 +486,7 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        assertTrue(authUtilsImpl.isAdminMultiAware());
+        assertTrue(authUtilsImpl.isAPAdmin());
 
         new FullVerifications() {
         };

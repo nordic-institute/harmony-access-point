@@ -348,9 +348,9 @@ public class DomibusEArchiveExtResource {
      * Request to update the start date of the next continuous archive job.
      */
     @Operation(summary = "Reset the Continuous archiving with a date",
-            description = "This REST endpoint force the continuous archiving process to start at a given date provided by the user." +
-                    " All messages older than this date will be consider for archiving if they are not already archived," +
-                    " not deleted and in a final state.",
+            description = "This REST endpoint forces the continuous archiving process to start at a given date provided by the user." +
+                    " All messages newer than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final successful state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/continuous-mechanism/start-date")
     public void resetContinuousArchivingStartDate(
@@ -377,9 +377,9 @@ public class DomibusEArchiveExtResource {
      * Request to update the start date of the next archive job.
      */
     @Operation(summary = "Reset the Sanity archiving with a date",
-            description = "This REST endpoint force the sanity archiving process to start at a given date provided by the user." +
-                    " All messages older than this date will be consider for archiving if they are not already archived," +
-                    " not deleted and in a final state.",
+            description = "This REST endpoint forces the sanity archiving process to start at a given date provided by the user." +
+                    " All messages newer than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final successful state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/sanity-mechanism/start-date")
     public void resetSanityArchivingStartDate(

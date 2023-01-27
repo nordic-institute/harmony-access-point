@@ -43,12 +43,16 @@ public abstract class FSAbstractPurgeService {
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-                FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
+             FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
 
             contentFiles = findAllDescendants(targetFolder);
             LOG.debug("Found files [{}]", contentFiles);
-            
+
             Integer expirationLimit = getExpirationLimit(domain);
+            if (expirationLimit == null || expirationLimit <= 0) {
+                LOG.debug("Expiration limit is null or not positive [{}]; no purging", expirationLimit);
+                return;
+            }
 
             for (FileObject processableFile : contentFiles) {
                 checkAndPurge(processableFile, expirationLimit);

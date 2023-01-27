@@ -40,8 +40,11 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -151,8 +154,8 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     DateUtil dateUtil;
 
-//    @Injectable
-//    private MessageInfoDao messageInfoDao;
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
     @Injectable
     private MessageAttemptDao messageAttemptDao;
@@ -850,38 +853,12 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            userMessageLog.getDeleted();
-            result = null;
-
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
         }};
 
         final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         Assert.assertNotNull(message);
-    }
-
-    @Test
-    public void getMessageNotInFinalStatus_deleted(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        Date deleted = new Date();
-        new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-            result = userMessageLog;
-
-            userMessageLog.getDeleted();
-            result = deleted;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.ACKNOWLEDGED;
-        }};
-
-        try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            fail();
-        } catch (MessagingException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] in state [" + MessageStatus.ACKNOWLEDGED.name() + "] is already deleted. Delete time: [" + deleted + "]"));
-        }
     }
 
     @Test
@@ -892,9 +869,6 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            userMessageLog.getDeleted();
-            result = null;
-
             userMessageLog.getMessageStatus();
             result = MessageStatus.ACKNOWLEDGED;
         }};
@@ -902,7 +876,7 @@ public class UserMessageDefaultServiceTest {
         try {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             fail();
-        } catch (MessagingException ex) {
+        } catch (UserMessageException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
         }
     }
@@ -941,13 +915,13 @@ public class UserMessageDefaultServiceTest {
             result = messageId;
             userMessageLogDto.getMshRole();
             result = MSHRole.SENDING;
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
+            userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+        userMessageDefaultService.deleteMessagesNotInFinalStatusDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
         new FullVerifications() {
         };

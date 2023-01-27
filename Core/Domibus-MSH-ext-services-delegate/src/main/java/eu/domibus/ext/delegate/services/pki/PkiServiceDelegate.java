@@ -36,6 +36,4 @@ public class PkiServiceDelegate implements PkiExtService {
     public X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider) {
         return certificateService.getCertificatesWithProvider(certificates, provider);
     }
-
-
 }

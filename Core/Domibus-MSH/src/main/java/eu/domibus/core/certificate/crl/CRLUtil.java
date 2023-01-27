@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -86,7 +87,7 @@ public class CRLUtil {
 
         try (InputStream crlStream = getCrlInputStream(url)) {
             LOG.debug("Downloaded [{}] [{}]", url, crlStream.available());
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            CertificateFactory cf = CertificateFactory.getInstance("X.509", "BC");
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (final Exception exc) {
             throw new DomibusCRLException("Can not download CRL from pki distribution point: " + crlURL, exc);
@@ -118,10 +119,10 @@ public class CRLUtil {
                 throw new DomibusCRLException("error downloading CRL from '" + ldapURL + "'");
             } else {
                 inStream = new ByteArrayInputStream(value);
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                CertificateFactory cf = CertificateFactory.getInstance("X.509", "BC");
                 return (X509CRL) cf.generateCRL(inStream);
             }
-        } catch (NamingException | CertificateException | CRLException e) {
+        } catch (NamingException | CertificateException | NoSuchProviderException | CRLException e) {
             throw new DomibusCRLException("Cannot download CRL from '" + ldapURL + "'", e);
         } finally {
             IOUtils.closeQuietly(inStream);

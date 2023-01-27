@@ -193,6 +193,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         l_lang_context PLS_INTEGER := DBMS_LOB.default_lang_ctx;
         l_warning      PLS_INTEGER := DBMS_LOB.warn_inconvertible_char;
     BEGIN
+        IF p_data IS NULL THEN
+            log_verbose('No CLOB data to convert to a BLOB');
+            RETURN l_blob;
+        END IF;
+
         DBMS_LOB.createtemporary(
                 lob_loc => l_blob,
                 cache => TRUE);

@@ -43,13 +43,14 @@ public class WSPluginLoggingEventSenderTest {
 
     @Test
     public void test_checkIfApacheCxfLoggingInfoEnabled(final @Injectable Logger logger) {
+        new MockUp<LoggerFactory>() {
+            @Mock
+            public Logger getLogger(String value) {
+                return logger;
+            }
+        };
+
         new Expectations() {{
-            new MockUp<LoggerFactory>() {
-                @Mock
-                public Logger getLogger(String value) {
-                    return logger;
-                }
-            };
             logger.isInfoEnabled();
             result = true;
         }};
