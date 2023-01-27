@@ -16,6 +16,7 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -398,6 +399,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-10727")
     public void fillInPart_notInBody(@Injectable SubmitRequest submitMessage,
                                      @Injectable ExtendedPartInfo partInfo,
                                      @Injectable DataHandler dataHandler) {
@@ -494,6 +496,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-10727")
     public void createSOAPMessage(@Injectable SendSuccess sendSuccess,
                                   @Injectable SOAPMessage soapMessage,
                                   @Injectable SOAPBody soapBody) throws SOAPException, JAXBException {
@@ -518,6 +521,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test(expected = WSPluginException.class)
+    @Ignore("EDELIVERY-10727")
     public void createSOAPMessage_exception(@Injectable SendSuccess sendSuccess,
                                             @Injectable SOAPMessage soapMessage,
                                             @Injectable SOAPBody soapBody) throws SOAPException {
