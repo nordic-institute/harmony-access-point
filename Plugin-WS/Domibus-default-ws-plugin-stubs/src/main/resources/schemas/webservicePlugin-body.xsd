@@ -114,6 +114,7 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+                <xsd:element name="accessPointRole" type="tns:mshRole"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
