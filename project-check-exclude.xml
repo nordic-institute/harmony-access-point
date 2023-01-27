@@ -543,4 +543,11 @@
         <cve>CVE-2021-4277</cve>
     </suppress>
     <!-- End CVE-2021-4277 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/core:8.2.14
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
+        <vulnerabilityName>1088994</vulnerabilityName>
+    </suppress>
 </suppressions>
