@@ -21,7 +21,7 @@ public interface AuthUtils {
      * Returns the original user passed via the security context OR
      * null when the user has the role ROLE_ADMIN
      */
-    String getOriginalUser();
+    String getOriginalUserOrNullIfAdmin();
 
     String getAuthenticatedUser();
 
@@ -44,7 +44,7 @@ public interface AuthUtils {
 
     void setAuthenticationToSecurityContext(String user, String password, AuthRole authRole);
 
-    boolean isAdminMultiAware();
+    boolean isAPAdmin();
 
     /**
      * Clear spring security context from thread

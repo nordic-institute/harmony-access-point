@@ -171,8 +171,9 @@ public class WSPluginBackendScheduleRetryServiceTest {
     @Test
     public void send(@Injectable WSPluginDispatchRule rule,
                      @Injectable WSBackendMessageLogEntity backendMessage) {
+
         new Expectations(retryService) {{
-            retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
+            retryService.createWsBackendMessageLogEntity((List<String>)any, WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
             result = backendMessage;
 
             backendMessage.getEntityId();
@@ -180,6 +181,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
 
             retryService.scheduleBackendMessage(backendMessage);
             times = 1;
+
         }};
 
         retryService.schedule(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
@@ -187,6 +189,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
         new FullVerifications() {{
             wsBackendMessageLogDao.create(backendMessage);
             times = 1;
+
         }};
     }
 }

@@ -144,6 +144,16 @@ public interface MessageMonitorExtService {
     @Deprecated
     void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
 
+    /**
+     * Operation to delete a message which is in final statuses in the access point.
+     * <p>Only the payload will be deleted. The LOGs tables will keep track of the message.
+     *
+     * @param messageId Unique id of the message
+     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
+     * @throws MessageMonitorExtException Raised in case an exception occurs while trying to delete the message
+     */
+    void deleteMessageInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
+
     void deleteMessageNotInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
 
     /**
@@ -165,4 +175,22 @@ public interface MessageMonitorExtService {
      */
     List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
 
+    /**
+     * Operation to delete all messages which are in the final status
+     * during the period occurred between the "begin" and "end" times.
+     * <p>This operation will set each message to DELETED status.</p>
+     *
+     * The method takes into account the user permissions:
+     * <ul>
+     * <li>It delete all messages matching the criteria if unsecured authorization is allowed or the user has ROLE_ADMIN</li>
+     * <li>It delete all the messages matching the finalRecipient value in case the user has ROLE_USER</li>
+     * </ul>
+     *
+     * @param begin ID_PK date-hour starting period
+     * @param end   ID_PK date-hour ending period (excluded)
+     * @return List the messages ids's list of successfully deleted messages.
+     * @throws MessageMonitorExtException Raised in case a blocking event occurs. It is not raised when the operation is successful for at least one message
+     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
+     */
+    List<String> deleteMessagesInFinalStatusDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
 }

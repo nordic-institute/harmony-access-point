@@ -63,8 +63,8 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> getFailedMessages(String finalRecipient) throws AuthenticationExtException, MessageMonitorExtException {
         LOG.debug("Getting failed messages with finalRecipient [{}]", finalRecipient);
-        String originalUserFromSecurityContext = getUser();
-        return userMessageService.getFailedMessages(finalRecipient, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.getFailedMessages(finalRecipient, originalUser);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = getUser();
-        return restoreService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return restoreService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUser);
     }
 
     @Override
@@ -102,6 +102,17 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
         userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
         return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
+    }
+
+    @Override
+    public void deleteMessageInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
+        userMessageSecurityService.checkMessageAuthorization(messageId);
+        try {
+            userMessageService.deleteMessageInFinalStatus(messageId, MSHRole.SENDING);
+        } catch (MessageNotFoundException ex) {
+            LOG.info("Could not find a message with id [{}] and SENDING role. Trying RECEIVING role.", messageId);
+            userMessageService.deleteMessageInFinalStatus(messageId, MSHRole.RECEIVING);
+        }
     }
 
     @Override
@@ -129,15 +140,17 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = getUser();
-        return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.deleteMessagesNotInFinalStatusDuringPeriod(begin, end, originalUser);
     }
 
-    private String getUser() {
-        String originalUserFromSecurityContext = authUtils.getOriginalUser();
-        if (StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
-        }
-        return originalUserFromSecurityContext;
+    @Override
+    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
+        String originalUser = getOriginalUserOrNullIfAdmin();
+        return userMessageService.deleteMessagesInFinalStatusDuringPeriod(begin, end, originalUser);
+    }
+
+    private String getOriginalUserOrNullIfAdmin() {
+        return authUtils.getOriginalUserOrNullIfAdmin();
     }
 }

@@ -54,6 +54,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchProviderException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -269,6 +270,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             }
         } catch (CertificateException certEx) {
             throw new SoapFault("CertificateException", certEx, version.getSender());
+        } catch (NoSuchProviderException certEx) {
+            throw new SoapFault("NoSuchProviderException", certEx, version.getSender());
         } catch (WSSecurityException wssEx) {
             throw new SoapFault("WSSecurityException", wssEx, version.getSender());
         } catch (SOAPException | URISyntaxException soapEx) {
@@ -296,7 +299,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         return found ? buf.toString() : null;
     }
 
-    protected List<? extends Certificate> getCertificateFromBinarySecurityToken(Element securityHeader, BinarySecurityTokenReference tokenReference) throws WSSecurityException, CertificateException, URISyntaxException {
+    protected List<? extends Certificate> getCertificateFromBinarySecurityToken(Element securityHeader, BinarySecurityTokenReference tokenReference) throws WSSecurityException, NoSuchProviderException, CertificateException, URISyntaxException {
 
         URI uri = new URI(tokenReference.getUri());
         URI valueTypeUri = new URI(tokenReference.getValueType());
@@ -350,7 +353,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                 if (X_509_V_3.equalsIgnoreCase(valueType)) {
                     String certStr = ("-----BEGIN CERTIFICATE-----\n" + certString + "\n-----END CERTIFICATE-----\n");
                     InputStream in = new ByteArrayInputStream(certStr.getBytes());
-                    CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                    CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
                     final Certificate certificate = certFactory.generateCertificate(in);
                     return Lists.newArrayList(certificate);
                 } else if (X_509_PKIPATHV_1.equalsIgnoreCase(valueType)) {
