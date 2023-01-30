@@ -56,6 +56,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         try {
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            // Restore interrupted state
+            Thread.currentThread().interrupt();
             throw new DomainTaskException("Could not execute task", e);
         }
     }

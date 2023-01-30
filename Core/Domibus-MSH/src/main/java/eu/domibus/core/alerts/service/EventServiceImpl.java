@@ -315,7 +315,7 @@ public class EventServiceImpl implements EventService {
         if (eventProperties == null || eventProperties.get() == null
                 || eventType.getProperties().size() != eventProperties.get().length) {
             throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
-                    Arrays.toString(eventProperties.get()), eventType.getProperties()));
+                    Arrays.toString(Optional.ofNullable(eventProperties).map(EventProperties::get).orElse(null)), eventType.getProperties()));
         }
         for (int i = 0; i < eventProperties.get().length; i++) {
             String prop = eventType.getProperties().get(i);
