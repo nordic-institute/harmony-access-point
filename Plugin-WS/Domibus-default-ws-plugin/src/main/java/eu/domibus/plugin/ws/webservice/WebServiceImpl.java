@@ -437,13 +437,44 @@ public class WebServiceImpl implements WebServicePluginInterface {
         if (nbrMessagesToRepush > repushMaxCount) {
             throw new RePushFailedMessagesFault("Invalid argument", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Too many messages. the limit is [" + PROP_LIST_REPUSH_MESSAGES_MAXCOUNT + "]:" + repushMaxCount + ". Actual is: " + nbrMessagesToRepush));
         }
+        List<String> validMessageIds = getValidMessageIds(rePushFailedMessagesRequest);
         try {
-            wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
+            wsBackendMessageLogService.updateForRetry(validMessageIds);
         } catch (WSPluginException e) {
             throw new RePushFailedMessagesFault("RePush has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0009, "At least one message was not found"));
         }
 
         LOG.info("Messages updated for retry successfully");
+    }
+
+
+    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+        List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
+        List<String> trimmedMessageIds = null;
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
+        for (String messageId : messageIds) {
+
+            if (StringUtils.isEmpty(messageId)) {
+                LOG.error(MESSAGE_ID_EMPTY);
+                throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+            }
+            if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+            }
+            pushFailedMessagesRequest.setMessageId(messageId);
+            ListPushFailedMessagesResponse response;
+            try {
+                response = listPushFailedMessages(pushFailedMessagesRequest);
+            } catch (ListPushFailedMessagesFault ex) {
+                throw new RePushFailedMessagesFault(" List Push Failed Messages has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, ex.getMessage()));
+            }
+            if (!response.getMessageID().contains(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
+            }
+
+            trimmedMessageIds.add(StringUtils.trim(messageId));
+        }
+        return trimmedMessageIds;
     }
 
     /**
@@ -686,8 +717,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         validateMessageIdForGetMessageErrors(messageId);
 
         if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
-            LOG.error(ACCESS_POINT_ROLE_EMPTY);
-            throw new GetMessageErrorsFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty or invalid"));
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new GetMessageErrorsFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
         }
 
         MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
