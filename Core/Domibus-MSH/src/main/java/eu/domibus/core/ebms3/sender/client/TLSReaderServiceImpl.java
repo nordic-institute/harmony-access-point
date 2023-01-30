@@ -174,7 +174,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         //If we DO NOT have JAXB annotated class
         JAXBElement<TLSClientParametersType> jaxbElement =
                 new JAXBElement<TLSClientParametersType>(
-                        new QName("http://cxf.apache.org/transports/http/configuration", "tlsClientParameters"),
+                        new QName("http://cxf.apache.org/transports/http/configuration", "tlsClientParameters", "http-conf"),
                         TLSClientParametersType.class,
                         tls);
 
