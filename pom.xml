@@ -1497,6 +1497,7 @@
                 <module>Weblogic</module>
             </modules>
             <dependencies>
+                <!--excluding this jar that's needed only for versions of Java greater than 8; fixing BEA-160248-->
                 <dependency>
                     <groupId>jakarta.xml.bind</groupId>
                     <artifactId>jakarta.xml.bind-api</artifactId>
@@ -1510,6 +1511,15 @@
             <modules>
                 <module>Weblogic</module>
             </modules>
+            <dependencies>
+                <!--excluding this jar that's needed only for versions of Java greater than 8; fixing BEA-160248-->
+                <dependency>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>4.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>wildfly</id>
