@@ -29,16 +29,12 @@ public interface KeystorePersistenceInfo {
      */
     String getFileLocation();
 
-    void setFileLocation(String fileLocation);
-
     /**
      * The type of the keyStore
      *
      * @return
      */
     String getType();
-
-    void setType(String type);
 
     /**
      * The password of the keyStore
@@ -47,4 +43,5 @@ public interface KeystorePersistenceInfo {
      */
     String getPassword();
 
+    void updateTypeAndFileLocation(String type, String fileLocation);
 }

@@ -155,11 +155,6 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public void setFileLocation(String fileLocation) {
-            setTlsTrustStoreLocation(fileLocation);
-        }
-
-        @Override
         public boolean isOptional() {
             return true;
         }
@@ -171,25 +166,20 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public void setType(String type) {
-            // todo implement change
-        }
-
-        @Override
         public String getPassword() {
             Optional<KeyStoreType> params = getTruststoreParams();
             return params.map(KeyStoreType::getPassword).orElse(null);
         }
+
+        @Override
+        public void updateTypeAndFileLocation(String type,String fileLocation) {
+            setTlsTrustStoreTypeAndFileLocation(type, fileLocation);
+        }
     }
 
-    void setTlsTrustStoreType(String type) {
+    void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
         final String domainCode = getDomainCode();
-        tlsReaderService.setTlsTrustStoreType(domainCode, type);
-    }
-
-    void setTlsTrustStoreLocation(String fileLocation) {
-        final String domainCode = getDomainCode();
-        tlsReaderService.setTlsTrustStoreLocation(domainCode, fileLocation);
+        tlsReaderService.setTlsTrustStoreProperties(domainCode, type,fileLocation);
     }
 
     private String getDomainCode() {

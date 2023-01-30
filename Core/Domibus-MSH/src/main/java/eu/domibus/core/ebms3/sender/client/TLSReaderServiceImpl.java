@@ -104,7 +104,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     @Override
-    public void setTlsTrustStoreLocation(String domainCode, String location) {
+    public void setTlsTrustStoreProperties(String domainCode, String type, String fileLocation) {
         Optional<TLSClientParametersType> tlsParams = getTlsTrustStoreConfiguration(domainCode);
         if (!tlsParams.isPresent()) {
             return;
@@ -112,7 +112,8 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
 
         KeyStoreType store = tlsParams.get().getTrustManagers().getKeyStore();
-        store.setFile(location);
+        store.setType(type);
+        store.setFile(fileLocation);
         try {
             persistTLSParameters(tlsParams.get(), path.get());
         } catch (JAXBException |  FileNotFoundException e) {
@@ -124,7 +125,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public void setTlsTrustStoreType(String domainCode, String type) {
 
     }
-    
+
     private String getFileContent(Optional<Path> path) throws IOException {
         byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);

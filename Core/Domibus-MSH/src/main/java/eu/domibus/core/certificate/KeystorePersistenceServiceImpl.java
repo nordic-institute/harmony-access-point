@@ -172,9 +172,8 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
                 Files.write(newStoreFileLocation, storeContent, StandardOpenOption.CREATE);
 
-                persistenceInfo.setType(storeType);
                 String newFileLocationString = newStoreFileLocation.toString().replace("\\", "/");
-                persistenceInfo.setFileLocation(newFileLocationString);
+                persistenceInfo.updateTypeAndFileLocation(storeType, newFileLocationString);
             }
         } catch (IOException e) {
             throw new CryptoException("Could not persist store:", e);
@@ -229,23 +228,19 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public void setFileLocation(String filLocation) {
-            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, filLocation);
-        }
-
-        @Override
         public String getType() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
         }
 
         @Override
-        public void setType(String type) {
-            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, type);
+        public String getPassword() {
+            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
         }
 
         @Override
-        public String getPassword() {
-            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        public void updateTypeAndFileLocation(String type, String fileLocation) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, type);
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, fileLocation);
         }
     }
 
@@ -267,23 +262,19 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public void setFileLocation(String filLocation) {
-            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, filLocation);
-        }
-
-        @Override
         public String getType() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE);
         }
 
         @Override
-        public void setType(String type) {
-            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
+        public String getPassword() {
+            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
         }
 
         @Override
-        public String getPassword() {
-            return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        public void updateTypeAndFileLocation(String type, String fileLocation) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, fileLocation);
         }
     }
 }

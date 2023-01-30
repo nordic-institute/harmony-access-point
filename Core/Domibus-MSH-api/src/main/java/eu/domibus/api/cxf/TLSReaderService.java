@@ -27,7 +27,7 @@ public interface TLSReaderService {
      */
     Optional<TLSClientParametersType> getTlsTrustStoreConfiguration(String domainCode);
 
-    void setTlsTrustStoreLocation(String domainCode, String location);
+    void setTlsTrustStoreProperties(String domainCode, String location, String fileLocation);
 
     /**
      * Dismisses the TLS data from the cache forcing a fresh reload on the next use
