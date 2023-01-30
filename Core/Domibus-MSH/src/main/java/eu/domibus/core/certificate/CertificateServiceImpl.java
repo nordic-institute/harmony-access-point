@@ -10,8 +10,6 @@ import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.property.encryption.PasswordEncryptionResult;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
@@ -20,7 +18,6 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
@@ -65,7 +62,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -734,13 +730,13 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected KeyStore loadStore(byte[] content, String password, String type) {
-        try (InputStream contentStream = new ByteArrayInputStream(content)) {
-            return loadStore(contentStream, password, type);
-        } catch (Exception ex) {
-            throw new ConfigurationException("Exception loading store.", ex);
-        }
-    }
+//    protected KeyStore loadStore(byte[] content, String password, String type) {
+//        try (InputStream contentStream = new ByteArrayInputStream(content)) {
+//            return loadStore(contentStream, password, type);
+//        } catch (Exception ex) {
+//            throw new ConfigurationException("Exception loading store.", ex);
+//        }
+//    }
 
     /**
      * @return EntityId of the {@link TruststoreEntity}
@@ -1079,26 +1075,20 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean isStoreNewerOnDisk(KeystorePersistenceInfo persistenceInfo) {
-        return false;
-//        String location = persistenceInfo.getFileLocation();
-//        String storeName = persistenceInfo.getName();
-//
-//        File storeFile = createFileWithLocation(location);
-//        if (persisted.getModificationTime().getTime() >= storeFile.lastModified()) {
-//            LOG.debug("The persisted store [{}] is newer than on disc.", storeName);
-//            return false;
-//        }
-//        LOG.info("The store [{}] on disk is newer than the one persisted.", storeName);
-//
-//        byte[] contentOnDisk = getStoreContentFromFile(location);
-//        boolean different = !Arrays.equals(persisted.getContent(), contentOnDisk);
-//        if (different) {
-//            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
-//        } else {
-//            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
-//        }
-//        return different;
+    public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        String location = persistenceInfo.getFileLocation();
+        String storeName = persistenceInfo.getName();
+
+        byte[] contentOnDisk = getStoreContentFromFile(location);
+        byte[] storeContent = getStoreContent(store, storeName, persistenceInfo.getPassword()).getContent();
+
+        boolean different = !Arrays.equals(storeContent, contentOnDisk);
+        if (different) {
+            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
+        } else {
+            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+        }
+        return different;
     }
 
     private String decrypt(String trustName, String password) {

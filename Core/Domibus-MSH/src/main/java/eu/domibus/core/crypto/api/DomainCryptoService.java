@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreInfo;
@@ -88,4 +87,8 @@ public interface DomainCryptoService {
     void resetStores();
 
     void resetSecurityProfiles();
+
+    boolean isTrustStoreChangedOnDisk();
+
+    boolean isKeyStoreChangedOnDisk();
 }

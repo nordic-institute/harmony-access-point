@@ -27,8 +27,6 @@ import javax.validation.constraints.NotNull;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
-
 /**
  * @author Mircea Musat
  * @author Ion Perpegel
@@ -110,7 +108,9 @@ public class TruststoreResource extends TruststoreResourceBase {
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isStoreNewerOnDisk(keystorePersistenceService.getTrustStorePersistenceInfo());
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        return multiDomainCertificateProvider.isTrustStoreChangedOnDisk(currentDomain);
+//        return certificateService.isStoreChangedOnDisk(keystorePersistenceService.getTrustStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")

@@ -155,6 +155,18 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public boolean isTrustStoreChangedOnDisk(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.isTrustStoreChangedOnDisk();
+    }
+
+    @Override
+    public boolean isKeyStoreChangedOnDisk(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.isKeyStoreChangedOnDisk();
+    }
+
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         certificateHelper.validateStoreFileName(storeFileName);
 

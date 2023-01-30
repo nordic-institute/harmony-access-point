@@ -1391,21 +1391,21 @@ public class CertificateServiceImplTest {
 //        }};
 //    }
 
-    @Test
-    public void loadTrustStoreFromContent(@Mocked InputStream contentStream) {
-        byte[] content = {1, 2, 3};
-
-        thrown.expect(ConfigurationException.class);
-        thrown.expectMessage("Exception loading store.");
-
-        new Expectations(certificateService) {{
-            certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
-            result = new IOException();
-        }};
-
-        // When
-        certificateService.loadStore(content, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
-    }
+//    @Test
+//    public void loadTrustStoreFromContent(@Mocked InputStream contentStream) {
+//        byte[] content = {1, 2, 3};
+//
+//        thrown.expect(ConfigurationException.class);
+//        thrown.expectMessage("Exception loading store.");
+//
+//        new Expectations(certificateService) {{
+//            certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+//            result = new IOException();
+//        }};
+//
+//        // When
+//        certificateService.loadStore(content, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+//    }
 
     @Test
     public void loadTrustStoreFromStream(@Mocked InputStream contentStream,

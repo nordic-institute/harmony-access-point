@@ -1,7 +1,6 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -86,4 +85,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void resetSecurityProfiles(Domain domain);
 
+    boolean isTrustStoreChangedOnDisk(Domain currentDomain);
+
+    boolean isKeyStoreChangedOnDisk(Domain currentDomain);
 }

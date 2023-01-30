@@ -27,8 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
-
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -99,7 +97,9 @@ public class KeystoreResource extends TruststoreResourceBase {
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the keystore has changed on disk for the current domain");
-        return certificateService.isStoreNewerOnDisk(keystorePersistenceService.getKeyStorePersistenceInfo());
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        return multiDomainCertificateProvider.isKeyStoreChangedOnDisk(currentDomain);
+//        return certificateService.isStoreChangedOnDisk(keystorePersistenceService.getKeyStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")

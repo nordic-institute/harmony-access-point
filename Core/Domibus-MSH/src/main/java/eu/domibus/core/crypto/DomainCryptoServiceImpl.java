@@ -32,8 +32,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -276,6 +274,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     public void resetSecurityProfiles() {
         getIAMProvider();
         iamProvider.resetSecurityProfiles();
+    }
+
+    @Override
+    public boolean isTrustStoreChangedOnDisk() {
+        return iamProvider.isTrustStoreChangedOnDisk();
+    }
+
+    @Override
+    public boolean isKeyStoreChangedOnDisk() {
+        return iamProvider.isKeyStoreChangedOnDisk();
     }
 
     private void getIAMProvider() {

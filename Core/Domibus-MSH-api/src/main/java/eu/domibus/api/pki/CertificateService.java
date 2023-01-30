@@ -228,8 +228,9 @@ public interface CertificateService {
     /**
      * Checks if the database saved store is different that the one on the disk
      * @param storeName the truststore or keystore
+     * @param trustStore
      * @return true if they are different
      */
-    boolean isStoreNewerOnDisk(KeystorePersistenceInfo storeName);
+    boolean isStoreChangedOnDisk(KeyStore trustStore, KeystorePersistenceInfo persistenceInfo);
 
 }

@@ -5,10 +5,12 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.*;
+import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
-import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
@@ -36,8 +38,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -68,8 +68,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
-    private final CertificateHelper certificateHelper;
-
     private final KeystorePersistenceService keystorePersistenceService;
 
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
@@ -77,14 +75,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
-                                             SecurityUtilImpl securityUtil, CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService) {
+                                             SecurityUtilImpl securityUtil,
+                                             KeystorePersistenceService keystorePersistenceService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
-        this.certificateHelper = certificateHelper;
         this.keystorePersistenceService = keystorePersistenceService;
     }
 
@@ -336,18 +334,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    // not used currently
-    public synchronized void replaceTrustStore(String storeLocation, String storePassword) throws CryptoSpiException {
-//        try {
-//            certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
-//        } catch (CryptoException ex) {
-//            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
-//            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
-//        }
-//        refreshTrustStore();
-    }
-
-    @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
             KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
@@ -360,8 +346,35 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    // not used anymore
+    // not used currently
+    public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
+                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
+            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
+                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
+        }
+        refreshTrustStore();
+
+//        try {
+//            certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
+//        } catch (CryptoException ex) {
+//            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
+//            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
+//        }
+//        refreshTrustStore();
+    }
+
+    @Override
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
+                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
+            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
+                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
+        }
+        refreshKeyStore();
+
 //        try {
 //            certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
 //        } catch (CryptoException ex) {
@@ -422,6 +435,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void setDomain(DomainSpi domain) {
         this.domain = coreMapper.domainSpiToDomain(domain);
+    }
+
+    @Override
+    public boolean isTrustStoreChangedOnDisk() {
+        return certificateService.isStoreChangedOnDisk(getTrustStore(), keystorePersistenceService.getTrustStorePersistenceInfo());
+    }
+
+    @Override
+    public boolean isKeyStoreChangedOnDisk() {
+        return certificateService.isStoreChangedOnDisk(getKeyStore(), keystorePersistenceService.getKeyStorePersistenceInfo());
     }
 
     protected void initTrustStore() {
