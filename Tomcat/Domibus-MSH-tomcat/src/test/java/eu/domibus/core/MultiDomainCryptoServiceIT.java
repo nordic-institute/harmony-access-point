@@ -1,12 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.Certificate;
 import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateServiceImpl;
@@ -18,17 +13,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
