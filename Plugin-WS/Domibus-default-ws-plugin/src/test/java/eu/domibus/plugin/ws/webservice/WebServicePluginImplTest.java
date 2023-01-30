@@ -16,6 +16,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -232,7 +233,7 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);
-
+            Assert.fail();
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
             assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
         }
@@ -258,7 +259,7 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.rePushFailedMessages(rePushFailedMessagesRequest);
-
+            Assert.fail();
         } catch (RePushFailedMessagesFault | ListPushFailedMessagesFault pushFailedMessagesFault) {
             assertEquals("Invalid Message Id. ", pushFailedMessagesFault.getMessage());
         }
