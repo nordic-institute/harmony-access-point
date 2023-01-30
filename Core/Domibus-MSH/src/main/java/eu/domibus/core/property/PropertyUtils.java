@@ -58,7 +58,7 @@ public class PropertyUtils {
             return propertyValue;
         }
 
-        if (propertiesFilePath != null && propertiesFilePath.isPresent()) {
+        if (propertiesFilePath.isPresent()) {
             Path path = propertiesFilePath.get();
             LOG.info("Searching inside the properties file at [{}]", path);
             if (!Files.isRegularFile(path)) {
