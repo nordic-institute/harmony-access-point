@@ -125,10 +125,10 @@ public class TruststoreResource extends TruststoreResourceBase {
         multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
     }
 
-    @Override
-    protected void auditDownload() {
-        auditService.addTruststoreDownloadedAudit(getStoreName());
-    }
+//    @Override
+//    protected void auditDownload() {
+//        auditService.addTruststoreDownloadedAudit(getStoreName());
+//    }
 
     @Override
     protected KeyStoreInfo getTrustStoreContent() {

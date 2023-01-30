@@ -104,7 +104,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     @Override
-    public void setTlsTrustStoreProperties(String domainCode, String type, String fileLocation) {
+    public void updateTlsTrustStoreConfiguration(String domainCode, String type, String fileLocation) {
         Optional<TLSClientParametersType> tlsParams = getTlsTrustStoreConfiguration(domainCode);
         if (!tlsParams.isPresent()) {
             return;
@@ -119,11 +119,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         } catch (JAXBException |  FileNotFoundException e) {
             throw new DomibusCertificateException("Could not update location in client authentication file for domain [" + domainCode + "]", e);
         }
-    }
-
-    @Override
-    public void setTlsTrustStoreType(String domainCode, String type) {
-
     }
 
     private String getFileContent(Optional<Path> path) throws IOException {

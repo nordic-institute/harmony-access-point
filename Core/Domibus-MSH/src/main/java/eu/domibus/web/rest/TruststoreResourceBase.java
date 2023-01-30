@@ -106,7 +106,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 .body(resource);
     }
 
-    protected abstract void auditDownload();
+    protected void auditDownload() {
+        auditService.addKeystoreDownloadedAudit(getStoreName());
+    }
 
     protected abstract KeyStoreInfo getTrustStoreContent();
 

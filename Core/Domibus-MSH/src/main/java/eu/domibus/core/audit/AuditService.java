@@ -119,21 +119,21 @@ public interface AuditService {
      *
      * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      */
-    void addTruststoreDownloadedAudit(String id);
+//    void addTruststoreDownloadedAudit(String id);
 
     /**
      * Add TLS truststore downloaded
      *
      * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      */
-    void addTLSTruststoreDownloadedAudit(String id);
+//    void addTLSTruststoreDownloadedAudit(String id);
 
     /**
      * Add TLS Truststore uploaded
      *
      * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      **/
-    void addTLSTruststoreUploadedAudit(String id);
+//    void addTLSTruststoreUploadedAudit(String id);
 
     /**
      * Add keystore downloaded
@@ -166,6 +166,6 @@ public interface AuditService {
 
     void addStoreReplacedAudit(String storeName);
 
-    void addStoreCreatedAudit(String storeName);
+//    void addStoreCreatedAudit(String storeName);
 }
 

@@ -626,6 +626,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (addedNr > 0) {
             LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
             keystorePersistenceService.saveToDisk(store, persistenceInfo);
+            auditService.addCertificateAddedAudit(persistenceInfo.getName());
             return true;
         }
         LOG.trace("Added 0 certificates so exiting without persisting the store.");
@@ -648,6 +649,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (removedNr > 0) {
             LOG.debug("Removed [{}] certificates so persisting the store.", removedNr);
             keystorePersistenceService.saveToDisk(store, persistenceInfo);
+            auditService.addCertificateRemovedAudit(persistenceInfo.getName());
             return true;
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the store.");

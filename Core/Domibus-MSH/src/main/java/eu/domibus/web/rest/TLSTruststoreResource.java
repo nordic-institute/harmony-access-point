@@ -78,10 +78,10 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
     }
 
-    @Override
-    protected void auditDownload() {
-        auditService.addTLSTruststoreDownloadedAudit(getStoreName());
-    }
+//    @Override
+//    protected void auditDownload() {
+//        auditService.addTLSTruststoreDownloadedAudit(getStoreName());
+//    }
 
     @Override
     protected KeyStoreInfo getTrustStoreContent() {

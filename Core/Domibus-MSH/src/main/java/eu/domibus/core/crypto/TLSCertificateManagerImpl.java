@@ -44,22 +44,23 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     protected final DomainService domainService;
 
-    protected final AuditService auditService;
+//    protected final AuditService auditService;
 
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
                                      SignalService signalService,
                                      DomibusConfigurationService domibusConfigurationService,
-                                     DomainService domainService,
-                                     AuditService auditService) {
+                                     DomainService domainService
+//                                     AuditService auditService
+    ) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainService = domainService;
-        this.auditService = auditService;
+//        this.auditService = auditService;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         certificateService.replaceStore(fileName, fileContent, filePassword, new KeystorePersistenceInfoImpl());
         resetTLSTruststore();
 
-        auditService.addTLSTruststoreUploadedAudit(TLS_TRUSTSTORE_NAME);
+//        auditService.addTLSTruststoreUploadedAudit(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             resetTLSTruststore();
         }
 
-        auditService.addCertificateAddedAudit(TLS_TRUSTSTORE_NAME);
+//        auditService.addCertificateAddedAudit(TLS_TRUSTSTORE_NAME);
 
         return added;
     }
@@ -112,7 +113,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             resetTLSTruststore();
         }
 
-        auditService.addCertificateRemovedAudit(TLS_TRUSTSTORE_NAME);
+//        auditService.addCertificateRemovedAudit(TLS_TRUSTSTORE_NAME);
 
         return removed;
     }
@@ -130,12 +131,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void onDomainRemoved(Domain domain) {
-//        removeTruststore(domain);
     }
-
-//    private void removeTruststore(Domain domain) {
-//        certificateService.removeStore(TLS_TRUSTSTORE_NAME, domain);
-//    }
 
     private void persistStores(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(new KeystorePersistenceInfoImpl(), domains);
@@ -179,18 +175,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
         final String domainCode = getDomainCode();
-        tlsReaderService.setTlsTrustStoreProperties(domainCode, type,fileLocation);
-    }
-
-    private String getDomainCode() {
-        final String domainCode;
-        if (domibusConfigurationService.isSingleTenantAware()) {
-            domainCode = null;
-        } else {
-            Domain domain = domainProvider.getCurrentDomain();
-            domainCode = domain != null ? domain.getCode() : null;
-        }
-        return domainCode;
+        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, type,fileLocation);
     }
 
     protected Optional<KeyStoreType> getTruststoreParams() {
@@ -213,4 +198,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         signalService.signalTLSTrustStoreUpdate(domain);
     }
 
+    private String getDomainCode() {
+        final String domainCode;
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            domainCode = null;
+        } else {
+            Domain domain = domainProvider.getCurrentDomain();
+            domainCode = domain != null ? domain.getCode() : null;
+        }
+        return domainCode;
+    }
 }

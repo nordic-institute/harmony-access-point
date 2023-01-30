@@ -201,27 +201,28 @@ public class AuditServiceImpl implements AuditService {
         handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param id
-     */
-    @Override
-    public void addTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
+//    /**
+//     * {@inheritDoc}
+//     * @param id
+//     */
+//    @Override
+//    public void addTruststoreDownloadedAudit(String id) {
+//        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+//    }
+
+//    @Override
+//    public void addTLSTruststoreDownloadedAudit(String id) {
+//        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+//    }
+
+//    @Override
+//    public void addTLSTruststoreUploadedAudit(String id) {
+//        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
+//    }
 
     @Override
-    public void addTLSTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-    @Override
-    public void addTLSTruststoreUploadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
-    }
-
-    @Override
-    public void addKeystoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    public void addKeystoreDownloadedAudit(String name) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(name, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
     @Override
@@ -246,10 +247,10 @@ public class AuditServiceImpl implements AuditService {
         auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
     }
 
-    @Override
-    public void addStoreCreatedAudit(String storeName) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(storeName, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
-    }
+//    @Override
+//    public void addStoreCreatedAudit(String storeName) {
+//        auditDao.saveTruststoreAudit(new TruststoreAudit(storeName, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
+//    }
 
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
         Domain domain = domainService.getDomain(domainCode);
