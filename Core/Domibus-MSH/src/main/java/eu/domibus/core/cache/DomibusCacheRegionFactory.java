@@ -28,25 +28,26 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
                 "method before using this class in Hibernate");
 
         final ClassPathResource classPathResource = new ClassPathResource(DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML);
-        CachingProvider provider = new EhcacheCachingProvider();
+        try (CachingProvider provider = new EhcacheCachingProvider()) {
 
-        CacheManager cacheManager;
-        try {
-            cacheManager = provider.getCacheManager(
-                    classPathResource.getURL().toURI(),
-                    classLoader);
-        } catch (Exception e) {
-            LOG.error("Cache manager could not be retrieved with defaultEhCacheFile [{}] and classloader [{}]. Use default cacheManager creation.",
-                    DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML,
-                    classLoader,
-                    e);
-            cacheManager = super.resolveCacheManager(settings, properties);
+            CacheManager cacheManager;
+            try {
+                cacheManager = provider.getCacheManager(
+                        classPathResource.getURL().toURI(),
+                        classLoader);
+            } catch (Exception e) {
+                LOG.error("Cache manager could not be retrieved with defaultEhCacheFile [{}] and classloader [{}]. Use default cacheManager creation.",
+                        DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML,
+                        classLoader,
+                        e);
+                cacheManager = super.resolveCacheManager(settings, properties);
+            }
+
+            // To prevent some class loader memory leak this might cause
+            setBeanClassLoader(null);
+
+            return cacheManager;
         }
-
-        // To prevent some class loader memory leak this might cause
-        setBeanClassLoader(null);
-
-        return cacheManager;
     }
 
     /**
