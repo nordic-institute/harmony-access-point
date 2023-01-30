@@ -648,9 +648,11 @@ public class WebServiceImpl implements WebServicePluginInterface {
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
         String messageId = messageErrorsRequest.getMessageID();
+        validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (DuplicateMessageFoundException e) {
             throw new GetMessageErrorsFault("Duplicate message found with Id" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
@@ -659,6 +661,46 @@ public class WebServiceImpl implements WebServicePluginInterface {
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         }
         return transformFromErrorResults(errorsForMessage);
+    }
+
+    /**
+     * @param messageErrorsRequestWithAccessPointRole
+     * @return returns eu.domibus.plugin.ws.generated.body.ErrorResultImplArray
+     * @throws GetMessageErrorsFault
+     */
+    @Override
+    public ErrorResultImplArray getMessageErrorsWithAccessPointRole(GetErrorsRequestWithAccessPointRole messageErrorsRequestWithAccessPointRole) throws GetMessageErrorsFault {
+        List<? extends ErrorResult> errorsForMessage;
+        String messageId = messageErrorsRequestWithAccessPointRole.getMessageID();
+
+        validateMessageIdForGetMessageErrors(messageId);
+
+        if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
+            LOG.error(ACCESS_POINT_ROLE_EMPTY);
+            throw new GetMessageErrorsFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty or invalid"));
+        }
+
+        MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
+        try {
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId, role);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
+        } catch (Exception e) {
+            throw new GetMessageErrorsFault("Couldn't find message errors" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, String.format(ErrorCode.WS_PLUGIN_0001.getMessage(), messageId)));
+        }
+        return transformFromErrorResults(errorsForMessage);
+    }
+
+    protected void validateMessageIdForGetMessageErrors(String messageId) throws GetMessageErrorsFault {
+        if (StringUtils.isEmpty(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new GetMessageErrorsFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
+
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new GetMessageErrorsFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+        }
     }
 
     public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {
