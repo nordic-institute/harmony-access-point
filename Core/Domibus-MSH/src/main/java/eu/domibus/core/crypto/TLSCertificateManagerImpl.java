@@ -151,7 +151,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         @Override
         public String getFileLocation() {
             Optional<KeyStoreType> params = getTruststoreParams();
-            return params.map(KeyStoreType::getFile).get();
+            return params.map(KeyStoreType::getFile).orElse(null);
         }
 
         @Override

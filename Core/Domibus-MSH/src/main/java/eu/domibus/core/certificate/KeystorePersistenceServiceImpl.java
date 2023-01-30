@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -73,14 +74,15 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     @Override
     public KeystorePersistenceInfo getTrustStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new TrustStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
+//        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
         return persistenceInfo;
     }
 
     @Override
     public KeystorePersistenceInfo getKeyStorePersistenceInfo() {
         KeystorePersistenceInfo persistenceInfo = new KeyStorePersistenceInfoImpl();
-        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
+        // todo move everywhere these are read
+//        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
         return persistenceInfo;
     }
 
@@ -166,12 +168,13 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
             } else {
                 String fileExtension = certificateHelper.getStoreFileExtension(storeType);
                 String newFileName = FilenameUtils.getBaseName(storeFileLocation) + "." + fileExtension;
-                Path newStoreFileLocation = Paths.get(FilenameUtils.getPath(storeFileLocation), newFileName);
+                Path newStoreFileLocation = Paths.get(FilenameUtils.getFullPath(storeFileLocation), newFileName);
 
-                Files.write(newStoreFileLocation, storeContent);
+                Files.write(newStoreFileLocation, storeContent, StandardOpenOption.CREATE);
 
-                persistenceInfo.setFileLocation(newStoreFileLocation.toString());
                 persistenceInfo.setType(storeType);
+                String newFileLocationString = newStoreFileLocation.toString().replace("\\", "/");
+                persistenceInfo.setFileLocation(newFileLocationString);
             }
         } catch (IOException e) {
             throw new CryptoException("Could not persist store:", e);

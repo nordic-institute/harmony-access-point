@@ -475,7 +475,7 @@ public class CertificateServiceImpl implements CertificateService {
             keyStoreInfo.setType(store.getType());
             return keyStoreInfo;
         } catch (Exception e) {
-            throw new CryptoException("Could not persist store:", e);
+            throw new CryptoException("Could not get content of store:" + storeName, e);
         }
     }
 
