@@ -2,7 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -84,7 +84,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 //    }
 
     @Override
-    protected KeyStoreInfo getTrustStoreContent() {
+    protected KeyStoreContentInfo getTrustStoreContent() {
         return tlsCertificateManager.getTruststoreContent();
     }
 

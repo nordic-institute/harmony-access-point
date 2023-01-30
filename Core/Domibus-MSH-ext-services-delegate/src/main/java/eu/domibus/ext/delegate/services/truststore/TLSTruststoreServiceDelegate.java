@@ -1,28 +1,15 @@
 package eu.domibus.ext.delegate.services.truststore;
 
-import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.crypto.TLSCertificateManager;
-import eu.domibus.api.cxf.TLSReaderService;
-import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreInfo;
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.services.TLSTruststoreExtService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
-import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya Chandran
@@ -42,7 +29,7 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
     @Override
     public byte[] downloadTruststoreContent() {
-        KeyStoreInfo content;
+        KeyStoreContentInfo content;
         try {
             content = tlsCertificateManager.getTruststoreContent();
             return content.getContent();

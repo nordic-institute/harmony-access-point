@@ -2,11 +2,10 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
@@ -83,7 +82,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
-        KeyStoreInfo storeInfo = getTrustStoreContent();
+        KeyStoreContentInfo storeInfo = getTrustStoreContent();
 
         ByteArrayResource resource = new ByteArrayResource(storeInfo.getContent());
 
@@ -110,7 +109,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         auditService.addKeystoreDownloadedAudit(getStoreName());
     }
 
-    protected abstract KeyStoreInfo getTrustStoreContent();
+    protected abstract KeyStoreContentInfo getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetStoreEntries();

@@ -3,7 +3,7 @@ package eu.domibus.core.certificate;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -87,11 +87,11 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
-    public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo persistenceInfo) {
+    public KeyStoreContentInfo loadStoreContentFromDisk(KeystorePersistenceInfo persistenceInfo) {
         String storePath = persistenceInfo.getFileLocation();
         String storeType = persistenceInfo.getType();
 
-        KeyStoreInfo result = new KeyStoreInfo();
+        KeyStoreContentInfo result = new KeyStoreContentInfo();
 
         String storeName = persistenceInfo.getName();
         if (storePath == null) {

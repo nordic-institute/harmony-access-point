@@ -5,7 +5,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -77,7 +77,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 //    }
 
     @Override
-    protected KeyStoreInfo getTrustStoreContent() {
+    protected KeyStoreContentInfo getTrustStoreContent() {
         return multiDomainCertificateProvider.getKeyStoreContent(domainProvider.getCurrentDomain());
     }
 

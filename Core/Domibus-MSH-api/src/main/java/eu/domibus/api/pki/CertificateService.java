@@ -183,9 +183,9 @@ public interface CertificateService {
      */
     boolean removeCertificates(KeystorePersistenceInfo trustName, List<String> aliases);
 
-    KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
+    KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 
-    KeyStoreInfo getStoreContent(KeyStore store, String storeName, String password);
+    KeyStoreContentInfo getStoreContent(KeyStore store, String storeName, String password);
 
     void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
 

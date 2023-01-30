@@ -11,7 +11,7 @@ public interface KeystorePersistenceService {
 
     KeystorePersistenceInfo getKeyStorePersistenceInfo();
 
-    KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo);
+    KeyStoreContentInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo);
 
     void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo);
 

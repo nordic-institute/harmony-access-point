@@ -261,7 +261,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public KeyStoreInfo getKeyStoreContent(Domain domain) {
+    public KeyStoreContentInfo getKeyStoreContent(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getKeyStoreContent();
     }
@@ -273,7 +273,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public KeyStoreInfo getTrustStoreContent(Domain domain) {
+    public KeyStoreContentInfo getTrustStoreContent(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getTrustStoreContent();
     }

@@ -218,7 +218,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public KeyStoreInfo getKeyStoreContent() {
+    public KeyStoreContentInfo getKeyStoreContent() {
         KeyStore store = iamProvider.getKeyStore();
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
         return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
@@ -231,7 +231,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public KeyStoreInfo getTrustStoreContent() {
+    public KeyStoreContentInfo getTrustStoreContent() {
         KeyStore store = iamProvider.getTrustStore();
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());

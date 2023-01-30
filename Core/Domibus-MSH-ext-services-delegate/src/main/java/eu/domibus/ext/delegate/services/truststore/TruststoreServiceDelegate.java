@@ -4,10 +4,9 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.TruststoreExtService;
@@ -44,7 +43,7 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
     @Override
     public byte[] downloadTruststoreContent() {
-        KeyStoreInfo content = multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
+        KeyStoreContentInfo content = multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
         return content.getContent();
     }
 

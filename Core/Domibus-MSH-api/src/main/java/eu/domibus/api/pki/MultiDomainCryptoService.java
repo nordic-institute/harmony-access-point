@@ -71,11 +71,11 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     List<TrustStoreEntry> getKeyStoreEntries(Domain domain);
 
-    KeyStoreInfo getKeyStoreContent(Domain domain);
+    KeyStoreContentInfo getKeyStoreContent(Domain domain);
 
     List<TrustStoreEntry> getTrustStoreEntries(Domain domain);
 
-    KeyStoreInfo getTrustStoreContent(Domain domain);
+    KeyStoreContentInfo getTrustStoreContent(Domain domain);
 
     void saveStoresFromDBToDisk();
 

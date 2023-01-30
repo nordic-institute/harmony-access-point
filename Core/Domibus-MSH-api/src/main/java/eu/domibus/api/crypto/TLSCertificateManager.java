@@ -1,9 +1,7 @@
 package eu.domibus.api.crypto;
 
-import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.KeyStoreContentDTO;
 import eu.domibus.api.multitenancy.DomainsAware;
-import eu.domibus.api.pki.KeyStoreInfo;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import java.util.List;
@@ -40,7 +38,7 @@ public interface TLSCertificateManager extends DomainsAware {
      *
      * @return
      */
-    KeyStoreInfo getTruststoreContent();
+    KeyStoreContentInfo getTruststoreContent();
 
     /**
      * Adds the specified certificate to the tls truststore content pointed by the clientauthentication.xml file

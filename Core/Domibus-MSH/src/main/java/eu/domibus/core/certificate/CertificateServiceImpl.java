@@ -416,7 +416,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public KeyStore getStore(KeystorePersistenceInfo keystorePersistenceInfo) {
-        KeyStoreInfo keyStoreInfo = getStoreContent(keystorePersistenceInfo);
+        KeyStoreContentInfo keyStoreInfo = getStoreContent(keystorePersistenceInfo);
         return loadStore(keyStoreInfo);
     }
 
@@ -428,7 +428,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
-        KeyStoreInfo storeInfo = keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
+        KeyStoreContentInfo storeInfo = keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
 
         KeyStore store = loadStore(storeInfo);
 
@@ -461,18 +461,18 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public KeyStoreInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo) {
+    public KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo) {
         return keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
     }
 
     @Override
-    public KeyStoreInfo getStoreContent(KeyStore store, String storeName, String password) {
+    public KeyStoreContentInfo getStoreContent(KeyStore store, String storeName, String password) {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             String decryptedPassword = decrypt(storeName, password);
             store.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
-            KeyStoreInfo keyStoreInfo = new KeyStoreInfo();
+            KeyStoreContentInfo keyStoreInfo = new KeyStoreContentInfo();
             keyStoreInfo.setName(storeName);
             keyStoreInfo.setContent(content);
             keyStoreInfo.setPassword(decryptedPassword);
@@ -727,7 +727,7 @@ public class CertificateServiceImpl implements CertificateService {
         return keystore;
     }
 
-    protected KeyStore loadStore(KeyStoreInfo storeInfo) {
+    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
             return loadStore(contentStream, storeInfo.getPassword(), storeInfo.getType());
         } catch (Exception ex) {

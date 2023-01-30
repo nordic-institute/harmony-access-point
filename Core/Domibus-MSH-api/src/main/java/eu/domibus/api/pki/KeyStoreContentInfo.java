@@ -3,7 +3,7 @@ package eu.domibus.api.pki;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class KeyStoreInfo {
+public class KeyStoreContentInfo {
     private String name;
 
     private String type;
@@ -50,7 +50,7 @@ public class KeyStoreInfo {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        KeyStoreInfo truststore = (KeyStoreInfo) o;
+        KeyStoreContentInfo truststore = (KeyStoreContentInfo) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
