@@ -30,7 +30,7 @@ public class BackupServiceImpl implements BackupService {
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
-    protected static final String BACKUP_FOLDER_NAME ="backups";
+    protected static final String BACKUP_FOLDER_NAME = "backups";
 
     @Autowired
     protected DateUtil dateUtil;
@@ -42,6 +42,12 @@ public class BackupServiceImpl implements BackupService {
     public void backupFile(File originalFile) throws IOException {
         final File backupFile = getBackupFile(originalFile);
         copyBackUpFile(originalFile, backupFile);
+    }
+
+    @Override
+    public void backupFile(File originalFile, String subFolder) throws IOException {
+        String backupLocation = Paths.get(originalFile.getParentFile().getPath(), subFolder).toString();
+        backupFileInLocation(originalFile, backupLocation);
     }
 
     @Override

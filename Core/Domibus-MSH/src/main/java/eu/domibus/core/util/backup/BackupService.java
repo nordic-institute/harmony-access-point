@@ -19,6 +19,8 @@ public interface BackupService {
      */
     void backupFile(File originalFile) throws IOException;
 
+    void backupFile(File originalFile, String subFolder) throws IOException;
+
     /**
      * Creates a copy of the originalFile, in the backup folder.
      *

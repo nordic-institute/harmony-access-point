@@ -155,9 +155,8 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     public void saveToDisk(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
         String storeFileLocation = persistenceInfo.getFileLocation();
         File storeFile = new File(storeFileLocation);
-
         try {
-            backupService.backupFile(storeFile);
+            backupService.backupFile(storeFile, "backups");
         } catch (IOException e) {
             throw new CryptoException("Could not backup store:", e);
         }
