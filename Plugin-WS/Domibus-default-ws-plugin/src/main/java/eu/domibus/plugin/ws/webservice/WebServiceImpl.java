@@ -427,7 +427,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     @Override
     @Transactional
-    public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault, ListPushFailedMessagesFault {
+    public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("rePushFailedMessages for domain [{}]", domainDTO);
 
@@ -447,7 +447,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         LOG.info("Messages updated for retry successfully");
     }
 
-    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault, ListPushFailedMessagesFault {
+
+    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
         List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
         List<String> trimmedMessageIds = null;
         ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
@@ -461,7 +462,12 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
             }
             pushFailedMessagesRequest.setMessageId(messageId);
-            ListPushFailedMessagesResponse response = listPushFailedMessages(pushFailedMessagesRequest);
+            ListPushFailedMessagesResponse response;
+            try {
+                response = listPushFailedMessages(pushFailedMessagesRequest);
+            } catch (ListPushFailedMessagesFault ex) {
+                throw new RePushFailedMessagesFault(" List Push Failed Messages has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, ex.getMessage()));
+            }
             if (!response.getMessageID().contains(messageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
             }
@@ -711,8 +717,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         validateMessageIdForGetMessageErrors(messageId);
 
         if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
-            LOG.error(ACCESS_POINT_ROLE_EMPTY);
-            throw new GetMessageErrorsFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty or invalid"));
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new GetMessageErrorsFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
         }
 
         MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
