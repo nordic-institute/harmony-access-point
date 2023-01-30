@@ -29,7 +29,7 @@ public interface KeystorePersistenceInfo {
      */
     String getFileLocation();
 
-    void setFileLocation(String filLocation);
+    void setFileLocation(String fileLocation);
 
     /**
      * The type of the keyStore

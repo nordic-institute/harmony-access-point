@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -12,7 +13,6 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -155,8 +155,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public void setFileLocation(String filLocation) {
-            // todo implement change
+        public void setFileLocation(String fileLocation) {
+            setTlsTrustStoreLocation(fileLocation);
         }
 
         @Override
@@ -182,7 +182,17 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
     }
 
-    protected Optional<KeyStoreType> getTruststoreParams() {
+    void setTlsTrustStoreType(String type) {
+        final String domainCode = getDomainCode();
+        tlsReaderService.setTlsTrustStoreType(domainCode, type);
+    }
+
+    void setTlsTrustStoreLocation(String fileLocation) {
+        final String domainCode = getDomainCode();
+        tlsReaderService.setTlsTrustStoreLocation(domainCode, fileLocation);
+    }
+
+    private String getDomainCode() {
         final String domainCode;
         if (domibusConfigurationService.isSingleTenantAware()) {
             domainCode = null;
@@ -190,9 +200,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             Domain domain = domainProvider.getCurrentDomain();
             domainCode = domain != null ? domain.getCode() : null;
         }
-        Optional<TLSClientParametersType> params = tlsReaderService.getTlsClientParametersType(domainCode);
-        return params.map(k -> {
-            KeyStoreType result = k.getTrustManagers().getKeyStore();
+        return domainCode;
+    }
+
+    protected Optional<KeyStoreType> getTruststoreParams() {
+        final String domainCode = getDomainCode();
+        Optional<TLSClientParametersType> tlsParams = tlsReaderService.getTlsTrustStoreConfiguration(domainCode);
+        return tlsParams.map(params -> {
+            KeyStoreType result = params.getTrustManagers().getKeyStore();
             LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
             return Optional.of(result);
         }).orElseGet(() -> {

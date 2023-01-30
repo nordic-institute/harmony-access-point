@@ -804,6 +804,7 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //        return passToSave;
 //    }
+
     @Override
     public void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains) {
         String name = keystorePersistenceInfo.getName();
@@ -816,6 +817,21 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
         LOG.debug("Finished persisting the store [{}] for all domains.", name);
+    }
+
+    @Override
+    public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        String storeName = persistenceInfo.getName();
+
+        KeyStore storeOnDisk = getStore(persistenceInfo);
+
+        boolean different = !securityUtilImpl.areKeystoresIdentical(store, storeOnDisk);
+        if (different) {
+            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
+        } else {
+            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+        }
+        return different;
     }
 
     protected void closeStream(Closeable stream) {
@@ -1055,6 +1071,7 @@ public class CertificateServiceImpl implements CertificateService {
      * @param cert a X509 certificate
      * @return the list of CRL urls of certificate policy identifiers
      */
+    @Override
     public List<String> getCertificatePolicyIdentifiers(X509Certificate cert) {
 
         byte[] certPolicyExt = cert.getExtensionValue(Extension.certificatePolicies.getId());
@@ -1074,21 +1091,6 @@ public class CertificateServiceImpl implements CertificateService {
                 .map(ASN1ObjectIdentifier::getId)
                 .map(StringUtils::trim)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-        String storeName = persistenceInfo.getName();
-
-        KeyStore storeOnDisk = getStore(persistenceInfo);
-
-        boolean different = !securityUtilImpl.areKeystoresIdentical(store, storeOnDisk);
-        if (different) {
-            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
-        } else {
-            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
-        }
-        return different;
     }
 
     private String decrypt(String trustName, String password) {

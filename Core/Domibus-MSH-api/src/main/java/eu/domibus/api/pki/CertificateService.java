@@ -54,7 +54,6 @@ public interface CertificateService {
      */
     X509Certificate loadCertificateFromString(String content);
 
-
     /**
      * Returns the certificate deserialized from a bytearray
      *
@@ -119,51 +118,27 @@ public interface CertificateService {
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
     /**
-     * Replaces the truststore pointed by the name with the one provided by location/password parameters
-     *
-     * @param fileLocation the file location representing the trust
-     * @param filePassword the password of the trust
-     * @param trustName    the name of the trust in hte DB
-     * @throws CryptoException
-     */
-//    void replaceStore(String fileLocation, String filePassword, String trustName);
-
-    /**
      * Replaces the truststore pointed by the name with the one provided by content/password parameters
      *
      * @param fileName     the file name representing the trust
      * @param fileContent  the trust content
      * @param filePassword the password of the trust
-     * @param trustName    the name of the trust in hte DB
+     * @param persistenceInfo the store parameters on th disk
      * @throws CryptoException
      */
-//    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
-
     void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
-
-     /**
-     * Returns the truststore pointed by the location/password parameters
-     *
-     * @param trustName the location of the trust on disc
-     * @return the truststore object
-     */
-//    KeyStore getStore(String trustName);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 
     /**
-     * Returns the truststore pointed by the location/password parameters as a list of certificate entries
+     * Returns the store as a list of certificate entries
      *
-     * @param trustName the name of the trust in DB
+     * @param store the store
      * @return the list of certificates and their names
      */
-//    List<TrustStoreEntry> getStoreEntries(String trustName);
-
     List<TrustStoreEntry> getStoreEntries(KeyStore store);
 
     List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
-
-//    KeyStoreInfo getStoreInfo(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
@@ -223,14 +198,12 @@ public interface CertificateService {
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
-//    void removeStore(String domibusTruststoreName, Domain domain);
-
     /**
-     * Checks if the database saved store is different that the one on the disk
-     * @param storeName the truststore or keystore
-     * @param trustStore
+     * Checks if the store on disk is different that the one on used currently
+     * @param store the truststore or keystore
+     * @param persistenceInfo the store parameters on th disk
      * @return true if they are different
      */
-    boolean isStoreChangedOnDisk(KeyStore trustStore, KeystorePersistenceInfo persistenceInfo);
+    boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
 
 }

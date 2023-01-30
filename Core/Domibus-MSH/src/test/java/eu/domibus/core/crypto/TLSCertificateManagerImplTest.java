@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.audit.AuditService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -20,10 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
 import java.util.Optional;
-
-import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
@@ -132,7 +128,7 @@ public class TLSCertificateManagerImplTest {
             result = false;
             domainProvider.getCurrentDomain();
             result = domain;
-            tlsReaderService.getTlsClientParametersType(domain.getCode());
+            tlsReaderService.getTlsTrustStoreConfiguration(domain.getCode());
             result = Optional.of(params);
             params.getTrustManagers().getKeyStore();
             result = trustStore;

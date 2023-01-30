@@ -1,7 +1,6 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -14,6 +13,7 @@ import org.apache.cxf.common.jaxb.JAXBUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
+import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,8 +23,12 @@ import org.springframework.stereotype.Service;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -84,7 +88,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     @Override
-    public Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode) {
+    public Optional<TLSClientParametersType> getTlsTrustStoreConfiguration(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
             LOG.debug("The client authentication xml path for domain [{}] could not be found.", domainCode);
@@ -99,6 +103,28 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
     }
 
+    @Override
+    public void setTlsTrustStoreLocation(String domainCode, String location) {
+        Optional<TLSClientParametersType> tlsParams = getTlsTrustStoreConfiguration(domainCode);
+        if (!tlsParams.isPresent()) {
+            return;
+        }
+        Optional<Path> path = getClientAuthenticationPath(domainCode);
+
+        KeyStoreType store = tlsParams.get().getTrustManagers().getKeyStore();
+        store.setFile(location);
+        try {
+            persistTLSParameters(tlsParams.get(), path.get());
+        } catch (JAXBException |  FileNotFoundException e) {
+            throw new DomibusCertificateException("Could not update location in client authentication file for domain [" + domainCode + "]", e);
+        }
+    }
+
+    @Override
+    public void setTlsTrustStoreType(String domainCode, String type) {
+
+    }
+    
     private String getFileContent(Optional<Path> path) throws IOException {
         byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);
@@ -136,6 +162,22 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
 
         return Optional.empty();
+    }
+
+    private void persistTLSParameters(TLSClientParametersType tls, Path path) throws JAXBException, FileNotFoundException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(TLSClientParametersType.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        //If we DO NOT have JAXB annotated class
+        JAXBElement<TLSClientParametersType> jaxbElement =
+                new JAXBElement<TLSClientParametersType>(
+                        new QName("http://cxf.apache.org/transports/http/configuration", "tlsClientParameters"),
+                        TLSClientParametersType.class,
+                        tls);
+
+        jaxbMarshaller.marshal(jaxbElement, new FileOutputStream(path.toString()));
     }
 
     private TLSClientParametersType getTLSParameters(String s) throws XMLStreamException, JAXBException {

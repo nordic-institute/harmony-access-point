@@ -25,11 +25,15 @@ public interface TLSReaderService {
      * @param domainCode
      * @return
      */
-    Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode);
+    Optional<TLSClientParametersType> getTlsTrustStoreConfiguration(String domainCode);
+
+    void setTlsTrustStoreLocation(String domainCode, String location);
 
     /**
      * Dismisses the TLS data from the cache forcing a fresh reload on the next use
      * @param domainCode
      */
     void reset(String domainCode);
+
+    void setTlsTrustStoreType(String domainCode, String type);
 }
