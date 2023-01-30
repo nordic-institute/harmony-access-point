@@ -487,7 +487,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private void replaceStore(byte[] fileContent, String filePassword, String storeType, KeystorePersistenceInfo persistenceInfo) {
         String storeName = persistenceInfo.getName();
-        LOG.debug("Replacing the current store [{}] with the provided file content.", storeName);
         KeyStore store = getStore(persistenceInfo);
         LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
         try {
@@ -611,18 +610,18 @@ public class CertificateServiceImpl implements CertificateService {
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
      */
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
-        KeyStore trustStore = getStore(persistenceInfo);
+        KeyStore store = getStore(persistenceInfo);
 
         int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
-            boolean added = doAddCertificate(trustStore, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
+            boolean added = doAddCertificate(store, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
             if (added) {
                 addedNr++;
             }
         }
         if (addedNr > 0) {
             LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
-            keystorePersistenceService.saveToDisk(trustStore, persistenceInfo);
+            keystorePersistenceService.saveToDisk(store, persistenceInfo);
             return true;
         }
         LOG.trace("Added 0 certificates so exiting without persisting the store.");
@@ -633,18 +632,18 @@ public class CertificateServiceImpl implements CertificateService {
      * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
      */
     protected boolean doRemoveCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
-        KeyStore trustStore = getStore(persistenceInfo);
+        KeyStore store = getStore(persistenceInfo);
 
         int removedNr = 0;
         for (String alias : aliases) {
-            boolean removed = doRemoveCertificate(trustStore, alias);
+            boolean removed = doRemoveCertificate(store, alias);
             if (removed) {
                 removedNr++;
             }
         }
         if (removedNr > 0) {
             LOG.debug("Removed [{}] certificates so persisting the store.", removedNr);
-            keystorePersistenceService.saveToDisk(trustStore, persistenceInfo);
+            keystorePersistenceService.saveToDisk(store, persistenceInfo);
             return true;
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the store.");

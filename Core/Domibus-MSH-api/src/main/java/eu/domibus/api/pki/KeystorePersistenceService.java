@@ -17,5 +17,5 @@ public interface KeystorePersistenceService {
 
     void saveToDisk(byte[] fileContent, String storeType, KeystorePersistenceInfo persistenceInfo);
 
-    void saveToDisk(KeyStore trustStore, KeystorePersistenceInfo persistenceInfo);
+    void saveToDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
 }

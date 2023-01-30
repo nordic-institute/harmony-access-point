@@ -14,6 +14,8 @@ import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,7 +151,8 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     public void saveToDisk(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
-        File storeFile = new File(persistenceInfo.getFileLocation());
+        String storeFileLocation = persistenceInfo.getFileLocation();
+        File storeFile = new File(storeFileLocation);
 
         try {
             backupService.backupFile(storeFile);
@@ -158,7 +161,18 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         try {
-            Files.write(storeFile.toPath(), storeContent);
+            if (StringUtils.equals(storeType, persistenceInfo.getType())) {
+                Files.write(Paths.get(storeFileLocation), storeContent);
+            } else {
+                String fileExtension = certificateHelper.getStoreFileExtension(storeType);
+                String newFileName = FilenameUtils.getBaseName(storeFileLocation) + "." + fileExtension;
+                Path newStoreFileLocation = Paths.get(FilenameUtils.getPath(storeFileLocation), newFileName);
+
+                Files.write(newStoreFileLocation, storeContent);
+
+                persistenceInfo.setFileLocation(newStoreFileLocation.toString());
+                persistenceInfo.setType(storeType);
+            }
         } catch (IOException e) {
             throw new CryptoException("Could not persist store:", e);
         }
@@ -202,18 +216,28 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public String getFileLocation() {
-            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        }
-
-        @Override
         public boolean isOptional() {
             return false;
         }
 
         @Override
+        public String getFileLocation() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        }
+
+        @Override
+        public void setFileLocation(String filLocation) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, filLocation);
+        }
+
+        @Override
         public String getType() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        }
+
+        @Override
+        public void setType(String type) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, type);
         }
 
         @Override
@@ -230,18 +254,28 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
-        public String getFileLocation() {
-            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-        }
-
-        @Override
         public boolean isOptional() {
             return false;
         }
 
         @Override
+        public String getFileLocation() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+        }
+
+        @Override
+        public void setFileLocation(String filLocation) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, filLocation);
+        }
+
+        @Override
         public String getType() {
             return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE);
+        }
+
+        @Override
+        public void setType(String type) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
         }
 
         @Override

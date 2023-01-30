@@ -1,13 +1,12 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.archive.client.configuration.EArchiveConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,11 +15,13 @@ import java.util.List;
  * @since 5.0
  */
 @Service
+// todo improve???
 public class CertificateHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateHelper.class);
 
     public static final String PKCS_12 = "pkcs12";
+
     public static final String P_12 = "p12";
     public static final String PFX = "pfx";
     public static final String JKS = "jks";
@@ -57,11 +58,23 @@ public class CertificateHelper {
     }
 
     public String getStoreType(String storeFileName) {
-        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        if (Arrays.asList(P_12, PFX).contains(fileType)) {
+        String fileExtension = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        if (Arrays.asList(P_12, PFX).contains(fileExtension)) {
             return PKCS_12;
+        } else if (Arrays.asList(JKS).contains(fileExtension)) {
+            return JKS;
+        } else {
+            throw new DomibusCertificateException("Invalid store file name:" + storeFileName);
         }
-        return JKS;
     }
 
+    public String getStoreFileExtension(String storeType) {
+        if (StringUtils.equals(storeType, PKCS_12)) {
+            return P_12;
+        } else if (StringUtils.equals(storeType, JKS)) {
+            return JKS;
+        } else {
+            throw new DomibusCertificateException("Invalid store type:" + storeType);
+        }
+    }
 }

@@ -155,6 +155,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
+        public void setFileLocation(String filLocation) {
+            // todo implement change
+        }
+
+        @Override
         public boolean isOptional() {
             return true;
         }
@@ -163,6 +168,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         public String getType() {
             Optional<KeyStoreType> params = getTruststoreParams();
             return params.map(KeyStoreType::getType).orElse(null);
+        }
+
+        @Override
+        public void setType(String type) {
+            // todo implement change
         }
 
         @Override
