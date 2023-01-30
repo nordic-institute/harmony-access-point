@@ -24,6 +24,7 @@ import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +70,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
-    private static final String ACCESS_POINT_ROLE_EMPTY = "Access point role is empty";
+    private static final String INVALID_ACCESS_POINT_ROLE = "Access point role is invalid";
 
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
@@ -607,12 +608,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
-        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequest.getMessageID());
 
-        if (isMessageIdEmpty) {
-            LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
-        }
+        validateMessageId(statusRequest.getMessageID());
+
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
@@ -626,21 +624,33 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
 
-        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequestWithAccessPointRole.getMessageID());
-        if (isMessageIdEmpty) {
-            LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
-        }
+        validateMessageId(statusRequestWithAccessPointRole.getMessageID());
 
-        if (StringUtils.isEmpty(statusRequestWithAccessPointRole.getAccessPointRole().name())) {
-            LOG.error(ACCESS_POINT_ROLE_EMPTY);
-            throw new StatusFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty"));
-        }
+        validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
+
         MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+    }
+
+    protected void validateMessageId(String messageId) throws StatusFault {
+        boolean isMessageIdEmpty = StringUtils.isEmpty(messageId);
+        if (isMessageIdEmpty) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+        }
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new StatusFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+        }
+    }
+
+    protected void validateAccessPointRole(MshRole role) throws StatusFault {
+        if (role == null) {
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new StatusFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
+        }
     }
 
     @Override
