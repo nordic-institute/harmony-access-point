@@ -1,3 +1,5 @@
+Domibus 5.0.4
+    - Fixed OWASP vulnerabilities
 Domibus 5.0.3
     - Fixed partition creation/dropping issue
     - Fixed the error when trying to use a PKCS12 format for the keystore
