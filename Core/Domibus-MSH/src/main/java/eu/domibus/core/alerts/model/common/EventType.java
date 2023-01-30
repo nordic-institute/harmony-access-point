@@ -134,7 +134,7 @@ public enum EventType {
     private static class EventProperties {
         public static final List<String> USER_ACCOUNT_DISABLED = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_DISABLED");
         public static final List<String> USER_ACCOUNT_ENABLED = Arrays.asList("USER", "USER_TYPE", "LOGIN_TIME", "ACCOUNT_ENABLED");
-        public static final List<String> CERTIFICATE = Arrays.asList("ACCESS_POINT", "ALIAS", "EXPIRATION_DATE");
+        public static final List<String> CERTIFICATE = Arrays.asList("ALIAS", "EXPIRATION_DATE");
         public static final List<String> PASSWORD_EXPIRATION = Arrays.asList("USER", "USER_TYPE", "EXPIRATION_DATE");
     }
 }

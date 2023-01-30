@@ -110,6 +110,14 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
+    <xsd:element name="messageErrorsRequestWithAccessPointRole">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+                <xsd:element name="accessPointRole" type="tns:mshRole"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
     <xsd:element name="messageStatusRequest">
         <xsd:complexType>
             <xsd:sequence>
@@ -288,6 +296,14 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getErrorsRequestWithAccessPointRole" nillable="true">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+                <xsd:element name="accessPointRole" type="tns:mshRole"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

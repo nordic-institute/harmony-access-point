@@ -11,18 +11,14 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
-//import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
-//import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
-//import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
-//import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
+import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
-import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -543,7 +539,6 @@ public class CertificateServiceImplTest {
         Date notAfter = parser.parse("23/10/1977 00:00:00");
         final int imminentExpirationDelay = 10;
         final int imminentExpirationFrequency = 14;
-        final String accesPoint = "red_gw";
         final String alias = "blue_gw";
         final Date today = Date.from(ZonedDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant());
         final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());
@@ -551,12 +546,6 @@ public class CertificateServiceImplTest {
         List<Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
         new Expectations() {{
-
-            pModeProvider.isConfigurationLoaded();
-            result = true;
-
-            pModeProvider.getGatewayParty().getName();
-            result = accesPoint;
 
 //            imminentExpirationCertificateConfigurationManager.getConfiguration();
 //            result = imminentExpirationCertificateConfiguration;
@@ -586,7 +575,7 @@ public class CertificateServiceImplTest {
             times = 1;
             certificateDao.saveOrUpdate(certificates.get(0));
             times = 1;
-            eventService.enqueueImminentCertificateExpirationEvent(accesPoint, alias, notAfter);
+            eventService.enqueueImminentCertificateExpirationEvent(alias, notAfter);
             times = 1;
         }};
     }
@@ -600,7 +589,6 @@ public class CertificateServiceImplTest {
         Date notAfter = parser.parse("23/10/1977 00:00:00");
         final int revokedDuration = 10;
         final int revokedFrequency = 14;
-        final String accesPoint = "red_gw";
         final String alias = "blue_gw";
         Date endNotification = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant());
         Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant());
@@ -608,12 +596,6 @@ public class CertificateServiceImplTest {
         certificates.add(certificate);
 
         new Expectations() {{
-
-            pModeProvider.isConfigurationLoaded();
-            result = true;
-
-            pModeProvider.getGatewayParty().getName();
-            result = accesPoint;
 
             expiredCertificateConfiguration.isActive();
             result = true;
@@ -640,7 +622,7 @@ public class CertificateServiceImplTest {
             times = 1;
             certificateDao.saveOrUpdate(certificates.get(0));
             times = 1;
-            eventService.enqueueCertificateExpiredEvent(accesPoint, alias, notAfter);
+            eventService.enqueueCertificateExpiredEvent(alias, notAfter);
             times = 1;
         }};
     }

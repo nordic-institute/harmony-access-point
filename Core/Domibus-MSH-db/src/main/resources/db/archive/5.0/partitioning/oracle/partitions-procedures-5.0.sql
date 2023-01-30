@@ -33,6 +33,7 @@ BEGIN
                 p_high := p_id || '0000000000';
                 EXECUTE IMMEDIATE 'ALTER TABLE ' || table_name || ' ADD PARTITION ' || p_name ||
                                   ' VALUES LESS THAN (' || p_high || ')';
+                dbms_lock.sleep(10);
             END LOOP;
     END;
 END;

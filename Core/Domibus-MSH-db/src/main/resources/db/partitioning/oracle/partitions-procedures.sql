@@ -29,6 +29,7 @@ BEGIN
                 p_name := 'P' || p_id;
                 p_high := p_id || '0000000000';
                 EXECUTE IMMEDIATE 'ALTER TABLE TB_USER_MESSAGE ADD PARTITION ' || p_name || ' VALUES LESS THAN (' || p_high || ')';
+                dbms_lock.sleep(10);
             END LOOP;
     END;
 END;

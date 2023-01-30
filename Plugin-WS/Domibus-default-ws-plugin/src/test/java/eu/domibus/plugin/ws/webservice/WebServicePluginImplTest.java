@@ -229,7 +229,8 @@ public class WebServicePluginImplTest {
 
                 listPushFailedMessagesRequest.getMessageId();
                 result = "";
-            }};
+            }
+        };
 
         try {
             webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);

@@ -34,6 +34,7 @@ import static java.lang.String.join;
  */
 @Service
 public class WSPluginBackendScheduleRetryService {
+    public static final String MESSAGE_ID_SEPARATOR = ";";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendScheduleRetryService.class);
 
@@ -109,11 +110,25 @@ public class WSPluginBackendScheduleRetryService {
 
     @Transactional
     public void schedule(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(
-                join(";", messageIds), messageType, finalRecipient, rule);
+        if (CollectionUtils.isEmpty(messageIds)) {
+            LOG.info("No message ids provided for recipient [{}] and message type [{}], exiting;", finalRecipient, messageType);
+            return;
+        }
+        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageIds, messageType, finalRecipient, rule);
         wsBackendMessageLogDao.create(backendMessage);
-        LOG.info("Scheduling messageType: [{}] backend message id [{}] for [{}] domibus messagesIds [{}] to be sent", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
+        LOG.info("Scheduling messageType: [{}] backend message for entity id [{}] for [{}] domibus messages with Ids [{}] to be sent", messageType,
+                backendMessage.getEntityId(), messageIds.size(), messageIds);
         scheduleBackendMessage(backendMessage);
+    }
+
+    protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(
+            List<String> messageIds,
+            WSBackendMessageType messageType,
+            String finalRecipient,
+            WSPluginDispatchRule rule) {
+        WSBackendMessageLogEntity entity = createWsBackendMessageLogEntity(messageIds.get(0), messageType, finalRecipient, rule);
+        entity.setMessageIds(join(MESSAGE_ID_SEPARATOR, messageIds));
+        return entity;
     }
 
     protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(

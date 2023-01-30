@@ -190,7 +190,6 @@ public class EventServiceImplTest {
 
     @Test
     public void enqueueImminentCertificateExpirationEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
-        final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
@@ -202,13 +201,12 @@ public class EventServiceImplTest {
             result = configuration;
         }};
 
-        eventService.enqueueImminentCertificateExpirationEvent(accessPoint, alias, expirationDate);
+        eventService.enqueueImminentCertificateExpirationEvent(alias, expirationDate);
 
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_IMMINENT_EXPIRATION.getQueueSelector());
             times = 1;
-            Assert.assertEquals(accessPoint, event.getProperties().get("ACCESS_POINT").getValue());
             Assert.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
             Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};
@@ -216,7 +214,6 @@ public class EventServiceImplTest {
 
     @Test
     public void enqueueCertificateExpiredEvent(@Injectable AlertModuleConfiguration configuration) throws ParseException {
-        final String accessPoint = "red_gw";
         final String alias = "blue_gw";
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         final Date expirationDate = parser.parse("25/10/1977 00:00:00");
@@ -228,13 +225,12 @@ public class EventServiceImplTest {
             result = configuration;
         }};
 
-        eventService.enqueueCertificateExpiredEvent(accessPoint, alias, expirationDate);
+        eventService.enqueueCertificateExpiredEvent(alias, expirationDate);
 
         new Verifications() {{
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_EXPIRED.getQueueSelector());
             times = 1;
-            Assert.assertEquals(accessPoint, event.getProperties().get("ACCESS_POINT").getValue());
             Assert.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
             Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};

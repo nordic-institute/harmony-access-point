@@ -105,7 +105,11 @@
             **/*Ro.java,
             **/*Exception.java,
             **/eu/domibus/ebms3/common/model/**,
-            **/eu/domibus/api/**
+            **/eu/domibus/common/model/configuration/**,
+            **/eu/domibus/api/**,
+            **/org/apache/cxf/jaxws/handler/soap/**,
+            **/org/apache/xml/security/utils/**,
+            **/pom.xml
         </sonar.coverage.exclusions>
         <sonar.core.coveragePlugin>jacoco</sonar.core.coveragePlugin>
         <sonar.host.url>http://localhost:9000/sonar/</sonar.host.url>
