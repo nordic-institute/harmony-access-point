@@ -212,12 +212,14 @@ public class WebServicePluginImplTest {
             {
                 statusRequest.getAccessPointRole();
                 result = null;
-            }};
+            }
+        };
 
         try {
             webServicePlugin.validateAccessPointRole(statusRequest.getAccessPointRole());
+            Assert.fail();
         } catch (StatusFault statusFault) {
-            assertEquals(statusFault.getMessage(), "Access point role is empty or invalid");
+            assertEquals("Access point role is invalid", statusFault.getMessage());
         }
     }
 
@@ -230,17 +232,19 @@ public class WebServicePluginImplTest {
             {
                 statusRequest.getMessageID();
                 result = "";
-            }};
+            }
+        };
 
         try {
             webServicePlugin.validateMessageId(statusRequest.getMessageID());
+            Assert.fail();
         } catch (StatusFault statusFault) {
             assertEquals(statusFault.getMessage(), "Message ID is empty");
         }
     }
 
     @Test
-    public void listPushFailedMessagesEmptyMessageId(@Injectable DomainDTO domainDTO, @Injectable  ListPushFailedMessagesRequest listPushFailedMessagesRequest) {
+    public void listPushFailedMessagesEmptyMessageId(@Injectable DomainDTO domainDTO, @Injectable ListPushFailedMessagesRequest listPushFailedMessagesRequest) {
 
         new Expectations() {
             {
@@ -249,11 +253,12 @@ public class WebServicePluginImplTest {
 
                 listPushFailedMessagesRequest.getMessageId();
                 result = "";
-            }};
+            }
+        };
 
         try {
             webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);
-
+            Assert.fail();
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
             assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
         }

@@ -70,7 +70,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
-    private static final String ACCESS_POINT_ROLE_EMPTY_OR_INVALID = "Access point role is empty or invalid";
+    private static final String INVALID_ACCESS_POINT_ROLE = "Access point role is invalid";
 
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
@@ -648,8 +648,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     protected void validateAccessPointRole(MshRole role) throws StatusFault {
         if (role == null) {
-            LOG.error(ACCESS_POINT_ROLE_EMPTY_OR_INVALID);
-            throw new StatusFault(ACCESS_POINT_ROLE_EMPTY_OR_INVALID, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty or invalid"));
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new StatusFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
         }
     }
 
