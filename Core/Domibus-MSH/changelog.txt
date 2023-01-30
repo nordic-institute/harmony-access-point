@@ -15,6 +15,8 @@ Domibus 5.1
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Added Security Profiles in order to support different security certificates for signing and encryption
 - Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
+Domibus 5.0.4
+- Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
 Domibus 5.0.3
 - Fixed partition creation/dropping issue
 - Fixed the error when trying to use a PKCS12 format for the keystore

@@ -41,6 +41,8 @@
                                or, for multitenancy:
                                    mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                    mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+## Domibus 5.0.4 (from 5.0.3):
+                - Replace the Domibus war
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
 ### Partitioning only (oracle)
