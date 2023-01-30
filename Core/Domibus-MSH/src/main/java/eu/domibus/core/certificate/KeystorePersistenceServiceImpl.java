@@ -87,24 +87,25 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
-    public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
+    public KeyStoreInfo loadStoreContentFromDisk(KeystorePersistenceInfo persistenceInfo) {
+        String storePath = persistenceInfo.getFileLocation();
+        String storeType = persistenceInfo.getType();
+
         KeyStoreInfo result = new KeyStoreInfo();
 
-        String filePath = keystorePersistenceInfo.getFileLocation();
-        String storeName = keystorePersistenceInfo.getName();
-        if (filePath == null) {
-            if (keystorePersistenceInfo.isOptional()) {
+        String storeName = persistenceInfo.getName();
+        if (storePath == null) {
+            if (persistenceInfo.isOptional()) {
                 LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
                 return result;
             }
             throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
         }
 
-        String storeType = keystorePersistenceInfo.getType();
-        certificateHelper.validateStoreType(storeType, filePath);
+        certificateHelper.validateStoreType(storeType, storePath);
 
-        byte[] contentOnDisk = getStoreContentFromFile(filePath);
-        String password = decrypt(storeName, keystorePersistenceInfo.getPassword());
+        byte[] contentOnDisk = getStoreContentFromFile(storePath);
+        String password = decrypt(storeName, persistenceInfo.getPassword());
 
         result.setContent(contentOnDisk);
         result.setName(storeName);

@@ -21,6 +21,7 @@ import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -108,6 +109,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected final AuditService auditService;
 
+    private final SecurityUtilImpl securityUtilImpl;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -120,7 +123,7 @@ public class CertificateServiceImpl implements CertificateService {
 //                                  PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
 //                                  DomibusCoreMapper coreMapper,
-                                  AlertConfigurationService alertConfigurationService, AuditService auditService) {
+                                  AlertConfigurationService alertConfigurationService, AuditService auditService, SecurityUtilImpl securityUtilImpl) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -136,6 +139,7 @@ public class CertificateServiceImpl implements CertificateService {
 //        this.coreMapper = coreMapper;
         this.alertConfigurationService = alertConfigurationService;
         this.auditService = auditService;
+        this.securityUtilImpl = securityUtilImpl;
     }
 
     @Override
@@ -800,7 +804,6 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //        return passToSave;
 //    }
-
     @Override
     public void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains) {
         String name = keystorePersistenceInfo.getName();
@@ -1075,13 +1078,11 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-        String location = persistenceInfo.getFileLocation();
         String storeName = persistenceInfo.getName();
 
-        byte[] contentOnDisk = getStoreContentFromFile(location);
-        byte[] storeContent = getStoreContent(store, storeName, persistenceInfo.getPassword()).getContent();
+        KeyStore storeOnDisk = getStore(persistenceInfo);
 
-        boolean different = !Arrays.equals(storeContent, contentOnDisk);
+        boolean different = !securityUtilImpl.areKeystoresIdentical(store, storeOnDisk);
         if (different) {
             LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
         } else {
