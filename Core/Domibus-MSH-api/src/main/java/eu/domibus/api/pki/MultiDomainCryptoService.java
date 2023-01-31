@@ -45,7 +45,11 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String password) throws CryptoException;
 
+    void replaceTrustStore(Domain currentDomain, KeyStoreContentInfo storeInfo);
+
     void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String password) throws CryptoException;
+
+    void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo);
 
     KeyStore getKeyStore(Domain domain);
 
@@ -88,4 +92,5 @@ public interface MultiDomainCryptoService extends DomainsAware {
     boolean isTrustStoreChangedOnDisk(Domain currentDomain);
 
     boolean isKeyStoreChangedOnDisk(Domain currentDomain);
+
 }

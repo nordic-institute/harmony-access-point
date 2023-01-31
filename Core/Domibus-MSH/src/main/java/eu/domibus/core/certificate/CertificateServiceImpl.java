@@ -220,6 +220,7 @@ public class CertificateServiceImpl implements CertificateService {
         sendCertificateExpiredAlerts();
     }
 
+    // todo reuse code between these 2 methods
     @Override
     public X509Certificate loadCertificateFromString(String content) {
         if (content == null) {

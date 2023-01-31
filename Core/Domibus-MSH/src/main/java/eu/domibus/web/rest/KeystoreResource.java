@@ -13,6 +13,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,24 +41,20 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     private final DomainContextProvider domainProvider;
 
-    private final CertificateService certificateService;
-
     private final ErrorHandlerService errorHandlerService;
 
-    private final KeystorePersistenceService keystorePersistenceService;
-
     public KeystoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
-                            DomainContextProvider domainProvider, CertificateService certificateService,
+                            DomainContextProvider domainProvider,
                             PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                            MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
-                            DomibusConfigurationService domibusConfigurationService, KeystorePersistenceService keystorePersistenceService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
+                            MultiPartFileUtil multiPartFileUtil, AuditService auditService,
+                            DomainContextProvider domainContextProvider,
+                            DomibusConfigurationService domibusConfigurationService,
+                            CertificateHelper certificateHelper) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService, certificateHelper);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
-        this.certificateService = certificateService;
         this.errorHandlerService = errorHandlerService;
-        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -69,6 +66,12 @@ public class KeystoreResource extends TruststoreResourceBase {
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.replaceKeyStore(currentDomain, fileName, truststoreFileContent, password);
+    }
+
+    @Override
+    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.replaceKeyStore(currentDomain, storeInfo);
     }
 
 //    @Override
@@ -124,7 +127,7 @@ public class KeystoreResource extends TruststoreResourceBase {
                                      @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the keystore for the current domain ", keystoreFile.getName());
 
-        replaceTruststore(keystoreFile, password);
+        uploadTruststore(keystoreFile, password);
 
         return "Keystore file has been successfully replaced.";
     }

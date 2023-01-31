@@ -77,7 +77,7 @@ public class TruststoreResourceBaseTest {
             truststoreResourceBase.doReplaceTrustStore(content, anyString, pass);
         }};
 
-        truststoreResourceBase.replaceTruststore(multiPartFile, pass);
+        truststoreResourceBase.uploadTruststore(multiPartFile, pass);
 
         new Verifications() {{
             truststoreResourceBase.doReplaceTrustStore(content, filename, pass);
@@ -94,7 +94,7 @@ public class TruststoreResourceBaseTest {
         }};
 
         try {
-            truststoreResourceBase.replaceTruststore(emptyFile, "pass");
+            truststoreResourceBase.uploadTruststore(emptyFile, "pass");
             Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue(ex.getMessage().contains("Failed to upload the truststore file since it was empty."));
@@ -113,7 +113,7 @@ public class TruststoreResourceBaseTest {
             result = new CryptoException("Password is incorrect");
         }};
 
-        truststoreResourceBase.replaceTruststore(multiPartFile, "pass");
+        truststoreResourceBase.uploadTruststore(multiPartFile, "pass");
     }
 
     @Test
@@ -175,7 +175,7 @@ public class TruststoreResourceBaseTest {
         final String emptyPassword = "";
 
         try {
-            truststoreResourceBase.replaceTruststore(multipartFile, emptyPassword);
+            truststoreResourceBase.uploadTruststore(multipartFile, emptyPassword);
             Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contains(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));

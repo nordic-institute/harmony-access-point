@@ -8,6 +8,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -34,15 +35,16 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
-                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
-        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
+                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
+                                 DomibusConfigurationService domibusConfigurationService, CertificateHelper certificateHelper) {
+        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService, certificateHelper);
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
     @PostMapping()
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile file,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-        replaceTruststore(file, password);
+        uploadTruststore(file, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -75,6 +77,11 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
         tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
+    }
+
+    @Override
+    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+        tlsCertificateManager.replaceTrustStore(storeInfo);
     }
 
 //    @Override

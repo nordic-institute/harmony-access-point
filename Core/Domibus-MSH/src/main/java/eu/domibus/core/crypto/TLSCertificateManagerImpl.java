@@ -71,6 +71,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
+    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
+
+    }
+
+    @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
         String errorMessage = "Could not find or read the client authentication file.";
         try {

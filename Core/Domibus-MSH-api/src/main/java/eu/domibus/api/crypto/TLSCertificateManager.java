@@ -26,6 +26,8 @@ public interface TLSCertificateManager extends DomainsAware {
      */
     void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
 
+    void replaceTrustStore(KeyStoreContentInfo storeInfo);
+
     /**
      * Returns the certificate entries found in the tls truststore pointed by the clientauthentication.xml file
      *
@@ -59,4 +61,5 @@ public interface TLSCertificateManager extends DomainsAware {
      * Reads the truststore from a disk location and persists it in the DB if not already there
      */
     void saveStoresFromDBToDisk();
+
 }

@@ -12,6 +12,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -55,14 +56,19 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final DomibusConfigurationService domibusConfigurationService;
 
+    protected final CertificateHelper certificateHelper;
+
     public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService,
+                                  DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService,
+                                  CertificateHelper certificateHelper) {
         this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
         this.auditService = auditService;
         this.domainContextProvider = domainContextProvider;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.certificateHelper = certificateHelper;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -70,15 +76,18 @@ public abstract class TruststoreResourceBase extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    protected void replaceTruststore(MultipartFile truststoreFile, String password) {
+    protected void uploadTruststore(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        doReplaceTrustStore(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent,password);
+        doReplaceTrustStore(storeInfo);
     }
+
+    protected abstract void doReplaceTrustStore(KeyStoreContentInfo storeInfo);
 
     protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 

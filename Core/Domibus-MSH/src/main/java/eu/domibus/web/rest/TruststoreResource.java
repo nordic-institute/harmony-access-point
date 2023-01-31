@@ -12,6 +12,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -44,19 +45,17 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     private final CertificateService certificateService;
 
-    private final KeystorePersistenceService keystorePersistenceService;
-
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
                               MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
-                              DomibusConfigurationService domibusConfigurationService, KeystorePersistenceService keystorePersistenceService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
+                              DomibusConfigurationService domibusConfigurationService,
+                              CertificateHelper certificateHelper) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService, certificateHelper);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
-        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @PostMapping(value = "/save")
@@ -64,7 +63,7 @@ public class TruststoreResource extends TruststoreResourceBase {
                                        @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the truststore for the current domain ", truststoreFile.getName());
 
-        replaceTruststore(truststoreFile, password);
+        uploadTruststore(truststoreFile, password);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -108,7 +107,6 @@ public class TruststoreResource extends TruststoreResourceBase {
 
         Domain currentDomain = domainProvider.getCurrentDomain();
         return multiDomainCertificateProvider.isTrustStoreChangedOnDisk(currentDomain);
-//        return certificateService.isStoreChangedOnDisk(keystorePersistenceService.getTrustStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")
@@ -123,10 +121,11 @@ public class TruststoreResource extends TruststoreResourceBase {
         multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
     }
 
-//    @Override
-//    protected void auditDownload() {
-//        auditService.addTruststoreDownloadedAudit(getStoreName());
-//    }
+    @Override
+    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeInfo);
+    }
 
     @Override
     protected KeyStoreContentInfo getTrustStoreContent() {
