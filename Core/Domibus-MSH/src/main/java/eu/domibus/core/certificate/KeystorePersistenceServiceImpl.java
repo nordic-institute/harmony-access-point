@@ -141,7 +141,25 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
-    public void saveStore(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
+    public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
+        saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
+    }
+
+    @Override
+    public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            String password = persistenceInfo.getPassword();
+            String decryptedPassword = decrypt(persistenceInfo.getName(), password);
+            store.store(byteStream, decryptedPassword.toCharArray());
+            byte[] content = byteStream.toByteArray();
+
+            saveStore(content, persistenceInfo.getType(), persistenceInfo);
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            throw new CryptoException("Could not persist store:", e);
+        }
+    }
+
+    protected void saveStore(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
         String storeFileLocation = persistenceInfo.getFileLocation();
         File storeFile = new File(storeFileLocation);
         try {
@@ -164,20 +182,6 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
                 persistenceInfo.updateTypeAndFileLocation(storeType, newFileLocationString);
             }
         } catch (IOException e) {
-            throw new CryptoException("Could not persist store:", e);
-        }
-    }
-
-    @Override
-    public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            String password = persistenceInfo.getPassword();
-            String decryptedPassword = decrypt(persistenceInfo.getName(), password);
-            store.store(byteStream, decryptedPassword.toCharArray());
-            byte[] content = byteStream.toByteArray();
-
-            saveStore(content, persistenceInfo.getType(), persistenceInfo);
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw new CryptoException("Could not persist store:", e);
         }
     }

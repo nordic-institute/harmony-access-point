@@ -16,16 +16,22 @@ public interface TLSCertificateManager extends DomainsAware {
 
     public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
+//    /**
+//     * Replaces the truststore pointed by the clientauthentication.xml file with the one provided as parameters
+//     *
+//     * @param trustFileName
+//     * @param trustContent
+//     * @param password
+//     * @throws CryptoException
+//     */
+//    void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
+
     /**
-     * Replaces the truststore pointed by the clientauthentication.xml file with the one provided as parameters
+     * Replaces the truststore pointed by the store info with the one provided as parameters
      *
-     * @param trustFileName
-     * @param trustContent
-     * @param password
+     * @param storeInfo all neede info about the store
      * @throws CryptoException
      */
-    void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
-
     void replaceTrustStore(KeyStoreContentInfo storeInfo);
 
     /**

@@ -126,7 +126,9 @@ public interface CertificateService {
      * @param persistenceInfo the store parameters on th disk
      * @throws CryptoException
      */
-    void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
+//    void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
+
+    void replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 
@@ -205,5 +207,4 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
-
 }

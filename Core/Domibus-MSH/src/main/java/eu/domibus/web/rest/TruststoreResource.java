@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+
 /**
  * @author Mircea Musat
  * @author Ion Perpegel
@@ -91,7 +93,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @PostMapping(value = "/entries")
     public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                        @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         return addCertificate(certificateFile, alias);
     }
 
@@ -138,7 +140,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected String getStoreName() {
-        return "truststore";
+        return DOMIBUS_TRUSTSTORE_NAME;
     }
 
     @Override

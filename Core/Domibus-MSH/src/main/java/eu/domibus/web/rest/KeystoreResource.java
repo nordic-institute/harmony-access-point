@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -132,7 +134,7 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected String getStoreName() {
-        return "keystore";
+        return DOMIBUS_KEYSTORE_NAME;
     }
 
     @Override

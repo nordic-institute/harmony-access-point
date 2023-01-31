@@ -399,11 +399,28 @@ public class CertificateServiceImpl implements CertificateService {
 //        return replaceStore(fileContent, filePassword, storeType, storeName);
 //    }
 
+//    @Override
+//    public void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException {
+//        LOG.debug("Replacing store [{}] with file content", persistenceInfo.getName());
+//        String storeType = certificateHelper.getStoreType(fileName);
+//        replaceStore(fileContent, filePassword, storeType, persistenceInfo);
+//    }
+
     @Override
-    public void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException {
-        LOG.debug("Replacing store [{}] with file content", persistenceInfo.getName());
-        String storeType = certificateHelper.getStoreType(fileName);
-        replaceStore(fileContent, filePassword, storeType, persistenceInfo);
+    public void replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+        String storeName = persistenceInfo.getName();
+        KeyStore store = getStore(persistenceInfo);
+
+        LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
+        try {
+            validateStoreContent(storeInfo);
+            keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
+            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
+
+            auditService.addStoreReplacedAudit(storeName);
+        } catch (CryptoException exc) {
+            throw new CryptoException("Could not replace store " + storeName, exc);
+        }
     }
 
 //    @Override
@@ -476,29 +493,40 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private void replaceStore(byte[] fileContent, String filePassword, String storeType, KeystorePersistenceInfo persistenceInfo) {
-        String storeName = persistenceInfo.getName();
-        KeyStore store = getStore(persistenceInfo);
-        LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
-        try {
-            validateStoreContent(fileContent, filePassword, storeType, storeName);
-            keystorePersistenceService.saveStore(fileContent, storeType, persistenceInfo);
-            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
+//    private void replaceStore(byte[] fileContent, String filePassword, String storeType, KeystorePersistenceInfo persistenceInfo) {
+//        String storeName = persistenceInfo.getName();
+//        KeyStore store = getStore(persistenceInfo);
+//        LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
+//        try {
+//            validateStoreContent(fileContent, filePassword, storeType, storeName);
+//            keystorePersistenceService.saveStore(fileContent, storeType, persistenceInfo);
+//            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
+//
+//            auditService.addStoreReplacedAudit(storeName);
+//        } catch (CryptoException exc) {
+//            throw new CryptoException("Could not replace store " + storeName, exc);
+//        }
+//    }
 
-            auditService.addStoreReplacedAudit(storeName);
-        } catch (CryptoException exc) {
-            throw new CryptoException("Could not replace store " + storeName, exc);
-        }
-    }
+//    private void validateStoreContent(byte[] fileContent, String filePassword, String storeType, String storeName) {
+//        try (ByteArrayInputStream newStoreContent = new ByteArrayInputStream(fileContent)) {
+//            validateLoadOperation(newStoreContent, filePassword, storeType);
+//
+//            KeyStore store = KeyStore.getInstance(storeType);
+//            store.load(newStoreContent, filePassword.toCharArray());
+//        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
+//            throw new CryptoException("Could not replace the store named " + storeName, e);
+//        }
+//    }
 
-    private void validateStoreContent(byte[] fileContent, String filePassword, String storeType, String storeName) {
-        try (ByteArrayInputStream newStoreContent = new ByteArrayInputStream(fileContent)) {
-            validateLoadOperation(newStoreContent, filePassword, storeType);
-
-            KeyStore store = KeyStore.getInstance(storeType);
-            store.load(newStoreContent, filePassword.toCharArray());
+    private void validateStoreContent(KeyStoreContentInfo storeInfo) {
+        LOG.debug("Validating store [{}] content type [{}]", storeInfo.getName(), storeInfo.getType());
+        try (ByteArrayInputStream storeContent = new ByteArrayInputStream(storeInfo.getContent())) {
+            KeyStore store = KeyStore.getInstance(storeInfo.getType());
+            store.load(storeContent, storeInfo.getPassword().toCharArray());
+            storeContent.reset();
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
-            throw new CryptoException("Could not replace the store named " + storeName, e);
+            throw new CryptoException("Could not replace the store named " + storeInfo.getName(), e);
         }
     }
 

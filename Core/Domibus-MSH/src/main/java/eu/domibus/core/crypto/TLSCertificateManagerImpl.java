@@ -62,17 +62,16 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 //        this.auditService = auditService;
     }
 
+//    @Override
+//    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
+//        certificateService.replaceStore(fileName, fileContent, filePassword, new KeystorePersistenceInfoImpl());
+//        resetTLSTruststore();
+//    }
+
     @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-        certificateService.replaceStore(fileName, fileContent, filePassword, new KeystorePersistenceInfoImpl());
+    public synchronized void replaceTrustStore(KeyStoreContentInfo storeInfo) {
+        certificateService.replaceStore(storeInfo, new KeystorePersistenceInfoImpl());
         resetTLSTruststore();
-
-//        auditService.addTLSTruststoreUploadedAudit(TLS_TRUSTSTORE_NAME);
-    }
-
-    @Override
-    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
-
     }
 
     @Override

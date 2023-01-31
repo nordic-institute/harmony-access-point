@@ -22,6 +22,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -101,7 +103,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected String getStoreName() {
-        return "tlsTruststore";
+        return TLS_TRUSTSTORE_NAME;
     }
 
     @Override

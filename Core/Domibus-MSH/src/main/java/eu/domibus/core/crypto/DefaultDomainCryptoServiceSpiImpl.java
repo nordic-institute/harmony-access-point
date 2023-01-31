@@ -5,10 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeystorePersistenceInfo;
-import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -41,6 +38,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -331,7 +330,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
-            certificateService.replaceStore(storeFileName, storeContent, storePassword, keystorePersistenceService.getTrustStorePersistenceInfo());
+            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, storeFileName, storeContent, storePassword);
+            KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+            certificateService.replaceStore(storeContentInfo, persistenceInfo);
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
@@ -342,8 +343,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
+            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_KEYSTORE_NAME, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-            certificateService.replaceStore(storeFileName, storeContent, storePassword, persistenceInfo);
+            certificateService.replaceStore(storeContentInfo, persistenceInfo);
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
