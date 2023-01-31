@@ -98,10 +98,8 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
-    public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
-        return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+    public String removeDomibusCertificate(@PathVariable String alias) throws RequestValidationException {
+        return removeCertificate(alias);
     }
 
     @GetMapping(value = "/changedOnDisk")
@@ -146,9 +144,15 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void doAddCertificate(String alias, byte[] fileContent) {
+    protected boolean doAddCertificate(String alias, byte[] fileContent) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
-        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+        return multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+    }
+
+    @Override
+    protected boolean doRemoveCertificate(String alias) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        return multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
     }
 }

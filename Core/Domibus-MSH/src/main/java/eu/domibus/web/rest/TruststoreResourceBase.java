@@ -5,6 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -143,12 +144,31 @@ public abstract class TruststoreResourceBase extends BaseResource {
             throw new RequestValidationException("Please provide an alias for the certificate.");
         }
 
+        alias = StringUtils.trim(alias);
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        doAddCertificate(alias, fileContent);
+        boolean added = doAddCertificate(alias, fileContent);
 
-        return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+        if (added) {
+            return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not added to the [" + getStoreName() + "] most probably because it already contains the same certificate.");
     }
 
-    protected abstract void doAddCertificate(String alias, byte[] fileContent);
+    protected abstract boolean doAddCertificate(String alias, byte[] fileContent);
+
+    protected String removeCertificate(String alias) {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        alias = StringUtils.trim(alias);
+        boolean removed = doRemoveCertificate(alias);
+        if (removed) {
+            return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the [" + getStoreName() + "].");
+    }
+
+    protected abstract boolean doRemoveCertificate(String alias);
 }

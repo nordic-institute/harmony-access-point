@@ -1,5 +1,6 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -12,8 +13,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Ion Perpegel
@@ -90,6 +95,25 @@ public class CertificateHelper {
             return Files.readAllBytes(path);
         } catch (IOException e) {
             throw new DomibusCertificateException("Could not read store from [" + location + "]");
+        }
+    }
+
+    public boolean containsAndIdentical(KeyStore keystore, String alias, X509Certificate certificate) {
+        try {
+            if (!keystore.containsAlias(alias)) {
+                LOG.debug("The store [{}] does not contain alias [{}]", keystore, alias);
+                return false;
+            }
+            X509Certificate cert = (X509Certificate) keystore.getCertificate(alias);
+            if (Arrays.equals(cert.getIssuerUniqueID(), certificate.getIssuerUniqueID())
+                    && Objects.equals(cert.getSerialNumber(), certificate.getSerialNumber())) {
+                LOG.debug("The store [{}] contains a certificate with alias [{}] and it is the same as [{}]", keystore, alias, certificate);
+                return true;
+            }
+            LOG.debug("The store [{}] contains a certificate with alias [{}] but it is different than [{}]", keystore, alias, certificate);
+            return false;
+        } catch (KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
     }
 }

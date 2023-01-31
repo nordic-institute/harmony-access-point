@@ -135,6 +135,12 @@ public class KeystoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void doAddCertificate(String alias, byte[] fileContent) {
+    protected boolean doAddCertificate(String alias, byte[] fileContent) {
+        return false;
+    }
+
+    @Override
+    protected boolean doRemoveCertificate(String alias) {
+        return false;
     }
 }

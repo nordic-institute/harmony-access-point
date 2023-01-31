@@ -664,7 +664,11 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (containsAlias && !overwrite) {
-            LOG.debug("The store already contains alias [{}] and the overwrite is false so returning false.", alias);
+            LOG.debug("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
+            return false;
+        }
+        if(certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
+            LOG.info("The store already contains alias [{}] and it is identical so no adding.", alias);
             return false;
         }
         try {
@@ -686,7 +690,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (!containsAlias) {
-            LOG.debug("The store does not contain alias [{}] so returning false.", alias);
+            LOG.debug("The store does not contain alias [{}] so no removing.", alias);
             return false;
         }
         try {

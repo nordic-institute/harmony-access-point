@@ -352,7 +352,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    // not used currently
     public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
@@ -403,7 +402,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
-        List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
+        List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate()))
+                .collect(Collectors.toList());
         boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates2, overwrite);
         if (added) {
             refreshTrustStore();

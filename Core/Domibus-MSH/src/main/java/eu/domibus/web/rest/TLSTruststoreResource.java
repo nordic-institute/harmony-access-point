@@ -69,8 +69,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsCertificateManager.removeCertificate(alias);
-        return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
+        return removeCertificate(alias);
     }
 
     @Override
@@ -99,8 +98,13 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void doAddCertificate(String alias, byte[] fileContent) {
-        tlsCertificateManager.addCertificate(fileContent, alias);
+    protected boolean doAddCertificate(String alias, byte[] fileContent) {
+        return tlsCertificateManager.addCertificate(fileContent, alias);
+    }
+
+    @Override
+    protected boolean doRemoveCertificate(String alias) {
+        return tlsCertificateManager.removeCertificate(alias);
     }
 
 }
