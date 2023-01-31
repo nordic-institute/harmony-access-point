@@ -35,11 +35,17 @@ public class DomibusCacheConfigurationTest {
 
         }};
 
-        //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
 
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNotNull(cacheManager.getCache("policyCacheExternal"));
+        IllegalStateException thrown = Assert.assertThrows(IllegalStateException.class, () -> {
+            //Code under test
+            cacheManager.getCache("policyCacheDefault");
+            cacheManager.getCache("policyCacheExternal");
+        });
+
+        //the resource has been closed in the try-with-resources block from domibusCacheConfiguration.cacheManager()
+        Assert.assertTrue(thrown.getMessage().contains("ehcache-default-test.xml"));
+        Assert.assertTrue(thrown.getMessage().contains("is closed"));
 
     }
 
@@ -58,9 +64,15 @@ public class DomibusCacheConfigurationTest {
 
         //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
+        org.springframework.cache.Cache externalCache = null;
 
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNull(cacheManager.getCache("policyCacheExternal"));
+        IllegalStateException thrown = Assert.assertThrows(IllegalStateException.class, () -> {
+            //Code under test
+            cacheManager.getCache("policyCacheExternal");
+        });
+
+        //the resource has been closed in the try-with-resources block from domibusCacheConfiguration.cacheManager()
+        Assert.assertTrue(thrown.getMessage().contains("ehcache-default-test.xml"));
     }
 
 
