@@ -58,7 +58,7 @@ public class DomibusCacheConfiguration {
     @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
     @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
-        try (EhcacheCachingProvider provider = new EhcacheCachingProvider()) {
+        EhcacheCachingProvider provider = new EhcacheCachingProvider();
             ClassLoader classLoader = getClass().getClassLoader();
             DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
             //default cache
@@ -77,7 +77,6 @@ public class DomibusCacheConfiguration {
             addPluginsCacheConfiguration(provider, cacheManager, pluginsConfigLocation);
 
             return new JCacheCacheManager(cacheManager);
-        }
     }
 
     protected boolean externalCacheFileExists() {
