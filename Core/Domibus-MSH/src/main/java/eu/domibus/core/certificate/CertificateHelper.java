@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
@@ -115,5 +116,30 @@ public class CertificateHelper {
         } catch (KeyStoreException e) {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
+    }
+
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
+        KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
+        storeInfo.setName(storeName);
+        storeInfo.setContent(storeContent);
+        storeInfo.setType(storeType);
+        storeInfo.setPassword(storePassword);
+
+        return storeInfo;
+    }
+
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
+        if(StringUtils.isNotEmpty(storeFileName)) {
+            validateStoreFileName(storeFileName);
+        }
+
+        KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
+        storeInfo.setName(storeName);
+        storeInfo.setFileName(storeFileName);
+        storeInfo.setContent(storeContent);
+        storeInfo.setPassword(storePassword);
+        storeInfo.setType(getStoreType(storeFileName));
+
+        return storeInfo;
     }
 }

@@ -469,22 +469,11 @@ public class CertificateServiceImpl implements CertificateService {
             store.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
-            KeyStoreContentInfo keyStoreInfo = new KeyStoreContentInfo();
-            keyStoreInfo.setName(storeName);
-            keyStoreInfo.setContent(content);
-            keyStoreInfo.setPassword(decryptedPassword);
-            keyStoreInfo.setType(store.getType());
-            return keyStoreInfo;
+            return certificateHelper.createStoreContentInfo(storeName, content, store.getType(), decryptedPassword);
         } catch (Exception e) {
             throw new CryptoException("Could not get content of store:" + storeName, e);
         }
     }
-
-//    @Override
-//    public KeyStoreInfo getStoreInfo(String trustName) {
-//        TruststoreEntity entity = getStoreEntity(trustName);
-//        return coreMapper.truststoreEntityToTruststoreInfo(entity);
-//    }
 
     private void replaceStore(byte[] fileContent, String filePassword, String storeType, KeystorePersistenceInfo persistenceInfo) {
         String storeName = persistenceInfo.getName();
@@ -658,7 +647,7 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.debug("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
             return false;
         }
-        if(certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
+        if (certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
             LOG.info("The store already contains alias [{}] and it is identical so no adding.", alias);
             return false;
         }
@@ -801,7 +790,6 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //        return passToSave;
 //    }
-
     @Override
     public void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains) {
         String name = keystorePersistenceInfo.getName();
