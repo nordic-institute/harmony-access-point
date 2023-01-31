@@ -641,22 +641,22 @@ public class CertificateServiceImplTest {
         }};
     }
 
-    @Test
-    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
-            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        final String password = "test123";
-        final String type = JKS;
-
-        new Expectations() {{
-            KeyStore.getInstance(type);
-            result = keyStore;
-        }};
-        certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
-        new VerificationsInOrder() {{
-            keyStore.load(newTrustStoreBytes, password.toCharArray());
-            times = 1;
-        }};
-    }
+//    @Test
+//    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
+//            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+//        final String password = "test123";
+//        final String type = JKS;
+//
+//        new Expectations() {{
+//            KeyStore.getInstance(type);
+//            result = keyStore;
+//        }};
+//        certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
+//        new VerificationsInOrder() {{
+//            keyStore.load(newTrustStoreBytes, password.toCharArray());
+//            times = 1;
+//        }};
+//    }
 
     @Test
     public void testPemFormatCertificateContent() {
@@ -1399,20 +1399,20 @@ public class CertificateServiceImplTest {
 //        certificateService.loadStore(content, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
 //    }
 
-    @Test
-    public void loadTrustStoreFromStream(@Mocked InputStream contentStream,
-                                         @Injectable KeyStore trustStore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-
-        thrown.expect(ConfigurationException.class);
-        thrown.expectMessage("Exception loading store.");
-
-        // When
-        certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
-
-        new Verifications() {{
-            certificateService.closeStream(contentStream);
-        }};
-    }
+//    @Test
+//    public void loadTrustStoreFromStream(@Mocked InputStream contentStream,
+//                                         @Injectable KeyStore trustStore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+//
+//        thrown.expect(ConfigurationException.class);
+//        thrown.expectMessage("Exception loading store.");
+//
+//        // When
+//        certificateService.loadStore(contentStream, TRUST_STORE_PASSWORD, KeyStore.getDefaultType());
+//
+//        new Verifications() {{
+//            certificateService.closeStream(contentStream);
+//        }};
+//    }
 
 //    @Test
 //    public void replaceTrustStore(@Injectable byte[] fileContent, @Injectable TruststoreEntity entity) {

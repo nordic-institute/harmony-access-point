@@ -117,18 +117,9 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    /**
-     * Replaces the truststore pointed by the name with the one provided by content/password parameters
-     *
-     * @param fileName     the file name representing the trust
-     * @param fileContent  the trust content
-     * @param filePassword the password of the trust
-     * @param persistenceInfo the store parameters on th disk
-     * @throws CryptoException
-     */
 //    void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
 
-    void replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
+    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 

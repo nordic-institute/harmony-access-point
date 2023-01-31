@@ -106,7 +106,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected final AuditService auditService;
 
-    private final SecurityUtilImpl securityUtilImpl;
+    private final SecurityUtilImpl securityUtil;
 
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
@@ -120,7 +120,7 @@ public class CertificateServiceImpl implements CertificateService {
 //                                  PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
 //                                  DomibusCoreMapper coreMapper,
-                                  AlertConfigurationService alertConfigurationService, AuditService auditService, SecurityUtilImpl securityUtilImpl) {
+                                  AlertConfigurationService alertConfigurationService, AuditService auditService, SecurityUtilImpl securityUtil) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -136,7 +136,7 @@ public class CertificateServiceImpl implements CertificateService {
 //        this.coreMapper = coreMapper;
         this.alertConfigurationService = alertConfigurationService;
         this.auditService = auditService;
-        this.securityUtilImpl = securityUtilImpl;
+        this.securityUtil = securityUtil;
     }
 
     @Override
@@ -431,42 +431,35 @@ public class CertificateServiceImpl implements CertificateService {
 //    }
 
     @Override
-    public void replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+    public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
         String storeName = persistenceInfo.getName();
         KeyStore store = getStore(persistenceInfo);
 
-        LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
+        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(store));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
         try {
-            validateStoreContent(storeInfo);
+            KeyStore newStore = loadStore(storeInfo);
+            if (securityUtil.areKeystoresIdentical(newStore, store)) {
+                LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
+                return false;
+            }
             keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
-            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(store));
 
             auditService.addStoreReplacedAudit(storeName);
+            return true;
         } catch (CryptoException exc) {
             throw new CryptoException("Could not replace store " + storeName, exc);
         }
     }
-
-//    @Override
-//    public KeyStore getStore(String storeName) {
-//        TruststoreEntity entity = getStoreEntity(storeName);
-//        return loadStore(entity.getContent(), entity.getPassword(), entity.getType());
-//    }
 
     @Override
     public KeyStore getStore(KeystorePersistenceInfo keystorePersistenceInfo) {
         KeyStoreContentInfo keyStoreInfo = getStoreContent(keystorePersistenceInfo);
         return loadStore(keyStoreInfo);
     }
-
-//    @Override
-//    public List<TrustStoreEntry> getStoreEntries(String storeName) {
-//        final KeyStore store = getStore(storeName);
-//        return getStoreEntries(store);
-//    }
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
@@ -546,17 +539,6 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-    private void validateStoreContent(KeyStoreContentInfo storeInfo) {
-        LOG.debug("Validating store [{}] content type [{}]", storeInfo.getName(), storeInfo.getType());
-        try (ByteArrayInputStream storeContent = new ByteArrayInputStream(storeInfo.getContent())) {
-            KeyStore store = KeyStore.getInstance(storeInfo.getType());
-            store.load(storeContent, storeInfo.getPassword().toCharArray());
-            storeContent.reset();
-        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
-            throw new CryptoException("Could not replace the store named " + storeInfo.getName(), e);
-        }
-    }
-
 //    protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String storeName) throws CryptoException {
 //        LOG.debug("Replacing the current store [{}] with the provided file content.", storeName);
 //
@@ -618,15 +600,15 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-    protected void validateLoadOperation(ByteArrayInputStream storeContent, String password, String type) {
-        try {
-            KeyStore tempTrustStore = KeyStore.getInstance(type);
-            tempTrustStore.load(storeContent, password.toCharArray());
-            storeContent.reset();
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            throw new DomibusCertificateException("Could not load store: " + e.getMessage(), e);
-        }
-    }
+//    protected void validateLoadOperation(ByteArrayInputStream storeContent, String password, String type) {
+//        try {
+//            KeyStore tempTrustStore = KeyStore.getInstance(type);
+//            tempTrustStore.load(storeContent, password.toCharArray());
+//            storeContent.reset();
+//        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+//            throw new DomibusCertificateException("Could not load store: " + e.getMessage(), e);
+//        }
+//    }
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(final KeyStore store) {
@@ -737,51 +719,42 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-//    protected TruststoreEntity getStoreEntity(String storeName) {
+//    protected KeyStore loadStore(InputStream contentStream, String password, String type) {
+//        KeyStore keystore;
 //        try {
-//            TruststoreEntity entity = truststoreDao.findByName(storeName);
-//            if (entity == null) {
-//                throw new ConfigurationException("Could not find store entity with name: " + storeName);
-//            }
-//            String decrypted = decrypt(storeName, entity.getPassword());
-//            entity.setPassword(decrypted);
-//            return entity;
+//            keystore = KeyStore.getInstance(type);
+//            keystore.load(contentStream, password.toCharArray());
 //        } catch (Exception ex) {
-//            LOG.debug("Error while retrieving store entity [{}]", storeName, ex);
-//            throw new ConfigurationException("Could not retrieve store entity " + storeName, ex);
+//            throw new ConfigurationException("Exception loading store.", ex);
+//        } finally {
+//            if (contentStream != null) {
+//                closeStream(contentStream);
+//            }
 //        }
+//        return keystore;
 //    }
 
-    protected KeyStore loadStore(InputStream contentStream, String password, String type) {
-        KeyStore keystore;
-        try {
-            keystore = KeyStore.getInstance(type);
-            keystore.load(contentStream, password.toCharArray());
-        } catch (Exception ex) {
-            throw new ConfigurationException("Exception loading store.", ex);
-        } finally {
-            if (contentStream != null) {
-                closeStream(contentStream);
-            }
-        }
-        return keystore;
-    }
+//    private KeyStore validateContentAndGetStore(KeyStoreContentInfo storeInfo) {
+//        LOG.debug("Validating store [{}] content type [{}]", storeInfo.getName(), storeInfo.getType());
+//        try (ByteArrayInputStream storeContent = new ByteArrayInputStream(storeInfo.getContent())) {
+//            KeyStore store = KeyStore.getInstance(storeInfo.getType());
+//            store.load(storeContent, storeInfo.getPassword().toCharArray());
+////            storeContent.reset();
+//            return store;
+//        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
+//            throw new CryptoException("Could not replace the store named " + storeInfo.getName(), e);
+//        }
+//    }
 
     protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
-            return loadStore(contentStream, storeInfo.getPassword(), storeInfo.getType());
+            KeyStore keystore = KeyStore.getInstance(storeInfo.getType());
+            keystore.load(contentStream, storeInfo.getPassword().toCharArray());
+            return keystore;
         } catch (Exception ex) {
-            throw new ConfigurationException("Exception loading store.", ex);
+            throw new ConfigurationException("Could not load keystore named " + storeInfo.getName(), ex);
         }
     }
-
-//    protected KeyStore loadStore(byte[] content, String password, String type) {
-//        try (InputStream contentStream = new ByteArrayInputStream(content)) {
-//            return loadStore(contentStream, password, type);
-//        } catch (Exception ex) {
-//            throw new ConfigurationException("Exception loading store.", ex);
-//        }
-//    }
 
     /**
      * @return EntityId of the {@link TruststoreEntity}
@@ -866,7 +839,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         KeyStore storeOnDisk = getStore(persistenceInfo);
 
-        boolean different = !securityUtilImpl.areKeystoresIdentical(store, storeOnDisk);
+        boolean different = !securityUtil.areKeystoresIdentical(store, storeOnDisk);
         if (different) {
             LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
         } else {

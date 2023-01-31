@@ -332,9 +332,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-            certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            if (!replaced) {
+                LOG.info("Current trustStore was not replaced with the content of the file [{}] because it is identical.", storeFileName);
+                throw new CryptoSpiException(String.format("Current trustStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
+            }
         } catch (CryptoException ex) {
-            LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName);
+            LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName, ex);
             throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
         }
         refreshTrustStore();
@@ -345,9 +349,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_KEYSTORE_NAME, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-            certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            if (!replaced) {
+                LOG.info("Current keyStore was not replaced with the content of the file [{}]", storeFileName);
+                throw new CryptoSpiException(String.format("Current keyStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
+            }
         } catch (CryptoException ex) {
-            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName);
+            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
             throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
         }
         refreshKeyStore();
