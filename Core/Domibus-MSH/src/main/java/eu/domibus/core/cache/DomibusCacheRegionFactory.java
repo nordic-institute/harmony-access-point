@@ -28,7 +28,7 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
                 "method before using this class in Hibernate");
 
         final ClassPathResource classPathResource = new ClassPathResource(DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML);
-        try (CachingProvider provider = new EhcacheCachingProvider()) {
+        CachingProvider provider = new EhcacheCachingProvider();
 
             CacheManager cacheManager;
             try {
@@ -47,7 +47,6 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
             setBeanClassLoader(null);
 
             return cacheManager;
-        }
     }
 
     /**
