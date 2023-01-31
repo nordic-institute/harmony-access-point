@@ -529,8 +529,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void loadKeystoreProperties() {
-        final String keystoreType = getKeystoreType();
-        final String keystorePassword = getKeystorePassword();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        final String keystoreType = persistenceInfo.getType();
+        final String keystorePassword = persistenceInfo.getPassword();
         if (StringUtils.isAnyEmpty(keystoreType, keystorePassword)) {
             LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword",
                     domain, keystoreType);
@@ -574,21 +575,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return properties;
     }
 
-    private String getKeystoreType() {
-        return keystorePersistenceService.getKeyStorePersistenceInfo().getType();
-//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
-//        return trust.getType();
-    }
-
-    private String getKeystorePassword() {
-        return keystorePersistenceService.getKeyStorePersistenceInfo().getPassword();
-//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_KEYSTORE_NAME);
-//        return trust.getPassword();
-    }
-
     protected Properties getTrustStoreProperties() {
-        final String trustStoreType = getTrustStoreType();
-        final String trustStorePassword = getTrustStorePassword();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        final String trustStoreType = persistenceInfo.getType();
+        final String trustStorePassword = persistenceInfo.getPassword();
 
         if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword)) {
             LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword",
@@ -608,18 +598,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Truststore properties for domain [{}] are [{}]", domain, logProperties);
 
         return result;
-    }
-
-    protected String getTrustStorePassword() {
-        return keystorePersistenceService.getTrustStorePersistenceInfo().getPassword();
-//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
-//        return trust.getPassword();
-    }
-
-    protected String getTrustStoreType() {
-        return keystorePersistenceService.getTrustStorePersistenceInfo().getType();
-//        KeyStoreInfo trust = certificateService.getStoreInfo(DOMIBUS_TRUSTSTORE_NAME);
-//        return trust.getType();
     }
 
     private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {

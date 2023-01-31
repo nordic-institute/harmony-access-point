@@ -80,7 +80,6 @@ public interface DomainCryptoServiceSpi {
      *
      * @param storeFileLocation
      * @param storePassword
-     * @deprecated since 5.1 Use instead {@link #refreshTrustStore()}
      */
     void replaceTrustStore(String storeFileLocation, String storePassword);
 
@@ -119,7 +118,6 @@ public interface DomainCryptoServiceSpi {
      *
      * @param storeFileLocation
      * @param storePassword
-     * @deprecated since 5.1 Use instead {@link #refreshKeyStore()}
      */
     void replaceKeyStore(String storeFileLocation, String storePassword);
 
