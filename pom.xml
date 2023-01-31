@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
-        <cxf.version>3.5.3</cxf.version>
+        <cxf.version>3.5.5</cxf.version>
         <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
         <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
         gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)

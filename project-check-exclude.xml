@@ -358,7 +358,6 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-core@.*$</packageUrl>
         <vulnerabilityName>CVE-2022-46363</vulnerabilityName>
-        <cve>CVE-2022-46364</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
