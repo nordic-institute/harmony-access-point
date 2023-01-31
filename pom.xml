@@ -24,7 +24,7 @@
         <xmlsec.version>2.3.0</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.23</spring.version>
-        <spring.security.version>5.7.4</spring.security.version>
+        <spring.security.version>5.7.5</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.12</springdoc.version>
@@ -46,7 +46,7 @@
         <bouncycastle.version>1.72</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.13.5</jackson.version>
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.13.4</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
@@ -124,7 +124,7 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
         <guava.version>31.1-jre</guava.version>
-        <opencsv.version>5.7.0</opencsv.version>
+        <opencsv.version>5.7.1</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
@@ -164,7 +164,7 @@
         <httpmime.version>4.5.13</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast-all.version>4.2.5</hazelcast-all.version>
+        <hazelcast-all.version>4.2.6</hazelcast-all.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
