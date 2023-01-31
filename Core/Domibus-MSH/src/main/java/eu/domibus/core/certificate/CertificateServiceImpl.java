@@ -566,15 +566,15 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-    protected byte[] getStoreContentFromFile(String location) {
-        File file = createFileWithLocation(location);
-        Path path = Paths.get(file.getAbsolutePath());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read store from [" + location + "]");
-        }
-    }
+//    protected byte[] getStoreContentFromFile(String location) {
+//        File file = new File(location);
+//        Path path = Paths.get(file.getAbsolutePath());
+//        try {
+//            return Files.readAllBytes(path);
+//        } catch (IOException e) {
+//            throw new DomibusCertificateException("Could not read store from [" + location + "]");
+//        }
+//    }
 
     protected void validateLoadOperation(ByteArrayInputStream storeContent, String password, String type) {
         try {
@@ -1023,9 +1023,9 @@ public class CertificateServiceImpl implements CertificateService {
 
     }
 
-    protected File createFileWithLocation(String location) {
-        return new File(location);
-    }
+//    protected File createFileWithLocation(String location) {
+//        return new File(location);
+//    }
 
     protected boolean isPemFormat(String content) {
         return StringUtils.startsWith(StringUtils.trim(content), "-----BEGIN CERTIFICATE-----");

@@ -194,7 +194,6 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         }
     }
 
-
     protected byte[] getStoreContentFromFile(String location) {
         File file = new File(location);
         Path path = Paths.get(file.getAbsolutePath());

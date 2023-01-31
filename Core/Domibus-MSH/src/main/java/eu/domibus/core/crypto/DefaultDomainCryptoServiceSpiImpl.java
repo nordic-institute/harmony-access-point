@@ -11,6 +11,7 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Component;
 
 import javax.security.auth.callback.CallbackHandler;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
@@ -70,13 +73,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final KeystorePersistenceService keystorePersistenceService;
 
+    private final CertificateHelper certificateHelper;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             KeystorePersistenceService keystorePersistenceService) {
+                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -84,6 +89,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
         this.keystorePersistenceService = keystorePersistenceService;
+        this.certificateHelper = certificateHelper;
     }
 
     public void init() {
@@ -348,38 +354,32 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     // not used currently
     public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
-                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
-            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
-                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
-        }
-        refreshTrustStore();
+        Path path = Paths.get(storeFileLocation);
+        String storeName = path.getFileName().toString();
+        byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
+        replaceTrustStore(storeContent, storeName, storePassword);
 
-//        try {
-//            certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
-//        } catch (CryptoException ex) {
-//            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
-//            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
+//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+//        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
+//                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
+//            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
+//                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
 //        }
 //        refreshTrustStore();
     }
 
     @Override
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
-                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
-            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
-                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
-        }
-        refreshKeyStore();
+        Path path = Paths.get(storeFileLocation);
+        String storeName = path.getFileName().toString();
+        byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
+        replaceKeyStore(storeContent, storeName, storePassword);
 
-//        try {
-//            certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
-//        } catch (CryptoException ex) {
-//            LOG.error("Error while replacing the keystore from [{}]", storeFileLocation);
-//            throw new CryptoSpiException("Error while replacing the keystore from " + storeFileLocation, ex);
+//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+//        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
+//                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
+//            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
+//                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
 //        }
 //        refreshKeyStore();
     }

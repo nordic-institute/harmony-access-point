@@ -7,6 +7,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,6 +80,16 @@ public class CertificateHelper {
             return JKS;
         } else {
             throw new DomibusCertificateException("Invalid store type:" + storeType);
+        }
+    }
+
+    public byte[] getContentFromFile(String location) {
+        File file = new File(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new DomibusCertificateException("Could not read store from [" + location + "]");
         }
     }
 }
