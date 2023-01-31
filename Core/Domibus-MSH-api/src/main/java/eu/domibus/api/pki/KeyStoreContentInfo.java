@@ -12,6 +12,8 @@ public class KeyStoreContentInfo {
 
     protected byte[] content;
 
+    private String fileName;
+
     public String getName() {
         return name;
     }
@@ -44,20 +46,29 @@ public class KeyStoreContentInfo {
         this.content = content;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        KeyStoreContentInfo truststore = (KeyStoreContentInfo) o;
+        KeyStoreContentInfo store = (KeyStoreContentInfo) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(name, truststore.name)
-                .append(type, truststore.type)
-                .append(password, truststore.password)
-                .append(content, truststore.content)
+                .append(name, store.name)
+                .append(type, store.type)
+                .append(password, store.password)
+                .append(content, store.content)
+                .append(fileName, store.fileName)
                 .isEquals();
     }
 
@@ -69,6 +80,7 @@ public class KeyStoreContentInfo {
                 .append(type)
                 .append(password)
                 .append(content)
+                .append(fileName)
                 .toHashCode();
     }
 }

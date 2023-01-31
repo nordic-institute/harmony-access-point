@@ -11,11 +11,11 @@ public interface KeystorePersistenceService {
 
     KeystorePersistenceInfo getKeyStorePersistenceInfo();
 
-    KeyStoreContentInfo loadStoreContentFromDisk(KeystorePersistenceInfo keystorePersistenceInfo);
+    KeyStoreContentInfo loadStore(KeystorePersistenceInfo keystorePersistenceInfo);
 
     void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo);
 
-    void saveToDisk(byte[] fileContent, String storeType, KeystorePersistenceInfo persistenceInfo);
+    void saveStore(byte[] fileContent, String storeType, KeystorePersistenceInfo persistenceInfo);
 
-    void saveToDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
+    void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo);
 }

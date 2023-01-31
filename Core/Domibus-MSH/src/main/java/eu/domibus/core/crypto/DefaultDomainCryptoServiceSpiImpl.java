@@ -357,14 +357,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         String storeName = path.getFileName().toString();
         byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
         replaceTrustStore(storeContent, storeName, storePassword);
-
-//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-//        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
-//                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
-//            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
-//                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
-//        }
-//        refreshTrustStore();
     }
 
     @Override
@@ -373,14 +365,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         String storeName = path.getFileName().toString();
         byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
         replaceKeyStore(storeContent, storeName, storePassword);
-
-//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-//        if (!StringUtils.equals(persistenceInfo.getFileLocation(), storeFileLocation)
-//                || !StringUtils.equals(persistenceInfo.getPassword(), storePassword)) {
-//            throw new CryptoSpiException(String.format("File location [%s] and password [%s] provided should match the corresponding properties [%s] [%s]"
-//                    , storeFileLocation, storePassword, persistenceInfo.getFileLocation(), persistenceInfo.getPassword()));
-//        }
-//        refreshKeyStore();
     }
 
     @Override

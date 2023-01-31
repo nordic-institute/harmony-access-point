@@ -47,9 +47,6 @@ import javax.naming.ldap.Rdn;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -428,7 +425,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
-        KeyStoreContentInfo storeInfo = keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
+        KeyStoreContentInfo storeInfo = keystorePersistenceService.loadStore(keystorePersistenceInfo);
 
         KeyStore store = loadStore(storeInfo);
 
@@ -462,7 +459,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo) {
-        return keystorePersistenceService.loadStoreContentFromDisk(keystorePersistenceInfo);
+        return keystorePersistenceService.loadStore(keystorePersistenceInfo);
     }
 
     @Override
@@ -495,7 +492,7 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
         try {
             validateStoreContent(fileContent, filePassword, storeType, storeName);
-            keystorePersistenceService.saveToDisk(fileContent, storeType, persistenceInfo);
+            keystorePersistenceService.saveStore(fileContent, storeType, persistenceInfo);
             LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
 
             auditService.addStoreReplacedAudit(storeName);
@@ -610,9 +607,6 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    /**
-     * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
-     */
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore store = getStore(persistenceInfo);
 
@@ -625,7 +619,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (addedNr > 0) {
             LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
-            keystorePersistenceService.saveToDisk(store, persistenceInfo);
+            keystorePersistenceService.saveStore(store, persistenceInfo);
             auditService.addCertificateAddedAudit(persistenceInfo.getName());
             return true;
         }
@@ -633,9 +627,6 @@ public class CertificateServiceImpl implements CertificateService {
         return false;
     }
 
-    /**
-     * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
-     */
     protected boolean doRemoveCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
         KeyStore store = getStore(persistenceInfo);
 
@@ -648,7 +639,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (removedNr > 0) {
             LOG.debug("Removed [{}] certificates so persisting the store.", removedNr);
-            keystorePersistenceService.saveToDisk(store, persistenceInfo);
+            keystorePersistenceService.saveStore(store, persistenceInfo);
             auditService.addCertificateRemovedAudit(persistenceInfo.getName());
             return true;
         }

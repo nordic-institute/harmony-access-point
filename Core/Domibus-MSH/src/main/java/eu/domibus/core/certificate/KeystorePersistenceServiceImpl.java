@@ -73,21 +73,16 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     public KeystorePersistenceInfo getTrustStorePersistenceInfo() {
-        KeystorePersistenceInfo persistenceInfo = new TrustStorePersistenceInfoImpl();
-//        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
-        return persistenceInfo;
+        return new TrustStorePersistenceInfoImpl();
     }
 
     @Override
     public KeystorePersistenceInfo getKeyStorePersistenceInfo() {
-        KeystorePersistenceInfo persistenceInfo = new KeyStorePersistenceInfoImpl();
-        // todo move everywhere these are read
-//        certificateHelper.validateStoreType(persistenceInfo.getType(), persistenceInfo.getFileLocation());
-        return persistenceInfo;
+        return new KeyStorePersistenceInfoImpl();
     }
 
     @Override
-    public KeyStoreContentInfo loadStoreContentFromDisk(KeystorePersistenceInfo persistenceInfo) {
+    public KeyStoreContentInfo loadStore(KeystorePersistenceInfo persistenceInfo) {
         String storePath = persistenceInfo.getFileLocation();
         String storeType = persistenceInfo.getType();
 
@@ -153,7 +148,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
-    public void saveToDisk(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
+    public void saveStore(byte[] storeContent, String storeType, KeystorePersistenceInfo persistenceInfo) {
         String storeFileLocation = persistenceInfo.getFileLocation();
         File storeFile = new File(storeFileLocation);
         try {
@@ -181,14 +176,14 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
-    public void saveToDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+    public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             String password = persistenceInfo.getPassword();
             String decryptedPassword = decrypt(persistenceInfo.getName(), password);
             store.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
-            saveToDisk(content, persistenceInfo.getType(), persistenceInfo);
+            saveStore(content, persistenceInfo.getType(), persistenceInfo);
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw new CryptoException("Could not persist store:", e);
         }
