@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
+
 /**
  * @author Soumya Chandran
  * @since 5.1
@@ -50,7 +52,12 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
 
     @Override
     public void uploadTruststoreFile(byte[] truststoreFileContent, String fileName, String password) {
-        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
+        KeyStoreContentInfo storeContentInfo = new KeyStoreContentInfo();
+        storeContentInfo.setName(TLS_TRUSTSTORE_NAME);
+        storeContentInfo.setFileName(fileName);
+        storeContentInfo.setContent(truststoreFileContent);
+        storeContentInfo.setPassword(password);
+        tlsCertificateManager.replaceTrustStore(storeContentInfo);
     }
 
     @Override

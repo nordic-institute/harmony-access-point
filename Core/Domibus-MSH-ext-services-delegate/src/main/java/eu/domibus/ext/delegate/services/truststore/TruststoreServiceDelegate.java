@@ -62,7 +62,7 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
     @Override
     public void addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        X509Certificate cert = certificateService.loadCertificateFromByteArray(certificateFile);
+        X509Certificate cert = certificateService.loadCertificate(certificateFile);
         multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 

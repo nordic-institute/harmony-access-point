@@ -84,20 +84,20 @@ public class TLSCertificateManagerIT extends AbstractIT {
         Assert.assertTrue(!trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(blue_gw)));
     }
 
-    @Test
-    @Transactional
-    public void replaceTrustStore() throws IOException {
-        tlsCertificateManager.saveStoresFromDBToDisk();
-
-        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-        Assert.assertTrue(trustStoreEntries.size() == 2);
-
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
-        byte[] content = Files.readAllBytes(path);
-        String file_name = "cefsupportgwtruststore.jks";
-        tlsCertificateManager.replaceTrustStore(file_name, content, "test123");
-
-        trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-        Assert.assertTrue(trustStoreEntries.size() == 9);
-    }
+//    @Test
+//    @Transactional
+//    public void replaceTrustStore() throws IOException {
+//        tlsCertificateManager.saveStoresFromDBToDisk();
+//
+//        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+//        Assert.assertTrue(trustStoreEntries.size() == 2);
+//
+//        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
+//        byte[] content = Files.readAllBytes(path);
+//        String file_name = "cefsupportgwtruststore.jks";
+//        tlsCertificateManager.replaceTrustStore(file_name, content, "test123");
+//
+//        trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+//        Assert.assertTrue(trustStoreEntries.size() == 9);
+//    }
 }

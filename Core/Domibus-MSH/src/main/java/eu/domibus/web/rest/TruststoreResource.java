@@ -146,7 +146,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected boolean doAddCertificate(String alias, byte[] fileContent) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
+        X509Certificate cert = certificateService.loadCertificate(fileContent);
         return multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 

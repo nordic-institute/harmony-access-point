@@ -555,7 +555,7 @@ public class PartyServiceImpl implements PartyService {
             String partyName = pair.getKey();
             String certificateContent = pair.getValue();
             try {
-                X509Certificate cert = certificateService.loadCertificateFromString(certificateContent);
+                X509Certificate cert = certificateService.loadCertificate(certificateContent);
                 certificates.add(new CertificateEntry(partyName, cert));
             } catch (DomibusCertificateException e) {
                 LOG.error("Error deserializing certificate", e);

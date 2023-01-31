@@ -5,7 +5,6 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
@@ -18,7 +17,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -26,13 +24,9 @@ import eu.domibus.logging.DomibusLoggerImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +38,6 @@ import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -59,7 +52,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.core.certificate.CertificateHelper.JKS;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static org.junit.Assert.*;
@@ -680,14 +672,14 @@ public class CertificateServiceImplTest {
     public void testLoadCertificateFromString() {
         String certStr = TEST_CERTIFICATE_CONTENT_PEM;
 
-        X509Certificate cert = this.certificateService.loadCertificateFromString(certStr);
+        X509Certificate cert = this.certificateService.loadCertificate(certStr);
         Assert.assertNotNull(cert);
 
         String certStr2 = java.util.Base64.getMimeEncoder().encodeToString(certStr.getBytes());
-        X509Certificate cert2 = this.certificateService.loadCertificateFromString(certStr2);
+        X509Certificate cert2 = this.certificateService.loadCertificate(certStr2);
         Assert.assertNotNull(cert2);
 
-        X509Certificate cert3 = this.certificateService.loadCertificateFromString(TEST_CERTIFICATE_CONTENT);
+        X509Certificate cert3 = this.certificateService.loadCertificate(TEST_CERTIFICATE_CONTENT);
         Assert.assertNotNull(cert3);
 
         Assert.assertEquals(cert.toString(), cert2.toString());

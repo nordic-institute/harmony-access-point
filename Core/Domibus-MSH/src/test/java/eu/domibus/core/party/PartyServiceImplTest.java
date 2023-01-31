@@ -3,8 +3,6 @@ package eu.domibus.core.party;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -1106,7 +1104,7 @@ public class PartyServiceImplTest {
         // Then
         new Verifications() {{
             List<CertificateEntry> certificates = null;
-            certificateService.loadCertificateFromString(null);
+            certificateService.loadCertificate((String) null);
             times = 0;
             multiDomainCertificateProvider.addCertificate(currentDomain, null, anyBoolean);
             times = 0;
@@ -1130,7 +1128,7 @@ public class PartyServiceImplTest {
             result = currentDomain;
             partyService.getRemovedParties(replacementResult);
             result = aliases;
-            certificateService.loadCertificateFromString("certificate_1");
+            certificateService.loadCertificate("certificate_1");
             result = x509Certificate;
         }};
 
@@ -1197,7 +1195,7 @@ public class PartyServiceImplTest {
             result = any;
             pModeProvider.updatePModes((byte[]) any, withPrefix("Updated parties to version of"));
             multiDomainCertificateProvider.removeCertificate(currentDomain, (List<String>) any);
-            certificateService.loadCertificateFromString("certificate_1");
+            certificateService.loadCertificate("certificate_1");
             result = x509Certificate;
         }};
 
@@ -1254,7 +1252,7 @@ public class PartyServiceImplTest {
             result = any;
             pModeProvider.updatePModes((byte[]) any, withPrefix("Updated parties to version of"));
             multiDomainCertificateProvider.removeCertificate(currentDomain, (List<String>) any);
-            certificateService.loadCertificateFromString("certificate_1");
+            certificateService.loadCertificate("certificate_1");
             result = new DomibusCertificateException();
         }};
 
