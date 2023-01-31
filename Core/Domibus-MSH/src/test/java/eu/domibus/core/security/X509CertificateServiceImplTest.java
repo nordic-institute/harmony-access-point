@@ -3,9 +3,7 @@ package eu.domibus.core.security;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLService;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,12 +43,29 @@ public class X509CertificateServiceImplTest {
     @Test
     public void verifyCertificateTest() {
         X509Certificate[] certificates = createCertificates(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
-
-        new Verifications() {{
+        new Expectations(){{
             crlService.isCertificateRevoked(certificates[0]);
+            result = false;
             times = 1;
         }};
+
+        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
+
+        new FullVerifications() {};
+    }
+
+    @Test(expected = AuthenticationException.class)
+    public void verifyCertificateRevokedTest() {
+        X509Certificate[] certificates = createCertificates(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+        new Expectations(){{
+            crlService.isCertificateRevoked(certificates[0]);
+            result = true;
+            times = 1;
+        }};
+
+        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
+
+        new FullVerifications() {};
     }
 
     @Test(expected = AuthenticationException.class)
