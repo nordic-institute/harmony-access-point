@@ -50,6 +50,8 @@ public interface DomainCryptoService {
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
 
+    void replaceTrustStore(KeyStoreContentInfo storeInfo);
+
     KeyStore getKeyStore();
 
     KeyStore getTrustStore();
@@ -78,6 +80,8 @@ public interface DomainCryptoService {
 
     void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
 
+    void replaceKeyStore(KeyStoreContentInfo storeInfo);
+
     void refreshKeyStore();
 
     void resetKeyStore();
@@ -91,4 +95,5 @@ public interface DomainCryptoService {
     boolean isTrustStoreChangedOnDisk();
 
     boolean isKeyStoreChangedOnDisk();
+
 }

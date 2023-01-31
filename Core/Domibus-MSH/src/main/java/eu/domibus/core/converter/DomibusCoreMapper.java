@@ -9,6 +9,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.KeyStoreContentInfoSpi;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.ext.domain.DomainDTO;
@@ -69,4 +70,6 @@ public interface DomibusCoreMapper {
     JmsFilterRequest jmsFilterRequestToJmsFilterRequestRO(JmsFilterRequestRO request);
 
     MessagesActionRequest messagesActionRequestROT0MessagesActionRequest(MessagesActionRequestRO request);
+
+    KeyStoreContentInfoSpi keyStoreContentInfoToKeyStoreContentInfoSpi(KeyStoreContentInfo storeInfo);
 }

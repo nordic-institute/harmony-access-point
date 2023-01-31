@@ -76,7 +76,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    protected void uploadTruststore(MultipartFile truststoreFile, String password) {
+    protected void uploadStore(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
@@ -84,12 +84,12 @@ public abstract class TruststoreResourceBase extends BaseResource {
         }
 
         KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent,password);
-        doReplaceTrustStore(storeInfo);
+        doUploadStore(storeInfo);
     }
 
-    protected abstract void doReplaceTrustStore(KeyStoreContentInfo storeInfo);
+    protected abstract void doUploadStore(KeyStoreContentInfo storeInfo);
 
-    protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
+//    protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
         KeyStoreContentInfo storeInfo = getTrustStoreContent();

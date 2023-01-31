@@ -7,10 +7,12 @@ import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.KeyStoreContentInfoSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -56,15 +58,20 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     private final KeystorePersistenceService keystorePersistenceService;
 
+    protected final DomibusCoreMapper coreMapper;
+
     public DomainCryptoServiceImpl(Domain domain,
                                    List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
                                    DomibusPropertyProvider domibusPropertyProvider,
-                                   CertificateService certificateService, KeystorePersistenceService keystorePersistenceService) {
+                                   CertificateService certificateService,
+                                   KeystorePersistenceService keystorePersistenceService,
+                                   DomibusCoreMapper coreMapper) {
         this.domain = domain;
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.keystorePersistenceService = keystorePersistenceService;
+        this.coreMapper = coreMapper;
     }
 
     public void init() {
@@ -178,8 +185,20 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
+    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfoSpi keyStoreContentInfoSpi = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceTrustStore(keyStoreContentInfoSpi);
+    }
+
+    @Override
     public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
         iamProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
+    }
+
+    @Override
+    public void replaceKeyStore(KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfoSpi keyStoreContentInfoSpi = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceKeyStore(keyStoreContentInfoSpi);
     }
 
     @Override

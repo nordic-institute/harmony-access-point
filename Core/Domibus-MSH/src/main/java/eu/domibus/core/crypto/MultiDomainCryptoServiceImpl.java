@@ -178,11 +178,32 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-        certificateHelper.validateStoreFileName(storeFileName);
+    public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
+        certificateHelper.validateStoreFileName(storeInfo.getFileName());
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
+        domainCertificateProvider.replaceTrustStore(storeInfo);
+
+        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
+        saveCertificateAndLogRevocation(domain);
+    }
+
+//    @Override
+//    public void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
+//        certificateHelper.validateStoreFileName(storeFileName);
+//
+//        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+//        domainCertificateProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
+//
+//        saveCertificateAndLogRevocation(domain);
+//    }
+
+    @Override
+    public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
+        certificateHelper.validateStoreFileName(storeInfo.getFileName());
+
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.replaceKeyStore(storeInfo);
 
         saveCertificateAndLogRevocation(domain);
     }

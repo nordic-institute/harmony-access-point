@@ -4,9 +4,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -62,14 +60,14 @@ public class KeystoreResource extends TruststoreResourceBase {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @Override
-    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceKeyStore(currentDomain, fileName, truststoreFileContent, password);
-    }
+//    @Override
+//    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+//        Domain currentDomain = domainProvider.getCurrentDomain();
+//        multiDomainCertificateProvider.replaceKeyStore(currentDomain, fileName, truststoreFileContent, password);
+//    }
 
     @Override
-    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+    protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.replaceKeyStore(currentDomain, storeInfo);
     }
@@ -127,7 +125,7 @@ public class KeystoreResource extends TruststoreResourceBase {
                                      @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the keystore for the current domain ", keystoreFile.getName());
 
-        uploadTruststore(keystoreFile, password);
+        uploadStore(keystoreFile, password);
 
         return "Keystore file has been successfully replaced.";
     }

@@ -5,7 +5,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -63,7 +62,7 @@ public class TruststoreResource extends TruststoreResourceBase {
                                        @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the truststore for the current domain ", truststoreFile.getName());
 
-        uploadTruststore(truststoreFile, password);
+        uploadStore(truststoreFile, password);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -115,14 +114,14 @@ public class TruststoreResource extends TruststoreResourceBase {
         return getEntriesAsCSV(getStoreName());
     }
 
-    @Override
-    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
-    }
+//    @Override
+//    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+//        Domain currentDomain = domainProvider.getCurrentDomain();
+//        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
+//    }
 
     @Override
-    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+    protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeInfo);
     }

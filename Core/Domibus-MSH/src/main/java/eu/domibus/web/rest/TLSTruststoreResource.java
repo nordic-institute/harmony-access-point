@@ -44,7 +44,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @PostMapping()
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile file,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-        uploadTruststore(file, password);
+        uploadStore(file, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -74,13 +74,13 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return removeCertificate(alias);
     }
 
-    @Override
-    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
-    }
+//    @Override
+//    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+//        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
+//    }
 
     @Override
-    protected void doReplaceTrustStore(KeyStoreContentInfo storeInfo) {
+    protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         tlsCertificateManager.replaceTrustStore(storeInfo);
     }
 

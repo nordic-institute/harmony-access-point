@@ -71,6 +71,10 @@ public interface DomainCryptoServiceSpi {
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
 
+    default void replaceTrustStore(KeyStoreContentInfoSpi keyStoreContentInfoSpi) {
+        replaceTrustStore(keyStoreContentInfoSpi.getContent(), keyStoreContentInfoSpi.getFileName(), keyStoreContentInfoSpi.getPassword());
+    }
+
     /**
      * Loads the KeyStore specified by the location and password
      *
@@ -105,6 +109,10 @@ public interface DomainCryptoServiceSpi {
     void init();
 
     void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword);
+
+    default void replaceKeyStore(KeyStoreContentInfoSpi storeContentInfoSpi) {
+        replaceKeyStore(storeContentInfoSpi.getContent(), storeContentInfoSpi.getFileName(), storeContentInfoSpi.getPassword());
+    }
 
     /**
      * Loads the KeyStore specified by the location and password
