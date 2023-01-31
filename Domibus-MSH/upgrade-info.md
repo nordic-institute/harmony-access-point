@@ -1,6 +1,9 @@
 # Domibus upgrade information
+## Domibus 5.0.5 (from 5.0.4):
+                - Replace the Domibus war
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
   ### Partitioning only (oracle)
