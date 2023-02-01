@@ -254,7 +254,9 @@ public class RoutingService {
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        String messageId = Optional.ofNullable(userMessage).map(UserMessage::getMessageId).orElse(null);
+        String messageId = Optional.ofNullable(userMessage)
+                .map(UserMessage::getMessageId)
+                .orElse(null);
         LOG.debug("Getting the backend filter for message [{}] for backendFilters [{}]", messageId, backendFilters);
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
