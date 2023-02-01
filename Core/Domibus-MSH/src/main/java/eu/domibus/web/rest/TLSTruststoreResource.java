@@ -112,9 +112,4 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return tlsCertificateManager.removeCertificate(alias);
     }
 
-    @Override
-    protected String getStoreType() {
-        return tlsCertificateManager.getPersistenceInfo().getType();
-    }
-
 }

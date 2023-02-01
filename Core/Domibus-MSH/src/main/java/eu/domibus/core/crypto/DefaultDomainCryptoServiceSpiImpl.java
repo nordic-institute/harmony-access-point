@@ -345,7 +345,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName, ex);
             throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
         }
-        refreshTrustStore();
+        reloadTrustStore();
     }
 
     @Override
@@ -363,7 +363,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
             throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
         }
-        refreshKeyStore();
+        reloadKeyStore();
     }
 
     @Override
@@ -394,7 +394,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         List<CertificateEntry> certificates = Collections.singletonList(new CertificateEntry(alias, certificate));
         boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates, overwrite);
         if (added) {
-            refreshTrustStore();
+            resetTrustStore();
         }
         return added;
     }
@@ -405,7 +405,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .collect(Collectors.toList());
         boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates2, overwrite);
         if (added) {
-            refreshTrustStore();
+            resetTrustStore();
         }
     }
 
@@ -413,7 +413,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized boolean removeCertificate(String alias) {
         boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), Collections.singletonList(alias));
         if (removed) {
-            refreshTrustStore();
+            resetTrustStore();
         }
         return removed;
     }
@@ -422,7 +422,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized void removeCertificate(List<String> aliases) {
         boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
         if (removed) {
-            refreshTrustStore();
+            resetTrustStore();
         }
     }
 

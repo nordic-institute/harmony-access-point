@@ -80,8 +80,6 @@ public interface DomainCryptoService {
 
     void replaceKeyStore(KeyStoreContentInfo storeInfo);
 
-//    void refreshKeyStore();
-
     void resetKeyStore();
 
     void resetTrustStore();

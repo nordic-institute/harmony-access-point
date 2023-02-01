@@ -169,16 +169,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         return iamProvider.getPrivateKeyPassword(alias);
     }
 
-//    @Override
-//    public void refreshTrustStore() throws CryptoException {
-//        iamProvider.refreshTrustStore();
-//    }
-
-//    @Override
-//    public void refreshKeyStore() {
-//        iamProvider.refreshKeyStore();
-//    }
-
     @Override
     public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
         iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);

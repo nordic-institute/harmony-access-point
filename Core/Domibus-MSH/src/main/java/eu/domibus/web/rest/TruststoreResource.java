@@ -127,11 +127,6 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected String getStoreType() {
-        return keystorePersistenceService.getTrustStorePersistenceInfo().getType();
-    }
-
-    @Override
     protected KeyStoreContentInfo getTrustStoreContent() {
         return multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
     }

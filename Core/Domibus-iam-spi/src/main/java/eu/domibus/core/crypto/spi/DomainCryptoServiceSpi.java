@@ -67,6 +67,9 @@ public interface DomainCryptoServiceSpi {
 
     String getPrivateKeyPassword(String alias);
 
+    /**
+     * @deprecated use {@link #resetTrustStore()} instead
+     */
     void refreshTrustStore();
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
@@ -121,6 +124,9 @@ public interface DomainCryptoServiceSpi {
      */
     void replaceKeyStore(String storeFileLocation, String storePassword);
 
+    /**
+     * @deprecated use {@link #resetKeyStore()} instead
+     */
     void refreshKeyStore();
 
     void resetKeyStore();

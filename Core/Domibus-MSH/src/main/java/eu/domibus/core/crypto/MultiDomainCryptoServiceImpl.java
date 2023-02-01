@@ -130,18 +130,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return domainCertificateProvider.getPrivateKeyPassword(privateKeyAlias);
     }
 
-//    @Override
-//    public void refreshTrustStore(Domain domain) {
-//        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-//        domainCertificateProvider.refreshTrustStore();
-//    }
-
-//    @Override
-//    public void refreshKeyStore(Domain domain) {
-//        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-//        domainCertificateProvider.refreshKeyStore();
-//    }
-
     @Override
     public void resetTrustStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);

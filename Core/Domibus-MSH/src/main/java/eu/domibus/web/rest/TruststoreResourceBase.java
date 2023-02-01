@@ -105,11 +105,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
         }
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + getFileName())
+                .header("content-disposition", "attachment; filename=" + getFileName(storeInfo))
                 .body(resource);
     }
-
-    protected abstract String getStoreType();
 
     protected abstract KeyStoreContentInfo getTrustStoreContent();
 
@@ -173,7 +171,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected abstract boolean doRemoveCertificate(String alias);
 
-    private String getFileName() {
+    private String getFileName(KeyStoreContentInfo storeInfo) {
         String fileName = getStoreName();
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
@@ -181,11 +179,11 @@ public abstract class TruststoreResourceBase extends BaseResource {
         }
 
         fileName = fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
-                + getStoreFileExtension();
+                + getStoreFileExtension(storeInfo);
         return fileName;
     }
 
-    protected String getStoreFileExtension() {
-        return certificateHelper.getStoreFileExtension(getStoreType());
+    protected String getStoreFileExtension(KeyStoreContentInfo storeInfo) {
+        return certificateHelper.getStoreFileExtension(storeInfo.getType());
     }
 }
