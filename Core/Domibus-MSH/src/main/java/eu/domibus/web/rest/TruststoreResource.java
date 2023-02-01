@@ -3,9 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -47,12 +45,18 @@ public class TruststoreResource extends TruststoreResourceBase {
     private final CertificateService certificateService;
 
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
-                              DomainContextProvider domainProvider, CertificateService certificateService,
-                              PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
+                              DomainContextProvider domainProvider,
+                              CertificateService certificateService,
+                              PartyCoreMapper partyConverter,
+                              ErrorHandlerService errorHandlerService,
+                              MultiPartFileUtil multiPartFileUtil,
+                              AuditService auditService,
+                              DomainContextProvider domainContextProvider,
                               DomibusConfigurationService domibusConfigurationService,
-                              CertificateHelper certificateHelper) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService, certificateHelper);
+                              CertificateHelper certificateHelper,
+                              KeystorePersistenceService keystorePersistenceService) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService,
+                certificateHelper, keystorePersistenceService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -116,16 +120,15 @@ public class TruststoreResource extends TruststoreResourceBase {
         return getEntriesAsCSV(getStoreName());
     }
 
-//    @Override
-//    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-//        Domain currentDomain = domainProvider.getCurrentDomain();
-//        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
-//    }
-
     @Override
     protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeInfo);
+    }
+
+    @Override
+    protected String getStoreType() {
+        return keystorePersistenceService.getTrustStorePersistenceInfo().getType();
     }
 
     @Override

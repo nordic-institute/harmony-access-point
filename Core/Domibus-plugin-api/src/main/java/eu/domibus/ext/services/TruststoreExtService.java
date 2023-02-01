@@ -8,7 +8,7 @@ import java.util.List;
  * All operations related to truststore files
  *
  * @author Soumya Chandran
- * @since5.1
+ * @since 5.1
  */
 public interface TruststoreExtService {
 
@@ -28,7 +28,7 @@ public interface TruststoreExtService {
 
     /**
      * Upload a new version of the truststore file
-     *  @param file     truststore file wrapping class
+     *  @param truststoreFileContent     truststore file content bytes
      * @param originalFilename
      * @param password of the truststore uploaded
      */
@@ -47,6 +47,8 @@ public interface TruststoreExtService {
      *
      * @param alias the certificate name
      */
-    void removeCertificate(String alias);
+    void removeCertificate(String alias);;
+
+    String getStoreFileExtension();
 }
 

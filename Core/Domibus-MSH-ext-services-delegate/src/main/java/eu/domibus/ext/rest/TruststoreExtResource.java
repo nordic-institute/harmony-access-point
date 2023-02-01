@@ -2,12 +2,16 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.TruststoreExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * Truststore Domibus services.
@@ -53,10 +60,18 @@ public class TruststoreExtResource {
 
     private final MultiPartFileUtil multiPartFileUtil;
 
-    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper, MultiPartFileUtil multiPartFileUtil) {
+    final DomainContextExtService domainContextExtService;
+
+    final DomibusConfigurationExtService domibusConfigurationExtService;
+
+    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper,
+                                 MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
+                                 DomibusConfigurationExtService domibusConfigurationExtService) {
         this.truststoreExtService = truststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
+        this.domainContextExtService = domainContextExtService;
+        this.domibusConfigurationExtService = domibusConfigurationExtService;
     }
 
     @ExceptionHandler(TruststoreExtException.class)
@@ -82,7 +97,7 @@ public class TruststoreExtResource {
         }
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + "truststore" + ".jks")
+                .header("content-disposition", "attachment; filename=" + getFileName())
                 .body(new ByteArrayResource(content));
     }
 
@@ -135,5 +150,17 @@ public class TruststoreExtResource {
     public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
         truststoreExtService.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the truststore.";
+    }
+
+    private String getFileName() {
+        String fileName = TLS_TRUSTSTORE_NAME;
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domibusConfigurationExtService.isMultiTenantAware() && domain != null) {
+            fileName = fileName + "_" + domain.getName();
+        }
+        fileName = fileName + "_"
+                + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
+                + truststoreExtService.getStoreFileExtension();
+        return fileName;
     }
 }

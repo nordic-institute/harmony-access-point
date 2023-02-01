@@ -71,5 +71,10 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
     }
+
+    @Override
+    public String getStoreFileExtension() {
+        return multiDomainCertificateProvider.getTrustStoreFileExtension();
+    }
 }
 

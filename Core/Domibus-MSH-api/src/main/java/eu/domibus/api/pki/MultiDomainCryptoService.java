@@ -91,4 +91,5 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     boolean isKeyStoreChangedOnDisk(Domain currentDomain);
 
+    String getTrustStoreFileExtension();
 }

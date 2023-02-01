@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
@@ -58,10 +59,12 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final CertificateHelper certificateHelper;
 
+    protected final KeystorePersistenceService keystorePersistenceService;
+
     public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
                                   MultiPartFileUtil multiPartFileUtil, AuditService auditService,
                                   DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService,
-                                  CertificateHelper certificateHelper) {
+                                  CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService) {
         this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
@@ -69,6 +72,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         this.domainContextProvider = domainContextProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.certificateHelper = certificateHelper;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -83,41 +87,29 @@ public abstract class TruststoreResourceBase extends BaseResource {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent,password);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
         doUploadStore(storeInfo);
     }
 
     protected abstract void doUploadStore(KeyStoreContentInfo storeInfo);
 
-//    protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
-
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
         KeyStoreContentInfo storeInfo = getTrustStoreContent();
 
+        auditService.addKeystoreDownloadedAudit(getStoreName());
+
         ByteArrayResource resource = new ByteArrayResource(storeInfo.getContent());
-
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-        String fileName = getStoreName();
-        if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
-            fileName = getStoreName() + "_" + domain.getName();
-        }
-
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
-
-        auditDownload();
-
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER) + ".jks")
+                .header("content-disposition", "attachment; filename=" + getFileName())
                 .body(resource);
     }
 
-    protected void auditDownload() {
-        auditService.addKeystoreDownloadedAudit(getStoreName());
-    }
+    protected abstract String getStoreType();
 
     protected abstract KeyStoreContentInfo getTrustStoreContent();
 
@@ -180,4 +172,20 @@ public abstract class TruststoreResourceBase extends BaseResource {
     }
 
     protected abstract boolean doRemoveCertificate(String alias);
+
+    private String getFileName() {
+        String fileName = getStoreName();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
+            fileName = fileName + "_" + domain.getName();
+        }
+
+        fileName = fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
+                + getStoreFileExtension();
+        return fileName;
+    }
+
+    protected String getStoreFileExtension() {
+        return certificateHelper.getStoreFileExtension(getStoreType());
+    }
 }
