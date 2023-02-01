@@ -338,7 +338,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
             if (!replaced) {
                 LOG.info("Current trustStore was not replaced with the content of the file [{}] because it is identical.", storeFileName);
-                throw new CryptoSpiException(String.format("Current trustStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
+                return;
+//                throw new CryptoSpiException(String.format("Current trustStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
             }
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName, ex);
@@ -355,7 +356,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
             if (!replaced) {
                 LOG.info("Current keyStore was not replaced with the content of the file [{}]", storeFileName);
-                throw new CryptoSpiException(String.format("Current keyStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
+                return;
+//                throw new CryptoSpiException(String.format("Current keyStore was not replaced with the content of the file [%s] because it is identical.", storeFileName));
             }
         } catch (CryptoException ex) {
             LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
@@ -680,7 +682,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             String storeName = persistenceInfo.getName();
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
                 LOG.debug("[{}] on disk and in memory are identical, so no reloading.", storeName);
-                throw new CryptoException(String.format("[%s] on disk and in memory are identical for domain [%s], so no reloading.", storeName, domain));
+                return;
+//                throw new CryptoException(String.format("[%s] on disk and in memory are identical for domain [%s], so no reloading.", storeName, domain));
             }
 
             LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
