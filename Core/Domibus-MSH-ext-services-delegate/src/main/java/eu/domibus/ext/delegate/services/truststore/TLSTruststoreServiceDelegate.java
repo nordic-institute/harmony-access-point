@@ -4,6 +4,7 @@ import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.services.TLSTruststoreExtService;
@@ -30,11 +31,10 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
     }
 
     @Override
-    public byte[] downloadTruststoreContent() {
-        KeyStoreContentInfo content;
+    public KeyStoreContentInfoDTO downloadTruststoreContent() {
         try {
-            content = tlsCertificateManager.getTruststoreContent();
-            return content.getContent();
+            KeyStoreContentInfo contentInfo = tlsCertificateManager.getTruststoreContent();
+            return domibusExtMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(contentInfo);
         } catch (Exception e) {
             throw new TruststoreExtException(e);
         }
@@ -51,12 +51,8 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
     }
 
     @Override
-    public void uploadTruststoreFile(byte[] truststoreFileContent, String fileName, String password) {
-        KeyStoreContentInfo storeContentInfo = new KeyStoreContentInfo();
-        storeContentInfo.setName(TLS_TRUSTSTORE_NAME);
-        storeContentInfo.setFileName(fileName);
-        storeContentInfo.setContent(truststoreFileContent);
-        storeContentInfo.setPassword(password);
+    public void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfoDTO) {
+        KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
         tlsCertificateManager.replaceTrustStore(storeContentInfo);
     }
 
@@ -68,6 +64,11 @@ public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
     @Override
     public void removeCertificate(String alias) {
         tlsCertificateManager.removeCertificate(alias);
+    }
+
+    @Override
+    public String getStoreFileExtension() {
+        return tlsCertificateManager.getStoreFileExtension();
     }
 
 }

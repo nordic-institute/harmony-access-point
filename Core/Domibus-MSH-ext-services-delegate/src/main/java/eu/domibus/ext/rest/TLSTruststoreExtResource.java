@@ -2,12 +2,17 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.TLSTruststoreExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,8 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
 /**
@@ -43,11 +50,9 @@ import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUS
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
 @Tag(name = "TLS truststore", description = "Domibus TLS truststore services API")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-public class TLSTruststoreExtResource {
+public class TLSTruststoreExtResource { // TODO merge with the other ext resource class
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTruststoreExtResource.class);
-
-    public static final String ERROR_MESSAGE_EMPTY_TLS_TRUSTSTORE_PASSWORD = "Failed to upload the TLS truststoreFile file since its password was empty.";
 
     final TLSTruststoreExtService tlsTruststoreExtService;
 
@@ -55,11 +60,18 @@ public class TLSTruststoreExtResource {
 
     private final MultiPartFileUtil multiPartFileUtil;
 
+    final DomainContextExtService domainContextExtService;
+
+    final DomibusConfigurationExtService domibusConfigurationExtService;
+
     public TLSTruststoreExtResource(TLSTruststoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
-                                    MultiPartFileUtil multiPartFileUtil) {
+                                    MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
+                                    DomibusConfigurationExtService domibusConfigurationExtService) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
+        this.domainContextExtService = domainContextExtService;
+        this.domibusConfigurationExtService = domibusConfigurationExtService;
     }
 
     @ExceptionHandler(TruststoreExtException.class)
@@ -78,9 +90,11 @@ public class TLSTruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
+        KeyStoreContentInfoDTO contentInfoDTO;
         byte[] content;
         try {
-            content = tlsTruststoreExtService.downloadTruststoreContent();
+            contentInfoDTO = tlsTruststoreExtService.downloadTruststoreContent();
+            content = contentInfoDTO.getContent();
         } catch (Exception e) {
             LOG.error("Could not download TLS truststore.", e);
             return ResponseEntity.notFound().build();
@@ -92,7 +106,7 @@ public class TLSTruststoreExtResource {
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + "tlsTruststore" + ".jks")
+                .header("content-disposition", "attachment; filename=" + getFileName())
                 .body(new ByteArrayResource(content));
     }
 
@@ -109,7 +123,8 @@ public class TLSTruststoreExtResource {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        tlsTruststoreExtService.uploadTruststoreFile(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -138,4 +153,15 @@ public class TLSTruststoreExtResource {
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
+    private String getFileName() {
+        String fileName = TLS_TRUSTSTORE_NAME;
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domibusConfigurationExtService.isMultiTenantAware() && domain != null) {
+            fileName = fileName + "_" + domain.getName();
+        }
+        fileName = fileName + "_"
+                + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
+                + "." + tlsTruststoreExtService.getStoreFileExtension();
+        return fileName;
+    }
 }

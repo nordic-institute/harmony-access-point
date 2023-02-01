@@ -55,6 +55,7 @@ public class TruststoreExtResource {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreExtResource.class);
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty.";
+    public static final String DOMIBUS_TRUSTSTORE = "domibus.truststore";
 
     final TruststoreExtService truststoreExtService;
 
@@ -125,7 +126,7 @@ public class TruststoreExtResource {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(DOMIBUS_TRUSTSTORE, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         truststoreExtService.uploadTruststoreFile(contentInfo);
 
         return "Truststore file has been successfully replaced.";
@@ -164,7 +165,7 @@ public class TruststoreExtResource {
     }
 
     private String getFileName() {
-        String fileName = TLS_TRUSTSTORE_NAME;
+        String fileName = DOMIBUS_TRUSTSTORE;
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domibusConfigurationExtService.isMultiTenantAware() && domain != null) {
             fileName = fileName + "_" + domain.getName();

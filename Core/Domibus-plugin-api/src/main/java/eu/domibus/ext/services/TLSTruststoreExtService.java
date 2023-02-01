@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,9 +17,9 @@ public interface TLSTruststoreExtService {
     /**
      * Download the TLS truststore file
      *
-     * @return byte[]
+     * @return KeyStoreContentInfoDTO
      */
-    byte[] downloadTruststoreContent();
+    KeyStoreContentInfoDTO downloadTruststoreContent();
 
     /**
      * Returns TLS truststore files information
@@ -30,10 +31,9 @@ public interface TLSTruststoreExtService {
     /**
      * Upload a new version of the TLS truststore file
      *
-     * @param truststoreFileContent     TLS truststore file wrapping class
-     * @param password of the TLS truststore uploaded
+     * @param contentInfo     TLS truststore file wrapping class
      */
-    void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password);
+    void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfo);
 
     /**
      * Adds the specified certificate to the TLS truststore pointed by the parameters
@@ -49,5 +49,8 @@ public interface TLSTruststoreExtService {
      * @param alias the certificate name
      */
     void removeCertificate(String alias);
+
+    String getStoreFileExtension();
+
 }
 
