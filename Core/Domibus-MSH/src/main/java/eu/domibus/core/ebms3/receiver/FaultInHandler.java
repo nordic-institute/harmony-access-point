@@ -256,10 +256,7 @@ public class FaultInHandler extends AbstractFaultHandler {
     private void notifyPlugins(EbMS3Exception faultCause) {
         LOG.debug("Preparing message details for plugin notification about the receive failure");
         Ebms3Messaging ebms3Messaging = (Ebms3Messaging) PhaseInterceptorChain.getCurrentMessage().getExchange().get(MessageConstants.EMBS3_MESSAGING_OBJECT);
-        UserMessage userMessage = null;
-        if (ebms3Messaging.getUserMessage() != null) {
-            userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        }
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
 
         final Map<String, String> properties = new HashMap<>();
         if (faultCause.getErrorCode() != null) {
@@ -268,7 +265,10 @@ public class FaultInHandler extends AbstractFaultHandler {
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
         backendNotificationService.fillEventProperties(userMessage, properties);
         backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
-        LOG.debug("Plugins notified about failure to receive message with id: [{}]", Optional.ofNullable(userMessage).map(UserMessage::getMessageId).orElse(null));
+        LOG.debug("Plugins notified about failure to receive message with id: [{}]",
+                Optional.ofNullable(userMessage)
+                        .map(UserMessage::getMessageId)
+                        .orElse(null));
     }
 
 }
