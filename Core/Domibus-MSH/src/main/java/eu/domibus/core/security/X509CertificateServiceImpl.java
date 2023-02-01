@@ -37,7 +37,7 @@ public class X509CertificateServiceImpl implements X509CertificateService {
             Date today = Calendar.getInstance().getTime();
             DateFormat df = new SimpleDateFormat("MMM d hh:mm:ss yyyy zzz", LOCALE);
             for (final X509Certificate cert : certificates) {
-                String subjectDN = cert.getSubjectDN().getName();
+                String subjectDN = getSubjectDN(cert);
                 try {
                     cert.checkValidity();
                 } catch (CertificateExpiredException exc) {
@@ -57,5 +57,12 @@ public class X509CertificateServiceImpl implements X509CertificateService {
                 }
             }
         }
+    }
+
+    protected String getSubjectDN(X509Certificate cert) {
+        if (cert != null && cert.getSubjectDN() != null) {
+            return cert.getSubjectDN().getName();
+        }
+        return null;
     }
 }
