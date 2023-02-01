@@ -41,7 +41,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     String getPrivateKeyPassword(Domain domain, String privateKeyAlias);
 
-    void refreshTrustStore(Domain domain);
+//    void refreshTrustStore(Domain domain);
 
     void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String password) throws CryptoException;
 
@@ -81,7 +81,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void saveStoresFromDBToDisk();
 
-    void refreshKeyStore(Domain currentDomain);
+//    void refreshKeyStore(Domain currentDomain);
 
     void resetTrustStore(Domain domain);
 

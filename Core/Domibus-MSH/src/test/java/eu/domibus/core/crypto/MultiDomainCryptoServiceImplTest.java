@@ -100,10 +100,10 @@ public class MultiDomainCryptoServiceImplTest {
             result = cryptoService;
         }};
 
-        mdCryptoService.refreshTrustStore(domain);
+        mdCryptoService.resetTrustStore(domain);
 
         new Verifications() {{
-            cryptoService.refreshTrustStore();
+            cryptoService.resetTrustStore();
         }};
     }
 
