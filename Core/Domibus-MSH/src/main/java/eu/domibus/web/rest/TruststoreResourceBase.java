@@ -179,7 +179,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         }
 
         fileName = fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
-                + getStoreFileExtension(storeInfo);
+                + "." + getStoreFileExtension(storeInfo);
         return fileName;
     }
 

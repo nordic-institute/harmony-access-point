@@ -7,6 +7,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
@@ -83,9 +84,11 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
+        KeyStoreContentInfoDTO info;
         byte[] content;
         try {
-            content = truststoreExtService.downloadTruststoreContent();
+            info = truststoreExtService.downloadTruststoreContent();
+            content = info.getContent();
         } catch (Exception e) {
             LOG.error("Could not find truststore.", e);
             return ResponseEntity.notFound().build();
@@ -131,7 +134,7 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries")
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                 @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");

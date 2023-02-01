@@ -8,6 +8,7 @@ import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.services.TruststoreExtService;
 import org.springframework.stereotype.Service;
@@ -42,9 +43,9 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
 
 
     @Override
-    public byte[] downloadTruststoreContent() {
+    public KeyStoreContentInfoDTO downloadTruststoreContent() {
         KeyStoreContentInfo content = multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
-        return content.getContent();
+        return domibusExtMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(content);
     }
 
     @Override

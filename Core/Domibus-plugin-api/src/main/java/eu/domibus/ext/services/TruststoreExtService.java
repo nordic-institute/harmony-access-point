@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface TruststoreExtService {
      *
      * @return byte[]
      */
-    byte[] downloadTruststoreContent();
+    KeyStoreContentInfoDTO downloadTruststoreContent();
 
     /**
      * Returns PMode current file information
@@ -47,7 +48,7 @@ public interface TruststoreExtService {
      *
      * @param alias the certificate name
      */
-    void removeCertificate(String alias);;
+    void removeCertificate(String alias);
 
     String getStoreFileExtension();
 }
