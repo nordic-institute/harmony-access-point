@@ -1,6 +1,7 @@
 # Domibus upgrade information
 
   ## Domibus 5.1 (from 5.0.3)
+                - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
                  o [Mysql only]
                     - Changed MySQL dialect property from MySQL5InnoDBDialect to MySQL8Dialect in the domibus.properties file:
