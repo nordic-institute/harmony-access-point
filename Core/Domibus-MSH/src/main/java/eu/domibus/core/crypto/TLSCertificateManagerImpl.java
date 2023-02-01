@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
@@ -12,6 +11,7 @@ import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,6 +31,8 @@ import java.util.Optional;
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
+    KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
+
     private final TLSReaderService tlsReaderService;
 
     private final CertificateService certificateService;
@@ -43,30 +45,22 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     protected final DomainService domainService;
 
-//    protected final AuditService auditService;
+    protected final CertificateHelper certificateHelper;
 
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
                                      SignalService signalService,
                                      DomibusConfigurationService domibusConfigurationService,
-                                     DomainService domainService
-//                                     AuditService auditService
-    ) {
+                                     DomainService domainService, CertificateHelper certificateHelper) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainService = domainService;
-//        this.auditService = auditService;
+        this.certificateHelper = certificateHelper;
     }
-
-//    @Override
-//    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-//        certificateService.replaceStore(fileName, fileContent, filePassword, new KeystorePersistenceInfoImpl());
-//        resetTLSTruststore();
-//    }
 
     @Override
     public synchronized void replaceTrustStore(KeyStoreContentInfo storeInfo) {
@@ -95,28 +89,22 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
         boolean added = certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-//        auditService.addCertificateAddedAudit(TLS_TRUSTSTORE_NAME);
-
         return added;
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        KeystorePersistenceInfo persistenceInfo = new KeystorePersistenceInfoImpl();
         boolean removed = certificateService.removeCertificate(persistenceInfo, alias);
         if (removed) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
-
-//        auditService.addCertificateRemovedAudit(TLS_TRUSTSTORE_NAME);
 
         return removed;
     }
@@ -125,6 +113,16 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public void saveStoresFromDBToDisk() {
         final List<Domain> domains = domainService.getDomains();
         persistStores(domains);
+    }
+
+    @Override
+    public KeystorePersistenceInfo getPersistenceInfo() {
+        return persistenceInfo;
+    }
+
+    @Override
+    public String getStoreFileExtension() {
+        return certificateHelper.getStoreFileExtension(persistenceInfo.getType());
     }
 
     @Override
@@ -137,43 +135,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void persistStores(List<Domain> domains) {
-        certificateService.saveStoresFromDBToDisk(new KeystorePersistenceInfoImpl(), domains);
-    }
-
-    class KeystorePersistenceInfoImpl implements KeystorePersistenceInfo {
-
-        @Override
-        public String getName() {
-            return TLS_TRUSTSTORE_NAME;
-        }
-
-        @Override
-        public String getFileLocation() {
-            Optional<KeyStoreType> params = getTruststoreParams();
-            return params.map(KeyStoreType::getFile).orElse(null);
-        }
-
-        @Override
-        public boolean isOptional() {
-            return true;
-        }
-
-        @Override
-        public String getType() {
-            Optional<KeyStoreType> params = getTruststoreParams();
-            return params.map(KeyStoreType::getType).orElse(null);
-        }
-
-        @Override
-        public String getPassword() {
-            Optional<KeyStoreType> params = getTruststoreParams();
-            return params.map(KeyStoreType::getPassword).orElse(null);
-        }
-
-        @Override
-        public void updateTypeAndFileLocation(String type,String fileLocation) {
-            setTlsTrustStoreTypeAndFileLocation(type, fileLocation);
-        }
+        certificateService.saveStoresFromDBToDisk(persistenceInfo, domains);
     }
 
     void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
@@ -210,5 +172,41 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             domainCode = domain != null ? domain.getCode() : null;
         }
         return domainCode;
+    }
+
+    class KeystorePersistenceInfoImpl implements KeystorePersistenceInfo {
+
+        @Override
+        public String getName() {
+            return TLS_TRUSTSTORE_NAME;
+        }
+
+        @Override
+        public String getFileLocation() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getFile).orElse(null);
+        }
+
+        @Override
+        public boolean isOptional() {
+            return true;
+        }
+
+        @Override
+        public String getType() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getType).orElse(null);
+        }
+
+        @Override
+        public String getPassword() {
+            Optional<KeyStoreType> params = getTruststoreParams();
+            return params.map(KeyStoreType::getPassword).orElse(null);
+        }
+
+        @Override
+        public void updateTypeAndFileLocation(String type,String fileLocation) {
+            setTlsTrustStoreTypeAndFileLocation(type, fileLocation);
+        }
     }
 }

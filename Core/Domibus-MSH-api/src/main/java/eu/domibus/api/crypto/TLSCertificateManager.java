@@ -2,6 +2,7 @@ package eu.domibus.api.crypto;
 
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import java.util.List;
@@ -68,4 +69,7 @@ public interface TLSCertificateManager extends DomainsAware {
      */
     void saveStoresFromDBToDisk();
 
+    KeystorePersistenceInfo getPersistenceInfo();
+
+    String getStoreFileExtension();
 }

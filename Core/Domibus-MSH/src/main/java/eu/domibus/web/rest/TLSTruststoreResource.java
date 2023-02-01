@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -34,12 +35,17 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     private final TLSCertificateManager tlsCertificateManager;
 
-
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
-                                 PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
-                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider,
-                                 DomibusConfigurationService domibusConfigurationService, CertificateHelper certificateHelper) {
-        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService, certificateHelper);
+                                 PartyCoreMapper coreMapper,
+                                 ErrorHandlerService errorHandlerService,
+                                 MultiPartFileUtil multiPartFileUtil,
+                                 AuditService auditService,
+                                 DomainContextProvider domainContextProvider,
+                                 DomibusConfigurationService domibusConfigurationService,
+                                 CertificateHelper certificateHelper,
+                                 KeystorePersistenceService keystorePersistenceService) {
+        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService,
+                certificateHelper, keystorePersistenceService);
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
@@ -76,20 +82,10 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return removeCertificate(alias);
     }
 
-//    @Override
-//    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-//        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
-//    }
-
     @Override
     protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         tlsCertificateManager.replaceTrustStore(storeInfo);
     }
-
-//    @Override
-//    protected void auditDownload() {
-//        auditService.addTLSTruststoreDownloadedAudit(getStoreName());
-//    }
 
     @Override
     protected KeyStoreContentInfo getTrustStoreContent() {
@@ -114,6 +110,11 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @Override
     protected boolean doRemoveCertificate(String alias) {
         return tlsCertificateManager.removeCertificate(alias);
+    }
+
+    @Override
+    protected String getStoreType() {
+        return tlsCertificateManager.getPersistenceInfo().getType();
     }
 
 }

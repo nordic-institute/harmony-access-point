@@ -167,6 +167,11 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public String getTrustStoreFileExtension() {
+        return certificateHelper.getStoreFileExtension(keystorePersistenceService.getTrustStorePersistenceInfo().getType());
+    }
+
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         certificateHelper.validateStoreFileName(storeFileName);
 
