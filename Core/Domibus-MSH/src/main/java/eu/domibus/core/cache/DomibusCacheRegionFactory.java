@@ -28,7 +28,7 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
                 "method before using this class in Hibernate");
 
         final ClassPathResource classPathResource = new ClassPathResource(DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML);
-        CachingProvider provider = new EhcacheCachingProvider();
+        CachingProvider provider = new EhcacheCachingProvider();//NOSONAR : if this would be closed in this method (with try-with-resources or in a finally block), it would crash with IllegalStateException everywhere it'll be used further
 
             CacheManager cacheManager;
             try {

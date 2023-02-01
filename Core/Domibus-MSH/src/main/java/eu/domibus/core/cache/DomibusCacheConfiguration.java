@@ -58,7 +58,7 @@ public class DomibusCacheConfiguration {
     @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
     @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
-        EhcacheCachingProvider provider = new EhcacheCachingProvider();
+        EhcacheCachingProvider provider = new EhcacheCachingProvider(); //NOSONAR : if this would be closed here (with try-with-resources or in a finally block), it would crash with IllegalStateException everywhere it'll be used further
             ClassLoader classLoader = getClass().getClassLoader();
             DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
             //default cache
