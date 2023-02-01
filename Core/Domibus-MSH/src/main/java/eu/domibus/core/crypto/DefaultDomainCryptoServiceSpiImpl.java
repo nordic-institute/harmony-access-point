@@ -34,6 +34,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -303,22 +306,22 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public synchronized void refreshTrustStore() {
-        reloadTrustStoreFromDisk();
+        reloadTrustStore();
     }
 
     @Override
     public synchronized void refreshKeyStore() {
-        reloadKeyStoreFromDisk();
+        reloadKeyStore();
     }
 
     @Override
     public void resetKeyStore() {
-        reloadKeyStoreFromDisk();
+        reloadKeyStore();
     }
 
     @Override
     public void resetTrustStore() {
-        reloadTrustStoreFromDisk();
+        reloadTrustStore();
     }
 
     @Override
@@ -473,7 +476,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
 
         domainTaskExecutor.submit(() -> {
-            loadKeystoreProperties();
+            loadKeyStoreProperties();
 
             KeyStore keyStore = certificateService.getStore(keystorePersistenceService.getKeyStorePersistenceInfo());
             securityProfileAliasConfigurations.forEach(
@@ -536,7 +539,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Created security profile alias configurations for domain [{}]", domain);
     }
 
-    protected void loadKeystoreProperties() {
+    protected void loadKeyStoreProperties() {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
         final String keystoreType = persistenceInfo.getType();
         final String keystorePassword = persistenceInfo.getPassword();
@@ -608,51 +611,87 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return result;
     }
 
-    private synchronized void reloadKeyStoreFromDisk() throws CryptoSpiException {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-        String storeLocation = persistenceInfo.getFileLocation();
-        try {
-            loadKeystoreProperties();
+    private synchronized void reloadKeyStore() throws CryptoSpiException {
+        reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
+                (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
+                signalService::signalKeyStoreUpdate);
 
-            KeyStore old = getTrustStore();
-            final KeyStore current = certificateService.getStore(persistenceInfo);
-            String storeName = persistenceInfo.getName();
-            if (securityUtil.areKeystoresIdentical(old, current)) {
-                LOG.debug("[{}] on disk and in memory are identical; exiting.", storeName);
-                return;
-            }
-
-            LOG.info("Replacing the [{}] with the content of the disk file [{}] on domain [{}].", storeName, storeLocation, domain);
-            securityProfileAliasConfigurations.forEach(securityProfileConfiguration
-                    -> securityProfileConfiguration.getMerlin().setKeyStore(current));
-
-            signalService.signalKeyStoreUpdate(domain);
-        } catch (CryptoException ex) {
-            throw new CryptoSpiException("Error while replacing the keystore from " + storeLocation, ex);
-        }
+//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+//        String storeLocation = persistenceInfo.getFileLocation();
+//        try {
+//            KeyStore currentStore = getKeyStore();
+//            final KeyStore newStore = certificateService.getStore(persistenceInfo);
+//            String storeName = persistenceInfo.getName();
+//            if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
+//                LOG.debug("[{}] on disk and in memory are identical, so no reloading.", storeName);
+//                throw new CryptoException(String.format("[%s] on disk and in memory are identical for domain [%s], so no reloading.", storeName, domain));
+//            }
+//
+//            LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+//                    storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+//            loadKeystoreProperties();
+//            securityProfileAliasConfigurations.forEach(securityProfileConfiguration
+//                    -> securityProfileConfiguration.getMerlin().setKeyStore(newStore));
+//
+//            signalService.signalKeyStoreUpdate(domain);
+//        } catch (CryptoException ex) {
+//            throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
+//        }
     }
 
-    private synchronized void reloadTrustStoreFromDisk() throws CryptoSpiException {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+    private synchronized void reloadTrustStore() throws CryptoSpiException {
+        reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
+                (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
+                signalService::signalTrustStoreUpdate);
+
+//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+//        String storeLocation = persistenceInfo.getFileLocation();
+//        try {
+//            KeyStore currentStore = getTrustStore();
+//            final KeyStore newStore = certificateService.getStore(persistenceInfo);
+//            String storeName = persistenceInfo.getName();
+//            if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
+//                LOG.debug("[{}] on disk and in memory are identical, so no reloading.", storeName);
+//                throw new CryptoException(String.format("[%s] on disk and in memory are identical for domain [%s], so no reloading.", storeName, domain));
+//            }
+//
+//            LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+//                    storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+//            loadTrustStoreProperties();
+//            securityProfileAliasConfigurations.forEach(securityProfileConfiguration
+//                    -> securityProfileConfiguration.getMerlin().setTrustStore(newStore));
+//
+//            signalService.signalTrustStoreUpdate(domain);
+//        } catch (CryptoException ex) {
+//            throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
+//        }
+    }
+
+    private synchronized void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
+                                          Supplier<KeyStore> storeGetter,
+                                          Runnable storePropertiesLoader,
+                                          BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
+                                          Consumer<Domain> signaller) throws CryptoSpiException {
+        KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
-            loadTrustStoreProperties();
-
-            KeyStore old = getTrustStore();
-            final KeyStore current = certificateService.getStore(persistenceInfo);
+            KeyStore currentStore = storeGetter.get();
+            final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
-            if (securityUtil.areKeystoresIdentical(old, current)) {
-                LOG.debug("[{}] on disk and in memory are identical; exiting.", storeName);
-                return;
+            if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
+                LOG.debug("[{}] on disk and in memory are identical, so no reloading.", storeName);
+                throw new CryptoException(String.format("[%s] on disk and in memory are identical for domain [%s], so no reloading.", storeName, domain));
             }
 
-            LOG.info("Replacing [{}] with the content of the disk file [{}] on domain [{}].", storeName, storeLocation, domain);
+            LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+                    storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+            storePropertiesLoader.run();
             securityProfileAliasConfigurations.forEach(securityProfileConfiguration
-                    -> securityProfileConfiguration.getMerlin().setTrustStore(current));
+                    -> storeSetter.accept(newStore, securityProfileConfiguration));
 
-            signalService.signalTrustStoreUpdate(domain);
+            signaller.accept(domain);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException("Error while replacing the keystore from " + storeLocation, ex);
+            throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
         }
     }
 }

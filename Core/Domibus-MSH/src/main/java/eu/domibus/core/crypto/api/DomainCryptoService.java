@@ -78,8 +78,6 @@ public interface DomainCryptoService {
 
     KeyStoreContentInfo getTrustStoreContent();
 
-    void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
-
     void replaceKeyStore(KeyStoreContentInfo storeInfo);
 
     void refreshKeyStore();

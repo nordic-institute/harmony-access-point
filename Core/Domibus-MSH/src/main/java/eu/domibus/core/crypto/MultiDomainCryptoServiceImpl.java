@@ -188,16 +188,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         saveCertificateAndLogRevocation(domain);
     }
 
-//    @Override
-//    public void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-//        certificateHelper.validateStoreFileName(storeFileName);
-//
-//        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-//        domainCertificateProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
-//
-//        saveCertificateAndLogRevocation(domain);
-//    }
-
     @Override
     public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
         certificateHelper.validateStoreFileName(storeInfo.getFileName());
@@ -313,13 +303,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void onDomainRemoved(Domain domain) {
         domainCertificateProviderMap.remove(domain);
-//        removeTruststores(domain);
     }
-
-//    private void removeTruststores(Domain domain) {
-//        certificateService.removeStore(DOMIBUS_TRUSTSTORE_NAME, domain);
-//        certificateService.removeStore(DOMIBUS_KEYSTORE_NAME, domain);
-//    }
 
     protected void saveStoresFromDBToDisk(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);

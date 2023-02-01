@@ -191,11 +191,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
-        iamProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
-    }
-
-    @Override
     public void replaceKeyStore(KeyStoreContentInfo storeInfo) {
         KeyStoreContentInfoSpi keyStoreContentInfoSpi = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
         iamProvider.replaceKeyStore(keyStoreContentInfoSpi);
