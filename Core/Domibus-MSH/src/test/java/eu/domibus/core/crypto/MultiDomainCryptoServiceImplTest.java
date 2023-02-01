@@ -107,24 +107,24 @@ public class MultiDomainCryptoServiceImplTest {
         }};
     }
 
-    @Test
-    public void replaceTrustStore(@Mocked DomainCryptoServiceImpl cryptoService) {
-        Domain domain = DomainService.DEFAULT_DOMAIN;
-        String storeFileName = "storefile.jks";
-        byte[] store = "cert content".getBytes();
-        String password = "test123";
-
-        new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
-            result = cryptoService;
-        }};
-
-        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
-
-        new Verifications() {{
-            cryptoService.replaceTrustStore(store, storeFileName, password);
-        }};
-    }
+//    @Test
+//    public void replaceTrustStore(@Mocked DomainCryptoServiceImpl cryptoService) {
+//        Domain domain = DomainService.DEFAULT_DOMAIN;
+//        String storeFileName = "storefile.jks";
+//        byte[] store = "cert content".getBytes();
+//        String password = "test123";
+//
+//        new Expectations() {{
+//            domainCertificateProviderFactory.domainCryptoService(domain);
+//            result = cryptoService;
+//        }};
+//
+//        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
+//
+//        new Verifications() {{
+//            cryptoService.replaceTrustStore(store, storeFileName, password);
+//        }};
+//    }
 
     @Test
     public void getKeyStore(@Mocked DomainCryptoServiceImpl cryptoService) {

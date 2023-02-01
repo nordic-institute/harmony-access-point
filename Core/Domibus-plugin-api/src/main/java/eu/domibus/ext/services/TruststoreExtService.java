@@ -29,26 +29,23 @@ public interface TruststoreExtService {
 
     /**
      * Upload a new version of the truststore file
-     *  @param truststoreFileContent     truststore file content bytes
-     * @param originalFilename
-     * @param password of the truststore uploaded
+     *  @param contentInfo     truststore file content bytes
      */
-    void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password);
-
+    void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfo);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *  @param certificateFile the content of the certificate
      * @param alias           the name of the certificate
      */
-    void addCertificate(byte[] certificateFile, String alias);
+    boolean addCertificate(byte[] certificateFile, String alias);
 
     /**
      * Removes the specified certificate from the truststore by the alias name
      *
      * @param alias the certificate name
      */
-    void removeCertificate(String alias);
+    boolean removeCertificate(String alias);
 
     String getStoreFileExtension();
 }

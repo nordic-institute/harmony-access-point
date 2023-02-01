@@ -55,22 +55,23 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
     }
 
     @Override
-    public void uploadTruststoreFile(byte[] truststoreFileContent, String originalFilename, String password) {
+    public void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfoDTO) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, originalFilename, truststoreFileContent, password);
+        KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeContentInfo);
     }
 
     @Override
-    public void addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
+    public boolean addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
         Domain currentDomain = domainProvider.getCurrentDomain();
         X509Certificate cert = certificateService.loadCertificate(certificateFile);
-        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+        return multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
     }
 
     @Override
-    public void removeCertificate(String alias) throws RequestValidationException {
+    public boolean removeCertificate(String alias) throws RequestValidationException {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
+        return multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
     }
 
     @Override

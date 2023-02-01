@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
@@ -13,6 +12,7 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.cache.annotation.Cacheable;
@@ -159,20 +159,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return certificateHelper.getStoreFileExtension(keystorePersistenceService.getTrustStorePersistenceInfo().getType());
     }
 
-    @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-        certificateHelper.validateStoreFileName(storeFileName);
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
-
-        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
-        saveCertificateAndLogRevocation(domain);
-    }
-
+    // todo merge code
     @Override
     public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
         certificateHelper.validateStoreFileName(storeInfo.getFileName());
+        if (StringUtils.isEmpty(storeInfo.getType())) {
+            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
+        }
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.replaceTrustStore(storeInfo);
@@ -184,6 +177,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
         certificateHelper.validateStoreFileName(storeInfo.getFileName());
+        if (StringUtils.isEmpty(storeInfo.getType())) {
+            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
+        }
 
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.replaceKeyStore(storeInfo);

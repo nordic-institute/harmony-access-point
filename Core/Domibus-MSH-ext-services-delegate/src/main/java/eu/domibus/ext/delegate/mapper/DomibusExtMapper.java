@@ -83,4 +83,6 @@ public interface DomibusExtMapper {
     AuthenticationEntity pluginUserDTOToAuthenticationEntity(PluginUserDTO pluginUserDTO);
 
     KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoDTO(KeyStoreContentInfo content);
+
+    KeyStoreContentInfo keyStoreContentInfoDTOToKeyStoreContentInfo(KeyStoreContentInfoDTO contentInfoDTO);
 }
