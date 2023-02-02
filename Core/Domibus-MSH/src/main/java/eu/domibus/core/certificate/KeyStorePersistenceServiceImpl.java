@@ -41,9 +41,9 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  * @since 5.1
  */
 @Service
-public class KeystorePersistenceServiceImpl implements KeystorePersistenceService {
+public class KeyStorePersistenceServiceImpl implements KeystorePersistenceService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(KeystorePersistenceServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(KeyStorePersistenceServiceImpl.class);
 
     private final CertificateHelper certificateHelper;
 
@@ -59,7 +59,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     private final BackupService backupService;
 
-    public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper,
+    public KeyStorePersistenceServiceImpl(CertificateHelper certificateHelper,
                                           TruststoreDao truststoreDao,
                                           PasswordDecryptionService passwordDecryptionService,
                                           DomainContextProvider domainContextProvider,

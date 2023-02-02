@@ -12,7 +12,7 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 5.1
  */
-public interface TLSTruststoreExtService {
+public interface TLSTrustStoreExtService {
 
     /**
      * Download the TLS truststore file

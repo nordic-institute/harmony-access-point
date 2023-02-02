@@ -13,7 +13,7 @@ import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.TLSTruststoreExtService;
+import eu.domibus.ext.services.TLSTrustStoreExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +54,7 @@ public class TLSTruststoreExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTruststoreExtResource.class);
 
-    final TLSTruststoreExtService tlsTruststoreExtService;
+    final TLSTrustStoreExtService tlsTruststoreExtService;
 
     final ExtExceptionHelper extExceptionHelper;
 
@@ -64,7 +64,7 @@ public class TLSTruststoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
-    public TLSTruststoreExtResource(TLSTruststoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
+    public TLSTruststoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
                                     MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;

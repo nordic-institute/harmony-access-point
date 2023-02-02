@@ -7,25 +7,23 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
-import eu.domibus.ext.services.TLSTruststoreExtService;
+import eu.domibus.ext.services.TLSTrustStoreExtService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya Chandran
  * @since 5.1
  */
 @Service
-public class TLSTruststoreServiceDelegate implements TLSTruststoreExtService {
+public class TLSTrustStoreServiceDelegate implements TLSTrustStoreExtService {
 
     private final TLSCertificateManager tlsCertificateManager;
 
     private final DomibusExtMapper domibusExtMapper;
 
-    public TLSTruststoreServiceDelegate(TLSCertificateManager tlsCertificateManager, DomibusExtMapper domibusExtMapper) {
+    public TLSTrustStoreServiceDelegate(TLSCertificateManager tlsCertificateManager, DomibusExtMapper domibusExtMapper) {
         this.tlsCertificateManager = tlsCertificateManager;
         this.domibusExtMapper = domibusExtMapper;
     }

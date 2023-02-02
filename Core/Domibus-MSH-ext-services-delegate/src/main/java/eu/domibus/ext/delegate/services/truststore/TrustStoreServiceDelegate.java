@@ -10,7 +10,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.services.TruststoreExtService;
+import eu.domibus.ext.services.TrustStoreExtService;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.X509Certificate;
@@ -21,7 +21,7 @@ import java.util.List;
  * @since 5.1
  */
 @Service
-public class TruststoreServiceDelegate implements TruststoreExtService {
+public class TrustStoreServiceDelegate implements TrustStoreExtService {
 
     private final MultiDomainCryptoService multiDomainCertificateProvider;
 
@@ -32,7 +32,7 @@ public class TruststoreServiceDelegate implements TruststoreExtService {
     private final DomibusExtMapper domibusExtMapper;
 
 
-    public TruststoreServiceDelegate(MultiDomainCryptoService multiDomainCertificateProvider,
+    public TrustStoreServiceDelegate(MultiDomainCryptoService multiDomainCertificateProvider,
                                      DomainContextProvider domainProvider, CertificateService certificateService,
                                      DomibusExtMapper domibusExtMapper) {
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;

@@ -14,7 +14,7 @@ import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.TruststoreExtService;
+import eu.domibus.ext.services.TrustStoreExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,8 +36,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
-
 /**
  * Truststore Domibus services.
  * Domibus expose the REST API to upload and get the truststore.
@@ -57,7 +55,7 @@ public class TruststoreExtResource {
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty.";
     public static final String DOMIBUS_TRUSTSTORE = "domibus.truststore";
 
-    final TruststoreExtService truststoreExtService;
+    final TrustStoreExtService truststoreExtService;
 
     final ExtExceptionHelper extExceptionHelper;
 
@@ -67,7 +65,7 @@ public class TruststoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
-    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper,
+    public TruststoreExtResource(TrustStoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper,
                                  MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
                                  DomibusConfigurationExtService domibusConfigurationExtService) {
         this.truststoreExtService = truststoreExtService;

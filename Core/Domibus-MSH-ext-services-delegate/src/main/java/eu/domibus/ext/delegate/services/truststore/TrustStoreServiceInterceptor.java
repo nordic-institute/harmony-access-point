@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
      */
     @Aspect
     @Component
-    public class TruststoreServiceInterceptor extends ServiceInterceptor {
+    public class TrustStoreServiceInterceptor extends ServiceInterceptor {
 
-        private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(eu.domibus.ext.delegate.services.truststore.TruststoreServiceInterceptor.class);
+        private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustStoreServiceInterceptor.class);
 
-        @Around(value = "execution(public * eu.domibus.ext.delegate.services.truststore.TruststoreServiceDelegate.*(..))")
+        @Around(value = "execution(public * eu.domibus.ext.delegate.services.truststore.TrustStoreServiceDelegate.*(..))")
         @Override
         public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
             return super.intercept(joinPoint);

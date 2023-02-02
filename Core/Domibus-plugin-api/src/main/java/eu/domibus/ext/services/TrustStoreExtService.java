@@ -11,7 +11,7 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 5.1
  */
-public interface TruststoreExtService {
+public interface TrustStoreExtService {
 
     /**
      * Download the truststore file
