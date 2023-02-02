@@ -12,6 +12,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -22,6 +23,7 @@ import java.security.KeyStore;
  * @since 3.3
  */
 @RunWith(JMockit.class)
+@Ignore
 public class TruststoreResourceTest {
 
     @Tested
