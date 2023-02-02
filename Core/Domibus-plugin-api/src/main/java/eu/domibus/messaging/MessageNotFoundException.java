@@ -28,4 +28,13 @@ public class MessageNotFoundException extends MessagingProcessingException {
     public MessageNotFoundException(Throwable cause) {
         super(cause);
     }
+
+
+    private MessageNotFoundException(String messageId, String context, String details) {
+        super(details == null ? "Message [" + messageId + "] does not exist" + (context == null ? "" : " for " + context) : details, null);
+    }
+
+    public static MessageNotFoundException createMessageNotFoundException(String details) {
+        return new MessageNotFoundException(null, null, details);
+    }
 }

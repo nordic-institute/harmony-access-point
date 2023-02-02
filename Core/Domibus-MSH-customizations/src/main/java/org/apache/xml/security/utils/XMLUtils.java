@@ -156,6 +156,9 @@ public final class XMLUtils {
         if (exclude != null && isDescendantOrSelf(exclude, rootNode)) {
             return;
         }
+        if (rootNode==null) {
+            return;
+        }
         getSetRec(rootNode, result, exclude, com);
     }
 

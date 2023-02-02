@@ -109,6 +109,9 @@ public class WSSendMessageListenerTest {
             backendMessage.getMessageId();
             result = "nope";
 
+            backendMessage.getMessageIds();
+            result = "nope";
+
             backendMessage.getType();
             result = WSBackendMessageType.DELETED_BATCH;
         }};

@@ -58,25 +58,25 @@ public class DomibusCacheConfiguration {
     @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
     @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
-        EhcacheCachingProvider provider = new EhcacheCachingProvider();
-        ClassLoader classLoader = getClass().getClassLoader();
-        DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
-        //default cache
-        final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
+        EhcacheCachingProvider provider = new EhcacheCachingProvider(); //NOSONAR : if this would be closed here (with try-with-resources or in a finally block), it would crash with IllegalStateException everywhere it'll be used further
+            ClassLoader classLoader = getClass().getClassLoader();
+            DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
+            //default cache
+            final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
 
-        CacheManager cacheManager = provider.getCacheManager(
-                classPathResource.getURL().toURI(),
-                classLoader);
+            CacheManager cacheManager = provider.getCacheManager(
+                    classPathResource.getURL().toURI(),
+                    classLoader);
 
-        //external cache file
-        if (externalCacheFileExists()) {
-            mergeExternalCacheConfiguration(provider, cacheManager);
-        }
+            //external cache file
+            if (externalCacheFileExists()) {
+                mergeExternalCacheConfiguration(provider, cacheManager);
+            }
 
-        //plugins
-        addPluginsCacheConfiguration(provider, cacheManager, pluginsConfigLocation);
+            //plugins
+            addPluginsCacheConfiguration(provider, cacheManager, pluginsConfigLocation);
 
-        return new JCacheCacheManager(cacheManager);
+            return new JCacheCacheManager(cacheManager);
     }
 
     protected boolean externalCacheFileExists() {

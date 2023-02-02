@@ -127,7 +127,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
+    public void enqueueImminentCertificateExpirationEvent(final String alias, final Date expirationDate) {
         AlertType alertType = EventType.CERT_IMMINENT_EXPIRATION.geDefaultAlertType();
         AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
         if (!configuration.isActive()) {
@@ -135,12 +135,12 @@ public class EventServiceImpl implements EventService {
             return;
         }
 
-        Event event = prepareCertificateEvent(EventType.CERT_IMMINENT_EXPIRATION, accessPoint, alias, expirationDate);
+        Event event = prepareCertificateEvent(EventType.CERT_IMMINENT_EXPIRATION, alias, expirationDate);
         enqueueEvent(event);
     }
 
     @Override
-    public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
+    public void enqueueCertificateExpiredEvent(final String alias, final Date expirationDate) {
         AlertType alertType = EventType.CERT_EXPIRED.geDefaultAlertType();
         AlertModuleConfiguration configuration = alertConfigurationService.getConfiguration(alertType);
         if (!configuration.isActive()) {
@@ -148,7 +148,7 @@ public class EventServiceImpl implements EventService {
             return;
         }
 
-        Event event = prepareCertificateEvent(EventType.CERT_EXPIRED, accessPoint, alias, expirationDate);
+        Event event = prepareCertificateEvent(EventType.CERT_EXPIRED, alias, expirationDate);
         enqueueEvent(event);
     }
 
@@ -275,8 +275,8 @@ public class EventServiceImpl implements EventService {
         LOG.debug("Event:[{}] added to the queue", event);
     }
 
-    private Event prepareCertificateEvent(EventType eventType, String accessPoint, String alias, Date expirationDate) {
-        return createEventWithProperties(eventType, new EventProperties(accessPoint, alias, expirationDate));
+    private Event prepareCertificateEvent(EventType eventType, String alias, Date expirationDate) {
+        return createEventWithProperties(eventType, new EventProperties(alias, expirationDate));
     }
 
     private String getUniqueIdentifier(UserEntityBase user) {
@@ -315,7 +315,7 @@ public class EventServiceImpl implements EventService {
         if (eventProperties == null || eventProperties.get() == null
                 || eventType.getProperties().size() != eventProperties.get().length) {
             throw new DomibusAlertException(String.format("List of actual params [%s] does not correspond to declared params [%s]",
-                    Arrays.toString(eventProperties.get()), eventType.getProperties()));
+                    Arrays.toString(Optional.ofNullable(eventProperties).map(EventProperties::get).orElse(null)), eventType.getProperties()));
         }
         for (int i = 0; i < eventProperties.get().length; i++) {
             String prop = eventType.getProperties().get(i);

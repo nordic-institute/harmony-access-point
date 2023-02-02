@@ -270,8 +270,8 @@ public class FSFilesManager {
     }
 
     public boolean isFileOlderThan(FileObject file, Integer ageInSeconds) {
-        if (ageInSeconds == null) {
-            LOG.debug("Expiration limit is null");
+        if (ageInSeconds == null || ageInSeconds <= 0) {
+            LOG.debug("Expiration limit is null or not positive; exiting");
             return false;
         }
 

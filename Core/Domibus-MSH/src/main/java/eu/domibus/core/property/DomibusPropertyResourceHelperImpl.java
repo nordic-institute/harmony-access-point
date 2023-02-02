@@ -255,7 +255,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
             String values[] = propertyValue.split("\\.");
             if (values.length > 1) {
-                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1)) > 0) {
+                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1L)) > 0) {
                     throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
                 }
             } else {

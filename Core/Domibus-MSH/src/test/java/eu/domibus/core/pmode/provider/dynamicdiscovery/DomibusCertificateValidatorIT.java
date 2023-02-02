@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -69,7 +70,7 @@ public class DomibusCertificateValidatorIT {
 
 
     @Test
-    public void testValidateIsPassingValidation() throws PeppolSecurityException, CertificateException {
+    public void testValidateIsPassingValidation() throws PeppolSecurityException, CertificateException, NoSuchProviderException {
         new MockUp<DomibusCertificateValidator>() {
             @Mock
             private void validateSMPCertificate(X509Certificate cert) {
@@ -481,7 +482,7 @@ public class DomibusCertificateValidatorIT {
         assertEquals("Lookup certificate validator failed for C=EU, O=digit, CN=Leaf", exception.getMessage());
     }
 
-    private X509Certificate getCertificate(String filename) throws CertificateException {
+    private X509Certificate getCertificate(String filename) throws CertificateException, NoSuchProviderException {
 
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
         return (X509Certificate) fact.generateCertificate(
@@ -489,7 +490,7 @@ public class DomibusCertificateValidatorIT {
 
     }
 
-    private KeyStore buildTruststore(String... filenames) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
+    private KeyStore buildTruststore(String... filenames) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException, NoSuchProviderException {
 
         KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] password = "123456".toCharArray();
