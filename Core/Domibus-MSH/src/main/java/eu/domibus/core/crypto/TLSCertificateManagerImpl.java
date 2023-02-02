@@ -64,7 +64,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized void replaceTrustStore(KeyStoreContentInfo storeInfo) {
-        certificateService.replaceStore(storeInfo, new KeystorePersistenceInfoImpl());
+        certificateService.replaceStore(storeInfo, persistenceInfo);
         resetTLSTruststore();
     }
 
@@ -76,7 +76,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            return certificateService.getStoreEntries(new KeystorePersistenceInfoImpl());
+            return certificateService.getStoreEntries(persistenceInfo);
         } catch (ConfigurationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
@@ -84,7 +84,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public KeyStoreContentInfo getTruststoreContent() {
-        return certificateService.getStoreContent(new KeystorePersistenceInfoImpl());
+        return certificateService.getStoreContent(persistenceInfo);
     }
 
     @Override
