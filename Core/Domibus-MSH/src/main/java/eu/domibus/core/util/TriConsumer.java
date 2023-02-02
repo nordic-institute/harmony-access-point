@@ -1,5 +1,9 @@
 package eu.domibus.core.util;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.1
+ */
 @FunctionalInterface
 public interface TriConsumer<T, U, V> {
 
