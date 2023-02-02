@@ -149,16 +149,15 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(CertificateDaoImpl.class),
                 Mockito.spy(EventService.class),
                 Mockito.spy(CertificateHelper.class),
-                Mockito.spy(KeystorePersistenceService.class), Mockito.spy(DomainService.class),
+                Mockito.spy(KeystorePersistenceService.class),
+                Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
                 Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
-//                Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-//                Mockito.spy(DomibusCoreMapper.class),
+                Mockito.spy(SecurityUtilImpl.class),
                 Mockito.spy(AlertConfigurationService.class),
-                Mockito.spy(AuditService.class),
-                Mockito.spy(SecurityUtilImpl.class));
+                Mockito.spy(AuditService.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

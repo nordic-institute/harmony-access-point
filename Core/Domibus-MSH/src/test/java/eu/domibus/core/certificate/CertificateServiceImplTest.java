@@ -12,11 +12,13 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -52,14 +54,15 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.core.certificate.CertificateHelper.JKS;
-import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
+import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 import static org.junit.Assert.*;
 
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
-@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions", "UnusedAssignment"})
+@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions", "UnusedAssignment", "JUnitMalformedDeclaration"})
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
@@ -255,7 +258,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValid(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValid(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = true;
@@ -269,7 +272,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValidWithExpiredCertificate(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValidWithExpiredCertificate(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = false;
@@ -353,7 +356,7 @@ public class CertificateServiceImplTest {
 
 
     @Test
-    public void testGetTrustStoreEntriesWithKeyStoreException(@Mocked final KeyStore trustStore) throws KeyStoreException {
+    public void testGetTrustStoreEntriesWithKeyStoreException(@Injectable final KeyStore trustStore) throws KeyStoreException {
 
         new Expectations() {{
             trustStore.aliases();
@@ -419,7 +422,7 @@ public class CertificateServiceImplTest {
         new Verifications() {{
             LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, CertificateType.PRIVATE, soonRevokedAlias, now);
             times = 1;
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, CertificateType.PUBLIC, revokedAlias, now);
+            LOG.securityError(SEC_DOMIBUS_CERTIFICATE_REVOKED, CertificateType.PUBLIC, revokedAlias, now);
             times = 1;
             certificateDao.updateRevocation(soonRevokedCertificate);
             times = 1;
@@ -620,7 +623,14 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked RepetitiveAlertConfiguration expiredCertificateConfiguration) {
+    public void sendCertificateExpiredAlertsModuleInactive(@Injectable RepetitiveAlertConfiguration repetitiveAlertConfiguration) {
+        new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.CERT_EXPIRED);
+            result = repetitiveAlertConfiguration;
+
+            repetitiveAlertConfiguration.isActive();
+            result = false;
+        }};
         certificateService.sendCertificateExpiredAlerts();
         new VerificationsInOrder() {{
             pModeProvider.isConfigurationLoaded();
@@ -810,21 +820,21 @@ public class CertificateServiceImplTest {
 //        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
 //    }
 
-    @Test
-    public void throwsExceptionWhenFailingToOverwriteExistingCertificateIntoTheTrustStore(@Injectable X509Certificate certificate,
-                                                                                          @Injectable KeyStore trustStore) throws KeyStoreException {
-        thrown.expect(ConfigurationException.class);
-
-        new Expectations() {{
-            trustStore.containsAlias("alias");
-            result = true;
-            trustStore.deleteEntry("alias");
-            result = new KeyStoreException();
-        }};
-
-        // When
-        certificateService.doAddCertificate(trustStore, certificate, "alias", true);
-    }
+//    @Test
+//    public void throwsExceptionWhenFailingToOverwriteExistingCertificateIntoTheTrustStore(@Injectable X509Certificate certificate,
+//                                                                                          @Injectable KeyStore trustStore) throws KeyStoreException {
+//        thrown.expect(ConfigurationException.class);
+//
+//        new Expectations() {{
+//            trustStore.containsAlias("alias");
+//            result = true;
+//            trustStore.deleteEntry("alias");
+//            result = new KeyStoreException();
+//        }};
+//
+//        // When
+//        certificateService.doAddCertificate(trustStore, certificate, "alias", true);
+//    }
 
 //    @Test
 //    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,

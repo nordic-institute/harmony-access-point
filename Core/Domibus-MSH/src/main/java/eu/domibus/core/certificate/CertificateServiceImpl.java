@@ -19,7 +19,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -55,13 +54,12 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
+import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 
 /**
  * @author Cosmin Baciu
@@ -114,9 +112,9 @@ public class CertificateServiceImpl implements CertificateService {
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   DomainContextProvider domainContextProvider,
+                                  SecurityUtilImpl securityUtil,
                                   AlertConfigurationService alertConfigurationService,
-                                  AuditService auditService,
-                                  SecurityUtilImpl securityUtil) {
+                                  AuditService auditService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -626,7 +624,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         List<eu.domibus.core.certificate.Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
         for (eu.domibus.core.certificate.Certificate certificate : unNotifiedRevoked) {
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
+            LOG.securityError(SEC_DOMIBUS_CERTIFICATE_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
     }
