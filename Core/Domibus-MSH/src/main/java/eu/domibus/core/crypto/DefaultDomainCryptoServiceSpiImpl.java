@@ -336,36 +336,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
-        try {
-            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, storeFileName, storeContent, storePassword);
-            KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
-            if (!replaced) {
-                LOG.info("Current trustStore was not replaced with the content of the file [{}] because it is identical.", storeFileName);
-                return;
-            }
-        } catch (CryptoException ex) {
-            LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName, ex);
-            throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
-        }
-        reloadTrustStore();
+        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
+                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore);
     }
 
     @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
-        try {
-            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(DOMIBUS_KEYSTORE_NAME, storeFileName, storeContent, storePassword);
-            KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
-            if (!replaced) {
-                LOG.info("Current keyStore was not replaced with the content of the file [{}]", storeFileName);
-                return;
-            }
-        } catch (CryptoException ex) {
-            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
-            throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
-        }
-        reloadKeyStore();
+        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
+                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore);
     }
 
     @Override
@@ -446,6 +424,23 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public boolean isKeyStoreChanged() {
         return certificateService.isStoreChangedOnDisk(getKeyStore(), keystorePersistenceService.getKeyStorePersistenceInfo());
+    }
+
+    protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
+                                          String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter, Runnable storeReloader) throws CryptoSpiException {
+        try {
+            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
+            KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
+            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            if (!replaced) {
+                LOG.info("Current keyStore was not replaced with the content of the file [{}]", storeFileName);
+                return;
+            }
+        } catch (CryptoException ex) {
+            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
+            throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
+        }
+        storeReloader.run();
     }
 
     protected void initTrustStore() {

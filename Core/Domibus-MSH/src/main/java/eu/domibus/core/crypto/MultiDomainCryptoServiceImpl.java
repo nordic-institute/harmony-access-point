@@ -25,6 +25,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 /**
@@ -159,32 +160,14 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return certificateHelper.getStoreFileExtension(keystorePersistenceService.getTrustStorePersistenceInfo().getType());
     }
 
-    // todo merge code
     @Override
     public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
-        certificateHelper.validateStoreFileName(storeInfo.getFileName());
-        if (StringUtils.isEmpty(storeInfo.getType())) {
-            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
-        }
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceTrustStore(storeInfo);
-
-        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
-        saveCertificateAndLogRevocation(domain);
+        replaceStore(domain, storeInfo, (domainCertificateProvider) -> domainCertificateProvider.replaceTrustStore(storeInfo));
     }
 
     @Override
     public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
-        certificateHelper.validateStoreFileName(storeInfo.getFileName());
-        if (StringUtils.isEmpty(storeInfo.getType())) {
-            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
-        }
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceKeyStore(storeInfo);
-
-        saveCertificateAndLogRevocation(domain);
+        replaceStore(domain, storeInfo, (domainCertificateProvider) -> domainCertificateProvider.replaceKeyStore(storeInfo));
     }
 
     @Override
@@ -297,6 +280,19 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     protected void saveStoresFromDBToDisk(List<Domain> domains) {
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);
         certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getTrustStorePersistenceInfo(), domains);
+    }
+
+    protected void replaceStore(Domain domain, KeyStoreContentInfo storeInfo, Consumer<DomainCryptoService> storeReplacer) {
+        certificateHelper.validateStoreFileName(storeInfo.getFileName());
+        if (StringUtils.isEmpty(storeInfo.getType())) {
+            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
+        }
+
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        storeReplacer.accept(domainCertificateProvider);
+
+        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
+        saveCertificateAndLogRevocation(domain);
     }
 
     protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
