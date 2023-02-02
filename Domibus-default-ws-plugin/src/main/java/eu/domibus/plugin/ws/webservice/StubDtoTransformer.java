@@ -1,7 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
 
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -29,6 +28,8 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
+
+    public static final String STRING_SANITIZE_REGEX = "[^\\w@.-]";
 
     @Override
     public UserMessage transformFromSubmission(final Submission submission, final UserMessage target) {
@@ -259,7 +260,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                     String propertyValue = trim(property.getValue());
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                         LOG.debug("{} property found=[{}]", propertyName, propertyValue);
-                        propertyValue = DomibusStringUtil.sanitizeFileName(propertyValue);
+                        propertyValue = sanitizeFileName(propertyValue);
                         LOG.debug("Sanitized payload name: [{}]", propertyValue);
                     }
                     properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
@@ -267,5 +268,9 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
             }
             result.addPayload(extPartInfo.getHref(), extPartInfo.getPayloadDatahandler(), properties, extPartInfo.isInBody(), null, null);
         }
+    }
+
+    public static String sanitizeFileName(String fileName) {
+        return fileName.replaceAll(STRING_SANITIZE_REGEX, "_");
     }
 }
