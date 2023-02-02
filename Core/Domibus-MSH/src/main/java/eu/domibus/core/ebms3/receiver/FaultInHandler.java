@@ -12,7 +12,6 @@ import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
@@ -266,7 +265,10 @@ public class FaultInHandler extends AbstractFaultHandler {
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
         backendNotificationService.fillEventProperties(userMessage, properties);
         backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
-        LOG.debug("Plugins notified about failure to receive message with id: [{}]", userMessage.getMessageId());
+        LOG.debug("Plugins notified about failure to receive message with id: [{}]",
+                Optional.ofNullable(userMessage)
+                        .map(UserMessage::getMessageId)
+                        .orElse(null));
     }
 
 }

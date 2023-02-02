@@ -38,7 +38,10 @@ public class Ebms3Converter {
     }
 
     public UserMessage convertFromEbms3(Ebms3UserMessage ebms3UserMessage) {
-        return ebms3UserMessageMapper.userMessageEbms3ToEntity(ebms3UserMessage);
+        if (ebms3UserMessage != null) {
+            return ebms3UserMessageMapper.userMessageEbms3ToEntity(ebms3UserMessage);
+        }
+        return null;
     }
 
     public List<PartInfo> convertPartInfoFromEbms3(Ebms3UserMessage ebms3UserMessage) {
