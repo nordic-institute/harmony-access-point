@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
-import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
+import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
 /**
@@ -129,7 +129,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
                                   DomibusCoreMapper coreMapper,
-                                  AlertConfigurationService alertConfigurationService, AuditService auditService) {
+                                  AlertConfigurationService alertConfigurationService,
+                                  AuditService auditService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -875,7 +876,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         List<eu.domibus.core.certificate.Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
         for (eu.domibus.core.certificate.Certificate certificate : unNotifiedRevoked) {
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
+            LOG.securityError(SEC_DOMIBUS_CERTIFICATE_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
     }
