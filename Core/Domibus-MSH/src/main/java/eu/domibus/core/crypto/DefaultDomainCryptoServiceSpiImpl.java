@@ -455,19 +455,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     protected void loadTrustStoreProperties() {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         loadStoreProperties(persistenceInfo, this::loadTrustStorePropertiesForMerlin);
-
-//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-//        final String trustStoreType = persistenceInfo.getType();
-//        final String trustStorePassword = persistenceInfo.getPassword();
-//
-//        if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword)) {
-//            LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword",
-//                    domain, trustStoreType);
-//            throw new ConfigurationException("Error while trying to load the truststore properties for domain: " + domain);
-//        }
-//
-//        securityProfileAliasConfigurations.forEach(
-//                profileConfiguration -> loadTrustStorePropertiesForMerlin(trustStoreType, trustStorePassword, profileConfiguration));
     }
 
     protected void loadStoreProperties(KeystorePersistenceInfo persistenceInfo, TriConsumer<String, String, SecurityProfileAliasConfiguration> triConsumer) {
@@ -571,18 +558,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     protected void loadKeyStoreProperties() {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
         loadStoreProperties(persistenceInfo, this::loadKeyStorePropertiesForMerlin);
-
-//        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
-//        final String keystoreType = persistenceInfo.getType();
-//        final String keystorePassword = persistenceInfo.getPassword();
-//        if (StringUtils.isAnyEmpty(keystoreType, keystorePassword)) {
-//            LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword",
-//                    domain, keystoreType);
-//            throw new ConfigurationException("Error while trying to load the keystore properties for domain: " + domain);
-//        }
-//
-//        securityProfileAliasConfigurations.forEach(
-//                securityProfileConfiguration -> loadKeyStorePropertiesForMerlin(keystoreType, keystorePassword, securityProfileConfiguration));
     }
 
     private void loadKeyStorePropertiesForMerlin(String keystoreType, String keystorePassword, SecurityProfileAliasConfiguration profileAliasConfiguration) {
