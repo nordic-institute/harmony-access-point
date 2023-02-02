@@ -8,7 +8,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import eu.domibus.core.crypto.spi.model.KeyStoreContentInfo;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.ext.domain.DomainDTO;
@@ -70,5 +70,5 @@ public interface DomibusCoreMapper {
 
     MessagesActionRequest messagesActionRequestROT0MessagesActionRequest(MessagesActionRequestRO request);
 
-    KeyStoreContentInfo keyStoreContentInfoToKeyStoreContentInfoSpi(eu.domibus.api.pki.KeyStoreContentInfo storeInfo);
+    KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoSpi(eu.domibus.api.pki.KeyStoreContentInfo storeInfo);
 }

@@ -1,6 +1,6 @@
 package eu.domibus.core.crypto.spi;
 
-import eu.domibus.core.crypto.spi.model.KeyStoreContentInfo;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -75,8 +75,8 @@ public interface DomainCryptoServiceSpi {
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
 
-    default void replaceTrustStore(KeyStoreContentInfo keyStoreContentInfo) {
-        replaceTrustStore(keyStoreContentInfo.getContent(), keyStoreContentInfo.getFileName(), keyStoreContentInfo.getPassword());
+    default void replaceTrustStore(KeyStoreContentInfoDTO keyStoreContentInfoDTO) {
+        replaceTrustStore(keyStoreContentInfoDTO.getContent(), keyStoreContentInfoDTO.getFileName(), keyStoreContentInfoDTO.getPassword());
     }
 
     /**
@@ -113,7 +113,7 @@ public interface DomainCryptoServiceSpi {
 
     void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword);
 
-    default void replaceKeyStore(KeyStoreContentInfo storeContentInfoSpi) {
+    default void replaceKeyStore(KeyStoreContentInfoDTO storeContentInfoSpi) {
         replaceKeyStore(storeContentInfoSpi.getContent(), storeContentInfoSpi.getFileName(), storeContentInfoSpi.getPassword());
     }
 

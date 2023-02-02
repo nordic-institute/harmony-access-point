@@ -3,7 +3,7 @@ package eu.domibus.core.crypto.spi.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class KeyStoreContentInfo {
+public class KeyStoreContentInfoDTO {
     private String name;
 
     private String type;
@@ -60,7 +60,7 @@ public class KeyStoreContentInfo {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        KeyStoreContentInfo store = (KeyStoreContentInfo) o;
+        KeyStoreContentInfoDTO store = (KeyStoreContentInfoDTO) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

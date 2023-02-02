@@ -12,7 +12,7 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import eu.domibus.core.crypto.spi.model.KeyStoreContentInfo;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -176,14 +176,14 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfo keyStoreContentInfo = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceTrustStore(keyStoreContentInfo);
+        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
     }
 
     @Override
     public void replaceKeyStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfo keyStoreContentInfo = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceKeyStore(keyStoreContentInfo);
+        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
     }
 
     @Override
