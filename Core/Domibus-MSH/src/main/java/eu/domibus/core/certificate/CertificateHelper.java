@@ -26,7 +26,6 @@ import java.util.Objects;
  * @since 5.0
  */
 @Service
-// todo improve???
 public class CertificateHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateHelper.class);
@@ -86,16 +85,6 @@ public class CertificateHelper {
             return JKS;
         } else {
             throw new DomibusCertificateException("Invalid store type:" + storeType);
-        }
-    }
-
-    public byte[] getContentFromFile(String location) {
-        File file = new File(location);
-        Path path = Paths.get(file.getAbsolutePath());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read store from [" + location + "]");
         }
     }
 

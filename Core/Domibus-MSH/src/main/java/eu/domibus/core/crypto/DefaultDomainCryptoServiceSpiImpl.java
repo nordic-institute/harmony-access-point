@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
@@ -77,13 +78,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final CertificateHelper certificateHelper;
 
+    private final FileServiceUtil fileServiceUtil;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper) {
+                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -92,6 +95,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.securityUtil = securityUtil;
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
+        this.fileServiceUtil = fileServiceUtil;
     }
 
     public void init() {
@@ -370,7 +374,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
-        byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
+        byte[] storeContent = fileServiceUtil.getContentFromFile(storeFileLocation);
         replaceTrustStore(storeContent, storeName, storePassword);
     }
 
@@ -378,7 +382,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
-        byte[] storeContent = certificateHelper.getContentFromFile(storeFileLocation);
+        byte[] storeContent = fileServiceUtil.getContentFromFile(storeFileLocation);
         replaceKeyStore(storeContent, storeName, storePassword);
     }
 

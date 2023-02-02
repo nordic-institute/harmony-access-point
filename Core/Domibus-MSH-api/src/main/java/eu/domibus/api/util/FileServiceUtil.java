@@ -21,4 +21,6 @@ public interface FileServiceUtil {
      * @return preferred file extension or empty string
      */
     String getExtension(String mime);
+
+    byte[] getContentFromFile(String location);
 }
