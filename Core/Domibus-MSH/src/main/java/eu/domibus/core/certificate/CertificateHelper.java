@@ -9,11 +9,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -71,11 +66,11 @@ public class CertificateHelper {
         String fileExtension = FilenameUtils.getExtension(storeFileName).toLowerCase();
         if (Arrays.asList(P_12, PFX).contains(fileExtension)) {
             return PKCS_12;
-        } else if (Arrays.asList(JKS).contains(fileExtension)) {
-            return JKS;
-        } else {
-            throw new DomibusCertificateException("Invalid store file name:" + storeFileName);
         }
+        if (Arrays.asList(JKS).contains(fileExtension)) {
+            return JKS;
+        }
+        throw new DomibusCertificateException("Invalid store file name:" + storeFileName);
     }
 
     public String getStoreFileExtension(String storeType) {
@@ -112,26 +107,25 @@ public class CertificateHelper {
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
-        KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
-        storeInfo.setName(storeName);
-        storeInfo.setContent(storeContent);
-        storeInfo.setType(storeType);
-        storeInfo.setPassword(storePassword);
-
-        return storeInfo;
+        return getKeyStoreContentInfo(storeName, null, storeContent, storePassword, storeType);
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
-        if(StringUtils.isNotEmpty(storeFileName)) {
+        if (StringUtils.isNotEmpty(storeFileName)) {
             validateStoreFileName(storeFileName);
         }
+        String storeType = getStoreType(storeFileName);
 
+        return getKeyStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
+    }
+
+    private KeyStoreContentInfo getKeyStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
         KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
         storeInfo.setName(storeName);
         storeInfo.setFileName(storeFileName);
         storeInfo.setContent(storeContent);
         storeInfo.setPassword(storePassword);
-        storeInfo.setType(getStoreType(storeFileName));
+        storeInfo.setType(storeType);
 
         return storeInfo;
     }
