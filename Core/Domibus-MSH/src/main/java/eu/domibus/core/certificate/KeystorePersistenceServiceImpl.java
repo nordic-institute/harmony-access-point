@@ -59,9 +59,13 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
 
     private final BackupService backupService;
 
-    public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper, TruststoreDao truststoreDao,
-                                          PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider,
-                                          DomibusPropertyProvider domibusPropertyProvider, DomibusRawPropertyProvider domibusRawPropertyProvider, BackupService backupService) {
+    public KeystorePersistenceServiceImpl(CertificateHelper certificateHelper,
+                                          TruststoreDao truststoreDao,
+                                          PasswordDecryptionService passwordDecryptionService,
+                                          DomainContextProvider domainContextProvider,
+                                          DomibusPropertyProvider domibusPropertyProvider,
+                                          DomibusRawPropertyProvider domibusRawPropertyProvider,
+                                          BackupService backupService) {
         this.certificateHelper = certificateHelper;
         this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
@@ -89,7 +93,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         String storeName = persistenceInfo.getName();
         if (storePath == null) {
             if (persistenceInfo.isOptional()) {
-                LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
+                LOG.debug("The store location of [{}] is missing (and optional) so exiting.", storeName);
                 return null;
             }
             throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
@@ -111,7 +115,7 @@ public class KeystorePersistenceServiceImpl implements KeystorePersistenceServic
         try {
             if (filePath == null) {
                 if (keystorePersistenceInfo.isOptional()) {
-                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", storeName);
+                    LOG.debug("The store location of [{}] is missing (and optional) so exiting.", storeName);
                     return;
                 }
                 throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", storeName));

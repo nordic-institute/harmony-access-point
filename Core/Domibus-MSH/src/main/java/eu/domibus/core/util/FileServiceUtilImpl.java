@@ -17,8 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * @since 4.1.4
  * @author Catalin Enache
+ * @since 4.1.4
  */
 @Service
 public class FileServiceUtilImpl implements FileServiceUtil {
@@ -55,8 +55,11 @@ public class FileServiceUtilImpl implements FileServiceUtil {
         }
     }
 
-    public byte[] getContentFromFile(String location) {
+    public byte[] getContentFromFile(String location) throws IOException {
         File file = new File(location);
+        if (!file.exists()) {
+            throw new IOException(String.format("File with the path [%s] does not exist", location));
+        }
         Path path = Paths.get(file.getAbsolutePath());
         try {
             return Files.readAllBytes(path);

@@ -107,9 +107,14 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public void updateTlsTrustStoreConfiguration(String domainCode, String type, String fileLocation) {
         Optional<TLSClientParametersType> tlsParams = getTlsTrustStoreConfiguration(domainCode);
         if (!tlsParams.isPresent()) {
+            LOG.info("Could not get TlsTrustStoreConfiguration; exiting");
             return;
         }
         Optional<Path> path = getClientAuthenticationPath(domainCode);
+        if (!path.isPresent()) {
+            LOG.info("Could not get ClientAuthenticationPath; exiting");
+            return;
+        }
 
         KeyStoreType store = tlsParams.get().getTrustManagers().getKeyStore();
         store.setType(type);

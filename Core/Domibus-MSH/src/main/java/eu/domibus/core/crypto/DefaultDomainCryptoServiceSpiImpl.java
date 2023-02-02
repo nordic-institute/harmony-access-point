@@ -351,7 +351,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
-        byte[] storeContent = fileServiceUtil.getContentFromFile(storeFileLocation);
+        byte[] storeContent = getContentFromFile(storeFileLocation);
         replaceTrustStore(storeContent, storeName, storePassword);
     }
 
@@ -359,7 +359,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
-        byte[] storeContent = fileServiceUtil.getContentFromFile(storeFileLocation);
+        byte[] storeContent = getContentFromFile(storeFileLocation);
         replaceKeyStore(storeContent, storeName, storePassword);
     }
 
@@ -420,6 +420,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             resetTrustStore();
         }
         return added;
+    }
+
+    private byte[] getContentFromFile(String location) {
+        try {
+            return fileServiceUtil.getContentFromFile(location);
+        } catch (IOException e) {
+            throw new DomibusCertificateException("Could not read store from [" + location + "]");
+        }
     }
 
     protected boolean removeCertificates(List<String> aliases) {
