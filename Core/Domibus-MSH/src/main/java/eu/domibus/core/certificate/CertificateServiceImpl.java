@@ -24,6 +24,7 @@ import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -219,7 +220,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public X509Certificate loadCertificate(byte[] content) {
-        if (content == null) {
+        if (ArrayUtils.isEmpty(content)) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 

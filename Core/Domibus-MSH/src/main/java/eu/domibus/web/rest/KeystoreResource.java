@@ -97,7 +97,6 @@ public class KeystoreResource extends TruststoreResourceBase {
         LOG.debug("Checking if the keystore has changed on disk for the current domain");
         Domain currentDomain = domainProvider.getCurrentDomain();
         return multiDomainCertificateProvider.isKeyStoreChangedOnDisk(currentDomain);
-//        return certificateService.isStoreChangedOnDisk(keystorePersistenceService.getKeyStorePersistenceInfo());
     }
 
     @GetMapping(path = "/csv")

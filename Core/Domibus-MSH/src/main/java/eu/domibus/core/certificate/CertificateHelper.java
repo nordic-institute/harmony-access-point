@@ -95,8 +95,7 @@ public class CertificateHelper {
                 return false;
             }
             X509Certificate cert = (X509Certificate) keystore.getCertificate(alias);
-            if (Arrays.equals(cert.getIssuerUniqueID(), certificate.getIssuerUniqueID())
-                    && Objects.equals(cert.getSerialNumber(), certificate.getSerialNumber())) {
+            if (certificateAreEqual(certificate, cert)) {
                 LOG.debug("The store [{}] contains a certificate with alias [{}] and it is the same as [{}]", keystore, alias, certificate);
                 return true;
             }
@@ -105,6 +104,11 @@ public class CertificateHelper {
         } catch (KeyStoreException e) {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
+    }
+
+    private boolean certificateAreEqual(X509Certificate certificate, X509Certificate cert) {
+        return Arrays.equals(cert.getIssuerUniqueID(), certificate.getIssuerUniqueID())
+                && Objects.equals(cert.getSerialNumber(), certificate.getSerialNumber());
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
