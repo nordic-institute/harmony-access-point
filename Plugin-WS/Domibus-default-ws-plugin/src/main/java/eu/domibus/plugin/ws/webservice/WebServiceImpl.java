@@ -722,6 +722,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         }
 
         MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
+
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId, role);
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
