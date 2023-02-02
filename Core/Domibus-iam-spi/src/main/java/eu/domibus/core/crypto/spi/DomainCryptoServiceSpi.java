@@ -135,11 +135,11 @@ public interface DomainCryptoServiceSpi {
 
     void resetSecurityProfiles();
 
-    default boolean isTrustStoreChangedOnDisk() {
+    default boolean isTrustStoreChanged() {
         return false;
     }
 
-    default boolean isKeyStoreChangedOnDisk() {
+    default boolean isKeyStoreChanged() {
         return false;
     }
 }

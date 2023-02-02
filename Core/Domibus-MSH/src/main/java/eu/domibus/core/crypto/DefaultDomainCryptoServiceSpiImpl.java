@@ -439,12 +439,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    public boolean isTrustStoreChangedOnDisk() {
+    public boolean isTrustStoreChanged() {
         return certificateService.isStoreChangedOnDisk(getTrustStore(), keystorePersistenceService.getTrustStorePersistenceInfo());
     }
 
     @Override
-    public boolean isKeyStoreChangedOnDisk() {
+    public boolean isKeyStoreChanged() {
         return certificateService.isStoreChangedOnDisk(getKeyStore(), keystorePersistenceService.getKeyStorePersistenceInfo());
     }
 

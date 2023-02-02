@@ -282,12 +282,12 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public boolean isTrustStoreChangedOnDisk() {
-        return iamProvider.isTrustStoreChangedOnDisk();
+        return iamProvider.isTrustStoreChanged();
     }
 
     @Override
     public boolean isKeyStoreChangedOnDisk() {
-        return iamProvider.isKeyStoreChangedOnDisk();
+        return iamProvider.isKeyStoreChanged();
     }
 
     private void getIAMProvider() {
