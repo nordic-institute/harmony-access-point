@@ -12,7 +12,7 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import eu.domibus.core.crypto.spi.KeyStoreContentInfoSpi;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfo;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -175,15 +175,15 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfoSpi keyStoreContentInfoSpi = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceTrustStore(keyStoreContentInfoSpi);
+    public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfo keyStoreContentInfo = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceTrustStore(keyStoreContentInfo);
     }
 
     @Override
-    public void replaceKeyStore(KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfoSpi keyStoreContentInfoSpi = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceKeyStore(keyStoreContentInfoSpi);
+    public void replaceKeyStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfo keyStoreContentInfo = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceKeyStore(keyStoreContentInfo);
     }
 
     @Override
@@ -222,7 +222,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public KeyStoreContentInfo getKeyStoreContent() {
+    public eu.domibus.api.pki.KeyStoreContentInfo getKeyStoreContent() {
         KeyStore store = iamProvider.getKeyStore();
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
         return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
@@ -235,7 +235,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public KeyStoreContentInfo getTrustStoreContent() {
+    public eu.domibus.api.pki.KeyStoreContentInfo getTrustStoreContent() {
         KeyStore store = iamProvider.getTrustStore();
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
