@@ -108,6 +108,25 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     @Override
+    public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
+        saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
+    }
+
+    @Override
+    public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            String password = persistenceInfo.getPassword();
+            String decryptedPassword = decrypt(persistenceInfo.getName(), password);
+            store.store(byteStream, decryptedPassword.toCharArray());
+            byte[] content = byteStream.toByteArray();
+
+            saveStore(content, persistenceInfo.getType(), persistenceInfo);
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            throw new CryptoException("Could not persist store:", e);
+        }
+    }
+
+    @Override
     @Transactional
     public void saveStoreFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo) {
         String storeName = keystorePersistenceInfo.getName();
@@ -130,6 +149,12 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
                 return;
             }
 
+            if (persisted.getModificationTime().getTime() < storeFile.lastModified()) {
+                LOG.info("The store [{}] on disk [{}] is newer [{}] than the persisted one [{}], so no overwriting.",
+                        storeName, filePath, storeFile.lastModified(), persisted.getModificationTime().getTime());
+                return;
+            }
+
             byte[] contentOnDisk = getStoreContentFromFile(filePath);
             if (!Arrays.equals(persisted.getContent(), contentOnDisk)) {
                 LOG.info("Saving the store [{}] from db to the disc.", storeName);
@@ -141,25 +166,6 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         } catch (Exception ex) {
             LOG.error(String.format("The store [%s], whose file location is [%s], could not be persisted! " +
                     "Please check that the store file is present and the location property is set accordingly.", storeName, filePath), ex);
-        }
-    }
-
-    @Override
-    public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
-        saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
-    }
-
-    @Override
-    public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            String password = persistenceInfo.getPassword();
-            String decryptedPassword = decrypt(persistenceInfo.getName(), password);
-            store.store(byteStream, decryptedPassword.toCharArray());
-            byte[] content = byteStream.toByteArray();
-
-            saveStore(content, persistenceInfo.getType(), persistenceInfo);
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
-            throw new CryptoException("Could not persist store:", e);
         }
     }
 
