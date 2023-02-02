@@ -52,9 +52,9 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected CertificateService certificateService;
+    protected final CertificateService certificateService;
 
     private final KeystorePersistenceService keystorePersistenceService;
 

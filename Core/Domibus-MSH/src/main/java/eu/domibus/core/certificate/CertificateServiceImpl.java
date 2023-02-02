@@ -359,29 +359,6 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(alias, cert);
     }
 
-//    @Override
-//    public void replaceStore(String fileLocation, String filePassword, String storeName) {
-//        LOG.debug("Replacing store [{}] with the one from file [{}]", storeName, fileLocation);
-//        Path path = Paths.get(fileLocation);
-//        String fileName = path.getFileName().toString();
-//        byte[] fileContent = getStoreContentFromFile(fileLocation);
-//        replaceStore(fileName, fileContent, filePassword, storeName);
-//    }
-
-//    @Override
-//    public void replaceStore(String fileName, byte[] fileContent, String filePassword, String storeName) {
-//        LOG.debug("Replacing store [{}] with file content", storeName);
-//        String storeType = certificateHelper.getStoreType(fileName);
-//        return replaceStore(fileContent, filePassword, storeType, storeName);
-//    }
-
-//    @Override
-//    public void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException {
-//        LOG.debug("Replacing store [{}] with file content", persistenceInfo.getName());
-//        String storeType = certificateHelper.getStoreType(fileName);
-//        replaceStore(fileContent, filePassword, storeType, persistenceInfo);
-//    }
-
     @Override
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
         String storeName = persistenceInfo.getName();
@@ -464,103 +441,6 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Could not get content of store:" + storeName, e);
         }
     }
-
-//    private void replaceStore(byte[] fileContent, String filePassword, String storeType, KeystorePersistenceInfo persistenceInfo) {
-//        String storeName = persistenceInfo.getName();
-//        KeyStore store = getStore(persistenceInfo);
-//        LOG.debug("Store [{}] with entries [{}] will be replaced.", storeName, getStoreEntries(store));
-//        try {
-//            validateStoreContent(fileContent, filePassword, storeType, storeName);
-//            keystorePersistenceService.saveStore(fileContent, storeType, persistenceInfo);
-//            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
-//
-//            auditService.addStoreReplacedAudit(storeName);
-//        } catch (CryptoException exc) {
-//            throw new CryptoException("Could not replace store " + storeName, exc);
-//        }
-//    }
-
-//    private void validateStoreContent(byte[] fileContent, String filePassword, String storeType, String storeName) {
-//        try (ByteArrayInputStream newStoreContent = new ByteArrayInputStream(fileContent)) {
-//            validateLoadOperation(newStoreContent, filePassword, storeType);
-//
-//            KeyStore store = KeyStore.getInstance(storeType);
-//            store.load(newStoreContent, filePassword.toCharArray());
-//        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
-//            throw new CryptoException("Could not replace the store named " + storeName, e);
-//        }
-//    }
-
-//    protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String storeName) throws CryptoException {
-//        LOG.debug("Replacing the current store [{}] with the provided file content.", storeName);
-//
-//        TruststoreEntity entity = getStoreEntitySafely(storeName);
-//        if (entity != null) {
-//            KeyStore store = loadStore(entity.getContent(), entity.getPassword(), entity.getType());
-//            LOG.debug("Store [{}] with entries [{}] found and will be replaced.", storeName, getStoreEntries(store));
-//            try (ByteArrayOutputStream oldStoreContent = new ByteArrayOutputStream()) {
-//                char[] oldPassword = entity.getPassword().toCharArray();
-//                store.store(oldStoreContent, oldPassword);
-//                try {
-//                    return doReplace(fileContent, filePassword, storeType, storeName);
-//                } catch (CryptoException ex) {
-//                    restoreOriginalStore(storeName, store, oldStoreContent, oldPassword);
-//                    throw new CryptoException("Could not replace store " + storeName, ex);
-//                }
-//            } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
-//                throw new CryptoException("Could not replace store " + storeName, exc);
-//            }
-//        }
-//
-//        LOG.debug("Store [{}] is not found so it will be set", storeName);
-//        return doReplace(fileContent, filePassword, storeType, storeName);
-//    }
-
-//    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String storeName) {
-//        try (ByteArrayInputStream newStoreContent = new ByteArrayInputStream(fileContent)) {
-//            validateLoadOperation(newStoreContent, filePassword, storeType);
-//
-//            KeyStore store = KeyStore.getInstance(storeType);
-//            store.load(newStoreContent, filePassword.toCharArray());
-//
-//            Long entityId = persistStore(store, filePassword, storeType, storeName);
-//            LOG.info("Store [{}] successfully replaced with [{}].", storeName, getStoreEntries(store));
-//
-//            auditService.addStoreReplacedAudit(storeName, entityId);
-//            return entityId;
-//        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
-//            throw new CryptoException("Could not replace the store named " + storeName, e);
-//        }
-//    }
-
-//    private void restoreOriginalStore(String storeName, KeyStore store, ByteArrayOutputStream oldStoreContent, char[] oldPassword) {
-//        try (InputStream stream = oldStoreContent.toInputStream()) {
-//            store.load(stream, oldPassword);
-//            LOG.warn("Error occurred so the old store [{}] content with entries [{}] was loaded back.", storeName, getStoreEntries(storeName));
-//        } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-//            throw new CryptoException("Could not replace store and old store was not reverted properly. Please correct the error before continuing.", exc);
-//        }
-//    }
-
-//    protected byte[] getStoreContentFromFile(String location) {
-//        File file = new File(location);
-//        Path path = Paths.get(file.getAbsolutePath());
-//        try {
-//            return Files.readAllBytes(path);
-//        } catch (IOException e) {
-//            throw new DomibusCertificateException("Could not read store from [" + location + "]");
-//        }
-//    }
-
-//    protected void validateLoadOperation(ByteArrayInputStream storeContent, String password, String type) {
-//        try {
-//            KeyStore tempTrustStore = KeyStore.getInstance(type);
-//            tempTrustStore.load(storeContent, password.toCharArray());
-//            storeContent.reset();
-//        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-//            throw new DomibusCertificateException("Could not load store: " + e.getMessage(), e);
-//        }
-//    }
 
     @Override
     public List<TrustStoreEntry> getStoreEntries(final KeyStore store) {
@@ -699,33 +579,6 @@ public class CertificateServiceImpl implements CertificateService {
             throw new ConfigurationException(e);
         }
     }
-
-//    protected KeyStore loadStore(InputStream contentStream, String password, String type) {
-//        KeyStore keystore;
-//        try {
-//            keystore = KeyStore.getInstance(type);
-//            keystore.load(contentStream, password.toCharArray());
-//        } catch (Exception ex) {
-//            throw new ConfigurationException("Exception loading store.", ex);
-//        } finally {
-//            if (contentStream != null) {
-//                closeStream(contentStream);
-//            }
-//        }
-//        return keystore;
-//    }
-
-//    private KeyStore validateContentAndGetStore(KeyStoreContentInfo storeInfo) {
-//        LOG.debug("Validating store [{}] content type [{}]", storeInfo.getName(), storeInfo.getType());
-//        try (ByteArrayInputStream storeContent = new ByteArrayInputStream(storeInfo.getContent())) {
-//            KeyStore store = KeyStore.getInstance(storeInfo.getType());
-//            store.load(storeContent, storeInfo.getPassword().toCharArray());
-////            storeContent.reset();
-//            return store;
-//        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException | KeyStoreException e) {
-//            throw new CryptoException("Could not replace the store named " + storeInfo.getName(), e);
-//        }
-//    }
 
     protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
@@ -923,10 +776,6 @@ public class CertificateServiceImpl implements CertificateService {
         return Arrays.copyOf(certificateChain, certificateChain.length, X509Certificate[].class);
 
     }
-
-//    protected File createFileWithLocation(String location) {
-//        return new File(location);
-//    }
 
     protected boolean isPemFormat(String content) {
         return StringUtils.startsWith(StringUtils.trim(content), "-----BEGIN CERTIFICATE-----");

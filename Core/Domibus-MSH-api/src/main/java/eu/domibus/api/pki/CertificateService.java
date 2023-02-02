@@ -117,8 +117,6 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-//    void replaceStore(String fileName, byte[] fileContent, String filePassword, KeystorePersistenceInfo persistenceInfo) throws CryptoException;
-
     boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
 
     KeyStore getStore(KeystorePersistenceInfo info);
