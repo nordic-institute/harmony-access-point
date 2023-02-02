@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -51,6 +52,9 @@ public class TLSCertificateManagerImplTest {
 
     @Injectable
     private AuditService auditService;
+
+    @Injectable
+    CertificateHelper certificateHelper;
 
 //    @Test
 //    public void replaceTrustStore(@Injectable KeyStoreType trustStore, @Injectable String fileName, @Injectable byte[] fileContent, @Injectable String filePassword, @Injectable String backupLocation) {

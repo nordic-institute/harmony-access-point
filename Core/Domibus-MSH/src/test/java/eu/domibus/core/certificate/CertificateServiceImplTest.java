@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -22,6 +23,7 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLoggerImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -122,6 +124,12 @@ public class CertificateServiceImplTest {
 
     @Injectable
     AuditService auditService;
+
+    @Injectable
+    KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    SecurityUtilImpl securityUtil;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

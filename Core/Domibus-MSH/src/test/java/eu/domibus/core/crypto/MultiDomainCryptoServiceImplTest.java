@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -53,6 +54,9 @@ public class MultiDomainCryptoServiceImplTest {
 
     @Injectable
     DomainService domainService;
+
+    @Injectable
+    KeystorePersistenceService keystorePersistenceService;
 
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {

@@ -4,11 +4,13 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -63,6 +65,11 @@ public class TruststoreResourceBaseTest {
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    CertificateHelper certificateHelper;
+
+    @Injectable
+    KeystorePersistenceService keystorePersistenceService;
 
 //    @Test
 //    public void replaceTruststoreOK() {
