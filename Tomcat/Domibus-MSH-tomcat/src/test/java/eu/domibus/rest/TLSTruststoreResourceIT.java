@@ -144,7 +144,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         tlsTruststoreResource.addTLSCertificate(truststoreFile, "tlscert");
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test(expected = DomibusCertificateException.class)
     public void removeTLSCertificate() {
         tlsTruststoreResource.removeTLSCertificate("tlscert");
     }

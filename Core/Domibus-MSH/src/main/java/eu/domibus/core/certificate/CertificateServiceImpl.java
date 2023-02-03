@@ -585,7 +585,7 @@ public class CertificateServiceImpl implements CertificateService {
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
             return keystore;
         } catch (Exception ex) {
-            throw new ConfigurationException("Could not load keystore named " + storeInfo.getName(), ex);
+            throw new DomibusCertificateException("Could not load store named " + storeInfo.getName(), ex);
         }
     }
 

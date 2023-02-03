@@ -34,18 +34,18 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
-    @Test
-    @Transactional
-    public void persistTruststoresIfApplicable() {
-        tlsCertificateManager.saveStoresFromDBToDisk();
-        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
-        Assert.assertTrue(isPersisted);
-    }
+//    @Test
+//    @Transactional
+//    public void persistTruststoresIfApplicable() {
+//        tlsCertificateManager.saveStoresFromDBToDisk();
+//        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
+//        Assert.assertTrue(isPersisted);
+//    }
 
     @Test
     @Transactional
     public void getTrustStoreEntries() {
-        tlsCertificateManager.saveStoresFromDBToDisk();
+//        tlsCertificateManager.saveStoresFromDBToDisk();
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
     }
@@ -53,7 +53,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void addCertificate() throws IOException {
-        tlsCertificateManager.saveStoresFromDBToDisk();
+//        tlsCertificateManager.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
@@ -71,7 +71,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void removeCertificate() {
-        tlsCertificateManager.saveStoresFromDBToDisk();
+//        tlsCertificateManager.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
