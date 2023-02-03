@@ -45,7 +45,6 @@ public class OpenApiGenerator {
     }
 
     @Test
-    @Ignore
     public void generateJsonOpenApi() throws Exception {
 
         // retrieve openapi document
