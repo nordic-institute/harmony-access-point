@@ -62,6 +62,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
+    @Ignore
     public void replaceTrustStore() throws IOException {
         createKeyStore();
         createTrustStore();

@@ -219,28 +219,15 @@ public class CertificateServiceImpl implements CertificateService {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 
-        CertificateFactory certFactory;
-        X509Certificate cert;
-        try {
-            certFactory = CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
-            throw new DomibusCertificateException("Could not initialize certificate factory", e);
-        }
-
-        try (InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
-            InputStream resultStream = contentStream;
-            if (!isPemFormat(content)) {
-                resultStream = Base64.getMimeDecoder().wrap(resultStream);
-            }
-            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
-        } catch (IOException | CertificateException e) {
-            throw new DomibusCertificateException("Could not generate certificate", e);
-        }
-        return cert;
+        return loadCertificate(content.getBytes(StandardCharsets.UTF_8), isPemFormat(content));
     }
 
     @Override
     public X509Certificate loadCertificate(byte[] content) {
+        return loadCertificate(content, true);
+    }
+
+    protected X509Certificate loadCertificate(byte[] content, boolean isPemFormat) {
         if (ArrayUtils.isEmpty(content)) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
@@ -254,7 +241,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
-            cert = (X509Certificate) certFactory.generateCertificate(contentStream);
+            InputStream resultStream = contentStream;
+            if (!isPemFormat) {
+                resultStream = Base64.getMimeDecoder().wrap(contentStream);
+            }
+            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
         } catch (IOException | CertificateException e) {
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
