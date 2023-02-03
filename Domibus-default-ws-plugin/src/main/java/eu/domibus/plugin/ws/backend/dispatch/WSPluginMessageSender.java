@@ -1,8 +1,8 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
+import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -47,7 +47,7 @@ public class WSPluginMessageSender extends Slf4jEventSender {
 
     protected final WSPluginImpl wsPlugin;
 
-    protected final XMLUtil xmlUtil;
+    protected final XMLUtilExtService xmlUtil;
 
     static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
@@ -56,7 +56,7 @@ public class WSPluginMessageSender extends Slf4jEventSender {
                                  WSPluginMessageBuilder messageBuilder,
                                  WSPluginDispatcher dispatcher,
                                  WSPluginImpl wsPlugin,
-                                 XMLUtil xmlUtil) {
+                                 XMLUtilExtService xmlUtil) {
         this.reliabilityService = reliabilityService;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;

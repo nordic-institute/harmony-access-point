@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.property.listeners;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.common.DomibusApiProperty;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -10,10 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
+import static eu.domibus.common.DomibusApiProperty.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@value DomibusPropertyMetadataManagerSPI#DOMIBUS_LOGGING_PAYLOAD_PRINT}
+ * Handles the change of {@value DomibusApiProperty#DOMIBUS_LOGGING_PAYLOAD_PRINT}
  * property of backendInterfaceEndpoint
  *
  * @author François Gautier

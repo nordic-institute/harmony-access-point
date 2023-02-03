@@ -1,14 +1,17 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginMessageSender;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +41,7 @@ public class WSSendMessageListenerTest {
     @Injectable
     private DomainContextExtService domainContextExtService;
     @Injectable
-    private AuthUtils authUtils;
+    private AuthenticationExtService authenticationExtService;
     @Injectable
     private Message message;
 

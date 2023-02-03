@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
-import eu.domibus.api.util.xml.XMLUtil;
+import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
@@ -28,7 +28,7 @@ import javax.xml.transform.TransformerFactory;
  * @author François Gautier
  * @since 5.0
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "JUnitMalformedDeclaration"})
 @RunWith(JMockit.class)
 public class WSPluginMessageSenderTest {
 
@@ -52,10 +52,10 @@ public class WSPluginMessageSenderTest {
     protected WSPluginBackendReliabilityService reliabilityService;
 
     @Injectable
-    protected WSPluginImpl wsPlugin;
+    protected XMLUtilExtService xmlUtilExtService;
 
     @Injectable
-    protected XMLUtil xmlUtil;
+    protected WSPluginImpl wsPlugin;
 
 
     @Test(expected = WSPluginException.class)
@@ -77,14 +77,14 @@ public class WSPluginMessageSenderTest {
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
-        new FullVerifications() {{
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
     public void sendSubmitMessage(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
-                                   @Injectable SOAPMessage soapMessage,
-                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule,
+                                  @Injectable SOAPMessage soapMessage,
+                                  @Injectable WSPluginDispatchRule wsPluginDispatchRule,
                                   @Injectable TransformerFactory transformerFactory) throws MessageNotFoundException, TransformerException {
         new Expectations() {{
 
@@ -117,7 +117,7 @@ public class WSPluginMessageSenderTest {
 
             transformerFactory.newTransformer().transform((Source) any, (Result) any);
 
-            xmlUtil.getTransformerFactory();
+            xmlUtilExtService.getTransformerFactory();
         }};
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
@@ -149,7 +149,7 @@ public class WSPluginMessageSenderTest {
 
             transformerFactory.newTransformer().transform((Source) any, (Result) any);
 
-            xmlUtil.getTransformerFactory();
+            xmlUtilExtService.getTransformerFactory();
 
             soapMessage.getSOAPPart();
 
