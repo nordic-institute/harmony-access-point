@@ -450,7 +450,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
         List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
-        List<String> trimmedMessageIds = null;
+        List<String> trimmedMessageIds = new ArrayList<>();
         ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
         for (String messageId : messageIds) {
 
