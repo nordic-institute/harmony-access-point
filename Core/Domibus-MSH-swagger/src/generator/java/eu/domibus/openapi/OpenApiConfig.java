@@ -163,13 +163,13 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public TLSTruststoreExtService tlsTruststoreExtService() {
-        return Mockito.mock(TLSTruststoreExtService.class);
+    public TLSTrustStoreExtService tlsTruststoreExtService() {
+        return Mockito.mock(TLSTrustStoreExtService.class);
     }
 
     @Bean
-    public TruststoreExtService truststoreExtService() {
-        return Mockito.mock(TruststoreExtService.class);
+    public TrustStoreExtService truststoreExtService() {
+        return Mockito.mock(TrustStoreExtService.class);
     }
 
 
