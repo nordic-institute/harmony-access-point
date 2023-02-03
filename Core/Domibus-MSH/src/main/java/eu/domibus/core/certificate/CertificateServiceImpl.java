@@ -215,7 +215,28 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public X509Certificate loadCertificate(String content) {
-        return loadCertificate(content.getBytes(StandardCharsets.UTF_8));
+        if (StringUtils.isEmpty(content)) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
+        CertificateFactory certFactory;
+        X509Certificate cert;
+        try {
+            certFactory = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+        }
+
+        try (InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            InputStream resultStream = contentStream;
+            if (!isPemFormat(content)) {
+                resultStream = Base64.getMimeDecoder().wrap(resultStream);
+            }
+            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
+        } catch (IOException | CertificateException e) {
+            throw new DomibusCertificateException("Could not generate certificate", e);
+        }
+        return cert;
     }
 
     @Override
@@ -233,11 +254,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
-            InputStream resultStream = contentStream;
-            if (!isPemFormat(new String(content))) {
-                resultStream = Base64.getMimeDecoder().wrap(resultStream);
-            }
-            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
+            cert = (X509Certificate) certFactory.generateCertificate(contentStream);
         } catch (IOException | CertificateException e) {
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
