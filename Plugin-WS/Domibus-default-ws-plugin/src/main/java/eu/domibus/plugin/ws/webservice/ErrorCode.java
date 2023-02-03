@@ -15,7 +15,7 @@ public enum ErrorCode {
     WS_PLUGIN_0007("WS_PLUGIN:0007", "Invalid message exception"),
     WS_PLUGIN_0008("WS_PLUGIN:0008", "Convert exception"),
     WS_PLUGIN_0009("WS_PLUGIN:0009", "No message with id [%s] found"),
-    WS_PLUGIN_00010("WS_PLUGIN:00010", "Duplicate message found with same message Id [%s]");
+    WS_PLUGIN_00010("WS_PLUGIN:00010", "Duplicate message Id [%s] found. For self sending please call the method with access point role to get the errors of the message.");
 
     String code;
     String message;
