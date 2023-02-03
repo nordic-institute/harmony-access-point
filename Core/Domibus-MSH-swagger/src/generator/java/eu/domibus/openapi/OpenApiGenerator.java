@@ -1,6 +1,7 @@
 package eu.domibus.openapi;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class OpenApiGenerator {
     }
 
     @Test
+    @Ignore
     public void generateJsonOpenApi() throws Exception {
 
         // retrieve openapi document
