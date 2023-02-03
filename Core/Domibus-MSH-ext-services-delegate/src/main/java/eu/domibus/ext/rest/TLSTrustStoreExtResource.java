@@ -50,9 +50,9 @@ import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUS
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
 @Tag(name = "TLS truststore", description = "Domibus TLS truststore services API")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-public class TLSTruststoreExtResource {
+public class TLSTrustStoreExtResource {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTruststoreExtResource.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTrustStoreExtResource.class);
 
     final TLSTrustStoreExtService tlsTruststoreExtService;
 
@@ -64,7 +64,7 @@ public class TLSTruststoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
-    public TLSTruststoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
+    public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
                                     MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
