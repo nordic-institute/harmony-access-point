@@ -14,7 +14,6 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
-import eu.domibus.core.util.TriConsumer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -464,7 +463,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadStoreProperties(persistenceInfo, this::loadTrustStorePropertiesForMerlin);
     }
 
-    protected void loadStoreProperties(KeystorePersistenceInfo persistenceInfo, TriConsumer<String, String, SecurityProfileAliasConfiguration> triConsumer) {
+    protected void loadStoreProperties(KeystorePersistenceInfo persistenceInfo, BiConsumer<KeystorePersistenceInfo, SecurityProfileAliasConfiguration> storePropertiesLoader) {
         final String trustStoreType = persistenceInfo.getType();
         final String trustStorePassword = persistenceInfo.getPassword();
 
@@ -476,13 +475,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
 
         securityProfileAliasConfigurations.forEach(
-                profileConfiguration -> triConsumer.accept(trustStoreType, trustStorePassword, profileConfiguration));
+                profileConfiguration -> storePropertiesLoader.accept(persistenceInfo, profileConfiguration));
     }
 
-    private void loadTrustStorePropertiesForMerlin(String trustStoreType, String trustStorePassword, SecurityProfileAliasConfiguration profileAliasConfiguration) {
+    private void loadTrustStorePropertiesForMerlin(KeystorePersistenceInfo persistenceInfo, SecurityProfileAliasConfiguration profileAliasConfiguration) {
         try {
             profileAliasConfiguration.getMerlin()
-                    .loadProperties(getTrustStoreProperties(trustStoreType, trustStorePassword), Merlin.class.getClassLoader(), null);
+                    .loadProperties(getTrustStoreProperties(persistenceInfo.getType(), persistenceInfo.getPassword()), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             LOG.error("Error occurred when loading the properties of the TrustStore");
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
@@ -567,10 +566,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         loadStoreProperties(persistenceInfo, this::loadKeyStorePropertiesForMerlin);
     }
 
-    private void loadKeyStorePropertiesForMerlin(String keystoreType, String keystorePassword, SecurityProfileAliasConfiguration profileAliasConfiguration) {
+    private void loadKeyStorePropertiesForMerlin(KeystorePersistenceInfo persistenceInfo, SecurityProfileAliasConfiguration profileAliasConfiguration) {
         try {
             profileAliasConfiguration.getMerlin()
-                    .loadProperties(getKeyStoreProperties(profileAliasConfiguration.getAlias(), keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
+                    .loadProperties(getKeyStoreProperties(profileAliasConfiguration.getAlias(), persistenceInfo.getType(), persistenceInfo.getPassword()),
+                            Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             LOG.error("Error occurred when loading the properties of the keystore");
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
