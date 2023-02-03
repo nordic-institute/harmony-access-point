@@ -272,9 +272,18 @@
                                 <bannedDependencies>
                                     <searchTransitive>false</searchTransitive>
                                     <excludes>
-                                        <exclude>eu.domibus:domibus-api</exclude>
-                                        <exclude>eu.domibus:domibus-msh</exclude>
+                                        <exclude>eu.domibus:*</exclude>
                                     </excludes>
+                                    <includes>
+                                        <include>eu.domibus:domibus-plugin-api</include>
+                                        <include>eu.domibus:domibus-ext-model</include>
+                                        <include>eu.domibus:domibus-ws-stubs</include>
+                                        <include>eu.domibus:domibus-default-ws-plugin-stubs</include>
+                                        <include>eu.domibus:domibus-default-ws-plugin-backend-ws-stubs</include>
+                                        <include>eu.domibus:domibus-logging</include>
+                                        <include>eu.domibus:domibus-test-common</include>
+                                        <include>eu.domibus:domibus-test</include>
+                                    </includes>
                                 </bannedDependencies>
                             </rules>
                             <fail>true</fail>
