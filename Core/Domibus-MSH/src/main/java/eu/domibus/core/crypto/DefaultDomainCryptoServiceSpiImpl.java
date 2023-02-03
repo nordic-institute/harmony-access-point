@@ -445,12 +445,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
             boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
             if (!replaced) {
-                LOG.info("Current keyStore was not replaced with the content of the file [{}]", storeFileName);
-                return;
+                throw new CryptoSpiException(String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.",
+                        storeName, storeFileName));
             }
         } catch (CryptoException ex) {
-            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName, ex);
-            throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
+            throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].",storeName, storeFileName), ex);
         }
         storeReloader.run();
     }
@@ -637,7 +636,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
-                LOG.debug("[{}] on disk and in memory are identical, so no reloading.", storeName);
+                LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
                 return;
             }
 

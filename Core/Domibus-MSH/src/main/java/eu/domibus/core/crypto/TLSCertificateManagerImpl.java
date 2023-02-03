@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
@@ -12,6 +13,7 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.CertificateHelper;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -63,8 +65,18 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public synchronized void replaceTrustStore(KeyStoreContentInfo storeInfo) {
-        certificateService.replaceStore(storeInfo, persistenceInfo);
+    public synchronized void replaceTrustStore(KeyStoreContentInfo contentInfo) {
+        String storeName = contentInfo.getName();
+        String storeFileName = contentInfo.getFileName();
+        try {
+            boolean replaced = certificateService.replaceStore(contentInfo, persistenceInfo);
+            if (!replaced) {
+                throw new CryptoException(String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.",
+                        storeName, storeFileName));
+            }
+        } catch (CryptoException ex) {
+            throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].",storeName, storeFileName), ex);
+        }
         resetTLSTruststore();
     }
 
@@ -140,7 +152,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
         final String domainCode = getDomainCode();
-        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, type,fileLocation);
+        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, type, fileLocation);
     }
 
     protected Optional<KeyStoreType> getTruststoreParams() {
@@ -205,7 +217,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         }
 
         @Override
-        public void updateTypeAndFileLocation(String type,String fileLocation) {
+        public void updateTypeAndFileLocation(String type, String fileLocation) {
             setTlsTrustStoreTypeAndFileLocation(type, fileLocation);
         }
     }
