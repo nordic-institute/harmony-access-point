@@ -1,5 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.core.util.FileServiceUtilImpl;
+import eu.domibus.ext.delegate.services.util.FileUtilServiceDelegate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -8,6 +10,7 @@ import eu.domibus.plugin.webService.generated.PayloadType;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -284,6 +287,7 @@ public class StubDtoTransformerTest {
     /*UserMessage.PayLoadInfo population end*/
 
         eu.domibus.plugin.ws.webservice.StubDtoTransformer testObj = new StubDtoTransformer();
+        ReflectionTestUtils.setField(testObj, "fileUtilExtService", new FileUtilServiceDelegate(new FileServiceUtilImpl()));
         Submission objSubmission = testObj.transformFromMessaging(userMessageObj);
 
         Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);

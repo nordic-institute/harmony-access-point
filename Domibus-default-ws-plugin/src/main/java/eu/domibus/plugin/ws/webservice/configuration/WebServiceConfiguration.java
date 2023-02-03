@@ -30,7 +30,7 @@ import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 
-import static eu.domibus.common.DomibusApiPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.DomibusApiProperty.*;
 
 /**
  * Class responsible for the configuration of the plugin, independent of any server
