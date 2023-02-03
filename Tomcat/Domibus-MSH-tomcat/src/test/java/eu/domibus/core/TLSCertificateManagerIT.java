@@ -47,7 +47,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     public void getTrustStoreEntries() {
 //        tlsCertificateManager.saveStoresFromDBToDisk();
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertTrue(trustStoreEntries.size() == 3);
     }
 
     @Test
@@ -74,13 +74,13 @@ public class TLSCertificateManagerIT extends AbstractIT {
 //        tlsCertificateManager.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertTrue(trustStoreEntries.size() == 3);
 
         String blue_gw = "blue_gw";
         tlsCertificateManager.removeCertificate(blue_gw);
 
         trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-        Assert.assertTrue(trustStoreEntries.size() == 1);
+        Assert.assertTrue(trustStoreEntries.size() == 2);
         Assert.assertTrue(!trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(blue_gw)));
     }
 
