@@ -58,7 +58,7 @@ public class TLSTrustStoreExtResource {
 
     final ExtExceptionHelper extExceptionHelper;
 
-    private final MultiPartFileUtil multiPartFileUtil;
+    final MultiPartFileUtil multiPartFileUtil;
 
     final DomainContextExtService domainContextExtService;
 
