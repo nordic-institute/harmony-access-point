@@ -86,4 +86,12 @@
         <!-- we don't have a WebFlux application -->
         <cve>CVE-2021-22118</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-5.3.25.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <!-- we don't expose HTTP Invoker endpoints to untrusted clients -->
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
 </suppressions>
