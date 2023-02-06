@@ -2,12 +2,19 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
+import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
-import eu.domibus.ext.services.TruststoreExtService;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.TrustStoreExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -45,14 +53,26 @@ public class TruststoreExtResource {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreExtResource.class);
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty.";
+    public static final String DOMIBUS_TRUSTSTORE = "domibus.truststore";
 
-    final TruststoreExtService truststoreExtService;
+    final TrustStoreExtService truststoreExtService;
 
     final ExtExceptionHelper extExceptionHelper;
 
-    public TruststoreExtResource(TruststoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper) {
+    private final MultiPartFileUtil multiPartFileUtil;
+
+    final DomainContextExtService domainContextExtService;
+
+    final DomibusConfigurationExtService domibusConfigurationExtService;
+
+    public TruststoreExtResource(TrustStoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper,
+                                 MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
+                                 DomibusConfigurationExtService domibusConfigurationExtService) {
         this.truststoreExtService = truststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.multiPartFileUtil = multiPartFileUtil;
+        this.domainContextExtService = domainContextExtService;
+        this.domibusConfigurationExtService = domibusConfigurationExtService;
     }
 
     @ExceptionHandler(TruststoreExtException.class)
@@ -64,9 +84,11 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
+        KeyStoreContentInfoDTO info;
         byte[] content;
         try {
-            content = truststoreExtService.downloadTruststoreContent();
+            info = truststoreExtService.downloadTruststoreContent();
+            content = info.getContent();
         } catch (Exception e) {
             LOG.error("Could not find truststore.", e);
             return ResponseEntity.notFound().build();
@@ -78,7 +100,7 @@ public class TruststoreExtResource {
         }
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + "truststore" + ".jks")
+                .header("content-disposition", "attachment; filename=" + getFileName())
                 .body(new ByteArrayResource(content));
     }
 
@@ -89,7 +111,6 @@ public class TruststoreExtResource {
         return truststoreExtService.getTrustStoreEntries();
     }
 
-
     @Operation(summary = "Upload truststore", description = "Upload the truststore file",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(consumes = {"multipart/form-data"})
@@ -97,11 +118,14 @@ public class TruststoreExtResource {
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
 
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        truststoreExtService.uploadTruststoreFile(truststoreFile, password);
+        KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(DOMIBUS_TRUSTSTORE, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        truststoreExtService.uploadTruststoreFile(contentInfo);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -110,18 +134,43 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries")
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                 @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
-        truststoreExtService.addCertificate(certificateFile, alias);
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
 
-        return "Certificate [" + alias + "] has been successfully added to the truststore.";
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        boolean added = truststoreExtService.addCertificate(fileContent, alias);
+
+        if (added) {
+            return "Certificate [" + alias + "] has been successfully added to the truststore.";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not added to the trustStore, most probably because it already contains the same certificate.");
+
     }
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
-        truststoreExtService.removeCertificate(alias);
-        return "Certificate [" + alias + "] has been successfully removed from the truststore.";
+        boolean removed = truststoreExtService.removeCertificate(alias);
+        if (removed) {
+            return "Certificate [" + alias + "] has been successfully removed from the truststore.";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the trustStore.");
+    }
+
+    private String getFileName() {
+        String fileName = DOMIBUS_TRUSTSTORE;
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domibusConfigurationExtService.isMultiTenantAware() && domain != null) {
+            fileName = fileName + "_" + domain.getName();
+        }
+        fileName = fileName + "_"
+                + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
+                + "." + truststoreExtService.getStoreFileExtension();
+        return fileName;
     }
 }

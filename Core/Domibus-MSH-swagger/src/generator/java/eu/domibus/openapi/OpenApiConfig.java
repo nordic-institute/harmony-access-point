@@ -2,7 +2,9 @@ package eu.domibus.openapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
+import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,11 +16,14 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.MimeType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -163,19 +168,30 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public TLSTruststoreExtService tlsTruststoreExtService() {
-        return Mockito.mock(TLSTruststoreExtService.class);
+    public TLSTrustStoreExtService tlsTruststoreExtService() {
+        return Mockito.mock(TLSTrustStoreExtService.class);
     }
 
     @Bean
-    public TruststoreExtService truststoreExtService() {
-        return Mockito.mock(TruststoreExtService.class);
+    public TrustStoreExtService truststoreExtService() {
+        return Mockito.mock(TrustStoreExtService.class);
     }
-
 
     @Bean
     public DistributedCacheExtService distributedCacheExtService() {
         return Mockito.mock(DistributedCacheExtService.class);
     }
 
+    @Bean
+    public MultiPartFileUtil multiPartFileUtil() {
+        return Mockito.mock(MultiPartFileUtil.class);
+    }
+
+    @Bean DomainContextExtService domainContextExtService() {
+        return Mockito.mock(DomainContextExtService.class);
+    }
+
+    @Bean DomibusConfigurationExtService domibusConfigurationExtService() {
+        return Mockito.mock(DomibusConfigurationExtService.class);
+    }
 }

@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface TLSReaderService {
     /**
      * Retrieves the TLS truststore parameters needed for operational flow
+     *
      * @param domainCode
      * @return
      */
@@ -22,13 +23,22 @@ public interface TLSReaderService {
 
     /**
      * Retrieves the parameters like type, location, password needed for configuration flow
+     *
      * @param domainCode
      * @return
      */
-    Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode);
+    Optional<TLSClientParametersType> getTlsTrustStoreConfiguration(String domainCode);
+
+    /**
+     * Updates the parameters type, location needed for configuration flow
+     *
+     * @param domainCode
+     */
+    void updateTlsTrustStoreConfiguration(String domainCode, String location, String fileLocation);
 
     /**
      * Dismisses the TLS data from the cache forcing a fresh reload on the next use
+     *
      * @param domainCode
      */
     void reset(String domainCode);

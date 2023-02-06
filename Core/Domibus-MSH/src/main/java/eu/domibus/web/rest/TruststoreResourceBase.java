@@ -2,15 +2,18 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -54,14 +57,22 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final DomibusConfigurationService domibusConfigurationService;
 
+    protected final CertificateHelper certificateHelper;
+
+    protected final KeystorePersistenceService keystorePersistenceService;
+
     public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService,
+                                  DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService,
+                                  CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService) {
         this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
         this.auditService = auditService;
         this.domainContextProvider = domainContextProvider;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.certificateHelper = certificateHelper;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -69,46 +80,36 @@ public abstract class TruststoreResourceBase extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    protected void replaceTruststore(MultipartFile truststoreFile, String password) {
+    protected void uploadStore(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        doReplaceTrustStore(truststoreFileContent, truststoreFile.getOriginalFilename(), password);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        doUploadStore(storeInfo);
     }
 
-    protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
+    protected abstract void doUploadStore(KeyStoreContentInfo storeInfo);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
-        TrustStoreContentDTO content = getTrustStoreContent();
+        KeyStoreContentInfo storeInfo = getTrustStoreContent();
 
-        ByteArrayResource resource = new ByteArrayResource(content.getContent());
+        auditService.addKeystoreDownloadedAudit(getStoreName());
 
-        String fileName = getStoreName();
-        Domain domain = domainContextProvider.getCurrentDomainSafely();
-
-        if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
-            fileName = getStoreName() + "_" + domain.getName();
-        }
-
+        ByteArrayResource resource = new ByteArrayResource(storeInfo.getContent());
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
-
-        auditDownload(content.getEntityId());
-
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER) + ".jks")
+                .header("content-disposition", "attachment; filename=" + getFileName(storeInfo))
                 .body(resource);
     }
 
-    protected abstract void auditDownload(Long id);
-
-    protected abstract TrustStoreContentDTO getTrustStoreContent();
+    protected abstract KeyStoreContentInfo getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetStoreEntries();
@@ -142,12 +143,47 @@ public abstract class TruststoreResourceBase extends BaseResource {
             throw new RequestValidationException("Please provide an alias for the certificate.");
         }
 
+        alias = StringUtils.trim(alias);
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        doAddCertificate(alias, fileContent);
+        boolean added = doAddCertificate(alias, fileContent);
 
-        return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+        if (added) {
+            return "Certificate [" + alias + "] has been successfully added to the [" + getStoreName() + "].";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not added to the [" + getStoreName() + "] most probably because it already contains the same certificate.");
     }
 
-    protected abstract void doAddCertificate(String alias, byte[] fileContent);
+    protected abstract boolean doAddCertificate(String alias, byte[] fileContent);
+
+    protected String removeCertificate(String alias) {
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
+        }
+
+        alias = StringUtils.trim(alias);
+        boolean removed = doRemoveCertificate(alias);
+        if (removed) {
+            return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+        }
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the [" + getStoreName() + "].");
+    }
+
+    protected abstract boolean doRemoveCertificate(String alias);
+
+    private String getFileName(KeyStoreContentInfo storeInfo) {
+        String fileName = getStoreName();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
+            fileName = fileName + "_" + domain.getName();
+        }
+
+        fileName = fileName + "_" + LocalDateTime.now().format(DateUtil.DEFAULT_FORMATTER)
+                + "." + getStoreFileExtension(storeInfo);
+        return fileName;
+    }
+
+    protected String getStoreFileExtension(KeyStoreContentInfo storeInfo) {
+        return certificateHelper.getStoreFileExtension(storeInfo.getType());
+    }
 }

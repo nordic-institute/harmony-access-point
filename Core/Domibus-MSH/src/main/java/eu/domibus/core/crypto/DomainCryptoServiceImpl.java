@@ -1,18 +1,18 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -54,18 +52,26 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected CertificateService certificateService;
+    protected final CertificateService certificateService;
+
+    private final KeystorePersistenceService keystorePersistenceService;
+
+    protected final DomibusCoreMapper coreMapper;
 
     public DomainCryptoServiceImpl(Domain domain,
                                    List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
                                    DomibusPropertyProvider domibusPropertyProvider,
-                                   CertificateService certificateService) {
+                                   CertificateService certificateService,
+                                   KeystorePersistenceService keystorePersistenceService,
+                                   DomibusCoreMapper coreMapper) {
         this.domain = domain;
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
+        this.keystorePersistenceService = keystorePersistenceService;
+        this.coreMapper = coreMapper;
     }
 
     public void init() {
@@ -164,33 +170,20 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void refreshTrustStore() throws CryptoException {
-        iamProvider.refreshTrustStore();
-    }
-
-    @Override
-    public void refreshKeyStore() {
-        iamProvider.refreshKeyStore();
-    }
-
-    @Override
     public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
         iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
     }
 
     @Override
-    public void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException {
-        iamProvider.replaceTrustStore(storeLocation, storePassword);
+    public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
     }
 
     @Override
-    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
-        iamProvider.replaceKeyStore(storeContent, storeFileName, storePassword);
-    }
-
-    @Override
-    public void replaceKeyStore(String storeFileLocation, String storePassword) {
-        iamProvider.replaceKeyStore(storeFileLocation, storePassword);
+    public void replaceKeyStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
+        iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
     }
 
     @Override
@@ -222,8 +215,30 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.addCertificate(list, overwrite);
     }
 
-    public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+    @Override
+    public List<TrustStoreEntry> getKeyStoreEntries() {
+        KeyStore store = iamProvider.getKeyStore();
+        return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public eu.domibus.api.pki.KeyStoreContentInfo getKeyStoreContent() {
+        KeyStore store = iamProvider.getKeyStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries() {
+        KeyStore store = iamProvider.getTrustStore();
+        return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public eu.domibus.api.pki.KeyStoreContentInfo getTrustStoreContent() {
+        KeyStore store = iamProvider.getTrustStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
     }
 
     @Override
@@ -266,8 +281,13 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
+    public boolean isTrustStoreChangedOnDisk() {
+        return iamProvider.isTrustStoreChanged();
+    }
+
+    @Override
+    public boolean isKeyStoreChangedOnDisk() {
+        return iamProvider.isKeyStoreChanged();
     }
 
     private void getIAMProvider() {
