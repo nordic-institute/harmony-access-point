@@ -59,23 +59,21 @@ public class TLSTrustStoreServiceDelegate implements TLSTrustStoreExtService {
     }
 
     @Override
-    public boolean addCertificate(byte[] fileContent, String alias) {
+    public void addCertificate(byte[] fileContent, String alias) {
         boolean added = tlsCertificateManager.addCertificate(fileContent, alias);
         if (!added) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_011,
                     "Certificate [" + alias + "] was not added to the [" + TLS_TRUSTSTORE_NAME + "] most probably because it already contains the same certificate.");
         }
-        return added;
     }
 
     @Override
-    public boolean removeCertificate(String alias) {
+    public void removeCertificate(String alias) {
         boolean removed = tlsCertificateManager.removeCertificate(alias);
         if (!removed) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009,
                     "Certificate [" + alias + "] was not removed from the [" + TLS_TRUSTSTORE_NAME + "] because it does not exist.");
         }
-        return removed;
     }
 
     @Override
