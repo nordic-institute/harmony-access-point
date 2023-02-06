@@ -1,22 +1,20 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,10 +45,18 @@ public class TruststoreResource extends TruststoreResourceBase {
     private final CertificateService certificateService;
 
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
-                              DomainContextProvider domainProvider, CertificateService certificateService,
-                              PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
-        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService);
+                              DomainContextProvider domainProvider,
+                              CertificateService certificateService,
+                              PartyCoreMapper partyConverter,
+                              ErrorHandlerService errorHandlerService,
+                              MultiPartFileUtil multiPartFileUtil,
+                              AuditService auditService,
+                              DomainContextProvider domainContextProvider,
+                              DomibusConfigurationService domibusConfigurationService,
+                              CertificateHelper certificateHelper,
+                              KeystorePersistenceService keystorePersistenceService) {
+        super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService,
+                certificateHelper, keystorePersistenceService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -62,7 +68,7 @@ public class TruststoreResource extends TruststoreResourceBase {
                                        @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the truststore for the current domain ", truststoreFile.getName());
 
-        replaceTruststore(truststoreFile, password);
+        uploadStore(truststoreFile, password);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -91,22 +97,21 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @PostMapping(value = "/entries")
     public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                        @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         return addCertificate(certificateFile, alias);
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
-    public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
-        return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+    public String removeDomibusCertificate(@PathVariable String alias) throws RequestValidationException {
+        return removeCertificate(alias);
     }
 
     @GetMapping(value = "/changedOnDisk")
     public boolean isChangedOnDisk() {
         LOG.debug("Checking if the truststore has changed on disk for the current domain");
 
-        return certificateService.isStoreNewerOnDisk(DOMIBUS_TRUSTSTORE_NAME);
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        return multiDomainCertificateProvider.isTrustStoreChangedOnDisk(currentDomain);
     }
 
     @GetMapping(path = "/csv")
@@ -116,35 +121,36 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+    protected void doUploadStore(KeyStoreContentInfo storeInfo) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeInfo);
     }
 
     @Override
-    protected void auditDownload(Long entityId) {
-        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : getStoreName());
-    }
-
-    @Override
-    protected TrustStoreContentDTO getTrustStoreContent() {
-        return multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+    protected KeyStoreContentInfo getTrustStoreContent() {
+        return multiDomainCertificateProvider.getTrustStoreContent(domainProvider.getCurrentDomain());
     }
 
     @Override
     protected List<TrustStoreEntry> doGetStoreEntries() {
-        return certificateService.getStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        return multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
     }
 
     @Override
     protected String getStoreName() {
-        return "truststore";
+        return DOMIBUS_TRUSTSTORE_NAME;
     }
 
     @Override
-    protected void doAddCertificate(String alias, byte[] fileContent) {
+    protected boolean doAddCertificate(String alias, byte[] fileContent) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        X509Certificate cert = certificateService.loadCertificateFromByteArray(fileContent);
-        multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+        X509Certificate cert = certificateService.loadCertificate(fileContent);
+        return multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+    }
+
+    @Override
+    protected boolean doRemoveCertificate(String alias) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        return multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
     }
 }

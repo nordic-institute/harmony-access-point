@@ -3,7 +3,7 @@ package eu.domibus.api.pki;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class TruststoreInfo {
+public class KeyStoreContentInfo {
     private String name;
 
     private String type;
@@ -11,6 +11,8 @@ public class TruststoreInfo {
     private String password;
 
     protected byte[] content;
+
+    private String fileName;
 
     public String getName() {
         return name;
@@ -44,20 +46,29 @@ public class TruststoreInfo {
         this.content = content;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        TruststoreInfo truststore = (TruststoreInfo) o;
+        KeyStoreContentInfo store = (KeyStoreContentInfo) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(name, truststore.name)
-                .append(type, truststore.type)
-                .append(password, truststore.password)
-                .append(content, truststore.content)
+                .append(name, store.name)
+                .append(type, store.type)
+                .append(password, store.password)
+                .append(content, store.content)
+                .append(fileName, store.fileName)
                 .isEquals();
     }
 
@@ -69,6 +80,7 @@ public class TruststoreInfo {
                 .append(type)
                 .append(password)
                 .append(content)
+                .append(fileName)
                 .toHashCode();
     }
 }

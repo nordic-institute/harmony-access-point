@@ -59,7 +59,7 @@ public class ReloadPModeCommandTaskTest {
 
         new Verifications() {{
             pModeProvider.refresh();
-            multiDomainCryptoService.refreshTrustStore(domain);
+            multiDomainCryptoService.resetTrustStore(domain);
         }};
     }
 }

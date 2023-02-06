@@ -1,9 +1,9 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.security.TrustStoreEntry;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -41,15 +41,9 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     String getPrivateKeyPassword(Domain domain, String privateKeyAlias);
 
-    void refreshTrustStore(Domain domain);
+    void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo);
 
-    void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String password) throws CryptoException;
-
-    void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException;
-
-    void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String password) throws CryptoException;
-
-    void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException;
+    void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo);
 
     KeyStore getKeyStore(Domain domain);
 
@@ -73,13 +67,23 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void resetKeyStore(Domain domain);
 
-    TrustStoreContentDTO getTruststoreContent(Domain domain);
+    List<TrustStoreEntry> getKeyStoreEntries(Domain domain);
 
-    void persistStores();
+    KeyStoreContentInfo getKeyStoreContent(Domain domain);
 
-    void refreshKeyStore(Domain currentDomain);
+    List<TrustStoreEntry> getTrustStoreEntries(Domain domain);
+
+    KeyStoreContentInfo getTrustStoreContent(Domain domain);
+
+    void saveStoresFromDBToDisk();
 
     void resetTrustStore(Domain domain);
 
     void resetSecurityProfiles(Domain domain);
+
+    boolean isTrustStoreChangedOnDisk(Domain currentDomain);
+
+    boolean isKeyStoreChangedOnDisk(Domain currentDomain);
+
+    String getTrustStoreFileExtension();
 }

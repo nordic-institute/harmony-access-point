@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi;
 
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -48,11 +49,13 @@ public interface DomainCryptoServiceSpi {
 
     PrivateKey getPrivateKey(String identifier, String password) throws WSSecurityException;
 
-    default void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {}
+    default void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {
+    }
 
     void verifyTrust(PublicKey publicKey) throws WSSecurityException;
 
-    default void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {}
+    default void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {
+    }
 
     void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException;
 
@@ -65,11 +68,24 @@ public interface DomainCryptoServiceSpi {
 
     String getPrivateKeyPassword(String alias);
 
+    /**
+     * @deprecated use {@link #resetTrustStore()} instead
+     */
     void refreshTrustStore();
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
 
-    void replaceTrustStore(String storeLocation, String storePassword);
+    default void replaceTrustStore(KeyStoreContentInfoDTO keyStoreContentInfoDTO) {
+        replaceTrustStore(keyStoreContentInfoDTO.getContent(), keyStoreContentInfoDTO.getFileName(), keyStoreContentInfoDTO.getPassword());
+    }
+
+    /**
+     * Loads the KeyStore specified by the location and password
+     *
+     * @param storeFileLocation
+     * @param storePassword
+     */
+    void replaceTrustStore(String storeFileLocation, String storePassword);
 
     KeyStore getKeyStore();
 
@@ -92,13 +108,26 @@ public interface DomainCryptoServiceSpi {
     String getIdentifier();
 
     void setDomain(DomainSpi domain);
-    
+
     void init();
 
     void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword);
 
+    default void replaceKeyStore(KeyStoreContentInfoDTO storeContentInfoSpi) {
+        replaceKeyStore(storeContentInfoSpi.getContent(), storeContentInfoSpi.getFileName(), storeContentInfoSpi.getPassword());
+    }
+
+    /**
+     * Loads the KeyStore specified by the location and password
+     *
+     * @param storeFileLocation
+     * @param storePassword
+     */
     void replaceKeyStore(String storeFileLocation, String storePassword);
 
+    /**
+     * @deprecated use {@link #resetKeyStore()} instead
+     */
     void refreshKeyStore();
 
     void resetKeyStore();
@@ -106,4 +135,12 @@ public interface DomainCryptoServiceSpi {
     void resetTrustStore();
 
     void resetSecurityProfiles();
+
+    default boolean isTrustStoreChanged() {
+        return false;
+    }
+
+    default boolean isKeyStoreChanged() {
+        return false;
+    }
 }

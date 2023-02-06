@@ -5,6 +5,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -75,9 +76,12 @@ public interface DomibusExtMapper {
         result.setProperty(properties);
 
 
-
         return result;
     }
 
     AuthenticationEntity pluginUserDTOToAuthenticationEntity(PluginUserDTO pluginUserDTO);
+
+    KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoDTO(KeyStoreContentInfo content);
+
+    KeyStoreContentInfo keyStoreContentInfoDTOToKeyStoreContentInfo(KeyStoreContentInfoDTO contentInfoDTO);
 }

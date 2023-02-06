@@ -1,8 +1,8 @@
-package eu.domibus.core.crypto.api;
+package eu.domibus.api.crypto;
 
-import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import java.util.List;
@@ -15,15 +15,15 @@ import java.util.List;
  */
 public interface TLSCertificateManager extends DomainsAware {
 
+    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
+
     /**
-     * Replaces the truststore pointed by the clientauthentication.xml file with the one provided as parameters
+     * Replaces the truststore pointed by the store info with the one provided as parameters
      *
-     * @param trustFileName
-     * @param trustContent
-     * @param password
+     * @param storeInfo all neede info about the store
      * @throws CryptoException
      */
-    void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
+    void replaceTrustStore(KeyStoreContentInfo storeInfo);
 
     /**
      * Returns the certificate entries found in the tls truststore pointed by the clientauthentication.xml file
@@ -37,7 +37,7 @@ public interface TLSCertificateManager extends DomainsAware {
      *
      * @return
      */
-    TrustStoreContentDTO getTruststoreContent();
+    KeyStoreContentInfo getTruststoreContent();
 
     /**
      * Adds the specified certificate to the tls truststore content pointed by the clientauthentication.xml file
@@ -49,6 +49,7 @@ public interface TLSCertificateManager extends DomainsAware {
 
     /**
      * Removes the specified certificate from the tls truststore content pointed by the clientauthentication.xml file
+     *
      * @param alias
      * @return
      */
@@ -57,5 +58,9 @@ public interface TLSCertificateManager extends DomainsAware {
     /**
      * Reads the truststore from a disk location and persists it in the DB if not already there
      */
-    void persistTruststores();
+    void saveStoresFromDBToDisk();
+
+    KeystorePersistenceInfo getPersistenceInfo();
+
+    String getStoreFileExtension();
 }
