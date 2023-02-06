@@ -4,6 +4,9 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <javassist.version>3.28.0-GA</javassist.version>
+    </properties>
 
     <parent>
         <groupId>eu.domibus</groupId>
@@ -12,7 +15,7 @@
     </parent>
     <artifactId>domibus-logging</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH Logging</name>
+    <name>Domibus MSH Logging</name>
 
     <build>
         <plugins>
@@ -61,6 +64,11 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
         </dependency>
         <!-- Tests -->
         <dependency>
