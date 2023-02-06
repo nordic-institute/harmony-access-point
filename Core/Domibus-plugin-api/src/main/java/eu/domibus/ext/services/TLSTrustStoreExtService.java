@@ -41,14 +41,14 @@ public interface TLSTrustStoreExtService {
      * @param fileContent the content of the certificate
      * @param alias           the name of the certificate
      */
-    void addCertificate(byte[] fileContent, String alias);
+    boolean addCertificate(byte[] fileContent, String alias);
 
     /**
      * Removes the specified certificate from the TLS truststore by the alias name
      *
      * @param alias the certificate name
      */
-    void removeCertificate(String alias);
+    boolean removeCertificate(String alias);
 
     String getStoreFileExtension();
 
