@@ -58,6 +58,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
+import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 import static org.junit.Assert.*;
 
 /**
@@ -198,6 +200,34 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
 
+    @Injectable
+    protected LegConfiguration legConfiguration;
+
+    @Injectable
+    protected UserMessage userMessage;
+
+    @Injectable
+    protected BackendFilter matchingBackendFilter;
+
+    @Injectable
+    protected SOAPMessage request;
+
+    @Injectable
+    protected UserMessageLog userMessageLog;
+
+    @Injectable
+    protected Ebms3MessageFragmentType ebms3MessageFragmentType;
+
+    @Injectable
+    protected Ebms3MessageHeaderType ebms3MessageHeaderType;
+    @Injectable
+    protected MessageGroupEntity messageGroupEntity;
+
+    @Injectable
+    protected Reliability reliability;
+
+    @Injectable
+    protected Party to;
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";
@@ -217,14 +247,11 @@ public class UserMessageHandlerServiceImplTest {
 
 
     @Test
-    public void testInvoke_tc1Process_HappyFlow(@Injectable final BackendFilter matchingBackendFilter,
-                                                @Injectable Ebms3MessageFragmentType messageFragment,
-                                                @Injectable LegConfiguration legConfiguration,
-                                                @Injectable UserMessage userMessage) throws Exception {
+    public void testInvoke_tc1Process_HappyFlow() throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
-        new Expectations(userMessageHandlerService) {{
+        new Expectations() {{
 
             pModeProvider.checkSelfSending(pmodeKey);
             result = false;
@@ -233,7 +260,7 @@ public class UserMessageHandlerServiceImplTest {
             result = "messageId";
 
             routingService.getMatchingBackendFilter(userMessage);
-            result = null;
+            result = matchingBackendFilter;
 
             pModeProvider.checkSelfSending(pmodeKey);
             result = false;
@@ -266,15 +293,17 @@ public class UserMessageHandlerServiceImplTest {
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
+            userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
+            times = 1;
+
+            userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
+            times = 1;
+
         }};
     }
 
     @Test
-    public void testInvoke_tc1Process_SelfSending_HappyFlow(@Injectable final BackendFilter matchingBackendFilter,
-                                                            @Injectable Ebms3MessageFragmentType messageFragment,
-                                                            @Injectable Reliability reliability,
-                                                            @Injectable LegConfiguration legConfiguration,
-                                                            @Injectable UserMessage userMessage) throws Exception {
+    public void testInvoke_tc1Process_SelfSending_HappyFlow() throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
@@ -305,16 +334,11 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testInvoke_tc1Process_SelfSending_HappyFlow_withFragment(@Injectable final BackendFilter matchingBackendFilter,
-                                                                         @Injectable Ebms3MessageFragmentType messageFragment,
-                                                                         @Injectable Reliability reliability,
-                                                                         @Injectable LegConfiguration legConfiguration,
-                                                                         @Injectable UserMessage userMessage,
-                                                                         @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType) throws Exception {
+    public void testInvoke_tc1Process_SelfSending_HappyFlow_withFragment() throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
-        new Expectations(userMessageHandlerService) {{
+        new Expectations() {{
             matchingBackendFilter.getBackendName();
             result = "backEndName";
 
@@ -341,16 +365,13 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testInvoke_TestMessage(@Injectable final BackendFilter matchingBackendFilter,
-                                       @Injectable final LegConfiguration legConfiguration,
-                                       @Injectable final UserMessage userMessage,
-                                       @Injectable Ebms3MessageFragmentType messageFragment)
+    public void testInvoke_TestMessage()
             throws EbMS3Exception, TransformerException, IOException, SOAPException {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
         boolean selfSending = false;
 
-        new Expectations(userMessageHandlerService) {{
+        new Expectations() {{
             pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
@@ -405,12 +426,8 @@ public class UserMessageHandlerServiceImplTest {
 
 
     @Test
-    public void testPersistReceivedMessage_ValidationException(@Injectable final LegConfiguration legConfiguration,
-                                                               @Injectable final UserMessage userMessage,
-                                                               @Injectable final Ebms3Messaging ebms3Messaging,
-                                                               @Injectable final UserMessageLog userMessageLog,
-                                                               @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception, IOException {
+    public void testPersistReceivedMessage_ValidationException()
+            throws EbMS3Exception {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations() {{
@@ -442,12 +459,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testPersistReceivedMessage_CompressionError(@Injectable final LegConfiguration legConfiguration,
-                                                            @Injectable final UserMessage userMessage,
-                                                            @Injectable final Party receiverParty,
-                                                            @Injectable final UserMessageLog userMessageLog,
-                                                            @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception, IOException {
+    public void testPersistReceivedMessage_CompressionError() throws EbMS3Exception {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations() {{
@@ -470,13 +482,13 @@ public class UserMessageHandlerServiceImplTest {
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
             messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
-            userMessageLogDao.create(withAny(userMessageLog));
+            userMessageLogDao.create((UserMessageLog) any);
             times = 0;
         }};
     }
 
     @Test
-    public void testCheckDuplicate_true(@Injectable final UserMessageLog userMessageLog) {
+    public void testCheckDuplicate_true() {
         new Expectations() {{
             userMessageLogDao.findByMessageId(withSubstring("1234"), MSHRole.RECEIVING);
             result = userMessageLog;
@@ -493,7 +505,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testCheckDuplicate_false(@Injectable final UserMessageLog userMessageLog) {
+    public void testCheckDuplicate_false() {
         new Expectations() {{
             userMessageLogDao.findByMessageId(anyString, MSHRole.RECEIVING);
             result = null;
@@ -510,11 +522,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final BackendFilter matchingBackendFilter,
-                                                           @Injectable final LegConfiguration legConfiguration,
-                                                           @Injectable final UserMessage userMessage,
-                                                           @Injectable Ebms3MessageFragmentType messageFragment,
-                                                           @Injectable Reliability reliability)
+    public void testInvoke_ErrorInNotifyingIncomingMessage()
             throws EbMS3Exception, TransformerException, IOException, SOAPException {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
@@ -644,11 +652,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testHandleIncomingSourceMessage(@Injectable final LegConfiguration legConfiguration,
-                                                @Injectable final SOAPMessage request,
-                                                @Injectable final UserMessage userMessage,
-                                                @Injectable BackendFilter backendFilter
-    ) throws TransformerException, EbMS3Exception, IOException {
+    public void testHandleIncomingSourceMessage() throws TransformerException, EbMS3Exception, IOException {
 
         boolean messageExists = false;
         boolean testMessage = false;
@@ -659,9 +663,9 @@ public class UserMessageHandlerServiceImplTest {
             result = "messageID";
 
             routingService.getMatchingBackendFilter(userMessage);
-            result = backendFilter;
+            result = matchingBackendFilter;
 
-            backendFilter.getBackendName();
+            matchingBackendFilter.getBackendName();
             result = backendName;
 
             userMessageHandlerService.persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null);
@@ -681,10 +685,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testPersistReceivedSourceMessage(@Injectable final LegConfiguration legConfiguration,
-                                                 @Injectable final SOAPMessage request,
-                                                 @Injectable final UserMessage userMessage,
-                                                 @Injectable final Ebms3MessageFragmentType ebms3MessageFragmentType) throws EbMS3Exception {
+    public void testPersistReceivedSourceMessage() throws EbMS3Exception {
         String backendName = "mybackend";
 
         new Expectations(userMessageHandlerService) {{
@@ -701,11 +702,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testSaveReceivedMessage_exceptionCompressionException(@Injectable final LegConfiguration legConfiguration,
-                                                                      @Injectable final SOAPMessage request,
-                                                                      @Injectable final Messaging messaging,
-                                                                      @Injectable final UserMessage userMessage,
-                                                                      @Injectable Party to) throws EbMS3Exception {
+    public void testSaveReceivedMessage_exceptionCompressionException() throws EbMS3Exception {
         String backendName = "mybackend";
         String messageId = "123";
 
@@ -735,11 +732,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testSaveReceivedMessage_exceptionInvalidPayloadSizeException_persisted(@Injectable final LegConfiguration legConfiguration,
-                                                                                       @Injectable final SOAPMessage request,
-                                                                                       @Injectable final Messaging messaging,
-                                                                                       @Injectable final UserMessage userMessage,
-                                                                                       @Injectable Party to) throws EbMS3Exception {
+    public void testSaveReceivedMessage_exceptionInvalidPayloadSizeException_persisted() throws EbMS3Exception {
         String backendName = "mybackend";
         String messageId = "123";
 
@@ -782,11 +775,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testSaveReceivedMessage_exceptionInvalidPayloadSizeException_NotPersisted(@Injectable final LegConfiguration legConfiguration,
-                                                                                          @Injectable final SOAPMessage request,
-                                                                                          @Injectable final Messaging messaging,
-                                                                                          @Injectable final UserMessage userMessage,
-                                                                                          @Injectable Party to) throws EbMS3Exception {
+    public void testSaveReceivedMessage_exceptionInvalidPayloadSizeException_NotPersisted() throws EbMS3Exception {
         String backendName = "mybackend";
         String messageId = "123";
 
@@ -827,10 +816,7 @@ public class UserMessageHandlerServiceImplTest {
 
 
     @Test
-    public void testHandleMessageFragmentWithGroupAlreadyExisting(@Injectable UserMessage userMessage,
-                                                                  @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                  @Injectable MessageGroupEntity messageGroupEntity,
-                                                                  @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+    public void testHandleMessageFragmentWithGroupAlreadyExisting() throws EbMS3Exception {
         new Expectations(userMessageHandlerService) {{
             ebms3MessageFragmentType.getGroupId();
             result = "groupId";
@@ -857,10 +843,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testHandleMessageFragment_createMessageGroup(@Injectable UserMessage userMessage,
-                                                             @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                             @Injectable LegConfiguration legConfiguration,
-                                                             @Injectable Ebms3MessageHeaderType ebms3MessageHeaderType) throws EbMS3Exception {
+    public void testHandleMessageFragment_createMessageGroup() throws EbMS3Exception {
         new Expectations(userMessageHandlerService) {{
             ebms3MessageFragmentType.getGroupId();
             result = "groupId";
@@ -919,10 +902,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentWithNoSplittingConfigured(@Injectable UserMessage userMessage,
-                                                                         @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                         @Injectable MessageGroupEntity messageGroupEntity,
-                                                                         @Injectable LegConfiguration legConfiguration) {
+    public void testValidateUserMessageFragmentWithNoSplittingConfigured() {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = null;
@@ -946,10 +926,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentWithDatabaseStorage(@Injectable UserMessage userMessage,
-                                                                   @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                   @Injectable MessageGroupEntity messageGroupEntity,
-                                                                   @Injectable LegConfiguration legConfiguration) {
+    public void testValidateUserMessageFragmentWithDatabaseStorage() {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = new Splitting();
@@ -973,10 +950,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentWithRejectedGroup(@Injectable UserMessage userMessage,
-                                                                 @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                 @Injectable MessageGroupEntity messageGroupEntity,
-                                                                 @Injectable LegConfiguration legConfiguration) {
+    public void testValidateUserMessageFragmentWithRejectedGroup() {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = new Splitting();
@@ -1009,10 +983,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentWithExpired(@Injectable UserMessage userMessage,
-                                                           @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                           @Injectable MessageGroupEntity messageGroupEntity,
-                                                           @Injectable LegConfiguration legConfiguration) {
+    public void testValidateUserMessageFragmentWithExpired() {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = new Splitting();
@@ -1042,10 +1013,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentNoMessageGroupEntity(@Injectable UserMessage userMessage,
-                                                                    @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                    @Injectable MessageGroupEntity messageGroupEntity,
-                                                                    @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+    public void testValidateUserMessageFragmentNoMessageGroupEntity() throws EbMS3Exception {
         new Expectations() {{
             legConfiguration.getSplitting();
             result = new Splitting();
@@ -1068,10 +1036,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragment_ok(@Injectable UserMessage userMessage,
-                                                   @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                   @Injectable MessageGroupEntity messageGroupEntity,
-                                                   @Injectable LegConfiguration legConfiguration)
+    public void testValidateUserMessageFragment_ok()
             throws EbMS3Exception {
 
         new Expectations() {{
@@ -1100,10 +1065,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testValidateUserMessageFragmentWithWrongFragmentsCount(@Injectable UserMessage userMessage,
-                                                                       @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
-                                                                       @Injectable MessageGroupEntity messageGroupEntity,
-                                                                       @Injectable LegConfiguration legConfiguration) {
+    public void testValidateUserMessageFragmentWithWrongFragmentsCount() {
 
         long totalFragmentCount = 5;
 
@@ -1145,10 +1107,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void handleNewSourceUserMessageTest(@Injectable LegConfiguration legConfiguration,
-                                               @Injectable UserMessage userMessage,
-                                               @Injectable SOAPMessage request,
-                                               @Injectable Messaging messaging) throws IOException, EbMS3Exception, TransformerException {
+    public void handleNewSourceUserMessageTest() throws IOException, EbMS3Exception, TransformerException {
 
         String pmodeKey = "pmodeKey";
         boolean testMessage = true;

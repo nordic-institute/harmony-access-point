@@ -56,6 +56,8 @@ import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.*;
 
+import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 /**
@@ -315,6 +317,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                             .cause(e)
                             .build();
                 }
+
+                // we add this objects for use in out Interceptor to notify when reply is sent
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
 
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
