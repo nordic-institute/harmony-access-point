@@ -448,7 +448,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                         storeName, storeFileName));
             }
         } catch (CryptoException ex) {
-            throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].",storeName, storeFileName), ex);
+            throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
         storeReloader.run();
     }

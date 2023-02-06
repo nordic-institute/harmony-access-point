@@ -76,7 +76,6 @@ public interface DomibusExtMapper {
         result.setProperty(properties);
 
 
-
         return result;
     }
 

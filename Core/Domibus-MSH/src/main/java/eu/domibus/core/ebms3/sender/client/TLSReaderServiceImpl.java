@@ -121,7 +121,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         store.setFile(fileLocation);
         try {
             persistTLSParameters(tlsParams.get(), path.get());
-        } catch (JAXBException |  FileNotFoundException e) {
+        } catch (JAXBException | FileNotFoundException e) {
             throw new DomibusCertificateException("Could not update location in client authentication file for domain [" + domainCode + "]", e);
         }
     }
