@@ -1,6 +1,8 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
@@ -16,6 +18,7 @@ import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -72,7 +75,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Martini Federico
  * @since 3.3
  */
-@Service
+@Service("trustSenderInterceptor")
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
@@ -98,6 +101,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     @Autowired
     private TokenReferenceExtractor tokenReferenceExtractor;
 
+    @Autowired
+    private MessageUtil messageUtil;
 
     public TrustSenderInterceptor() {
         super(false);
@@ -124,21 +129,32 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             return;
         }
 
-        boolean isPullMessage = false;
+        boolean isPullSignalMessage = false;
         MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
         if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
             LOG.debug("PULL Signal Message");
-            isPullMessage = true;
+            isPullSignalMessage = true;
         }
 
         String senderPartyName;
         String receiverPartyName;
-        if (isPullMessage) {
+        if (isPullSignalMessage) {
             senderPartyName = getReceiverPartyName(message);
             receiverPartyName = getSenderPartyName(message);
         } else {
             senderPartyName = getSenderPartyName(message);
             receiverPartyName = getReceiverPartyName(message);
+
+            if (senderPartyName == null && receiverPartyName == null) {
+                Ebms3Messaging ebms3Messaging = messageUtil.getMessagingFromSoapMessage(message);
+                if (ebms3Messaging != null) {
+                    Ebms3UserMessage ebms3UserMessage = ebms3Messaging.getUserMessage();
+                    if (ebms3UserMessage != null) {
+                        senderPartyName = ebms3UserMessage.getFromFirstPartyId();
+                        receiverPartyName = ebms3UserMessage.getToFirstPartyId();
+                    }
+                }
+            }
         }
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
@@ -146,7 +162,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
-        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
+        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullSignalMessage)) {
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
                     .message("Sender [" + senderPartyName + "] certificate is not valid or has been revoked")
