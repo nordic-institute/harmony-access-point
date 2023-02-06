@@ -117,12 +117,16 @@ public class UserManagementServiceImpl implements UserService {
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         try {
             userPersistenceService.updateUsers(users);
-            ensureAtLeastOneActiveAdmin();
+            if (!domibusConfigurationService.isMultiTenantAware()) {
+                ensureAtLeastOneActiveAdmin();
+            } else {
+                LOG.debug("No check for multitenancy: a super admin always exists.");
+            }
         } catch (AtLeastOneAdminException ex) {
             // clear user-domain mapping only for this error
             LOG.info("Remove domain association for new users.");
             users.stream()
-                    .filter(user -> user.isNew())
+                    .filter(eu.domibus.api.user.User::isNew)
                     .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
             throw ex;
         }
