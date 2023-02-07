@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
@@ -49,6 +50,7 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         }
 
         message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY));
 
         message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
         message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());

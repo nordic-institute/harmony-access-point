@@ -1,8 +1,6 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
@@ -18,7 +16,6 @@ import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -101,9 +98,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     @Autowired
     private TokenReferenceExtractor tokenReferenceExtractor;
 
-    @Autowired
-    private MessageUtil messageUtil;
-
     public TrustSenderInterceptor() {
         super(false);
     }
@@ -144,22 +138,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         } else {
             senderPartyName = getSenderPartyName(message);
             receiverPartyName = getReceiverPartyName(message);
-
-            if (senderPartyName == null && receiverPartyName == null) {
-                Ebms3Messaging ebms3Messaging = messageUtil.getMessagingFromSoapMessage(message);
-                if (ebms3Messaging != null) {
-                    Ebms3UserMessage ebms3UserMessage = ebms3Messaging.getUserMessage();
-                    if (ebms3UserMessage != null) {
-                        senderPartyName = ebms3UserMessage.getFromFirstPartyId();
-                        receiverPartyName = ebms3UserMessage.getToFirstPartyId();
-                    }
-                }
-            }
-        }
-
-        if (senderPartyName == null && receiverPartyName == null) {
-            LOG.debug("No message available for pulling");
-            return;
         }
 
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
