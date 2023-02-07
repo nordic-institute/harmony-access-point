@@ -48,9 +48,13 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         if (StringUtils.isBlank(securityAlgorithm)) {
             throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0004, "No security algorithm found");
         }
-
         message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY));
+
+        String pModeKeyContextProperty = (String) message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+        if (StringUtils.isBlank(pModeKeyContextProperty)) {
+            LOG.warn("PMode key context property is empty");
+        }
+        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKeyContextProperty);
 
         message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
         message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
