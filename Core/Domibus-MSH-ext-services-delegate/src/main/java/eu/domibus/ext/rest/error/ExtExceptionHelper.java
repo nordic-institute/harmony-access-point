@@ -94,6 +94,15 @@ public class ExtExceptionHelper {
     }
 
     protected ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
+        String errorMessage = getErrorMessage(ex, showErrorDetails);
+        LOG.error(errorMessage, ex);
+
+        HttpHeaders headers = new HttpHeaders();
+        ErrorDTO body = new ErrorDTO(errorMessage);
+        return new ResponseEntity<>(body, headers, status);
+    }
+
+    private String getErrorMessage(Throwable ex, boolean showErrorDetails) {
         String errorMessage = "A server error occurred";
         if (showErrorDetails) {
             errorMessage = ex.getMessage();
@@ -102,11 +111,7 @@ public class ExtExceptionHelper {
                 errorMessage += ":" + cause.getMessage();
             }
         }
-        LOG.error(errorMessage, ex);
-
-        HttpHeaders headers = new HttpHeaders();
-        ErrorDTO body = new ErrorDTO(errorMessage);
-        return new ResponseEntity<>(body, headers, status);
+        return errorMessage;
     }
 
     public ResponseEntity<ErrorDTO> createResponse(String errorMessage, HttpStatus status) {
