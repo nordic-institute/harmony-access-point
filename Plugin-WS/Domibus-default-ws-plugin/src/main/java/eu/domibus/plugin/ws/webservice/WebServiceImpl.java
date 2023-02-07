@@ -404,7 +404,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         String messageId = listPushFailedMessagesRequest.getMessageId();
         ListPushFailedMessagesRequest pushFailedMessagesRequest= new ListPushFailedMessagesRequest();
 
-        if (StringUtils.isEmpty(messageId)) {
+        if (messageId != null && StringUtils.isBlank(messageId)) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
         }
