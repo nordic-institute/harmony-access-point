@@ -70,7 +70,6 @@ public class ExtExceptionHelper {
         }
 
         if (cause instanceof DomibusCertificateException) {
-//            Throwable innerCause = extractCause(cause);
             return createResponse(cause, HttpStatus.BAD_REQUEST, true);
         }
 
