@@ -49,6 +49,7 @@ public interface TLSCertificateManager extends DomainsAware {
 
     /**
      * Removes the specified certificate from the tls truststore content pointed by the clientauthentication.xml file
+     *
      * @param alias
      * @return
      */

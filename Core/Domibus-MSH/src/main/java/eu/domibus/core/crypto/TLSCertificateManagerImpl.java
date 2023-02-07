@@ -75,7 +75,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                         storeName, storeFileName));
             }
         } catch (CryptoException ex) {
-            throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].",storeName, storeFileName), ex);
+            throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
         resetTLSTruststore();
     }

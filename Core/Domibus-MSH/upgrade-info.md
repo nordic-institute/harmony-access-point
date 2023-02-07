@@ -87,6 +87,7 @@
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
 
   ### Tomcat only
+
                         o [MySQL only]
                             o update the "domibus.datasource.url" properties:
                                 domibus.datasource.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
@@ -233,7 +234,8 @@
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - (Optional) partitioning: oracle-5.0-partitioning.ddl (if you further plan on using Oracle partitions in an Enterprise Editions database)
                                     - grant privileges to the general schema using oracle-5.0-multi-tenancy-rights.sql, updating the schema names before execution
-   #### MySQL only
+
+#### MySQL only
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                     	    - the root user, specifying the target databases as part of the command. For example, for single tenancy:
                                     mysql -u root -p domibus < mysql-4.2.9-to-5.0-data-migration-step1.ddl
@@ -420,6 +422,7 @@
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
  ## Domibus 4.2.2 (from 4.2.1):
+
                 - [MySQL8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
                         In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.

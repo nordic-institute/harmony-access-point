@@ -22,7 +22,7 @@ public class DomibusLoggersCache {
         String loggerName = getLoggerName(name);
         DomibusLogger logger = cache.get(loggerName);
         if (logger == null) {
-            logger = new DomibusLoggerImpl(LoggerFactory.getLogger(loggerName));
+            logger = new DomibusLogger(LoggerFactory.getLogger(loggerName));
             cache.put(loggerName, logger);
         }
         return logger;
