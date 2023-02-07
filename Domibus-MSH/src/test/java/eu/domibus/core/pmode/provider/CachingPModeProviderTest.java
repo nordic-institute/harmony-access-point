@@ -54,7 +54,7 @@ import static org.junit.Assert.*;
  * @author Arun Raj, Soumya Chandran
  * @since 3.3
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "HttpUrlsUsage"})
 @RunWith(JMockit.class)
 public class CachingPModeProviderTest {
 
@@ -132,6 +132,30 @@ public class CachingPModeProviderTest {
 
     @Injectable
     private MpcService mpcService;
+
+    @Injectable
+    UserMessage userMessage;
+    @Injectable
+    PartyId partyId1;
+
+    @Injectable
+    Mpc mpc;
+
+    @Injectable
+    ServiceEntity serviceEntity;
+    @Injectable
+    AgreementRefEntity agreementRef;
+
+    @Injectable
+    Process process;
+    @Injectable
+    ProcessTypePartyExtractor processTypePartyExtractor;
+    @Injectable
+    LegFilterCriteria legFilterCriteria;
+    @Injectable
+    Role role1;
+    @Injectable
+    LegConfiguration legConfiguration;
 
     @Injectable
     private DomibusCacheService domibusCacheService;
@@ -231,7 +255,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindPartyName(@Mocked PartyId partyId1) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindPartyName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations() {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getParties();
@@ -247,7 +271,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindPartyName_EmptyPartyType(@Mocked PartyId partyId1) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+    public void testFindPartyName_EmptyPartyType() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         configuration.getBusinessProcesses().getParties().forEach(pmodeParty -> pmodeParty.getIdentifiers().forEach(pmodePartyIdentifier -> pmodePartyIdentifier.setPartyIdType(null)));
         new Expectations() {{
@@ -791,7 +815,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindMpcUri() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+    public void testFindMpcUri() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
         String expectedMpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpc";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
@@ -805,7 +829,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test(expected = EbMS3Exception.class)
-    public void testfindMpcUriException() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
+    public void testFindMpcUriException() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, EbMS3Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getMpcs();
@@ -825,7 +849,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testgetMpcList(@Injectable Mpc mpc) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testgetMpcList() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getMpcs();
@@ -837,7 +861,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+    public void testFindLegNameOK() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         final String expectedLegName = "pushNoSecnoSecAction";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
 
@@ -857,7 +881,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameMissingInitiatorRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameMissingInitiatorRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         final Role notMyInitiatorRole = new Role("defaultInitiatorRole", "notMyInitiator");
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -886,7 +910,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameMismatchResponderRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameMismatchResponderRole() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         final Role notMyResponderRole = new Role("defaultResponderRole", "notMyResponder");
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -914,7 +938,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameMismatchInitiatorResponder() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameMismatchInitiatorResponder() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String incorrectSender = "BadSender";
@@ -944,7 +968,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameProcessMismatchCombinationErrors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameProcessMismatchCombinationErrors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         final String expectedErrorMsgStart = "None of the Processes matched with message metadata. Process mismatch details:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         String incorrectAgreement = "IncorrectAgreement";
@@ -975,12 +999,12 @@ public class CachingPModeProviderTest {
             assertTrue("Expected error message to contain Agreement details.", StringUtils.contains(ex.getErrorDetail(), "Agreement:[" + incorrectAgreement + "] does not match"));
             assertTrue("Expected error message to contain Initiator details.", StringUtils.contains(ex.getErrorDetail(), "Initiator:[" + incorrectSender + "] does not match"));
             assertTrue("Expected error message to contain Responder details.", StringUtils.contains(ex.getErrorDetail(), "Responder:[" + incorrectReceiver + "] does not match"));
-            //Validations on InitiatorRoole and ResponderRole cannot be enforced due to 255 character limit in EbMS3Exception:getErrorDetail()
+            //Validations on InitiatorRoole and ResponderRole cannot be enforced due to 255 characters limit in EbMS3Exception:getErrorDetail()
         }
     }
 
     @Test
-    public void testfindLegNameEmptyLegCandidate() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameEmptyLegCandidate() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         String expectedErrorMsgStart = "No matching Legs found among matched Processes:";
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         configuration.getBusinessProcesses().getLegConfigurations().clear();
@@ -1008,7 +1032,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameServiceActionMismatch() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindLegNameServiceActionMismatch() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         final String service = "MismatchService";
         final String action = "IncorrectAction";
@@ -1036,7 +1060,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindActionName() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
 
         new Expectations(cachingPModeProvider) {{
@@ -1051,7 +1075,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindMpc() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testFindMpc() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getMpcs();
@@ -1065,21 +1089,21 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindServiceName(@Mocked ServiceEntity service) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testFindServiceName() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getServices();
             result = configuration.getBusinessProcesses().getServices();
         }};
         try {
-            cachingPModeProvider.findServiceName(service);
+            cachingPModeProvider.findServiceName(serviceEntity);
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
         }
     }
 
     @Test
-    public void testfindAgreement(@Injectable AgreementRefEntity agreementRef) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testFindAgreement() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             agreementRef.getValue();
@@ -1205,6 +1229,7 @@ public class CachingPModeProviderTest {
         Action action = cachingPModeProvider.getAction(pModeKey);
         assertNotNull(action);
     }
+
     @Test
     public void testGetAction_notFound() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -1272,6 +1297,7 @@ public class CachingPModeProviderTest {
         LegConfiguration legConfiguration = cachingPModeProvider.getLegConfiguration(pModeKey);
         assertNotNull(legConfiguration);
     }
+
     @Test
     public void testGetLegConfiguration_failed() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -1352,7 +1378,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findUserMessageExchangeContextPush(@Injectable UserMessage userMessage, @Injectable ServiceEntity serviceEntity) throws EbMS3Exception {
+    public void findUserMessageExchangeContextPush() throws EbMS3Exception {
         String legName = "NoSecNoEnc";
 
         new Expectations(cachingPModeProvider) {{
@@ -1368,7 +1394,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findInitiatorRole(userMessage);
             result = initiatorRole;
 
-            cachingPModeProvider.findResponderRole(userMessage);
+            cachingPModeProvider.findResponderRole(userMessage, false);
             result = responderRole;
 
             userMessage.getService();
@@ -1393,28 +1419,26 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage, @Injectable PartyId partyId) {
+    public void testFindUserMessageExchangeContextSenderNotProvided() {
 
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getFromPartyId();
-            result = partyId;
+            result = partyId1;
         }};
         try {
             cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
             Assert.fail("expected error that sender party is missing");
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("Sender party could not be found for the value  " + partyId, ex.getErrorDetail());
+            assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
             assertEquals(mshRole1, ex.getMshRole());
         }
     }
 
     @Test
-    public void findSenderParty(@Injectable UserMessage userMessage) {
-
-        MSHRole mshRole1 = MSHRole.SENDING;
-        new Expectations(cachingPModeProvider) {{
+    public void findSenderParty() {
+        new Expectations() {{
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = null;
         }};
@@ -1428,7 +1452,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findSenderParty_IdNotFound(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void findSenderParty_IdNotFound() throws EbMS3Exception {
         final Set<PartyId> fromPartyId = new HashSet<>();
         PartyId partyId1 = new PartyId();
         partyId1.setValue("domibus-blue");
@@ -1454,7 +1478,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindUserMessageExchangeContextReceiverNotProvided(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void testFindUserMessageExchangeContextReceiverNotProvided() throws EbMS3Exception {
 
         MSHRole mshRole1 = MSHRole.SENDING;
 
@@ -1477,13 +1501,13 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findReceiverParty_IdNotFound(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void findReceiverParty_IdNotFound() throws EbMS3Exception {
         final Set<PartyId> toPartyId = new HashSet<>();
         PartyId partyId1 = new PartyId();
         partyId1.setValue("domibus-red");
         toPartyId.add(partyId1);
 
-        Exception expectedException =  EbMS3ExceptionBuilder.getInstance()
+        Exception expectedException = EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                 .message("No matching party found for type [] and value []")
                 .build();
@@ -1503,7 +1527,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findInitiatorRole_RoleNotProvided(@Injectable UserMessage userMessage) {
+    public void findInitiatorRole_RoleNotProvided() {
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getRoleValue();
             result = " ";
@@ -1518,7 +1542,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findInitiatorRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void findInitiatorRole_OK() throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getRoleValue();
             result = initiatorRole.getValue();
@@ -1532,13 +1556,13 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findResponderRole_RoleNotProvided(@Injectable UserMessage userMessage) {
+    public void findResponderRole_RoleNotProvided() {
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getTo().getRoleValue();
             result = " ";
         }};
         try {
-            cachingPModeProvider.findResponderRole(userMessage);
+            cachingPModeProvider.findResponderRole(userMessage, true);
             Assert.fail("expected error that responder role should be provided");
         } catch (EbMS3Exception e) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
@@ -1547,7 +1571,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void findResponderRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    public void findResponderRole_OK() throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getTo().getRoleValue();
             result = responderRole.getValue();
@@ -1556,15 +1580,14 @@ public class CachingPModeProviderTest {
             result = responderRole;
         }};
 
-        assertEquals(cachingPModeProvider.findResponderRole(userMessage), responderRole);
+        assertEquals(cachingPModeProvider.findResponderRole(userMessage, true), responderRole);
 
         new FullVerifications() {
         };
     }
 
     @Test
-    public void checkAgreementMismatch(@Injectable Process process,
-                                       @Injectable LegFilterCriteria legFilterCriteria) {
+    public void checkAgreementMismatch() {
         new Expectations() {{
             legFilterCriteria.getAgreementName();
             result = agreement;
@@ -1580,9 +1603,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkInitiatorMismatch(@Injectable Process process,
-                                       @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
-                                       @Injectable LegFilterCriteria legFilterCriteria) {
+    public void checkInitiatorMismatch() {
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.matchInitiator(process, anyString);
             result = false;
@@ -1599,9 +1620,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkResponderMismatch(@Injectable Process process,
-                                       @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
-                                       @Injectable LegFilterCriteria legFilterCriteria) {
+    public void checkResponderMismatch() {
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.matchResponder(process, anyString);
             result = false;
@@ -1618,9 +1637,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkInitiatorRoleMismatch(@Injectable Process process,
-                                           @Injectable LegFilterCriteria legFilterCriteria,
-                                           @Injectable Role role1) {
+    public void checkInitiatorRoleMismatch() {
         new Expectations(cachingPModeProvider) {{
             process.getInitiatorRole();
             result = role1;
@@ -1640,9 +1657,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkResponderRoleMismatch(@Injectable Process process,
-                                           @Injectable LegFilterCriteria legFilterCriteria,
-                                           @Injectable Role role1) {
+    public void checkResponderRoleMismatch() {
         new Expectations(cachingPModeProvider) {{
             process.getResponderRole();
             result = role1;
@@ -1662,8 +1677,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkServiceMismatch(@Injectable LegConfiguration legConfiguration,
-                                     @Injectable LegFilterCriteria legFilterCriteria) {
+    public void checkServiceMismatch() {
         new Expectations() {{
             legConfiguration.getService().getName();
             result = "anotherServiceName";
@@ -1680,8 +1694,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void checkActionMismatch(@Injectable LegConfiguration legConfiguration,
-                                    @Injectable LegFilterCriteria legFilterCriteria) {
+    public void checkActionMismatch() {
         new Expectations() {{
             legConfiguration.getAction().getName();
             result = "anotherActionName";
@@ -1719,6 +1732,7 @@ public class CachingPModeProviderTest {
         LegConfigurationPerMpc allLegConfigurations = cachingPModeProvider.getAllLegConfigurations();
         assertEquals(1, allLegConfigurations.entrySet().size());
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

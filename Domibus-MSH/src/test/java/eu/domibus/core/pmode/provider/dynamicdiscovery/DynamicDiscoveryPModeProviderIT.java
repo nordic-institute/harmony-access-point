@@ -1,12 +1,12 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.model.PartyId;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.RandomUtils;
@@ -17,7 +17,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -32,9 +31,9 @@ public class DynamicDiscoveryPModeProviderIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderIT.class);
     public static final String NAME = "Name";
 
-    private DynamicDiscoveryPModeProvider dynamicDiscoveryPModeProvider = new DynamicDiscoveryPModeProvider(null);
+    private final DynamicDiscoveryPModeProvider dynamicDiscoveryPModeProvider = new DynamicDiscoveryPModeProvider(null);
 
-    private CachingPModeProvider cachingPModeProvider = new CachingPModeProvider(DomainService.DEFAULT_DOMAIN);
+    private final CachingPModeProvider cachingPModeProvider = new CachingPModeProvider(DomainService.DEFAULT_DOMAIN);
 
     @Before
     public void setUp() {
@@ -42,7 +41,7 @@ public class DynamicDiscoveryPModeProviderIT {
     }
 
     /**
-     * Test case to show case the issue with the singleton {@link CachingPModeProvider#getConfiguration()}
+     * Test case to showcase the issue with the singleton {@link CachingPModeProvider#getConfiguration()}
      * <p>
      * getPartiesAndDoStuff Thread should start before modifyConfigSynchronized and finish after
      * <p>
@@ -53,14 +52,14 @@ public class DynamicDiscoveryPModeProviderIT {
      * }
      */
     @Test
-    public void concurrentAccessReadWrite() throws ExecutionException, InterruptedException {
+    public void concurrentAccessReadWrite() {
         ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
         Callable<List<Party>> getPartiesAndDoStuff = () -> {
 
             List<Party> parties;
             LOG.info("concurrentAccessReadWrite -> Start Thread getParties " + Thread.currentThread().getName());
             parties = dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties();
-            for (final Party party : parties) {
+            for (final Party ignored : parties) {
                 sleepNicely(200);
             }
             LOG.info("concurrentAccessReadWrite -> End Thread getParties " + Thread.currentThread().getName());
@@ -99,14 +98,10 @@ public class DynamicDiscoveryPModeProviderIT {
 
     /**
      * This test is just an example to reproduce the issue described by EDELIVERY-6522 when there are concurrent access issues
-     *
      * When fetched DDC metadata will be cached in concurrent safe way - this test must be also updated/removed
-     *
-     *
-     * @throws Exception
      */
     @Test
-    public void test_UpdateConfigurationParty_FindPartyName() throws Exception {
+    public void test_UpdateConfigurationParty_FindPartyName() {
         ReflectionTestUtils.setField(dynamicDiscoveryPModeProvider, "configuration", getConfiguration());
 
         final String partyName = "PIT000158";
@@ -137,7 +132,7 @@ public class DynamicDiscoveryPModeProviderIT {
 
         //update here
         try {
-            List<Future<Party>> updateResult = executorUpdate.invokeAll(tasksList);
+            executorUpdate.invokeAll(tasksList);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOG.info("InterruptedException during invokeAll");
