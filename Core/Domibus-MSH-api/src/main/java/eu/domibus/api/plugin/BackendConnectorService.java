@@ -33,4 +33,7 @@ public interface BackendConnectorService {
     boolean isBackendConnectorEnabled(String backendName);
 
     boolean isBackendConnectorEnabled(String backendName, String domainCode);
+
+
+    boolean supportsDynamicResourceManagement(String backendName);
 }

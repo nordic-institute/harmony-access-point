@@ -17,6 +17,9 @@ import java.util.List;
 public interface EnableAware {
     static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EnableAware.class);
 
+    default boolean supportsDynamicResourceManagement() {
+        return false;
+    }
     /**
      * @return The name of the plugin
      */

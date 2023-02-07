@@ -110,6 +110,23 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     }
 
     @Override
+    public boolean supportsDynamicResourceManagement(String backendName) {
+
+        if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
+            LOG.debug("Test Backend connector; returning false; ");
+            return false;
+        }
+        BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
+        if (plugin == null) {
+            LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
+            return false;
+        }
+
+        EnableAware enableAware = (EnableAware) plugin;
+        return enableAware.supportsDynamicResourceManagement();
+    }
+
+    @Override
     public boolean isBackendConnectorEnabled(String backendName, String domainCode) {
         if (domainCode == null) {
             throw new DomibusDomainException("Domain parameter is null");

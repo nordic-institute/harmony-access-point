@@ -173,10 +173,15 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     private void createMessageListenerContainerFor(Domain domain, String beanName, PluginMessageListenerContainer containerFactory) {
         String pluginName = containerFactory.getPluginName();
-        if (!backendConnectorService.isBackendConnectorEnabled(pluginName, domain.getCode())) {
-            LOG.info("Message listener container for plugin [{}] and domain [{}] is not enabled so exiting.", pluginName, domain);
-            return;
-        }
+        if (pluginName != null) {
+            if (!backendConnectorService.isBackendConnectorEnabled(pluginName, domain.getCode())) {
+                LOG.info("Message listener container for plugin [{}] and domain [{}] is not enabled so exiting.", pluginName, domain);
+                return;
+            }
+        } // else pluginName is null for old plugins - backwards compatibility
+
+        LOG.debug("Creating message listener container for plugin [{}] and domain [{}] ", pluginName, domain);
+
 
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
         MessageListenerContainer instance = containerFactory.createMessageListenerContainer(domainDTO);

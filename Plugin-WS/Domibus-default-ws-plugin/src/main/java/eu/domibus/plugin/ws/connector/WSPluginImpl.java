@@ -65,6 +65,11 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
+    public boolean supportsDynamicResourceManagement() {
+        return true;
+    }
+
+    @Override
     public void deliverMessage(final DeliverMessageEvent event) {
         checkEnabled();
 

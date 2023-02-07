@@ -111,6 +111,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         super(PLUGIN_NAME);
     }
 
+    @Override
+    public boolean supportsDynamicResourceManagement() {
+        return true;
+    }
+
     /**
      * The implementations of the transformer classes are responsible for
      * transformation between the native backend formats and
