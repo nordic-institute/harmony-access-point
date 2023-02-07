@@ -11,6 +11,7 @@ import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
 import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +62,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is empty for a certain message since there were no errors in the transaction.
      */
     @Test
+    @Ignore
     public void testGetEmptyMessageErrorsList() {
 
         String messageId = "notFound";

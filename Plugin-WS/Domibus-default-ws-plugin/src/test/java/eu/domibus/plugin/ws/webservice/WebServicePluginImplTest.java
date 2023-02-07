@@ -5,6 +5,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
+import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.generated.*;
@@ -176,7 +177,7 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
             @Injectable StatusRequestWithAccessPointRole statusRequest,
-            @Injectable MessageRetrieverExtService messageRetriever) throws StatusFault {
+            @Injectable MessageRetriever messageRetriever) throws StatusFault {
         new Expectations() {{
             statusRequest.getMessageID();
             result = MESSAGE_ID;
