@@ -317,7 +317,28 @@ public class UserManagementServiceImplTest {
         ArrayList<eu.domibus.api.user.User> users = new ArrayList<>();
 
         new Expectations(userManagementService) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
             userManagementService.ensureAtLeastOneActiveAdmin();
+        }};
+
+        userManagementService.updateUsers(users);
+
+        new FullVerifications() {{
+            userPersistenceService.updateUsers(users);
+            times = 1;
+        }};
+
+    }
+
+    @Test
+    public void updateUsers_multitenant() {
+        ArrayList<eu.domibus.api.user.User> users = new ArrayList<>();
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
         }};
 
         userManagementService.updateUsers(users);
