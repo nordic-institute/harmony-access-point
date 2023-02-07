@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.truststore;
 
 import eu.domibus.api.crypto.TLSCertificateManager;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
@@ -11,6 +13,8 @@ import eu.domibus.ext.services.TLSTrustStoreExtService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya Chandran
@@ -56,12 +60,20 @@ public class TLSTrustStoreServiceDelegate implements TLSTrustStoreExtService {
 
     @Override
     public void addCertificate(byte[] fileContent, String alias) {
-        tlsCertificateManager.addCertificate(fileContent, alias);
+        boolean added = tlsCertificateManager.addCertificate(fileContent, alias);
+        if (!added) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_011,
+                    "Certificate [" + alias + "] was not added to the [" + TLS_TRUSTSTORE_NAME + "] most probably because it already contains the same certificate.");
+        }
     }
 
     @Override
     public void removeCertificate(String alias) {
-        tlsCertificateManager.removeCertificate(alias);
+        boolean removed = tlsCertificateManager.removeCertificate(alias);
+        if (!removed) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009,
+                    "Certificate [" + alias + "] was not removed from the [" + TLS_TRUSTSTORE_NAME + "] because it does not exist.");
+        }
     }
 
     @Override

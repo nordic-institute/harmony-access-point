@@ -150,7 +150,8 @@ public class TLSTrustStoreExtResource {
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
         tlsTruststoreExtService.removeCertificate(alias);
-        return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
+
+        return "Certificate [" + alias + "] has been successfully removed from the [" + TLS_TRUSTSTORE_NAME + "].";
     }
 
     private String getFileName() {

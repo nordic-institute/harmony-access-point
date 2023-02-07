@@ -164,9 +164,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
         alias = StringUtils.trim(alias);
         boolean removed = doRemoveCertificate(alias);
         if (removed) {
-            return "Certificate [" + alias + "] has been successfully removed from the domibus truststore.";
+            return "Certificate [" + alias + "] has been successfully removed from the [" + getStoreName() + "] truststore.";
         }
-        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the [" + getStoreName() + "].");
+        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the [" + getStoreName() + "] because it does not exist.");
     }
 
     protected abstract boolean doRemoveCertificate(String alias);
