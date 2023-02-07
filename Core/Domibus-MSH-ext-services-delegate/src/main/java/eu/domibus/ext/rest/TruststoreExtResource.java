@@ -132,7 +132,7 @@ public class TruststoreExtResource {
 
     @Operation(summary = "Add Certificate", description = "Add Certificate to the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PostMapping(value = "/entries")
+    @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
                                  @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
