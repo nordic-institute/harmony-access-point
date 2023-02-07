@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -32,6 +33,9 @@ public class TLSReaderTest {
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomibusLocalCacheService domibusLocalCacheService;
 
     @Tested
     private TLSReaderServiceImpl tlsReader;
