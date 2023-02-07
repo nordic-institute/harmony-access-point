@@ -13,6 +13,9 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
+import eu.domibus.plugin.handler.MessagePuller;
+import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +38,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
-    protected MessageRetrieverExtService messageRetriever;
+    protected MessageRetriever messageRetriever;
 
     @Autowired
-    protected MessageSubmitterExtService messageSubmitter;
+    protected MessageSubmitter messageSubmitter;
 
     @Autowired
-    protected MessagePullerExtService messagePuller;
+    protected MessagePuller messagePuller;
 
     @Autowired
     protected MessageExtService messageExtService;
@@ -63,7 +66,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = messageSubmitter.submit(messageData, this.getName());
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
