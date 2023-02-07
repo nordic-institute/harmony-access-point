@@ -2,6 +2,7 @@ package eu.domibus.ext.rest.error;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.AuthenticationException;
@@ -65,6 +66,11 @@ public class ExtExceptionHelper {
             return createResponseFromCoreException(cause, HttpStatus.BAD_REQUEST);
         }
 
+        if (cause instanceof DomibusCertificateException) {
+//            Throwable innerCause = extractCause(cause);
+            return createResponse(cause, HttpStatus.BAD_REQUEST, true);
+        }
+
         //other exceptions wrapped by interceptors
         return createResponse(cause);
     }
@@ -86,7 +92,14 @@ public class ExtExceptionHelper {
     }
 
     protected ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
-        String errorMessage = showErrorDetails ? ex.getMessage() : "A server error occurred";
+        String errorMessage = "A server error occurred";
+        if (showErrorDetails) {
+            errorMessage = ex.getMessage();
+            Throwable cause = extractCause(ex);
+            if (cause != null) {
+                errorMessage += ":" + cause.getMessage();
+            }
+        }
         LOG.error(errorMessage, ex);
 
         HttpHeaders headers = new HttpHeaders();
