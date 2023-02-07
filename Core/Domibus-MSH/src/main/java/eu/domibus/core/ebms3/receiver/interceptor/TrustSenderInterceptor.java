@@ -75,7 +75,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Martini Federico
  * @since 3.3
  */
-@Service("trustSenderInterceptor")
+@Service
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
@@ -156,6 +156,12 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                 }
             }
         }
+
+        if (senderPartyName == null && receiverPartyName == null) {
+            LOG.debug("No message available for pulling");
+            return;
+        }
+
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
