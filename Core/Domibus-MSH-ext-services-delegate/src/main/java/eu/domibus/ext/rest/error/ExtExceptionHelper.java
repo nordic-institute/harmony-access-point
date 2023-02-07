@@ -60,6 +60,9 @@ public class ExtExceptionHelper {
             if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_009) {
                 return createResponse(cause, HttpStatus.NOT_FOUND, true);
             }
+            if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_011) {
+                return createResponse(cause, HttpStatus.CONFLICT, true);
+            }
             if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_002) {
                 return createResponse(cause, HttpStatus.UNAUTHORIZED, true);
             }

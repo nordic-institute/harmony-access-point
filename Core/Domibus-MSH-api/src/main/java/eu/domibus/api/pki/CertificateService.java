@@ -138,7 +138,6 @@ public interface CertificateService {
      * @param certificateContent the content of the certificate
      * @param alias              the name of the certificate
      * @param overwrite          if overwrite an existing certificate
-     *
      * @return the id of the store with {@param trustName}
      */
     boolean addCertificate(KeystorePersistenceInfo trustName, byte[] certificateContent, String alias, boolean overwrite);

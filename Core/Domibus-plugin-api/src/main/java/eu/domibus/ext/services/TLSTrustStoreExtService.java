@@ -31,7 +31,7 @@ public interface TLSTrustStoreExtService {
     /**
      * Upload a new version of the TLS truststore file
      *
-     * @param contentInfo     TLS truststore file wrapping class
+     * @param contentInfo TLS truststore file wrapping class
      */
     void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfo);
 

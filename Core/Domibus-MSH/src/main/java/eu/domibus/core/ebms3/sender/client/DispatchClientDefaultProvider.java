@@ -1,12 +1,11 @@
 package eu.domibus.core.ebms3.sender.client;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,6 +34,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.api.cache.DomibusLocalCacheService.DISPATCH_CLIENT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -98,7 +98,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         createWSServiceDispatcher("http://localhost:8080");
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DISPATCH_CLIENT, key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);

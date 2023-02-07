@@ -28,29 +28,30 @@ public interface TLSCertificateManager extends DomainsAware {
     /**
      * Returns the certificate entries found in the tls truststore pointed by the clientauthentication.xml file
      *
-     * @return
+     * @return the list of entries
      */
     List<TrustStoreEntry> getTrustStoreEntries();
 
     /**
      * Returns the tls truststore content pointed by the clientauthentication.xml file
      *
-     * @return
+     * @return the content object
      */
     KeyStoreContentInfo getTruststoreContent();
 
     /**
      * Adds the specified certificate to the tls truststore content pointed by the clientauthentication.xml file
-     * @param certificateData
-     * @param alias
-     * @return
+     * @param certificateData the content in bytes
+     * @param alias the name of the certificate
+     * @return true if the certificate was actually added, false otherwise
      */
     boolean addCertificate(byte[] certificateData, final String alias);
 
     /**
      * Removes the specified certificate from the tls truststore content pointed by the clientauthentication.xml file
-     * @param alias
-     * @return
+     *
+     * @param alias the name of the certificate
+     * @return true if the certificate was removed, false otherwise
      */
     boolean removeCertificate(String alias);
 

@@ -130,7 +130,7 @@ public class TLSTrustStoreExtResource {
 
     @Operation(summary = "Add Certificate", description = "Add Certificate to the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PostMapping(value = "/entries")
+    @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
@@ -150,7 +150,8 @@ public class TLSTrustStoreExtResource {
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
         tlsTruststoreExtService.removeCertificate(alias);
-        return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
+
+        return "Certificate [" + alias + "] has been successfully removed from the [" + TLS_TRUSTSTORE_NAME + "].";
     }
 
     private String getFileName() {

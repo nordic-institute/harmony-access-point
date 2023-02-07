@@ -170,6 +170,7 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <javassist.version>3.28.0-GA</javassist.version>
     </properties>
 
     <!-- Where to deploy the binaries -->

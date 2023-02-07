@@ -521,6 +521,16 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
+    public boolean isEnabled(final String domainCode) {
+        return doIsEnabled(domainCode);
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+        doSetEnabled(domainCode, enabled);
+    }
+
+    @Override
     public DomibusPropertyManagerExt getPropertyManager() {
         return fsPluginProperties;
     }
