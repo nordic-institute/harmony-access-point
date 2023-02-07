@@ -118,6 +118,7 @@ public class UserManagementServiceImpl implements UserService {
         try {
             userPersistenceService.updateUsers(users);
             if (!domibusConfigurationService.isMultiTenantAware()) {
+                LOG.debug("Check at least one admin exists.");
                 ensureAtLeastOneActiveAdmin();
             } else {
                 LOG.debug("No check for multitenancy: a super admin always exists.");
