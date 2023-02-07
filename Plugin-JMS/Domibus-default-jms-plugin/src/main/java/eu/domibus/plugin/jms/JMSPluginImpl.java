@@ -283,6 +283,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     @Override
+    public boolean isEnabled(final String domainCode) {
+        return doIsEnabled(domainCode);
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+        doSetEnabled(domainCode, enabled);
+    }
+
+    @Override
     public String getDomainEnabledPropertyName() {
         return JMSPLUGIN_DOMAIN_ENABLED;
     }
