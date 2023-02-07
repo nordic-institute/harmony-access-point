@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -59,8 +60,11 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService) {
+    private final DomibusLocalCacheService domibusLocalCacheService;
+
+    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService, DomibusLocalCacheService domibusLocalCacheService) {
         this.domibusConfigurationService = domibusConfigurationService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
     }
 
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
@@ -84,7 +88,8 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     @Override
     @CacheEvict(value = TLS_CACHE, key = "#domainCode")
     public void reset(String domainCode) {
-        LOG.trace("Evicting the TLS cache.");
+        LOG.trace("Evicting the TLS and dispatchClient caches.");
+        this.domibusLocalCacheService.clearCache(DomibusLocalCacheService.DISPATCH_CLIENT);
     }
 
     @Override
