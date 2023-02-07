@@ -2,8 +2,6 @@ package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -18,14 +16,12 @@ import eu.domibus.plugin.exception.TransformationException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
-import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
-import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -179,6 +175,16 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         return Stream.of(SEND_RETRY_JOB_NAME)
                 .map(CronJobInfoDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return doIsEnabled(domainCode);
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+        doSetEnabled(domainCode, enabled);
     }
 
     @Override

@@ -49,7 +49,7 @@ public interface EnableAware {
      * @return the name of the property
      */
     default String getDomainEnabledPropertyName() {
-        return getName() + ".domain.enabled";
+        return null;
     }
 
     /**

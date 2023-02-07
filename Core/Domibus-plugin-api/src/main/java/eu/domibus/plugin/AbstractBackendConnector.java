@@ -287,6 +287,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
+        return true;
+    }
+
+    protected boolean doIsEnabled(String domainCode) {
         DomibusPropertyManagerExt propertyManager = getPropertyManager();
         if (propertyManager != null) {
             String value = propertyManager.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
@@ -300,6 +304,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+    }
+
+    protected void doSetEnabled(String domainCode, boolean enabled) {
         String pluginName = getName();
         if (isEnabled(domainCode) == enabled) {
             LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
