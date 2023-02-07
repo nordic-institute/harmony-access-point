@@ -7,7 +7,7 @@
     <parent>
         <artifactId>plugin-ws</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>Domibus-default-ws-plugin-client</artifactId>
