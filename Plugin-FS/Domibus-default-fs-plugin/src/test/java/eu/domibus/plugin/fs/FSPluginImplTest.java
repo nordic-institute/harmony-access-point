@@ -110,6 +110,9 @@ public class FSPluginImplTest {
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
 
+    @Injectable
+    FSSendMessageListenerContainer fsSendMessageListenerContainer;
+
     @Tested
     FSPluginImpl backendFS;
 
