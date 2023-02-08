@@ -21,7 +21,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
+import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -30,10 +30,10 @@ import static org.junit.Assert.assertTrue;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class DomibusContextRefreshedListenerTest {
+public class DomibusApplicationContextListenerTest {
 
     @Tested
-    DomibusContextRefreshedListener domibusContextRefreshedListener;
+    DomibusApplicationContextListener domibusApplicationContextListener;
 
     @Injectable
     protected BackendFilterInitializerService backendFilterInitializerService;
@@ -79,7 +79,7 @@ public class DomibusContextRefreshedListenerTest {
             result = null;
         }};
 
-        domibusContextRefreshedListener.onApplicationEvent(event);
+        domibusApplicationContextListener.onApplicationEvent(event);
 
         new FullVerifications() {{
             encryptionService.handleEncryption();
@@ -102,7 +102,7 @@ public class DomibusContextRefreshedListenerTest {
             result = parent;
         }};
 
-        domibusContextRefreshedListener.onApplicationEvent(event);
+        domibusApplicationContextListener.onApplicationEvent(event);
 
         new FullVerifications() {{
             tlsCertificateManager.saveStoresFromDBToDisk();
@@ -144,7 +144,7 @@ public class DomibusContextRefreshedListenerTest {
             result = true;
         }};
 
-        assertTrue(domibusContextRefreshedListener.useLockForExecution());
+        assertTrue(domibusApplicationContextListener.useLockForExecution());
     }
 
     @Test
@@ -154,17 +154,17 @@ public class DomibusContextRefreshedListenerTest {
             result = false;
         }};
 
-        assertFalse(domibusContextRefreshedListener.useLockForExecution());
+        assertFalse(domibusApplicationContextListener.useLockForExecution());
     }
 
     @Test
     public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
-        new Expectations(domibusContextRefreshedListener) {{
-            domibusContextRefreshedListener.useLockForExecution();
+        new Expectations(domibusApplicationContextListener) {{
+            domibusApplicationContextListener.useLockForExecution();
             result = true;
         }};
 
-        domibusContextRefreshedListener.executeWithLockIfNeeded(task);
+        domibusApplicationContextListener.executeWithLockIfNeeded(task);
 
         new Verifications() {{
             domainTaskExecutor.submit(task, (Runnable) any, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);

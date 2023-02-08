@@ -77,7 +77,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         this.backendConnectorService = backendConnectorService;
     }
 
-    @PostConstruct
     public void initialize() {
         final List<Domain> domains = domainService.getDomains();
         createInstancesFor(domains);
