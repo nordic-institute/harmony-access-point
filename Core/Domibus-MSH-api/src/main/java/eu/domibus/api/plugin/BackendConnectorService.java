@@ -34,6 +34,5 @@ public interface BackendConnectorService {
 
     boolean isBackendConnectorEnabled(String backendName, String domainCode);
 
-
     boolean shouldCoreManageResources(String backendName);
 }

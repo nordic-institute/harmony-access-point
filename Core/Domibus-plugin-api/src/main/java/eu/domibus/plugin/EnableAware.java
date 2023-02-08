@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.PluginMessageListenerContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,10 @@ public interface EnableAware {
 
     default boolean shouldCoreManageResources() {
         return false;
+    }
+
+    default PluginMessageListenerContainer getMessageListenerContainerFactory() {
+        return null;
     }
 
     /**

@@ -33,10 +33,10 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
         this.applicationContext = applicationContext;
     }
 
-    @Override
-    public String getPluginName() {
-        return PLUGIN_NAME;
-    }
+//    @Override
+//    public String getPluginName() {
+//        return PLUGIN_NAME;
+//    }
 
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
