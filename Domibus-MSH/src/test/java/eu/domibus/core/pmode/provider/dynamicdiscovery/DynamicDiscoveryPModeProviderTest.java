@@ -48,14 +48,13 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.bind.JAXBContext;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -165,14 +164,14 @@ public class DynamicDiscoveryPModeProviderTest {
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
-        InputStream xmlStream = new FileInputStream(new File(RESOURCE_PATH + resourceXML));
+        InputStream xmlStream = Files.newInputStream(Paths.get(RESOURCE_PATH + resourceXML));
         JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
 
         UnmarshallerResult unmarshallerResult = xmlUtil.unmarshal(false, jaxbContext, xmlStream, null);
         assertNotNull(unmarshallerResult.getResult());
         assertTrue(unmarshallerResult.getResult() instanceof Configuration);
-        Configuration testData = (Configuration) unmarshallerResult.getResult();
+        Configuration testData = unmarshallerResult.getResult();
         assertTrue(initializeConfiguration(testData));
 
         return testData;
@@ -271,7 +270,7 @@ public class DynamicDiscoveryPModeProviderTest {
         expectedPartyIType.setValue(UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE);
         expectedIdentifier.setPartyIdType(expectedPartyIType);
         expectedParty.getIdentifiers().add(expectedIdentifier);
-        expectedParty.setEndpoint(dynamicDiscoveryPModeProvider.MSH_ENDPOINT);
+        expectedParty.setEndpoint(DynamicDiscoveryPModeProvider.MSH_ENDPOINT);
         assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(expectedParty));
     }
 
@@ -440,8 +439,6 @@ public class DynamicDiscoveryPModeProviderTest {
      * Build UserMessage for testing. Only the fields that are mandatory for the testing doDynamicThings are filled.
      */
     private UserMessage buildUserMessageForDoDynamicThingsWithArguments(String action, String serviceValue, String serviceType, String toPartyId, String toPartyIdType, String fromPartyId, String fromPartyIdType, String messageId) {
-
-        ObjectFactory ebmsObjectFactory = new ObjectFactory();
 
         UserMessage userMessageToBuild = new UserMessage();
 

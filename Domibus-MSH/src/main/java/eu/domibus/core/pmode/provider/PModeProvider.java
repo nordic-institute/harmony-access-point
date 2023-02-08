@@ -228,7 +228,8 @@ public abstract class PModeProvider {
         try {
             unmarshallerResult = xmlUtil.unmarshal(ignoreWhitespaces, jaxbContext, xmlStream, xsdStream);
             configuration = unmarshallerResult.getResult();
-        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException | NumberFormatException e) {
+        } catch (JAXBException | SAXException | ParserConfigurationException | XMLStreamException |
+                 NumberFormatException e) {
             LOG.error("Error unmarshalling the PMode", e);
             throw new XmlProcessingException("Error unmarshalling the PMode: " + e.getMessage(), e);
         }
@@ -254,7 +255,11 @@ public abstract class PModeProvider {
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
+        return findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, false);
+    }
 
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         final String agreementName;
         final String service;
         final String action;
@@ -282,7 +287,7 @@ public abstract class PModeProvider {
             LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
 
             final Role initiatorRole = findInitiatorRole(userMessage);
-            final Role responderRole = findResponderRole(userMessage);
+            final Role responderRole = findResponderRole(userMessage, beforeDynamicDiscovery);
 
             service = findServiceName(userMessage.getService());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getService());
@@ -385,10 +390,12 @@ public abstract class PModeProvider {
         return receiverParty;
     }
 
-    protected Role findResponderRole(UserMessage userMessage) throws EbMS3Exception {
+    protected Role findResponderRole(UserMessage userMessage, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         String responderRole = userMessage.getPartyInfo().getTo().getRoleValue();
         if (StringUtils.isBlank(responderRole)) {
-            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To Role");
+            if(!beforeDynamicDiscovery) {
+                LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, beforeDynamicDiscovery, "To Role");
+            }
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Mandatory field Receiver Role is not provided.")

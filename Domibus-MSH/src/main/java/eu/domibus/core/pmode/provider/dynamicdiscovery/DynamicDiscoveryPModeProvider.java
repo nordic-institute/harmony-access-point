@@ -25,7 +25,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
@@ -169,7 +168,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Override
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
         try {
-            return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
+            return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
         } catch (final EbMS3Exception e) {
             if (useDynamicDiscovery()) {
                 LOG.info("PmodeKey not found, starting the dynamic discovery process");
@@ -180,7 +179,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             }
         }
         LOG.debug("Recalling findUserMessageExchangeContext after the dynamic discovery");
-        return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
+        return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, false);
     }
 
     protected void doDynamicDiscovery(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
