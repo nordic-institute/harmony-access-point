@@ -204,7 +204,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     private void createMessageListenerContainerFor(String pluginName, Domain domain, String beanName, PluginMessageListenerContainer containerFactory) {
-        if (pluginName != null && backendConnectorService.shouldCoreManageResources(pluginName)) {
+        if (StringUtils.isNotBlank(pluginName) && backendConnectorService.shouldCoreManageResources(pluginName)) {
             if (!backendConnectorService.isBackendConnectorEnabled(pluginName, domain.getCode())) {
                 LOG.info("Message listener container for plugin [{}] and domain [{}] is not enabled so exiting.", pluginName, domain);
                 return;
@@ -351,7 +351,8 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         return instances.stream()
                 .filter(instance -> instance instanceof PluginDomainMessageListenerContainerAdapter)
                 .map(instance -> (PluginDomainMessageListenerContainerAdapter) instance)
-                .filter(instance -> instance.getDomain().equals(domain) && StringUtils.equals(instance.getPluginName(), backendName))
+                .filter(instance -> instance.getDomain().equals(domain))
+                .filter(instance -> StringUtils.equals(instance.getPluginName(), backendName))
                 .collect(Collectors.toList());
     }
 
