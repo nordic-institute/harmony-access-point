@@ -2,6 +2,7 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.TrustStoreEntryDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public interface TLSTrustStoreExtService {
      *
      * @return list of {@code TrustStoreDTO}
      */
-    List<TrustStoreDTO> getTrustStoreEntries();
+    List<TrustStoreEntryDTO> getTrustStoreEntries();
 
     /**
      * Upload a new version of the TLS truststore file

@@ -5,10 +5,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.ErrorDTO;
-import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
@@ -82,7 +79,7 @@ public class TLSTrustStoreExtResource {
     @Operation(summary = "Get TLS truststore entries", description = "Get the TLS truststore details",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = {"/entries"})
-    public List<TrustStoreDTO> getTLSTruststoreEntries() {
+    public List<TrustStoreEntryDTO> getTLSTruststoreEntries() {
         return tlsTruststoreExtService.getTrustStoreEntries();
     }
 

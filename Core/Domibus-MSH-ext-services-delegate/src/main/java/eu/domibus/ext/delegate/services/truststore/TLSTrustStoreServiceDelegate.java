@@ -8,6 +8,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.TrustStoreEntryDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.services.TLSTrustStoreExtService;
 import org.springframework.stereotype.Service;
@@ -43,10 +44,10 @@ public class TLSTrustStoreServiceDelegate implements TLSTrustStoreExtService {
     }
 
     @Override
-    public List<TrustStoreDTO> getTrustStoreEntries() {
+    public List<TrustStoreEntryDTO> getTrustStoreEntries() {
         try {
             List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-            return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
+            return domibusExtMapper.trustStoreEntriesToTrustStoresEntriesDTO(trustStoreEntries);
         } catch (Exception ex) {
             throw new TruststoreExtException(ex);
         }
