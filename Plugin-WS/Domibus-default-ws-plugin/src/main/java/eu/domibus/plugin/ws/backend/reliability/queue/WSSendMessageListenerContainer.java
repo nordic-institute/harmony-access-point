@@ -34,11 +34,6 @@ public class WSSendMessageListenerContainer implements PluginMessageListenerCont
         this.wsPluginOutContainerProvider = wsPluginOutContainerProvider;
     }
 
-//    @Override
-//    public String getPluginName() {
-//        return PLUGIN_NAME;
-//    }
-
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
         LOG.debug("Creating the WSSendMessageListenerContainer for domain [{}]", domain);
