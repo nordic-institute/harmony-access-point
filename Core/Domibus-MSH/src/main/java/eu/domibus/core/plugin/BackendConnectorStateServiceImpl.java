@@ -37,7 +37,6 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     protected final RoutingService routingService;
     protected final BackendConnectorService backendConnectorService;
 
-
     public BackendConnectorStateServiceImpl(DomainService domainService, MessageListenerContainerInitializer messageListenerContainerInitializer,
                                             DomibusScheduler domibusScheduler, BackendConnectorProvider backendConnectorProvider, RoutingService routingService,
                                             BackendConnectorService backendConnectorService) {
@@ -52,7 +51,6 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     @Override
     public void backendConnectorEnabled(String backendName, String domainCode) {
         domainService.validateDomain(domainCode);
-
 
         Domain domain = domainService.getDomain(domainCode);
         if (backendConnectorService.shouldCoreManageResources(backendName)) {
