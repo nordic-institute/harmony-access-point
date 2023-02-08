@@ -182,7 +182,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
         LOG.debug("Creating message listener container for plugin [{}] and domain [{}] ", pluginName, domain);
 
-
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
         MessageListenerContainer instance = containerFactory.createMessageListenerContainer(domainDTO);
         if (instance == null) {

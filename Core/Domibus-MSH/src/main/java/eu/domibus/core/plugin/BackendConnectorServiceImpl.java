@@ -110,8 +110,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     }
 
     @Override
-    public boolean supportsDynamicResourceManagement(String backendName) {
-
+    public boolean shouldCoreManageResources(String backendName) {
         if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
             LOG.debug("Test Backend connector; returning false; ");
             return false;

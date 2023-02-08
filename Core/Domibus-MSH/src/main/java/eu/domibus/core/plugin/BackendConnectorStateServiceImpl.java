@@ -55,7 +55,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
 
 
         Domain domain = domainService.getDomain(domainCode);
-        if (backendConnectorService.supportsDynamicResourceManagement(backendName)) {
+        if (backendConnectorService.shouldCoreManageResources(backendName)) {
             LOG.debug("Enabling plugin [{}] on domain [{}]; creating resources for it.", backendName, domainCode);
             messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
             resumeJobs(backendName, domain);
@@ -74,7 +74,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
                     , backendName, domainCode));
         }
 
-        if (backendConnectorService.supportsDynamicResourceManagement(backendName)) {
+        if (backendConnectorService.shouldCoreManageResources(backendName)) {
             LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
             Domain domain = domainService.getDomain(domainCode);
             messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
