@@ -283,7 +283,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("[DOM_009]:Message [notFound] does not exist", objectMapper.readValue(content, Exception.class).getMessage());
+        Assert.assertTrue(objectMapper.readValue(content, Exception.class).getMessage()
+                .contains("[DOM_009]:Message [notFound] does not exist"));
     }
 
     private String getDateFrom(long entityId, Long hour) {

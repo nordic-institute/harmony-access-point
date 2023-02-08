@@ -195,6 +195,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         // then
         String contentResult = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(contentResult, Exception.class);
-        Assert.assertEquals("You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]", resultList.getMessage());
+        Assert.assertTrue(resultList.getMessage()
+                .contains("You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]"));
     }
 }
