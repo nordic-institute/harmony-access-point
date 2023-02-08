@@ -84,4 +84,6 @@ public interface DomibusExtMapper {
     KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoDTO(KeyStoreContentInfo content);
 
     KeyStoreContentInfo keyStoreContentInfoDTOToKeyStoreContentInfo(KeyStoreContentInfoDTO contentInfoDTO);
+
+    List<TrustStoreEntryDTO> trustStoreEntriesToTrustStoresEntriesDTO(List<TrustStoreEntry> trustStoreEntries);
 }

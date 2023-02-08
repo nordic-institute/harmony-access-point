@@ -2,6 +2,7 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.TrustStoreEntryDTO;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface TrustStoreExtService {
      *
      * @return list of {@code TrustStoreDTO}
      */
-    List<TrustStoreDTO> getTrustStoreEntries();
+    List<TrustStoreEntryDTO> getTrustStoreEntries();
 
     /**
      * Upload a new version of the truststore file

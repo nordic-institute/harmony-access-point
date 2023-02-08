@@ -9,7 +9,7 @@ import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.domain.TrustStoreEntryDTO;
 import eu.domibus.ext.exceptions.TruststoreExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
@@ -107,7 +107,7 @@ public class TruststoreExtResource {
     @Operation(summary = "Get truststore entries", description = "Get the truststore details",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(value = {"/entries"})
-    public List<TrustStoreDTO> getTruststoreEntries() {
+    public List<TrustStoreEntryDTO> getTruststoreEntries() {
         return truststoreExtService.getTrustStoreEntries();
     }
 
