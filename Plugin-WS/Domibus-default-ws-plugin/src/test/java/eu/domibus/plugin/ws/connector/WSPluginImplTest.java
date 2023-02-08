@@ -21,6 +21,8 @@ import java.util.List;
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
 import static org.junit.Assert.assertEquals;
 
+import eu.domibus.plugin.ws.backend.reliability.queue.*;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -81,6 +83,9 @@ public class WSPluginImplTest {
 
     @Injectable
     DomainExtService domainExtService;
+
+    @Injectable
+    WSSendMessageListenerContainer wsSendMessageListenerContainer;
 
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,
