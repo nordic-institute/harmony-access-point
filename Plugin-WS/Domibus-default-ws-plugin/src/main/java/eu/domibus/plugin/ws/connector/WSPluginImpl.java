@@ -65,7 +65,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
-    public boolean supportsDynamicResourceManagement() {
+    public boolean shouldCoreManageResources() {
         return true;
     }
 

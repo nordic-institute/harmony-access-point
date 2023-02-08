@@ -71,7 +71,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     @Override
-    public boolean supportsDynamicResourceManagement() {
+    public boolean shouldCoreManageResources() {
         return true;
     }
 

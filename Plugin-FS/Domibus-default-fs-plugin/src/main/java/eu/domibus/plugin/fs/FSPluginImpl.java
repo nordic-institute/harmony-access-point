@@ -112,7 +112,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    public boolean supportsDynamicResourceManagement() {
+    public boolean shouldCoreManageResources() {
         return true;
     }
 

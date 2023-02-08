@@ -123,7 +123,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
         }
 
         EnableAware enableAware = (EnableAware) plugin;
-        return enableAware.supportsDynamicResourceManagement();
+        return enableAware.shouldCoreManageResources();
     }
 
     @Override
