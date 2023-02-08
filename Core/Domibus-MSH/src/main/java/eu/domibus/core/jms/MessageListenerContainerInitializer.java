@@ -106,6 +106,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     public void createMessageListenersForPlugin(String backendName, Domain domain) {
         if (backendName == null) {
+            LOG.info("Backend name provided is null, exiting.");
             return;
         }
 
@@ -116,13 +117,14 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
         EnableAware backend = backendConnectorProvider.getEnableAware(backendName);
         if (backend == null) {
+            LOG.info("Could not find backend named [{}], exiting.", backendName);
             return;
         }
 
         final Optional<Map.Entry<String, PluginMessageListenerContainer>> entry = applicationContext.getBeansOfType(PluginMessageListenerContainer.class).entrySet()
                 .stream().filter(el -> el.getValue().equals(backend.getMessageListenerContainerFactory())).findFirst();
         if (!entry.isPresent()) {
-            LOG.info("Could not find plugin message listener container for [{}] on domain [{}]; exiting", backendName, domain);
+            LOG.warn("Could not find plugin message listener container for [{}] on domain [{}]; exiting", backendName, domain);
             return;
         }
 
@@ -180,11 +182,23 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
 
+        // there can be older plugins which do not have message listener container declared on the backend connector
+        // so we must find them lik this
         for (Map.Entry<String, PluginMessageListenerContainer> entry : beansOfType.entrySet()) {
             PluginMessageListenerContainer pluginMLCFactory = entry.getValue();
             String beanName = entry.getKey();
+            // if it is a new plugin, we can get the message listener container on the backend connector interface itself
+            // and we get the name this way
             Optional<EnableAware> found = plugins.stream().filter(plugin -> plugin.getMessageListenerContainerFactory() == pluginMLCFactory).findFirst();
-            String pluginName = found.isPresent() ? found.get().getName() : null;
+            String pluginName = null;
+            if (found.isPresent()) {
+                pluginName = found.get().getName();
+                LOG.debug("Could find the plugin name [{}] for plugin message listener container factory [{}], so it is 5.1 version or higher.",
+                        pluginName, beanName);
+            } else {
+                LOG.debug("Could not find the plugin name for plugin message listener container factory [{}], so it is 5.0 version or lower.",
+                        beanName);
+            }
             createMessageListenerContainerFor(pluginName, domain, beanName, pluginMLCFactory);
         }
     }
@@ -197,7 +211,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             }
         } // else pluginName is null for old plugins - backwards compatibility
 
-//        pluginName = beanName;
         LOG.debug("Creating message listener container for plugin [{}] and domain [{}] ", pluginName, domain);
 
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);

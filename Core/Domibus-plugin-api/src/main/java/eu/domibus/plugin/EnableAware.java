@@ -18,14 +18,6 @@ import java.util.List;
 public interface EnableAware {
     static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EnableAware.class);
 
-    default boolean shouldCoreManageResources() {
-        return false;
-    }
-
-    default PluginMessageListenerContainer getMessageListenerContainerFactory() {
-        return null;
-    }
-
     /**
      * @return The name of the plugin
      */
@@ -73,6 +65,22 @@ public interface EnableAware {
      * @return defaults to null
      */
     default DomibusPropertyManagerExt getPropertyManager() {
+        return null;
+    }
+
+    /**
+     * Tells Domibus if it should manage resources (message listener containers and cron jobs) or the plugin does this
+     * @return true if Domibus manages them
+     */
+    default boolean shouldCoreManageResources() {
+        return false;
+    }
+
+    /**
+     * The Message Listener Container factory of the plugin: used by Domibus to manage these resources
+     * @return a reference to the PluginMessageListenerContainer service
+     */
+    default PluginMessageListenerContainer getMessageListenerContainerFactory() {
         return null;
     }
 }
