@@ -2,6 +2,7 @@ package eu.domibus.core.plugin;
 
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,7 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
 
     /**
      * Retrieves the list of all backend connectors (plugins)
+     *
      * @return the list mentioned above
      */
     @Override
@@ -54,6 +56,11 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
                 .filter(connector -> connector instanceof EnableAware)
                 .map(connector -> (EnableAware) connector)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EnableAware getEnableAware(String name) {
+        return getEnableAwares().stream().filter(plugin -> StringUtils.equals(plugin.getName(), name)).findFirst().orElse(null);
     }
 
 }

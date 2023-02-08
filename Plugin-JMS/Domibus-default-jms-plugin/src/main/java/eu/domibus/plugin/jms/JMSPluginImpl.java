@@ -71,6 +71,11 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     @Override
+    public boolean shouldCoreManageResources() {
+        return true;
+    }
+
+    @Override
     public MessageSubmissionTransformer<MapMessage> getMessageSubmissionTransformer() {
         return this.jmsMessageTransformer;
     }

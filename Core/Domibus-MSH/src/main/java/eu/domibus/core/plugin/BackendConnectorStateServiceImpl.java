@@ -2,6 +2,7 @@ package eu.domibus.core.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.exception.ConfigurationException;
@@ -34,26 +35,29 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     protected final DomibusScheduler domibusScheduler;
     protected final BackendConnectorProvider backendConnectorProvider;
     protected final RoutingService routingService;
+    protected final BackendConnectorService backendConnectorService;
 
     public BackendConnectorStateServiceImpl(DomainService domainService, MessageListenerContainerInitializer messageListenerContainerInitializer,
-                                            DomibusScheduler domibusScheduler, BackendConnectorProvider backendConnectorProvider, RoutingService routingService) {
+                                            DomibusScheduler domibusScheduler, BackendConnectorProvider backendConnectorProvider, RoutingService routingService,
+                                            BackendConnectorService backendConnectorService) {
         this.domainService = domainService;
         this.messageListenerContainerInitializer = messageListenerContainerInitializer;
         this.domibusScheduler = domibusScheduler;
         this.backendConnectorProvider = backendConnectorProvider;
         this.routingService = routingService;
+        this.backendConnectorService = backendConnectorService;
     }
 
     @Override
     public void backendConnectorEnabled(String backendName, String domainCode) {
         domainService.validateDomain(domainCode);
 
-        LOG.debug("Enabling plugin [{}] on domain [{}]; creating resources for it.", backendName, domainCode);
-
         Domain domain = domainService.getDomain(domainCode);
-        messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
-
-        resumeJobs(backendName, domain);
+        if (backendConnectorService.shouldCoreManageResources(backendName)) {
+            LOG.debug("Enabling plugin [{}] on domain [{}]; creating resources for it.", backendName, domainCode);
+            messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
+            resumeJobs(backendName, domain);
+        }
 
         routingService.refreshBackendFilters();
     }
@@ -68,12 +72,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
                     , backendName, domainCode));
         }
 
-        LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
-
-        Domain domain = domainService.getDomain(domainCode);
-        messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
-
-        pauseJobs(backendName, domain);
+        if (backendConnectorService.shouldCoreManageResources(backendName)) {
+            LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
+            Domain domain = domainService.getDomain(domainCode);
+            messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
+            pauseJobs(backendName, domain);
+        }
 
         routingService.refreshBackendFilters();
     }
