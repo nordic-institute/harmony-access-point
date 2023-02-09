@@ -75,6 +75,7 @@ import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -880,13 +881,23 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = null;
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
-                extension = fileServiceUtil.getExtension(property.getValue());
-                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
+        String mimeType = "";
+        Optional<PartProperty> mimeTypeProperty = info.getPartProperties().stream()
+                .filter(partProperty -> COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName()))
+                .findFirst();
+        if(mimeTypeProperty.isPresent()){
+            mimeType = mimeTypeProperty.get().getValue();
+        }
+        else {
+            mimeTypeProperty = info.getPartProperties().stream()
+                    .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()))
+                    .findFirst();
+            if(mimeTypeProperty.isPresent()){
+                mimeType = mimeTypeProperty.get().getValue();
             }
         }
+        String extension = fileServiceUtil.getExtension(mimeType);
+        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         return extension;
     }
 
