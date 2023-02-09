@@ -6,21 +6,21 @@ package eu.domibus.ext.exceptions;
  * @author Soumya Chnadran
  * @since 5.1
  */
-public class TruststoreExtException extends DomibusServiceExtException {
+public class CryptoExtException extends DomibusServiceExtException {
 
-    public TruststoreExtException(DomibusErrorCode errorCode, String message) {
+    public CryptoExtException(DomibusErrorCode errorCode, String message) {
         super(errorCode, message);
     }
 
-    public TruststoreExtException(DomibusErrorCode errorCode, String message, Throwable throwable) {
+    public CryptoExtException(DomibusErrorCode errorCode, String message, Throwable throwable) {
         super(errorCode, message, throwable);
     }
 
-    public TruststoreExtException(Throwable cause) {
+    public CryptoExtException(Throwable cause) {
         this(DomibusErrorCode.DOM_003, cause.getMessage(), cause);
     }
 
-    public TruststoreExtException(String message) {
+    public CryptoExtException(String message) {
         this(DomibusErrorCode.DOM_003, message);
     }
 

@@ -9,7 +9,8 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.exceptions.TruststoreExtException;
+import eu.domibus.ext.exceptions.CryptoExtException;
+import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
@@ -74,8 +75,8 @@ public class TLSTrustStoreExtResource {
         this.domibusConfigurationExtService = domibusConfigurationExtService;
     }
 
-    @ExceptionHandler(TruststoreExtException.class)
-    protected ResponseEntity<ErrorDTO> handleTrustStoreExtException(TruststoreExtException e) {
+    @ExceptionHandler(CryptoExtException.class)
+    protected ResponseEntity<ErrorDTO> handleTrustStoreExtException(CryptoExtException e) {
         return extExceptionHelper.handleExtException(e);
     }
 
@@ -124,7 +125,11 @@ public class TLSTrustStoreExtResource {
         }
 
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
-        tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
+        try {
+            tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
+        } catch (SameResourceCryptoExtException ex) {
+            return String.format("Truststore [%s] has not been replaced with file [%s] because it is identical.", ex.getName(), ex.getLocation());
+        }
         return "TLS truststore file has been successfully replaced.";
     }
 

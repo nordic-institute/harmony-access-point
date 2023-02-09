@@ -9,13 +9,12 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.crypto.spi.CertificateEntrySpi;
-import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.core.crypto.spi.DomainSpi;
-import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
+import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -171,19 +170,37 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
-        iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
+        try {
+            iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
+        } catch (SameResourceCryptoSpiException ex) {
+            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+        } catch (CryptoSpiException ex) {
+            throw new CryptoException(ex);
+        }
     }
 
     @Override
     public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
+        try {
+            KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
+            iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
+        } catch (SameResourceCryptoSpiException ex) {
+            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+        } catch (CryptoSpiException ex) {
+            throw new CryptoException(ex);
+        }
     }
 
     @Override
     public void replaceKeyStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
-        KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoSpi(storeInfo);
-        iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
+        try {
+            KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
+            iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
+        } catch (SameResourceCryptoSpiException ex) {
+            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+        } catch (CryptoSpiException ex) {
+            throw new CryptoException(ex);
+        }
     }
 
     @Override

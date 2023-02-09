@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.truststore;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
-import eu.domibus.ext.exceptions.TruststoreExtException;
+import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,7 +27,7 @@ public class TLSTrustStoreServiceInterceptor extends ServiceInterceptor {
 
     @Override
     public Exception convertCoreException(Exception e) {
-        return new TruststoreExtException(e);
+        return new CryptoExtException(e);
     }
 
     @Override

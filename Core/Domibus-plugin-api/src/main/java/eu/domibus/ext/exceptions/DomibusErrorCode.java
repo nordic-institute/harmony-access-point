@@ -46,7 +46,16 @@ public enum DomibusErrorCode {
     /**
      * Not found exception
      */
-    DOM_009("009");
+    DOM_009("009"),
+    /**
+     * Party not reachable exception
+     */
+    DOM_010("010"),
+    /**
+     * Duplicate found exception
+     */
+    DOM_011("011"),
+    ;
 
     private String errorCode;
 
