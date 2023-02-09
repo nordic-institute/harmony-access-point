@@ -153,6 +153,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
         MSHRole role = MSHRole.valueOf(mshRole.name());
+
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         if (userMessageLog == null) {
             throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
