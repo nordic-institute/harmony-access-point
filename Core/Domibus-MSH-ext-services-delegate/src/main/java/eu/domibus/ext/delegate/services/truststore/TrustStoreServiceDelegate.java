@@ -10,7 +10,6 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.domain.TrustStoreEntryDTO;
 import eu.domibus.ext.services.TrustStoreExtService;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +49,9 @@ public class TrustStoreServiceDelegate implements TrustStoreExtService {
     }
 
     @Override
-    public List<TrustStoreEntryDTO> getTrustStoreEntries() {
+    public List<TrustStoreDTO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
-        return domibusExtMapper.trustStoreEntriesToTrustStoresEntriesDTO(trustStoreEntries);
+        return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package eu.domibus.ext.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
@@ -41,6 +42,7 @@ public class TrustStoreDTO {
         this.issuer = issuer;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public Date getValidFrom() {
         return validFrom;
     }
@@ -49,6 +51,7 @@ public class TrustStoreDTO {
         this.validFrom = validFrom;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public Date getValidUntil() {
         return validUntil;
     }

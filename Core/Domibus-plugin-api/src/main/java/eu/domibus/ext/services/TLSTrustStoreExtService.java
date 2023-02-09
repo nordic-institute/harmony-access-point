@@ -2,8 +2,6 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.domain.TrustStoreEntryDTO;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public interface TLSTrustStoreExtService {
      *
      * @return list of {@code TrustStoreDTO}
      */
-    List<TrustStoreEntryDTO> getTrustStoreEntries();
+    List<TrustStoreDTO> getTrustStoreEntries();
 
     /**
      * Upload a new version of the TLS truststore file
@@ -40,7 +38,7 @@ public interface TLSTrustStoreExtService {
      * Adds the specified certificate to the TLS truststore pointed by the parameters
      *
      * @param fileContent the content of the certificate
-     * @param alias           the name of the certificate
+     * @param alias       the name of the certificate
      */
     void addCertificate(byte[] fileContent, String alias);
 

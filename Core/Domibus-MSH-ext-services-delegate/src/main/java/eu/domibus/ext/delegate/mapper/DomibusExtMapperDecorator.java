@@ -2,17 +2,12 @@ package eu.domibus.ext.delegate.mapper;
 
 
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.domain.TrustStoreEntryDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -52,21 +47,6 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper {
         JmsMessage jmsMessage = delegate.jmsMessageDTOToJmsMessage(jmsMessageDTO);
         jmsMessage.setProperties(convertDTO(jmsMessageDTO.getProperties()));
         return jmsMessage;
-    }
-
-    @Override
-    public List<TrustStoreEntryDTO> trustStoreEntriesToTrustStoresEntriesDTO(List<TrustStoreEntry> trustStoreEntries) {
-        if (trustStoreEntries == null) {
-            LOG.trace("Convert 'null' trustStoreEntries parameter to 'null' TrustStoreEntryDTO!");
-            return null;
-        }
-        List<TrustStoreEntryDTO> list = delegate.trustStoreEntriesToTrustStoresEntriesDTO(trustStoreEntries);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).setValidFrom(simpleDateFormat.format(trustStoreEntries.get(i).getValidFrom()));
-            list.get(i).setValidUntil(simpleDateFormat.format(trustStoreEntries.get(i).getValidUntil()));
-        }
-        return list;
     }
 
     protected Map<String, String> convertDTO(Map<String, Object> properties) {
