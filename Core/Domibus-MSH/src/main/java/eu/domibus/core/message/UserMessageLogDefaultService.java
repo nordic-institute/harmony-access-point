@@ -173,6 +173,11 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         return userMessageLogDao.findByMessageId(messageId);
     }
 
+    @Override
+    public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
+        return userMessageLogDao.findByMessageId(messageId, mshRole);
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);
