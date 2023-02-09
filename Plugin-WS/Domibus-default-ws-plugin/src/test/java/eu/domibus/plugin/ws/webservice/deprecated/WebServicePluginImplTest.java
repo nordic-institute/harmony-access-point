@@ -164,7 +164,7 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
             @Injectable StatusRequest statusRequest,
-            @Injectable MessageRetrieverExtService messageRetriever) throws StatusFault {
+            @Injectable MessageRetriever messageRetriever) throws StatusFault {
         new Expectations() {{
             statusRequest.getMessageID();
             result = MESSAGE_ID;

@@ -37,6 +37,9 @@ export class ManageBackendsComponent extends EditPopupBaseComponent {
 
     try {
       let propName = row.enabledPropertyName;
+      if (!propName) {
+        throw new Error(`Backend connector doesn't have a property for enabled!`);
+      }
       let prop: PropertyModel = await this.propertiesService.getProperty(propName);
       prop.value = newValue + '';
       await this.propertiesService.updateProperty(prop);

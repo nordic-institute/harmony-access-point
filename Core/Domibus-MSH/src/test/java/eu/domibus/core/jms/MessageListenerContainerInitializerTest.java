@@ -8,6 +8,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -50,6 +51,9 @@ public class MessageListenerContainerInitializerTest {
 
     @Injectable
     BackendConnectorService backendConnectorService;
+
+    @Injectable
+    BackendConnectorProvider backendConnectorProvider;
 
     @Tested
     MessageListenerContainerInitializer messageListenerContainerInitializer;

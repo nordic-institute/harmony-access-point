@@ -402,9 +402,10 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     protected ListPushFailedMessagesRequest getValidListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
         String messageId = listPushFailedMessagesRequest.getMessageId();
-        ListPushFailedMessagesRequest pushFailedMessagesRequest= new ListPushFailedMessagesRequest();
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
 
-        if (StringUtils.isEmpty(messageId)) {
+        //Since message id is an optional parameter in the request the exception throws only when the message id exists but it is empty.
+        if (messageId != null && StringUtils.isBlank(messageId)) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
         }
@@ -453,26 +454,28 @@ public class WebServiceImpl implements WebServicePluginInterface {
         List<String> trimmedMessageIds = new ArrayList<>();
         ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
         for (String messageId : messageIds) {
+            String trimmedMessageId = messageExtService.cleanMessageIdentifier(messageId);
 
-            if (StringUtils.isEmpty(messageId)) {
+            if (StringUtils.isEmpty(trimmedMessageId)) {
                 LOG.error(MESSAGE_ID_EMPTY);
                 throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
             }
+
             if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
             }
-            pushFailedMessagesRequest.setMessageId(messageId);
+            pushFailedMessagesRequest.setMessageId(trimmedMessageId);
             ListPushFailedMessagesResponse response;
             try {
                 response = listPushFailedMessages(pushFailedMessagesRequest);
             } catch (ListPushFailedMessagesFault ex) {
                 throw new RePushFailedMessagesFault(" List Push Failed Messages has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, ex.getMessage()));
             }
-            if (!response.getMessageID().contains(messageId)) {
+            if (!response.getMessageID().contains(trimmedMessageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
             }
 
-            trimmedMessageIds.add(StringUtils.trim(messageId));
+            trimmedMessageIds.add(trimmedMessageId);
         }
         return trimmedMessageIds;
     }
@@ -640,9 +643,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
 
-        validateMessageId(statusRequest.getMessageID());
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+
+        validateMessageId(trimmedMessageId);
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
@@ -655,13 +658,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
 
-        validateMessageId(statusRequestWithAccessPointRole.getMessageID());
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
+
+        validateMessageId(trimmedMessageId);
 
         validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
 
         MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-
-        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
     }
@@ -688,7 +691,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequest.getMessageID();
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequest.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
@@ -712,8 +715,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public ErrorResultImplArray getMessageErrorsWithAccessPointRole(GetErrorsRequestWithAccessPointRole messageErrorsRequestWithAccessPointRole) throws GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequestWithAccessPointRole.getMessageID();
-
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequestWithAccessPointRole.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
 
         if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
