@@ -643,9 +643,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
 
-        validateMessageId(statusRequest.getMessageID());
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+
+        validateMessageId(trimmedMessageId);
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
@@ -658,13 +658,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
 
-        validateMessageId(statusRequestWithAccessPointRole.getMessageID());
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
+
+        validateMessageId(trimmedMessageId);
 
         validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
 
         MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-
-        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
 
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
     }
@@ -691,7 +691,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequest.getMessageID();
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequest.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
@@ -715,8 +715,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public ErrorResultImplArray getMessageErrorsWithAccessPointRole(GetErrorsRequestWithAccessPointRole messageErrorsRequestWithAccessPointRole) throws GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequestWithAccessPointRole.getMessageID();
-
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequestWithAccessPointRole.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
 
         if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
