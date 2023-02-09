@@ -11,6 +11,7 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -109,6 +110,9 @@ public class FSPluginImplTest {
 
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
+
+    @Injectable
+    FSSendMessageListenerContainer fsSendMessageListenerContainer;
 
     @Tested
     FSPluginImpl backendFS;

@@ -1,4 +1,5 @@
 Domibus 5.1
+- Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
 - Added a new method to the WS plugin interface to getStatus based on the messageId and the role of the access Point. The old method to getStatus based on messageId is marked as deprecated.
 - Removed domainValidity cache since the call to validate domains is done once now.
 - Replaced old Backend interface from the WS plugin distribution with the new wsplugin interface (wsdl and xsds)
@@ -13,7 +14,6 @@ Domibus 5.1
 - Progressive retry feature introduced (in addition to constant). Retry attempts can now be scheduled with gradually increasing intervals
 - Files can be sent to WS Plugin as references to the filesystem
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
-- Added Security Profiles in order to support different security certificates for signing and encryption
 - Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
 Domibus 5.0.4
 - Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)

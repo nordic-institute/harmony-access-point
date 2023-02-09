@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
-import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
@@ -10,6 +9,7 @@ import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListenerContainer;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -49,10 +49,11 @@ public class WebServiceConfiguration {
                                              StubDtoTransformer defaultTransformer,
                                              WSMessageLogService wsMessageLogService,
                                              WSPluginBackendService wsPluginBackendService,
-                                             WSPluginPropertyManager wsPluginPropertyManager) {
+                                             WSPluginPropertyManager wsPluginPropertyManager,
+                                             WSSendMessageListenerContainer wsSendMessageListenerContainer) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService, wsPluginPropertyManager);
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService, wsPluginPropertyManager, wsSendMessageListenerContainer);
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }

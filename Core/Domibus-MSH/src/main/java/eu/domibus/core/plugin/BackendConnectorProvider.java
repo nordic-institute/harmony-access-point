@@ -12,4 +12,6 @@ public interface BackendConnectorProvider {
     List<BackendConnector<?, ?>> getBackendConnectors();
 
     List<EnableAware> getEnableAwares();
+
+    EnableAware getEnableAware(String name);
 }
