@@ -12,10 +12,17 @@ import java.util.Date;
 public class TrustStoreDTO {
 
     private String name;
+
     private String subject;
+
     private String issuer;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date validFrom;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date validUntil;
+
     private String fingerprints;
 
     public String getName() {
@@ -42,7 +49,6 @@ public class TrustStoreDTO {
         this.issuer = issuer;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public Date getValidFrom() {
         return validFrom;
     }
@@ -51,7 +57,6 @@ public class TrustStoreDTO {
         this.validFrom = validFrom;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public Date getValidUntil() {
         return validUntil;
     }
