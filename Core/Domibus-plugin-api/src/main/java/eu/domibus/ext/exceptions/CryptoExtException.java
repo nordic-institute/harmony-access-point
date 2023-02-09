@@ -17,11 +17,11 @@ public class CryptoExtException extends DomibusServiceExtException {
     }
 
     public CryptoExtException(Throwable cause) {
-        this(DomibusErrorCode.DOM_003, cause.getMessage(), cause);
+        this(DomibusErrorCode.DOM_001, cause.getMessage(), cause);
     }
 
     public CryptoExtException(String message) {
-        this(DomibusErrorCode.DOM_003, message);
+        this(DomibusErrorCode.DOM_001, message);
     }
 
 }

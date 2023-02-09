@@ -2,6 +2,8 @@ package eu.domibus.ext.delegate.services.truststore;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.SameResourceCryptoException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
+
+import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya Chandran
@@ -60,28 +64,30 @@ public class TrustStoreServiceDelegate implements TrustStoreExtService {
 
     @Override
     public void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfoDTO) {
-        try {
             Domain currentDomain = domainProvider.getCurrentDomain();
             KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
             multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeContentInfo);
-        } catch (SameResourceCryptoException ex) {
-            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
-        } catch (CryptoException ex) {
-            throw new CryptoExtException(ex);
+    }
+
+    @Override
+    public void addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        X509Certificate cert = certificateService.loadCertificate(certificateFile);
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
+        if (!added) {
+            throw new SameResourceCryptoException(alias, null,
+                    "Certificate [" + alias + "] was not added to the Domibus TrustStore most probably because it already contains the same certificate.");
         }
     }
 
     @Override
-    public boolean addCertificate(byte[] certificateFile, String alias) throws RequestValidationException {
+    public void removeCertificate(String alias) throws RequestValidationException {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        X509Certificate cert = certificateService.loadCertificate(certificateFile);
-        return multiDomainCertificateProvider.addCertificate(currentDomain, cert, alias, true);
-    }
-
-    @Override
-    public boolean removeCertificate(String alias) throws RequestValidationException {
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        return multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
+        boolean removed = multiDomainCertificateProvider.removeCertificate(currentDomain, alias);
+        if (!removed) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009,
+                    "Certificate [" + alias + "] was not removed from the Domibus TrustStore because it does not exist.");
+        }
     }
 
     @Override

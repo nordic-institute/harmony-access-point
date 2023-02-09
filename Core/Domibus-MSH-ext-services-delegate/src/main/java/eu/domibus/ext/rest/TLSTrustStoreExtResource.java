@@ -10,7 +10,6 @@ import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.CryptoExtException;
-import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
@@ -125,11 +124,8 @@ public class TLSTrustStoreExtResource {
         }
 
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
-        try {
-            tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
-        } catch (SameResourceCryptoExtException ex) {
-            return String.format("Truststore [%s] has not been replaced with file [%s] because it is identical.", ex.getName(), ex.getLocation());
-        }
+        tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
+
         return "TLS truststore file has been successfully replaced.";
     }
 

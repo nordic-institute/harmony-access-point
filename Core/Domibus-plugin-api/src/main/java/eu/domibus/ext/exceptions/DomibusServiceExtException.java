@@ -10,7 +10,7 @@ package eu.domibus.ext.exceptions;
  */
 public class DomibusServiceExtException extends RuntimeException {
 
-    private DomibusErrorCode errorCode;
+    private final DomibusErrorCode errorCode;
 
     /**
      * Constructs a new instance with a specific error code and message.

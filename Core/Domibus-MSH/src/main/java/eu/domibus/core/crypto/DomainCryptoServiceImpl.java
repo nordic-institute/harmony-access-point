@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.*;
@@ -173,7 +174,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         try {
             iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
         } catch (SameResourceCryptoSpiException ex) {
-            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
         } catch (CryptoSpiException ex) {
             throw new CryptoException(ex);
         }
@@ -185,7 +186,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
             KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
             iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
         } catch (SameResourceCryptoSpiException ex) {
-            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
         } catch (CryptoSpiException ex) {
             throw new CryptoException(ex);
         }
@@ -197,7 +198,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
             KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
             iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
         } catch (SameResourceCryptoSpiException ex) {
-            throw new SameResourceCryptoExtException(ex.getName(), ex.getLocation(), ex.getMessage());
+            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
         } catch (CryptoSpiException ex) {
             throw new CryptoException(ex);
         }
