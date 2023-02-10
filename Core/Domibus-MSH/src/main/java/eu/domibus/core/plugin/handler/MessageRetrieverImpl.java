@@ -138,9 +138,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         try {
-            userMessageLogService.findByMessageId(messageId);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
-            throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+            UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
+            if (userMessageLog == null) {
+                throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+            }
         } catch (DuplicateMessageFoundException exception) {
             throw new DuplicateMessageFoundException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message." + "[" + messageId + "] ", exception);
         }
@@ -152,6 +153,11 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
         MSHRole role = MSHRole.valueOf(mshRole.name());
+
+        UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
+        if (userMessageLog == null) {
+            throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+        }
         return errorLogService.getErrors(messageId, role);
     }
 

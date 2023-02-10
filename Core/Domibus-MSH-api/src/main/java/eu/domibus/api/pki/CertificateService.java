@@ -134,44 +134,44 @@ public interface CertificateService {
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param trustName          the location of the trust on disc
+     * @param keystorePersistenceInfo          the location of the trust on disc
      * @param certificateContent the content of the certificate
      * @param alias              the name of the certificate
      * @param overwrite          if overwrite an existing certificate
      * @return the id of the store with {@param trustName}
      */
-    boolean addCertificate(KeystorePersistenceInfo trustName, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(KeystorePersistenceInfo keystorePersistenceInfo, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
      *
-     * @param trustName    the location of the trust on disc
+     * @param keystorePersistenceInfo    the location of the trust on disc
      * @param certificates the list of certificate entries( name and value)
      * @param overwrite    if overwrite an existing certificate
      *
      * @return true if at least one was added
      */
-    boolean addCertificates(KeystorePersistenceInfo trustName, List<CertificateEntry> certificates, boolean overwrite);
+    boolean addCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
+     * @param keystorePersistenceInfo the location of the trust on disc
      * @param alias     the certificate name
      *
      * @return the id of the store with {@param trustName}.
      */
-    boolean removeCertificate(KeystorePersistenceInfo trustName, String alias);
+    boolean removeCertificate(KeystorePersistenceInfo keystorePersistenceInfo, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
+     * @param keystorePersistenceInfo the location of the trust on disc
      * @param aliases   the list of certificate names
      *
      * @return the id of the store with {@param trustName}.
      */
-    boolean removeCertificates(KeystorePersistenceInfo trustName, List<String> aliases);
+    boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
 
     KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 

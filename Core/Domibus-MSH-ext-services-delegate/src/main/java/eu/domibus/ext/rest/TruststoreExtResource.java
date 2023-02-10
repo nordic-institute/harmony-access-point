@@ -1,8 +1,6 @@
 package eu.domibus.ext.rest;
 
-
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -10,7 +8,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.exceptions.TruststoreExtException;
+import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
@@ -75,8 +73,8 @@ public class TruststoreExtResource {
         this.domibusConfigurationExtService = domibusConfigurationExtService;
     }
 
-    @ExceptionHandler(TruststoreExtException.class)
-    protected ResponseEntity<ErrorDTO> handleTrustStoreExtException(TruststoreExtException e) {
+    @ExceptionHandler(CryptoExtException.class)
+    protected ResponseEntity<ErrorDTO> handleTrustStoreExtException(CryptoExtException e) {
         return extExceptionHelper.handleExtException(e);
     }
 
@@ -142,24 +140,16 @@ public class TruststoreExtResource {
 
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        boolean added = truststoreExtService.addCertificate(fileContent, alias);
-
-        if (added) {
-            return "Certificate [" + alias + "] has been successfully added to the truststore.";
-        }
-        throw new DomibusCertificateException("Certificate [" + alias + "] was not added to the trustStore, most probably because it already contains the same certificate.");
-
+        truststoreExtService.addCertificate(fileContent, alias);
+        return "Certificate [" + alias + "] has been successfully added to the truststore.";
     }
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
-        boolean removed = truststoreExtService.removeCertificate(alias);
-        if (removed) {
-            return "Certificate [" + alias + "] has been successfully removed from the truststore.";
-        }
-        throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the trustStore.");
+        truststoreExtService.removeCertificate(alias);
+        return "Certificate [" + alias + "] has been successfully removed from the truststore.";
     }
 
     private String getFileName() {

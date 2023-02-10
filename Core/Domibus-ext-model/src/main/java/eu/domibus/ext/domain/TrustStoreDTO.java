@@ -1,5 +1,6 @@
 package eu.domibus.ext.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
@@ -11,10 +12,17 @@ import java.util.Date;
 public class TrustStoreDTO {
 
     private String name;
+
     private String subject;
+
     private String issuer;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date validFrom;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date validUntil;
+
     private String fingerprints;
 
     public String getName() {

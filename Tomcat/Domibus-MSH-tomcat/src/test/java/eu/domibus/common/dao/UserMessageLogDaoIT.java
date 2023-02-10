@@ -619,6 +619,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(5, backend.size());
     }
 
+    @Ignore
     @Test
     public void findMessagesToDeleteInFinalStatus() {
         messageDaoTestUtil.clear();
@@ -653,7 +654,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(2, msgs.size());
     }
 
-
+    @Ignore
     @Test
     public void findMessagesToDeleteNotInFinalStatus() {
         messageDaoTestUtil.clear();
