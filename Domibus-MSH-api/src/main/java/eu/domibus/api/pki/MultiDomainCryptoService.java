@@ -1,7 +1,5 @@
 package eu.domibus.api.pki;
 
-import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.TrustStoreEntry;

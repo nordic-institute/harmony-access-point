@@ -1,7 +1,6 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
