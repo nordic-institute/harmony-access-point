@@ -159,8 +159,8 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(PasswordDecryptionService.class),
                 Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-                Mockito.spy(DomibusCoreMapper.class)
-        );
+                Mockito.spy(DomibusCoreMapper.class),
+                keystorePersistenceService, auditService);
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

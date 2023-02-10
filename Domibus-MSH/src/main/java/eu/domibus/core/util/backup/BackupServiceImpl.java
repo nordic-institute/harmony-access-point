@@ -41,6 +41,17 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
+    public void backupFile(File originalFile, String subFolder) throws IOException {
+        File parentFile = originalFile.getParentFile();
+        if (parentFile == null) {
+            LOG.warn("Could not get parent file of [{}]; no backing up.", originalFile);
+            return;
+        }
+        String backupLocation = Paths.get(parentFile.getPath(), subFolder).toString();
+        backupFileInLocation(originalFile, backupLocation);
+    }
+
+    @Override
     public void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException {
         final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
         copyBackUpFile(originalFile, backupFile);
