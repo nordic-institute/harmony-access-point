@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- *  DomibusExtMapperDecorator is for the abstract class and override the methods for JMS conversion.
+ * DomibusExtMapperDecorator is for the abstract class and override the methods for JMS conversion.
  *
  * @author Joze Rihtarsic
  * @since 4.2
  */
-public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
+public abstract class DomibusExtMapperDecorator implements DomibusExtMapper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtMapperDecorator.class);
 
@@ -28,7 +28,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
 
     @Override
     public JmsMessageDTO jmsMessageToJmsMessageDTO(JmsMessage jmsMessage) {
-        if ( jmsMessage == null ) {
+        if (jmsMessage == null) {
             LOG.trace("Convert 'null' JmsMessage parameter to 'null' JmsMessageDTO!");
             return null;
         }
@@ -39,7 +39,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
 
     @Override
     public JmsMessage jmsMessageDTOToJmsMessage(JmsMessageDTO jmsMessageDTO) {
-        if ( jmsMessageDTO == null ) {
+        if (jmsMessageDTO == null) {
             LOG.trace("Convert 'null' JmsMessageDTO parameter to 'null' JmsMessage!");
             return null;
         }
