@@ -1,16 +1,17 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.metrics.JmsQueueCountSetScheduler;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.initializer.PluginInitializerProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
@@ -19,16 +20,16 @@ import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
- *
  * @author Cosmin Baciu
  * @author Ion Perpegel
  * @since 4.1
@@ -71,7 +72,7 @@ public class DomibusApplicationContextListener {
     protected final DomibusPropertyValidatorService domibusPropertyValidatorService;
 
 
-    protected final  BackendConnectorService backendConnectorService;
+    protected final BackendConnectorService backendConnectorService;
 
     protected final MessageListenerContainerInitializer messageListenerContainerInitializer;
 
@@ -85,7 +86,9 @@ public class DomibusApplicationContextListener {
 
     protected EArchiveFileStorageProvider eArchiveFileStorageProvider;
 
-    public DomibusApplicationContextListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService, StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService, DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator, MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager, UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService, BackendConnectorService backendConnectorService, MessageListenerContainerInitializer messageListenerContainerInitializer, JmsQueueCountSetScheduler jmsQueueCountSetScheduler, PayloadFileStorageProvider payloadFileStorageProvider, RoutingService routingService, DomibusQuartzStarter domibusQuartzStarter, EArchiveFileStorageProvider eArchiveFileStorageProvider) {
+    protected PluginInitializerProvider pluginInitializerProvider;
+
+    public DomibusApplicationContextListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService, StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService, DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator, MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager, UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService, BackendConnectorService backendConnectorService, MessageListenerContainerInitializer messageListenerContainerInitializer, JmsQueueCountSetScheduler jmsQueueCountSetScheduler, PayloadFileStorageProvider payloadFileStorageProvider, RoutingService routingService, DomibusQuartzStarter domibusQuartzStarter, EArchiveFileStorageProvider eArchiveFileStorageProvider, PluginInitializerProvider pluginInitializerProvider) {
         this.encryptionService = encryptionService;
         this.backendFilterInitializerService = backendFilterInitializerService;
         this.messageDictionaryService = messageDictionaryService;
@@ -103,6 +106,7 @@ public class DomibusApplicationContextListener {
         this.routingService = routingService;
         this.domibusQuartzStarter = domibusQuartzStarter;
         this.eArchiveFileStorageProvider = eArchiveFileStorageProvider;
+        this.pluginInitializerProvider = pluginInitializerProvider;
     }
 
     @EventListener
@@ -137,6 +141,19 @@ public class DomibusApplicationContextListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         userManagementService.createDefaultUserIfApplicable();
+
+        initializePluginsWithLockIfNeeded();
+    }
+
+    private void initializePluginsWithLockIfNeeded() {
+        final List<PluginInitializer> pluginInitializers = pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+        for (PluginInitializer pluginInitializer : pluginInitializers) {
+            try {
+                pluginInitializer.initializeWithLockIfNeeded();
+            } catch (Exception e) {
+                LOG.error("Error executing plugin initializer [{}] with lock", pluginInitializer.getName(), e);
+            }
+        }
     }
 
     /**
@@ -156,6 +173,19 @@ public class DomibusApplicationContextListener {
 
         gatewayConfigurationValidator.validateConfiguration();
         backendConnectorService.ensureValidConfiguration();
+
+        initializePluginsNonSynchronized();
+    }
+
+    private void initializePluginsNonSynchronized() {
+        final List<PluginInitializer> pluginInitializers = pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+        for (PluginInitializer pluginInitializer : pluginInitializers) {
+            try {
+                pluginInitializer.initializeNonSynchronized();
+            } catch (Exception e) {
+                LOG.error("Error executing plugin initializer [{}", pluginInitializer.getName(), e);
+            }
+        }
     }
 
     // TODO: below code to be moved to a separate service EDELIVERY-7462.

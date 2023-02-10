@@ -4,6 +4,7 @@ package eu.domibus.plugin;
 import eu.domibus.common.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
@@ -237,6 +238,13 @@ public interface BackendConnector<U, T> {
      * @param event The event containing the details of the message send success event
      */
     void messageSendSuccess(final MessageSendSuccessEvent event);
+
+    /**
+     * Get the plugin initializer
+     */
+    default PluginInitializer getPluginInitializer() {
+        return null;
+    }
 
     /**
      * Describes the message exchange protocol
