@@ -406,7 +406,6 @@ public class CertificateServiceImpl implements CertificateService {
         return getStoreEntries(store);
     }
 
-
     @Override
     public boolean addCertificate(KeystorePersistenceInfo persistenceInfo, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificate(certificateContent);

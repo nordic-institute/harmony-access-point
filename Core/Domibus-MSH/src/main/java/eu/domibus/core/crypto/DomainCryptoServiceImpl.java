@@ -170,17 +170,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
-        try {
-            iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
-        } catch (SameResourceCryptoSpiException ex) {
-            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
-        } catch (CryptoSpiException ex) {
-            throw new CryptoException(ex);
-        }
-    }
-
-    @Override
     public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
         try {
             KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);

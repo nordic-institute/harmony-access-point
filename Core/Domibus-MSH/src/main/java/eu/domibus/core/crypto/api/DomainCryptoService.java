@@ -46,10 +46,6 @@ public interface DomainCryptoService {
 
     String getPrivateKeyPassword(String alias);
 
-//    void refreshTrustStore();
-
-    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
-
     void replaceTrustStore(KeyStoreContentInfo storeInfo);
 
     KeyStore getKeyStore();
