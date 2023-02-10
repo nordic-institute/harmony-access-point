@@ -40,14 +40,14 @@ public interface TrustStoreExtService {
      * @param certificateFile the content of the certificate
      * @param alias           the name of the certificate
      */
-    boolean addCertificate(byte[] certificateFile, String alias);
+    void addCertificate(byte[] certificateFile, String alias);
 
     /**
      * Removes the specified certificate from the truststore by the alias name
      *
      * @param alias the certificate name
      */
-    boolean removeCertificate(String alias);
+    void removeCertificate(String alias);
 
     String getStoreFileExtension();
 }
