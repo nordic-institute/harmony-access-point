@@ -13,4 +13,6 @@ public interface UserMessageLogService {
     MessageStatus getMessageStatusById(String messageId);
 
     UserMessageLog findByMessageId(String messageId);
+
+    UserMessageLog findByMessageId(String messageId, MSHRole mshRole);
 }

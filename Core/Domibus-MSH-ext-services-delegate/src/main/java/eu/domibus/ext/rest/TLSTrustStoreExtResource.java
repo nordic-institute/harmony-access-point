@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
