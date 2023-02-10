@@ -61,7 +61,7 @@ public class TLSTruststoreResourceTest {
 
         // When
         String pass = "pass";
-        tlsTruststoreResource.doReplaceTrustStore(fileContent, filename, pass);
+        tlsTruststoreResource.doUploadStore(fileContent, filename, pass);
 
         new Verifications() {{
             tlsCertificateManager.replaceTrustStore(filename, fileContent, pass);

@@ -81,7 +81,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+    protected void doUploadStore(byte[] truststoreFileContent, String fileName, String password) {
         tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
     }
 

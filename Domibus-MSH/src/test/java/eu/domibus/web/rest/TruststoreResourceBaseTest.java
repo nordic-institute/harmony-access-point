@@ -67,13 +67,13 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = content;
-            truststoreResourceBase.doReplaceTrustStore(content, anyString, pass);
+            truststoreResourceBase.doUploadStore(content, anyString, pass);
         }};
 
         truststoreResourceBase.replaceTruststore(multiPartFile, pass);
 
         new Verifications() {{
-            truststoreResourceBase.doReplaceTrustStore(content, filename, pass);
+            truststoreResourceBase.doUploadStore(content, filename, pass);
         }};
     }
 
@@ -102,7 +102,7 @@ public class TruststoreResourceBaseTest {
             multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = new byte[]{1, 0, 1};
 
-            truststoreResourceBase.doReplaceTrustStore((byte[]) any, anyString, anyString);
+            truststoreResourceBase.doUploadStore((byte[]) any, anyString, anyString);
             result = new CryptoException("Password is incorrect");
         }};
 

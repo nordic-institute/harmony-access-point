@@ -66,7 +66,7 @@ public class TruststoreResourceTest {
 
         // When
         String pass = "pass";
-        truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
+        truststoreResource.doUploadStore(fileContent, filename, pass);
 
         new Verifications() {{
             multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
