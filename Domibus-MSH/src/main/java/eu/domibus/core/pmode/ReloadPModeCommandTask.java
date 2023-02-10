@@ -43,6 +43,6 @@ public class ReloadPModeCommandTask implements CommandTask {
 
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         pModeProvider.refresh();
-        multiDomainCryptoService.refreshTrustStore(currentDomain);
+        multiDomainCryptoService.resetTrustStore(currentDomain);
     }
 }

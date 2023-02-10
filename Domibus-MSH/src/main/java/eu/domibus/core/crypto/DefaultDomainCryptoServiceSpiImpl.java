@@ -13,6 +13,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -86,6 +87,11 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     @Override
+    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) {
+
+    }
+
+    @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return (X509Certificate) getKeyStore().getCertificate(alias);
     }
@@ -147,6 +153,16 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), location);
 
         replaceTrustStore(location, password);
+    }
+
+    @Override
+    public boolean isTrustStoreChanged() {
+        return DomainCryptoServiceSpi.super.isTrustStoreChanged();
+    }
+
+    @Override
+    public boolean isKeyStoreChanged() {
+        return DomainCryptoServiceSpi.super.isKeyStoreChanged();
     }
 
     @Override

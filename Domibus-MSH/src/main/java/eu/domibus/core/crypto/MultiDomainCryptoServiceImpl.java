@@ -4,11 +4,9 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -132,15 +130,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void refreshTrustStore(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.refreshTrustStore();
+    public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
+
     }
 
     @Override
-    public void refreshKeyStore(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.refreshKeyStore();
+    public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
+
     }
 
     @Override
@@ -150,23 +146,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
-        doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
+    public boolean isTrustStoreChangedOnDisk(Domain currentDomain) {
+        return false;
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        doReplaceTrustStore(domain, storeFileLocation, null, storePassword);
-    }
-
-    @Override
-    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        certificateHelper.validateStoreFileName(storeFileLocation);
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
-
-        saveCertificateAndLogRevocation(domain);
+    public boolean isKeyStoreChangedOnDisk(Domain currentDomain) {
+        return false;
     }
 
     @Override
@@ -227,7 +213,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void reset(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.reset();
+        domainCertificateProvider.resetStores();
     }
 
     @Override
@@ -237,15 +223,28 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public TrustStoreContentDTO getTruststoreContent(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        return domainCertificateProvider.getTruststoreContent();
+    public List<TrustStoreEntry> getKeyStoreEntries(Domain domain) {
+        return null;
     }
 
     @Override
-    public void persistTruststoresIfApplicable() {
-        final List<Domain> domains = domainService.getDomains();
-        persistTruststoresIfApplicable(domains);
+    public KeyStoreContentInfo getKeyStoreContent(Domain domain) {
+        return null;
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries(Domain domain) {
+        return null;
+    }
+
+    @Override
+    public KeyStoreContentInfo getTrustStoreContent(Domain domain) {
+        return null;
+    }
+
+    @Override
+    public void saveStoresFromDBToDisk() {
+
     }
 
     @Override
@@ -262,21 +261,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         certificateService.removeTruststore(DOMIBUS_TRUSTSTORE_NAME, domain);
         certificateService.removeTruststore(DOMIBUS_KEYSTORE_NAME, domain);
     }
-
-    private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
-        certificateHelper.validateStoreFileName(storeFileNameOrLocation);
-
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        if (storeContent != null) {
-            domainCertificateProvider.replaceTrustStore(storeContent, storeFileNameOrLocation, storePassword);
-        } else {
-            domainCertificateProvider.replaceTrustStore(storeFileNameOrLocation, storePassword);
-        }
-
-        domibusCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
-        saveCertificateAndLogRevocation(domain);
-    }
-
 
     protected void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME, false,

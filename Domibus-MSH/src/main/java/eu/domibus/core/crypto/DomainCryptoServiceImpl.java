@@ -7,7 +7,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
@@ -164,28 +166,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void refreshTrustStore() throws CryptoException {
-        iamProvider.refreshTrustStore();
-    }
+    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
 
-    @Override
-    public void refreshKeyStore() {
-        iamProvider.refreshKeyStore();
-    }
-
-    @Override
-    public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
-        iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
-    }
-
-    @Override
-    public void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException {
-        iamProvider.replaceTrustStore(storeLocation, storePassword);
-    }
-
-    @Override
-    public void replaceKeyStore(String storeFileLocation, String storePassword) {
-        iamProvider.replaceKeyStore(storeFileLocation, storePassword);
     }
 
     @Override
@@ -231,6 +213,31 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.removeCertificate(aliases);
     }
 
+    @Override
+    public List<TrustStoreEntry> getKeyStoreEntries() {
+        return null;
+    }
+
+    @Override
+    public KeyStoreContentInfo getKeyStoreContent() {
+        return null;
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries() {
+        return null;
+    }
+
+    @Override
+    public KeyStoreContentInfo getTrustStoreContent() {
+        return null;
+    }
+
+    @Override
+    public void replaceKeyStore(KeyStoreContentInfo storeInfo) {
+
+    }
+
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
     }
@@ -248,15 +255,23 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset() {
-        getIAMProvider();
-        iamProvider.resetKeyStore();
-        iamProvider.resetTrustStore();
+    public void resetStores() {
+
     }
 
     @Override
-    public TrustStoreContentDTO getTruststoreContent() {
-        return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+    public void resetSecurityProfiles() {
+
+    }
+
+    @Override
+    public boolean isTrustStoreChangedOnDisk() {
+        return false;
+    }
+
+    @Override
+    public boolean isKeyStoreChangedOnDisk() {
+        return false;
     }
 
     private void getIAMProvider() {
