@@ -70,6 +70,7 @@ import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -830,7 +831,12 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                String fileName = DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
+                InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
+                if(getCompressionMimeType(pInfo).isPresent()){
+                    inputStream = new GZIPInputStream(inputStream);
+                }
+                result.put(fileName, inputStream);
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
@@ -881,24 +887,27 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String mimeType = "";
+        String extension = null;
         Optional<PartProperty> mimeTypeProperty = info.getPartProperties().stream()
-                .filter(partProperty -> COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName()))
-                .findFirst();
-        if(mimeTypeProperty.isPresent()){
-            mimeType = mimeTypeProperty.get().getValue();
-        }
-        else {
-            mimeTypeProperty = info.getPartProperties().stream()
                     .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()))
                     .findFirst();
-            if(mimeTypeProperty.isPresent()){
-                mimeType = mimeTypeProperty.get().getValue();
-            }
+        if(mimeTypeProperty.isPresent()){
+            String mimeType = mimeTypeProperty.get().getValue();
+            extension = fileServiceUtil.getExtension(mimeType);
+            LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         }
-        String extension = fileServiceUtil.getExtension(mimeType);
-        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
+        if(StringUtils.isBlank(extension)){
+            extension = "";
+            LOG.warn("Unknown mimetype cid [{}]", info.getHref());
+        }
+
         return extension;
+    }
+
+    private static Optional<PartProperty> getCompressionMimeType(PartInfo info) {
+        return info.getPartProperties().stream()
+                .filter(partProperty -> COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName()))
+                .findFirst();
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {

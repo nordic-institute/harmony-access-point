@@ -835,9 +835,8 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void testPayloadExtension(@Injectable final PartInfo partInfoNotCompressed, @Injectable final PartInfo partInfoCompressed) {
-        final String originalExtension = ".extension";
-        final String zipExtension = ".zip";
-        final String originalMimeType = "some/mime-type";
+        final String originalExtension = ".xml";
+        final String originalMimeType = "text/xml";
         final PartProperty mimeTypeProperty = new PartProperty();
         mimeTypeProperty.setName(MIME_TYPE);
         mimeTypeProperty.setValue(originalMimeType);
@@ -851,12 +850,10 @@ public class UserMessageDefaultServiceTest {
             result = originalExtension;
             partInfoCompressed.getPartProperties();
             result = new HashSet<>(Arrays.asList(mimeTypeProperty, compressionProperty));
-            fileServiceUtil.getExtension(COMPRESSION_PROPERTY_VALUE);
-            result = zipExtension;
         }};
 
         assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoNotCompressed));
-        assertEquals(zipExtension, userMessageDefaultService.getPayloadExtension(partInfoCompressed));
+        assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoCompressed));
     }
 
     @Test
