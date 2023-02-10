@@ -887,20 +887,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = null;
-        Optional<PartProperty> mimeTypeProperty = info.getPartProperties().stream()
-                    .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()))
-                    .findFirst();
-        if(mimeTypeProperty.isPresent()){
-            String mimeType = mimeTypeProperty.get().getValue();
-            extension = fileServiceUtil.getExtension(mimeType);
-            LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
-        }
+        String extension = info.getPartProperties().stream()
+                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                .map(PartProperty::getValue)
+                .map(fileServiceUtil::getExtension)
+                .findFirst()
+                .orElse(null);
         if(StringUtils.isBlank(extension)){
-            extension = "";
-            LOG.warn("Unknown mimetype cid [{}]", info.getHref());
+            LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
-
+        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         return extension;
     }
 
