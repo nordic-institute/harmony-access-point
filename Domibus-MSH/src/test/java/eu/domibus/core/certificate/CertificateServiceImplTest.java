@@ -704,14 +704,14 @@ public class CertificateServiceImplTest {
     public void testLoadCertificateFromString() {
         String certStr = TEST_CERTIFICATE_CONTENT_PEM;
 
-        X509Certificate cert = this.certificateService.loadCertificateFromString(certStr);
+        X509Certificate cert = this.certificateService.loadCertificate(certStr);
         Assert.assertNotNull(cert);
 
         String certStr2 = java.util.Base64.getMimeEncoder().encodeToString(certStr.getBytes());
-        X509Certificate cert2 = this.certificateService.loadCertificateFromString(certStr2);
+        X509Certificate cert2 = this.certificateService.loadCertificate(certStr2);
         Assert.assertNotNull(cert2);
 
-        X509Certificate cert3 = this.certificateService.loadCertificateFromString(TEST_CERTIFICATE_CONTENT);
+        X509Certificate cert3 = this.certificateService.loadCertificate(TEST_CERTIFICATE_CONTENT);
         Assert.assertNotNull(cert3);
 
         Assert.assertEquals(cert.toString(), cert2.toString());

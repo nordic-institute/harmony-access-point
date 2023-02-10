@@ -113,6 +113,13 @@ public interface AuditService {
             String fromQueue, String toQueue, String domainCode);
 
     /**
+     * Add keystore downloaded
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addKeystoreDownloadedAudit(String name);
+
+    /**
      * Add truststore downloaded
      *
      * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}

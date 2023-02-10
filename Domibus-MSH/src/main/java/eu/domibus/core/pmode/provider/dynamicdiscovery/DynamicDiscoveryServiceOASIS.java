@@ -208,7 +208,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
         try {
-            return certificateService.loadCertificateFromByteArray(endpoint.getCertificate());
+            return certificateService.loadCertificate(endpoint.getCertificate());
         } catch (DomibusCertificateException exc) {
             String msg = "Invalid endpoint metadata for documentId " + documentId + " processId " + processId;
             // log error, because cause in ConfigurationException is consumed..

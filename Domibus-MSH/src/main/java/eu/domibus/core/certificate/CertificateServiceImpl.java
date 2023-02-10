@@ -232,7 +232,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public X509Certificate loadCertificateFromString(String content) {
+    public X509Certificate loadCertificate(String content) {
         if (content == null) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
@@ -258,7 +258,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public X509Certificate loadCertificateFromByteArray(byte[] content) {
+    public X509Certificate loadCertificate(byte[] content) {
         if (content == null) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
@@ -382,7 +382,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public TrustStoreEntry convertCertificateContent(String certificateContent) {
-        X509Certificate cert = loadCertificateFromString(certificateContent);
+        X509Certificate cert = loadCertificate(certificateContent);
         return createTrustStoreEntry(null, cert);
     }
 
@@ -420,7 +420,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite) {
-        X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
+        X509Certificate certificate = loadCertificate(new String(certificateContent));
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
         return doAddCertificates(trustName, certificates, overwrite);

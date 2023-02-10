@@ -138,7 +138,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "green_gw.cer");
         byte[] content = Files.readAllBytes(path);
         String green_gw = "green_gw";
-        X509Certificate x509Certificate = certificateService.loadCertificateFromString(Base64.getEncoder().encodeToString(content));
+        X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
         multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);

@@ -214,6 +214,11 @@ public class AuditServiceImpl implements AuditService {
         handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
     }
 
+    @Override
+    public void addKeystoreDownloadedAudit(String name) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(name, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    }
+
     /**
      * {@inheritDoc}
      * @param id
