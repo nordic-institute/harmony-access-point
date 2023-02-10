@@ -77,6 +77,7 @@ import java.util.zip.ZipOutputStream;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -833,7 +834,7 @@ public class UserMessageDefaultService implements UserMessageService {
             try {
                 String fileName = DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
                 InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
-                if(getCompressionMimeType(pInfo).isPresent()){
+                if(isCompressedFile(pInfo)){
                     inputStream = new GZIPInputStream(inputStream);
                 }
                 result.put(fileName, inputStream);
@@ -900,10 +901,10 @@ public class UserMessageDefaultService implements UserMessageService {
         return extension;
     }
 
-    private static Optional<PartProperty> getCompressionMimeType(PartInfo info) {
+    private static boolean isCompressedFile(PartInfo info) {
         return info.getPartProperties().stream()
-                .filter(partProperty -> COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName()))
-                .findFirst();
+                .anyMatch(partProperty -> COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
+                        && COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
