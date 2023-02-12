@@ -14,7 +14,7 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageNotFoundException;
+import eu.domibus.messaging.*;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
 import org.springframework.context.ApplicationEventPublisher;
@@ -117,33 +117,49 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        final MessageStatus messageStatus = userMessageLogService.getMessageStatusById(messageId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    public eu.domibus.common.MessageStatus getStatus(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
+        try {
+            final MessageStatus messageStatus = userMessageLogService.getMessageStatusById(messageId);
+            return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new MessageNotFoundException(exception.getMessage());
+        } catch (DuplicateMessageFoundException exception) {
+            throw new DuplicateMessageException(exception.getMessage());
+        }
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
-        MSHRole role = MSHRole.valueOf(mshRole.name());
-        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, role);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
+        try {
+            MSHRole role = MSHRole.valueOf(mshRole.name());
+            final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, role);
+            return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new MessageNotFoundException(exception.getMessage());
+        }
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
-        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException {
+        try {
+            final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
+            return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new MessageNotFoundException(exception.getMessage());
+        }
     }
 
     @Override
-    public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
+    public List<? extends ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         try {
             UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
             if (userMessageLog == null) {
                 throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
             }
+        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+            throw new MessageNotFoundException(exception.getMessage());
         } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageFoundException("Duplicate message found with same message Id. For self sending please call the method with access point role to get the errors of the message." + "[" + messageId + "] ", exception);
+            throw new DuplicateMessageException(exception.getMessage());
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
 
@@ -151,12 +167,12 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
 
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         if (userMessageLog == null) {
-            throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId);
         }
         return errorLogService.getErrors(messageId, role);
     }

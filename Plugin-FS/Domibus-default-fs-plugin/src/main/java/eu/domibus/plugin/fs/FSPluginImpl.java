@@ -367,12 +367,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
             fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
 
-        } catch (IOException e) {
+        } catch (IOException | MessageNotFoundException e) {
             throw new FSPluginException("Error handling the send failed message file " + messageId, e);
         }
     }
 
-    protected String getErrorMessage(String messageId, MSHRole mshRole) {
+    protected String getErrorMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
         String content;
         if (!errors.isEmpty()) {
