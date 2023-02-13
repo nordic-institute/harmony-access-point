@@ -393,7 +393,7 @@ public abstract class PModeProvider {
     protected Role findResponderRole(UserMessage userMessage, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         String responderRole = userMessage.getPartyInfo().getTo().getRoleValue();
         if (StringUtils.isBlank(responderRole)) {
-            if(!beforeDynamicDiscovery) {
+            if (!beforeDynamicDiscovery) {
                 LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, beforeDynamicDiscovery, "To Role");
             }
             throw EbMS3ExceptionBuilder.getInstance()
