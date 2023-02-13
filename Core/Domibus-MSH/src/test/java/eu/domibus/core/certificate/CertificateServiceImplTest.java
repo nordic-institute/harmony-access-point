@@ -995,7 +995,7 @@ public class CertificateServiceImplTest {
         // Then
         Assert.assertFalse("Should have returned false when adding an existing certificate to the trust store without the intention of overwriting it", result);
     }
-    
+
 
 //    @Test
 //    public void loadTrustStoreFromContent(@Mocked InputStream contentStream) {
