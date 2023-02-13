@@ -310,7 +310,6 @@ public class StubDtoTransformerTest {
     /*UserMessage.PayLoadInfo population end*/
 
         eu.domibus.plugin.ws.webservice.StubDtoTransformer testObj = new StubDtoTransformer( new MockMessageServiceImpl());
-        ReflectionTestUtils.setField(testObj, "fileUtilExtService", new FileUtilServiceDelegate(new FileServiceUtilImpl()));
         Submission objSubmission = testObj.transformFromMessaging(userMessageObj);
 
         Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);

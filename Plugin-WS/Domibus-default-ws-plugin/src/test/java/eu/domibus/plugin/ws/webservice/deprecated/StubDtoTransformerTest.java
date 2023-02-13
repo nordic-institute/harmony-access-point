@@ -1,5 +1,7 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
+import eu.domibus.core.util.FileServiceUtilImpl;
+import eu.domibus.ext.delegate.services.util.FileUtilServiceDelegate;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,6 +16,8 @@ import javax.mail.util.ByteArrayDataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.springframework.test.util.ReflectionTestUtils;
 
 @Deprecated
 public class StubDtoTransformerTest {
@@ -280,6 +284,7 @@ public class StubDtoTransformerTest {
     /*UserMessage.PayLoadInfo population end*/
 
         StubDtoTransformer testObj = new StubDtoTransformer();
+        ReflectionTestUtils.setField(testObj, "fileUtilExtService", new FileUtilServiceDelegate(new FileServiceUtilImpl()));
         Submission objSubmission = testObj.transformFromMessaging(userMessageObj);
 
         Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
