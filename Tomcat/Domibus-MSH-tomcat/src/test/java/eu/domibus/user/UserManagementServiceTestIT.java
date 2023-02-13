@@ -1,10 +1,11 @@
 package eu.domibus.user;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.*;
 import eu.domibus.logging.DomibusLogger;
@@ -17,9 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -45,8 +47,8 @@ public class UserManagementServiceTestIT extends AbstractIT {
     @Autowired
     protected UserRoleDao userRoleDao;
 
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    protected EntityManager entityManager;
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
     public void before() {
@@ -105,6 +107,22 @@ public class UserManagementServiceTestIT extends AbstractIT {
             LOG.info(ex.getMessage(), ex);
             Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
         }
+    }
+
+    @Test
+    @Transactional
+    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
+    public void updateUsers_notLoggedIn_atLeastOneAdmin_multitenancy() {
+        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+
+        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
+
+        final User userEntity = createUser("baciuco", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
+        final eu.domibus.api.user.User apiUser = convert(userEntity);
+        apiUser.setActive(false);
+        userManagementService.updateUsers(Collections.singletonList(apiUser));
+
+        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
     }
 
     @Test

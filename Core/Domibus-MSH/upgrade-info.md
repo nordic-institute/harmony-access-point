@@ -49,6 +49,7 @@
                                    mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
 ### Partitioning only (oracle)

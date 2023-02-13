@@ -4,6 +4,7 @@ package eu.domibus.plugin.handler;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 
@@ -86,9 +87,9 @@ public interface MessageRetriever {
      * @deprecated since 5.1 Use instead {@link #getStatus(String messageId, MSHRole role)}
      */
     @Deprecated
-    MessageStatus getStatus(String messageId);
+    MessageStatus getStatus(String messageId) throws MessageNotFoundException, DuplicateMessageException;
 
-    MessageStatus getStatus(String messageId, MSHRole mshRole);
+    MessageStatus getStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
@@ -96,7 +97,7 @@ public interface MessageRetriever {
      * @param messageEntityId entity id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
-    MessageStatus getStatus(final Long messageEntityId);
+    MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException;
 
     /**
      * Returns List {@link java.util.List} of error logs {@link ErrorResult} for message with messageid
@@ -106,9 +107,9 @@ public interface MessageRetriever {
      * @deprecated since 5.1 Use instead {@link #getErrorsForMessage(String messageId, MSHRole role)}
      */
     @Deprecated
-    List<? extends ErrorResult> getErrorsForMessage(String messageId);
+    List<? extends ErrorResult> getErrorsForMessage(String messageId) throws MessageNotFoundException, DuplicateMessageException;
 
-    List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
+    List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     void markMessageAsDownloaded(String messageId);
 }

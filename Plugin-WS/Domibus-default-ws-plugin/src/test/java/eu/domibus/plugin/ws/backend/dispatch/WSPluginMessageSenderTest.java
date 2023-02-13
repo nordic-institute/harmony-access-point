@@ -29,7 +29,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_MARK_AS
  * @author François Gautier
  * @since 5.0
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "JUnitMalformedDeclaration"})
 @RunWith(JMockit.class)
 public class WSPluginMessageSenderTest {
 
