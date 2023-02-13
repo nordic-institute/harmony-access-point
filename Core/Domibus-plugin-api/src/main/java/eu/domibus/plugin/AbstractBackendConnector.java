@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
@@ -199,27 +200,27 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public MessageStatus getStatus(final String messageId) {
+    public MessageStatus getStatus(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId));
     }
 
     @Override
-    public MessageStatus getStatus(final String messageId, final MSHRole mshRole) {
+    public MessageStatus getStatus(final String messageId, final MSHRole mshRole) throws MessageNotFoundException {
         return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId), mshRole);
     }
 
     @Override
-    public MessageStatus getStatus(final Long messageEntityId) {
+    public MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException {
         return this.messageRetriever.getStatus(messageEntityId);
     }
 
     @Override
-    public List<ErrorResult> getErrorsForMessage(final String messageId) {
+    public List<ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
     }
 
     @Override
-    public List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) {
+    public List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) throws MessageNotFoundException {
         return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId, mshRole));
     }
 

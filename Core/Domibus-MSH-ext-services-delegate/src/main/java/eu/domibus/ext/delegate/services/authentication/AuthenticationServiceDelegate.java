@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.authentication;
 
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.AuthRole;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -73,5 +74,10 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
     @Override
     public String getOriginalUser() {
         return authUtils.getOriginalUserWithUnsecureLoginAllowed();
+    }
+
+    @Override
+    public void runWithSecurityContext(Runnable runnable, String user, String password, AuthRole authRole) {
+        authUtils.runWithSecurityContext(runnable::run, user, password, eu.domibus.api.security.AuthRole.valueOf(authRole.name()));
     }
 }
