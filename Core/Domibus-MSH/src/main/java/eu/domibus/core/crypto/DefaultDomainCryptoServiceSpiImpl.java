@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -57,6 +58,9 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
 public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
+    public static final String CERTIFICATE_ALGORITHM_RSA = "RSA";
+    public static final String CERTIFICATE_PURPOSE_DECRYPT = "decrypt";
+    public static final String CERTIFICATE_PURPOSE_SIGN = "sign";
 
     protected Domain domain;
 
@@ -458,7 +462,85 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected void initTrustStore() {
         initStore(DOMIBUS_TRUSTSTORE_NAME, this::loadTrustStoreProperties, keystorePersistenceService::getTrustStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), StoreType.TRUSTSTORE);
+    }
+
+    protected void validateKeyStoreCertificates(KeyStore keyStore) {
+        securityProfileAliasConfigurations.forEach(
+                profileConfiguration -> validateCertificateType(profileConfiguration, keyStore));
+    }
+
+    private void validateCertificateType(SecurityProfileAliasConfiguration profileConfiguration, KeyStore keyStore) {
+        try {
+            String alias = profileConfiguration.getAlias();
+            X509Certificate certificate = (X509Certificate) keyStore.getCertificate(alias);
+            if (certificate == null) {
+                LOG.error("Alias: [{}] does not exist in the keystore", alias);
+                throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Alias does not exist in the keystore");
+            }
+
+            String certificateAlgorithm = certificate.getPublicKey().getAlgorithm();
+
+            validateLegacyAliasCertificate(certificateAlgorithm, alias);
+
+            SecurityProfile securityProfile = profileConfiguration.getSecurityProfile();
+            String certificatePurpose = StringUtils.substringAfterLast(alias,"_").toLowerCase();
+            switch (certificatePurpose) {
+                case CERTIFICATE_PURPOSE_DECRYPT:
+                    validateDecryptionCertificate(securityProfile, certificateAlgorithm, certificatePurpose, alias);
+                    break;
+                case CERTIFICATE_PURPOSE_SIGN:
+                    validateSigningCertificate(securityProfile, certificateAlgorithm, certificatePurpose, alias);
+                    break;
+                default:
+                    LOG.error("Invalid naming of alias [{}], it should end with sign or decrypt", alias);
+                    throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid alias naming");
+            }
+        } catch (KeyStoreException e) {
+            LOG.error("Keystore exception: {}", e.getMessage());
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Error loading certificate from Keystore");
+        }
+    }
+
+    private void validateLegacyAliasCertificate(String certificateAlgorithm, String alias) {
+        if (isLegacySingleAliasKeystoreDefined()) {
+            if (!certificateAlgorithm.equalsIgnoreCase(CERTIFICATE_ALGORITHM_RSA)) {
+                LOG.error("Invalid certificate type with alias: [{}] defined", alias);
+                throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid certificate type defined");
+            }
+        }
+    }
+
+    private void validateDecryptionCertificate(SecurityProfile securityProfile, String certificateAlgorithm,
+                                               String certificatePurpose, String alias) {
+        List<String> certificateTypes = new ArrayList<>();
+        if (securityProfile == SecurityProfile.RSA) {
+            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE);
+        } else if (securityProfile == SecurityProfile.ECC) {
+            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE);
+        }
+        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile);
+    }
+
+    private void validateSigningCertificate(SecurityProfile securityProfile, String certificateAlgorithm,
+                                            String certificatePurpose, String alias) {
+        List<String> certificateTypes = new ArrayList<>();
+
+        if (securityProfile == SecurityProfile.RSA) {
+            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE);
+        } else if (securityProfile == SecurityProfile.ECC) {
+            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE);
+        }
+        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile);
+    }
+
+    private void checkCertificateType(List<String> certificateTypes, String certificateAlgorithm, String certificatePurpose,
+                                      String alias, SecurityProfile securityProfile) {
+        boolean certificateTypeWasFound = certificateTypes.stream().anyMatch(certificateAlgorithm::equalsIgnoreCase);
+        if (!certificateTypeWasFound) {
+            LOG.error("Invalid [{}] certificate type with alias: [{}] used in security profile: [{}]", certificatePurpose, alias, securityProfile);
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid [" + certificatePurpose + "] certificate type used for security profile: [" + securityProfile + "]");
+        }
     }
 
     protected void loadTrustStoreProperties() {
@@ -493,19 +575,24 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected void initKeyStore() {
         initStore(DOMIBUS_KEYSTORE_NAME, this::loadKeyStoreProperties, keystorePersistenceService::getKeyStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), StoreType.KEYSTORE);
     }
 
     protected void initStore(String storeName, Runnable propertiesLoader, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter) {
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, StoreType storeType) {
         LOG.debug("Initializing the [{}] certificate provider for domain [{}]", storeName, domain);
 
         domainTaskExecutor.submit(() -> {
             propertiesLoader.run();
 
-            KeyStore trustStore = certificateService.getStore(persistenceInfoGetter.get());
+            KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
+
+            if (storeType == StoreType.KEYSTORE) {
+                validateKeyStoreCertificates(store);
+            }
+
             securityProfileAliasConfigurations.forEach(
-                    profileConfiguration -> merlinStoreSetter.accept(trustStore, profileConfiguration));
+                    profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));
         }, domain);
 
         LOG.debug("Finished initializing the [{}] certificate provider for domain [{}]", storeName, domain);
@@ -535,15 +622,18 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
+    private boolean isLegacySingleAliasKeystoreDefined() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null;
+    }
+
     protected void createSecurityProfileAliasConfigurations() {
 
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean isLegacySingleAliasKeystoreDefined = false;
-        if (domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null) {
+        boolean legacySingleAliasKeystore  = isLegacySingleAliasKeystoreDefined();
+        if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
-            isLegacySingleAliasKeystoreDefined = true;
         }
 
         //RSA Profile
@@ -554,7 +644,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, SecurityProfile.ECC);
 
-        if (isLegacySingleAliasKeystoreDefined && securityProfileAliasConfigurations.size() > 1) {
+        if (legacySingleAliasKeystore && securityProfileAliasConfigurations.size() > 1) {
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
                     " or security profiles.", domain);
 
