@@ -74,7 +74,7 @@ public interface AuthenticationExtService {
      *
      * @param runnable - method to wrap
      * @param user     - Authentication: username
-     * @param password - Authentication: username
+     * @param password - Authentication: password
      * @param authRole - Authentication: role
      */
     void runWithSecurityContext(Runnable runnable, String user, String password, AuthRole authRole);
