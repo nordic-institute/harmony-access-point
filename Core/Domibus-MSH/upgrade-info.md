@@ -2,7 +2,7 @@
 
   ## Domibus 5.1 (from 5.0.3)
                 - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
-                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists.
                  o [MySQL only]
                     - Changed MySQL dialect property from MySQL5InnoDBDialect to MySQL8Dialect in the domibus.properties file:
                             domibus.entityManagerFactory.jpaProperty.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
@@ -49,6 +49,7 @@
                                    mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
 ### Partitioning only (oracle)

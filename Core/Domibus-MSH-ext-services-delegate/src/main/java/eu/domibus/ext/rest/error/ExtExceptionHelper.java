@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest.error;
 
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -56,6 +57,10 @@ public class ExtExceptionHelper {
             return createResponse(cause, HttpStatus.NOT_FOUND, true);
         }
 
+        if (cause instanceof SameResourceCryptoException) {
+            return createResponse(cause, HttpStatus.OK, true);
+        }
+
         if (cause instanceof DomibusCoreException) {
             if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_009) {
                 return createResponse(cause, HttpStatus.NOT_FOUND, true);
@@ -107,7 +112,7 @@ public class ExtExceptionHelper {
         if (showErrorDetails) {
             errorMessage = ex.getMessage();
             Throwable cause = extractCause(ex);
-            if (cause != null) {
+            if (cause != null && cause != ex) {
                 errorMessage += ":" + cause.getMessage();
             }
         }
@@ -138,14 +143,15 @@ public class ExtExceptionHelper {
         }
         if (e.getIssues() != null) {
             strBuilder.append(". Validation issues: ").append(e.getIssues().stream().map(ValidationIssue::getMessage).collect(Collectors.joining(", ")));
-
         }
         return strBuilder.toString();
     }
 
     private Throwable extractCause(Throwable e) {
         //first level of cause exception
-        return (e.getCause() == null ? e : e.getCause());
+        if (e.getCause() != null)
+            return e.getCause();
+        return e;
     }
 
     /**

@@ -11,6 +11,7 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -678,7 +679,7 @@ public class FSPluginImplTest {
     }
 
     @Test
-    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException {
+    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException, MessageNotFoundException {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         event.setMessageId(messageId);
         event.setFromStatus(MessageStatus.SEND_ENQUEUED);

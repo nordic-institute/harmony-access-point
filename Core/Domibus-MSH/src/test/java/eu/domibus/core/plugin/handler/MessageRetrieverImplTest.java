@@ -10,6 +10,8 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageNotFoundException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -120,7 +122,7 @@ public class MessageRetrieverImplTest {
 //    }
 
     @Test
-    public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
+    public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException, DuplicateMessageException {
         List<ErrorLogEntry> list = new ArrayList<>();
         list.add(errorLogEntry);
         new Expectations() {{

@@ -48,7 +48,7 @@ public class BackupServiceImpl implements BackupService {
     public void backupFile(File originalFile, String subFolder) throws IOException {
         File parentFile = originalFile.getParentFile();
         if (parentFile == null) {
-            LOG.warn("Couldnot get parebt file of [{}]; nobacking up.", originalFile);
+            LOG.warn("Could not get parent file of [{}]; no backing up.", originalFile);
             return;
         }
         String backupLocation = Paths.get(parentFile.getPath(), subFolder).toString();

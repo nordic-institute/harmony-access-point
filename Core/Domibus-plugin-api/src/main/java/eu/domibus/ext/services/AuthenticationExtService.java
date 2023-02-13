@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.AuthRole;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,5 +65,18 @@ public interface AuthenticationExtService {
      * @return the original user
      */
     String getOriginalUser();
+
+    /**
+     * Method execute function given in function parameter.
+     * If method isUnsecureLoginAllowed returns false, then
+     * the spring security context with user Authentication and role 'authRole; is set before invoking the function.
+     * After the method is executed the security context is removed.
+     *
+     * @param runnable - method to wrap
+     * @param user     - Authentication: username
+     * @param password - Authentication: password
+     * @param authRole - Authentication: role
+     */
+    void runWithSecurityContext(Runnable runnable, String user, String password, AuthRole authRole);
 
 }

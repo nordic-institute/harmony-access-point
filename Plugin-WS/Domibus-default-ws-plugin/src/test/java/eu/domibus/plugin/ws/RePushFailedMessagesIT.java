@@ -20,6 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Soumya Chandran
+ * @since 5.1
+ */
 @Transactional
 public class RePushFailedMessagesIT extends AbstractBackendWSIT {
 
@@ -62,7 +66,7 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
     @Test
     public void rePushFailedMessagesEmptyMessageIds() {
         List<String> messageIds = new ArrayList<>();
-        String emptyMessageId = "";
+        String emptyMessageId = " ";
         messageIds.add(emptyMessageId);
         RePushFailedMessagesRequest rePushRequest = createRePushFailedMessagesRequest(messageIds);
         try {
@@ -77,7 +81,7 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
     @Test
     public void rePushFailedMessagesMessageId_Too_Long() {
         List<String> messageIds = new ArrayList<>();
-        String invalidMessageId = StringUtils.repeat(" ", 256);
+        String invalidMessageId = StringUtils.repeat("X", 256);
         messageIds.add(invalidMessageId);
         RePushFailedMessagesRequest rePushRequest = createRePushFailedMessagesRequest(messageIds);
         try {

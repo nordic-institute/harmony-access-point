@@ -34,7 +34,6 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
     @Autowired
     FileUtilExtService fileUtilExtService;
 
-
     @Override
     public UserMessage transformFromSubmission(final Submission submission, final UserMessage target) {
         return transformFromSubmission(submission);

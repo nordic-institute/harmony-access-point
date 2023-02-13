@@ -59,13 +59,13 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
                         WSPluginBackendService wsPluginBackendService,
-                        WSPluginPropertyManager wsPluginPropertyManager, WSSendMessageListenerContainer fsSendMessageListenerContainer) {
+                        WSPluginPropertyManager wsPluginPropertyManager, WSSendMessageListenerContainer wsSendMessageListenerContainer) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
-        this.wsSendMessageListenerContainer = fsSendMessageListenerContainer;
+        this.wsSendMessageListenerContainer = wsSendMessageListenerContainer;
     }
 
     @Override
