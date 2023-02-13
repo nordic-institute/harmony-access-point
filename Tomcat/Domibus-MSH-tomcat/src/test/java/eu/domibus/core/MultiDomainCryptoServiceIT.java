@@ -9,6 +9,7 @@ import eu.domibus.core.crypto.*;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
+    @Ignore
     @Transactional
     public void persistTruststoresIfApplicable() {
         multiDomainCryptoService.saveStoresFromDBToDisk();

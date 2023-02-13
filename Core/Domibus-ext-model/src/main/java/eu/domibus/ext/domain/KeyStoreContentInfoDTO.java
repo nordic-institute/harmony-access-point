@@ -18,6 +18,7 @@ public class KeyStoreContentInfoDTO {
     }
 
     public KeyStoreContentInfoDTO(String truststoreName, byte[] truststoreFileContent, String originalFilename, String password) {
+        name = truststoreName;
         content = truststoreFileContent;
         fileName = originalFilename;
         this.password = password;

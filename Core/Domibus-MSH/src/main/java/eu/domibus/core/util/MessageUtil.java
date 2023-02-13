@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
@@ -28,7 +29,9 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
@@ -120,6 +123,11 @@ public class MessageUtil {
         final Ebms3Messaging ebms3Messaging = root.getValue();
         reader.close();
         return ebms3Messaging;
+    }
+
+    public Ebms3Messaging getMessagingFromSoapMessage(SoapMessage soapMessage) {
+        SOAPMessage originalMsg = soapMessage.getContent(SOAPMessage.class);
+        return getMessage(originalMsg);
     }
 
     /**

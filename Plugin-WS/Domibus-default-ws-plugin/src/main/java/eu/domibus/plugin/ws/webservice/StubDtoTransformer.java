@@ -1,7 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
 
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

@@ -71,6 +71,11 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     @Override
+    public boolean shouldCoreManageResources() {
+        return true;
+    }
+
+    @Override
     public MessageSubmissionTransformer<MapMessage> getMessageSubmissionTransformer() {
         return this.jmsMessageTransformer;
     }
@@ -183,12 +188,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     protected ErrorResult getErrorResult(String messageId, MSHRole mshRole) {
-        List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
-        if (CollectionUtils.isEmpty(errors)) {
-            return null;
+        try {
+            List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
+            if (CollectionUtils.isEmpty(errors)) {
+                return null;
+            }
+            return errors.get(errors.size() - 1);
+        } catch (final MessageNotFoundException e) {
+            LOG.error("Exception occurred while getting errors for message [{}], mshRole [{}]", messageId, mshRole, e);
+            throw new DefaultJmsPluginException("Exception occurred while getting errors for message [" + messageId + "]", e);
         }
-
-        return errors.get(errors.size() - 1);
     }
 
     private QueueContext createQueueContext(MessageEvent event) {

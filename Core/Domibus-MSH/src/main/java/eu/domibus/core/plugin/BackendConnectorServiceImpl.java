@@ -82,18 +82,22 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
             LOG.info("Could not find backend connector with the name [{}]; returning false; ", backendName);
             return false;
         }
+
         if (!(plugin instanceof EnableAware)) {
             LOG.info("Backend connector with the name [{}] is not domain aware; returning false; ", backendName);
             return false;
         }
+
         EnableAware enableAware = (EnableAware) plugin;
-        if (!enableAware.isEnabled(domainCode)) {
-            LOG.info("Cannot disable backend connector with the name [{}] since it is already disabled; returning false; ", backendName);
-            return false;
+        if (enableAware.shouldCoreManageResources()) {
+            if (!enableAware.isEnabled(domainCode)) {
+                LOG.info("Cannot disable backend connector with the name [{}] since it is already disabled; returning false; ", backendName);
+                return false;
+            }
         }
 
         List<EnableAware> enabled = backendConnectorProvider.getEnableAwares().stream().filter(item -> item.isEnabled(domainCode)).collect(Collectors.toList());
-        if (enabled.size() > 1) {
+        if (enabled.size() > 1 || (enabled.size() == 1 && !StringUtils.equals(enabled.get(0).getName(), backendName))) {
             LOG.debug("Backend connector with the name [{}] can be disabled on domain [{}]; returning true; ", backendName, domainCode);
             return true;
         }
@@ -107,6 +111,22 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     public boolean isBackendConnectorEnabled(String backendName) {
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         return isBackendConnectorEnabled(backendName, currentDomain.getCode());
+    }
+
+    @Override
+    public boolean shouldCoreManageResources(String backendName) {
+        if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
+            LOG.debug("Test Backend connector; returning false; ");
+            return false;
+        }
+        BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
+        if (plugin == null) {
+            LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
+            return false;
+        }
+
+        EnableAware enableAware = (EnableAware) plugin;
+        return enableAware.shouldCoreManageResources();
     }
 
     @Override

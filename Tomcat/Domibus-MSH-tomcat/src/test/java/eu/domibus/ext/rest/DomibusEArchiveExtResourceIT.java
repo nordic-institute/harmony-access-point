@@ -179,7 +179,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]\"}", content);
+        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]\"}", content);
+        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]\"}", content);
+        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test

@@ -439,16 +439,19 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
                                              String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter, Runnable storeReloader) throws CryptoSpiException {
+        boolean replaced;
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
-            boolean replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
-            if (!replaced) {
-                throw new CryptoSpiException(String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.",
-                        storeName, storeFileName));
-            }
+            replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
+        }
+
+        if (!replaced) {
+            throw new SameResourceCryptoSpiException(storeName, storeFileName,
+                    String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.",
+                            storeName, storeFileName));
         }
         storeReloader.run();
     }

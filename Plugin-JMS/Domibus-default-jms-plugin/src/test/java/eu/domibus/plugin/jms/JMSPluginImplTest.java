@@ -40,13 +40,13 @@ import static org.junit.Assert.assertNull;
 public class JMSPluginImplTest {
 
     @Injectable
-    protected MessageRetrieverExtService messageRetriever;
+    protected MessageRetriever messageRetriever;
 
     @Injectable
-    protected MessageSubmitterExtService messageSubmitter;
+    protected MessageSubmitter messageSubmitter;
 
     @Injectable
-    protected MessagePullerExtService messagePuller;
+    protected MessagePuller messagePuller;
 
     @Injectable
     private JmsOperations replyJmsTemplate;
@@ -216,7 +216,7 @@ public class JMSPluginImplTest {
         backendJMS.receiveMessage(map);
 
         new Verifications() {{
-            String capturedJmsCorrelationId ;
+            String capturedJmsCorrelationId;
             backendJMS.sendReplyMessage(queueContext, anyString, capturedJmsCorrelationId = withCapture());
 
             assertEquals(jmsCorrelationId, capturedJmsCorrelationId);

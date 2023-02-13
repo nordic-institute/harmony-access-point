@@ -7,7 +7,9 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.DomibusApiProperty.DOMIBUS_LOGGING_PAYLOAD_PRINT;
+import static eu.domibus.common.DomibusApiProperty.DOMIBUS_LOGGING_METADATA_PRINT;
+import static eu.domibus.common.DomibusApiProperty.DOMIBUS_LOGGING_CXF_LIMIT;
 
 /**
  * @author François Gautier

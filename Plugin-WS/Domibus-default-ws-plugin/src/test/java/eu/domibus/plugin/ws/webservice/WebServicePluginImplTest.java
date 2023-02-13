@@ -13,6 +13,7 @@ import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import eu.domibus.messaging.MessageNotFoundException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -177,17 +178,17 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
             @Injectable StatusRequestWithAccessPointRole statusRequest,
-            @Injectable MessageRetriever messageRetriever) throws StatusFault {
+            @Injectable MessageRetriever messageRetriever) throws StatusFault, MessageNotFoundException {
         new Expectations() {{
+
+            messageExtService.cleanMessageIdentifier(MESSAGE_ID);
+            result = MESSAGE_ID;
+
             statusRequest.getMessageID();
             result = MESSAGE_ID;
 
             statusRequest.getAccessPointRole();
             result = MshRole.RECEIVING;
-
-            messageExtService.cleanMessageIdentifier(MESSAGE_ID);
-            result = MESSAGE_ID;
-            times = 1;
 
             wsPlugin.getMessageRetriever();
             result = messageRetriever;
@@ -276,6 +277,9 @@ public class WebServicePluginImplTest {
 
                 wsPluginPropertyManager.getKnownIntegerPropertyValue(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT);
                 result = 2;
+
+                messageExtService.cleanMessageIdentifier(messageId);
+                result = messageId;
 
                 rePushFailedMessagesRequest.getMessageID();
                 result = messageIds;

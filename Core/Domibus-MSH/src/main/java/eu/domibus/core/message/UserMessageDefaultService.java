@@ -64,6 +64,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -502,7 +503,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
 
-        if(userMessageLog == null) {
+        if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
 
@@ -671,30 +672,33 @@ public class UserMessageDefaultService implements UserMessageService {
 
         em.flush();
         int deleteResult = userMessageLogDao.deleteMessageLogs(ids);
-        LOG.info("Deleted [{}] userMessageLogs.", deleteResult);
+        logDeleted("Deleted [{}] userMessageLogs.", deleteResult);
         deleteResult = signalMessageLogDao.deleteMessageLogs(ids);
-        LOG.info("Deleted [{}] signalMessageLogs.", deleteResult);
+        logDeleted("Deleted [{}] signalMessageLogs.", deleteResult);
         deleteResult = signalMessageRawEnvelopeDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
+        logDeleted("Deleted [{}] signalMessageRaws.", deleteResult);
         deleteResult = receiptDao.deleteReceipts(ids);
-        LOG.info("Deleted [{}] receipts.", deleteResult);
+        logDeleted("Deleted [{}] receipts.", deleteResult);
         deleteResult = signalMessageDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] signalMessages.", deleteResult);
+        logDeleted("Deleted [{}] signalMessages.", deleteResult);
         deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] userMessageRaws.", deleteResult);
+        logDeleted("Deleted [{}] userMessageRaws.", deleteResult);
         deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(ids);
-        LOG.info("Deleted [{}] attempts.", deleteResult);
-
+        logDeleted("Deleted [{}] attempts.", deleteResult);
 
         deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(ids);
-        LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        logDeleted("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
-        LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
-
+        logDeleted("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
 
         deleteResult = userMessageDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] userMessages.", deleteResult);
+        logDeleted("Deleted [{}] userMessages.", deleteResult);
+    }
 
+    private void logDeleted(String message, int deletedNr) {
+        if (deletedNr > 0) {
+            LOG.info(message, deletedNr);
+        }
     }
 
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
@@ -767,7 +771,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public void clearPayloadData(List<Long> entityIds) {
-        if(CollectionUtils.isEmpty(entityIds)){
+        if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
         try {
@@ -777,7 +781,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
             });
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);
             throw e;
         }
@@ -824,7 +828,12 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(domibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
+                InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
+                if (isCompressedFile(pInfo)) {
+                    inputStream = new GZIPInputStream(inputStream);
+                }
+                result.put(fileName, inputStream);
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
@@ -875,14 +884,23 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = null;
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
-                extension = fileServiceUtil.getExtension(property.getValue());
-                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
-            }
+        String extension = info.getPartProperties().stream()
+                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                .map(PartProperty::getValue)
+                .map(fileServiceUtil::getExtension)
+                .findFirst()
+                .orElse(null);
+        if(StringUtils.isBlank(extension)){
+            LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
+        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         return extension;
+    }
+
+    private boolean isCompressedFile(PartInfo info) {
+        return info.getPartProperties().stream()
+                .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
+                        && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {

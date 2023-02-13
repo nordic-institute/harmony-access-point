@@ -70,5 +70,5 @@ public interface DomibusCoreMapper {
 
     MessagesActionRequest messagesActionRequestROT0MessagesActionRequest(MessagesActionRequestRO request);
 
-    KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoSpi(eu.domibus.api.pki.KeyStoreContentInfo storeInfo);
+    KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoDTO(eu.domibus.api.pki.KeyStoreContentInfo storeInfo);
 }

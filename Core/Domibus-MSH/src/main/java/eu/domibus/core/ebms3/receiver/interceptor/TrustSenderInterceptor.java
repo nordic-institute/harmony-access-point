@@ -98,7 +98,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     @Autowired
     private TokenReferenceExtractor tokenReferenceExtractor;
 
-
     public TrustSenderInterceptor() {
         super(false);
     }
@@ -124,29 +123,30 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             return;
         }
 
-        boolean isPullMessage = false;
+        boolean isPullSignalMessage = false;
         MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
         if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
             LOG.debug("PULL Signal Message");
-            isPullMessage = true;
+            isPullSignalMessage = true;
         }
 
         String senderPartyName;
         String receiverPartyName;
-        if (isPullMessage) {
+        if (isPullSignalMessage) {
             senderPartyName = getReceiverPartyName(message);
             receiverPartyName = getSenderPartyName(message);
         } else {
             senderPartyName = getSenderPartyName(message);
             receiverPartyName = getReceiverPartyName(message);
         }
+
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
         LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
-        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
+        if (!checkCertificateValidity(certificateChain, senderPartyName, isPullSignalMessage)) {
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
                     .message("Sender [" + senderPartyName + "] certificate is not valid or has been revoked")

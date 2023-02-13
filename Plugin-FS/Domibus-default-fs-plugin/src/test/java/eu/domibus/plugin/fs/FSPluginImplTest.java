@@ -11,6 +11,10 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
+import eu.domibus.plugin.handler.MessagePuller;
+import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
@@ -25,7 +29,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -46,13 +49,13 @@ public class FSPluginImplTest {
     private static final String TEXT_XML = "text/xml";
 
     @Injectable
-    protected MessageRetrieverExtService messageRetriever;
+    protected MessageRetriever messageRetriever;
 
     @Injectable
-    protected MessageSubmitterExtService messageSubmitter;
+    protected MessageSubmitter messageSubmitter;
 
     @Injectable
-    protected MessagePullerExtService messagePuller;
+    protected MessagePuller messagePuller;
 
     @Injectable
     private FSFilesManager fsFilesManager;
@@ -108,6 +111,8 @@ public class FSPluginImplTest {
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
 
+    @Injectable
+    FSSendMessageListenerContainer fsSendMessageListenerContainer;
 
     @Tested
     FSPluginImpl backendFS;
@@ -674,7 +679,7 @@ public class FSPluginImplTest {
     }
 
     @Test
-    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException {
+    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException, MessageNotFoundException {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         event.setMessageId(messageId);
         event.setFromStatus(MessageStatus.SEND_ENQUEUED);

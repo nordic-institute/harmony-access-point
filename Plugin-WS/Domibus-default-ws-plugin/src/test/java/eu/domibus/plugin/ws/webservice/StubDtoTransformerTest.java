@@ -1,5 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.core.util.FileServiceUtilImpl;
+import eu.domibus.ext.delegate.services.util.FileUtilServiceDelegate;
 import eu.domibus.ext.exceptions.MessageExtException;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -16,6 +18,8 @@ import javax.mail.util.ByteArrayDataSource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.springframework.test.util.ReflectionTestUtils;
 
 
 public class StubDtoTransformerTest {

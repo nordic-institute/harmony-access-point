@@ -11,12 +11,14 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
+import eu.domibus.messaging.PluginMessageListenerContainer;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
@@ -74,7 +76,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             SEND_FAILURE
     );
 
-
     // receiving statuses should be REJECTED, RECEIVED_WITH_WARNINGS, DOWNLOADED, DELETED, RECEIVED
 
     @Autowired
@@ -107,8 +108,16 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
+    @Autowired
+    FSSendMessageListenerContainer fsSendMessageListenerContainer;
+
     public FSPluginImpl() {
         super(PLUGIN_NAME);
+    }
+
+    @Override
+    public boolean shouldCoreManageResources() {
+        return true;
     }
 
     /**
@@ -358,12 +367,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
             fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
 
-        } catch (IOException e) {
+        } catch (IOException | MessageNotFoundException e) {
             throw new FSPluginException("Error handling the send failed message file " + messageId, e);
         }
     }
 
-    protected String getErrorMessage(String messageId, MSHRole mshRole) {
+    protected String getErrorMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
         String content;
         if (!errors.isEmpty()) {
@@ -538,6 +547,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     public String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
+    }
+
+    @Override
+    public PluginMessageListenerContainer getMessageListenerContainerFactory() {
+        return fsSendMessageListenerContainer;
     }
 
 }

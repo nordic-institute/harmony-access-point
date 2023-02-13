@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
@@ -12,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -74,6 +74,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
+    public static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
@@ -402,9 +403,10 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     protected ListPushFailedMessagesRequest getValidListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
         String messageId = listPushFailedMessagesRequest.getMessageId();
-        ListPushFailedMessagesRequest pushFailedMessagesRequest= new ListPushFailedMessagesRequest();
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
 
-        if (StringUtils.isEmpty(messageId)) {
+        //Since message id is an optional parameter in the request the exception throws only when the message id exists but it is empty.
+        if (messageId != null && StringUtils.isBlank(messageId)) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
         }
@@ -453,26 +455,28 @@ public class WebServiceImpl implements WebServicePluginInterface {
         List<String> trimmedMessageIds = new ArrayList<>();
         ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
         for (String messageId : messageIds) {
+            String trimmedMessageId = messageExtService.cleanMessageIdentifier(messageId);
 
-            if (StringUtils.isEmpty(messageId)) {
+            if (StringUtils.isEmpty(trimmedMessageId)) {
                 LOG.error(MESSAGE_ID_EMPTY);
                 throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
             }
+
             if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
             }
-            pushFailedMessagesRequest.setMessageId(messageId);
+            pushFailedMessagesRequest.setMessageId(trimmedMessageId);
             ListPushFailedMessagesResponse response;
             try {
                 response = listPushFailedMessages(pushFailedMessagesRequest);
             } catch (ListPushFailedMessagesFault ex) {
                 throw new RePushFailedMessagesFault(" List Push Failed Messages has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, ex.getMessage()));
             }
-            if (!response.getMessageID().contains(messageId)) {
+            if (!response.getMessageID().contains(trimmedMessageId)) {
                 throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
             }
 
-            trimmedMessageIds.add(StringUtils.trim(messageId));
+            trimmedMessageIds.add(trimmedMessageId);
         }
         return trimmedMessageIds;
     }
@@ -639,12 +643,23 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
-
-        validateMessageId(statusRequest.getMessageID());
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        try {
+            validateMessageId(trimmedMessageId);
+            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
+            throw new StatusFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, mnfEx.getMessage()));
+        } catch (final DuplicateMessageException exception) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", exception);
+            }
+            LOG.error(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]");
+            throw new StatusFault(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, exception.getMessage()));
+        }
     }
 
     /**
@@ -654,16 +669,19 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
-
-        validateMessageId(statusRequestWithAccessPointRole.getMessageID());
-
-        validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
-
-        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
-
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+        try {
+            validateMessageId(trimmedMessageId);
+            validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
+            MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
+            throw new StatusFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, mnfEx.getMessage()));
+        }
     }
 
     protected void validateMessageId(String messageId) throws StatusFault {
@@ -688,14 +706,14 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequest.getMessageID();
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequest.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+        } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
-        } catch (DuplicateMessageFoundException e) {
+        } catch (DuplicateMessageException e) {
             throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
@@ -712,8 +730,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public ErrorResultImplArray getMessageErrorsWithAccessPointRole(GetErrorsRequestWithAccessPointRole messageErrorsRequestWithAccessPointRole) throws GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequestWithAccessPointRole.getMessageID();
-
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequestWithAccessPointRole.getMessageID());
         validateMessageIdForGetMessageErrors(messageId);
 
         if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
@@ -724,7 +741,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId, role);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+        } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (Exception e) {
