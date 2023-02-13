@@ -254,7 +254,7 @@ public class TestService {
         listTypedProperty.add(objTypedProperty);
         Submission.Payload objPayload1 = new Submission.Payload("cid:message", payLoadDataHandler, listTypedProperty, false, null, null);
         submission.addPayload(objPayload1);
-
+        submission.setMpc("urn:fdc:ec.europa.eu:2019:eu_ics2_c2t/EORI/BE00000001");
         // Set Sender
         submission.getFromParties().clear();
         submission.addFromParty(sender, pModeProvider.getPartyIdType(sender));

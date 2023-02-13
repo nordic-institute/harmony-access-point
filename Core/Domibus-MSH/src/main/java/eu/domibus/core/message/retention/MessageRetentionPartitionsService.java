@@ -2,13 +2,13 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.Partition;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
@@ -63,7 +64,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected final PartitionService partitionService;
 
-    public static final String DEFAULT_PARTITION_NAME = "P1970"; // default partition that we never delete
+    public static final String DEFAULT_PARTITION = "197000000000000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                              UserMessageDao userMessageDao,
@@ -109,10 +110,8 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
-        Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
-        String newestPartitionName = partitionService.getPartitionNameFromDate(newestPartitionToCheckDate);
-        LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
-        List<String> partitionNames = getExpiredPartitions(newestPartitionName);
+        List<String> partitionNames = getExpiredPartitions(maxRetention);
+        LOG.debug("Verify if all messages expired for partitions older than [{}] days", maxRetention/60/24);
         for (String partitionName : partitionNames) {
             LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
@@ -147,18 +146,22 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
     }
 
-    protected List<String> getExpiredPartitions(String newestPartitionName) {
-        List<String> partitionNames;
+    protected List<String> getExpiredPartitions(int maxRetention) {
+        List<Partition> partitions;
         if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
-            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, dbSchemaUtil.getDatabaseSchema(currentDomain));
+            partitions = userMessageDao.findAllPartitions(dbSchemaUtil.getDatabaseSchema(currentDomain));
         } else {
-            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
+            partitions = userMessageDao.findAllPartitions();
         }
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size(), partitions);
 
-        // remove default partition (the oldest partition) as we don't delete it
-        partitionNames.remove(DEFAULT_PARTITION_NAME);
+        List<String> partitionNames =
+                partitions.stream()
+                        .filter(p->p.getPartitionName()==DEFAULT_PARTITION)
+                        .map(Partition::getPartitionName)
+                        .collect(Collectors.toList());
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size(), partitionNames);
 
         return partitionNames;
     }

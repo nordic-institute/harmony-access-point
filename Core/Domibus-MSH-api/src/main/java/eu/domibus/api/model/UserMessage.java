@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -44,15 +45,11 @@ import java.util.Set;
 @NamedNativeQueries({
         @NamedNativeQuery(
                 name    =   "UserMessage.findPartitionsForUser_ORACLE",
-                query   =   "SELECT partition_name FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = :TNAME and partition_name <= :PNAME"
+                query   =   "SELECT new Partition(partition_name, high_value) FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = :TNAME"
         ),
         @NamedNativeQuery(
                 name    =   "UserMessage.findPartitions_ORACLE",
-                query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = :TNAME and partition_name <= :PNAME"
-        ),
-        @NamedNativeQuery(
-                name    =   "UserMessage.verifyPartitionExistsByName",
-                query   =   "SELECT count(*) FROM user_tab_partitions WHERE partition_name >= :PNAME"
+                query   =   "SELECT new Partition(partition_name, high_value) FROM user_tab_partitions WHERE table_name = :TNAME"
         )
 })
 @Entity
