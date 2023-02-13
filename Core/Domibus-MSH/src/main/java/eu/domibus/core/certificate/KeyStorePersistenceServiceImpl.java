@@ -180,8 +180,10 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
         try {
             if (StringUtils.equals(storeType, persistenceInfo.getType())) {
+                // same store type: just persist it
                 Files.write(Paths.get(storeFileLocation), storeContent);
             } else {
+                // different store type: store name changes, so type and location properties must be also changed
                 String fileExtension = certificateHelper.getStoreFileExtension(storeType);
                 String newFileName = FilenameUtils.getBaseName(storeFileLocation) + "." + fileExtension;
                 Path newStoreFileLocation = Paths.get(FilenameUtils.getFullPath(storeFileLocation), newFileName);

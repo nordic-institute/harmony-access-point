@@ -386,7 +386,7 @@ public class CertificateServiceImpl implements CertificateService {
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
-        } catch (CryptoException exc) {
+        } catch (Exception exc) {
             throw new CryptoException("Could not replace store " + storeName, exc);
         }
     }
@@ -592,7 +592,7 @@ public class CertificateServiceImpl implements CertificateService {
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
             return keystore;
         } catch (Exception ex) {
-            throw new DomibusCertificateException("Could not load store named " + storeInfo.getName(), ex);
+            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
         }
     }
 
