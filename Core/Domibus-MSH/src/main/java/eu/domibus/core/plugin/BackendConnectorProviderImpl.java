@@ -83,6 +83,7 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
                 return true;
             }
         }
+        LOG.debug("Plugin/extension [{}] is not enabled", enableAware.getName());
         return false;
     }
 

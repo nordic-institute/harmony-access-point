@@ -3,6 +3,9 @@ package eu.domibus.plugin.initialize;
 /**
  * Interface to be implemented by Domibus plugins/extensions to perform initialization logic.
  * The methods of this interface are executed by Domibus after Spring context has been initialized.
+ *
+ * @author Cosmin Baciu
+ * @since 5.1.1
  */
 public interface PluginInitializer {
 

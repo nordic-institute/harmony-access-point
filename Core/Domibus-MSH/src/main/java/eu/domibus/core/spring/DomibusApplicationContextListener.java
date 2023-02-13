@@ -183,7 +183,7 @@ public class DomibusApplicationContextListener {
             try {
                 pluginInitializer.initializeNonSynchronized();
             } catch (Exception e) {
-                LOG.error("Error executing plugin initializer [{}", pluginInitializer.getName(), e);
+                LOG.error("Error executing plugin initializer [{}]", pluginInitializer.getName(), e);
             }
         }
     }
