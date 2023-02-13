@@ -7,13 +7,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -58,9 +58,6 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
 public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
-    public static final String CERTIFICATE_ALGORITHM_RSA = "RSA";
-    public static final String CERTIFICATE_PURPOSE_DECRYPT = "decrypt";
-    public static final String CERTIFICATE_PURPOSE_SIGN = "sign";
 
     protected Domain domain;
 
@@ -78,6 +75,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    protected final SecurityProfileService securityProfileService;
+
     private final KeystorePersistenceService keystorePersistenceService;
 
     private final CertificateHelper certificateHelper;
@@ -90,13 +89,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
+                                             SecurityProfileService securityProfileService, KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
+        this.securityProfileService = securityProfileService;
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
@@ -465,84 +465,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), StoreType.TRUSTSTORE);
     }
 
-    protected void validateKeyStoreCertificates(KeyStore keyStore) {
-        securityProfileAliasConfigurations.forEach(
-                profileConfiguration -> validateCertificateType(profileConfiguration, keyStore));
-    }
-
-    private void validateCertificateType(SecurityProfileAliasConfiguration profileConfiguration, KeyStore keyStore) {
-        try {
-            String alias = profileConfiguration.getAlias();
-            X509Certificate certificate = (X509Certificate) keyStore.getCertificate(alias);
-            if (certificate == null) {
-                LOG.error("Alias: [{}] does not exist in the keystore", alias);
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Alias does not exist in the keystore");
-            }
-
-            String certificateAlgorithm = certificate.getPublicKey().getAlgorithm();
-
-            validateLegacyAliasCertificate(certificateAlgorithm, alias);
-
-            SecurityProfile securityProfile = profileConfiguration.getSecurityProfile();
-            String certificatePurpose = StringUtils.substringAfterLast(alias,"_").toLowerCase();
-            switch (certificatePurpose) {
-                case CERTIFICATE_PURPOSE_DECRYPT:
-                    validateDecryptionCertificate(securityProfile, certificateAlgorithm, certificatePurpose, alias);
-                    break;
-                case CERTIFICATE_PURPOSE_SIGN:
-                    validateSigningCertificate(securityProfile, certificateAlgorithm, certificatePurpose, alias);
-                    break;
-                default:
-                    LOG.error("Invalid naming of alias [{}], it should end with sign or decrypt", alias);
-                    throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid alias naming");
-            }
-        } catch (KeyStoreException e) {
-            LOG.error("Keystore exception: {}", e.getMessage());
-            throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Error loading certificate from Keystore");
-        }
-    }
-
-    private void validateLegacyAliasCertificate(String certificateAlgorithm, String alias) {
-        if (isLegacySingleAliasKeystoreDefined()) {
-            if (!certificateAlgorithm.equalsIgnoreCase(CERTIFICATE_ALGORITHM_RSA)) {
-                LOG.error("Invalid certificate type with alias: [{}] defined", alias);
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid certificate type defined");
-            }
-        }
-    }
-
-    private void validateDecryptionCertificate(SecurityProfile securityProfile, String certificateAlgorithm,
-                                               String certificatePurpose, String alias) {
-        List<String> certificateTypes = new ArrayList<>();
-        if (securityProfile == SecurityProfile.RSA) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE);
-        } else if (securityProfile == SecurityProfile.ECC) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE);
-        }
-        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile);
-    }
-
-    private void validateSigningCertificate(SecurityProfile securityProfile, String certificateAlgorithm,
-                                            String certificatePurpose, String alias) {
-        List<String> certificateTypes = new ArrayList<>();
-
-        if (securityProfile == SecurityProfile.RSA) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE);
-        } else if (securityProfile == SecurityProfile.ECC) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE);
-        }
-        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile);
-    }
-
-    private void checkCertificateType(List<String> certificateTypes, String certificateAlgorithm, String certificatePurpose,
-                                      String alias, SecurityProfile securityProfile) {
-        boolean certificateTypeWasFound = certificateTypes.stream().anyMatch(certificateAlgorithm::equalsIgnoreCase);
-        if (!certificateTypeWasFound) {
-            LOG.error("Invalid [{}] certificate type with alias: [{}] used in security profile: [{}]", certificatePurpose, alias, securityProfile);
-            throw new CertificateException(DomibusCoreErrorCode.DOM_005, "Invalid [" + certificatePurpose + "] certificate type used for security profile: [" + securityProfile + "]");
-        }
-    }
-
     protected void loadTrustStoreProperties() {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         loadStoreProperties(persistenceInfo, this::loadTrustStorePropertiesForMerlin);
@@ -587,8 +509,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
 
+            //this discriminator is currently used only for keystore validation, but validation of the truststore will also be added
             if (storeType == StoreType.KEYSTORE) {
-                validateKeyStoreCertificates(store);
+                securityProfileService.validateStoreCertificates(securityProfileAliasConfigurations, store);
             }
 
             securityProfileAliasConfigurations.forEach(
@@ -622,16 +545,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
-    private boolean isLegacySingleAliasKeystoreDefined() {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null;
-    }
-
     protected void createSecurityProfileAliasConfigurations() {
 
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean legacySingleAliasKeystore  = isLegacySingleAliasKeystoreDefined();
+        boolean legacySingleAliasKeystore  = securityProfileService.isLegacySingleAliasKeystoreDefined();
         if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
         }
@@ -649,6 +568,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     " or security profiles.", domain);
 
             throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain: " + domain);
+        }
+
+        if (securityProfileAliasConfigurations.size() == 0) {
+            throw new ConfigurationException("No keystore alias defined for domain: " + domain);
         }
 
         LOG.debug("Created security profile alias configurations for domain [{}]", domain);
