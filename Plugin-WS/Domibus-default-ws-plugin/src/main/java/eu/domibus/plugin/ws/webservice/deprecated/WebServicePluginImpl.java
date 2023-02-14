@@ -421,12 +421,6 @@ public class WebServicePluginImpl implements BackendInterface {
         // cannot know the msh role unless we add it on StatusRequest class
         try {
             return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
-            throw new StatusFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(mnfEx.getMessage()));
         } catch (final DuplicateMessageException exception) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", exception);

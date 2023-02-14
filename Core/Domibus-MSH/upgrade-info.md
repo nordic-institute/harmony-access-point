@@ -11,7 +11,11 @@
                         - domain schemas:
                             - grant privileges to the general schema using oracle-5.1-multi-tenancy-rights.sql, updating the schema names before execution
                             Please note that this script execution is required even though it may have been executed before.
-  ### DB migration script
+                - [Custom plugins] For custom plugins the interface to Domibus has changed.
+                    - getErrorsForMessage(String messageId) became @deprecated and now throws MessageNotFoundException and DuplicateMessageException
+                    - getStatus(String messageId) became @deprecated and now throws DuplicateMessageException
+                    - both methods should be replaced with the equivalent method that receives also the AP role as parameter.
+### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
                         - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
