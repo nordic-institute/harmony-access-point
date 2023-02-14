@@ -171,7 +171,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected abstract boolean doRemoveCertificate(String alias);
 
-    private String getFileName(KeyStoreContentInfo storeInfo) {
+    protected String getFileName(KeyStoreContentInfo storeInfo) {
         String fileName = getStoreName();
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         if (domibusConfigurationService.isMultiTenantAware() && domain != null) {
