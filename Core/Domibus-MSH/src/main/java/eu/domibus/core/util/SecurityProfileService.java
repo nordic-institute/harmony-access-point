@@ -11,10 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
-
 /**
  * Provides services needed by the Security Profiles feature
- *
+ * @author Lucian FURCA
  * @since 5.1
  */
 @Service
@@ -22,7 +21,7 @@ public class SecurityProfileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileService.class);
 
-    private final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
+    protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
     public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader) {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;

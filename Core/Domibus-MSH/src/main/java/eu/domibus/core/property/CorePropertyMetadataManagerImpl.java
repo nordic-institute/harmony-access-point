@@ -107,6 +107,11 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, Usage.DOMAIN, false),
 
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, false),
+
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, Type.URI, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, Type.STRING, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),

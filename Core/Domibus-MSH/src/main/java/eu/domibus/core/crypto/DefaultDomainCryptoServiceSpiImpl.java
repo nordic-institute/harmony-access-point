@@ -13,6 +13,7 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.util.SecurityProfileValidatorService;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -74,6 +75,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    protected final SecurityProfileValidatorService securityProfileValidatorService;
+
     private final KeystorePersistenceService keystorePersistenceService;
 
     private final CertificateHelper certificateHelper;
@@ -86,13 +89,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
+                                             SecurityProfileValidatorService securityProfileValidatorService,
+                                             KeystorePersistenceService keystorePersistenceService,
+                                             CertificateHelper certificateHelper,
+                                             FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
+        this.securityProfileValidatorService = securityProfileValidatorService;
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
@@ -458,7 +465,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected void initTrustStore() {
         initStore(DOMIBUS_TRUSTSTORE_NAME, this::loadTrustStoreProperties, keystorePersistenceService::getTrustStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), StoreType.TRUSTSTORE);
     }
 
     protected void loadTrustStoreProperties() {
@@ -493,19 +500,25 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected void initKeyStore() {
         initStore(DOMIBUS_KEYSTORE_NAME, this::loadKeyStoreProperties, keystorePersistenceService::getKeyStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), StoreType.KEYSTORE);
     }
 
     protected void initStore(String storeName, Runnable propertiesLoader, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter) {
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, StoreType storeType) {
         LOG.debug("Initializing the [{}] certificate provider for domain [{}]", storeName, domain);
 
         domainTaskExecutor.submit(() -> {
             propertiesLoader.run();
 
-            KeyStore trustStore = certificateService.getStore(persistenceInfoGetter.get());
+            KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
+
+            //this discriminator is currently used only for keystore validation, but validation of the truststore will also be added
+            if (storeType == StoreType.KEYSTORE) {
+                securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, store, StoreType.KEYSTORE);
+            }
+
             securityProfileAliasConfigurations.forEach(
-                    profileConfiguration -> merlinStoreSetter.accept(trustStore, profileConfiguration));
+                    profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));
         }, domain);
 
         LOG.debug("Finished initializing the [{}] certificate provider for domain [{}]", storeName, domain);
@@ -540,10 +553,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean isLegacySingleAliasKeystoreDefined = false;
-        if (domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null) {
+        boolean legacySingleAliasKeystore  = securityProfileValidatorService.isLegacySingleAliasKeystoreDefined();
+        if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
-            isLegacySingleAliasKeystoreDefined = true;
         }
 
         //RSA Profile
@@ -554,11 +566,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, SecurityProfile.ECC);
 
-        if (isLegacySingleAliasKeystoreDefined && securityProfileAliasConfigurations.size() > 1) {
+        if (legacySingleAliasKeystore && securityProfileAliasConfigurations.size() > 1) {
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
                     " or security profiles.", domain);
 
             throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain: " + domain);
+        }
+
+        if (securityProfileAliasConfigurations.size() == 0) {
+            throw new ConfigurationException("No keystore alias defined for domain: " + domain);
         }
 
         LOG.debug("Created security profile alias configurations for domain [{}]", domain);
