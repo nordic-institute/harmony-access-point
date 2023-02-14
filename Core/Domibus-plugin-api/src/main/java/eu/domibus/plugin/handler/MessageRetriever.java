@@ -87,9 +87,9 @@ public interface MessageRetriever {
      * @deprecated since 5.1 Use instead {@link #getStatus(String messageId, MSHRole role)}
      */
     @Deprecated
-    MessageStatus getStatus(String messageId) throws MessageNotFoundException, DuplicateMessageException;
+    MessageStatus getStatus(String messageId) throws DuplicateMessageException;
 
-    MessageStatus getStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException;
+    MessageStatus getStatus(String messageId, MSHRole mshRole);
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
@@ -97,7 +97,7 @@ public interface MessageRetriever {
      * @param messageEntityId entity id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
-    MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException;
+    MessageStatus getStatus(final Long messageEntityId);
 
     /**
      * Returns List {@link java.util.List} of error logs {@link ErrorResult} for message with messageid

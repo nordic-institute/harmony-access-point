@@ -647,12 +647,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
         try {
             validateMessageId(trimmedMessageId);
             return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
-            throw new StatusFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, mnfEx.getMessage()));
         } catch (final DuplicateMessageException exception) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", exception);
@@ -670,18 +664,10 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
-        try {
-            validateMessageId(trimmedMessageId);
-            validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
-            MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
-            throw new StatusFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, mnfEx.getMessage()));
-        }
+        validateMessageId(trimmedMessageId);
+        validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
+        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
     }
 
     protected void validateMessageId(String messageId) throws StatusFault {
