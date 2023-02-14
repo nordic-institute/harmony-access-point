@@ -13,7 +13,7 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.util.SecurityProfileValidatorService;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -75,7 +75,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
-    protected final SecurityProfileService securityProfileService;
+    protected final SecurityProfileValidatorService securityProfileValidatorService;
 
     private final KeystorePersistenceService keystorePersistenceService;
 
@@ -89,14 +89,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             SecurityProfileService securityProfileService, KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
+                                             SecurityProfileValidatorService securityProfileValidatorService,
+                                             KeystorePersistenceService keystorePersistenceService,
+                                             CertificateHelper certificateHelper,
+                                             FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
-        this.securityProfileService = securityProfileService;
+        this.securityProfileValidatorService = securityProfileValidatorService;
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
@@ -511,7 +514,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             //this discriminator is currently used only for keystore validation, but validation of the truststore will also be added
             if (storeType == StoreType.KEYSTORE) {
-                securityProfileService.validateStoreCertificates(securityProfileAliasConfigurations, store);
+                securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, store, StoreType.KEYSTORE);
             }
 
             securityProfileAliasConfigurations.forEach(
@@ -550,7 +553,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean legacySingleAliasKeystore  = securityProfileService.isLegacySingleAliasKeystoreDefined();
+        boolean legacySingleAliasKeystore  = securityProfileValidatorService.isLegacySingleAliasKeystoreDefined();
         if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
         }
