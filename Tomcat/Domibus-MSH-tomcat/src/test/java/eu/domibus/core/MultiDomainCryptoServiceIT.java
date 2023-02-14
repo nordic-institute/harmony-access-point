@@ -1,11 +1,20 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.Certificate;
 import eu.domibus.core.certificate.CertificateDaoImpl;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.*;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
@@ -14,6 +23,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.KeyStore;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -50,6 +65,15 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Autowired
     CertificateDaoImpl certificateDao;
 
+    @Autowired
+    CertificateHelper certificateHelper;
+
+    @Autowired
+    KeystorePersistenceService keystorePersistenceService;
+
+    @Autowired
+    FileServiceUtil fileServiceUtil;
+
     private Date getDate(LocalDateTime localDateTime1) {
         return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
     }
@@ -71,24 +95,56 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Ignore
     @Transactional
-    public void persistTruststoresIfApplicable() {
+    public void persistTrustStoresIfApplicable() {
         multiDomainCryptoService.saveStoresFromDBToDisk();
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
 
-//    @Test
-//    @Transactional
-//    public void replaceTrustStore() {
-//        Domain domain = DomainService.DEFAULT_DOMAIN;
-//        String password = "test123";
-//        multiDomainCryptoService.saveStoresFromDBToDisk();
-//        KeyStoreContentDTO store = certificateService.getStoreContent(DOMIBUS_TRUSTSTORE_NAME);
-//
-//        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
-//        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-//        Assert.assertTrue(isPersisted);
-//    }
+    @Test
+    @Transactional
+    public void replaceTrustStore() throws IOException {
+        String newStoreName = "gateway_truststore2.jks";
+        String storePassword = "test123";
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", newStoreName);
+        byte[] content = Files.readAllBytes(path);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, storePassword);
+
+        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
+        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        backupStore(initialStoreContent);
+
+        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+
+        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
+        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+
+        Assert.assertFalse(initialStore.equals(newStore));
+        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+
+        restore();
+    }
+
+    private void restore() throws IOException {
+        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
+        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
+        Path initialLocation = Paths.get(trustPersistInfo.getFileLocation());
+        byte[] initialContent = fileServiceUtil.getContentFromFile(backupFileLocation.toString());
+        Files.write(initialLocation, initialContent, StandardOpenOption.WRITE);
+    }
+
+    private void backupStore(KeyStoreContentInfo currentStoreContent) throws IOException {
+        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
+        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
+        Files.write(backupFileLocation, currentStoreContent.getContent(), StandardOpenOption.CREATE);
+    }
 
 //    @Test
 //    @Transactional

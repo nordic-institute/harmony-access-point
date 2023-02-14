@@ -8,6 +8,7 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
@@ -59,13 +60,15 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
     private final BackupService backupService;
 
+    private final FileServiceUtil fileServiceUtil;
+
     public KeyStorePersistenceServiceImpl(CertificateHelper certificateHelper,
                                           TruststoreDao truststoreDao,
                                           PasswordDecryptionService passwordDecryptionService,
                                           DomainContextProvider domainContextProvider,
                                           DomibusPropertyProvider domibusPropertyProvider,
                                           DomibusRawPropertyProvider domibusRawPropertyProvider,
-                                          BackupService backupService) {
+                                          BackupService backupService, FileServiceUtil fileServiceUtil) {
         this.certificateHelper = certificateHelper;
         this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
@@ -73,6 +76,7 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
         this.backupService = backupService;
+        this.fileServiceUtil = fileServiceUtil;
     }
 
     @Override
@@ -98,13 +102,14 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
             }
             throw new DomibusCertificateException(String.format("Store [%s] is missing and is not optional.", storeName));
         }
-
         certificateHelper.validateStoreType(storeType, storePath);
 
         byte[] contentOnDisk = getStoreContentFromFile(storePath);
         String password = decrypt(storeName, persistenceInfo.getPassword());
 
-        return certificateHelper.createStoreContentInfo(storeName, contentOnDisk, storeType, password);
+        String fileName = FilenameUtils.getName(storePath);
+
+        return certificateHelper.createStoreContentInfo(storeName, fileName, contentOnDisk, password, storeType);
     }
 
     @Override
@@ -199,10 +204,8 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
     }
 
     protected byte[] getStoreContentFromFile(String location) {
-        File file = new File(location);
-        Path path = Paths.get(file.getAbsolutePath());
         try {
-            return Files.readAllBytes(path);
+            return fileServiceUtil.getContentFromFile(location);
         } catch (IOException e) {
             throw new DomibusCertificateException("Could not read store from [" + location + "]");
         }

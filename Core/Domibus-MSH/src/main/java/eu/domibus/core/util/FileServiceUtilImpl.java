@@ -1,6 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -61,10 +60,6 @@ public class FileServiceUtilImpl implements FileServiceUtil {
             throw new IOException(String.format("File with the path [%s] does not exist", location));
         }
         Path path = Paths.get(file.getAbsolutePath());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read store from [" + location + "]");
-        }
+        return Files.readAllBytes(path);
     }
 }
