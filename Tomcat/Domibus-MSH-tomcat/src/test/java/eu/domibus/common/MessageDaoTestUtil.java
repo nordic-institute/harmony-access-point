@@ -118,17 +118,17 @@ public class MessageDaoTestUtil {
         signalMessageLogDao.create(signalMessageLog);
     }
 
-    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported, boolean fragment) {
         String originalSender = null, finalRecipient = null;
         if (properties) {
             originalSender = "originalSender1";
             finalRecipient = "finalRecipient2";
         }
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, isTestMessage, mpc, archivedAndExported, originalSender, finalRecipient);
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, isTestMessage, mpc, archivedAndExported, originalSender, finalRecipient, fragment);
     }
 
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, String mpc, Date archivedAndExported,
-                                               String originalSender, String finalRecipient) {
+                                               String originalSender, String finalRecipient, boolean fragment) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
@@ -153,6 +153,7 @@ public class MessageDaoTestUtil {
 
         userMessage.setSourceMessage(false);
         userMessage.setTestMessage(isTestMessage);
+        userMessage.setMessageFragment(fragment);
         userMessage.setMpc(mpcDao.findOrCreateMpc(mpc));
         userMessageDao.create(userMessage);
 
@@ -189,37 +190,41 @@ public class MessageDaoTestUtil {
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean properties, String mpc, Date archived) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, properties, mpc, archived);
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, properties, mpc, archived, false);
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC, new Date());
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC, new Date(), false);
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received) {
-        return createUserMessageLog(msgId, received, MessageStatus.RECEIVED, MPC);
+        return createUserMessageLog(msgId, received, MessageStatus.RECEIVED, MPC, false);
+    }
+    @Transactional
+    public UserMessageLog createUserMessageLogFragment(String msgId, Date received) {
+        return createUserMessageLog(msgId, received, MessageStatus.RECEIVED, MPC, true);
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, String originalSender, String finalRecipient) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, MPC, new Date(), originalSender, finalRecipient);
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, MPC, new Date(), originalSender, finalRecipient, false);
     }
 
     @Transactional
-    public UserMessageLog createUserMessageLog(String msgId, Date received, MessageStatus messageStatus, String mpc) {
-        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, messageStatus, false, true, mpc, null);
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MessageStatus messageStatus, String mpc, boolean fragment) {
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, messageStatus, false, true, mpc, null, fragment);
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, MSHRole mshRole, Date received, MessageStatus messageStatus, String mpc) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, mpc, null);
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, mpc, null, false);
     }
 
     @Transactional
     public UserMessageLog createTestMessage(String msgId) {
-        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date());
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date(), false);
 
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());
