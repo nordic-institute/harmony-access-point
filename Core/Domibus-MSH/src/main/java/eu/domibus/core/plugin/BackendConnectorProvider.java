@@ -11,7 +11,15 @@ public interface BackendConnectorProvider {
 
     List<BackendConnector<?, ?>> getBackendConnectors();
 
+    /**
+     * Get backend connectors which are EnableAware
+     */
     List<EnableAware> getEnableAwares();
 
     EnableAware getEnableAware(String name);
+
+    /**
+     * Checks if the EnableAware is enabled in at least one domain
+     */
+    boolean atLeastOneDomainEnabled(EnableAware enableAware);
 }

@@ -9,9 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,8 +37,8 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
         this.domainContextProvider = domainContextProvider;
     }
 
-    @PostConstruct
-    public void init() {
+    @Override
+    public void initialize() {
         createStorages();
     }
 

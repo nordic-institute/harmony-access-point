@@ -9,6 +9,8 @@ import eu.domibus.api.multitenancy.DomainsAware;
  */
 public interface PayloadFileStorageProvider extends DomainsAware {
 
+    void initialize();
+
     PayloadFileStorage forDomain(Domain domain) ;
 
     PayloadFileStorage getCurrentStorage();

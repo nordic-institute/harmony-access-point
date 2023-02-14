@@ -1,25 +1,32 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.crypto.TLSCertificateManager;
+import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.metrics.JmsQueueCountSetScheduler;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.initializer.PluginInitializerProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,9 +35,9 @@ import java.util.concurrent.TimeUnit;
  * @since 4.1
  */
 @Component
-public class DomibusContextRefreshedListener {
+public class DomibusApplicationContextListener {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationContextListener.class);
 
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
@@ -50,29 +57,38 @@ public class DomibusContextRefreshedListener {
     protected final DomainTaskExecutor domainTaskExecutor;
 
 
-    final GatewayConfigurationValidator gatewayConfigurationValidator;
+    protected final GatewayConfigurationValidator gatewayConfigurationValidator;
 
 
-    final MultiDomainCryptoService multiDomainCryptoService;
+    protected final MultiDomainCryptoService multiDomainCryptoService;
 
 
-    final TLSCertificateManager tlsCertificateManager;
+    protected final TLSCertificateManager tlsCertificateManager;
 
 
-    final UserManagementServiceImpl userManagementService;
+    protected final UserManagementServiceImpl userManagementService;
 
 
-    final DomibusPropertyValidatorService domibusPropertyValidatorService;
+    protected final DomibusPropertyValidatorService domibusPropertyValidatorService;
 
 
-    final protected BackendConnectorService backendConnectorService;
+    protected final BackendConnectorService backendConnectorService;
 
-    public DomibusContextRefreshedListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService,
-                                           StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService,
-                                           DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator,
-                                           MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager,
-                                           UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService,
-                                           BackendConnectorService backendConnectorService) {
+    protected final MessageListenerContainerInitializer messageListenerContainerInitializer;
+
+    protected JmsQueueCountSetScheduler jmsQueueCountSetScheduler;
+
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
+    protected RoutingService routingService;
+
+    protected DomibusQuartzStarter domibusQuartzStarter;
+
+    protected EArchiveFileStorageProvider eArchiveFileStorageProvider;
+
+    protected PluginInitializerProvider pluginInitializerProvider;
+
+    public DomibusApplicationContextListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService, StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService, DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator, MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager, UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService, BackendConnectorService backendConnectorService, MessageListenerContainerInitializer messageListenerContainerInitializer, JmsQueueCountSetScheduler jmsQueueCountSetScheduler, PayloadFileStorageProvider payloadFileStorageProvider, RoutingService routingService, DomibusQuartzStarter domibusQuartzStarter, EArchiveFileStorageProvider eArchiveFileStorageProvider, PluginInitializerProvider pluginInitializerProvider) {
         this.encryptionService = encryptionService;
         this.backendFilterInitializerService = backendFilterInitializerService;
         this.messageDictionaryService = messageDictionaryService;
@@ -84,9 +100,15 @@ public class DomibusContextRefreshedListener {
         this.userManagementService = userManagementService;
         this.domibusPropertyValidatorService = domibusPropertyValidatorService;
         this.backendConnectorService = backendConnectorService;
+        this.messageListenerContainerInitializer = messageListenerContainerInitializer;
+        this.jmsQueueCountSetScheduler = jmsQueueCountSetScheduler;
+        this.payloadFileStorageProvider = payloadFileStorageProvider;
+        this.routingService = routingService;
+        this.domibusQuartzStarter = domibusQuartzStarter;
+        this.eArchiveFileStorageProvider = eArchiveFileStorageProvider;
+        this.pluginInitializerProvider = pluginInitializerProvider;
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
         LOG.info("Start processing ContextRefreshedEvent");
@@ -119,6 +141,19 @@ public class DomibusContextRefreshedListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         userManagementService.createDefaultUserIfApplicable();
+
+        initializePluginsWithLockIfNeeded();
+    }
+
+    private void initializePluginsWithLockIfNeeded() {
+        final List<PluginInitializer> pluginInitializers = pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+        for (PluginInitializer pluginInitializer : pluginInitializers) {
+            try {
+                pluginInitializer.initializeWithLockIfNeeded();
+            } catch (Exception e) {
+                LOG.error("Error executing plugin initializer [{}] with lock", pluginInitializer.getName(), e);
+            }
+        }
     }
 
     /**
@@ -126,8 +161,31 @@ public class DomibusContextRefreshedListener {
      * Add code that does not need to be executed with regard to other nodes in the cluster
      */
     protected void executeNonSynchronized() {
+        messageListenerContainerInitializer.initialize();
+        jmsQueueCountSetScheduler.initialize();
+        payloadFileStorageProvider.initialize();
+        routingService.initialize();
+
+        eArchiveFileStorageProvider.initialize();
+
+        //this is added on purpose in the non-synchronized area; the initialize method has a more complex logic to decide if it executes in synchronized way
+        domibusQuartzStarter.initialize();
+
         gatewayConfigurationValidator.validateConfiguration();
         backendConnectorService.ensureValidConfiguration();
+
+        initializePluginsNonSynchronized();
+    }
+
+    private void initializePluginsNonSynchronized() {
+        final List<PluginInitializer> pluginInitializers = pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+        for (PluginInitializer pluginInitializer : pluginInitializers) {
+            try {
+                pluginInitializer.initializeNonSynchronized();
+            } catch (Exception e) {
+                LOG.error("Error executing plugin initializer [{}]", pluginInitializer.getName(), e);
+            }
+        }
     }
 
     // TODO: below code to be moved to a separate service EDELIVERY-7462.

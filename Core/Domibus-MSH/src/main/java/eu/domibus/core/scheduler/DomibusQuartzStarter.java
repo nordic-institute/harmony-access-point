@@ -96,7 +96,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     protected List<DomibusDomainQuartzJob> jobsToPause = new ArrayList<>();
 
-    @PostConstruct
     public void initialize() {
         boolean useLock = domibusConfigurationService.isClusterDeployment()
                 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED));

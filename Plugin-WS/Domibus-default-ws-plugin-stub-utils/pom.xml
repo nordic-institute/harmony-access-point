@@ -7,11 +7,10 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>plugin-ws</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
-    <version>5.1-SNAPSHOT</version>
     <name>Domibus MSH Default WS Plugin Stub Utils</name>
 
     <dependencies>
