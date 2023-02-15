@@ -272,15 +272,15 @@ public abstract class AbstractIT {
         return body;
     }
 
-    protected void createStore(String domibusKeystoreName, String filePath) {
-        if (truststoreDao.existsWithName(domibusKeystoreName)) {
+    protected void createStore(String storeName, String filePath) {
+        if (truststoreDao.existsWithName(storeName)) {
             LOG.info("truststore already created");
             return;
         }
-        LOG.info("create truststore [{}]", domibusKeystoreName);
+        LOG.info("create truststore [{}]", storeName);
         try {
             TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
-            domibusTruststoreEntity.setName(domibusKeystoreName);
+            domibusTruststoreEntity.setName(storeName);
             domibusTruststoreEntity.setType("JKS");
             domibusTruststoreEntity.setPassword("test123");
             try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
@@ -289,7 +289,7 @@ public abstract class AbstractIT {
                 truststoreDao.create(domibusTruststoreEntity);
             }
         } catch (Exception ex) {
-            LOG.info("Error creating store entity [{}]", domibusKeystoreName, ex);
+            LOG.info("Error creating store entity [{}]", storeName, ex);
         }
     }
 
