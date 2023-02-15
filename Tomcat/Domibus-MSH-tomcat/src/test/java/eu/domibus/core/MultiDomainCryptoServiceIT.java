@@ -94,10 +94,26 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Test
     public void saveStoresFromDBToDisk() {
-        //first, add an entity in the db
-//        multiDomainCryptoService.saveStoresFromDBToDisk();
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        try {
+            createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
+        } catch (IOException e) {
+
+        }
+        multiDomainCryptoService.saveStoresFromDBToDisk();
+
         boolean exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertFalse(exists);
+
+        List<TrustStoreEntry> storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, storeEntries.size());
+        Assert.assertTrue(storeEntries.stream().noneMatch(entry -> entry.getName().equals("cefsupportgw")));
+
+        multiDomainCryptoService.resetTrustStore(domain);
+
+        storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(9, storeEntries.size());
+        Assert.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
     }
 
     @Test
