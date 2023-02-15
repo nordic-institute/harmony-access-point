@@ -523,10 +523,6 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
 
-        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
-        }
-
         return userMessageLog;
     }
 

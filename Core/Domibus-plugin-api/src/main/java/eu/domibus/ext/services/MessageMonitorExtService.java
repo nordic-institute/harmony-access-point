@@ -152,6 +152,8 @@ public interface MessageMonitorExtService {
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      * @throws MessageMonitorExtException Raised in case an exception occurs while trying to delete the message
      */
+    void deleteMessageInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
+
     void deleteMessageInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
 
     void deleteMessageNotInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
