@@ -16,7 +16,6 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.constraints.AssertFalse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,10 +77,6 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Autowired
     FileServiceUtil fileServiceUtil;
 
-    private Date getDate(LocalDateTime localDateTime1) {
-        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
-    }
-
     @Before
     public void clean() {
         final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
@@ -89,7 +85,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<Certificate> certs2 = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
         certificateDao.deleteAll(certs2);
 
-        resetInitalTruststore();
+        resetInitialTruststore();
     }
 
     @Test
@@ -173,7 +169,30 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
+    public void addSamCertificate() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
 
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "green_gw.cer");
+        byte[] content = Files.readAllBytes(path);
+        String green_gw = "green_gw";
+        X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
+
+        multiDomainCryptoService.addCertificate(domain, Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
+
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(3, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+
+        boolean added = multiDomainCryptoService.addCertificate(domain, x509Certificate, green_gw, true);
+        Assert.assertFalse(added);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(3, trustStoreEntries.size());
+    }
+
+    @Test
     public void getCertificateFromTruststore() throws KeyStoreException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
@@ -261,7 +280,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Files.write(initialLocation, initialContent, StandardOpenOption.WRITE);
     }
 
-    private void resetInitalTruststore() {
+    private void resetInitialTruststore() {
         try {
             String storePassword = "test123";
             Domain domain = DomainService.DEFAULT_DOMAIN;
@@ -272,5 +291,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         } catch (Exception e) {
             LOG.info("Error restoring initial keystore", e);
         }
+    }
+
+    private Date getDate(LocalDateTime localDateTime1) {
+        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
     }
 }

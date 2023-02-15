@@ -3,6 +3,7 @@ package eu.domibus.rest;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -97,8 +98,7 @@ public class TruststoreResourceIT extends AbstractIT {
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
         byte[] content = Files.readAllBytes(path);
 
-        MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName,
-                "octetstream", content);
+        MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
         truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
 
@@ -128,6 +128,33 @@ public class TruststoreResourceIT extends AbstractIT {
         Assert.assertFalse(changedOnDisk);
 
         Files.delete(Paths.get(back));
+    }
+
+    @Test
+    public void addSamCertificate() throws IOException {
+        List<TrustStoreRO> initialStoreEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(2, initialStoreEntries.size());
+
+        String certFileName = "green_gw.cer";
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, certFileName);
+        byte[] content = Files.readAllBytes(path);
+        String green_gw = "green_gw";
+
+        MultipartFile multiPartFile = new MockMultipartFile(certFileName, certFileName, "octetstream", content);
+        truststoreResource.addDomibusCertificate(multiPartFile, green_gw);
+
+        List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(3, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+
+        try {
+            truststoreResource.addDomibusCertificate(multiPartFile, green_gw);
+        } catch (DomibusCertificateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Certificate [green_gw] was not added to the [domibus.truststore] most probably because it already contains the same certificate."));
+            trustStoreEntries = truststoreResource.trustStoreEntries();
+            Assert.assertEquals(3, trustStoreEntries.size());
+        }
+
     }
 
     private void resetInitalTruststore() {
