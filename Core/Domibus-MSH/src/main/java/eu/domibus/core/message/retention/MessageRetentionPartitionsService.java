@@ -154,14 +154,19 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         } else {
             partitions = userMessageDao.findAllPartitions();
         }
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size(), partitions);
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size());
+
+        Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
+
+        LOG.info("newestPartitionToCheckDate is: [{}]", newestPartitionToCheckDate);
 
         List<String> partitionNames =
                 partitions.stream()
-                        .filter(p->p.getPartitionName()==DEFAULT_PARTITION)
+                        .filter(p -> p.getPartitionName() != DEFAULT_PARTITION)
+                        .filter(p -> p.getHighValue() < partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate) )
                         .map(Partition::getPartitionName)
                         .collect(Collectors.toList());
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size(), partitionNames);
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
 
         return partitionNames;
     }

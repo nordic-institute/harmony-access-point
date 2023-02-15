@@ -1,10 +1,17 @@
 package eu.domibus.api.model;
 
+import javax.persistence.Entity;
 import java.util.Objects;
 
-public class Partition {
+@Entity
+public class Partition extends AbstractBaseEntity {
     protected String partitionName;
     protected Long highValue;
+
+    public Partition(String partitionName, Long highValue) {
+        this.partitionName = partitionName;
+        this.highValue = highValue;
+    }
 
     public String getPartitionName() {
         return partitionName;

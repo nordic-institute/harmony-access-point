@@ -45,13 +45,26 @@ import java.util.Set;
 @NamedNativeQueries({
         @NamedNativeQuery(
                 name    =   "UserMessage.findPartitionsForUser_ORACLE",
-                query   =   "SELECT new Partition(partition_name, high_value) FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = :TNAME"
-        ),
+                query   =   "SELECT partition_name, high_value FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = :TNAME",
+                resultSetMapping = "PartitionMapping"),
         @NamedNativeQuery(
                 name    =   "UserMessage.findPartitions_ORACLE",
-                query   =   "SELECT new Partition(partition_name, high_value) FROM user_tab_partitions WHERE table_name = :TNAME"
-        )
+                query   =   "SELECT partition_name, high_value FROM user_tab_partitions WHERE table_name = :TNAME",
+                resultSetMapping = "PartitionMapping"),
 })
+
+@SqlResultSetMapping(
+        name = "PartitionMapping",  // same as resultSetMapping above in NativeQuery
+        classes = {
+                @ConstructorResult(
+                        targetClass = eu.domibus.api.model.Partition.class,
+                        columns = {
+                                @ColumnResult( name = "PARTITION_NAME", type = String.class),
+                                @ColumnResult( name = "HIGH_VALUE", type = Long.class)
+                        }
+                )
+        }
+)
 @Entity
 @Table(name = UserMessage.TB_USER_MESSAGE)
 public class UserMessage extends AbstractBaseEntity {

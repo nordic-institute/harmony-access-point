@@ -1,8 +1,8 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
@@ -64,6 +64,12 @@ public class PartitionService {
         String partitionName = 'P' + dateUtil.getIdPkDateHourPrefix(partitionDate);
         LOG.debug("Get partition name from date [{}], partitionName [{}]", partitionDate, partitionName);
         return partitionName;
+    }
+
+    public Long getPartitionHighValueFromDate(Date partitionDate) {
+        Long highValue = new Long (dateUtil.getIdPkDateHourPrefix(partitionDate) + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
+        LOG.debug("Get partition highValue from date [{}], highValue [{}]", partitionDate, highValue);
+        return highValue;
     }
 
 }
