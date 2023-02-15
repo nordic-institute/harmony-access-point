@@ -76,9 +76,6 @@ public class TruststoreResourceIT extends AbstractIT {
     @Test
     public void replaceTrustStore() throws IOException {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
-        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
-
         List<TrustStoreRO> entries = truststoreResource.trustStoreEntries();
 
         try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
@@ -90,9 +87,6 @@ public class TruststoreResourceIT extends AbstractIT {
             List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
             Assert.assertNotEquals(entries.size(), newEntries.size());
-
-            Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
-            Files.delete(Paths.get(back));
         }
     }
 
