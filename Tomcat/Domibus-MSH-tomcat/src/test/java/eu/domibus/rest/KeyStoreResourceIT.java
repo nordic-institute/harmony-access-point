@@ -13,7 +13,6 @@ import java.util.List;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
-
 public class KeyStoreResourceIT extends AbstractIT {
 
     @Autowired
@@ -24,19 +23,12 @@ public class KeyStoreResourceIT extends AbstractIT {
 
     @Before
     public void before() {
-        cleanStores();
-    }
 
-    @After
-    public void after() {
-        cleanStores();
     }
 
     @Test
     @Ignore
     public void testTruststoreEntries_ok() throws IOException {
-        createTrustStore();
-        createKeyStore();
 
 //        List<TrustStoreEntry> entries = certificateService.getStoreEntries(DOMIBUS_KEYSTORE_NAME);
 
@@ -47,16 +39,4 @@ public class KeyStoreResourceIT extends AbstractIT {
 //        Assert.assertNotEquals(entries.size(), newEntries.size());
     }
 
-    private void cleanStores() {
-        removeStore(DOMIBUS_KEYSTORE_NAME);
-        removeStore(DOMIBUS_TRUSTSTORE_NAME);
-    }
-
-    private void createKeyStore() throws IOException {
-        createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore2.jks");
-    }
-
-    private void createTrustStore() throws IOException {
-        createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
-    }
 }
