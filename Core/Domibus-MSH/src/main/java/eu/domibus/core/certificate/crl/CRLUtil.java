@@ -1,6 +1,8 @@
 package eu.domibus.core.certificate.crl;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.util.HttpUtil;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
@@ -11,9 +13,9 @@ import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -54,13 +56,15 @@ public class CRLUtil {
     /**
      * Entry point for downloading certificates from either http(s), classpath source or LDAP
      *
-     * @param crlURL the CRL url
+     * @param crlURL   the CRL url
+     * @param useCache whether to use the CRL cache or not
      * @return {@link X509CRL} certificate to download
      * @throws DomibusCRLException runtime exception in case of error
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_URL, condition = "#useCache")
+    public X509CRL downloadCRL(String crlURL, boolean useCache) throws DomibusCRLException {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
         } else {

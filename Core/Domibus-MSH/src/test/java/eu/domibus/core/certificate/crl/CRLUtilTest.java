@@ -50,7 +50,7 @@ public class CRLUtilTest {
             result = null;
         }};
 
-        crlUtil.downloadCRL(crlUrlString);
+        crlUtil.downloadCRL(crlUrlString, false);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class CRLUtilTest {
             result = crlUrl;
         }};
 
-        X509CRL x509CRL = crlUtil.downloadCRL(crlUrlString);
+        X509CRL x509CRL = crlUtil.downloadCRL(crlUrlString, false);
         assertNotNull(x509CRL);
         assertEquals(crl, x509CRL);
     }

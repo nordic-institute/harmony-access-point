@@ -143,7 +143,7 @@ public class CRLServiceImplIT {
         X509CRL x509CRLMock = Mockito.mock(X509CRL.class);
         Principal principalMock = Mockito.mock((Principal.class));
 
-        Mockito.when(crlUtil.downloadCRL(Mockito.any(String.class))).thenReturn(x509CRLMock);
+        Mockito.when(crlUtil.downloadCRL(Mockito.any(String.class), false)).thenReturn(x509CRLMock);
         Mockito.when(x509CRLMock.getIssuerDN()).thenReturn(principalMock);
         Mockito.when(principalMock.getName()).thenReturn(Mockito.any(String.class));
 

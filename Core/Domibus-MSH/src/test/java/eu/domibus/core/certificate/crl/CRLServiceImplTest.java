@@ -151,7 +151,7 @@ public class CRLServiceImplTest {
             crlUtil.getCrlDistributionPoints(certificate);
             result = crlUrlList;
 
-            crlUtil.downloadCRL(crlUrl1);
+            crlUtil.downloadCRL(crlUrl1, false);
             result = new DomibusCRLException();
         }};
         crlService.isCertificateRevoked(certificate);
@@ -199,7 +199,7 @@ public class CRLServiceImplTest {
         final String crlUrlString = "file://test";
         final X509CRL x509CRL = pkiUtil.createCRL(Arrays.asList(new BigInteger[]{new BigInteger("0400000000011E44A5E405", 16), new BigInteger("0400000000011E44A5E404", 16)}));
         new Expectations() {{
-            crlUtil.downloadCRL(crlUrlString);
+            crlUtil.downloadCRL(crlUrlString, false);
             result = x509CRL;
         }};
         X509Certificate certificate = pkiUtil.createCertificate(new BigInteger("0400000000011E44A5E405", 16), null);
