@@ -1,6 +1,7 @@
 package eu.domibus.user;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.ext.delegate.services.cache.CacheServiceDelegate;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
@@ -49,6 +50,9 @@ public class UserManagementServiceTestIT extends AbstractIT {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected CacheServiceDelegate cacheServiceDelegate;
 
     @Before
     public void before() {
@@ -116,12 +120,12 @@ public class UserManagementServiceTestIT extends AbstractIT {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
         domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
-
+        cacheServiceDelegate.evictCaches();
         final User userEntity = createUser("baciuco", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
         final eu.domibus.api.user.User apiUser = convert(userEntity);
         apiUser.setActive(false);
         userManagementService.updateUsers(Collections.singletonList(apiUser));
-
+        cacheServiceDelegate.evictCaches();
         domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
     }
 
