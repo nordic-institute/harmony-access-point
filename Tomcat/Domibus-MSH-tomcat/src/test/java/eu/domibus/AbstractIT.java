@@ -199,7 +199,7 @@ public abstract class AbstractIT {
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
-        waitUntilMessageHasStatus(messageId,MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
     }
 
     protected void waitUntilMessageIsReceived(String messageId) {
@@ -272,20 +272,24 @@ public abstract class AbstractIT {
         return body;
     }
 
-    protected void createStore(String domibusKeystoreName, String filePath) throws IOException {
-        if(truststoreDao.existsWithName(domibusKeystoreName)) {
+    protected void createStore(String domibusKeystoreName, String filePath) {
+        if (truststoreDao.existsWithName(domibusKeystoreName)) {
             LOG.info("truststore already created");
             return;
         }
         LOG.info("create truststore [{}]", domibusKeystoreName);
-        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
-        domibusTruststoreEntity.setName(domibusKeystoreName);
-        domibusTruststoreEntity.setType("JKS");
-        domibusTruststoreEntity.setPassword("test123");
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
-            byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
-            domibusTruststoreEntity.setContent(trustStoreBytes);
-            truststoreDao.create(domibusTruststoreEntity);
+        try {
+            TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+            domibusTruststoreEntity.setName(domibusKeystoreName);
+            domibusTruststoreEntity.setType("JKS");
+            domibusTruststoreEntity.setPassword("test123");
+            try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+                byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+                domibusTruststoreEntity.setContent(trustStoreBytes);
+                truststoreDao.create(domibusTruststoreEntity);
+            }
+        } catch (Exception ex) {
+            LOG.info("Error creating store entity [{}]", domibusKeystoreName, ex);
         }
     }
 

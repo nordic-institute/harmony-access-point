@@ -16,11 +16,11 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,14 +95,14 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     public void saveStoresFromDBToDisk() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-        try {
-            createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
-        } catch (IOException e) {
-
-        }
-        multiDomainCryptoService.saveStoresFromDBToDisk();
+        createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
 
         boolean exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+        Assert.assertTrue(exists);
+
+        multiDomainCryptoService.saveStoresFromDBToDisk();
+
+        exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertFalse(exists);
 
         List<TrustStoreEntry> storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);

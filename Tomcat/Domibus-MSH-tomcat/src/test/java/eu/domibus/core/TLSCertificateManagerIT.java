@@ -1,11 +1,17 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
 
 /**
@@ -24,6 +31,9 @@ import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NA
  */
 @Transactional
 public class TLSCertificateManagerIT extends AbstractIT {
+    public static final String KEYSTORES = "keystores";
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerIT.class);
 
     @Autowired
     private TLSCertificateManagerImpl tlsCertificateManager;
@@ -34,26 +44,43 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
-//    @Test
-//    @Transactional
-//    public void persistTruststoresIfApplicable() {
-//        tlsCertificateManager.saveStoresFromDBToDisk();
-//        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
-//        Assert.assertTrue(isPersisted);
-//    }
+    @Autowired
+    CertificateHelper certificateHelper;
+
+    @Before
+    public void clean() {
+        resetInitalTruststore();
+    }
 
     @Test
-    @Transactional
+    public void persistTrustStoresIfApplicable() {
+        List<TrustStoreEntry> storeEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertEquals(2, storeEntries.size());
+
+        createStore(TLS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
+
+        TruststoreEntity persisted = truststoreDao.findByNameSafely(TLS_TRUSTSTORE_NAME);
+        boolean exists = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
+        Assert.assertTrue(exists);
+
+        tlsCertificateManager.saveStoresFromDBToDisk();
+
+        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
+        Assert.assertFalse(isPersisted);
+
+        storeEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertEquals(9, storeEntries.size());
+        Assert.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
+    }
+
+    @Test
     public void getTrustStoreEntries() {
-//        tlsCertificateManager.saveStoresFromDBToDisk();
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 3);
     }
 
     @Test
-    @Transactional
     public void addCertificate() throws IOException {
-//        tlsCertificateManager.saveStoresFromDBToDisk();
 
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
@@ -69,10 +96,7 @@ public class TLSCertificateManagerIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void removeCertificate() {
-//        tlsCertificateManager.saveStoresFromDBToDisk();
-
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 3);
 
@@ -100,4 +124,16 @@ public class TLSCertificateManagerIT extends AbstractIT {
 //        trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
 //        Assert.assertTrue(trustStoreEntries.size() == 9);
 //    }
+
+    private void resetInitalTruststore() {
+        try {
+            String storePassword = "test123";
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
+            byte[] content = Files.readAllBytes(path);
+            KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
+            tlsCertificateManager.replaceTrustStore(storeInfo);
+        } catch (Exception e) {
+            LOG.info("Error restoring initial keystore", e);
+        }
+    }
 }
