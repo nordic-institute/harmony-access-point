@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.CacheManager;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -30,12 +31,15 @@ import static org.junit.Assert.assertNotNull;
 public class CRLUtilTest {
 
     @Tested
-    CRLUtil crlUtil;
+    private CRLUtil crlUtil;
 
     @Injectable
-    HttpUtil httpUtil;
+    private HttpUtil httpUtil;
 
-    PKIUtil pkiUtil = new PKIUtil();
+    @Injectable
+    private CacheManager cacheManager;
+
+    private PKIUtil pkiUtil = new PKIUtil();
 
     @Before
     public void init() {

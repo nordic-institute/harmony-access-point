@@ -1,5 +1,6 @@
 package eu.domibus.core.certificate.crl;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.pki.PKIUtil;
@@ -29,19 +30,22 @@ import static org.junit.Assert.assertTrue;
 public class CRLServiceImplTest {
 
     @Tested
-    CRLServiceImpl crlService;
+    private CRLServiceImpl crlService;
 
     @Injectable
-    CRLUtil crlUtil;
+    private CRLUtil crlUtil;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    X509CRL x509CRL;
+    private X509CRL x509CRL;
 
     @Injectable
-    DomibusLocalCacheService domibusLocalCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
+
+    @Injectable
+    private DomainContextProvider domainProvider;
 
     PKIUtil pkiUtil = new PKIUtil();
 
