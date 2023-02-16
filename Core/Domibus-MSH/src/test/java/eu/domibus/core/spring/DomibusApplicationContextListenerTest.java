@@ -6,10 +6,17 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.crypto.TLSCertificateManager;
+import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.metrics.JmsQueueCountSetScheduler;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.initializer.PluginInitializerProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -40,6 +47,27 @@ public class DomibusApplicationContextListenerTest {
 
     @Injectable
     protected EncryptionService encryptionService;
+
+    @Injectable
+    protected MessageListenerContainerInitializer messageListenerContainerInitializer;
+
+    @Injectable
+    protected JmsQueueCountSetScheduler jmsQueueCountSetScheduler;
+
+    @Injectable
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
+    @Injectable
+    protected RoutingService routingService;
+
+    @Injectable
+    protected DomibusQuartzStarter domibusQuartzStarter;
+
+    @Injectable
+    protected EArchiveFileStorageProvider eArchiveFileStorageProvider;
+
+    @Injectable
+    protected PluginInitializerProvider pluginInitializerProvider;
 
     @Injectable
     protected StaticDictionaryService staticDictionaryService;
@@ -133,6 +161,27 @@ public class DomibusApplicationContextListenerTest {
             times = 1;
 
             backendConnectorService.ensureValidConfiguration();
+            times = 1;
+
+            pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+            times = 2;
+
+            messageListenerContainerInitializer.initialize();
+            times = 1;
+
+            jmsQueueCountSetScheduler.initialize();
+            times = 1;
+
+            payloadFileStorageProvider.initialize();
+            times = 1;
+
+            routingService.initialize();
+            times = 1;
+
+            eArchiveFileStorageProvider.initialize();
+            times = 1;
+
+            domibusQuartzStarter.initialize();
             times = 1;
         }};
     }
