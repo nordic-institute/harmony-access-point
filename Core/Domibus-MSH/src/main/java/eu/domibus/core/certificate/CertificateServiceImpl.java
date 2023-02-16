@@ -492,6 +492,12 @@ public class CertificateServiceImpl implements CertificateService {
         return different;
     }
 
+    @Override
+    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
+        return KeyStore.getInstance(storeType);
+    }
+
+    
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore store = getStore(persistenceInfo);
 
@@ -585,10 +591,6 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception ex) {
             throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
         }
-    }
-
-    protected KeyStore getNewKeystore(String storeType) throws KeyStoreException {
-        return KeyStore.getInstance(storeType);
     }
 
     /**
