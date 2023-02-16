@@ -12,7 +12,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;

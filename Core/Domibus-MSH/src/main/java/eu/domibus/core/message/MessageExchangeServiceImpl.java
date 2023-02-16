@@ -25,7 +25,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;

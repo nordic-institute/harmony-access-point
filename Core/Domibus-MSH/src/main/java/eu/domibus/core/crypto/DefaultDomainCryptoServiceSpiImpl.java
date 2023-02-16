@@ -13,7 +13,6 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.SecurityProfileValidatorService;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -512,9 +511,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
 
-            //this discriminator is currently used only for keystore validation, but validation of the truststore will also be added
             if (storeType == StoreType.KEYSTORE) {
-                securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, store, StoreType.KEYSTORE);
+                securityProfileValidatorService.validateKeyStoreCertificateTypes(securityProfileAliasConfigurations, store);
+            }
+            if (storeType == StoreType.TRUSTSTORE) {
+                securityProfileValidatorService.validateTrustStoreCertificateTypes(securityProfileAliasConfigurations, store);
             }
 
             securityProfileAliasConfigurations.forEach(

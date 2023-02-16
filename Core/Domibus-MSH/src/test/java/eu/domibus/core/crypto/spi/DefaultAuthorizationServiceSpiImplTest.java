@@ -20,7 +20,7 @@ import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.ext.domain.SecurityProfileDTO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

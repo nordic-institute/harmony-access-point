@@ -1,4 +1,4 @@
-package eu.domibus.core.util;
+package eu.domibus.core.crypto;
 
 
 import eu.domibus.api.security.SecurityProfile;

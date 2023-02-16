@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;

@@ -1,14 +1,8 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -18,9 +12,8 @@ import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -32,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Catalin Enache, Soumya Chandran
