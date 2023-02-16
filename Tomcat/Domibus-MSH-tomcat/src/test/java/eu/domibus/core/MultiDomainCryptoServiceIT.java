@@ -281,6 +281,32 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 
+    @Test
+    public void isChangedObDisk() throws KeyStoreException, IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+
+        KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertTrue(trustStore.containsAlias("blue_gw"));
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "cefsupportgwtruststore.jks");
+        byte[] content = Files.readAllBytes(path);
+        Path currentPath = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore.jks");
+        Files.write(currentPath, content, StandardOpenOption.WRITE);
+
+        boolean isChangedOnDisk = multiDomainCryptoService.isTrustStoreChangedOnDisk(domain);
+        Assert.assertTrue(isChangedOnDisk);
+
+        trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertFalse(trustStore.containsAlias("ceftestparty4gw"));
+
+        multiDomainCryptoService.resetTrustStore(domain);
+        trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
+    }
+
 //    private void backupTrustStore() throws IOException {
 //        Domain domain = DomainService.DEFAULT_DOMAIN;
 //        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
