@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -48,7 +46,7 @@ public class SecurityProfileValidatorService {
         securityProfileAliasConfigurations.forEach(
                 profileConfiguration -> validateCertificateType(profileConfiguration.getAlias(), profileConfiguration.getSecurityProfile(), keyStore, StoreType.KEYSTORE));
 
-        LOG.info(" ******* KeyStore certificate types are valid *******");
+        LOG.info("KeyStore certificate types are valid");
     }
 
     /**
@@ -59,17 +57,14 @@ public class SecurityProfileValidatorService {
      */
     public void validateTrustStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore trustStore) {
         try {
-            Enumeration<String> aliasesEnumeration = trustStore.aliases();
-            do {
-                validateCertificateTypeForTrustStoreAlias(securityProfileAliasConfigurations, aliasesEnumeration.nextElement(), trustStore);
-            } while(aliasesEnumeration.hasMoreElements());
-
+            List<String> aliasesList = Collections.list(trustStore.aliases());
+            aliasesList.forEach(alias -> validateCertificateTypeForTrustStoreAlias(securityProfileAliasConfigurations, alias, trustStore));
         } catch (KeyStoreException e) {
             String exceptionMessage = String.format("[%s] exception: %s", StoreType.TRUSTSTORE, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
-        LOG.info(" ******* TrustStore certificate types are valid *******");
+        LOG.info("TrustStore certificate types are valid");
     }
 
     private void validateCertificateTypeForTrustStoreAlias(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
@@ -112,8 +107,8 @@ public class SecurityProfileValidatorService {
         SecurityProfile securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
 
         SecurityProfileAliasConfiguration  securityProfileConfigurationForAlias = securityProfileAliasConfigurations.stream()
-                .filter(profile -> profile.getSecurityProfile().equals(securityProfileExtractedFromAlias)
-                        && certificatePurpose.equals(getCertificatePurposeFromAlias(profile.getAlias())))
+                .filter(profile -> profile.getSecurityProfile() == securityProfileExtractedFromAlias
+                        && getCertificatePurposeFromAlias(profile.getAlias()) == certificatePurpose)
                 .findFirst().orElse(null);
 
         if (securityProfileConfigurationForAlias == null) {
@@ -128,17 +123,16 @@ public class SecurityProfileValidatorService {
      * Extracts the CertificatePurpose from the given alias
      *
      * @param alias the alias from the store
+     * @throws CertificateException if the certificate purpose can't be extracted from the alias
      * @return the CertificatePurpose name extracted from the alias definition
      */
     private CertificatePurpose getCertificatePurposeFromAlias(String alias) {
-        CertificatePurpose certificatePurpose;
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-        try {
-            certificatePurpose = CertificatePurpose.valueOf(StringUtils.substringAfterLast(alias, "_").toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/encrypt)", StoreType.TRUSTSTORE, alias);
+        CertificatePurpose certificatePurpose = CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
+        if (certificatePurpose == null) {
+            String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/decrypt)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
         return certificatePurpose;
@@ -148,58 +142,51 @@ public class SecurityProfileValidatorService {
      * Extracts the SecurityProfile from the given alias
      *
      * @param alias the alias from the store
+     * @throws CertificateException if the security profile can't be extracted from the alias
      * @return the SecurityProfile name extracted from the alias definition
      */
     private SecurityProfile getSecurityProfileFromAlias(String alias) {
-        SecurityProfile securityProfile;
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-
-        String profileString = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase();
-        try {
-            securityProfile = SecurityProfile.valueOf(profileString);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        SecurityProfile securityProfile = SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
+        if (securityProfile == null) {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible profile name(rsa/ecc)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
+
         return securityProfile;
     }
 
     private void validateCertificateType(String alias, SecurityProfile securityProfile, KeyStore store, StoreType storeType) {
+        X509Certificate certificate;
         try {
-            X509Certificate certificate = (X509Certificate) store.getCertificate(alias);
-            if (certificate == null) {
-                String exceptionMessage = String.format("Alias [%s] does not exist in the [%s]", alias, storeType);
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
-            }
-
-            String certificateAlgorithm = certificate.getPublicKey().getAlgorithm();
-            if (securityProfile == null) {
-                validateLegacyAliasCertificateType(certificateAlgorithm, alias, storeType);
-                return;
-            }
-            CertificatePurpose certificatePurpose;
-            try {
-                certificatePurpose = CertificatePurpose.valueOf(StringUtils.substringAfterLast(alias,"_").toUpperCase());
-            } catch (IllegalArgumentException | NullPointerException e) {
-                String exceptionMessage = String.format("[%s] alias [%s] does not contain a valid certificate purpose name()", storeType, alias);
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
-            }
-            switch (certificatePurpose) {
-                case DECRYPT:
-                    validateDecryptionCertificateType(securityProfile, certificateAlgorithm, certificatePurpose, alias, storeType);
-                    break;
-                case SIGN:
-                    validateSigningCertificateType(securityProfile, certificateAlgorithm, certificatePurpose, alias, storeType);
-                    break;
-                default:
-                    String exceptionMessage = String.format("Invalid naming of alias [%s], it should end with sign or decrypt", alias);
-                    throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
-            }
+            certificate = (X509Certificate) store.getCertificate(alias);
         } catch (KeyStoreException e) {
             String exceptionMessage = String.format("[%s] exception: %s", storeType, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
+        if (certificate == null) {
+            String exceptionMessage = String.format("Alias [%s] does not exist in the [%s]", alias, storeType);
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
+
+        String certificateAlgorithm = certificate.getPublicKey().getAlgorithm();
+        CertificatePurpose certificatePurpose = getCertificatePurposeFromAlias(alias);
+        if (securityProfile == null || certificatePurpose == null) {
+            validateLegacyAliasCertificateType(certificateAlgorithm, alias, storeType);
+            return;
+        }
+        switch (certificatePurpose) {
+            case DECRYPT:
+                validateDecryptionCertificateType(securityProfile, certificateAlgorithm, certificatePurpose, alias, storeType);
+                break;
+            case SIGN:
+                validateSigningCertificateType(securityProfile, certificateAlgorithm, certificatePurpose, alias, storeType);
+                break;
+            default:
+                String exceptionMessage = String.format("Invalid naming of alias [%s], it should end with sign or decrypt", alias);
+                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
     }
 

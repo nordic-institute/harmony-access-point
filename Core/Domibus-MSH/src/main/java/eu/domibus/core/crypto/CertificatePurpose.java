@@ -1,5 +1,9 @@
 package eu.domibus.core.crypto;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
 /**
  * @author Lucian FURCA
  * @since 5.1
@@ -7,6 +11,18 @@ package eu.domibus.core.crypto;
 public enum CertificatePurpose {
     SIGN("SIGN"),
     DECRYPT("DECRYPT");
+
+    private static final Map<String, CertificatePurpose> nameIndex =
+            Maps.newHashMapWithExpectedSize(CertificatePurpose.values().length);
+    static {
+        for (CertificatePurpose certPurpose : CertificatePurpose.values()) {
+            nameIndex.put(certPurpose.name(), certPurpose);
+        }
+    }
+
+    public static CertificatePurpose lookupByName(String name) {
+        return nameIndex.get(name);
+    }
 
     private final String certificatePurpose;
 
