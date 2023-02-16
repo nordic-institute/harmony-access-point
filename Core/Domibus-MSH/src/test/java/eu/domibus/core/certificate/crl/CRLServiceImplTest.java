@@ -1,6 +1,5 @@
 package eu.domibus.core.certificate.crl;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.pki.PKIUtil;
@@ -43,9 +42,6 @@ public class CRLServiceImplTest {
 
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
-
-    @Injectable
-    private DomainContextProvider domainProvider;
 
     PKIUtil pkiUtil = new PKIUtil();
 

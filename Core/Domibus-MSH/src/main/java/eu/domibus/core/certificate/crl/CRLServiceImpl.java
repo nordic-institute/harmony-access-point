@@ -39,15 +39,12 @@ public class CRLServiceImpl implements CRLService {
     @Autowired
     private DomibusLocalCacheService domibusLocalCacheService;
 
-    @Autowired
-    protected DomainContextProvider domainProvider;
-
     private volatile List<String> supportedCrlProtocols;
 
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-//    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -101,8 +98,7 @@ public class CRLServiceImpl implements CRLService {
     }
 
     protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
-        Domain domain = domainProvider.getCurrentDomain();
-        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_CRL_CACHE_ENABLED));
+        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_CACHE_ENABLED));
         LOG.debug("CRL by url cache is [{}]", useCache ? "enabled" : "disabled");
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL, useCache);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
