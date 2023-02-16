@@ -93,7 +93,6 @@ public class TrustStoreEntry {
         final TrustStoreEntry entry = (TrustStoreEntry) o;
 
         return new EqualsBuilder()
-                .appendSuper(super.equals(o))
                 .append(name, entry.name)
                 .append(subject, entry.subject)
                 .append(issuer, entry.issuer)

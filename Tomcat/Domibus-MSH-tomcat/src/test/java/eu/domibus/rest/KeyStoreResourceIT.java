@@ -37,9 +37,6 @@ public class KeyStoreResourceIT extends AbstractIT {
     private KeystoreResource storeResource;
 
     @Autowired
-    private CertificateServiceImpl certificateService;
-
-    @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired

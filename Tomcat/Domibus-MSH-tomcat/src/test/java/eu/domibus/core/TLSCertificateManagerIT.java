@@ -1,6 +1,8 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -49,17 +51,19 @@ public class TLSCertificateManagerIT extends AbstractIT {
 
     @Before
     public void clean() {
-        resetInitalTruststore();
+        resetInitialTruststore();
     }
+
+    @Autowired
+    DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void persistTrustStoresIfApplicable() {
         List<TrustStoreEntry> storeEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertEquals(2, storeEntries.size());
 
-        createStore(TLS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
+        domainTaskExecutor.submit(() -> createStore(TLS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks"),  DomainService.DEFAULT_DOMAIN);
 
-        TruststoreEntity persisted = truststoreDao.findByNameSafely(TLS_TRUSTSTORE_NAME);
         boolean exists = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
         Assert.assertTrue(exists);
 
@@ -127,12 +131,12 @@ public class TLSCertificateManagerIT extends AbstractIT {
         Assert.assertTrue(trustStoreEntries.size() == 9);
     }
 
-    private void resetInitalTruststore() {
+    private void resetInitialTruststore() {
         try {
             String storePassword = "test123";
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
             byte[] content = Files.readAllBytes(path);
-            KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
+            KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(TLS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
             tlsCertificateManager.replaceTrustStore(storeInfo);
         } catch (Exception e) {
             LOG.info("Error restoring initial keystore", e);

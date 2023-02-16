@@ -293,11 +293,4 @@ public abstract class AbstractIT {
         }
     }
 
-    protected void removeStore(String domibusKeystoreName) {
-        if (truststoreDao.existsWithName(domibusKeystoreName)) {
-            TruststoreEntity trust = truststoreDao.findByName(domibusKeystoreName);
-            truststoreDao.delete(trust);
-        }
-    }
-
 }
