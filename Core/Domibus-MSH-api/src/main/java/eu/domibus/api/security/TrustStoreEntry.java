@@ -1,6 +1,7 @@
 package eu.domibus.api.security;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Date;
 
@@ -91,12 +92,15 @@ public class TrustStoreEntry {
 
         final TrustStoreEntry entry = (TrustStoreEntry) o;
 
-        return StringUtils.equals(name, entry.name)
-                && StringUtils.equals(subject, entry.subject)
-                && StringUtils.equals(issuer, entry.issuer)
-                && validFrom.equals(entry.validFrom)
-                && validUntil.equals(entry.validUntil)
-                && StringUtils.equals(fingerprints, entry.fingerprints);
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(name, entry.name)
+                .append(subject, entry.subject)
+                .append(issuer, entry.issuer)
+                .append(validFrom, entry.validFrom)
+                .append(validUntil, entry.validUntil)
+                .append(fingerprints, entry.fingerprints)
+                .isEquals();
     }
 
     @Override
