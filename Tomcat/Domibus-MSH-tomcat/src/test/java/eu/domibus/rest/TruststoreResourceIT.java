@@ -1,6 +1,7 @@
 package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -56,11 +57,11 @@ public class TruststoreResourceIT extends AbstractIT {
 
     @Before
     public void before() {
-        resetInitalTruststore();
+        resetInitialTruststore();
     }
 
     @Test
-    public void testTruststoreEntries_ok() throws IOException {
+    public void testTruststoreEntries_ok() {
         List<TrustStoreRO> trustStoreROS = truststoreResource.trustStoreEntries();
         for (TrustStoreRO trustStoreRO : trustStoreROS) {
             Assert.assertNotNull("Certificate name should be populated in TrustStoreRO:", trustStoreRO.getName());
@@ -75,8 +76,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void replaceTrustStore() throws IOException {
-        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+    public void replaceStore() throws IOException {
         List<TrustStoreRO> entries = truststoreResource.trustStoreEntries();
 
         try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
@@ -92,12 +92,10 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void replaceKeyStoreWithDifferentType() throws IOException {
-
+    public void replaceStoreWithDifferentType() throws IOException {
         String fileName = "gateway_truststore_p12.p12";
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
         byte[] content = Files.readAllBytes(path);
-
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
         truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
@@ -105,6 +103,26 @@ public class TruststoreResourceIT extends AbstractIT {
         List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
         Assert.assertEquals(1, newEntries.size());
+        // add asserts
+    }
+
+    @Test
+    public void replaceStoreWithTheSame() throws IOException {
+        String fileName = "gateway_truststore2.jks";
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
+        byte[] content = Files.readAllBytes(path);
+        MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
+
+        truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+
+        List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(9, newEntries.size());
+
+        try {
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+        } catch (SameResourceCryptoException ex) {
+            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [domibus.truststore] was not replaced with the content of the file [gateway_truststore2.jks] because they are identical."));
+        }
     }
 
     @Test
@@ -131,7 +149,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void addSamCertificate() throws IOException {
+    public void addSameCertificate() throws IOException {
         List<TrustStoreRO> initialStoreEntries = truststoreResource.trustStoreEntries();
         Assert.assertEquals(2, initialStoreEntries.size());
 
@@ -154,10 +172,32 @@ public class TruststoreResourceIT extends AbstractIT {
             trustStoreEntries = truststoreResource.trustStoreEntries();
             Assert.assertEquals(3, trustStoreEntries.size());
         }
-
     }
 
-    private void resetInitalTruststore() {
+    @Test
+    public void removeSameCertificate() {
+        List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(2, trustStoreEntries.size());
+
+        String red_gw = "red_gw";
+
+        String res = truststoreResource.removeDomibusCertificate(red_gw);
+
+        Assert.assertTrue(res.contains("Certificate [red_gw] has been successfully removed from the [domibus.truststore] truststore."));
+        trustStoreEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+
+        try {
+            truststoreResource.removeDomibusCertificate(red_gw);
+        } catch (DomibusCertificateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Certificate [red_gw] was not removed from the [domibus.truststore] because it does not exist."));
+            trustStoreEntries = truststoreResource.trustStoreEntries();
+            Assert.assertEquals(1, trustStoreEntries.size());
+        }
+    }
+
+    private void resetInitialTruststore() {
         try {
             String storePassword = "test123";
             Domain domain = DomainService.DEFAULT_DOMAIN;

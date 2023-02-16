@@ -169,7 +169,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    public void addSamCertificate() throws IOException {
+    public void addSameCertificate() throws IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
@@ -243,42 +243,65 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    public void removeCertificate() throws IOException {
+    public void removeCertificate() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, trustStoreEntries.size());
 
         String red_gw = "red_gw";
-        multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+        boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
+        Assert.assertTrue(removed);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(1, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 
-
-    private void backupTrustStore() throws IOException {
+    @Test
+    public void removeSameCertificate() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
-        backupStore(initialStoreContent);
+
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, trustStoreEntries.size());
+
+        String red_gw = "red_gw";
+        boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+
+        Assert.assertTrue(removed);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+
+        removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+
+        Assert.assertFalse(removed);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 
-    private void backupStore(KeyStoreContentInfo currentStoreContent) throws IOException {
-        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
-        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
-        Files.write(backupFileLocation, currentStoreContent.getContent(), StandardOpenOption.CREATE);
-    }
-
-    private void restore() throws IOException {
-        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
-        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
-        Path initialLocation = Paths.get(trustPersistInfo.getFileLocation());
-        byte[] initialContent = fileServiceUtil.getContentFromFile(backupFileLocation.toString());
-        Files.write(initialLocation, initialContent, StandardOpenOption.WRITE);
-    }
+//    private void backupTrustStore() throws IOException {
+//        Domain domain = DomainService.DEFAULT_DOMAIN;
+//        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+//        backupStore(initialStoreContent);
+//    }
+//
+//    private void backupStore(KeyStoreContentInfo currentStoreContent) throws IOException {
+//        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+//        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
+//        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
+//        Files.write(backupFileLocation, currentStoreContent.getContent(), StandardOpenOption.CREATE);
+//    }
+//
+//    private void restore() throws IOException {
+//        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+//        String backupFileName = FilenameUtils.getBaseName(trustPersistInfo.getFileLocation()) + "_back." + FilenameUtils.getExtension(trustPersistInfo.getFileLocation());
+//        Path backupFileLocation = Paths.get(FilenameUtils.getFullPath(trustPersistInfo.getFileLocation()), backupFileName);
+//        Path initialLocation = Paths.get(trustPersistInfo.getFileLocation());
+//        byte[] initialContent = fileServiceUtil.getContentFromFile(backupFileLocation.toString());
+//        Files.write(initialLocation, initialContent, StandardOpenOption.WRITE);
+//    }
 
     private void resetInitialTruststore() {
         try {

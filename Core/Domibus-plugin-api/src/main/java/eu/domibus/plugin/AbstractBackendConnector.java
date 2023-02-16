@@ -300,7 +300,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         String domainEnabledPropertyName = getDomainEnabledPropertyName();
         if (propertyManager != null) {
             String value = propertyManager.getKnownPropertyValue(domainCode, domainEnabledPropertyName);
-            LOG.info("Checking plugin property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
+            LOG.debug("Checking plugin property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
             return BooleanUtils.toBoolean(value);
         }
         // fallback to the domibus property provider delegate
