@@ -1,5 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
@@ -36,6 +38,9 @@ public class CRLServiceImpl implements CRLService {
 
     @Autowired
     private DomibusLocalCacheService domibusLocalCacheService;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
 
     private volatile List<String> supportedCrlProtocols;
 
@@ -96,7 +101,8 @@ public class CRLServiceImpl implements CRLService {
     }
 
     protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
-        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_CACHE_ENABLED));
+        Domain domain = domainProvider.getCurrentDomain();
+        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_CRL_CACHE_ENABLED));
         LOG.debug("CRL by url cache is [{}]", useCache ? "enabled" : "disabled");
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL, useCache);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
