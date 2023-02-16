@@ -107,17 +107,17 @@ public class SecurityProfileValidatorService {
 
         SecurityProfile securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
 
-        SecurityProfileAliasConfiguration  securityProfileConfigurationForAlias = securityProfileAliasConfigurations.stream()
+        Optional<SecurityProfileAliasConfiguration>  securityProfileConfigurationForAlias = securityProfileAliasConfigurations.stream()
                 .filter(profile -> profile.getSecurityProfile() == securityProfileExtractedFromAlias
                         && getCertificatePurposeFromAlias(profile.getAlias()) == certificatePurpose)
-                .findFirst().orElse(null);
+                .findFirst();
 
-        if (securityProfileConfigurationForAlias == null) {
+        if (!securityProfileConfigurationForAlias.isPresent()) {
             String exceptionMessage = String.format("[%s] alias [%s] does not correspond to any security profile configuration", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
-        return securityProfileConfigurationForAlias;
+        return securityProfileConfigurationForAlias.get();
     }
 
     /**
