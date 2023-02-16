@@ -154,6 +154,7 @@ public interface MessageMonitorExtService {
      */
     void deleteMessageInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
 
+    @Deprecated
     void deleteMessageInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
 
     void deleteMessageNotInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
