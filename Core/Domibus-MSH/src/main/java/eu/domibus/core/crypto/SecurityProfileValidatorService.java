@@ -36,8 +36,8 @@ public class SecurityProfileValidatorService {
     }
 
     /**
-     * Parses all the certificate alias configurations from domibus.properties and validates that the certificate types
-     * defined in the Keystore match these configurations
+     * Parses all the certificate alias configurations based on the domibus.properties security profile fields and validates that the certificate types
+     * defined in the KeyStore match these configurations
      *
      * @param securityProfileAliasConfigurations the Security Profile configurations list for all the aliases defined in domibus.properties
      * @param keyStore the domain's KeyStore
@@ -56,13 +56,14 @@ public class SecurityProfileValidatorService {
      * @param trustStore the domain's TrustStore
      */
     public void validateTrustStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore trustStore) {
+        List<String> aliasesList;
         try {
-            List<String> aliasesList = Collections.list(trustStore.aliases());
-            aliasesList.forEach(alias -> validateCertificateTypeForTrustStoreAlias(securityProfileAliasConfigurations, alias, trustStore));
+            aliasesList = Collections.list(trustStore.aliases());
         } catch (KeyStoreException e) {
             String exceptionMessage = String.format("[%s] exception: %s", StoreType.TRUSTSTORE, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
+        aliasesList.forEach(alias -> validateCertificateTypeForTrustStoreAlias(securityProfileAliasConfigurations, alias, trustStore));
 
         LOG.info("TrustStore certificate types are valid");
     }

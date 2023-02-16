@@ -462,9 +462,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         storeReloader.run();
     }
 
+    protected void validateTrustStoreCertificateTypes() {
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        securityProfileValidatorService.validateTrustStoreCertificateTypes(securityProfileAliasConfigurations, certificateService.getStore(persistenceInfo));
+    }
+
     protected void initTrustStore() {
         initStore(DOMIBUS_TRUSTSTORE_NAME, this::loadTrustStoreProperties, keystorePersistenceService::getTrustStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), StoreType.TRUSTSTORE);
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), this::validateTrustStoreCertificateTypes);
     }
 
     protected void loadTrustStoreProperties() {
@@ -497,13 +502,18 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
+    protected void validateKeyStoreCertificateTypes() {
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        securityProfileValidatorService.validateKeyStoreCertificateTypes(securityProfileAliasConfigurations, certificateService.getStore(persistenceInfo));
+    }
+
     protected void initKeyStore() {
         initStore(DOMIBUS_KEYSTORE_NAME, this::loadKeyStoreProperties, keystorePersistenceService::getKeyStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), StoreType.KEYSTORE);
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), this::validateKeyStoreCertificateTypes);
     }
 
     protected void initStore(String storeName, Runnable propertiesLoader, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, StoreType storeType) {
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, Runnable validateStoreCertificateTypes) {
         LOG.debug("Initializing the [{}] certificate provider for domain [{}]", storeName, domain);
 
         domainTaskExecutor.submit(() -> {
@@ -511,12 +521,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
 
-            if (storeType == StoreType.KEYSTORE) {
-                securityProfileValidatorService.validateKeyStoreCertificateTypes(securityProfileAliasConfigurations, store);
-            }
-            if (storeType == StoreType.TRUSTSTORE) {
-                securityProfileValidatorService.validateTrustStoreCertificateTypes(securityProfileAliasConfigurations, store);
-            }
+            validateStoreCertificateTypes.run();
 
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));
