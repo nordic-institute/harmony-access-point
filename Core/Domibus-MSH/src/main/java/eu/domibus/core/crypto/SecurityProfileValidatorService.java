@@ -166,7 +166,7 @@ public class SecurityProfileValidatorService {
         try {
             certificate = (X509Certificate) store.getCertificate(alias);
         } catch (KeyStoreException e) {
-            String exceptionMessage = String.format("[%s] exception: %s", storeType, e.getMessage());
+            String exceptionMessage = String.format("Error getting alias [%s] from keystore with type [%s]: exception: %s", alias, storeType, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
         if (certificate == null) {
