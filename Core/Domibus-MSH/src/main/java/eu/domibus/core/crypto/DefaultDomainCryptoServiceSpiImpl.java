@@ -13,7 +13,6 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.SecurityProfileValidatorService;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -463,9 +462,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         storeReloader.run();
     }
 
+    protected void validateTrustStoreCertificateTypes(KeyStore trustStore) {
+        securityProfileValidatorService.validateTrustStoreCertificateTypes(securityProfileAliasConfigurations, trustStore);
+    }
+
     protected void initTrustStore() {
         initStore(DOMIBUS_TRUSTSTORE_NAME, this::loadTrustStoreProperties, keystorePersistenceService::getTrustStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), StoreType.TRUSTSTORE);
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), this::validateTrustStoreCertificateTypes);
     }
 
     protected void loadTrustStoreProperties() {
@@ -498,13 +501,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
+    protected void validateKeyStoreCertificateTypes(KeyStore keystore) {
+        securityProfileValidatorService.validateKeyStoreCertificateTypes(securityProfileAliasConfigurations, keystore);
+    }
+
     protected void initKeyStore() {
         initStore(DOMIBUS_KEYSTORE_NAME, this::loadKeyStoreProperties, keystorePersistenceService::getKeyStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), StoreType.KEYSTORE);
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), this::validateKeyStoreCertificateTypes);
     }
 
     protected void initStore(String storeName, Runnable propertiesLoader, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, StoreType storeType) {
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, Consumer<KeyStore> certificateTypeValidator) {
         LOG.debug("Initializing the [{}] certificate provider for domain [{}]", storeName, domain);
 
         domainTaskExecutor.submit(() -> {
@@ -512,10 +519,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
 
-            //this discriminator is currently used only for keystore validation, but validation of the truststore will also be added
-            if (storeType == StoreType.KEYSTORE) {
-                securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, store, StoreType.KEYSTORE);
-            }
+            certificateTypeValidator.accept(store);
 
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));

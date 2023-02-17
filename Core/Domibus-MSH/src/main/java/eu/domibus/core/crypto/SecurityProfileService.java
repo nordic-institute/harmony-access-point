@@ -1,4 +1,4 @@
-package eu.domibus.core.util;
+package eu.domibus.core.crypto;
 
 
 import eu.domibus.api.security.SecurityProfile;
@@ -68,5 +68,13 @@ public class SecurityProfileService {
         }
         LOG.info("The following alias was determined for encrypting: [{}]", alias);
         return alias;
+    }
+
+    public CertificatePurpose extractCertificatePurpose(String alias) {
+        return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
+    }
+
+    public SecurityProfile extractSecurityProfile(String alias) {
+        return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
 }

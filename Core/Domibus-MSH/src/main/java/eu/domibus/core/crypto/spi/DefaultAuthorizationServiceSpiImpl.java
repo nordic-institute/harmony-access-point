@@ -18,7 +18,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.SecurityProfileDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
