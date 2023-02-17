@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -44,13 +45,16 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     protected final ApplicationEventPublisher applicationEventPublisher;
 
+    protected UserMessageSecurityService userMessageSecurityService;
+
     public MessageRetrieverImpl(UserMessageDefaultService userMessageService, MessagingService messagingService, UserMessageLogDefaultService userMessageLogService,
-                                ErrorLogService errorLogService, ApplicationEventPublisher applicationEventPublisher) {
+                                ErrorLogService errorLogService, ApplicationEventPublisher applicationEventPublisher, UserMessageSecurityService userMessageSecurityService) {
         this.userMessageService = userMessageService;
         this.messagingService = messagingService;
         this.userMessageLogService = userMessageLogService;
         this.errorLogService = errorLogService;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.userMessageSecurityService = userMessageSecurityService;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
-
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
         if (markAsDownloaded) {
             markMessageAsDownloaded(userMessage.getMessageId());
         }
