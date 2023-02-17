@@ -6,7 +6,7 @@
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus</artifactId>
-    <version>5.0.4</version>
+    <version>5.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
@@ -166,13 +166,20 @@
         <commons-compress.version>1.21</commons-compress.version>
         <commons-configuration2.version>2.8.0</commons-configuration2.version>
         <httpmime.version>4.5.13</httpmime.version>
-        <jdom2.version>2.0.6.1</jdom2.version> 
+        <jdom2.version>2.0.6.1</jdom2.version>
+
+        <project.scm.id>edelivery-scm</project.scm.id>
+        <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
     </properties>
+
+    <scm>
+        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git</developerConnection>
+    </scm>
 
     <!-- Where to deploy the binaries -->
     <distributionManagement>
@@ -1405,6 +1412,15 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven-release-plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
