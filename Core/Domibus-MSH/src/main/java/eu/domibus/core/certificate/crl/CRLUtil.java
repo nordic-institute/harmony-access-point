@@ -1,6 +1,5 @@
 package eu.domibus.core.certificate.crl;
 
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.util.HttpUtil;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
@@ -13,9 +12,9 @@ import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.naming.Context;
@@ -57,6 +56,7 @@ public class CRLUtil {
     private HttpUtil httpUtil;
 
     @Autowired
+    @Qualifier(DomibusCacheConstants.CACHE_MANAGER)
     private CacheManager cacheManager;
 
     /**
