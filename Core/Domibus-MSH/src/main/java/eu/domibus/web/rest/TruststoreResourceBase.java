@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -77,6 +78,10 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
+        if (ex instanceof SameResourceCryptoException) {
+            LOG.info("Caught an instance of SameResourceCryptoException: returning OK status.");
+            return errorHandlerService.createResponse(ex, HttpStatus.OK);
+        }
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
 import org.hibernate.HibernateException;
@@ -61,11 +62,14 @@ public class GlobalExceptionHandlerAdviceTest {
     @Mock
     private PModeResource pModeResource;
 
+    @Mock
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Spy
-    private ErrorHandlerService errorHandlerService;
+    private ErrorHandlerService errorHandlerService = new ErrorHandlerService(domibusPropertyProvider);
 
     @Before
     public void setup() {
