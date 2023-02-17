@@ -182,7 +182,7 @@
 		<leg name="pushTestcase1tc2ActionWithPayload"/>
 			</legs>
 		</process>
-		<process name="tc1Process"
+		<process name="tc1Process2"
 				 agreement=""
 				 mep="oneway"
 				 binding="push"
