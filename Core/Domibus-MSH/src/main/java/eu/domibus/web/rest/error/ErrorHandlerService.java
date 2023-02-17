@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.error;
 
-import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -43,7 +42,6 @@ public class ErrorHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorHandlerService.class);
 
-
     final DomibusPropertyProvider domibusPropertyProvider;
 
     public ErrorHandlerService(DomibusPropertyProvider domibusPropertyProvider) {
@@ -51,13 +49,6 @@ public class ErrorHandlerService {
     }
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex) {
-        Throwable cause = extractCause(ex);
-
-        if (cause instanceof SameResourceCryptoException) {
-            LOG.debug("Caught an instance of SameResourceCryptoException: returning OK status.");
-            return createResponse(cause, HttpStatus.OK);
-        }
-
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -152,10 +143,4 @@ public class ErrorHandlerService {
         }
     }
 
-    private Throwable extractCause(Throwable e) {
-        //first level of cause exception
-        if (e.getCause() != null)
-            return e.getCause();
-        return e;
-    }
 }
