@@ -29,10 +29,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.core.property.DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Cosmin Baciu
@@ -53,7 +55,7 @@ public class DomibusApplicationInitializerTest {
                           @Mocked DispatcherServlet dispatcherServlet,
                           @Mocked FilterRegistration.Dynamic springSecurityFilterChain,
                           @Mocked ServletRegistration.Dynamic cxfServlet) throws ServletException, IOException {
-        String domibusConfigLocation = "/home/domibus";
+        String domibusConfigLocation = Paths.get("/home/domibus").normalize().toString();
 
         new Expectations(domibusApplicationInitializer) {{
             new DomibusConfigLocationProvider();
@@ -94,7 +96,7 @@ public class DomibusApplicationInitializerTest {
             List<EventListener> list = new ArrayList<>();
             servletContext.addListener(withCapture(list));
             Assert.assertEquals(2, list.size());
-            Assert.assertThat(
+            assertThat(
                     list.stream().map(EventListener::getClass).collect(Collectors.toList()),
                     CoreMatchers.<Class<?>>hasItems(
                             DomibusContextLoaderListener.class,
@@ -114,12 +116,8 @@ public class DomibusApplicationInitializerTest {
     @Test
     public void onStartup_exception(@Injectable ServletContext servletContext,
                                     @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
-                                    @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
-                                    @Mocked ServletRegistration.Dynamic dispatcher,
-                                    @Mocked DispatcherServlet dispatcherServlet,
-                                    @Mocked FilterRegistration.Dynamic springSecurityFilterChain,
-                                    @Mocked ServletRegistration.Dynamic cxfServlet) throws IOException {
-        String domibusConfigLocation = "/home/domibus";
+                                    @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext) throws IOException {
+        String domibusConfigLocation = Paths.get("/home/domibus").normalize().toString();
 
         new Expectations(domibusApplicationInitializer) {{
             new DomibusConfigLocationProvider();
@@ -128,7 +126,7 @@ public class DomibusApplicationInitializerTest {
             domibusConfigLocationProvider.getDomibusConfigLocation(servletContext);
             result = domibusConfigLocation;
 
-            domibusApplicationInitializer.configureLogging(domibusConfigLocation);
+            domibusApplicationInitializer.configureLogging(Paths.get(domibusConfigLocation).normalize().toString());
 
             new AnnotationConfigWebApplicationContext();
             result = annotationConfigWebApplicationContext;
@@ -208,7 +206,7 @@ public class DomibusApplicationInitializerTest {
                                          @Injectable MapPropertySource domibusConfigLocationSource,
                                          @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource,
                                          @Injectable DomibusPropertiesPropertySource updatedDomibusPropertiesPropertySource) throws IOException {
-        String domibusConfigLocation = "/home/domibus";
+        String domibusConfigLocation = Paths.get("/home/domibus").normalize().toString();
 
         new Expectations(domibusApplicationInitializer) {{
             rootContext.getEnvironment();
