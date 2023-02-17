@@ -542,8 +542,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
                 .findFirst();
         if (existing.isPresent()) {
-            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
-                    aliasValue, desc, domain, existing.get().getDescription());
+            String message;
+            SecurityProfileAliasConfiguration profileConfiguration = existing.get();
+            if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
+                message = String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
+                        aliasValue, profileConfiguration.getAlias(), desc, domain);
+            } else {
+                message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                        aliasValue, desc, domain, profileConfiguration.getDescription());
+            }
             throw new ConfigurationException(message);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
