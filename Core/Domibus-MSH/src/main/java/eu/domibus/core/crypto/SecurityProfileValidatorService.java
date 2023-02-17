@@ -131,12 +131,16 @@ public class SecurityProfileValidatorService {
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-        CertificatePurpose certificatePurpose = CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
+        CertificatePurpose certificatePurpose = extractCertificatePurpose(alias);
         if (certificatePurpose == null) {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/decrypt)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
         return certificatePurpose;
+    }
+
+    private CertificatePurpose extractCertificatePurpose(String alias) {
+        return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
     }
 
     /**
@@ -150,13 +154,17 @@ public class SecurityProfileValidatorService {
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-        SecurityProfile securityProfile = SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
+        SecurityProfile securityProfile = extractSecurityProfile(alias);
         if (securityProfile == null) {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible profile name(rsa/ecc)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
         return securityProfile;
+    }
+
+    private SecurityProfile extractSecurityProfile(String alias) {
+        return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
 
     private void validateCertificateType(String alias, SecurityProfile securityProfile, KeyStore store, StoreType storeType) {
@@ -204,31 +212,31 @@ public class SecurityProfileValidatorService {
 
     private void validateDecryptionCertificateType(SecurityProfile securityProfile, String certificateAlgorithm,
                                                    CertificatePurpose certificatePurpose, String alias, StoreType storeType) {
-        List<String> certificateTypes = new ArrayList<>();
+        List<String> acceptedCertificateAlgorithms = new ArrayList<>();
         if (securityProfile == SecurityProfile.RSA) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE);
+            acceptedCertificateAlgorithms = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE);
         } else if (securityProfile == SecurityProfile.ECC) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE);
+            acceptedCertificateAlgorithms = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE);
         }
-        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile, storeType);
+        checkCertificateType(acceptedCertificateAlgorithms, certificateAlgorithm, certificatePurpose, alias, securityProfile, storeType);
     }
 
     private void validateSigningCertificateType(SecurityProfile securityProfile, String certificateAlgorithm,
                                                 CertificatePurpose certificatePurpose, String alias, StoreType storeType) {
-        List<String> certificateTypes = new ArrayList<>();
+        List<String> acceptedCertificateAlgorithms = new ArrayList<>();
 
         if (securityProfile == SecurityProfile.RSA) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE);
+            acceptedCertificateAlgorithms = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE);
         } else if (securityProfile == SecurityProfile.ECC) {
-            certificateTypes = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE);
+            acceptedCertificateAlgorithms = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE);
         }
-        checkCertificateType(certificateTypes, certificateAlgorithm, certificatePurpose, alias, securityProfile, storeType);
+        checkCertificateType(acceptedCertificateAlgorithms, certificateAlgorithm, certificatePurpose, alias, securityProfile, storeType);
     }
 
-    private void checkCertificateType(List<String> certificateTypes, String certificateAlgorithm, CertificatePurpose certificatePurpose,
+    private void checkCertificateType(List<String> acceptedCertificateAlgorithms, String certificateAlgorithm, CertificatePurpose certificatePurpose,
                                       String alias, SecurityProfile securityProfile, StoreType storeType) {
-        boolean certificateTypeWasFound = certificateTypes.stream().anyMatch(certificateAlgorithm::equalsIgnoreCase);
-        if (!certificateTypeWasFound) {
+        boolean certificateTypeIsAccepted = acceptedCertificateAlgorithms.stream().anyMatch(certificateAlgorithm::equalsIgnoreCase);
+        if (!certificateTypeIsAccepted) {
             String exceptionMessage = String.format("Invalid [%s] certificate type in [%s] with alias: [%s] used in security profile: [%s]",
                     certificatePurpose, storeType, alias, securityProfile);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
