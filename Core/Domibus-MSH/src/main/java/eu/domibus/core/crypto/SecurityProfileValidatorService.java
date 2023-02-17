@@ -6,7 +6,6 @@ import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
@@ -31,8 +30,11 @@ public class SecurityProfileValidatorService {
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public SecurityProfileValidatorService(DomibusPropertyProvider domibusPropertyProvider) {
+    protected final SecurityProfileService securityProfileService;
+
+    public SecurityProfileValidatorService(DomibusPropertyProvider domibusPropertyProvider, SecurityProfileService securityProfileService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.securityProfileService = securityProfileService;
     }
 
     /**
@@ -131,16 +133,12 @@ public class SecurityProfileValidatorService {
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-        CertificatePurpose certificatePurpose = extractCertificatePurpose(alias);
+        CertificatePurpose certificatePurpose = securityProfileService.extractCertificatePurpose(alias);
         if (certificatePurpose == null) {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/decrypt)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
         return certificatePurpose;
-    }
-
-    private CertificatePurpose extractCertificatePurpose(String alias) {
-        return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
     }
 
     /**
@@ -154,17 +152,13 @@ public class SecurityProfileValidatorService {
         if (isLegacySingleAliasKeystoreDefined()) {
             return null;
         }
-        SecurityProfile securityProfile = extractSecurityProfile(alias);
+        SecurityProfile securityProfile = securityProfileService.extractSecurityProfile(alias);
         if (securityProfile == null) {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible profile name(rsa/ecc)", StoreType.TRUSTSTORE, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
         return securityProfile;
-    }
-
-    private SecurityProfile extractSecurityProfile(String alias) {
-        return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
 
     private void validateCertificateType(String alias, SecurityProfile securityProfile, KeyStore store, StoreType storeType) {
