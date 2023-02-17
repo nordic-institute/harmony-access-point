@@ -638,20 +638,21 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     private synchronized void reloadKeyStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
-                signalService::signalKeyStoreUpdate);
+                signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
     private synchronized void reloadTrustStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
-                signalService::signalTrustStoreUpdate);
+                signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
     }
 
     private synchronized void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
                                           Supplier<KeyStore> storeGetter,
                                           Runnable storePropertiesLoader,
                                           BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
-                                          Consumer<Domain> signaller) throws CryptoSpiException {
+                                          Consumer<Domain> signaller,
+                                          Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
@@ -670,6 +671,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     -> storeSetter.accept(newStore, securityProfileConfiguration));
 
             signaller.accept(domain);
+
+            certificateTypeValidator.accept(currentStore);
+
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
         }
