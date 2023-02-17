@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.error;
 
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -12,7 +13,6 @@ import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.HibernateException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +43,20 @@ public class ErrorHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorHandlerService.class);
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+
+    final DomibusPropertyProvider domibusPropertyProvider;
+
+    public ErrorHandlerService(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex) {
+        Throwable cause = extractCause(ex);
+
+        if (cause instanceof SameResourceCryptoException) {
+            return createResponse(cause, HttpStatus.OK);
+        }
+
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -124,7 +134,6 @@ public class ErrorHandlerService {
         return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-
     public ResponseEntity<ErrorRO> createHibernateExceptionResponse(HibernateException ex) {
         LOG.error("Hibernate error", ex);
         // hide precise errors (like SQL statements from the response) - see EDELIVERY-9027
@@ -140,5 +149,12 @@ public class ErrorHandlerService {
                 return node.toString();
             }
         }
+    }
+
+    private Throwable extractCause(Throwable e) {
+        //first level of cause exception
+        if (e.getCause() != null)
+            return e.getCause();
+        return e;
     }
 }

@@ -77,7 +77,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+        return errorHandlerService.createResponse(ex);
     }
 
     protected void uploadStore(MultipartFile truststoreFile, String password) {

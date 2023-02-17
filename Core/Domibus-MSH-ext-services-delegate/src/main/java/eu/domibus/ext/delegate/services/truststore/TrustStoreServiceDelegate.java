@@ -1,6 +1,5 @@
 package eu.domibus.ext.delegate.services.truststore;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -14,15 +13,11 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.exceptions.CryptoExtException;
-import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.ext.services.TrustStoreExtService;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
-
-import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya Chandran
@@ -64,9 +59,9 @@ public class TrustStoreServiceDelegate implements TrustStoreExtService {
 
     @Override
     public void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfoDTO) {
-            Domain currentDomain = domainProvider.getCurrentDomain();
-            KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
-            multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeContentInfo);
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, storeContentInfo);
     }
 
     @Override
