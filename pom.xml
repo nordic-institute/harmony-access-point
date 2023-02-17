@@ -378,12 +378,12 @@
             <!-- BouncyCastle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15to18</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15to18</artifactId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
@@ -680,7 +680,7 @@
                 <version>${xmlsec.version}</version>
                 <exclusions>
                     <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
-                     bcprov-jdk15to18 version instead -->
+                     bcprov-jdk18on version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
@@ -750,7 +750,7 @@
                 <version>${wss4j-ws-security.version}</version>
                 <exclusions>
                     <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
-                     bcprov-jdk15to18 version instead -->
+                     bcprov-jdk18on version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
@@ -763,7 +763,7 @@
                 <version>${wss4j-ws-security.version}</version>
                 <exclusions>
                     <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
-                     bcprov-jdk15to18 version instead -->
+                     bcprov-jdk18on version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
@@ -784,7 +784,7 @@
                 <version>${cxf.version}</version>
                 <exclusions>
                     <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
-                    bcprov-jdk15to18 version instead -->
+                    bcprov-jdk18on version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
@@ -867,7 +867,7 @@
                 <artifactId>peppol-security</artifactId>
                 <version>${peppol.version}</version>
                 <exclusions>
-                    <!-- we are excluding these in order to pickup bcprov-jdk15to18 and bcpkix-jdk15to18
+                    <!-- we are excluding these in order to pickup bcprov-jdk18on and bcpkix-jdk18on
                     latest version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
