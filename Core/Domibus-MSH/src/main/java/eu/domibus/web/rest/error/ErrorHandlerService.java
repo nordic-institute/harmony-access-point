@@ -54,6 +54,7 @@ public class ErrorHandlerService {
         Throwable cause = extractCause(ex);
 
         if (cause instanceof SameResourceCryptoException) {
+            LOG.debug("Caught an instance of SameResourceCryptoException: returning OK status.");
             return createResponse(cause, HttpStatus.OK);
         }
 
