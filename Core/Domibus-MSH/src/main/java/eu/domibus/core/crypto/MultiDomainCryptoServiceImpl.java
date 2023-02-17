@@ -49,11 +49,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected CertificateHelper certificateHelper;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     protected CertificateService certificateService;
-
-    protected final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     protected final DomainService domainService;
 
@@ -62,16 +58,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusLocalCacheService domibusLocalCacheService,
                                         CertificateHelper certificateHelper,
-                                        DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
-                                        DomibusRawPropertyProvider domibusRawPropertyProvider,
-                                        DomainService domainService, KeystorePersistenceService keystorePersistenceService) {
+                                        DomainService domainService,
+                                        KeystorePersistenceService keystorePersistenceService) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusLocalCacheService = domibusLocalCacheService;
         this.certificateHelper = certificateHelper;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
-        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
         this.domainService = domainService;
         this.keystorePersistenceService = keystorePersistenceService;
     }

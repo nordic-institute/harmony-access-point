@@ -13,8 +13,10 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +52,6 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
 @Transactional
 public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
@@ -78,6 +81,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Autowired
     protected EArchiveFileStorageFactory storageFactory;
 
+    @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+
     private File temp;
 
     private BatchEArchiveDTO batchEArchiveDTO;
@@ -89,6 +95,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Transactional
     @Before
     public void setUp() throws Exception {
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock("name"));
         // because we must not use DirtyContext do not use common identifiers!
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         messageId = UUID.randomUUID() + "@domibus.eu";

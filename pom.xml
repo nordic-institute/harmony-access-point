@@ -171,7 +171,13 @@
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <javassist.version>3.28.0-GA</javassist.version>
+        <project.scm.id>edelivery-scm</project.scm.id>
+        <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
     </properties>
+
+    <scm>
+        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git</developerConnection>
+    </scm>
 
     <!-- Where to deploy the binaries -->
     <distributionManagement>
@@ -1216,6 +1222,15 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven-release-plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>

@@ -539,6 +539,10 @@
                             </xs:element>
                         </xs:sequence>
                     </xs:complexType>
+                    <xs:unique name="uniqueProcessName">
+                        <xs:selector xpath="process"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
                 </xs:element>
             </xs:all>
             <xs:attribute name="party" type="xs:string" use="required"/>

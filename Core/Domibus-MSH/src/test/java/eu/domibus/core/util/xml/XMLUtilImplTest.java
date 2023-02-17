@@ -56,6 +56,14 @@ public class XMLUtilImplTest {
     }
 
     @Test
+    public void testUnmarshalNotUniqueProcess() throws Exception {
+        UnmarshallerResult unmarshal = unmarshalPmode("samplePModes/domibus-configuration-not-unique-process.xml", false);
+        assertTrue(unmarshal.getErrors() != null && unmarshal.getErrors().size() > 0);
+        LOG.debug("Validation errors: [" + unmarshal.getErrorMessage() + "]");
+        assertFalse(unmarshal.isValid());
+    }
+
+    @Test
     public void testUnmarshalWithWhiteSpaces() throws Exception {
         UnmarshallerResult unmarshal = unmarshalPmode("samplePModes/domibus-configuration-with-whitespaces.xml", false);
         assertTrue(unmarshal.getErrors() != null && unmarshal.getErrors().size() > 0);

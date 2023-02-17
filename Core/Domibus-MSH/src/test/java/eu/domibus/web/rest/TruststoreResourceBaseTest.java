@@ -4,6 +4,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -20,6 +21,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,25 +73,25 @@ public class TruststoreResourceBaseTest {
     @Injectable
     KeystorePersistenceService keystorePersistenceService;
 
-//    @Test
-//    public void replaceTruststoreOK() {
-//        byte[] content = {1, 0, 1};
-//        String filename = "filename";
-//        String pass = "pass";
-//        MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
-//
-//        new Expectations(truststoreResourceBase) {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            result = content;
-//            truststoreResourceBase.doUploadStore(content, anyString, pass);
-//        }};
-//
-//        truststoreResourceBase.uploadStore(multiPartFile, pass);
-//
-//        new Verifications() {{
-//            truststoreResourceBase.doUploadStore(content, filename, pass);
-//        }};
-//    }
+    @Test
+    public void replaceTruststoreOK(@Injectable KeyStoreContentInfo storeInfo) {
+        byte[] content = {1, 0, 1};
+        String filename = "filename";
+        String pass = "pass";
+        MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
+
+        new Expectations(truststoreResourceBase) {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            result = content;
+            truststoreResourceBase.doUploadStore(storeInfo);
+        }};
+
+        truststoreResourceBase.uploadStore(multiPartFile, pass);
+
+        new Verifications() {{
+            truststoreResourceBase.doUploadStore(storeInfo);
+        }};
+    }
 
     @Test
     public void testUploadTruststoreEmpty() {
@@ -108,20 +110,20 @@ public class TruststoreResourceBaseTest {
         }
     }
 
-//    @Test(expected = CryptoException.class)
-//    public void testUploadTruststoreException() {
-//        MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-//
-//        new Expectations() {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            result = new byte[]{1, 0, 1};
-//
-//            truststoreResourceBase.doUploadStore((byte[]) any, anyString, anyString);
-//            result = new CryptoException("Password is incorrect");
-//        }};
-//
-//        truststoreResourceBase.uploadStore(multiPartFile, "pass");
-//    }
+    @Test(expected = CryptoException.class)
+    public void testUploadTruststoreException(@Injectable KeyStoreContentInfo storeInfo) {
+        MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
+
+        new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            result = new byte[]{1, 0, 1};
+
+            truststoreResourceBase.doUploadStore(storeInfo);
+            result = new CryptoException("Password is incorrect");
+        }};
+
+        truststoreResourceBase.uploadStore(multiPartFile, "pass");
+    }
 
     @Test
     public void testTrustStoreEntries() {
@@ -189,51 +191,62 @@ public class TruststoreResourceBaseTest {
         }
     }
 
-//    @Test
-//    public void testDownload() {
-//
-//        final byte[] fileContent = new byte[]{1, 0, 1};
-//        new Expectations(truststoreResourceBase) {{
-//            truststoreResourceBase.getTrustStoreContent();
-//            result = new KeyStoreContentDTO(1L, fileContent);
-//        }};
-//
-//        // When
-//        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
-//
-//        // Then
-//        validateResponseEntity(responseEntity, HttpStatus.OK);
-//
-//        new Verifications() {{
-//            truststoreResourceBase.auditDownload();
-//        }};
-//
-//    }
+    @Test
+    public void testDownload(@Injectable KeyStoreContentInfo contentInfo, @Injectable String storeName) {
 
-//    @Test
-//    public void testDownload_MultiTenancy() {
-//
-//        final byte[] fileContent = new byte[]{1, 0, 1};
-//        new Expectations(truststoreResourceBase) {{
-//            truststoreResourceBase.getTrustStoreContent();
-//            result = new KeyStoreContentDTO(1L, fileContent);
-//
-//            domainContextProvider.getCurrentDomainSafely();
-//            result = new Domain("default", "default");
-//
-//            domibusConfigurationService.isMultiTenantAware();
-//            result = true;
-//        }};
-//
-//        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
-//
-//        validateResponseEntity(responseEntity, HttpStatus.OK);
-//        new Verifications() {{
-//            truststoreResourceBase.auditDownload();
-//            Assert.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains("default"));
-//        }};
-//
-//    }
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        String fileName = "fileName";
+        new Expectations(truststoreResourceBase) {{
+            truststoreResourceBase.getTrustStoreContent();
+            result = contentInfo;
+            contentInfo.getContent();
+            result = fileContent;
+            truststoreResourceBase.getStoreName();
+            result = storeName;
+            truststoreResourceBase.getFileName((KeyStoreContentInfo) any);
+            result = fileName;
+        }};
+
+        // When
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
+
+        // Then
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+
+        new Verifications() {{
+            auditService.addKeystoreDownloadedAudit(storeName);
+        }};
+
+    }
+
+    @Test
+    public void testDownload_MultiTenancy(@Injectable KeyStoreContentInfo contentInfo, @Injectable String storeName) {
+
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        String fileName = "fileName";
+        new Expectations(truststoreResourceBase) {{
+            truststoreResourceBase.getTrustStoreContent();
+            result = contentInfo;
+
+            contentInfo.getContent();
+            result = fileContent;
+
+            truststoreResourceBase.getStoreName();
+            result = storeName;
+
+            truststoreResourceBase.getFileName((KeyStoreContentInfo) any);
+            result = fileName;
+        }};
+
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
+
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+        Assert.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains(fileName));
+        new Verifications() {{
+            auditService.addKeystoreDownloadedAudit(storeName);
+        }};
+
+    }
 
     @Test
     public void getTrustStoreEntries(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain,

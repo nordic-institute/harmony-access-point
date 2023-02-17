@@ -107,7 +107,7 @@ public class CertificateHelper {
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
-        return getKeyStoreContentInfo(storeName, null, storeContent, storePassword, storeType);
+        return createStoreContentInfo(storeName, null, storeContent, storePassword, storeType);
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
@@ -116,10 +116,10 @@ public class CertificateHelper {
         }
         String storeType = getStoreType(storeFileName);
 
-        return getKeyStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
+        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
     }
 
-    private KeyStoreContentInfo getKeyStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
         KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
         storeInfo.setName(storeName);
         storeInfo.setFileName(storeFileName);
@@ -129,4 +129,5 @@ public class CertificateHelper {
 
         return storeInfo;
     }
+
 }
