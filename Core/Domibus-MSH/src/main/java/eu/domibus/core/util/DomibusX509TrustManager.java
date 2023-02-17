@@ -2,6 +2,8 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class DomibusX509TrustManager implements X509TrustManager {
     @Autowired
     protected DomainContextProvider domainProvider;
 
+    @Autowired
+    protected  DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         X509TrustManager defaultTm;
@@ -48,22 +53,37 @@ public class DomibusX509TrustManager implements X509TrustManager {
     @Override
     public void checkServerTrusted(X509Certificate[] chain,
                                    String authType) throws CertificateException {
-        X509TrustManager defaultTm;
         X509TrustManager domibusTm;
         try {
-            defaultTm = getX509TrustManager(true);
             domibusTm = getX509TrustManager(false);
         } catch (NoSuchAlgorithmException | KeyStoreException exc) {
-            LOG.warn("Could not load default/custom certificates.");
-            throw new CertificateException("Could not load default/custom certificates.", exc);
+            LOG.warn("Could not load custom certificates.");
+            throw new CertificateException("Could not load custom certificates.", exc);
         }
 
         try {
             domibusTm.checkServerTrusted(chain, authType);
+            LOG.debug("Server trusted check against custom certificates was successful");
+            return;
         } catch (CertificateException e) {
-            // This will throw another CertificateException if this fails too.
-            defaultTm.checkServerTrusted(chain, authType);
+            LOG.debug("Could not check the server trusted against custom certificates", e);
         }
+
+        if (domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CACERTS_VALIDATION_ENABLED)) {
+            LOG.debug("Validation of server trust against default system certificates enabled");
+            X509TrustManager defaultTm;
+            try {
+                defaultTm = getX509TrustManager(true);
+            } catch (NoSuchAlgorithmException | KeyStoreException exc) {
+                LOG.warn("Could not load default system certificates.");
+                throw new CertificateException("Could not load default system certificates.", exc);
+            }
+            defaultTm.checkServerTrusted(chain, authType);
+            LOG.debug("Server trusted check against default system certificates was successful");
+            return;
+        }
+
+        throw new CertificateException("Could not check server certificates are trusted");
     }
 
     @Override
