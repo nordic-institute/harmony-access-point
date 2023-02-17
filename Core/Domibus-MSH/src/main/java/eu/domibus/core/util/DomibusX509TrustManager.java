@@ -54,10 +54,10 @@ public class DomibusX509TrustManager implements X509TrustManager {
     public void checkServerTrusted(X509Certificate[] chain,
                                    String authType) throws CertificateException {
         X509TrustManager domibusTm;
+        LOG.debug("Performing validation of server trust against custom certificates.");
         try {
             domibusTm = getX509TrustManager(false);
         } catch (NoSuchAlgorithmException | KeyStoreException exc) {
-            LOG.warn("Could not load custom certificates.");
             throw new CertificateException("Could not load custom certificates.", exc);
         }
 
@@ -75,7 +75,6 @@ public class DomibusX509TrustManager implements X509TrustManager {
             try {
                 defaultTm = getX509TrustManager(true);
             } catch (NoSuchAlgorithmException | KeyStoreException exc) {
-                LOG.warn("Could not load default system certificates.");
                 throw new CertificateException("Could not load default system certificates.", exc);
             }
             defaultTm.checkServerTrusted(chain, authType);
@@ -83,7 +82,7 @@ public class DomibusX509TrustManager implements X509TrustManager {
             return;
         }
 
-        throw new CertificateException("Could not check server certificates are trusted");
+        throw new CertificateException("Could not perform the validation of the server trust");
     }
 
     @Override
