@@ -173,10 +173,11 @@ public class MessageRetrieverImpl implements MessageRetriever {
         MSHRole role = MSHRole.valueOf(mshRole.name());
 
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
-        if (userMessageLog == null) {
+        List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
+        if (userMessageLog == null && errorResults.isEmpty()) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
-        return errorLogService.getErrors(messageId, role);
+        return errorResults;
     }
 
     @Override
