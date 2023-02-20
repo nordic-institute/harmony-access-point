@@ -1,7 +1,5 @@
 package eu.domibus.core.certificate.crl;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_CACHE_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_BY_URL_CACHE_ENABLED;
 
 @Service
 public class CRLServiceImpl implements CRLService {
@@ -44,7 +42,8 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}",
+            condition = "'${domibus.certificate.crlByCert.cache.enabled}'==true")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -98,7 +97,7 @@ public class CRLServiceImpl implements CRLService {
     }
 
     protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
-        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_CACHE_ENABLED));
+        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_BY_URL_CACHE_ENABLED));
         LOG.debug("CRL by url cache is [{}]", useCache ? "enabled" : "disabled");
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL, useCache);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());

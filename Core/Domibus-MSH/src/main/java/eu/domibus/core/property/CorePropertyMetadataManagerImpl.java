@@ -401,7 +401,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CACHE_LOCATION),
-            new DomibusPropertyMetadata(DOMIBUS_CRL_CACHE_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_CRL_BY_URL_CACHE_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
