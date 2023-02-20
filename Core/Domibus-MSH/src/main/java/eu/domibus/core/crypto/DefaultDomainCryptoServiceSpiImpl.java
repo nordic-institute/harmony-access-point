@@ -532,24 +532,38 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
-        String desc = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
+        String aliasDescription = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
 
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
             String message = String.format("The private key password corresponding to the alias=[%s] was not set for domain [%s]: ", aliasValue, domain);
             throw new ConfigurationException(message);
         }
+
+        checkIfAliasIsDuplicated(aliasValue, aliasDescription);
+
+        if (StringUtils.isNotBlank(aliasValue)) {
+            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, aliasDescription);
+            securityProfileAliasConfigurations.add(profileAliasConfiguration);
+        }
+    }
+
+    private void checkIfAliasIsDuplicated(String aliasValue, String aliasDescription) {
         Optional<SecurityProfileAliasConfiguration> existing = securityProfileAliasConfigurations.stream()
                 .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
                 .findFirst();
         if (existing.isPresent()) {
-            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
-                    aliasValue, desc, domain, existing.get().getDescription());
+            String message = getDuplicateErrorMessage(aliasValue, aliasDescription, existing.get());
             throw new ConfigurationException(message);
         }
-        if (StringUtils.isNotBlank(aliasValue)) {
-            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, desc);
-            securityProfileAliasConfigurations.add(profileAliasConfiguration);
+    }
+
+    private String getDuplicateErrorMessage(String aliasValue, String aliasDescription, SecurityProfileAliasConfiguration profileConfiguration) {
+        if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
+            return String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
+                    aliasValue, profileConfiguration.getAlias(), aliasDescription, domain);
         }
+        return String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                aliasValue, aliasDescription, domain, profileConfiguration.getDescription());
     }
 
     protected void createSecurityProfileAliasConfigurations() {
