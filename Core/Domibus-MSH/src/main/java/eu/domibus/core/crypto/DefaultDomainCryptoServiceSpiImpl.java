@@ -552,17 +552,18 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
                 .findFirst();
         if (existing.isPresent()) {
-            String message;
-            SecurityProfileAliasConfiguration profileConfiguration = existing.get();
-            if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
-                message = String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
-                        aliasValue, profileConfiguration.getAlias(), aliasDescription, domain);
-            } else {
-                message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
-                        aliasValue, aliasDescription, domain, profileConfiguration.getDescription());
-            }
+            String message = getDuplicateErrorMessage(aliasValue, aliasDescription, existing.get());
             throw new ConfigurationException(message);
         }
+    }
+
+    private String getDuplicateErrorMessage(String aliasValue, String aliasDescription, SecurityProfileAliasConfiguration profileConfiguration) {
+        if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
+            return String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
+                    aliasValue, profileConfiguration.getAlias(), aliasDescription, domain);
+        }
+        return String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                aliasValue, aliasDescription, domain, profileConfiguration.getDescription());
     }
 
     protected void createSecurityProfileAliasConfigurations() {
