@@ -105,7 +105,9 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
         dispatch.getRequestContext().put(PolicyConstants.POLICY_OVERRIDE, policy);
-        dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
+        if (algorithm != null) {
+            dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
+        }
         dispatch.getRequestContext().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
         client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
