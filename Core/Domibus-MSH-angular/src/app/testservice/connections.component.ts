@@ -315,7 +315,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     try {
       let searchParams = new HttpParams();
       searchParams = searchParams.append('userMessageId', row.lastSent.messageId);
-      let result = await this.http.get<any>('rest/testservice/errors', {params: searchParams}).toPromise();
+      let result = await this.http.get<any>(ConnectionsMonitorService.TEST_SERVICE_ERRORS_URL, {params: searchParams}).toPromise();
       if (result) {
         let httpErrorResponse = new HttpErrorResponse({error: result});
         this.alertService.exception('', httpErrorResponse);
