@@ -17,6 +17,8 @@
                     - DuplicateMessageException is thrown in the self sending scenario, when two messages ACKNOWLEDGED and RECEIVED have the same messageId.
                     - Both methods should be replaced with the equivalent method that receives also the AP Role as parameter to differentiate between sent and received messages.
                     - The default list of message statuses for which notifications are sent has changed. As a consequence, the plugins that rely on notifications should customize this list of statuses in their properties file. For example, FS-Plugin should also include PAYLOAD_PROCESSED in the property fsplugin.messages.notifications from fs-plugin.properties.
+                        - the new (5.1) list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE, MESSAGE_DELETED, MESSAGE_DELETE_BATCH, PAYLOAD_SUBMITTED, PAYLOAD_PROCESSED
+                        - the previous list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE
 ### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
