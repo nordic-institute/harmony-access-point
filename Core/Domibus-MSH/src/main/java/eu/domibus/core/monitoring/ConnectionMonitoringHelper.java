@@ -52,7 +52,7 @@ public class ConnectionMonitoringHelper {
     }
 
     public void validateSender(String senderParty) {
-        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
+        List<String> fromParties = partyService.getGatewayPartyIdentifiers();
         if (!fromParties.contains(senderParty)) {
             throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
         }

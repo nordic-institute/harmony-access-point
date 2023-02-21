@@ -182,7 +182,8 @@ public class TestService {
         TestServiceMessageInfoRO result = getLastTestReceived(senderPartyId, partyId, userMessageId);
         if (result == null) {
             TestErrorsInfoRO errorDetails = getErrorsDetails(userMessageId);
-            throw new TestServiceException("No Signal Message found. " + errorDetails);
+            errorDetails.setMessage("No Signal Message found.");
+            throw new TestServiceException(errorDetails);
         }
 
         return result;
