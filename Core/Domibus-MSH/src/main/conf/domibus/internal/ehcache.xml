@@ -10,7 +10,19 @@
     <service>
         <jsr107:defaults enable-management="false" enable-statistics="true"/>
     </service>
-
+    <!--
+    <persistence directory="${domibus.cache.location}"/>
+    <cache alias="crlByUrl">        &lt;!&ndash; Note that, while a CRL is cached, any certificates that were revoked since it was cached would still be accepted&ndash;&gt;
+        <expiry>
+            <ttl>300</ttl>
+        </expiry>
+        <resources>
+            <heap unit="MB">10</heap>
+            <offheap unit="MB">15</offheap>
+            <disk unit="GB">10</disk>
+        </resources>
+    </cache>
+    -->
     <!--
     <cache alias="policyCache" uses-template="ttl-3600-heap-5000"/>
     <cache alias="backendFilterCache" uses-template="ttl-3600-heap-5000"/>

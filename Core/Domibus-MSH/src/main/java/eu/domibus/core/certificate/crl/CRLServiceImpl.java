@@ -1,11 +1,11 @@
 package eu.domibus.core.certificate.crl;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_BY_URL_CACHE_ENABLED;
 
 @Service
 public class CRLServiceImpl implements CRLService {
@@ -41,7 +42,8 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}",
+            condition = "'${domibus.certificate.crlByCert.cache.enabled}'==true")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
 
@@ -95,7 +97,9 @@ public class CRLServiceImpl implements CRLService {
     }
 
     protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
-        X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
+        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_BY_URL_CACHE_ENABLED));
+        LOG.debug("CRL by url cache is [{}]", useCache ? "enabled" : "disabled");
+        X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL, useCache);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
         if (crl.isRevoked(cert)) {
             LOG.warn("The certificate is revoked by CRL: " + crlDistributionPointURL);

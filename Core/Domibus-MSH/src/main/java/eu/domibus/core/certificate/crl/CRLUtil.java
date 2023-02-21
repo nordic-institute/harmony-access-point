@@ -1,6 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.util.HttpUtil;
+import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
@@ -11,9 +12,10 @@ import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -35,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import static eu.domibus.api.cache.DomibusLocalCacheService.CRL_BY_URL;
+
 /**
  * Created by Cosmin Baciu on 11-Jul-16.
  */
@@ -51,16 +55,29 @@ public class CRLUtil {
     @Autowired
     private HttpUtil httpUtil;
 
+    @Autowired
+    @Qualifier(DomibusCacheConstants.CACHE_MANAGER)
+    private CacheManager cacheManager;
+
     /**
      * Entry point for downloading certificates from either http(s), classpath source or LDAP
      *
-     * @param crlURL the CRL url
+     * @param crlURL   the CRL url
+     * @param useCache whether to use the CRL cache or not
      * @return {@link X509CRL} certificate to download
      * @throws DomibusCRLException runtime exception in case of error
      * @see CRLUtil#downloadCRLFromWebOrClasspath(String)
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
-    public X509CRL downloadCRL(String crlURL) throws DomibusCRLException {
+    public X509CRL downloadCRL(String crlURL, boolean useCache) throws DomibusCRLException {
+        Cache cache = cacheManager.getCache(CRL_BY_URL);
+        if(useCache && cache != null){
+            return cache.get(crlURL, () -> downloadCRL(crlURL));
+        }
+        return downloadCRL(crlURL);
+    }
+
+    private X509CRL downloadCRL(String crlURL) {
         if (CRLUrlType.LDAP.canHandleURL(crlURL)) {
             return downloadCRLfromLDAP(crlURL);
         } else {

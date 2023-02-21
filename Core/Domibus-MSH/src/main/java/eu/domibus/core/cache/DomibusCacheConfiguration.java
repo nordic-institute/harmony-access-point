@@ -1,6 +1,5 @@
 package eu.domibus.core.cache;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.common.DomibusCacheConstants;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_LOCATION;
 import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
 
 
@@ -53,11 +53,15 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/" + PLUGINS_CONFIG_HOME)
     protected String pluginsConfigLocation;
 
+    @Value("${" + DOMIBUS_CACHE_LOCATION + "}")
+    private String cacheLocation;
+
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
     @Primary//in a cluster deployment, we have two cache managers(EhCache and Hazelcast); EhCache is the default cache manager
     @Bean(name = DomibusCacheConstants.CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
+        System.setProperty(DOMIBUS_CACHE_LOCATION, cacheLocation);
         EhcacheCachingProvider provider = new EhcacheCachingProvider(); //NOSONAR : if this would be closed here (with try-with-resources or in a finally block), it would crash with IllegalStateException everywhere it'll be used further
             ClassLoader classLoader = getClass().getClassLoader();
             DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
