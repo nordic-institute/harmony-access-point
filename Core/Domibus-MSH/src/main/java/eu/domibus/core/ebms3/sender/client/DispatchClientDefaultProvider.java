@@ -10,6 +10,7 @@ import eu.domibus.core.proxy.ProxyCxfUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
@@ -105,7 +106,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
         dispatch.getRequestContext().put(PolicyConstants.POLICY_OVERRIDE, policy);
-        if (algorithm != null) {
+        if (StringUtils.isNotBlank(algorithm)) {
             dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
         }
         dispatch.getRequestContext().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);

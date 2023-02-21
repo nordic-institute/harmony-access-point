@@ -41,12 +41,8 @@ public class SecurityProfileService {
             String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
             throw new ConfigurationException(message);
         }
-        //No security policy is set for leg
-        if (policy.getPolicyComponents().size() == 0) {
-            LOG.info("No security policy set for leg [{}]", legConfiguration.getName());
-            return false;
-        }
-        return true;
+
+        return !policyService.isNoSecurityPolicy(policy);
     }
 
     /**
@@ -63,7 +59,7 @@ public class SecurityProfileService {
         }
 
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        if (securityProfile == null && isSecurityPolicySet(legConfiguration)) {
+        if (securityProfile == null) {
             LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
             securityProfile = SecurityProfile.RSA;
         }

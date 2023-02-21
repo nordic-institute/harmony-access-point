@@ -165,7 +165,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             Validate.notNull(receiverParty, "Responder party was not found");
 
-            if (policy.getPolicyComponents().size() > 0) {
+            if (!policyService.isNoSecurityPolicy(policy)) {
                 try {
                     messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
                     messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());

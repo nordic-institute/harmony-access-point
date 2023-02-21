@@ -84,7 +84,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
                     .build());
         }
 
-        if (policy.getPolicyComponents().size() > 0) {
+        if (!policyService.isNoSecurityPolicy(policy)) {
             message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
 
             final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);

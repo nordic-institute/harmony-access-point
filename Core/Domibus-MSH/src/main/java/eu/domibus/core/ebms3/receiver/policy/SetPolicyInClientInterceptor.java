@@ -43,7 +43,7 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         }
         message.put(PolicyConstants.POLICY_OVERRIDE, policy);
 
-        if (policy.getPolicyComponents().size() > 0) {
+        if (!policyService.isNoSecurityPolicy(policy)) {
             final String securityAlgorithm = (String) message.getExchange().get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM);
             if (StringUtils.isBlank(securityAlgorithm)) {
                 throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0004, "No security algorithm found");
