@@ -39,6 +39,6 @@ public class ReloadKeystoreCommandTask implements CommandTask {
         LOGGER.debug("Reload keystore command executing");
 
         Domain currentDomain = domainContextProvider.getCurrentDomain();
-        multiDomainCryptoService.refreshKeyStore(currentDomain);
+        multiDomainCryptoService.resetKeyStore(currentDomain);
     }
 }

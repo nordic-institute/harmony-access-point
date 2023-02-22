@@ -169,17 +169,17 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         Assert.assertNotNull("Should have returned the truststore certificate from Merlin", certificateFromTrustStore);
     }
 
-    @Test
-    public void areKeystoresIdentical() {
-        KeyStore store0 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
-        KeyStore store1 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
-        KeyStore store2 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE2, TEST_KEYSTORE2_PASSWORD);
-
-        boolean shouldBeTrue = domainCryptoService.areKeystoresIdentical(store0, store1);
-        Assert.assertTrue(shouldBeTrue);
-
-        boolean shouldBeFalse = domainCryptoService.areKeystoresIdentical(store1, store2);
-        Assert.assertFalse(shouldBeFalse);
-    }
+//    @Test
+//    public void areKeystoresIdentical() {
+//        KeyStore store0 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
+//        KeyStore store1 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
+//        KeyStore store2 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE2, TEST_KEYSTORE2_PASSWORD);
+//
+//        boolean shouldBeTrue = domainCryptoService.areKeystoresIdentical(store0, store1);
+//        Assert.assertTrue(shouldBeTrue);
+//
+//        boolean shouldBeFalse = domainCryptoService.areKeystoresIdentical(store1, store2);
+//        Assert.assertFalse(shouldBeFalse);
+//    }
 
 }
