@@ -13,10 +13,13 @@ import {PropertiesService, PropertyModel} from '../../properties/support/propert
 export class ConnectionsMonitorService {
 
   static readonly ALL_PARTIES_URL: string = 'rest/party/list?pageSize=0';
-  static readonly TEST_SERVICE_PARTIES_URL: string = 'rest/testservice/parties';
-  static readonly TEST_SERVICE_SENDER_URL: string = 'rest/testservice/sender';
-  static readonly CONNECTION_MONITOR_URL: string = 'rest/testservice/connectionmonitor';
+
   static readonly TEST_SERVICE_URL: string = 'rest/testservice';
+  static readonly TEST_SERVICE_PARTIES_URL: string = ConnectionsMonitorService.TEST_SERVICE_URL + '/parties';
+  static readonly TEST_SERVICE_SENDER_URL: string = ConnectionsMonitorService.TEST_SERVICE_URL + '/sender';
+  static readonly CONNECTION_MONITOR_URL: string = ConnectionsMonitorService.TEST_SERVICE_URL + '/connectionmonitor';
+  static readonly TEST_SERVICE_ERRORS_URL: string = ConnectionsMonitorService.TEST_SERVICE_URL + '/errors';
+
 
   constructor(private http: HttpClient, private alertService: AlertService, private propertiesService: PropertiesService) {
   }
