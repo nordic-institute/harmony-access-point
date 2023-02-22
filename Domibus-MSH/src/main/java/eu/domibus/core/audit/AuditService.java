@@ -161,5 +161,7 @@ public interface AuditService {
      * @param modificationType the modification type: either user or signal MessageEnvelopeDownload
      */
     void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType);
+
+    void addStoreReplacedAudit(String name);
 }
 

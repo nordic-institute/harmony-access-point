@@ -253,6 +253,12 @@ public class AuditServiceImpl implements AuditService {
         auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
     }
 
+    @Override
+    public void addStoreReplacedAudit(String storeName) {
+        String id = storeName;
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
+    }
+
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
         Domain domain = domainService.getDomain(domainCode);
         final String userName = authUtils.getAuthenticatedUser();

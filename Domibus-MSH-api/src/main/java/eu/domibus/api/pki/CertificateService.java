@@ -11,8 +11,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author Cosmin Baciu
@@ -88,7 +86,7 @@ public interface CertificateService {
     /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
-     * @param chain the pem formatted string.
+     * @param chain    the pem formatted string.
      * @param provider
      * @return the list of certificates.
      */
@@ -98,7 +96,7 @@ public interface CertificateService {
      * Reloads the certificates with the specified provider
      *
      * @param certificates the array of certificates.
-     * @param provider the provider string (e.g. Bouncy Castle)
+     * @param provider     the provider string (e.g. Bouncy Castle)
      * @return the array of certificates loaded with the given provider
      */
     X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);
@@ -128,13 +126,13 @@ public interface CertificateService {
      */
     boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
 
-     /**
+    /**
      * Returns the truststore pointed by the location/password parameters
      *
      * @param info the location of the trust on disc
      * @return the truststore object
      */
-     KeyStore getStore(KeystorePersistenceInfo info);
+    KeyStore getStore(KeystorePersistenceInfo info);
 
     /**
      * Returns the store as a list of certificate entries
@@ -149,10 +147,10 @@ public interface CertificateService {
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param keystorePersistenceInfo          the location of the trust on disc
-     * @param certificateContent the content of the certificate
-     * @param alias              the name of the certificate
-     * @param overwrite          if overwrite an existing certificate
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param certificateContent      the content of the certificate
+     * @param alias                   the name of the certificate
+     * @param overwrite               if overwrite an existing certificate
      * @return the id of the store with {@param trustName}
      */
     boolean addCertificate(KeystorePersistenceInfo keystorePersistenceInfo, byte[] certificateContent, String alias, boolean overwrite);
@@ -160,10 +158,9 @@ public interface CertificateService {
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
      *
-     * @param keystorePersistenceInfo    the location of the trust on disc
-     * @param certificates the list of certificate entries( name and value)
-     * @param overwrite    if overwrite an existing certificate
-     *
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param certificates            the list of certificate entries( name and value)
+     * @param overwrite               if overwrite an existing certificate
      * @return true if at least one was added
      */
     boolean addCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
@@ -172,8 +169,7 @@ public interface CertificateService {
      * Removes the specified certificate from the truststore pointed by the parameters
      *
      * @param keystorePersistenceInfo the location of the trust on disc
-     * @param alias     the certificate name
-     *
+     * @param alias                   the certificate name
      * @return the id of the store with {@param trustName}.
      */
     boolean removeCertificate(KeystorePersistenceInfo keystorePersistenceInfo, String alias);
@@ -182,8 +178,7 @@ public interface CertificateService {
      * Removes the specified certificates from the truststore pointed by the parameters
      *
      * @param keystorePersistenceInfo the location of the trust on disc
-     * @param aliases   the list of certificate names
-     *
+     * @param aliases                 the list of certificate names
      * @return the id of the store with {@param trustName}.
      */
     boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
@@ -205,9 +200,12 @@ public interface CertificateService {
 
     /**
      * Checks if the store on disk is different that the one on used currently
-     * @param store the truststore or keystore
+     *
+     * @param store           the truststore or keystore
      * @param persistenceInfo the store parameters on th disk
      * @return true if they are different
      */
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
+
+    KeyStore getNewKeystore(String storeType) throws KeyStoreException;
 }
