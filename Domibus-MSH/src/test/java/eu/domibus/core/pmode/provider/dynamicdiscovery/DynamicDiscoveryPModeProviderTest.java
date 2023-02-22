@@ -133,10 +133,13 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Mock
     PartyIdDictionaryService partyIdDictionaryService;
+
     @Mock
     PartyRoleDictionaryService partyRoleDictionaryService;
+
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
+
     @Mock
     FinalRecipientService finalRecipientService;
 
@@ -161,7 +164,6 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(PasswordDecryptionService.class),
                 Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-                Mockito.spy(DomibusCoreMapper.class),
                 Mockito.spy(KeystorePersistenceService.class),
                 Mockito.spy(AuditService.class));
     }

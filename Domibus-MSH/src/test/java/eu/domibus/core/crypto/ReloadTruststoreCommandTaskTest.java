@@ -54,7 +54,7 @@ public class ReloadTruststoreCommandTaskTest {
         reloadTruststoreCommandTask.execute(properties);
 
         new Verifications() {{
-            multiDomainCryptoService.refreshTrustStore(domain);
+            multiDomainCryptoService.resetTrustStore(domain);
         }};
     }
 

@@ -1104,7 +1104,7 @@ public class PartyServiceImplTest {
         // Then
         new Verifications() {{
             List<CertificateEntry> certificates = null;
-            certificateService.loadCertificate(null);
+            certificateService.loadCertificate((String) null);
             times = 0;
             multiDomainCertificateProvider.addCertificate(currentDomain, null, anyBoolean);
             times = 0;
