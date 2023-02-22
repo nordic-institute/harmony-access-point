@@ -157,6 +157,7 @@ import java.util.Date;
                         "  and uml.deleted IS NULL                                                                   " +
                         "  and uml.exported IS NULL                                                                  " +
                         "  and uml.userMessage.testMessage IS FALSE                                                  " +
+                        "  and (uml.userMessage.messageFragment IS FALSE OR uml.userMessage.messageFragment IS NULL) " +
                         "order by uml.entityId asc                                                                   "),
         @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
                 query = "select new java.lang.Long(count(uml.entityId)) " +

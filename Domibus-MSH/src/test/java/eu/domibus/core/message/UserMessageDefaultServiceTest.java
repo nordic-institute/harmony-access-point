@@ -54,10 +54,11 @@ import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.core.message.UserMessageDefaultService.BATCH_SIZE;
-import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static eu.domibus.core.message.UserMessageDefaultService.*;
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Cosmin Baciu, Soumya
@@ -830,6 +831,29 @@ public class UserMessageDefaultServiceTest {
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);
         }};
+    }
+
+    @Test
+    public void testPayloadExtension(@Injectable final PartInfo partInfoNotCompressed, @Injectable final PartInfo partInfoCompressed) {
+        final String originalExtension = ".xml";
+        final String originalMimeType = "text/xml";
+        final PartProperty mimeTypeProperty = new PartProperty();
+        mimeTypeProperty.setName(MIME_TYPE);
+        mimeTypeProperty.setValue(originalMimeType);
+        final PartProperty compressionProperty = new PartProperty();
+        compressionProperty.setName(COMPRESSION_PROPERTY_KEY);
+        compressionProperty.setValue(COMPRESSION_PROPERTY_VALUE);
+        new Expectations(userMessageDefaultService) {{
+            partInfoNotCompressed.getPartProperties();
+            result = Collections.singleton(mimeTypeProperty);
+            fileServiceUtil.getExtension(originalMimeType);
+            result = originalExtension;
+            partInfoCompressed.getPartProperties();
+            result = new HashSet<>(Arrays.asList(mimeTypeProperty, compressionProperty));
+        }};
+
+        assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoNotCompressed));
+        assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoCompressed));
     }
 
     @Test
