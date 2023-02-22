@@ -1,11 +1,10 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.common.DomibusCacheConstants;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -60,14 +59,15 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final DomibusLocalCacheService domibusLocalCacheService;
+    private final DomibusCacheService domibusCacheService;
 
-    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService, DomibusLocalCacheService domibusLocalCacheService) {
+    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService,
+                                DomibusCacheService domibusCacheService) {
         this.domibusConfigurationService = domibusConfigurationService;
-        this.domibusLocalCacheService = domibusLocalCacheService;
+        this.domibusCacheService = domibusCacheService;
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
+    @Cacheable(value = TLS_CACHE, key = "#domainCode")
     @Override
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
@@ -89,7 +89,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     @CacheEvict(value = TLS_CACHE, key = "#domainCode")
     public void reset(String domainCode) {
         LOG.trace("Evicting the TLS and dispatchClient caches.");
-        this.domibusLocalCacheService.clearCache(DomibusLocalCacheService.DISPATCH_CLIENT);
+        this.domibusCacheService.clearCache(DomibusCacheService.DISPATCH_CLIENT);
     }
 
     @Override

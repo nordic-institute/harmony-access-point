@@ -1,5 +1,7 @@
 package eu.domibus.api.util;
 
+import java.io.IOException;
+
 /**
  * @author Catalin Enache
  * @since 4.1.4
@@ -21,4 +23,6 @@ public interface FileServiceUtil {
      * @return preferred file extension or empty string
      */
     String getExtension(String mime);
+
+    byte[] getContentFromFile(String location) throws IOException;
 }

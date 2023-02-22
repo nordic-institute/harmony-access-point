@@ -115,7 +115,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Error while trying to load the keystore properties for domain");
 
         // When
-        domainCryptoService.getKeystoreProperties();
+        domainCryptoService.getKeyStoreProperties();
     }
 
     @Test
@@ -129,7 +129,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Error while trying to load the keystore properties for domain");
 
         // When
-        domainCryptoService.getKeystoreProperties();
+        domainCryptoService.getKeyStoreProperties();
     }
 
     @Test
@@ -143,7 +143,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Error while trying to load the keystore properties for domain");
 
         // When
-        domainCryptoService.getKeystoreProperties();
+        domainCryptoService.getKeyStoreProperties();
     }
 
     @Test
@@ -157,7 +157,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         thrown.expectMessage("Error while trying to load the keystore properties for domain");
 
         // When
-        domainCryptoService.getKeystoreProperties();
+        domainCryptoService.getKeyStoreProperties();
     }
 
     @Test
