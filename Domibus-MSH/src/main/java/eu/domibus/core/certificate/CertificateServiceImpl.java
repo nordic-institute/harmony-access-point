@@ -130,7 +130,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
                                   KeystorePersistenceService keystorePersistenceService,
-                                  AuditService auditService, SecurityUtilImpl securityUtil) {
+                                  AuditService auditService,
+                                  SecurityUtilImpl securityUtil) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;

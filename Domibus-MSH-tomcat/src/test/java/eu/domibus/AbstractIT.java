@@ -8,6 +8,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -101,6 +103,9 @@ public abstract class AbstractIT {
 
     @Autowired
     protected UserRoleDao userRoleDao;
+
+    @Autowired
+    protected TruststoreDao truststoreDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -257,4 +262,24 @@ public abstract class AbstractIT {
         return body;
     }
 
+    protected void createStore(String storeName, String filePath) {
+        if (truststoreDao.existsWithName(storeName)) {
+            LOG.info("truststore already created");
+            return;
+        }
+        LOG.info("create truststore [{}]", storeName);
+        try {
+            TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+            domibusTruststoreEntity.setName(storeName);
+            domibusTruststoreEntity.setType("JKS");
+            domibusTruststoreEntity.setPassword("test123");
+            try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+                byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
+                domibusTruststoreEntity.setContent(trustStoreBytes);
+                truststoreDao.create(domibusTruststoreEntity);
+            }
+        } catch (Exception ex) {
+            LOG.info("Error creating store entity [{}]", storeName, ex);
+        }
+    }
 }

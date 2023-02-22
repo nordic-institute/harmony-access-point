@@ -33,6 +33,7 @@ import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -165,7 +166,8 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
                 Mockito.spy(KeystorePersistenceService.class),
-                Mockito.spy(AuditService.class));
+                Mockito.spy(AuditService.class),
+                Mockito.spy(SecurityUtilImpl.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

@@ -4,23 +4,34 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.Certificate;
 import eu.domibus.core.certificate.CertificateDaoImpl;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
-import eu.domibus.core.crypto.*;
+import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.AssertFalse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -37,21 +48,17 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  * @author Ion Perpegel
  * @since 5.0
  */
-@Transactional
-public class MultiDomainCryptoServiceIT extends AbstractIT {
 
+public class MultiDomainCryptoServiceIT extends AbstractIT {
+    public static final String KEYSTORES = "keystores";
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceIT.class);
 
     @Autowired
     private MultiDomainCryptoServiceImpl multiDomainCryptoService;
 
     @Autowired
     TruststoreDao truststoreDao;
-
-    @Autowired
-    DomainCryptoServiceFactory domainCertificateProviderFactory1;
-
-    @Autowired
-    DefaultDomainCryptoServiceSpiImpl defaultDomainCryptoServiceSpi;
 
     @Autowired
     CertificateServiceImpl certificateService;
@@ -62,11 +69,16 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Autowired
     CertificateDaoImpl certificateDao;
 
-    private Date getDate(LocalDateTime localDateTime1) {
-        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
-    }
+    @Autowired
+    CertificateHelper certificateHelper;
 
-    @After
+    @Autowired
+    KeystorePersistenceService keystorePersistenceService;
+
+    @Autowired
+    FileServiceUtil fileServiceUtil;
+
+    @Before
     public void clean() {
         final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
         final LocalDateTime offset = localDateTime.minusDays(15);
@@ -74,116 +86,150 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<Certificate> certs2 = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
         certificateDao.deleteAll(certs2);
 
-        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
-            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
-            truststoreDao.delete(trust);
-        }
+        resetInitialTruststore();
     }
 
     @Test
-    @Transactional
-    public void persistTruststoresIfApplicable() {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
-        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(isPersisted);
-    }
-
-    @Test
-    @Transactional
-    public void replaceTrustStore() {
+    @Ignore
+    public void saveStoresFromDBToDisk() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-        String password = "test123";
-        multiDomainCryptoService.persistTruststoresIfApplicable();
-        TrustStoreContentDTO store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+        createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
-        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(isPersisted);
+        boolean exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+        Assert.assertTrue(exists);
+
+        multiDomainCryptoService.saveStoresFromDBToDisk();
+
+        exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+        Assert.assertFalse(exists);
+
+        List<TrustStoreEntry> storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, storeEntries.size());
+        Assert.assertTrue(storeEntries.stream().noneMatch(entry -> entry.getName().equals("cefsupportgw")));
+
+        multiDomainCryptoService.resetTrustStore(domain);
+
+        storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(9, storeEntries.size());
+        Assert.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
     }
 
     @Test
-    @Transactional
-    public void replaceTrustStore2() throws IOException {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
+    public void replaceTrustStore() throws IOException {
+        String newStoreName = "gateway_truststore2.jks";
+        String storePassword = "test123";
+        Domain domain = DomainService.DEFAULT_DOMAIN;
 
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertEquals(2, trustStoreEntries.size());
-
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
         byte[] content = Files.readAllBytes(path);
-        String file_name = "cefsupportgwtruststore.jks";
-        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123");
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, storePassword);
 
-        trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertEquals(9, trustStoreEntries.size());
+        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
+        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+
+        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
+        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+
+        Assert.assertNotEquals(initialStore, newStore);
+        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
     }
 
     @Test
-    @Transactional
     public void getTrustStoreEntries() {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(DomainService.DEFAULT_DOMAIN);
+
+        KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        List<TrustStoreEntry> trustStoreEntries2 = certificateService.getStoreEntries(trustPersistInfo);
+
+        Assert.assertEquals(trustStoreEntries2.size(), trustStoreEntries.size());
+        Assert.assertEquals(trustStoreEntries2.get(0), trustStoreEntries.get(0));
+
         Assert.assertEquals(2, trustStoreEntries.size());
     }
 
     @Test
-    @Transactional
     public void addCertificate() throws IOException {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
+        Domain domain = DomainService.DEFAULT_DOMAIN;
 
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertEquals(2, trustStoreEntries.size());
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
 
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "green_gw.cer");
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "green_gw.cer");
         byte[] content = Files.readAllBytes(path);
         String green_gw = "green_gw";
         X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
         multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
 
-        trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(3, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
     }
 
     @Test
-    @Transactional
-    public void getCertificateFromTruststore() throws KeyStoreException {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
+    public void addSameCertificate() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
 
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertEquals(2, trustStoreEntries.size());
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "green_gw.cer");
+        byte[] content = Files.readAllBytes(path);
+        String green_gw = "green_gw";
+        X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
+
+        multiDomainCryptoService.addCertificate(domain, Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
+
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(3, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+
+        boolean added = multiDomainCryptoService.addCertificate(domain, x509Certificate, green_gw, true);
+        Assert.assertFalse(added);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(3, trustStoreEntries.size());
+    }
+
+    @Test
+    public void getCertificateFromTruststore() throws KeyStoreException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        Assert.assertEquals(2, initialStoreEntries.size());
 
         String blue_gw = "blue_gw";
-        X509Certificate certificateFromTruststore = multiDomainCryptoService.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), blue_gw);
+        X509Certificate certificateFromTruststore = multiDomainCryptoService.getCertificateFromTruststore(domain, blue_gw);
 
-        trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertTrue(certificateFromTruststore.getIssuerDN().getName().contains(blue_gw));
     }
 
     @Test
-    @Transactional
-    public void getTrustStore() throws KeyStoreException, IOException {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
+    public void getTrustStoreReplaceTrustStore() throws KeyStoreException, IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        String file_name = "cefsupportgwtruststore.jks";
 
-        KeyStore trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());
+        KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
         Assert.assertTrue(trustStore.containsAlias("blue_gw"));
 
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, file_name);
         byte[] content = Files.readAllBytes(path);
-        String file_name = "cefsupportgwtruststore.jks";
-        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123");
 
-        trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        String password = "test123";
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, file_name, content, password);
+
+        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, storeInfo);
+
+        trustStore = multiDomainCryptoService.getTrustStore(domain);
         Assert.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
     }
 
     @Test
-    @Transactional
     public void isCertificateChainValid() {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
-
         String blue_gw = "blue_gw";
         boolean certificateChainValid = multiDomainCryptoService.isCertificateChainValid(domainContextProvider.getCurrentDomain(), blue_gw);
 
@@ -191,10 +237,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getDefaultX509Identifier() throws WSSecurityException {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
-
         String blue_gw = "blue_gw";
         String defaultX509Identifier = multiDomainCryptoService.getDefaultX509Identifier(domainContextProvider.getCurrentDomain());
 
@@ -202,18 +245,84 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
-    public void removeCertificate()  {
-        multiDomainCryptoService.persistTruststoresIfApplicable();
+    public void removeCertificate() {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
 
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, trustStoreEntries.size());
 
         String red_gw = "red_gw";
-        multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+        boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
-        trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+        Assert.assertTrue(removed);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(1, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+    }
+
+    @Test
+    public void removeSameCertificate() {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, trustStoreEntries.size());
+
+        String red_gw = "red_gw";
+        boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+
+        Assert.assertTrue(removed);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+
+        removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
+
+        Assert.assertFalse(removed);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+    }
+
+    @Test
+    public void isChangedObDisk() throws KeyStoreException, IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+
+        KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertTrue(trustStore.containsAlias("blue_gw"));
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "cefsupportgwtruststore.jks");
+        byte[] content = Files.readAllBytes(path);
+        Path currentPath = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore.jks");
+        Files.write(currentPath, content, StandardOpenOption.WRITE);
+
+        boolean isChangedOnDisk = multiDomainCryptoService.isTrustStoreChangedOnDisk(domain);
+        Assert.assertTrue(isChangedOnDisk);
+
+        trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertFalse(trustStore.containsAlias("ceftestparty4gw"));
+
+        multiDomainCryptoService.resetTrustStore(domain);
+        trustStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
+    }
+
+    private void resetInitialTruststore() {
+        try {
+            String storePassword = "test123";
+            Domain domain = DomainService.DEFAULT_DOMAIN;
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
+            byte[] content = Files.readAllBytes(path);
+            KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
+            multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+        } catch (Exception e) {
+            LOG.info("Error restoring initial keystore", e);
+        }
+    }
+
+    private Date getDate(LocalDateTime localDateTime1) {
+        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
     }
 }

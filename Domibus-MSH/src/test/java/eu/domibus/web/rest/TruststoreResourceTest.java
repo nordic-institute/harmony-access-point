@@ -2,17 +2,19 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,8 +55,20 @@ public class TruststoreResourceTest {
     @Injectable
     private AuditService auditService;
 
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    CertificateHelper certificateHelper;
+
     @Test
-    public void replaceTruststore(@Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
+    public void replaceTruststore(@Mocked Domain domain, @Injectable KeyStoreContentInfo storeInfo) {
         final byte[] fileContent = new byte[]{1, 0, 1};
         String filename = "filename";
         String INIT_VALUE_TRUSTSTORE = "truststore";
@@ -66,22 +80,22 @@ public class TruststoreResourceTest {
 
         // When
         String pass = "pass";
-        truststoreResource.doUploadStore(fileContent, filename, pass);
+        truststoreResource.doUploadStore(storeInfo);
 
         new Verifications() {{
-            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
+            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), storeInfo);
         }};
     }
 
     @Test
-    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
+    public void getTrustStoreEntries(@Mocked List<TrustStoreEntry> trustStoreEntries) {
 
         new Expectations() {{
-            certificateService.getTrustStoreEntries(anyString);
+            multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
             result = trustStoreEntries;
         }};
 
-        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
+        List<TrustStoreEntry> res = truststoreResource.doGetStoreEntries();
 
         Assert.assertEquals(trustStoreEntries, res);
     }
