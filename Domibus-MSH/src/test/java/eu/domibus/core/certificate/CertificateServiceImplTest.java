@@ -8,31 +8,28 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -43,10 +40,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterThan;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -56,16 +58,13 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static eu.domibus.core.certificate.CertificateHelper.JKS;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
-import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static org.junit.Assert.*;
 
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
-@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions", "UnusedAssignment"})
+@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions", "UnusedAssignment", "JUnitMalformedDeclaration"})
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
@@ -74,10 +73,6 @@ public class CertificateServiceImplTest {
             TEST_CERTIFICATE_CONTENT + "\n" +
             "-----END CERTIFICATE-----";
 
-    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-
-    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
-
     @Tested
     CertificateServiceImpl certificateService;
 
@@ -85,13 +80,13 @@ public class CertificateServiceImplTest {
     CRLService crlService;
 
     @Injectable
-    PasswordEncryptionService passwordEncryptionService;
-
-    @Injectable
-    DomibusCoreMapper coreMapper;
-
-    @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+
+    @Injectable
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
     @Injectable
     CertificateDao certificateDao;
@@ -100,25 +95,13 @@ public class CertificateServiceImplTest {
     private EventService eventService;
 
     @Injectable
-    private PModeProvider pModeProvider;
-
-    @Injectable
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
-
-    @Injectable
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
-
-    @Injectable
     CertificateHelper certificateHelper;
-
-    @Injectable
-    protected DomainService domainService;
 
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Injectable
-    protected TruststoreDao truststoreDao;
+    private PModeProvider pModeProvider;
 
     @Injectable
     private PasswordDecryptionService passwordDecryptionService;
@@ -127,10 +110,17 @@ public class CertificateServiceImplTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
+    AlertConfigurationService alertConfigurationService;
+
+    @Injectable
     AuditService auditService;
 
     @Injectable
     KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    SecurityUtilImpl securityUtil;
+
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -183,10 +173,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testCertificateChain() throws CertificateException, NoSuchProviderException {
+    public void testCertificateChain() throws CertificateException {
 
         InputStream in = new ByteArrayInputStream(TEST_CERTIFICATE_CONTENT_PEM.getBytes());
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509", "BC");
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
         final java.security.cert.Certificate certificate = certFactory.generateCertificate(in);
         System.out.println(certificate);
 
@@ -251,7 +241,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValid(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValid(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = true;
@@ -265,7 +255,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValidWithExpiredCertificate(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValidWithExpiredCertificate(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = false;
@@ -347,8 +337,9 @@ public class CertificateServiceImplTest {
         assertEquals(0, validUntil.compareTo(trustStoreEntry.getValidUntil()));
     }
 
+
     @Test
-    public void testGetTrustStoreEntriesWithKeyStoreException(@Mocked final KeyStore trustStore) throws KeyStoreException {
+    public void testGetTrustStoreEntriesWithKeyStoreException(@Injectable final KeyStore trustStore) throws KeyStoreException {
 
         new Expectations() {{
             trustStore.aliases();
@@ -383,43 +374,6 @@ public class CertificateServiceImplTest {
         new Verifications() {{
             certificateDao.saveOrUpdate(withInstanceOf(Certificate.class));
             times = 2;
-        }};
-    }
-
-    @Test
-    public void logCertificateRevocationWarning(@Mocked final DomibusLogger LOG) {
-        final Certificate soonRevokedCertificate = new Certificate();
-        final Date now = new Date();
-        final String soonRevokedAlias = "Cert1";
-        soonRevokedCertificate.setNotAfter(now);
-        soonRevokedCertificate.setAlias(soonRevokedAlias);
-        soonRevokedCertificate.setCertificateType(CertificateType.PRIVATE);
-        final List<Certificate> unNotifiedSoonRevokedCertificates = Lists.newArrayList(soonRevokedCertificate);
-
-        final String revokedAlias = "Cert2";
-        final Certificate revokedCertificate = new Certificate();
-        revokedCertificate.setNotAfter(now);
-        revokedCertificate.setAlias(revokedAlias);
-        revokedCertificate.setCertificateType(CertificateType.PUBLIC);
-        final List<Certificate> unNotifiedRevokedCertificates = Lists.newArrayList(revokedCertificate);
-
-        new Expectations() {{
-            certificateDao.getUnNotifiedSoonRevoked();
-            result = unNotifiedSoonRevokedCertificates;
-            certificateDao.getUnNotifiedRevoked();
-            result = unNotifiedRevokedCertificates;
-        }};
-        certificateService.logCertificateRevocationWarning();
-
-        new Verifications() {{
-            LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, CertificateType.PRIVATE, soonRevokedAlias, now);
-            times = 1;
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, CertificateType.PUBLIC, revokedAlias, now);
-            times = 1;
-            certificateDao.updateRevocation(soonRevokedCertificate);
-            times = 1;
-            certificateDao.updateRevocation(revokedCertificate);
-            times = 1;
         }};
     }
 
@@ -574,6 +528,7 @@ public class CertificateServiceImplTest {
         }};
     }
 
+
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void sendCertificateExpiredAlerts(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
@@ -692,7 +647,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void testConvertCertificateContent() {
-        String subject = "CN=UUMDS tests client certificate VALID,ST=Belgium,C=BE,E=uumds@uumds.eu,O=DIGIT,OU=DEV";
+        String subject = "OU=DEV, O=DIGIT, EMAILADDRESS=uumds@uumds.eu, C=BE, ST=Belgium, CN=UUMDS tests client certificate VALID";
         String fingerprint = "6bdfa1594a8b6ce48fe44ff6bb1989af7f3abd26c635ca304e8ee9036dfb36d7";
 
         TrustStoreEntry entry = this.certificateService.convertCertificateContent(TEST_CERTIFICATE_CONTENT_PEM);
@@ -713,6 +668,29 @@ public class CertificateServiceImplTest {
         new Verifications() {{
             pw.writeObject(gen);
             times = 1;
+        }};
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToPersistTheCurrentTrustStore(@Injectable KeyStoreContentInfo storeInfo,
+                                                                        @Injectable KeystorePersistenceInfo persistenceInfo,
+                                                                        @Injectable KeyStore trustStore) throws Exception {
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Could not replace store");
+
+        new Expectations(certificateService) {{
+            certificateService.loadStore(storeInfo);
+            result = trustStore;
+            keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
+            result = new CryptoException("");
+        }};
+
+        // When
+        certificateService.replaceStore(storeInfo, persistenceInfo);
+
+        new Verifications() {{
+            auditService.addStoreReplacedAudit(anyString);
+            times = 0;
         }};
     }
 
@@ -817,6 +795,52 @@ public class CertificateServiceImplTest {
     }
 
     @Test
+    public void throwsExceptionWhenFailingToPersistTheCurrentTrustStore_CertificateException(@Injectable KeyStoreContentInfo storeInfo,
+                                                                                             @Injectable KeystorePersistenceInfo persistenceInfo,
+                                                                                             @Injectable KeyStore store) {
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Could not replace store");
+
+        new Expectations(certificateService) {{
+            certificateService.getStore(persistenceInfo);
+            result = store;
+            certificateService.loadStore(storeInfo);
+            result = new CryptoException("");
+        }};
+
+        // When
+        certificateService.replaceStore(storeInfo, persistenceInfo);
+
+        new Verifications() {{
+            auditService.addStoreReplacedAudit(storeInfo.getName());
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable CertificateEntry certificateEntry,
+                                                                                           @Injectable KeyStore store,
+                                                                                           @Injectable KeystorePersistenceInfo persistenceInfo) {
+
+        List<CertificateEntry> certificates = Arrays.asList(certificateEntry);
+
+        new Expectations(certificateService) {{
+            certificateService.getStore(persistenceInfo);
+            result = store;
+            certificateService.doAddCertificate(store, certificateEntry.getCertificate(), certificateEntry.getAlias(), false);
+            result = false;
+        }};
+
+        certificateService.doAddCertificates(persistenceInfo, certificates, false);
+
+        new Verifications() {{
+            keystorePersistenceService.saveStore(store, persistenceInfo);
+            times = 0;
+        }};
+
+    }
+
+    @Test
     public void overwritesTrustedCertificateWhenAddingExistingCertificateIntoTheTrustStoreWithIntentionOfOverwritingIt(@Injectable X509Certificate certificate,
                                                                                                                        @Injectable KeyStore trustStore) throws KeyStoreException {
         final String alias = "alias";
@@ -878,7 +902,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenRemovingCertificateFromTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable KeyStore trustStore) throws KeyStoreException {
 
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
+        thrown.expectMessage("Error while trying to get the alias from the store. This should never happen");
 
         new Expectations() {{
             trustStore.containsAlias("alias");
@@ -924,7 +948,7 @@ public class CertificateServiceImplTest {
     public void throwsExceptionWhenAddingCertificateIntoTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable X509Certificate certificate,
                                                                                                             @Injectable KeyStore trustStore) throws KeyStoreException {
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
+        thrown.expectMessage("Error while trying to get the alias from the store. This should never happen");
 
         new Expectations() {{
             trustStore.containsAlias("alias");
@@ -949,6 +973,7 @@ public class CertificateServiceImplTest {
         // Then
         Assert.assertFalse("Should have returned false when adding an existing certificate to the trust store without the intention of overwriting it", result);
     }
+
 
     @Test
     public void loadTrustStoreFromContent(@Injectable KeyStoreContentInfo storeInfo, @Injectable KeyStore keystore)

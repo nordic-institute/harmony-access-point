@@ -29,6 +29,7 @@ import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -97,15 +98,9 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateHelper certificateHelper;
 
-    protected final DomainService domainService;
-
     protected final DomainTaskExecutor domainTaskExecutor;
 
-    protected final TruststoreDao truststoreDao;
-
     private final PasswordDecryptionService passwordDecryptionService;
-
-    private final PasswordEncryptionService passwordEncryptionService;
 
     private final DomainContextProvider domainContextProvider;
 
@@ -123,11 +118,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
                                   ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager,
                                   CertificateHelper certificateHelper,
-                                  DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
-                                  TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
-                                  PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider,
                                   KeystorePersistenceService keystorePersistenceService,
                                   AuditService auditService,
@@ -140,11 +132,8 @@ public class CertificateServiceImpl implements CertificateService {
         this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
         this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
         this.certificateHelper = certificateHelper;
-        this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
-        this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
-        this.passwordEncryptionService = passwordEncryptionService;
         this.domainContextProvider = domainContextProvider;
         this.keystorePersistenceService = keystorePersistenceService;
         this.auditService = auditService;
@@ -234,33 +223,20 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public X509Certificate loadCertificate(String content) {
-        if (content == null) {
+        if (StringUtils.isEmpty(content)) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 
-        CertificateFactory certFactory;
-        X509Certificate cert;
-        try {
-            certFactory = CertificateFactory.getInstance("X.509", "BC");
-        } catch (CertificateException | NoSuchProviderException e) {
-            throw new DomibusCertificateException("Could not initialize certificate factory", e);
-        }
-
-        try (InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
-            InputStream resultStream = contentStream;
-            if (!isPemFormat(content)) {
-                resultStream = Base64.getMimeDecoder().wrap(resultStream);
-            }
-            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
-        } catch (IOException | CertificateException e) {
-            throw new DomibusCertificateException("Could not generate certificate", e);
-        }
-        return cert;
+        return loadCertificate(content.getBytes(StandardCharsets.UTF_8), isPemFormat(content));
     }
 
     @Override
     public X509Certificate loadCertificate(byte[] content) {
-        if (content == null) {
+        return loadCertificate(content, true);
+    }
+
+    protected X509Certificate loadCertificate(byte[] content, boolean isPemFormat) {
+        if (ArrayUtils.isEmpty(content)) {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 
@@ -273,7 +249,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
-            cert = (X509Certificate) certFactory.generateCertificate(contentStream);
+            InputStream resultStream = contentStream;
+            if (!isPemFormat) {
+                resultStream = Base64.getMimeDecoder().wrap(contentStream);
+            }
+            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
         } catch (IOException | CertificateException e) {
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
@@ -597,19 +577,19 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected boolean doRemoveCertificate(KeyStore truststore, String alias) {
+    protected boolean doRemoveCertificate(KeyStore keystore, String alias) {
         boolean containsAlias;
         try {
-            containsAlias = truststore.containsAlias(alias);
+            containsAlias = keystore.containsAlias(alias);
         } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+            throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (!containsAlias) {
-            LOG.trace("The truststore does not contain alias [{}] so returning false.", alias);
+            LOG.debug("The store does not contain alias [{}] so no removing.", alias);
             return false;
         }
         try {
-            truststore.deleteEntry(alias);
+            keystore.deleteEntry(alias);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
@@ -885,15 +865,6 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
         }
         return different;
-    }
-
-    private void doRemoveTruststore(String truststoreName, Domain domain) {
-        TruststoreEntity entity = truststoreDao.findByNameSafely(truststoreName);
-        if (entity == null) {
-            LOG.warn("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
-            return;
-        }
-        truststoreDao.delete(entity);
     }
 
     private String decrypt(String trustName, String password) {
