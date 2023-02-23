@@ -9,40 +9,36 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-truststore',
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('Domibus TrustStore')
+@ComponentName('TrustStore')
 export class TruststoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
+              fileUploadValidatorService: FileUploadValidatorService, dialogsService: DialogsService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService, dialogsService);
 
     this.BASE_URL = 'rest/truststore';
     this.CSV_URL = this.BASE_URL + '/csv';
     this.DOWNLOAD_URL = this.BASE_URL + '/download';
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
+    this.ADD_CERTIFICATE_URL = this.BASE_URL + '/entries';
+    this.REMOVE_CERTIFICATE_URL = this.BASE_URL + '/entries/alias';
 
-    this.canHandleCertificates = false;
     this.showResetOperation = true;
+    this.canHandleCertificates = true;
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     super.ngOnInit();
-  }
 
-  async reloadKeyStore() {
-    try {
-      await this.trustStoreService.reloadKeyStore();
-      this.alertService.success('Keystore was successfully reset.')
-    } catch (ex) {
-      this.alertService.exception('Error reseting the keystore:', ex);
-    }
+    this.checkModifiedOnDisk();
   }
 }

@@ -9,8 +9,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
-import {ComponentType} from 'angular-md2';
-import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
+import {DialogsService} from '../common/dialogs/dialogs.service';
 
 @Component({
   selector: 'app-tls-truststore',
@@ -22,8 +21,8 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
+              fileUploadValidatorService: FileUploadValidatorService, dialogsService: DialogsService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService, dialogsService);
 
     this.BASE_URL = 'rest/tlstruststore';
     this.CSV_URL = this.BASE_URL + '/entries/csv';
@@ -40,33 +39,5 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     super.ngOnInit();
   }
 
-  canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
-  }
 
-  canRemoveCertificate() {
-    return this.selected.length == 1 && !this.isBusy();
-  }
-
-  async addCertificate() {
-    const comp: ComponentType<unknown> = CertificateUploadComponent;
-    this.uploadFile(comp, this.ADD_CERTIFICATE_URL);
-  }
-
-  async removeCertificate() {
-    const cert = this.selected[0];
-    if (!cert) {
-      return;
-    }
-    try {
-      super.isLoading = true;
-      let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
-      this.alertService.success(res);
-    } catch (err) {
-      this.alertService.exception(`Error removing the certificate (${cert.name}) from truststore.`, err);
-    } finally {
-      super.isLoading = false;
-      this.loadServerData();
-    }
-  }
 }
