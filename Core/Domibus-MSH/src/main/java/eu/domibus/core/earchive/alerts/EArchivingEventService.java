@@ -40,6 +40,6 @@ public class EArchivingEventService {
 
     public void sendEventExportFailed(String batchId, Long entityId, String message) {
         eventService.enqueueEvent(EventType.ARCHIVING_MESSAGE_EXPORT_FAILED, entityId.toString(), new EventProperties(batchId, entityId, message));
-        LOG.debug("Creating Alert for message export failed alerts.");
+        LOG.debug("Creating Alert for message export failed.");
     }
 }

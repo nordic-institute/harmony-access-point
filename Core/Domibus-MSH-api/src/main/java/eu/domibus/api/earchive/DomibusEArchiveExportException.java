@@ -15,6 +15,12 @@ public class DomibusEArchiveExportException extends DomibusCoreException {
 
     String message;
 
+    public DomibusEArchiveExportException(Long entityId, String message, Throwable cause) {
+        super(DomibusCoreErrorCode.DOM_001, message, cause);
+        this.entityId = entityId;
+        this.message = message;
+    }
+
     public DomibusEArchiveExportException(DomibusCoreErrorCode code, Long entityId, String message) {
         super(code, message);
         this.entityId = entityId;
