@@ -185,40 +185,17 @@ public class SynchronizedRunnableIT extends AbstractIT {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 LOG.info("Owner thread begins transaction and does a DB change");
-
                 changeDatabase(valueFromOwnerThread);
-
-                Runnable task1 = () -> {
-                    LOG.info("Task 1 enter and does a DB change");
-                    changeDatabase(valueFromTask1);
-                    LOG.info("Task 1 exit");
-                };
-
-                SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-                Thread t1 = new Thread(synchronizedRunnable);
-                t1.start();
-
-                Runnable task2 = () -> {
-                    LOG.info("Task 2 enter and does a DB change");
-                    changeDatabase(valueFromTask2);
-                    LOG.info("Task 2 exit");
-                };
-                SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-                Thread t2 = new Thread(synchronizedRunnable2);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
-                LOG.info("Launch task 2");
-                t2.start();
-
-                try {
-                    t1.join();
-                    t2.join();
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
+                runTwoThreads(() -> {
+                            LOG.info("Task 1 enter and does a DB change");
+                            changeDatabase(valueFromTask1);
+                            LOG.info("Task 1 exit");
+                        }, () -> {
+                            LOG.info("Task 2 enter and does a DB change");
+                            changeDatabase(valueFromTask2);
+                            LOG.info("Task 2 exit");
+                        }
+                );
             }
         });
         //then
@@ -245,41 +222,17 @@ public class SynchronizedRunnableIT extends AbstractIT {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 LOG.info("Owner thread begins transaction and does a DB change");
-
                 changeDatabase(valueFromOwnerThread);
-
-                Runnable task1 = () -> {
+                runTwoThreads(() -> {
                     LOG.info("Task 1 enter and does a DB change");
                     changeDatabase(valueFromTask1);
                     LOG.info("Task 1 exit");
-                };
-
-                SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-                Thread t1 = new Thread(synchronizedRunnable);
-                t1.start();
-
-                Runnable task2 = () -> {
+                }, () -> {
                     LOG.info("Task 2 enter and does a DB change");
                     changeDatabase(valueFromTask2);
                     LOG.info("Task 2 throws NoResultException");
                     throw new NoResultException("Task 2 exception");
-                };
-                SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-                Thread t2 = new Thread(synchronizedRunnable2);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
-                LOG.info("Launch task 2");
-                t2.start();
-
-                try {
-                    t1.join();
-                    t2.join();
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
+                });
             }
         });
         //then
@@ -306,41 +259,18 @@ public class SynchronizedRunnableIT extends AbstractIT {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 LOG.info("Owner thread begins transaction and does a DB change");
-
                 changeDatabase(valueFromOwnerThread);
-
-                Runnable task1 = () -> {
-                    LOG.info("Task 1 enter and does a DB change");
-                    changeDatabase(valueFromTask1);
-                    LOG.info("Task 1 exit");
-                };
-
-                SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-                Thread t1 = new Thread(synchronizedRunnable);
-                t1.start();
-
-                Runnable task2 = () -> {
-                    LOG.info("Task 2 enter and does a DB change");
-                    changeDatabase(valueFromTask2);
-                    LOG.info("Task 2 throws RuntimeException");
-                    throw new RuntimeException("Task 2 exception");
-                };
-                SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-                Thread t2 = new Thread(synchronizedRunnable2);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
-                LOG.info("Launch task 2");
-                t2.start();
-
-                try {
-                    t1.join();
-                    t2.join();
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
+                runTwoThreads(() -> {
+                            LOG.info("Task 1 enter and does a DB change");
+                            changeDatabase(valueFromTask1);
+                            LOG.info("Task 1 exit");
+                        }, () -> {
+                            LOG.info("Task 2 enter and does a DB change");
+                            changeDatabase(valueFromTask2);
+                            LOG.info("Task 2 throws RuntimeException");
+                            throw new RuntimeException("Task 2 exception");
+                        }
+                );
             }
         });
         //then
@@ -367,43 +297,20 @@ public class SynchronizedRunnableIT extends AbstractIT {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 LOG.info("Owner thread begins transaction and does a DB change");
-
                 changeDatabase(valueFromOwnerThread);
-
-                Runnable task1 = () -> {
-                    LOG.info("Task 1 enter and does a DB change");
-                    changeDatabase(valueFromTask1);
-                    LOG.info("Task 1 exit");
-                };
-
-                SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-                Thread t1 = new Thread(synchronizedRunnable);
-                t1.start();
-
-                Runnable task2 = () -> {
-                    LOG.info("Task 2 enter and does a DB change");
-                    changeDatabase(valueFromTask2);
-                    LOG.info("Task 2 throws RuntimeException");
-                    testService.doInTransactionalMethod(() -> {
-                        throw new RuntimeException("Task 2 exception");
-                    });
-                };
-                SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-                Thread t2 = new Thread(synchronizedRunnable2);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
-                LOG.info("Launch task 2");
-                t2.start();
-
-                try {
-                    t1.join();
-                    t2.join();
-                } catch (InterruptedException e) {
-                    LOG.error("SynchronizedRunnableIT stopped", e);
-                }
+                runTwoThreads(() -> {
+                            LOG.info("Task 1 enter and does a DB change");
+                            changeDatabase(valueFromTask1);
+                            LOG.info("Task 1 exit");
+                        }, () -> {
+                            LOG.info("Task 2 enter and does a DB change");
+                            changeDatabase(valueFromTask2);
+                            LOG.info("Task 2 throws RuntimeException");
+                            testService.doInTransactionalMethod(() -> {
+                                throw new RuntimeException("Task 2 exception");
+                            });
+                        }
+                );
             }
         });
         //then
@@ -431,40 +338,17 @@ public class SynchronizedRunnableIT extends AbstractIT {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     LOG.info("Owner thread begins transaction and does a DB change");
-
                     changeDatabase(valueFromOwnerThread);
-
-                    Runnable task1 = () -> {
-                        LOG.info("Task 1 enter and does a DB change");
-                        changeDatabase(valueFromTask1);
-                        LOG.info("Task 1 exit");
-                    };
-
-                    SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-                    Thread t1 = new Thread(synchronizedRunnable);
-                    t1.start();
-
-                    Runnable task2 = () -> {
-                        LOG.info("Task 2 enter and does a DB change");
-                        changeDatabase(valueFromTask2);
-                        LOG.info("Task 2 throws exception");
-                    };
-                    SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-                    Thread t2 = new Thread(synchronizedRunnable2);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        LOG.error("SynchronizedRunnableIT stopped", e);
-                    }
-                    LOG.info("Launch task 2");
-                    t2.start();
-
-                    try {
-                        t1.join();
-                        t2.join();
-                    } catch (InterruptedException e) {
-                        LOG.error("SynchronizedRunnableIT stopped", e);
-                    }
+                    runTwoThreads(() -> {
+                                LOG.info("Task 1 enter and does a DB change");
+                                changeDatabase(valueFromTask1);
+                                LOG.info("Task 1 exit");
+                            }, () -> {
+                                LOG.info("Task 2 enter and does a DB change");
+                                changeDatabase(valueFromTask2);
+                                LOG.info("Task 2 exit");
+                            }
+                    );
                     throw new RuntimeException("Owner throws exception");
                 }
             });
@@ -491,38 +375,16 @@ public class SynchronizedRunnableIT extends AbstractIT {
             }
         });
         //when
-        Runnable task1 = () -> {
-            LOG.info("Task 1 enter and does a DB change");
-            changeDatabase(valueFromTask1);
-            LOG.info("Task 1 exit");
-        };
-
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-        Thread t1 = new Thread(synchronizedRunnable);
-        t1.start();
-
-        Runnable task2 = () -> {
-            LOG.info("Task 2 enter and does a DB change");
-            changeDatabase(valueFromTask2);
-            LOG.info("Task 2 exit");
-        };
-        SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-        Thread t2 = new Thread(synchronizedRunnable2);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-        LOG.info("Launch task 2");
-        t2.start();
-
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-
+        runTwoThreads(() -> {
+                    LOG.info("Task 1 enter and does a DB change");
+                    changeDatabase(valueFromTask1);
+                    LOG.info("Task 1 exit");
+                }, () -> {
+                    LOG.info("Task 2 enter and does a DB change");
+                    changeDatabase(valueFromTask2);
+                    LOG.info("Task 2 exit");
+                }
+        );
         //then
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -543,39 +405,17 @@ public class SynchronizedRunnableIT extends AbstractIT {
             }
         });
         //when
-        Runnable task1 = () -> {
-            LOG.info("Task 1 enter and does a DB change");
-            changeDatabase(valueFromTask1);
-            LOG.info("Task 1 exit");
-        };
-
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-        Thread t1 = new Thread(synchronizedRunnable);
-        t1.start();
-
-        Runnable task2 = () -> {
-            LOG.info("Task 2 enter and does a DB change");
-            changeDatabase(valueFromTask2);
-            LOG.info("Task 2 throws exception");
-            throw new NoResultException("Task 2 exception");
-        };
-        SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-        Thread t2 = new Thread(synchronizedRunnable2);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-        LOG.info("Launch task 2");
-        t2.start();
-
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-
+        runTwoThreads(() -> {
+                    LOG.info("Task 1 enter and does a DB change");
+                    changeDatabase(valueFromTask1);
+                    LOG.info("Task 1 exit");
+                }, () -> {
+                    LOG.info("Task 2 enter and does a DB change");
+                    changeDatabase(valueFromTask2);
+                    LOG.info("Task 2 throws exception");
+                    throw new NoResultException("Task 2 exception");
+                }
+        );
         //then
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -596,39 +436,17 @@ public class SynchronizedRunnableIT extends AbstractIT {
             }
         });
         //when
-        Runnable task1 = () -> {
-            LOG.info("Task 1 enter and does a DB change");
-            changeDatabase(valueFromTask1);
-            LOG.info("Task 1 exit");
-        };
-
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-        Thread t1 = new Thread(synchronizedRunnable);
-        t1.start();
-
-        Runnable task2 = () -> {
-            LOG.info("Task 2 enter and does a DB change");
-            changeDatabase(valueFromTask2);
-            LOG.info("Task 2 throws exception");
-            throw new RuntimeException("Task 2 exception");
-        };
-        SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
-        Thread t2 = new Thread(synchronizedRunnable2);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-        LOG.info("Launch task 2");
-        t2.start();
-
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            LOG.error("SynchronizedRunnableIT stopped", e);
-        }
-
+        runTwoThreads(() -> {
+                    LOG.info("Task 1 enter and does a DB change");
+                    changeDatabase(valueFromTask1);
+                    LOG.info("Task 1 exit");
+                }, () -> {
+                    LOG.info("Task 2 enter and does a DB change");
+                    changeDatabase(valueFromTask2);
+                    LOG.info("Task 2 throws exception");
+                    throw new RuntimeException("Task 2 exception");
+                }
+        );
         //then
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -649,26 +467,36 @@ public class SynchronizedRunnableIT extends AbstractIT {
             }
         });
         //when
-        Runnable task1 = () -> {
-            LOG.info("Task 1 enter and does a DB change");
-            changeDatabase(valueFromTask1);
-            LOG.info("Task 1 exit");
-        };
+        runTwoThreads(() -> {
+                    LOG.info("Task 1 enter and does a DB change");
+                    changeDatabase(valueFromTask1);
+                    LOG.info("Task 1 exit");
+                }, () -> {
+                    LOG.info("Task 2 enter and does a DB change");
+                    changeDatabase(valueFromTask2);
+                    LOG.info("Task 2 throws exception");
+                    testService.doInTransactionalMethod(() -> {
+                        throw new RuntimeException("Task 2 exception");
+                    });
+                }
+        );
+        //then
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                assertDatabaseContainsOnly(valueFromTask1);
+            }
+        });
+    }
 
+    private void runTwoThreads(Runnable task1, Runnable task2) {
         SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
         Thread t1 = new Thread(synchronizedRunnable);
         t1.start();
 
-        Runnable task2 = () -> {
-            LOG.info("Task 2 enter and does a DB change");
-            changeDatabase(valueFromTask2);
-            LOG.info("Task 2 throws exception");
-            testService.doInTransactionalMethod(() -> {
-                throw new RuntimeException("Task 2 exception");
-            });
-        };
         SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, SYNC_LOCK_KEY);
         Thread t2 = new Thread(synchronizedRunnable2);
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -683,16 +511,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         } catch (InterruptedException e) {
             LOG.error("SynchronizedRunnableIT stopped", e);
         }
-
-        //then
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(valueFromTask1);
-            }
-        });
     }
-
 
     private void assertDatabaseIsClean() {
         TypedQuery<MpcEntity> query = em.createQuery(SELECT_ALL_FROM_TABLE, MpcEntity.class);
