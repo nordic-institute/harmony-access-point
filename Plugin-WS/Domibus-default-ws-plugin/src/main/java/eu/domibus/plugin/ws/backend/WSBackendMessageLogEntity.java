@@ -141,6 +141,9 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     }
 
     public String getMessageId() {
+        if (type == WSBackendMessageType.DELETED_BATCH) {
+            return messageIds;
+        }
         return messageId;
     }
 

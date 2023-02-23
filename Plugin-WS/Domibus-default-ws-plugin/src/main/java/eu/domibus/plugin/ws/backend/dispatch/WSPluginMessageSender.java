@@ -72,7 +72,7 @@ public class WSPluginMessageSender {
             LOG.debug("Endpoint identified: [{}]", endpoint);
             dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
-            String messageId = getMessageId(backendMessage);
+            String messageId = backendMessage.getMessageId();
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
                     messageId,
@@ -92,10 +92,4 @@ public class WSPluginMessageSender {
         }
     }
 
-    private String getMessageId(WSBackendMessageLogEntity backendMessage) {
-        if (backendMessage.getType() == WSBackendMessageType.DELETED_BATCH) {
-            return backendMessage.getMessageIds();
-        }
-        return backendMessage.getMessageId();
-    }
 }
