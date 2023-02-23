@@ -571,22 +571,26 @@ public class CertificateServiceImpl implements CertificateService {
         return false;
     }
 
-    protected boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
+    protected boolean doAddCertificate(KeyStore keystore, X509Certificate certificate, String alias, boolean overwrite) {
         boolean containsAlias;
         try {
-            containsAlias = truststore.containsAlias(alias);
+            containsAlias = keystore.containsAlias(alias);
         } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+            throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (containsAlias && !overwrite) {
-            LOG.trace("The truststore already contains alias [{}] and the overwrite is false so returning false.", alias);
+            LOG.debug("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
+            return false;
+        }
+        if (certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
+            LOG.info("The store already contains alias [{}] and it is identical so no adding.", alias);
             return false;
         }
         try {
             if (containsAlias) {
-                truststore.deleteEntry(alias);
+                keystore.deleteEntry(alias);
             }
-            truststore.setCertificateEntry(alias, certificate);
+            keystore.setCertificateEntry(alias, certificate);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);

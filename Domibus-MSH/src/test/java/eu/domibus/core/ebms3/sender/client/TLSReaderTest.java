@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.cache.DomibusCacheService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,9 @@ public class TLSReaderTest {
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomibusCacheService domibusLocalCacheService;
 
     @Tested
     private TLSReaderServiceImpl tlsReader;
@@ -90,7 +94,7 @@ public class TLSReaderTest {
         new MockUp<Paths>() {
             @Mock
             public Path get(String first, String... more) {
-                if(!isDomainSpecificScenario(more)) {
+                if (!isDomainSpecificScenario(more)) {
                     throw new IllegalArgumentException("The domain code should have been stripped down of whitespace characters");
                 }
                 return domainSpecificPath;
@@ -133,11 +137,11 @@ public class TLSReaderTest {
         new MockUp<Files>() {
             @Mock
             public boolean exists(Path path, LinkOption... options) {
-                if(path == domainSpecificPath) {
+                if (path == domainSpecificPath) {
                     return domainSpecificPathExists;
-                }else if(path == defaultPath) {
+                } else if (path == defaultPath) {
                     return defaultPathExists;
-                }else {
+                } else {
                     throw new IllegalArgumentException("Should have been invoked with the domain specific path or the default path");
                 }
             }
@@ -145,7 +149,7 @@ public class TLSReaderTest {
     }
 
     private boolean isDomainSpecificScenario(String... more) {
-        return Arrays.stream(more).anyMatch(el-> el.startsWith(StringUtils.stripToEmpty(domainCode)));
+        return Arrays.stream(more).anyMatch(el -> el.startsWith(StringUtils.stripToEmpty(domainCode)));
     }
 
     private void whenRetrievingTheClientAuthenticationPath() {

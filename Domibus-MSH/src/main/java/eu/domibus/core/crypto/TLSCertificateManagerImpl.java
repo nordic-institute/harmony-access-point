@@ -70,7 +70,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         String storeFileName = contentInfo.getFileName();
         boolean replaced;
         try {
-            replaced = certificateService.replaceStore(contentInfo, persistenceInfo);
+            replaced = certificateService.replaceStore(contentInfo, getPersistenceInfo());
         } catch (CryptoException ex) {
             throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
@@ -90,7 +90,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 final String domainName = domainProvider.getCurrentDomain().getName();
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
-            return certificateService.getStoreEntries(persistenceInfo);
+            return certificateService.getStoreEntries(getPersistenceInfo());
         } catch (ConfigurationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
@@ -98,12 +98,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public KeyStoreContentInfo getTruststoreContent() {
-        return certificateService.getStoreContent(persistenceInfo);
+        return certificateService.getStoreContent(getPersistenceInfo());
     }
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        boolean added = certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
+        boolean added = certificateService.addCertificate(getPersistenceInfo(), certificateData, alias, true);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
@@ -114,7 +114,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean removed = certificateService.removeCertificate(persistenceInfo, alias);
+        boolean removed = certificateService.removeCertificate(getPersistenceInfo(), alias);
         if (removed) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
@@ -136,7 +136,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public String getStoreFileExtension() {
-        return certificateHelper.getStoreFileExtension(persistenceInfo.getType());
+        return certificateHelper.getStoreFileExtension(getPersistenceInfo().getType());
     }
 
     @Override
@@ -149,7 +149,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     private void persistStores(List<Domain> domains) {
-        certificateService.saveStoresFromDBToDisk(persistenceInfo, domains);
+        certificateService.saveStoresFromDBToDisk(getPersistenceInfo(), domains);
     }
 
     void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
