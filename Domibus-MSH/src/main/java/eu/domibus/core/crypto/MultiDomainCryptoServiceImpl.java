@@ -3,14 +3,13 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,9 +22,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -44,32 +42,28 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected final DomainCryptoServiceFactory domainCryptoServiceFactory;
 
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusCacheService domibusLocalCacheService;
 
     protected CertificateHelper certificateHelper;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     protected CertificateService certificateService;
-
-    protected final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     protected final DomainService domainService;
 
+    private final KeystorePersistenceService keystorePersistenceService;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
-                                        DomibusCacheService domibusCacheService,
+                                        DomibusCacheService domibusLocalCacheService,
                                         CertificateHelper certificateHelper,
-                                        DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
-                                        DomibusRawPropertyProvider domibusRawPropertyProvider,
-                                        DomainService domainService) {
+                                        DomainService domainService,
+                                        KeystorePersistenceService keystorePersistenceService) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
         this.certificateHelper = certificateHelper;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
-        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
         this.domainService = domainService;
+        this.keystorePersistenceService = keystorePersistenceService;
     }
 
     @Override
@@ -128,29 +122,31 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
-
-    }
-
-    @Override
-    public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
-
-    }
-
-    @Override
     public void resetTrustStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.resetTrustStore();
     }
 
     @Override
-    public boolean isTrustStoreChangedOnDisk(Domain currentDomain) {
-        return false;
+    public boolean isTrustStoreChangedOnDisk(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.isTrustStoreChangedOnDisk();
     }
 
     @Override
-    public boolean isKeyStoreChangedOnDisk(Domain currentDomain) {
-        return false;
+    public boolean isKeyStoreChangedOnDisk(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.isKeyStoreChangedOnDisk();
+    }
+
+    @Override
+    public void replaceTrustStore(Domain domain, KeyStoreContentInfo storeInfo) {
+        replaceStore(domain, storeInfo, (domainCertificateProvider) -> domainCertificateProvider.replaceTrustStore(storeInfo));
+    }
+
+    @Override
+    public void replaceKeyStore(Domain domain, KeyStoreContentInfo storeInfo) {
+        replaceStore(domain, storeInfo, (domainCertificateProvider) -> domainCertificateProvider.replaceKeyStore(storeInfo));
     }
 
     @Override
@@ -166,7 +162,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    @Cacheable(value = "certValidationByAlias", key = "#domain.code + #alias")
+    @Cacheable(value = CERT_VALIDATION_BY_ALIAS, key = "#domain.code + #alias")
     public boolean isCertificateChainValid(Domain domain, String alias) throws DomibusCertificateException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.isCertificateChainValid(alias);
@@ -222,36 +218,60 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public List<TrustStoreEntry> getKeyStoreEntries(Domain domain) {
-        return null;
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getKeyStoreEntries();
     }
 
     @Override
     public KeyStoreContentInfo getKeyStoreContent(Domain domain) {
-        return null;
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getKeyStoreContent();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries(Domain domain) {
-        return null;
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getTrustStoreEntries();
     }
 
     @Override
     public KeyStoreContentInfo getTrustStoreContent(Domain domain) {
-        return null;
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getTrustStoreContent();
     }
 
     @Override
     public void saveStoresFromDBToDisk() {
-
+        final List<Domain> domains = domainService.getDomains();
+        saveStoresFromDBToDisk(domains);
     }
 
     @Override
     public void onDomainAdded(final Domain domain) {
-
+        saveStoresFromDBToDisk(Arrays.asList(domain));
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        domainCertificateProviderMap.remove(domain);
+    }
+
+    protected void saveStoresFromDBToDisk(List<Domain> domains) {
+        certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getKeyStorePersistenceInfo(), domains);
+        certificateService.saveStoresFromDBToDisk(keystorePersistenceService.getTrustStorePersistenceInfo(), domains);
+    }
+
+    protected void replaceStore(Domain domain, KeyStoreContentInfo storeInfo, Consumer<DomainCryptoService> storeReplacer) {
+        certificateHelper.validateStoreFileName(storeInfo.getFileName());
+        if (StringUtils.isEmpty(storeInfo.getType())) {
+            storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
+        }
+
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        storeReplacer.accept(domainCertificateProvider);
+
+        domibusLocalCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
+        saveCertificateAndLogRevocation(domain);
     }
 
     protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
@@ -274,4 +294,5 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         final KeyStore keyStore = getKeyStore(domain);
         certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
     }
+
 }

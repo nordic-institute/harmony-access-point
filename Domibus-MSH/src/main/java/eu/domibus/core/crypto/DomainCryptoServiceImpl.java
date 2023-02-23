@@ -1,23 +1,23 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.crypto.spi.CertificateEntrySpi;
-import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -45,7 +44,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
 
-    protected static final String IAM_AUTHENTICATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
     private DomainCryptoServiceSpi iamProvider;
 
@@ -53,18 +51,26 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected CertificateService certificateService;
+    protected final CertificateService certificateService;
+
+    private final KeystorePersistenceService keystorePersistenceService;
+
+    protected final DomibusCoreMapper coreMapper;
 
     public DomainCryptoServiceImpl(Domain domain,
                                    List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
                                    DomibusPropertyProvider domibusPropertyProvider,
-                                   CertificateService certificateService) {
+                                   CertificateService certificateService,
+                                   KeystorePersistenceService keystorePersistenceService,
+                                   DomibusCoreMapper coreMapper) {
         this.domain = domain;
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
+        this.keystorePersistenceService = keystorePersistenceService;
+        this.coreMapper = coreMapper;
     }
 
     public void init() {
@@ -163,8 +169,27 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(KeyStoreContentInfo storeInfo) {
+    public void replaceTrustStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        try {
+            KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
+            iamProvider.replaceTrustStore(keyStoreContentInfoDTO);
+        } catch (SameResourceCryptoSpiException ex) {
+            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
+        } catch (CryptoSpiException ex) {
+            throw new CryptoException(ex);
+        }
+    }
 
+    @Override
+    public void replaceKeyStore(eu.domibus.api.pki.KeyStoreContentInfo storeInfo) {
+        try {
+            KeyStoreContentInfoDTO keyStoreContentInfoDTO = coreMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(storeInfo);
+            iamProvider.replaceKeyStore(keyStoreContentInfoDTO);
+        } catch (SameResourceCryptoSpiException ex) {
+            throw new SameResourceCryptoException(ex.getName(), ex.getLocation(), ex.getMessage());
+        } catch (CryptoSpiException ex) {
+            throw new CryptoException(ex);
+        }
     }
 
     @Override
@@ -196,8 +221,30 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.addCertificate(list, overwrite);
     }
 
-    public String getTrustStoreType() {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+    @Override
+    public List<TrustStoreEntry> getKeyStoreEntries() {
+        KeyStore store = iamProvider.getKeyStore();
+        return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public eu.domibus.api.pki.KeyStoreContentInfo getKeyStoreContent() {
+        KeyStore store = iamProvider.getKeyStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getKeyStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries() {
+        KeyStore store = iamProvider.getTrustStore();
+        return certificateService.getStoreEntries(store);
+    }
+
+    @Override
+    public eu.domibus.api.pki.KeyStoreContentInfo getTrustStoreContent() {
+        KeyStore store = iamProvider.getTrustStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        return certificateService.getStoreContent(store, persistenceInfo.getName(), persistenceInfo.getPassword());
     }
 
     @Override
@@ -208,31 +255,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     @Override
     public void removeCertificate(List<String> aliases) {
         iamProvider.removeCertificate(aliases);
-    }
-
-    @Override
-    public List<TrustStoreEntry> getKeyStoreEntries() {
-        return null;
-    }
-
-    @Override
-    public KeyStoreContentInfo getKeyStoreContent() {
-        return null;
-    }
-
-    @Override
-    public List<TrustStoreEntry> getTrustStoreEntries() {
-        return null;
-    }
-
-    @Override
-    public KeyStoreContentInfo getTrustStoreContent() {
-        return null;
-    }
-
-    @Override
-    public void replaceKeyStore(KeyStoreContentInfo storeInfo) {
-
     }
 
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
@@ -253,32 +275,29 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void resetStores() {
-
-    }
-
-    @Override
-    public void resetSecurityProfiles() {
-
+        getIAMProvider();
+        iamProvider.resetKeyStore();
+        iamProvider.resetTrustStore();
     }
 
     @Override
     public boolean isTrustStoreChangedOnDisk() {
-        return false;
+        return iamProvider.isTrustStoreChanged();
     }
 
     @Override
     public boolean isKeyStoreChangedOnDisk() {
-        return false;
+        return iamProvider.isKeyStoreChanged();
     }
 
-    private void getIAMProvider() {
-        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
-        if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
+    protected void getIAMProvider() {
+        String spiIdentifier = getSpiIdentifier();
+        if (DEFAULT_AUTHENTICATION_SPI.equals(spiIdentifier) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
                     DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
         }
         final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
-                filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
+                filter(domainCryptoServiceSpi -> StringUtils.equals(spiIdentifier, domainCryptoServiceSpi.getIdentifier())).
                 collect(Collectors.toList());
 
         if (LOG.isDebugEnabled()) {
@@ -297,6 +316,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
+    }
+
+    protected String getSpiIdentifier() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER);
     }
 
 }

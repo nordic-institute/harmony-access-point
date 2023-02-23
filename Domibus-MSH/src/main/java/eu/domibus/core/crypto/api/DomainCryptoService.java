@@ -81,8 +81,6 @@ public interface DomainCryptoService {
 
     void resetStores();
 
-    void resetSecurityProfiles();
-
     boolean isTrustStoreChangedOnDisk();
 
     boolean isKeyStoreChangedOnDisk();
