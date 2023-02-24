@@ -145,7 +145,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
         super.isLoading = false;
       }, err => {
         super.isLoading = false;
-        this.alertService.exception('Error downloading TrustStore:', err);
+        this.alertService.exception('Error downloading store:', err);
       });
   }
 
@@ -199,7 +199,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
       let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
       this.alertService.success(res);
     } catch (err) {
-      this.alertService.exception(`Error removing the certificate (${cert.name}) from truststore.`, err);
+      this.alertService.exception(`Error removing the certificate [${cert.name}] from truststore.`, err);
     } finally {
       super.isLoading = false;
       this.loadServerData();
@@ -218,7 +218,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
 
         await this.getTrustStoreEntries();
       } catch (err) {
-        this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
+        this.alertService.exception(`Error updating store file [${params.file.name}]`, err);
       } finally {
         super.isLoading = false;
       }
@@ -229,11 +229,11 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     try {
       super.isLoading = true;
       await this.trustStoreService.reloadStore(this.BASE_URL + '/reset');
-      this.alertService.success('The ' + this.name + ' was successfully reset.')
+      this.alertService.success('The [' + this.name + '] was successfully reset.')
 
       await this.getTrustStoreEntries();
     } catch (ex) {
-      this.alertService.exception('Error reseting the ' + this.name + ':', ex);
+      this.alertService.exception('Error resetting the [' + this.name + ']:', ex);
     } finally {
       super.isLoading = false;
     }

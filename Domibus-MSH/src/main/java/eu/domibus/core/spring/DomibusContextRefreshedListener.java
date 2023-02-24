@@ -113,6 +113,10 @@ public class DomibusContextRefreshedListener {
      */
     protected void executeSynchronized() {
         messageDictionaryService.createStaticDictionaryEntries();
+
+        multiDomainCryptoService.saveStoresFromDBToDisk();
+        tlsCertificateManager.saveStoresFromDBToDisk();
+
         domibusPropertyValidatorService.enforceValidation();
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
