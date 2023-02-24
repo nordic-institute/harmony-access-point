@@ -494,18 +494,23 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
-        return KeyStore.getInstance(storeType);
+    public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
+        String storeName = persistenceInfo.getName();
+
+        KeyStore storeOnDisk = getStore(persistenceInfo);
+
+        boolean different = !securityUtil.areKeystoresIdentical(store, storeOnDisk);
+        if (different) {
+            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
+        } else {
+            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
+        }
+        return different;
     }
 
-    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
-        try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
-            KeyStore keystore = getNewKeystore(storeInfo.getType());
-            keystore.load(contentStream, storeInfo.getPassword().toCharArray());
-            return keystore;
-        } catch (Exception ex) {
-            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
-        }
+    @Override
+    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
+        return KeyStore.getInstance(storeType);
     }
 
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
@@ -593,6 +598,16 @@ public class CertificateServiceImpl implements CertificateService {
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
+        }
+    }
+
+    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+        try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
+            KeyStore keystore = getNewKeystore(storeInfo.getType());
+            keystore.load(contentStream, storeInfo.getPassword().toCharArray());
+            return keystore;
+        } catch (Exception ex) {
+            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
         }
     }
 
@@ -831,6 +846,7 @@ public class CertificateServiceImpl implements CertificateService {
      * @param cert a X509 certificate
      * @return the list of CRL urls of certificate policy identifiers
      */
+    @Override
     public List<String> getCertificatePolicyIdentifiers(X509Certificate cert) {
 
         byte[] certPolicyExt = cert.getExtensionValue(Extension.certificatePolicies.getId());
@@ -850,21 +866,6 @@ public class CertificateServiceImpl implements CertificateService {
                 .map(ASN1ObjectIdentifier::getId)
                 .map(StringUtils::trim)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-        String storeName = persistenceInfo.getName();
-
-        KeyStore storeOnDisk = getStore(persistenceInfo);
-
-        boolean different = !securityUtil.areKeystoresIdentical(store, storeOnDisk);
-        if (different) {
-            LOG.info("The store [{}] on disk has different content than the persisted one.", storeName);
-        } else {
-            LOG.debug("The store [{}] on disk has the same content as the persisted one.", storeName);
-        }
-        return different;
     }
 
     private String decrypt(String trustName, String password) {
