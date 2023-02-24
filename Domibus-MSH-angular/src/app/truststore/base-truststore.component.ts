@@ -242,8 +242,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected async checkModifiedOnDisk() {
     const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
     if (isChanged) {
-      const refresh = await this.dialogsService.openYesNoDialog('The store file on the disk has different content than the one loaded and used in Domibus. ' +
-        'Would you like to refresh?');
+      const refresh = await this.dialogsService
+        .openYesNoDialog('The store file on the disk has different content than the one loaded and used in Domibus. Would you like to refresh?');
       if (refresh) {
         this.reloadStore();
       }
