@@ -696,7 +696,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     -> storeSetter.accept(newStore, securityProfileConfiguration));
 
             signaller.accept(domain);
-            certificateTypeValidator.accept(currentStore);
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
         }
