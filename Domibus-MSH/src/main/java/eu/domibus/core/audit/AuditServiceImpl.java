@@ -219,24 +219,6 @@ public class AuditServiceImpl implements AuditService {
         auditDao.saveTruststoreAudit(new TruststoreAudit(name, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
-    /**
-     * {@inheritDoc}
-     * @param id
-     */
-    @Override
-    public void addTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-
-    @Override
-    public void addTLSTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-    @Override
-    public void addTLSTruststoreUploadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
-    }
-
     @Override
     public void addCertificateAddedAudit(String id) {
         auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
