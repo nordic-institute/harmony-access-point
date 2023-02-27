@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -42,7 +42,6 @@ import static org.junit.Assert.assertTrue;
 public class SynchronizedRunnableIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
-    public static final String SELECT_ALL_FROM_TABLE = "select mpc from MpcEntity mpc";
     public static final String SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST = "select mpc from MpcEntity mpc where value in :TEST_VALUES";
     public static final String DELETE_TEST_DATA = "delete from MpcEntity where value in :TEST_VALUES";
     private static final String SCHEDULER_SYNCHRONIZATION_LOCK = "scheduler-synchronization.lock";
@@ -283,7 +282,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_TASK_1);
+                assertDatabaseContainsOnly(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1);
             }
         });
     }
@@ -601,17 +600,20 @@ public class SynchronizedRunnableIT extends AbstractIT {
     }
 
     private void assertDatabaseIsClean() {
-        TypedQuery<MpcEntity> query = em.createQuery(SELECT_ALL_FROM_TABLE, MpcEntity.class);
-        List<MpcEntity> resultList = query.getResultList();
-        assertTrue("Expecting empty table but found: " + resultList, resultList.isEmpty());
+        List<String> valuesInDb = getAllValuesFromThisTest();
+        MatcherAssert.assertThat("Expecting the table to not contain any data related to this test", valuesInDb, empty());
     }
 
     private void assertDatabaseContainsOnly(String... values) {
-        TypedQuery<MpcEntity> query = em.createQuery(SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST, MpcEntity.class);
-        query.setParameter("TEST_VALUES", Arrays.asList(values));
-        List<MpcEntity> resultList = query.getResultList();
-        List<String> valuesInDb = resultList.stream().map(MpcEntity::getValue).collect(Collectors.toList());
+        List<String> valuesInDb = getAllValuesFromThisTest();
         MatcherAssert.assertThat(valuesInDb, containsInAnyOrder(values));
+    }
+
+    private List<String> getAllValuesFromThisTest() {
+        TypedQuery<MpcEntity> query = em.createQuery(SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST, MpcEntity.class);
+        query.setParameter("TEST_VALUES", Arrays.asList(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1, VALUE_FROM_TASK_2));
+        List<MpcEntity> resultList = query.getResultList();
+        return resultList.stream().map(MpcEntity::getValue).collect(Collectors.toList());
     }
 
     private void changeDatabase(String newValue) {
