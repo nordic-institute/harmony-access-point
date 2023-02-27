@@ -147,7 +147,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean isCertificateChainValid(KeyStore keyStore, String alias) throws DomibusCertificateException {
-        X509Certificate[] certificateChain = null;
+        X509Certificate[] certificateChain;
         try {
             certificateChain = getCertificateChain(keyStore, alias);
         } catch (KeyStoreException e) {
@@ -586,7 +586,8 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+    @Override
+    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
             KeyStore keystore = KeyStore.getInstance(storeInfo.getType());
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());

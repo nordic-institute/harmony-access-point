@@ -1,6 +1,5 @@
 package eu.domibus.api.pki;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -174,6 +173,8 @@ public interface CertificateService {
     boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
 
     KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
+
+    KeyStore loadStore(KeyStoreContentInfo storeInfo);
 
     KeyStoreContentInfo getStoreContent(KeyStore store, String storeName, String password);
 

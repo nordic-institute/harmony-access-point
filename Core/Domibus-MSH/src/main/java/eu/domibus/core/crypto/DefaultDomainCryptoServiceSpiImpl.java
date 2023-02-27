@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -343,13 +344,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
-                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore);
+                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::validateTrustStoreCertificateTypes);
     }
 
     @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
-                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore);
+                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::validateKeyStoreCertificateTypes);
     }
 
     @Override
@@ -444,11 +445,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
-                                             String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter, Runnable storeReloader) throws CryptoSpiException {
+                                             String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
+                                             Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         boolean replaced;
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
+
+            final KeyStore newStore = certificateService.loadStore(storeContentInfo);
+            certificateTypeValidator.accept(newStore);
+
             replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
@@ -463,7 +469,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void validateTrustStoreCertificateTypes(KeyStore trustStore) {
-        securityProfileValidatorService.validateTrustStoreCertificateTypes(securityProfileAliasConfigurations, trustStore);
+        securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, trustStore, StoreType.TRUSTSTORE);
     }
 
     protected void initTrustStore() {
@@ -502,7 +508,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void validateKeyStoreCertificateTypes(KeyStore keystore) {
-        securityProfileValidatorService.validateKeyStoreCertificateTypes(securityProfileAliasConfigurations, keystore);
+        securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, keystore, StoreType.KEYSTORE);
     }
 
     protected void initKeyStore() {
@@ -519,7 +525,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
             KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
 
-            certificateTypeValidator.accept(store);
+            try {
+                certificateTypeValidator.accept(store);
+            } catch (CertificateException e) {
+                LOG.error("Error validating store [{}]: {}", storeName, e.getMessage());
+            }
 
             securityProfileAliasConfigurations.forEach(
                     profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));
@@ -652,26 +662,34 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     private synchronized void reloadKeyStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
-                signalService::signalKeyStoreUpdate);
+                signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
     private synchronized void reloadTrustStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
-                signalService::signalTrustStoreUpdate);
+                signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
     }
 
     private synchronized void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
                                           Supplier<KeyStore> storeGetter,
                                           Runnable storePropertiesLoader,
                                           BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
-                                          Consumer<Domain> signaller) throws CryptoSpiException {
+                                          Consumer<Domain> signaller,
+                                          Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
             KeyStore currentStore = storeGetter.get();
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
+
+            try {
+                certificateTypeValidator.accept(newStore);
+            } catch (CertificateException e) {
+                LOG.error("Error validating store [{}]: {}", storeName, e.getMessage());
+            }
+
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
                 LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
                 return;
