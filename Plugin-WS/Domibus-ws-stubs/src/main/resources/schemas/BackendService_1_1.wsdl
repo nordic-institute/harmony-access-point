@@ -87,6 +87,10 @@
         <wsdl:part element="tns:getMessageErrorsResponse" name="getMessageErrorsResponse">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="GetMessageErrorsFault">
+        <wsdl:part element="tns:FaultDetail" name="GetMessageErrorsFault">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:portType name="BackendInterface">
         <wsdl:operation name="submitMessage">
             <wsdl:input message="tns:submitMessage" name="submitMessage">
@@ -115,6 +119,8 @@
             </wsdl:input>
             <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse">
             </wsdl:output>
+            <wsdl:fault message="tns:GetMessageErrorsFault" name="GetMessageErrorsFault">
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrieveMessage">
             <wsdl:input message="tns:retrieveMessage" name="retrieveMessage">
@@ -161,6 +167,9 @@
             <wsdl:output name="getMessageErrorsResponse">
                 <soap12:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="GetMessageErrorsFault">
+                <soap12:fault name="GetMessageErrorsFault" use="literal"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="listPendingMessages">
             <soap12:operation soapAction="" style="document"/>
