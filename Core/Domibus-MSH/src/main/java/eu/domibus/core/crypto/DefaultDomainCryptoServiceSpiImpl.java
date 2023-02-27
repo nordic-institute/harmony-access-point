@@ -683,13 +683,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             KeyStore currentStore = storeGetter.get();
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
-
-            try {
-                certificateTypeValidator.accept(newStore);
-            } catch (CertificateException e) {
-                LOG.error("Error validating store [{}]: {}", storeName, e.getMessage());
-            }
-
+            certificateTypeValidator.accept(newStore);
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
                 LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
                 return;
@@ -702,9 +696,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     -> storeSetter.accept(newStore, securityProfileConfiguration));
 
             signaller.accept(domain);
-
             certificateTypeValidator.accept(currentStore);
-
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
         }
