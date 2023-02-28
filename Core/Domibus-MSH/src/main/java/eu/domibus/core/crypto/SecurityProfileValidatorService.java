@@ -46,6 +46,10 @@ public class SecurityProfileValidatorService {
      */
     public void validateStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore store, StoreType storeType) {
         List<String> aliasesList;
+        if (store == null) {
+            String exceptionMessage = String.format("[%s] is null", storeType);
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
         try {
             aliasesList = Collections.list(store.aliases());
         } catch (KeyStoreException e) {
@@ -56,7 +60,7 @@ public class SecurityProfileValidatorService {
         int totalNumberOfAliasesInitiallyInStore = aliasesList.size();
         List<String> invalidCertificateAliases = new ArrayList<>();
         aliasesList.forEach(alias -> {
-                if (isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType) == false) {
+                if (!isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType)) {
                     invalidCertificateAliases.add(alias);
                 }
         });
@@ -64,7 +68,7 @@ public class SecurityProfileValidatorService {
             try {
                 store.deleteEntry(invalidAlias);
             } catch (KeyStoreException e) {
-                LOG.info("Error while removing invalid alias [{}] from [{}]", invalidAlias, storeType);
+                LOG.warn("Error while removing invalid alias [{}] from [{}]", invalidAlias, storeType);
             }
         });
         aliasesList.removeAll(invalidCertificateAliases);
