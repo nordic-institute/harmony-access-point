@@ -2,13 +2,12 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.NoKeyStoreContentInformationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
@@ -16,11 +15,8 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
-import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
@@ -72,10 +68,6 @@ public class CertificateServiceImplTest {
     private static final String TEST_CERTIFICATE_CONTENT_PEM = "-----BEGIN CERTIFICATE-----\n" +
             TEST_CERTIFICATE_CONTENT + "\n" +
             "-----END CERTIFICATE-----";
-
-    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-
-    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
 
     @Tested
     CertificateServiceImpl certificateService;
@@ -1000,6 +992,11 @@ public class CertificateServiceImplTest {
 
         // When
         certificateService.loadStore(storeInfo);
+    }
+
+    @Test(expected = NoKeyStoreContentInformationException.class)
+    public void loadStore_throwsExceptionWhenNoKeystoreContentInformationAvailable() {
+        certificateService.loadStore(null);
     }
 
     @Test
