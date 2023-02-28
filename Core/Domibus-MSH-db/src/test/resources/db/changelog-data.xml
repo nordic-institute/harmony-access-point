@@ -124,4 +124,11 @@
             <column name="BACKEND_NAME" value="fsPlugin"/>
         </insert>
     </changeSet>
+
+    <changeSet id="EDELIVERY-10711" author="maierga">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

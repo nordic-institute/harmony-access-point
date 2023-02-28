@@ -6,8 +6,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.audit.AuditService;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.CertificateHelper;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -20,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,79 +54,79 @@ public class TLSCertificateManagerImplTest {
     DomainService domainService;
 
     @Injectable
-    private AuditService auditService;
-
-    @Injectable
     CertificateHelper certificateHelper;
 
-//    @Test
-//    public void replaceTrustStore(@Injectable KeyStoreType trustStore, @Injectable String fileName, @Injectable byte[] fileContent, @Injectable String filePassword, @Injectable String backupLocation) {
-//        new Expectations() {{
-//            certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
-//            result = 1L;
-//        }};
-//
-//        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
-//
-//        new Verifications() {{
-//
-//            tlsCertificateManager.resetTLSTruststore();
-//            auditService.addTLSTruststoreUploadedAudit("1");
-//        }};
-//    }
+    @Test
+    public void replaceTrustStore(@Injectable KeystorePersistenceInfo persistenceInfo,
+                                  @Injectable KeyStoreContentInfo contentInfo) {
+        new Expectations() {{
+            certificateService.replaceStore(contentInfo, (KeystorePersistenceInfo) any);
+            result = true;
+        }};
 
-//    @Test
-//    public void getTrustStoreEntries(@Injectable KeyStoreType trustStore, @Injectable List<TrustStoreEntry> entries) {
-//        new Expectations(tlsCertificateManager) {{
-//            certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
-//            result = entries;
-//        }};
-//
-//        List<TrustStoreEntry> result = tlsCertificateManager.getTrustStoreEntries();
-//
-//        Assert.assertEquals(entries, result);
-//        new Verifications() {{
-//            certificateService.getStoreEntries(TLS_TRUSTSTORE_NAME);
-//        }};
-//    }
+        tlsCertificateManager.replaceTrustStore(contentInfo);
 
-//    @Test
-//    public void addCertificate(@Injectable KeyStoreType trustStore, @Injectable byte[] certificateData) {
-//        String alias = "mockalias";
-//
-//        new Expectations(tlsCertificateManager) {{
-//            certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
-//            result = 1L;
-//        }};
-//
-//        boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
-//
-//        Assert.assertTrue(result);
-//        new Verifications() {{
-//            certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
-//            tlsCertificateManager.resetTLSTruststore();
-//            auditService.addCertificateAddedAudit("1");
-//        }};
-//    }
+        new Verifications() {{
+            tlsCertificateManager.resetTLSTruststore();
+        }};
+    }
 
-//    @Test
-//    public void removeCertificate(@Injectable KeyStoreType trustStore) {
-//        String alias = "mockalias";
-//
-//        new Expectations(tlsCertificateManager) {{
-//            certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
-//            result = 1L;
-//        }};
-//
-//        boolean result = tlsCertificateManager.removeCertificate(alias);
-//
-//        Assert.assertTrue(result);
-//        new Verifications() {{
-//            certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
-//            tlsCertificateManager.resetTLSTruststore();
-//            auditService.addCertificateRemovedAudit("1");
-//        }};
-//    }
+    @Test
+    public void getTrustStoreEntries(@Injectable List<TrustStoreEntry> entries, @Injectable KeystorePersistenceInfo persistenceInfo) {
+        new Expectations(tlsCertificateManager) {{
+            tlsCertificateManager.getPersistenceInfo();
+            result = persistenceInfo;
+            certificateService.getStoreEntries(persistenceInfo);
+            result = entries;
+        }};
+
+        List<TrustStoreEntry> result = tlsCertificateManager.getTrustStoreEntries();
+
+        Assert.assertEquals(entries, result);
+        new Verifications() {{
+            certificateService.getStoreEntries(persistenceInfo);
+        }};
+    }
+
+    @Test
+    public void addCertificate(@Injectable KeyStoreType trustStore, @Injectable byte[] certificateData, @Injectable KeystorePersistenceInfo persistenceInfo) {
+        String alias = "mockalias";
+
+        new Expectations(tlsCertificateManager) {{
+            tlsCertificateManager.getPersistenceInfo();
+            result = persistenceInfo;
+            certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
+            result = true;
+        }};
+
+        boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
+
+        Assert.assertTrue(result);
+        new Verifications() {{
+            certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
+            tlsCertificateManager.resetTLSTruststore();
+        }};
+    }
+
+    @Test
+    public void removeCertificate(@Injectable KeyStoreType trustStore, @Injectable KeystorePersistenceInfo persistenceInfo) {
+        String alias = "mockalias";
+
+        new Expectations(tlsCertificateManager) {{
+            tlsCertificateManager.getPersistenceInfo();
+            result = persistenceInfo;
+            certificateService.removeCertificate(persistenceInfo, alias);
+            result = true;
+        }};
+
+        boolean result = tlsCertificateManager.removeCertificate(alias);
+
+        Assert.assertTrue(result);
+        new Verifications() {{
+            certificateService.removeCertificate(persistenceInfo, alias);
+            tlsCertificateManager.resetTLSTruststore();
+        }};
+    }
 
     @Test
     public void getTruststoreParams(@Injectable TLSClientParametersType params, @Injectable KeyStoreType trustStore, @Injectable Domain domain) {

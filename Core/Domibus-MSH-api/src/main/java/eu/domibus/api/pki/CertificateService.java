@@ -195,4 +195,6 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
+
+    KeyStore getNewKeystore(String storeType) throws KeyStoreException;
 }

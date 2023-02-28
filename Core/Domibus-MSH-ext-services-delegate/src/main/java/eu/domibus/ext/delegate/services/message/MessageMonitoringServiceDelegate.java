@@ -116,6 +116,18 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     @Override
+    public void deleteMessageInFinalStatus(String messageId, eu.domibus.common.MSHRole role) throws AuthenticationExtException, MessageMonitorExtException {
+        if (role == null) {
+            LOG.debug("Role param is null so calling the method without role");
+            deleteMessageInFinalStatus(messageId);
+            return;
+        }
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        userMessageSecurityService.checkMessageAuthorization(messageId, mshRole);
+        userMessageService.deleteMessageInFinalStatus(messageId, mshRole);
+    }
+
+    @Override
     public void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
         try {

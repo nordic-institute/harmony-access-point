@@ -214,8 +214,15 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   async sendTestMessage(row: ConnectionMonitorEntry) {
     row.status = 'PENDING';
-    let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId, row.senderPartyId);
-    await this.refreshMonitor(row);
+    try {
+      await this.connectionsMonitorService.sendTestMessage(row.partyId, row.senderPartyId);
+    } catch (ex) {
+      row.status = 'BROKEN';
+      row.error = ex.error;
+      this.alertService.exception('Problems while submitting test', ex);
+    } finally {
+      await this.refreshMonitor(row);
+    }
   }
 
   async refreshMonitor(row: ConnectionMonitorEntry) {
@@ -308,7 +315,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     try {
       let searchParams = new HttpParams();
       searchParams = searchParams.append('userMessageId', row.lastSent.messageId);
-      let result = await this.http.get<any>('rest/testservice/errors', {params: searchParams}).toPromise();
+      let result = await this.http.get<any>(ConnectionsMonitorService.TEST_SERVICE_ERRORS_URL, {params: searchParams}).toPromise();
       if (result) {
         let httpErrorResponse = new HttpErrorResponse({error: result});
         this.alertService.exception('', httpErrorResponse);

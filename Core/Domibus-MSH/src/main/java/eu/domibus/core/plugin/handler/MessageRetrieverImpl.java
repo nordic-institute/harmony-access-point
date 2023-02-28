@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -44,13 +45,16 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     protected final ApplicationEventPublisher applicationEventPublisher;
 
+    protected UserMessageSecurityService userMessageSecurityService;
+
     public MessageRetrieverImpl(UserMessageDefaultService userMessageService, MessagingService messagingService, UserMessageLogDefaultService userMessageLogService,
-                                ErrorLogService errorLogService, ApplicationEventPublisher applicationEventPublisher) {
+                                ErrorLogService errorLogService, ApplicationEventPublisher applicationEventPublisher, UserMessageSecurityService userMessageSecurityService) {
         this.userMessageService = userMessageService;
         this.messagingService = messagingService;
         this.userMessageLogService = userMessageLogService;
         this.errorLogService = errorLogService;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.userMessageSecurityService = userMessageSecurityService;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
-
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
         if (markAsDownloaded) {
             markMessageAsDownloaded(userMessage.getMessageId());
         }
@@ -117,35 +121,35 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
+    public eu.domibus.common.MessageStatus getStatus(final String messageId) throws DuplicateMessageException {
         try {
             final MessageStatus messageStatus = userMessageLogService.getMessageStatusById(messageId);
             return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
-            throw new MessageNotFoundException(exception.getMessage());
+            return eu.domibus.common.MessageStatus.valueOf(MessageStatus.NOT_FOUND.name());
         } catch (DuplicateMessageFoundException exception) {
             throw new DuplicateMessageException(exception.getMessage());
         }
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
+    public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
         try {
             MSHRole role = MSHRole.valueOf(mshRole.name());
             final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, role);
             return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
-            throw new MessageNotFoundException(exception.getMessage());
+            return eu.domibus.common.MessageStatus.valueOf(MessageStatus.NOT_FOUND.name());
         }
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException {
+    public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
         try {
             final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
             return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
         } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
-            throw new MessageNotFoundException(exception.getMessage());
+            return eu.domibus.common.MessageStatus.valueOf(MessageStatus.NOT_FOUND.name());
         }
     }
 
@@ -154,10 +158,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         try {
             UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
             if (userMessageLog == null) {
-                throw new eu.domibus.api.messaging.MessageNotFoundException(messageId);
+                throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
             }
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
-            throw new MessageNotFoundException(exception.getMessage());
         } catch (DuplicateMessageFoundException exception) {
             throw new DuplicateMessageException(exception.getMessage());
         }
@@ -172,7 +174,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
         return errorLogService.getErrors(messageId, role);
     }

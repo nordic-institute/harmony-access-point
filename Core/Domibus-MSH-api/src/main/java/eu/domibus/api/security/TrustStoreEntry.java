@@ -1,5 +1,8 @@
 package eu.domibus.api.security;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import java.util.Date;
 
 /**
@@ -80,6 +83,23 @@ public class TrustStoreEntry {
 
     public void setCertificateExpiryAlertDays(int certificateExpiryAlertDays) {
         this.certificateExpiryAlertDays = certificateExpiryAlertDays;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrustStoreEntry)) return false;
+
+        final TrustStoreEntry entry = (TrustStoreEntry) o;
+
+        return new EqualsBuilder()
+                .append(name, entry.name)
+                .append(subject, entry.subject)
+                .append(issuer, entry.issuer)
+                .append(validFrom, entry.validFrom)
+                .append(validUntil, entry.validUntil)
+                .append(fingerprints, entry.fingerprints)
+                .isEquals();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package eu.domibus.ext.delegate.services.truststore;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -10,9 +9,6 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
-import eu.domibus.ext.exceptions.CryptoExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.ext.services.TLSTrustStoreExtService;
 import org.springframework.stereotype.Service;
 
@@ -38,20 +34,20 @@ public class TLSTrustStoreServiceDelegate implements TLSTrustStoreExtService {
 
     @Override
     public KeyStoreContentInfoDTO downloadTruststoreContent() {
-            KeyStoreContentInfo contentInfo = tlsCertificateManager.getTruststoreContent();
-            return domibusExtMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(contentInfo);
+        KeyStoreContentInfo contentInfo = tlsCertificateManager.getTruststoreContent();
+        return domibusExtMapper.keyStoreContentInfoToKeyStoreContentInfoDTO(contentInfo);
     }
 
     @Override
     public List<TrustStoreDTO> getTrustStoreEntries() {
-            List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
-            return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
+        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+        return domibusExtMapper.trustStoreEntriesToTrustStoresDTO(trustStoreEntries);
     }
 
     @Override
     public void uploadTruststoreFile(KeyStoreContentInfoDTO contentInfoDTO) {
-            KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
-            tlsCertificateManager.replaceTrustStore(storeContentInfo);
+        KeyStoreContentInfo storeContentInfo = domibusExtMapper.keyStoreContentInfoDTOToKeyStoreContentInfo(contentInfoDTO);
+        tlsCertificateManager.replaceTrustStore(storeContentInfo);
     }
 
     @Override

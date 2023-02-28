@@ -1,4 +1,5 @@
 Domibus 5.1
+- Add property for disabling the use of system default certificates (cacerts) on https exchanges.
 - Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
 - Added a new method to the WS plugin interface to getStatus based on the messageId and the role of the access Point. The old method to getStatus based on messageId is marked as deprecated.
 - Removed domainValidity cache since the call to validate domains is done once now.
