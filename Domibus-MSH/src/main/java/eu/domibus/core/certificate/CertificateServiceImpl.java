@@ -602,6 +602,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+        if (storeInfo == null) {
+            throw new ConfigurationException("Could not load a null store.");
+        }
+        
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
             KeyStore keystore = getNewKeystore(storeInfo.getType());
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
