@@ -1388,13 +1388,13 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findSenderParty(userMessage);
             result = senderParty;
 
-            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty);
+            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty, false);
             result = receiverParty;
 
             cachingPModeProvider.findInitiatorRole(userMessage);
             result = initiatorRole;
 
-            cachingPModeProvider.findResponderRole(userMessage, false);
+            cachingPModeProvider.findResponderRole(userMessage);
             result = responderRole;
 
             userMessage.getService();
@@ -1519,7 +1519,7 @@ public class CachingPModeProviderTest {
             result = expectedException;
         }};
         try {
-            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty);
+            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty, false);
             Assert.fail("expected error:" + expectedException.getMessage());
         } catch (EbMS3Exception e) {
             assertEquals(expectedException, e);
@@ -1562,7 +1562,7 @@ public class CachingPModeProviderTest {
             result = " ";
         }};
         try {
-            cachingPModeProvider.findResponderRole(userMessage, true);
+            cachingPModeProvider.findResponderRole(userMessage);
             Assert.fail("expected error that responder role should be provided");
         } catch (EbMS3Exception e) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
@@ -1580,7 +1580,7 @@ public class CachingPModeProviderTest {
             result = responderRole;
         }};
 
-        assertEquals(cachingPModeProvider.findResponderRole(userMessage, true), responderRole);
+        assertEquals(cachingPModeProvider.findResponderRole(userMessage), responderRole);
 
         new FullVerifications() {
         };
