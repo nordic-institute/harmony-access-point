@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -55,29 +52,60 @@ public class SecurityProfileValidatorService {
             String exceptionMessage = String.format("Error while getting the aliases from the [%s]: %s", storeType, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
-        aliasesList.forEach(alias -> validateCertificateTypeForStoreAlias(securityProfileAliasConfigurations, alias, store, storeType));
 
-        LOG.info("[{}] certificate types are valid", storeType);
+        int totalNumberOfAliasesInitiallyInStore = aliasesList.size();
+        List<String> invalidCertificateAliases = new ArrayList<>();
+        aliasesList.forEach(alias -> {
+                if (isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType) == false) {
+                    invalidCertificateAliases.add(alias);
+                }
+        });
+        invalidCertificateAliases.forEach(invalidAlias -> {
+            try {
+                store.deleteEntry(invalidAlias);
+            } catch (KeyStoreException e) {
+                LOG.info("Error while removing invalid alias [{}] from [{}]", invalidAlias, storeType);
+            }
+        });
+        aliasesList.removeAll(invalidCertificateAliases);
+
+        String infoMessage;
+        if (aliasesList.size() == totalNumberOfAliasesInitiallyInStore) {
+            infoMessage = String.format("All [%s] certificate types are valid", storeType);
+        } else if (aliasesList.size() > 0) {
+            infoMessage = String.format("Not all [%s] certificate types are valid", storeType);
+        } else {
+            infoMessage = String.format("There are no valid [%s] certificate types", storeType);
+        }
+
+        LOG.info(infoMessage);
     }
 
-    private void validateCertificateTypeForStoreAlias(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
-                                                      String alias, KeyStore store, StoreType storeType) {
-        SecurityProfile securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
+    private boolean isCertificateTypeForStoreAliasValid(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
+                                                        String alias, KeyStore store, StoreType storeType) {
+        SecurityProfile securityProfileExtractedFromAlias;
+        try {
+            securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
+        } catch (CertificateException e) {
+            LOG.error("{}", e.getMessage());
+            return false;
+        }
         if (securityProfileExtractedFromAlias == null) {
             //Legacy alias
             try {
                 X509Certificate certificate = (X509Certificate) store.getCertificate(alias);
                 validateLegacyAliasCertificateType(certificate.getPublicKey().getAlgorithm(), alias, storeType);
-                return;
+                return true;
             } catch (KeyStoreException e) {
-                String exceptionMessage = String.format("Error getting legacy alias [%s] from keystore with type [%s]: exception: %s", alias, storeType, e.getMessage());
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+                LOG.error("Error getting legacy alias [{}] from keystore with type [{}]: exception: {}", alias, storeType, e.getMessage());
+                return false;
             }
         }
 
         SecurityProfileAliasConfiguration securityProfileConfigurationCorrespondingToAlias =
                 getSecurityProfileConfigurationForStoreAlias(securityProfileAliasConfigurations, alias, storeType);
         validateCertificateType(alias, securityProfileConfigurationCorrespondingToAlias.getSecurityProfile(), store, storeType);
+        return true;
     }
 
     /**
