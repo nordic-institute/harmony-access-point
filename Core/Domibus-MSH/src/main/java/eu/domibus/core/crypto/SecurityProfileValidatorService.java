@@ -52,7 +52,7 @@ public class SecurityProfileValidatorService {
         try {
             aliasesList = Collections.list(store.aliases());
         } catch (KeyStoreException e) {
-            String exceptionMessage = String.format("[%s] exception: %s", storeType, e.getMessage());
+            String exceptionMessage = String.format("Error while getting the aliases from the [%s]: %s", storeType, e.getMessage());
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
         aliasesList.forEach(alias -> validateCertificateTypeForStoreAlias(securityProfileAliasConfigurations, alias, store, storeType));
