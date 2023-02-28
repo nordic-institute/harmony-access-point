@@ -215,7 +215,7 @@ public class EArchivingFileServiceTest {
         try {
             eArchivingFileService.getArchivingFiles(entityId);
             Assert.fail();
-        } catch (DomibusEArchiveException e) {
+        } catch (DomibusEArchiveExportException e) {
             //ok
         }
 
@@ -269,7 +269,7 @@ public class EArchivingFileServiceTest {
         try {
             eArchivingFileService.getArchivingFileDTO(1L, partInfo);
             fail();
-        } catch (DomibusEArchiveException e) {
+        } catch (DomibusEArchiveExportException e) {
             assertTrue(StringUtils.contains(e.getMessage(), "partInfoMessageId"));
         }
 
