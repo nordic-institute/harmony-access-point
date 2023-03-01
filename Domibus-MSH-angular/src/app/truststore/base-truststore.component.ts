@@ -177,7 +177,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
+    return this.storeExists && !this.isBusy();
   }
 
   canRemoveCertificate() {

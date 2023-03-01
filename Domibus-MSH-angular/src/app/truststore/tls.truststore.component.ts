@@ -39,5 +39,7 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     super.ngOnInit();
   }
 
-
+  canUpload() {
+    return this.storeExists  && !this.isBusy();
+  }
 }
