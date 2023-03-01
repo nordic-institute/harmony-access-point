@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.crypto.NoKeyStoreContentInformationException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -11,6 +12,7 @@ import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.CertificateHelper;
+import eu.domibus.core.exception.ConfigurationException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -86,6 +88,19 @@ public class TLSCertificateManagerImplTest {
         new Verifications() {{
             certificateService.getStoreEntries(persistenceInfo);
         }};
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void getTrustStoreEntries_throwsExceptionForMissingTrustStore(@Injectable KeystorePersistenceInfo persistenceInfo) {
+        new Expectations(tlsCertificateManager) {{
+            tlsCertificateManager.getPersistenceInfo();
+            result = persistenceInfo;
+
+            certificateService.getStoreEntries(persistenceInfo);
+            result = new NoKeyStoreContentInformationException("");
+        }};
+
+        tlsCertificateManager.getTrustStoreEntries();
     }
 
     @Test

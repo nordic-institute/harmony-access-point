@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.NoKeyStoreContentInformationException;
 import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.cxf.TLSReaderService;
@@ -91,7 +92,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
                 errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
             }
             return certificateService.getStoreEntries(getPersistenceInfo());
-        } catch (ConfigurationException ex) {
+        } catch (ConfigurationException | NoKeyStoreContentInformationException ex) {
             throw new ConfigurationException(errorMessage, ex);
         }
     }
