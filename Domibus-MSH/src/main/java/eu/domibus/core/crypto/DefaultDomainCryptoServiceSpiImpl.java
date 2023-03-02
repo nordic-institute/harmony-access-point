@@ -397,6 +397,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
                     storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
             storePropertiesLoader.run();
             storeSetter.accept(newStore);
+            super.clearCache();
 
             signaller.accept(domain);
         } catch (CryptoException ex) {
