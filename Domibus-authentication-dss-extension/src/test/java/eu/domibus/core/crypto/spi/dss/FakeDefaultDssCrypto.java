@@ -154,4 +154,9 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
 
     }
 
+    @Override
+    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) {
+
+    }
+
 }
