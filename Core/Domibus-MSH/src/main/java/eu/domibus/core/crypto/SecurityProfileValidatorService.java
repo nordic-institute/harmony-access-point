@@ -38,72 +38,95 @@ public class SecurityProfileValidatorService {
     }
 
     /**
-     * Parses all the certificate alias configurations based on the domibus.properties security profile fields and validates that the certificate types
-     * defined in the KeyStore match these configurations
+     * Parses all the store(keystore/truststore) aliases and validates their certificate algorithms against the SecurityProfiles configurations
+     * defined in domibus.properties
      *
      * @param securityProfileAliasConfigurations the Security Profile configurations list for all the aliases defined in domibus.properties
-     * @param keyStore the domain's KeyStore
+     * @param store the domain's store(keystore/truststore)
      */
-    public void validateKeyStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore keyStore) {
-        securityProfileAliasConfigurations.forEach(
-                profileConfiguration -> validateCertificateType(profileConfiguration.getAlias(), profileConfiguration.getSecurityProfile(), keyStore, StoreType.KEYSTORE));
-
-        LOG.info("KeyStore certificate types are valid");
-    }
-
-    /**
-     * Parses all the TrustStore aliases and validates their certificate algorithms against the SecurityProfiles
-     *
-     * @param securityProfileAliasConfigurations the Security Profile configurations list for all the aliases defined in domibus.properties
-     * @param trustStore the domain's TrustStore
-     */
-    public void validateTrustStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore trustStore) {
+    public void validateStoreCertificateTypes(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations, KeyStore store, StoreType storeType) {
         List<String> aliasesList;
-        try {
-            aliasesList = Collections.list(trustStore.aliases());
-        } catch (KeyStoreException e) {
-            String exceptionMessage = String.format("[%s] exception: %s", StoreType.TRUSTSTORE, e.getMessage());
+        if (store == null) {
+            String exceptionMessage = String.format("[%s] is null", storeType);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
-        aliasesList.forEach(alias -> validateCertificateTypeForTrustStoreAlias(securityProfileAliasConfigurations, alias, trustStore));
+        try {
+            aliasesList = Collections.list(store.aliases());
+        } catch (KeyStoreException e) {
+            String exceptionMessage = String.format("Error while getting the aliases from the [%s]: %s", storeType, e.getMessage());
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
 
-        LOG.info("TrustStore certificate types are valid");
+        int totalNumberOfAliasesInitiallyInStore = aliasesList.size();
+        List<String> invalidCertificateAliases = new ArrayList<>();
+        aliasesList.forEach(alias -> {
+                if (!isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType)) {
+                    invalidCertificateAliases.add(alias);
+                }
+        });
+        invalidCertificateAliases.forEach(invalidAlias -> {
+            try {
+                store.deleteEntry(invalidAlias);
+            } catch (KeyStoreException e) {
+                LOG.warn("Error while removing invalid alias [{}] from [{}]", invalidAlias, storeType);
+            }
+        });
+        aliasesList.removeAll(invalidCertificateAliases);
+
+        String infoMessage;
+        if (aliasesList.size() == totalNumberOfAliasesInitiallyInStore) {
+            infoMessage = String.format("All [%s] certificate types are valid", storeType);
+        } else if (aliasesList.size() > 0) {
+            infoMessage = String.format("Not all [%s] certificate types are valid", storeType);
+        } else {
+            infoMessage = String.format("There are no valid [%s] certificate types", storeType);
+        }
+
+        LOG.info(infoMessage);
     }
 
-    private void validateCertificateTypeForTrustStoreAlias(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
-                                                           String alias, KeyStore trustStore) {
-        SecurityProfile securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
+    private boolean isCertificateTypeForStoreAliasValid(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
+                                                        String alias, KeyStore store, StoreType storeType) {
+        SecurityProfile securityProfileExtractedFromAlias;
+        try {
+            securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
+        } catch (CertificateException e) {
+            LOG.error("{}", e.getMessage());
+            return false;
+        }
         if (securityProfileExtractedFromAlias == null) {
             //Legacy alias
             try {
-                X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
-                validateLegacyAliasCertificateType(certificate.getPublicKey().getAlgorithm(), alias, StoreType.TRUSTSTORE);
-                return;
+                X509Certificate certificate = (X509Certificate) store.getCertificate(alias);
+                validateLegacyAliasCertificateType(certificate.getPublicKey().getAlgorithm(), alias, storeType);
+                return true;
             } catch (KeyStoreException e) {
-                String exceptionMessage = String.format("[%s] exception: %s", StoreType.TRUSTSTORE, e.getMessage());
-                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+                LOG.error("Error getting legacy alias [{}] from keystore with type [{}]: exception: {}", alias, storeType, e.getMessage());
+                return false;
             }
         }
 
         SecurityProfileAliasConfiguration securityProfileConfigurationCorrespondingToAlias =
-                getSecurityProfileConfigurationForTrustStoreAlias(securityProfileAliasConfigurations, alias);
-        validateCertificateType(alias, securityProfileConfigurationCorrespondingToAlias.getSecurityProfile(), trustStore, StoreType.TRUSTSTORE);
+                getSecurityProfileConfigurationForStoreAlias(securityProfileAliasConfigurations, alias, storeType);
+        validateCertificateType(alias, securityProfileConfigurationCorrespondingToAlias.getSecurityProfile(), store, storeType);
+        return true;
     }
 
     /**
      * Retrieves the SecurityProfileConfiguration corresponding to the SecurityProfile and certificate purpose extracted
-     * from the TrustStore alias
+     * from the store(keystore/truststore) alias
      *
      * @param securityProfileAliasConfigurations the entire security profile configurations defined in domibus.properties
-     * @param alias the alias for the TrustStore certificate
-     * @return the SecurityProfileAliasConfiguration that matches the SecurityProfile and certificate purpose of the TrustStore
+     * @param alias the alias for the store(keystore/truststore) certificate
+     * @param storeType the store type (keystore/truststore)
+     * @return the SecurityProfileAliasConfiguration that matches the SecurityProfile and certificate purpose of the store(keystore/truststore)
      *         certificate defined by the alias
      */
-    private SecurityProfileAliasConfiguration getSecurityProfileConfigurationForTrustStoreAlias(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
-                                                                                                String alias) {
+    private SecurityProfileAliasConfiguration getSecurityProfileConfigurationForStoreAlias(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
+                                                                                           String alias, StoreType storeType) {
         CertificatePurpose certificatePurpose = getCertificatePurposeFromAlias(alias);
         if (certificatePurpose == null) {
-            String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/encrypt)", StoreType.TRUSTSTORE, alias);
+            String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/encrypt)", storeType, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
@@ -115,7 +138,7 @@ public class SecurityProfileValidatorService {
                 .findFirst();
 
         if (!securityProfileConfigurationForAlias.isPresent()) {
-            String exceptionMessage = String.format("[%s] alias [%s] does not correspond to any security profile configuration", StoreType.TRUSTSTORE, alias);
+            String exceptionMessage = String.format("[%s] alias [%s] does not correspond to any security profile configuration", storeType, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
