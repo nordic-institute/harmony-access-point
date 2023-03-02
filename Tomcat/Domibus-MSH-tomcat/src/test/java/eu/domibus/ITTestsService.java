@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.soap.SOAPMessage;
 import java.util.HashSet;
 import java.util.List;
 
@@ -119,7 +120,8 @@ public class ITTestsService {
     @Transactional
     public void receiveMessage(String messageId) throws Exception {
         String filename = "SOAPMessage2.xml";
-        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage(filename, messageId));
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        mshWebserviceTest.invoke(soapMessage);
     }
 
 

@@ -1,6 +1,7 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.ITTestsService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
@@ -8,9 +9,13 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.BackendConnectorMock;
 import org.junit.*;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,18 +48,31 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
 
     private final static String NUMBER_FORMAT_DEFAULT = "%010d";
+    public static final String WS_PLUGIN = "wsPlugin";
 
     @Autowired
-    UserMessageLogDao userMessageLogDao;
+    private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    UserMessageDao userMessageDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
-    DateUtil dateUtil;
+    private DateUtil dateUtil;
 
     @Autowired
-    MessageDaoTestUtil messageDaoTestUtil;
+    private MessageDaoTestUtil messageDaoTestUtil;
+
+    @Autowired
+    private ITTestsService itTestsService;
+
+    @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+
+
+    @Test
+    public void test() throws Exception {
+
+    }
 
     private Date before;
     private Date timeT;
@@ -80,16 +98,35 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Before
     @Transactional
-    public void setup() {
+    public void setup() throws Exception {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        msg1 = messageDaoTestUtil.createUserMessageLog("msg1-" + UUID.randomUUID(), timeT);
-        msg1Fragment = messageDaoTestUtil.createUserMessageLogFragment("msg1-" + UUID.randomUUID(), timeT);
-        msg2 = messageDaoTestUtil.createUserMessageLog("msg2-" + randomUUID(), timeT);
-        msg3 = messageDaoTestUtil.createUserMessageLog("msg3-" + UUID.randomUUID(), old);
+        uploadPmode();
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock(WS_PLUGIN));
+        String messageOneId = "msg1-" + randomUUID();
+        String messageTwoId = "msg2-" + randomUUID();
+        String messageThreeId = "msg3-" + randomUUID();
+        String messageFourId = "msg4-" + randomUUID();
+        itTestsService.receiveMessage(messageOneId);
+        msg1 = userMessageLogDao.findByMessageId(messageOneId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg1, timeT);
+
+        itTestsService.receiveMessage(messageTwoId);
+        msg2 = userMessageLogDao.findByMessageId(messageTwoId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg2, timeT);
+
+        itTestsService.receiveMessage(messageThreeId);
+        msg3 = userMessageLogDao.findByMessageId(messageThreeId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg3, old);
+
+        itTestsService.receiveMessage(messageFourId);
+        msg1Fragment = userMessageLogDao.findByMessageId(messageFourId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg1Fragment, timeT);
+        msg1Fragment.getUserMessage().setMessageFragment(true);
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
@@ -601,7 +638,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Transactional
     public void findBackendForMessageId() {
         String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId(), msg1.getUserMessage().getMshRole().getRole());
-        assertNull(backendForMessageId);
+        assertEquals(WS_PLUGIN, backendForMessageId);
     }
 
     @Test
