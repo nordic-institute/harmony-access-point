@@ -158,6 +158,11 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     }
 
     @Override
+    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) {
+        defaultDomainCryptoService.replaceKeyStore(storeContent, storeFileName, storePassword);
+    }
+
+    @Override
     public void replaceKeyStore(String storeFileLocation, String storePassword) {
         defaultDomainCryptoService.replaceKeyStore(storeFileLocation, storePassword);
     }
@@ -171,4 +176,10 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     public void resetTrustStore() {
         defaultDomainCryptoService.resetTrustStore();
     }
+
+    @Override
+    public void resetSecurityProfiles() {
+        defaultDomainCryptoService.resetSecurityProfiles();
+    }
+
 }
