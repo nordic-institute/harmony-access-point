@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi;
 
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -45,7 +46,17 @@ public interface DomainCryptoServiceSpi {
 
     void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
 
-    void replaceTrustStore(String storeLocation, String storePassword);
+    default void replaceTrustStore(KeyStoreContentInfoDTO keyStoreContentInfoDTO) {
+        replaceTrustStore(keyStoreContentInfoDTO.getContent(), keyStoreContentInfoDTO.getFileName(), keyStoreContentInfoDTO.getPassword());
+    }
+
+    /**
+     * Loads the KeyStore specified by the location and password
+     *
+     * @param storeFileLocation
+     * @param storePassword
+     */
+    void replaceTrustStore(String storeFileLocation, String storePassword);
 
     KeyStore getKeyStore();
 
@@ -71,6 +82,18 @@ public interface DomainCryptoServiceSpi {
     
     void init();
 
+    void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword);
+
+    default void replaceKeyStore(KeyStoreContentInfoDTO storeContentInfoSpi) {
+        replaceKeyStore(storeContentInfoSpi.getContent(), storeContentInfoSpi.getFileName(), storeContentInfoSpi.getPassword());
+    }
+
+    /**
+     * Loads the KeyStore specified by the location and password
+     *
+     * @param storeFileLocation
+     * @param storePassword
+     */
     void replaceKeyStore(String storeFileLocation, String storePassword);
 
     void refreshKeyStore();
@@ -78,4 +101,12 @@ public interface DomainCryptoServiceSpi {
     void resetKeyStore();
 
     void resetTrustStore();
+
+    default boolean isTrustStoreChanged() {
+        return false;
+    }
+
+    default boolean isKeyStoreChanged() {
+        return false;
+    }
 }

@@ -39,6 +39,6 @@ public class ReloadTruststoreCommandTask implements CommandTask {
         LOGGER.debug("Reloading truststore command");
 
         Domain currentDomain = domainContextProvider.getCurrentDomain();
-        multiDomainCryptoService.refreshTrustStore(currentDomain);
+        multiDomainCryptoService.resetTrustStore(currentDomain);
     }
 }

@@ -1,9 +1,9 @@
 package eu.domibus.core.crypto.api;
 
-import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.security.TrustStoreEntry;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -45,11 +45,7 @@ public interface DomainCryptoService {
 
     String getPrivateKeyPassword(String alias);
 
-    void refreshTrustStore();
-
-    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
-
-    void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException;
+    void replaceTrustStore(KeyStoreContentInfo storeInfo);
 
     KeyStore getKeyStore();
 
@@ -69,17 +65,23 @@ public interface DomainCryptoService {
 
     void removeCertificate(List<String> aliases);
 
-    String getTrustStoreType();
+    List<TrustStoreEntry> getKeyStoreEntries();
 
-    TrustStoreContentDTO getTruststoreContent();
+    KeyStoreContentInfo getKeyStoreContent();
 
-    void replaceKeyStore(String storeFileLocation, String storePassword);
+    List<TrustStoreEntry> getTrustStoreEntries();
 
-    void refreshKeyStore();
+    KeyStoreContentInfo getTrustStoreContent();
+
+    void replaceKeyStore(KeyStoreContentInfo storeInfo);
 
     void resetKeyStore();
 
     void resetTrustStore();
 
-    void reset();
+    void resetStores();
+
+    boolean isTrustStoreChangedOnDisk();
+
+    boolean isKeyStoreChangedOnDisk();
 }

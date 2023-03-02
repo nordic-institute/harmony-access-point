@@ -29,9 +29,8 @@ export class TrustStoreService {
    * Local persister for the jks file
    * @param data
    */
-  saveTrustStoreFile(data: any) {
+  saveTrustStoreFile(data: any, filename: string = 'TrustStore.jks') {
     const blob = new Blob([data], {type: 'application/octet-stream'});
-    let filename = 'TrustStore.jks';
     FileSaver.saveAs(blob, filename, false);
   }
 
@@ -40,7 +39,7 @@ export class TrustStoreService {
     return this.http.delete<string>(deleteUrl).toPromise();
   }
 
-  reloadKeyStore() {
-    return this.http.post<any>('rest/keystore/resets', null).toPromise();
+  reloadStore(url = 'rest/truststore/reset') {
+    return this.http.post<any>(url, null).toPromise();
   }
 }

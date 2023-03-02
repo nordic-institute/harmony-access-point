@@ -38,10 +38,10 @@
       </button>
     </span>
 
-    <button *ngIf="showResetOperation" mat-raised-button color="primary" (click)="reloadKeyStore()" [disabled]="isBusy()"
-            id="reloadKeyStorebutton_id" button-click-behaviour style="float: right;">
+    <button *ngIf="showResetOperation" mat-raised-button color="primary" (click)="reloadStore()" [disabled]="isBusy()"
+            id="reloadStorebutton_id" button-click-behaviour style="float: right;">
       <mat-icon>refresh</mat-icon>
-      <span>Reload KeyStore</span>
+      <span>Reload {{name}}</span>
     </button>
   </div>
 

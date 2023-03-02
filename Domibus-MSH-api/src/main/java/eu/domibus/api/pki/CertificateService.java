@@ -1,7 +1,6 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -12,8 +11,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * @author Cosmin Baciu
@@ -55,7 +52,7 @@ public interface CertificateService {
      * @return a certificate
      * @throws CertificateException if the base64 string cannot be deserialized to a certificate
      */
-    X509Certificate loadCertificateFromString(String content);
+    X509Certificate loadCertificate(String content);
 
 
     /**
@@ -65,7 +62,7 @@ public interface CertificateService {
      * @return a certificate
      * @throws CertificateException if the cannot be deserialized to a certificate
      */
-    X509Certificate loadCertificateFromByteArray(byte[] content);
+    X509Certificate loadCertificate(byte[] content);
 
     /**
      * Returns the certificate entry from the trust store given a certificate and an alias
@@ -89,7 +86,7 @@ public interface CertificateService {
     /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
-     * @param chain the pem formatted string.
+     * @param chain    the pem formatted string.
      * @param provider
      * @return the list of certificates.
      */
@@ -99,7 +96,7 @@ public interface CertificateService {
      * Reloads the certificates with the specified provider
      *
      * @param certificates the array of certificates.
-     * @param provider the provider string (e.g. Bouncy Castle)
+     * @param provider     the provider string (e.g. Bouncy Castle)
      * @return the array of certificates loaded with the given provider
      */
     X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);
@@ -124,105 +121,73 @@ public interface CertificateService {
     /**
      * Replaces the truststore pointed by the name with the one provided by location/password parameters
      *
-     * @param fileLocation the file location representing the trust
-     * @param filePassword the password of the trust
-     * @param trustName    the name of the trust in hte DB
+     * @param persistenceInfo the info with file location, type and password
      * @throws CryptoException
      */
-    void replaceStore(String fileLocation, String filePassword, String trustName);
+    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
 
     /**
-     * Replaces the truststore pointed by the name with the one provided by content/password parameters
-     *
-     * @param fileName     the file name representing the trust
-     * @param fileContent  the trust content
-     * @param filePassword the password of the trust
-     * @param trustName    the name of the trust in hte DB
-     * @throws CryptoException
-     */
-    Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
-
-     /**
      * Returns the truststore pointed by the location/password parameters
      *
-     * @param trustName the location of the trust on disc
+     * @param info the location of the trust on disc
      * @return the truststore object
      */
-    KeyStore getTrustStore(String trustName);
+    KeyStore getStore(KeystorePersistenceInfo info);
 
     /**
-     * Returns the truststore pointed by the location/password parameters as a list of certificate entries
+     * Returns the store as a list of certificate entries
      *
-     * @param trustName the name of the trust in DB
-     * @return the list of cewrtificates and their names
+     * @param store the store
+     * @return the list of certificates and their names
      */
-    List<TrustStoreEntry> getTrustStoreEntries(String trustName);
+    List<TrustStoreEntry> getStoreEntries(KeyStore store);
 
-    TruststoreInfo getTruststoreInfo(String trustName);
+    List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param trustName          the location of the trust on disc
-     * @param certificateContent the content of the certificate
-     * @param alias              the name of the certificate
-     * @param overwrite          if overwrite an existing certificate
-     *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param certificateContent      the content of the certificate
+     * @param alias                   the name of the certificate
+     * @param overwrite               if overwrite an existing certificate
+     * @return the id of the store with {@param trustName}
      */
-    Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(KeystorePersistenceInfo keystorePersistenceInfo, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
      *
-     * @param trustName    the location of the trust on disc
-     * @param certificates the list of certificate entries( name and value)
-     * @param overwrite    if overwrite an existing certificate
-     *
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param certificates            the list of certificate entries( name and value)
+     * @param overwrite               if overwrite an existing certificate
      * @return true if at least one was added
      */
-    boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite);
+    boolean addCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
-     * @param alias     the certificate name
-     *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param alias                   the certificate name
+     * @return the id of the store with {@param trustName}.
      */
-    Long removeCertificate(String trustName, String alias);
+    boolean removeCertificate(KeystorePersistenceInfo keystorePersistenceInfo, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
-     * @param aliases   the list of certificate names
-     *
-     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
+     * @param keystorePersistenceInfo the location of the trust on disc
+     * @param aliases                 the list of certificate names
+     * @return the id of the store with {@param trustName}.
      */
-    Long removeCertificates(String trustName, List<String> aliases);
+    boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
 
-    /**
-     * Retrieves the content of the specified truststore
-     * @param trustName the name of the trust in the db
-     *
-     * @return the content and the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
-     */
-    TrustStoreContentDTO getTruststoreContent(String trustName);
+    KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 
-    /**
-     * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time
-     *
-     * @param name the name of the truststore(can be domibus truststore and keystore and TLS trsustore)
-     * @param optional permits the location to be null without raising any exception
-     * @param filePathSupplier a supplier method that returns the file path on disc of the trust
-     * @param typeSupplier a supplier method that returns the type of the trust
-     * @param passwordSupplier a supplier method that returns the password of the trust
-     * @param domains in MT env it specifies for which domain to persist
-     */
-    void persistTruststoresIfApplicable(final String name, boolean optional,
-                                        Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    KeyStoreContentInfo getStoreContent(KeyStore store, String storeName, String password);
+
+    void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
 
     /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
@@ -233,5 +198,14 @@ public interface CertificateService {
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 
-    void removeTruststore(String domibusTruststoreName, Domain domain);
+    /**
+     * Checks if the store on disk is different that the one on used currently
+     *
+     * @param store           the truststore or keystore
+     * @param persistenceInfo the store parameters on th disk
+     * @return true if they are different
+     */
+    boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
+
+    KeyStore getNewKeystore(String storeType) throws KeyStoreException;
 }

@@ -23,6 +23,8 @@ import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 import {ComponentType} from 'angular-md2';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
 
 @Component({
   selector: 'app-base-truststore',
@@ -30,7 +32,7 @@ import {ComponentType} from 'angular-md2';
   styleUrls: ['./base-truststore.component.css'],
   providers: [TrustStoreService]
 })
-@ComponentName('TrustStore')
+@ComponentName('Key Store')
 export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
@@ -42,15 +44,16 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected ADD_CERTIFICATE_URL: string;
   protected REMOVE_CERTIFICATE_URL: string;
 
-  protected canHandleCertificates: boolean;
+  protected canHandleCertificates = false;
   protected storeExists: boolean;
   showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationContextService, private http: HttpClient, protected trustStoreService: TrustStoreService,
+  constructor(private applicationService: ApplicationContextService, protected http: HttpClient, protected trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef,
-              private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService) {
+              private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService,
+              private dialogsService: DialogsService) {
     super();
   }
 
@@ -136,11 +139,13 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     super.isLoading = true;
     this.http.get(this.DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
-        this.trustStoreService.saveTrustStoreFile(res.body);
+        const contentDisposition = res.headers.get('content-disposition');
+        const fileName = contentDisposition.split('filename=')[1];
+        this.trustStoreService.saveTrustStoreFile(res.body, fileName);
         super.isLoading = false;
       }, err => {
         super.isLoading = false;
-        this.alertService.exception('Error downloading TrustStore:', err);
+        this.alertService.exception('Error downloading store:', err);
       });
   }
 
@@ -171,6 +176,36 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     return this.canHandleCertificates;
   }
 
+  canAddCertificate() {
+    return this.storeExists && !this.isBusy();
+  }
+
+  canRemoveCertificate() {
+    return this.selected.length == 1 && !this.isBusy();
+  }
+
+  async addCertificate() {
+    const comp: ComponentType<unknown> = CertificateUploadComponent;
+    this.uploadFile(comp, this.ADD_CERTIFICATE_URL);
+  }
+
+  async removeCertificate() {
+    const cert = this.selected[0];
+    if (!cert) {
+      return;
+    }
+    try {
+      super.isLoading = true;
+      let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
+      this.alertService.success(res);
+    } catch (err) {
+      this.alertService.exception(`Error removing the certificate [${cert.name}] from truststore.`, err);
+    } finally {
+      super.isLoading = false;
+      this.loadServerData();
+    }
+  }
+
   protected async uploadFile(comp: ComponentType<unknown>, url: string) {
     let params = await this.dialog.open(comp).afterClosed().toPromise();
     if (params != null) {
@@ -183,13 +218,36 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
 
         await this.getTrustStoreEntries();
       } catch (err) {
-        this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
+        this.alertService.exception(`Error updating store file [${params.file.name}]`, err);
       } finally {
         super.isLoading = false;
       }
     }
   }
 
-  reloadKeyStore() {
+  async reloadStore() {
+    try {
+      super.isLoading = true;
+      await this.trustStoreService.reloadStore(this.BASE_URL + '/reset');
+      this.alertService.success('The [' + this.name + '] was successfully reset.')
+
+      await this.getTrustStoreEntries();
+    } catch (ex) {
+      this.alertService.exception('Error resetting the [' + this.name + ']:', ex);
+    } finally {
+      super.isLoading = false;
+    }
   }
+
+  protected async checkModifiedOnDisk() {
+    const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
+    if (isChanged) {
+      const refresh = await this.dialogsService
+        .openYesNoDialog('The store file on the disk has different content than the one loaded and used in Domibus. Would you like to refresh?');
+      if (refresh) {
+        this.reloadStore();
+      }
+    }
+  }
+
 }

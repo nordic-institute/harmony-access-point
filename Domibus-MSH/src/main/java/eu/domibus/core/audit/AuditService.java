@@ -113,25 +113,11 @@ public interface AuditService {
             String fromQueue, String toQueue, String domainCode);
 
     /**
-     * Add truststore downloaded
+     * Add keystore downloaded
      *
-     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     * @param name    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      */
-    void addTruststoreDownloadedAudit(String id);
-
-    /**
-     * Add TLS truststore downloaded
-     *
-     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
-     */
-    void addTLSTruststoreDownloadedAudit(String id);
-
-    /**
-     * Add TLS Truststore uploaded
-     *
-     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
-     **/
-    void addTLSTruststoreUploadedAudit(String id);
+    void addKeystoreDownloadedAudit(String name);
 
     /**
      * Add Certificate added to TLS
@@ -154,5 +140,7 @@ public interface AuditService {
      * @param modificationType the modification type: either user or signal MessageEnvelopeDownload
      */
     void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType);
+
+    void addStoreReplacedAudit(String name);
 }
 

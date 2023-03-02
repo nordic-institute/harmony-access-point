@@ -1,13 +1,17 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeyStoreContentInfo;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -57,8 +61,20 @@ public class TruststoreResourceBaseTest {
     @Injectable
     private AuditService auditService;
 
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    CertificateHelper certificateHelper;
+
+    @Injectable
+    KeystorePersistenceService keystorePersistenceService;
+
     @Test
-    public void replaceTruststoreOK() {
+    public void replaceTruststoreOK(@Injectable KeyStoreContentInfo storeInfo) {
         byte[] content = {1, 0, 1};
         String filename = "filename";
         String pass = "pass";
@@ -67,13 +83,13 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = content;
-            truststoreResourceBase.doReplaceTrustStore(content, anyString, pass);
+            truststoreResourceBase.doUploadStore(storeInfo);
         }};
 
-        truststoreResourceBase.replaceTruststore(multiPartFile, pass);
+        truststoreResourceBase.uploadStore(multiPartFile, pass);
 
         new Verifications() {{
-            truststoreResourceBase.doReplaceTrustStore(content, filename, pass);
+            truststoreResourceBase.doUploadStore(storeInfo);
         }};
     }
 
@@ -87,7 +103,7 @@ public class TruststoreResourceBaseTest {
         }};
 
         try {
-            truststoreResourceBase.replaceTruststore(emptyFile, "pass");
+            truststoreResourceBase.uploadStore(emptyFile, "pass");
             Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue(ex.getMessage().contains("Failed to upload the truststore file since it was empty."));
@@ -95,18 +111,18 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test(expected = CryptoException.class)
-    public void testUploadTruststoreException() {
+    public void testUploadTruststoreException(@Injectable KeyStoreContentInfo storeInfo) {
         MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
         new Expectations() {{
             multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = new byte[]{1, 0, 1};
 
-            truststoreResourceBase.doReplaceTrustStore((byte[]) any, anyString, anyString);
+            truststoreResourceBase.doUploadStore(storeInfo);
             result = new CryptoException("Password is incorrect");
         }};
 
-        truststoreResourceBase.replaceTruststore(multiPartFile, "pass");
+        truststoreResourceBase.uploadStore(multiPartFile, "pass");
     }
 
     @Test
@@ -117,7 +133,7 @@ public class TruststoreResourceBaseTest {
         trustStoreEntryList.add(trustStoreEntry);
 
         new Expectations(truststoreResourceBase) {{
-            truststoreResourceBase.doGetTrustStoreEntries();
+            truststoreResourceBase.doGetStoreEntries();
             result = trustStoreEntryList;
             partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntryList);
             result = getTestTrustStoreROList(date);
@@ -164,11 +180,11 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile)  {
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) {
         final String emptyPassword = "";
 
         try {
-            truststoreResourceBase.replaceTruststore(multipartFile, emptyPassword);
+            truststoreResourceBase.uploadStore(multipartFile, emptyPassword);
             Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contains(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
@@ -176,12 +192,19 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    public void testDownload() {
+    public void testDownload(@Injectable KeyStoreContentInfo contentInfo, @Injectable String storeName) {
 
         final byte[] fileContent = new byte[]{1, 0, 1};
+        String fileName = "fileName";
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.getTrustStoreContent();
-            result = new TrustStoreContentDTO(1L, fileContent);
+            result = contentInfo;
+            contentInfo.getContent();
+            result = fileContent;
+            truststoreResourceBase.getStoreName();
+            result = storeName;
+            truststoreResourceBase.getFileName((KeyStoreContentInfo) any);
+            result = fileName;
         }};
 
         // When
@@ -191,7 +214,36 @@ public class TruststoreResourceBaseTest {
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
-            truststoreResourceBase.auditDownload(1L);
+            auditService.addKeystoreDownloadedAudit(storeName);
+        }};
+
+    }
+
+    @Test
+    public void testDownload_MultiTenancy(@Injectable KeyStoreContentInfo contentInfo, @Injectable String storeName) {
+
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        String fileName = "fileName";
+        new Expectations(truststoreResourceBase) {{
+            truststoreResourceBase.getTrustStoreContent();
+            result = contentInfo;
+
+            contentInfo.getContent();
+            result = fileContent;
+
+            truststoreResourceBase.getStoreName();
+            result = storeName;
+
+            truststoreResourceBase.getFileName((KeyStoreContentInfo) any);
+            result = fileName;
+        }};
+
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
+
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+        Assert.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains(fileName));
+        new Verifications() {{
+            auditService.addKeystoreDownloadedAudit(storeName);
         }};
 
     }
@@ -201,7 +253,7 @@ public class TruststoreResourceBaseTest {
                                      @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries, @Mocked List<TrustStoreRO> entries) {
 
         new Expectations(truststoreResourceBase) {{
-            truststoreResourceBase.doGetTrustStoreEntries();
+            truststoreResourceBase.doGetStoreEntries();
             result = trustStoreEntries;
             partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
             result = entries;
@@ -239,7 +291,7 @@ public class TruststoreResourceBaseTest {
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
-        Assert.assertEquals("attachment; filename=TrustStore.jks", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assert.assertTrue(responseEntity.getHeaders().get("content-disposition").get(0).contains("attachment; filename="));
         Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 }

@@ -214,22 +214,9 @@ public class AuditServiceImpl implements AuditService {
         handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param id
-     */
     @Override
-    public void addTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-
-    @Override
-    public void addTLSTruststoreDownloadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-    @Override
-    public void addTLSTruststoreUploadedAudit(String id) {
-        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
+    public void addKeystoreDownloadedAudit(String name) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(name, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
     @Override
@@ -246,6 +233,12 @@ public class AuditServiceImpl implements AuditService {
     @Transactional
     public void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType) {
         auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
+    }
+
+    @Override
+    public void addStoreReplacedAudit(String storeName) {
+        String id = storeName;
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
     }
 
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {

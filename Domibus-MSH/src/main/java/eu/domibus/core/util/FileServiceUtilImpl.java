@@ -9,6 +9,12 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * @since 4.1.4
  * @author Catalin Enache
@@ -46,5 +52,15 @@ public class FileServiceUtilImpl implements FileServiceUtil {
             LOG.warn("Mimetype [{}] not found", mime);
             return "";
         }
+    }
+
+    @Override
+    public byte[] getContentFromFile(String location) throws IOException {
+        File file = new File(location);
+        if (!file.exists()) {
+            throw new IOException(String.format("File with the path [%s] does not exist", location));
+        }
+        Path path = Paths.get(file.getAbsolutePath());
+        return Files.readAllBytes(path);
     }
 }

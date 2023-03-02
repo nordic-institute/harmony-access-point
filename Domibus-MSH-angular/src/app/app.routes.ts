@@ -28,6 +28,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {DomainsComponent} from './domains/domains.component';
+import {KeystoreComponent} from './truststore/keystore.component';
 
 export const appRoutes: Routes = [
   {
@@ -102,6 +103,16 @@ export const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Truststore'
+    },
+    runGuardsAndResolvers: 'always'
+  },
+  {
+    path: 'keystore',
+    component: KeystoreComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.ADMIN_ROLES,
+      helpPage: 'Keystore'
     },
     runGuardsAndResolvers: 'always'
   },
