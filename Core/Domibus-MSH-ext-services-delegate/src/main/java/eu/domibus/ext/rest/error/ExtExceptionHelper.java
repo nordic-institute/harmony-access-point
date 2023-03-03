@@ -100,7 +100,11 @@ public class ExtExceptionHelper {
 
     protected ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
         String errorMessage = getErrorMessage(ex, showErrorDetails);
-        LOG.error(errorMessage, ex);
+        if(status == HttpStatus.OK){
+            LOG.info(errorMessage, ex);
+        } else {
+            LOG.error(errorMessage, ex);
+        }
 
         HttpHeaders headers = new HttpHeaders();
         ErrorDTO body = new ErrorDTO(errorMessage);
