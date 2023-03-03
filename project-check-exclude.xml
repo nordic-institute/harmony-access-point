@@ -339,4 +339,74 @@
         <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
     </suppress>
 
+
+    /* Only used in Domibus MSH Test */
+
+    <suppress>
+        <notes><![CDATA[
+   file name: json-path-2.4.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+
+    /* Not vulnerable according to maven */
+    <suppress>
+        <notes><![CDATA[
+   file name: jakarta.activation-api-2.1.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
+
+    /* Not vulnerable according to maven */
+    <suppress>
+        <notes><![CDATA[
+   file name: metrics-json-4.2.17.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+
+    /* Not vulnerable according to maven */
+    <suppress>
+        <notes><![CDATA[
+   file name: stax2-api-4.2.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:woodstox</cpe>
+    </suppress>
+
+
+    <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-5.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus\-default\-ws\-plugin\-stub\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils-apache-commons:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils\-apache\-commons@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <!-- End CVE-2021-4277 -->
+
 </suppressions>
