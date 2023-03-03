@@ -340,7 +340,7 @@
     </suppress>
 
 
-    /* Only used in Domibus MSH Test */
+    <!--  Only used in Domibus MSH Test -->
 
     <suppress>
         <notes><![CDATA[
@@ -359,7 +359,7 @@
         <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
     </suppress>
 
-    /* Not vulnerable according to maven */
+    <!--  Not vulnerable according to maven -->
     <suppress>
         <notes><![CDATA[
    file name: metrics-json-4.2.17.jar
@@ -368,7 +368,7 @@
         <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
 
-    /* Not vulnerable according to maven */
+    <!--  Not vulnerable according to maven -->
     <suppress>
         <notes><![CDATA[
    file name: stax2-api-4.2.1.jar
