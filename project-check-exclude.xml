@@ -350,16 +350,16 @@
         <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
 
-    /* Not vulnerable according to maven */
-    <suppress>
-        <notes><![CDATA[
-   file name: jakarta.activation-api-2.1.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
-        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-    </suppress>
+    <!-- Not vulnerable according to maven -->
+   <suppress>
+       <notes><![CDATA[
+  file name: jakarta.activation-api-2.1.1.jar
+  ]]></notes>
+       <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
+       <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+   </suppress>
 
-    <!--  Not vulnerable according to maven -->
+   <!--  Not vulnerable according to maven -->
     <suppress>
         <notes><![CDATA[
    file name: metrics-json-4.2.17.jar
@@ -376,7 +376,6 @@
         <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
         <cpe>cpe:/a:fasterxml:woodstox</cpe>
     </suppress>
-
 
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
     <suppress>
