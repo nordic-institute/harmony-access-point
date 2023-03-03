@@ -49,6 +49,10 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
             } else if (signalMessage.getReceipt() != null) {
                 final String contentsOfReceipt = signalMessage.getReceipt().getAny().get(0);
                 if (StringUtils.contains(contentsOfReceipt, "UserMessage")) {
+                    if (StringUtils.contains(contentsOfReceipt, "mpcPull")) {
+                        LOG.trace("Using incomingMessagePullReceiptHandler");
+                        return incomingMessagePullReceiptHandler;
+                    }
                     LOG.trace("Using incomingUserMessageReceiptHandler");
                     return incomingUserMessageReceiptHandler;
                 } else {
