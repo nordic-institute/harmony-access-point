@@ -75,7 +75,7 @@ public class ErrorHandlerService {
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex, HttpStatus status) {
         if (status == HttpStatus.OK) {
-            LOG.info(ex.getMessage(), ex);
+            LOG.info(ex.getMessage());
         } else {
             LOG.error(ex.getMessage(), ex);
         }
