@@ -377,6 +377,24 @@
         <cpe>cpe:/a:fasterxml:woodstox</cpe>
     </suppress>
 
+    <!--  Not vulnerable according to maven -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-core-2.14.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
+    <!--  Not vulnerable according to maven -->
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-gcp:2.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-gcp@.*$</packageUrl>
+        <cpe>cpe:/a:hazelcast:hazelcast</cpe>
+    </suppress>
+
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
     <suppress>
         <notes><![CDATA[
