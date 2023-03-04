@@ -341,7 +341,6 @@
 
 
     <!--  Only used in Domibus MSH Test -->
-
     <suppress>
         <notes><![CDATA[
    file name: json-path-2.4.0.jar
@@ -350,6 +349,14 @@
         <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
 
+    <!--  Only used in Domibus MSH Test -->
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.el-3.0.1-b12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/javax\.el@.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-28170</vulnerabilityName>
+    </suppress>
     <!-- Not vulnerable according to maven -->
    <suppress>
        <notes><![CDATA[
@@ -389,9 +396,9 @@
     <!--  Not vulnerable according to maven -->
     <suppress>
         <notes><![CDATA[
-   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-gcp:2.1)
+   file name: hazelcast-all-4.2.7.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-gcp@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-.*@.*$</packageUrl>
         <cpe>cpe:/a:hazelcast:hazelcast</cpe>
     </suppress>
 
