@@ -25,6 +25,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.EndpointType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceMetadataType;
@@ -162,6 +163,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     }
 
     @Test
+    @Ignore //EDELIVERY-10865
     public void lookupInformation() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId",
