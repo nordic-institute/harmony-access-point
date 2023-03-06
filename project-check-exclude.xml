@@ -16,6 +16,7 @@
         </notes>
         <gav regex="true">^eu\.domibus:domibus-msh-test:.*$</gav>
         <cpe>cpe:/a:test:test</cpe>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
 
     <suppress>
@@ -363,7 +364,8 @@
    file name: metrics-json-4.2.17.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
-        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
     </suppress>
 
     <suppress>
@@ -371,6 +373,7 @@
    file name: stax2-api-4.2.1.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
+        <!-- Domibus does not Woodstox to parse XML data -->
         <cpe>cpe:/a:fasterxml:woodstox</cpe>
     </suppress>
 
@@ -394,6 +397,15 @@
         <cve>CVE-2016-10750</cve>
         <!-- The LDAP authentication method in LdapLoginModule is not used by Domibus -->
         <cve>CVE-2020-26168</cve>
+    </suppress>
+
+    <!-- Use in test -->
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.el-3.0.1-b12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/javax\.el@.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-28170</vulnerabilityName>
     </suppress>
 
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
