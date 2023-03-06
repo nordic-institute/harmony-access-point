@@ -8,6 +8,7 @@ import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.usermessage.UserMessageDownloadEvent;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.configuration.Identifier;
@@ -25,7 +26,6 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
@@ -41,7 +41,6 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
-import eu.domibus.api.usermessage.UserMessageDownloadEvent;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
@@ -514,11 +513,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.debug("Submission processing type is empty,  checking processing type from PMODE");
         ProcessingType processingType;
         try {
-            processingType = ProcessingType.PULL;
+            processingType = ProcessingType.PUSH;
             setSubmissionProcessingType(submission, userMessage, processingType);
         } catch (EbMS3Exception e) {
             try {
-                processingType = ProcessingType.PUSH;
+                processingType = ProcessingType.PULL;
                 setSubmissionProcessingType(submission, userMessage, processingType);
             } catch (EbMS3Exception ex) {
                 LOG.error("No processing type found from PMODE for the Submission", ex);
