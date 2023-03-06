@@ -74,11 +74,7 @@ public class ErrorHandlerService {
     }
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex, HttpStatus status) {
-        if (status == HttpStatus.OK) {
-            LOG.info(ex.getMessage());
-        } else {
-            LOG.error(ex.getMessage(), ex);
-        }
+        logException(ex, status);
 
         //unwrap the domain task exception for the root error
         if (ex instanceof DomainTaskException) {
@@ -87,6 +83,14 @@ public class ErrorHandlerService {
         }
 
         return createResponseEntity(ex.getMessage(), status);
+    }
+
+    private void logException(Throwable ex, HttpStatus status) {
+        if (status == HttpStatus.OK) {
+            LOG.info(ex.getMessage());
+            return;
+        }
+        LOG.error(ex.getMessage(), ex);
     }
 
     public ResponseEntity<ErrorRO> createResponse(String message, HttpStatus status) {

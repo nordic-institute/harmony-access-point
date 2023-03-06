@@ -100,15 +100,19 @@ public class ExtExceptionHelper {
 
     protected ResponseEntity<ErrorDTO> createResponse(Throwable ex, HttpStatus status, boolean showErrorDetails) {
         String errorMessage = getErrorMessage(ex, showErrorDetails);
-        if (status == HttpStatus.OK) {
-            LOG.info(errorMessage);
-        } else {
-            LOG.error(errorMessage, ex);
-        }
+        logException(ex, status, errorMessage);
 
         HttpHeaders headers = new HttpHeaders();
         ErrorDTO body = new ErrorDTO(errorMessage);
         return new ResponseEntity<>(body, headers, status);
+    }
+
+    private void logException(Throwable ex, HttpStatus status, String errorMessage) {
+        if (status == HttpStatus.OK) {
+            LOG.info(errorMessage);
+            return;
+        }
+        LOG.error(errorMessage, ex);
     }
 
     private String getErrorMessage(Throwable ex, boolean showErrorDetails) {
