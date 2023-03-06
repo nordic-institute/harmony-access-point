@@ -155,8 +155,17 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/net\.minidev/json\-.*@.*$</packageUrl>
         <cve>CVE-2021-27568</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: json-path-2.4.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
     </suppress>
+
     <suppress>
         <notes><![CDATA[
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
