@@ -155,6 +155,8 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/net\.minidev/json\-.*@.*$</packageUrl>
         <cve>CVE-2021-27568</cve>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
     </suppress>
 
     <suppress>
