@@ -111,22 +111,13 @@ public class UserMessageLogDaoIT extends AbstractIT {
         String messageTwoId = "msg2-" + randomUUID();
         String messageThreeId = "msg3-" + randomUUID();
         String messageFourId = "msg4-" + randomUUID();
-        itTestsService.receiveMessage(messageOneId);
-        msg1 = userMessageLogDao.findByMessageId(messageOneId);
-        MessageDaoTestUtil.setUserMessageLogDates(msg1, timeT);
+        msg1 = receiveMessage(messageOneId, timeT, false);
 
-        itTestsService.receiveMessage(messageTwoId);
-        msg2 = userMessageLogDao.findByMessageId(messageTwoId);
-        MessageDaoTestUtil.setUserMessageLogDates(msg2, timeT);
+        msg2 = receiveMessage(messageTwoId , timeT, false);
 
-        itTestsService.receiveMessage(messageThreeId);
-        msg3 = userMessageLogDao.findByMessageId(messageThreeId);
-        MessageDaoTestUtil.setUserMessageLogDates(msg3, old);
+        msg3 = receiveMessage(messageThreeId, old, false);
 
-        itTestsService.receiveMessage(messageFourId);
-        msg1Fragment = userMessageLogDao.findByMessageId(messageFourId);
-        MessageDaoTestUtil.setUserMessageLogDates(msg1Fragment, timeT);
-        msg1Fragment.getUserMessage().setMessageFragment(true);
+        msg1Fragment = receiveMessage(messageFourId, timeT, true);
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
@@ -148,6 +139,16 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .format(ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH)) + String.format(NUMBER_FORMAT_DEFAULT, 0));
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
+
+    private UserMessageLog receiveMessage(String messageOneId, Date timeT, boolean isFragment) throws Exception {
+        itTestsService.receiveMessage(messageOneId);
+        UserMessageLog msg = userMessageLogDao.findByMessageId(messageOneId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg, timeT);
+        if(isFragment){
+            msg.getUserMessage().setMessageFragment(true);
+        }
+        return msg;
     }
 
     @BeforeClass
