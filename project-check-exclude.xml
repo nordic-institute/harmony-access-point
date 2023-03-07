@@ -449,5 +449,14 @@
         <cve>CVE-2021-4277</cve>
     </suppress>
     <!-- End CVE-2021-4277 -->
-
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/core:8.2.14
+   ]]></notes>
+        <!--
+        see EDELIVERY-10956 (vulnerability NPM-1088994 not affecting the project or affecting probability is low because we do not use comments)
+        -->
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
+        <vulnerabilityName>1088994</vulnerabilityName>
+    </suppress>
 </suppressions>

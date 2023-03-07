@@ -646,8 +646,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
                     storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
             storePropertiesLoader.run();
-            securityProfileAliasConfigurations.forEach(securityProfileConfiguration
-                    -> storeSetter.accept(newStore, securityProfileConfiguration));
+            securityProfileAliasConfigurations.forEach(securityProfileConfiguration -> {
+                storeSetter.accept(newStore, securityProfileConfiguration);
+                securityProfileConfiguration.getMerlin().clearCache();
+            });
 
             signaller.accept(domain);
         } catch (CryptoException ex) {
