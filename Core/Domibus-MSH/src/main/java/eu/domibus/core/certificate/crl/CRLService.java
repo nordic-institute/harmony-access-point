@@ -7,6 +7,9 @@ import java.security.cert.X509Certificate;
  */
 public interface CRLService {
 
+    /**
+     * @return true if the cache crlByCert is enabled
+     */
     boolean isCrlByCertCacheEnabled();
 
     /**
