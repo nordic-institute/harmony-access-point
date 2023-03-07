@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,9 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -28,8 +30,10 @@ import java.security.Security;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_BY_CERT_CACHE_ENABLED;
 import static org.mockito.Mockito.*;
 
 /**
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.*;
  * @since 4.1.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = CRLServiceImplIT.SpringConfig.class)
 public class CRLServiceImplIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImplIT.class);
@@ -47,9 +52,15 @@ public class CRLServiceImplIT {
     @EnableCaching
     @Import({DomibusCacheConfiguration.class, SpringTestConfiguration.class})
     static class SpringConfig {
+        @Autowired
+        private ConfigurableEnvironment environment;
 
         @Bean
         public CRLService crlService() {
+            HashMap<String, Object> testProperties = new HashMap<>();
+            testProperties.put(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED, true);
+            environment.getPropertySources()
+                    .addFirst(new MapPropertySource(getClass().getName(), testProperties));
             return new CRLServiceImpl();
         }
 
@@ -123,7 +134,6 @@ public class CRLServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
         //create crl file
@@ -140,9 +150,7 @@ public class CRLServiceImplIT {
     }
 
     @Test
-    @Ignore("The Spel condition that enables the cache doesn't see property value set for the tests in domibus.properties (EDELIVERY-10977)")
     public void test_isCertificateRevoked_withCache() {
-
         X509CRL x509CRLMock = mock(X509CRL.class);
         Principal principalMock = mock((Principal.class));
 
@@ -151,10 +159,10 @@ public class CRLServiceImplIT {
         when(principalMock.getName()).thenReturn(any(String.class));
 
         //first call
-        boolean result = crlService.isCertificateRevoked(certificate);
+        crlService.isCertificateRevoked(certificate);
 
         //second call
-        result = crlService.isCertificateRevoked(certificate);
+        crlService.isCertificateRevoked(certificate);
 
         // verify that the getCrlDistributionPoints is called only once
         verify(crlUtil, times(1)).getCrlDistributionPoints(any(X509Certificate.class));
