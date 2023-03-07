@@ -7,7 +7,6 @@ import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,18 +44,12 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
                 LOG.trace("Using incomingMessagePullRequestHandler");
                 return incomingMessagePullRequestHandler;
             } else if (signalMessage.getReceipt() != null) {
-                final String contentsOfReceipt = signalMessage.getReceipt().getAny().get(0);
-                if (StringUtils.contains(contentsOfReceipt, "UserMessage")) {
-                    if (ebms3Messaging.getUserMessage() == null) {
-                        LOG.trace("Using incomingMessagePullReceiptHandler");
-                        return incomingMessagePullReceiptHandler;
-                    }
-                    LOG.trace("Using incomingUserMessageReceiptHandler");
-                    return incomingUserMessageReceiptHandler;
-                } else {
+                if (ebms3Messaging.getUserMessage() == null) {
                     LOG.trace("Using incomingMessagePullReceiptHandler");
                     return incomingMessagePullReceiptHandler;
                 }
+                LOG.trace("Using incomingUserMessageReceiptHandler");
+                return incomingUserMessageReceiptHandler;
             } else if (CollectionUtils.isNotEmpty(signalMessage.getError())) {
                 LOG.trace("Using incomingSignalErrorHandler");
                 return incomingSignalErrorHandler;
