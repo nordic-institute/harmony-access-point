@@ -28,8 +28,8 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/clientauthentication.xml</source>
-            <outputDirectory>conf/</outputDirectory>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/example/clientauthentication-example.xml</source>
+            <outputDirectory>conf/example/</outputDirectory>
             <filtered>false</filtered>
         </file>
     </files>
