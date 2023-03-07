@@ -69,14 +69,20 @@ public class ITTestsService {
 
     @Transactional
     public String sendMessageWithStatus(MessageStatus endStatus) throws MessagingProcessingException {
+        UserMessageLog userMessageLog = sendMessageWithStatus(endStatus, null);
+        return userMessageLog.getUserMessage().getMessageId();
+    }
 
-        Submission submission = submissionUtil.createSubmission();
-        final String messageId = messageSubmitter.submit(submission, "mybackend");
+    @Transactional
+    public UserMessageLog sendMessageWithStatus(MessageStatus endStatus, String messageId) throws MessagingProcessingException {
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        Submission submission = submissionUtil.createSubmission(messageId);
+        final String dbMessageId = messageSubmitter.submit(submission, "mybackend");
+
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(dbMessageId, MSHRole.SENDING);
         userMessageLogDao.setMessageStatus(userMessageLog, endStatus);
 
-        return messageId;
+        return userMessageLog;
     }
 
     @Transactional

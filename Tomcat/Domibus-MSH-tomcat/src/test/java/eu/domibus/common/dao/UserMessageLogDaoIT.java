@@ -9,9 +9,11 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.test.common.BackendConnectorMock;
 import org.junit.*;
 import org.mockito.Matchers;
@@ -79,22 +81,25 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private Date after;
     private Date old;
 
-    private final String deletedNoProperties = randomUUID().toString();
-    private final String deletedWithProperties = randomUUID().toString();
-    private final String receivedNoProperties = randomUUID().toString();
-    private final String receivedWithProperties = randomUUID().toString();
-    private final String downloadedNoProperties = randomUUID().toString();
-    private final String downloadedWithProperties = randomUUID().toString();
-    private final String waitingForRetryNoProperties = randomUUID().toString();
-    private final String waitingForRetryWithProperties = randomUUID().toString();
-    private final String sendFailureNoProperties = randomUUID().toString();
-    private final String sendFailureWithProperties = randomUUID().toString();
+    private final String deletedNoProperties = "deletedNoProperties" + randomUUID().toString();
+    private final String deletedWithProperties = "deletedWithProperties" + randomUUID().toString();
+    private final String receivedNoProperties = "receivedNoProperties" + randomUUID().toString();
+    private final String receivedWithProperties = "receivedWithProperties" + randomUUID().toString();
+    private final String downloadedNoProperties = "downloadedNoProperties" + randomUUID().toString();
+    private final String downloadedWithProperties = "downloadedWithProperties" + randomUUID().toString();
+    private final String waitingForRetryNoProperties = "waitingForRetryNoProperties" + randomUUID().toString();
+    private final String waitingForRetryWithProperties = "waitingForRetryWithProperties" + randomUUID().toString();
+    private final String sendFailureNoProperties = "sendFailureNoProperties" + randomUUID().toString();
+    private final String sendFailureWithProperties = "sendFailureWithProperties" + randomUUID().toString();
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
     private UserMessageLog msg1;
     private UserMessageLog msg1Fragment;
     private UserMessageLog msg2;
     private UserMessageLog msg3;
+
+    @Autowired
+    private MpcDao mpcDao;
 
     @Before
     @Transactional
@@ -127,9 +132,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
         messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC, new Date());
         messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC, new Date());
 
-        messageDaoTestUtil.createUserMessageLog(deletedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, RECEIVED, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(downloadedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, true, MPC, null);
+        sendMessage(deletedWithProperties, timeT, DELETED, null);
+        sendMessage(receivedWithProperties, timeT, RECEIVED, null);
+        sendMessage(downloadedWithProperties, timeT, DOWNLOADED, null);
+//        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, null);
+//        sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, null);
+
         messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC, null);
         messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC, null);
 
@@ -141,10 +149,16 @@ public class UserMessageLogDaoIT extends AbstractIT {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
-    private UserMessageLog receiveMessage(String messageOneId, Date timeT, boolean isFragment) throws Exception {
-        itTestsService.receiveMessage(messageOneId);
-        UserMessageLog msg = userMessageLogDao.findByMessageId(messageOneId);
-        MessageDaoTestUtil.setUserMessageLogDates(msg, timeT);
+    private void sendMessage(String messageId, Date timeT, MessageStatus status, Date archivedAndExported) throws MessagingProcessingException {
+        UserMessageLog userMessageLog = itTestsService.sendMessageWithStatus(status, messageId);
+        userMessageLog.getUserMessage().setMpc(mpcDao.findOrCreateMpc(MPC));
+        MessageDaoTestUtil.setUserMessageLogDates(userMessageLog, timeT, archivedAndExported);
+    }
+
+    private UserMessageLog receiveMessage(String messageId, Date timeT, boolean isFragment) throws Exception {
+        itTestsService.receiveMessage(messageId);
+        UserMessageLog msg = userMessageLogDao.findByMessageId(messageId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg, timeT, null);
         if(isFragment){
             msg.getUserMessage().setMessageFragment(true);
         }
@@ -347,7 +361,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        Long idPkStartDate = dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER));
+        Long idPkEndDate = dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER));
+        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, idPkStartDate, idPkEndDate);
         assertEquals(3, message.size());
     }
 

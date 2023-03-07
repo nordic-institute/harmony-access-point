@@ -160,9 +160,7 @@ public class MessageDaoTestUtil {
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMshRole(mshRoleDao.findOrCreate(mshRole));
         userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
-        setUserMessageLogDates(userMessageLog, received);
-        userMessageLog.setExported(archivedAndExported);
-        userMessageLog.setArchived(archivedAndExported);
+        setUserMessageLogDates(userMessageLog, received, archivedAndExported);
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
 
         userMessageLog.setUserMessage(userMessage);
@@ -171,7 +169,9 @@ public class MessageDaoTestUtil {
         return userMessageLog;
     }
 
-    public static void setUserMessageLogDates(UserMessageLog userMessageLog, Date received) {
+    public static void setUserMessageLogDates(UserMessageLog userMessageLog, Date received, Date archivedAndExported) {
+        userMessageLog.setExported(archivedAndExported);
+        userMessageLog.setArchived(archivedAndExported);
         userMessageLog.setReceived(received);
         switch (userMessageLog.getMessageStatus()) {
             case DELETED:
