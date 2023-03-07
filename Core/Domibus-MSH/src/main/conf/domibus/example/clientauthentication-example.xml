@@ -1,4 +1,4 @@
-<http-conf:tlsClientParameters secureSocketProtocol="TLSv1.3"
+<http-conf:tlsClientParameters secureSocketProtocol="TLS"
                                xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
                                xmlns:security="http://cxf.apache.org/configuration/security">
     <!--                                                 secureSocketProtocol="TLS" will allow TLSv1.2 and TLSv1.3 (default)                                      -->
