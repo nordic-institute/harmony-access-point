@@ -25,6 +25,8 @@ import javax.xml.bind.JAXBException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
+
 /**
  * Class responsible for the configuration of the plugin, independent of any server
  *
@@ -39,7 +41,7 @@ public class FSPluginConfiguration {
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
     public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";
 
-    @Bean("backendFSPlugin")
+    @Bean(PLUGIN_NAME)
     public FSPluginImpl createFSPlugin(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
                                        FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
                                        DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,

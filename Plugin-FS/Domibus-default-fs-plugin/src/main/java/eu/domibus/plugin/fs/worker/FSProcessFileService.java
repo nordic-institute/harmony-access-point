@@ -21,6 +21,8 @@ import javax.xml.stream.XMLStreamException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
+
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -30,7 +32,7 @@ public class FSProcessFileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
-    @Resource(name = "backendFSPlugin")
+    @Resource(name = PLUGIN_NAME)
     // EDELIVERY-10980: fix circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
     @Lazy
     protected FSPluginImpl backendFSPlugin;
