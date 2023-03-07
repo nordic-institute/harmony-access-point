@@ -11,6 +11,7 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
@@ -31,6 +32,7 @@ public class FSProcessFileService {
 
     //Constructor injection produces circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
     @Resource(name = "backendFSPlugin")
+    @Lazy
     protected FSPluginImpl backendFSPlugin;
 
     @Autowired
