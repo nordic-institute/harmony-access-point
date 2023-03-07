@@ -28,7 +28,7 @@ export class FilterAreaFooterComponent implements AfterViewInit {
 
   toggleBasicSearch() {
     this.parent.advancedSearch = false;
-    
+
     return false;
   }
 
