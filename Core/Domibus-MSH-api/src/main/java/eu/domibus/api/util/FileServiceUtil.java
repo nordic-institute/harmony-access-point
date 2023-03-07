@@ -25,4 +25,6 @@ public interface FileServiceUtil {
     String getExtension(String mime);
 
     byte[] getContentFromFile(String location) throws IOException;
+
+    String URLEncode(String s);
 }
