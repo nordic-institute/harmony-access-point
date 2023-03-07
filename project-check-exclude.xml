@@ -8,6 +8,17 @@
         <gav regex="true">^eu\.domibus:domibus-ext-services-delegate:.*$</gav>
         <cpe>cpe:/a:delegate:delegate</cpe>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+                This suppresses the checks for any file named: domibus-msh-test-*.jar
+                ]]>
+        </notes>
+        <gav regex="true">^eu\.domibus:domibus-msh-test:.*$</gav>
+        <cpe>cpe:/a:test:test</cpe>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+
     <suppress>
         <notes><![CDATA[
    file name: activemq-protobuf-1.1.jar
@@ -90,6 +101,10 @@
         <cve>CVE-2021-28165</cve>
         <cve>CVE-2021-28169</cve>
         <cve>CVE-2021-34428</cve>
+        <cve>CVE-2022-2048</cve>
+        <cve>CVE-2022-2047</cve>
+        <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
+        <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
 
     <suppress>
@@ -107,7 +122,6 @@
         <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>
         <cve>CVE-2021-28170</cve>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
    file name: cxf-rt-features-metrics-3.4.1.jar
@@ -137,10 +151,21 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: json-smart-2.3.jar
+   file name: json-xxx-yyy.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-.*@.*$</packageUrl>
         <cve>CVE-2021-27568</cve>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: json-path-2.4.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
     </suppress>
 
     <suppress>
@@ -319,4 +344,119 @@
         <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
     </suppress>
 
+    <suppress>
+        <!-- snakeyaml is not used in production - used in swagger and tests -->
+        <notes><![CDATA[
+   file name: snakeyaml-1.26.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cve>CVE-2022-25857</cve>
+        <cve>CVE-2022-38749</cve>
+        <cve>CVE-2022-38751</cve>
+        <cve>CVE-2022-38750</cve>
+        <cve>CVE-2022-41854</cve>
+        <cve>CVE-2022-3064</cve>
+        <cve>CVE-2021-4235</cve>
+        <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
+        <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
+    </suppress>
+
+    <!-- Used in dss test module -->
+   <suppress>
+       <notes><![CDATA[
+  file name: jakarta.activation-api-2.1.1.jar
+  ]]></notes>
+       <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
+       <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+   </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: metrics-json-4.2.17.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: stax2-api-4.2.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
+        <!-- Domibus does not Woodstox to parse XML data -->
+        <cpe>cpe:/a:fasterxml:woodstox</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-core-2.14.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-.*@.*$</packageUrl>
+        <!-- Version 4.2.7 is not among vulnerable versions -->
+        <cve>CVE-2022-36437</cve>
+        <!-- Before 3.11, version 4.2.7 is not among vulnerable versions -->
+        <cve>CVE-2016-10750</cve>
+        <!-- The LDAP authentication method in LdapLoginModule is not used by Domibus -->
+        <cve>CVE-2020-26168</cve>
+    </suppress>
+
+    <!-- Use in test -->
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.el-3.0.1-b12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/javax\.el@.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-28170</vulnerabilityName>
+    </suppress>
+
+    <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-5.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus\-default\-ws\-plugin\-stub\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils-apache-commons:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils\-apache\-commons@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:dss-utils:5.0.3-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <!-- End CVE-2021-4277 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/core:8.2.14
+   ]]></notes>
+        <!--
+        see EDELIVERY-10956 (vulnerability NPM-1088994 not affecting the project or affecting probability is low because we do not use comments)
+        -->
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
+        <vulnerabilityName>1088994</vulnerabilityName>
+    </suppress>
 </suppressions>
