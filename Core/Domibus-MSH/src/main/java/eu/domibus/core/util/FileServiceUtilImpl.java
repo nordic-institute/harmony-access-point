@@ -70,8 +70,8 @@ public class FileServiceUtilImpl implements FileServiceUtil {
     }
 
     @Override
-    public String URLEncode(String s){
-                try {
+    public String URLEncode(String s) {
+        try {
             return URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
         } catch (UnsupportedEncodingException e) {
             throw new DomibusCoreException(DOM_001, "Encode messageId [" + s + "] in error", e);
