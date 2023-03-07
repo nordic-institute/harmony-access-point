@@ -283,11 +283,11 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getAgreementRef());
 
             senderParty = findSenderParty(userMessage);
-            receiverParty = findReceiverParty(userMessage, isPull, senderParty);
+            receiverParty = findReceiverParty(userMessage, isPull, senderParty, beforeDynamicDiscovery);
             LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
 
             final Role initiatorRole = findInitiatorRole(userMessage);
-            final Role responderRole = findResponderRole(userMessage, beforeDynamicDiscovery);
+            final Role responderRole = findResponderRole(userMessage);
 
             service = findServiceName(userMessage.getService());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getService());
@@ -363,11 +363,13 @@ public abstract class PModeProvider {
         return getBusinessProcessRole(initiatorRole);
     }
 
-    protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty) throws EbMS3Exception {
+    protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         String receiverParty = StringUtils.EMPTY;
         final PartyId toPartyId = userMessage.getPartyInfo().getTo().getToPartyId();
         if (toPartyId == null) {
-            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
+            if (!beforeDynamicDiscovery) {
+                LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
+            }
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Mandatory field To PartyId is not provided.")
@@ -390,12 +392,10 @@ public abstract class PModeProvider {
         return receiverParty;
     }
 
-    protected Role findResponderRole(UserMessage userMessage, boolean beforeDynamicDiscovery) throws EbMS3Exception {
+    protected Role findResponderRole(UserMessage userMessage) throws EbMS3Exception {
         String responderRole = userMessage.getPartyInfo().getTo().getRoleValue();
         if (StringUtils.isBlank(responderRole)) {
-            if (!beforeDynamicDiscovery) {
-                LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, beforeDynamicDiscovery, "To Role");
-            }
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To Role");
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Mandatory field Receiver Role is not provided.")

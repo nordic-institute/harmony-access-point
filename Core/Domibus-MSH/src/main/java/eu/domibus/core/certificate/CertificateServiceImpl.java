@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.NoKeyStoreContentInformationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -391,7 +392,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
         KeyStoreContentInfo storeInfo = keystorePersistenceService.loadStore(keystorePersistenceInfo);
-
         KeyStore store = loadStore(storeInfo);
 
         return getStoreEntries(store);
@@ -584,6 +584,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+        if (storeInfo == null) {
+            throw new NoKeyStoreContentInformationException("Could not load a null store");
+        }
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
             KeyStore keystore = getNewKeystore(storeInfo.getType());
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
