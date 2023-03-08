@@ -438,7 +438,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -456,7 +456,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
