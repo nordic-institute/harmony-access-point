@@ -1,6 +1,5 @@
 package eu.domibus.core.earchive;
 
-import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.message.UserMessageLogDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -19,11 +18,9 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
 @Component
 public class EArchiveBatchUtils {
     private final UserMessageLogDao userMessageLogDao;
-    private final FileServiceUtil fileServiceUtil;
 
-    public EArchiveBatchUtils(UserMessageLogDao userMessageLogDao, FileServiceUtil fileServiceUtil) {
+    public EArchiveBatchUtils(UserMessageLogDao userMessageLogDao) {
         this.userMessageLogDao = userMessageLogDao;
-        this.fileServiceUtil = fileServiceUtil;
     }
 
     public List<String> getMessageIds(List<EArchiveBatchUserMessage> userMessageDtos) {
@@ -33,7 +30,6 @@ public class EArchiveBatchUtils {
         return userMessageDtos.stream()
                 .map(EArchiveBatchUserMessage::getMessageId)
                 .distinct()
-                .map(fileServiceUtil::URLEncode)
                 .collect(Collectors.toList());
     }
 

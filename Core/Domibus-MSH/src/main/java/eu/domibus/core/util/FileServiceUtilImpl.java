@@ -74,7 +74,7 @@ public class FileServiceUtilImpl implements FileServiceUtil {
         try {
             return URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
         } catch (UnsupportedEncodingException e) {
-            throw new DomibusCoreException(DOM_001, "Encode messageId [" + s + "] in error", e);
+            throw new DomibusCoreException(DOM_001, "Encode string [" + s + "] in error", e);
         }
     }
 }

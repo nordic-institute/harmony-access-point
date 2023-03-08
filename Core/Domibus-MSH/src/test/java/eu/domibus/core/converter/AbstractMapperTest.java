@@ -4,7 +4,6 @@ import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.util.FileServiceUtilImpl;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
 import org.junit.runner.RunWith;
@@ -38,7 +37,7 @@ public abstract class AbstractMapperTest {
 
         @Bean
         public EArchiveBatchUtils eArchiveBatchUtils() {
-            return new EArchiveBatchUtils(userMessageLogDao, new FileServiceUtilImpl());
+            return new EArchiveBatchUtils(userMessageLogDao);
         }
 
         @Bean
