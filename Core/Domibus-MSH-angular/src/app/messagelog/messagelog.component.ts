@@ -160,7 +160,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const val = +res.value;
     let interval = this.messageIntervals.find(el => el.value == val * 60);
     if (!interval) {
-      interval = this.messageIntervals[1];
+      interval = this.messageIntervals[0];
     }
     return interval;
   }
@@ -322,7 +322,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   private syncInterval(filter: any) {
     if (filter.receivedFrom && filter.receivedTo) {
       const diff = (filter.receivedTo.valueOf() - filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
-      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
+      this._messageInterval = this.messageIntervals.find(el => el.value == diff) || this.messageIntervals[this.messageIntervals.length - 1];
     }
   }
 
