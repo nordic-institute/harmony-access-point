@@ -160,7 +160,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const val = +res.value;
     let interval = this.messageIntervals.find(el => el.value == val * 60);
     if (!interval) {
-      interval = this.messageIntervals[1];
+      interval = this.messageIntervals[0];
     }
     return interval;
   }

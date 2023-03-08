@@ -9,7 +9,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 public class DuplicateMessageFoundException extends MessagingException {
 
     public static final String DUPLICATE_MESSAGE_FOUND = "Duplicate message Id found.";
-    public static final String DUPLICATE_MESSAGE_FOUND_SELF_SENDING = DUPLICATE_MESSAGE_FOUND + " For self sending please call the method with access point role to get the status of the message.";
+    public static final String DUPLICATE_MESSAGE_FOUND_SELF_SENDING = DUPLICATE_MESSAGE_FOUND + " For self sending please call the new method with two parameters: messageId and the access point role.";
     public DuplicateMessageFoundException(String messageId) {
         super(DomibusCoreErrorCode.DOM_011, DUPLICATE_MESSAGE_FOUND + "[" + messageId + "] ", null);
     }

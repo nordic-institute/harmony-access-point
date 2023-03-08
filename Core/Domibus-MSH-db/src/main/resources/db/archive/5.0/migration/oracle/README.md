@@ -5,9 +5,9 @@ Concerns the following scripts inside this directory:
 * _db-migration-ongoing-messages-5.0-to-5.0.sql_
 
 These scripts are meant for the migration of ongoing Domibus messages (i.e. messages having one of the _SEND_ENQUEUED_,
-_WAITING_FOR_RETRY_, _READY_TO_PULL_ and _WAITING_FOR_RECEIPT_ statuses) from a source Domibus **v4.2.9** application
-to a destination Domibus **v4.2.9** application or from a source Domibus **v5.0** application to a destination Domibus
-**v5.0** application. All the Domibus source and destination applications are running on Weblogic 12.2/Oracle 19c.
+_WAITING_FOR_RETRY_, _READY_TO_PULL_, _WAITING_FOR_RECEIPT_ and _SEND_FAILURE_ statuses) from a source Domibus **v4.2.9**
+application to a destination Domibus **v4.2.9** application or from a source Domibus **v5.0** application to a destination
+Domibus **v5.0** application. All the Domibus source and destination applications are running on Weblogic 12.2/Oracle 19c.
 
 ## 1. From v4.2.9 to v4.2.9
 

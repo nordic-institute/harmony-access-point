@@ -28,7 +28,7 @@
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
                               - To run the partitioning scripts please make sure following grants are added to the user:
-                                  GRANT REDEFINE ANY TABLE  TO [domibus_user];
+                                  GRANT REDEFINE ANY TABLE TO [domibus_user];
                                   GRANT CREATE MATERIALIZED VIEW TO [domibus_user];
                                   GRANT EXECUTE ON DBMS_REDEFINITION TO [domibus_user];
                                   GRANT SELECT ON USER_CONSTRAINTS TO [domibus_user];
@@ -47,6 +47,7 @@
                               or, for multitenancy:
                                   mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                   mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.1-data-migration.ddl
                           - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
                                   GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                             and then specifying the target databases as part of the command. For example, for single tenancy:
@@ -54,7 +55,8 @@
                                    mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
                                or, for multitenancy:
                                    mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-migration.ddl.
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
