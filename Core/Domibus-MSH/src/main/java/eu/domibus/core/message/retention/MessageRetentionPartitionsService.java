@@ -19,6 +19,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
 
-    private static final String PARTITION_NAME_REGEXP = "P[0-9]{8}";
+    private static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]{6}";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
@@ -64,7 +65,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected final PartitionService partitionService;
 
-    public static final String DEFAULT_PARTITION = "197000000000000000"; // default partition that we never delete
+    public static final String DEFAULT_PARTITION = "P1970"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                              UserMessageDao userMessageDao,
@@ -154,19 +155,23 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         } else {
             partitions = userMessageDao.findAllPartitions();
         }
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitions.size());
+        LOG.debug("There are [{}] partitions.", partitions.size());
 
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
 
-        LOG.info("newestPartitionToCheckDate is: [{}]", newestPartitionToCheckDate);
+        LOG.debug("Date to check partitions expiration: [{}]", newestPartitionToCheckDate);
 
         List<String> partitionNames =
                 partitions.stream()
-                        .filter(p -> p.getPartitionName() != DEFAULT_PARTITION)
+                        .filter(p -> !StringUtils.equalsIgnoreCase(p.getPartitionName(), DEFAULT_PARTITION))
                         .filter(p -> p.getHighValue() < partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate) )
                         .map(Partition::getPartitionName)
                         .collect(Collectors.toList());
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
+        LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("Expired Partitions are: ");
+            partitionNames.stream().forEach(p->LOG.debug("["  + p + "] "));
+        }
 
         return partitionNames;
     }
