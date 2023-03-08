@@ -101,9 +101,15 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Autowired
     private MpcDao mpcDao;
 
+    public static boolean wasSetup = false;
+
     @Before
     @Transactional
     public void setup() throws Exception {
+        if(wasSetup){
+            return;
+        }
+        wasSetup = true;
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
@@ -126,16 +132,19 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
+//        sendMessage(deletedNoProperties, timeT, DELETED, false, new Date());
+//        sendMessage(receivedNoProperties, timeT, RECEIVED, false, new Date());
+//        sendMessage(downloadedNoProperties, timeT, DOWNLOADED, false, new Date());
         messageDaoTestUtil.createUserMessageLog(deletedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, false, MPC, new Date());
         messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, RECEIVED, false, MPC, new Date());
         messageDaoTestUtil.createUserMessageLog(downloadedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, false, MPC, new Date());
         messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC, new Date());
         messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC, new Date());
 
-        sendMessage(deletedWithProperties, timeT, DELETED, null);
-        sendMessage(receivedWithProperties, timeT, RECEIVED, null);
-        sendMessage(downloadedWithProperties, timeT, DOWNLOADED, null);
-//        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, null);
+        sendMessage(deletedWithProperties, timeT, DELETED, true, null);
+        sendMessage(receivedWithProperties, timeT, RECEIVED, true, null);
+        sendMessage(downloadedWithProperties, timeT, DOWNLOADED, true, null);
+//        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, true, null);
 //        sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, null);
 
         messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC, null);
@@ -149,9 +158,18 @@ public class UserMessageLogDaoIT extends AbstractIT {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
-    private void sendMessage(String messageId, Date timeT, MessageStatus status, Date archivedAndExported) throws MessagingProcessingException {
+    private void sendMessage(String messageId, Date timeT, MessageStatus status, boolean hasProperties, Date archivedAndExported) throws MessagingProcessingException {
         UserMessageLog userMessageLog = itTestsService.sendMessageWithStatus(status, messageId);
-        userMessageLog.getUserMessage().setMpc(mpcDao.findOrCreateMpc(MPC));
+        UserMessage userMessage = userMessageLog.getUserMessage();
+        userMessage.setMpc(mpcDao.findOrCreateMpc(MPC));
+        if(hasProperties){
+            Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
+            String originalSender = "originalSender1";
+            String finalRecipient = "finalRecipient2";
+            MessageProperty messageProperty1 = messageDaoTestUtil.createMessageProperty("originalSender", originalSender, "");
+            MessageProperty messageProperty2 = messageDaoTestUtil.createMessageProperty("finalRecipient", finalRecipient, "");
+            messageProperties.addAll(Arrays.asList(messageProperty1, messageProperty2));
+        }
         MessageDaoTestUtil.setUserMessageLogDates(userMessageLog, timeT, archivedAndExported);
     }
 
