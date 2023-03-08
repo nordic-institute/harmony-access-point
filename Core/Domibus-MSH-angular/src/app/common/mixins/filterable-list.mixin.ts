@@ -40,6 +40,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     this.filter = {};
     this.activeFilter = {};
+
+    this.advancedSearch = true;
+    setTimeout(() => this.advancedSearch = false, 10);
   }
 
   /**

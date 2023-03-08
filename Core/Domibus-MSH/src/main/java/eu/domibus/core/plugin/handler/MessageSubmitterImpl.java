@@ -402,11 +402,11 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         LOG.debug("Submission processing type is empty,  checking processing type from PMODE");
         ProcessingType processingType;
         try {
-            processingType = ProcessingType.PULL;
+            processingType = ProcessingType.PUSH;
             setSubmissionProcessingType(submission, userMessage, processingType);
         } catch (EbMS3Exception e) {
             try {
-                processingType = ProcessingType.PUSH;
+                processingType = ProcessingType.PULL;
                 setSubmissionProcessingType(submission, userMessage, processingType);
             } catch (EbMS3Exception ex) {
                 LOG.error("No processing type found from PMODE for the Submission", ex);
