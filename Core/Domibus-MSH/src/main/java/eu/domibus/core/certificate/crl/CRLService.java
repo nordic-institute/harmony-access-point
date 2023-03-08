@@ -7,8 +7,6 @@ import java.security.cert.X509Certificate;
  */
 public interface CRLService {
 
-    boolean isCrlByCertCacheEnabled();
-
     /**
      * Extracts the CRL distribution points from the pki (if available)
      * and checks the pki revocation status against the CRLs coming from
