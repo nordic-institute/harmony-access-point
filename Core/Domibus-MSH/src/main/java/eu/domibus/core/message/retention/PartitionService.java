@@ -28,42 +28,11 @@ public class PartitionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionService.class);
 
-    protected UserMessageDao userMessageDao;
-
-    protected EventService eventService;
-
     protected DateUtil dateUtil;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
-    public PartitionService(UserMessageDao userMessageDao,
-                            EventService eventService,
-                            DateUtil dateUtil,
-                            DomibusPropertyProvider domibusPropertyProvider) {
-        this.userMessageDao = userMessageDao;
-        this.eventService = eventService;
+    public PartitionService(DateUtil dateUtil) {
         this.dateUtil = dateUtil;
-        this.domibusPropertyProvider = domibusPropertyProvider;
-    }
-
-    public void verifyPartitionsInAdvance() {
-        Integer daysToCheckPartitions = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK);
-        LOG.debug("Verify if partitions were created properly");
-        Date latestPartitionToCheckDate = DateUtils.addDays(dateUtil.getUtcDate(), daysToCheckPartitions);
-        String partitionName = getPartitionNameFromDate(latestPartitionToCheckDate);
-        Boolean partitionExists = userMessageDao.checkPartitionExists(partitionName);
-        if (BooleanUtils.isFalse(partitionExists)) {
-            LOG.warn("Throw partition creation warning, this partition was expected to exist but could not be found [{}]", partitionName);
-            eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
-            return;
-        }
-        LOG.debug("Partitions check successful, checked partitionName [{}].", partitionName);
-    }
-
-    public String getPartitionNameFromDate(Date partitionDate) {
-        String partitionName = 'P' + dateUtil.getIdPkDateHourPrefix(partitionDate);
-        LOG.debug("Get partition name from date [{}], partitionName [{}]", partitionDate, partitionName);
-        return partitionName;
     }
 
     public Long getPartitionHighValueFromDate(Date partitionDate) {
