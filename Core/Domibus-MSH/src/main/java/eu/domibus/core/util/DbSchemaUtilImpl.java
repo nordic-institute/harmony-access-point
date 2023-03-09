@@ -11,7 +11,6 @@ import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -107,6 +106,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return generalSchema;
     }
 
+    @Override
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         //in single tenancy the schema validity check is not needed
         if (domibusConfigurationService.isSingleTenantAware()) {
@@ -132,29 +132,22 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         try {
             setSchema(connection, databaseSchema);
         } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
-            LOG.warn("Could not set database schema [{}] for domain [{}]", databaseSchema, domain.getCode());
+            LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
             return false;
         }
 
         try {
             tryCreateExistingTable(databaseSchema, connection);
+            LOG.warn("Could create table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
             return false;
         } catch (final SQLException e) {
+            LOG.trace("Could not create table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
             return true;
         }
     }
 
-    private void tryCreateExistingTable(String databaseSchema, Connection connection) throws SQLException {
-        try (final Statement statement = connection.createStatement()) {
-            final String sql = getCreateTableSql(databaseSchema);
-            LOG.trace("Checking if a table exists: [{}]", sql);
-            statement.execute(sql);
-            statement.execute("DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE");
-            LOG.trace("Dropping table exists: [{}]", sql);
-        }
-    }
-
-    protected void setSchema(final Connection connection, String databaseSchema) {
+    @Override
+    public void setSchema(final Connection connection, String databaseSchema) {
         try {
             try (final Statement statement = connection.createStatement()) {
                 final String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
@@ -210,6 +203,16 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         LOG.debug("Generated SQL string for changing the schema: {}", result);
 
         return result;
+    }
+
+    private void tryCreateExistingTable(String databaseSchema, Connection connection) throws SQLException {
+        try (final Statement statement = connection.createStatement()) {
+            final String sql = getCreateTableSql(databaseSchema);
+            LOG.trace("Checking if a table exists: [{}]", sql);
+            statement.execute(sql);
+            statement.execute("DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE");
+            LOG.trace("Dropping table exists: [{}]", sql);
+        }
     }
 
     private String getCreateTableSql(String databaseSchemaName) {

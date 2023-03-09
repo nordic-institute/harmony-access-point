@@ -2,6 +2,8 @@ package eu.domibus.api.util;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.sql.Connection;
+
 /**
  * Provides functionality for testing if a domain has a valid database schema
  *
@@ -40,4 +42,6 @@ public interface DbSchemaUtil {
      * @return result of the db schema sanity check
      */
     boolean isDatabaseSchemaNameSane(final String schemaName);
+
+    void setSchema(final Connection connection, String databaseSchema);
 }
