@@ -1,9 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.datasource.DataSourceConstants;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -12,9 +10,8 @@ import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.PersistenceException;
@@ -26,8 +23,11 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT_IN_SECONDS;
 
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
@@ -54,12 +54,20 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     protected final DataSource dataSource;
 
+    protected final SchedulingTaskExecutor schedulingTaskExecutor;
+
+    protected final DomainContextProvider domainContextProvider;
+
     public DbSchemaUtilImpl(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                             DomibusConfigurationService domibusConfigurationService,
-                            DomibusPropertyProvider domibusPropertyProvider) {
+                            DomibusPropertyProvider domibusPropertyProvider,
+                            @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) SchedulingTaskExecutor schedulingTaskExecutor,
+                            DomainContextProvider domainContextProvider) {
         this.dataSource = dataSource;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.schedulingTaskExecutor = schedulingTaskExecutor;
+        this.domainContextProvider = domainContextProvider;
     }
 
     /**
@@ -107,10 +115,6 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return generalSchema;
     }
 
-    @Autowired
-    @Lazy
-    DomainTaskExecutor domainTaskExecutor;
-
     @Override
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         //in single tenancy the schema validity check is not needed
@@ -124,7 +128,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        return domainTaskExecutor.submit(() -> {
+        return submit(() -> {
             Connection connection;
             try {
                 connection = dataSource.getConnection();
@@ -265,6 +269,18 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         } catch (IOException ex) {
             LOG.warn("Could not properties from file [{}] to get the database schema name.", propertiesFilePath);
             return null;
+        }
+    }
+
+    protected  <T extends Object> T submit(Callable<T> task, Domain domain) {
+        DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
+        final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
+        try {
+            return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            // Restore interrupted state
+            Thread.currentThread().interrupt();
+            throw new DomainTaskException("Could not execute task", e);
         }
     }
 

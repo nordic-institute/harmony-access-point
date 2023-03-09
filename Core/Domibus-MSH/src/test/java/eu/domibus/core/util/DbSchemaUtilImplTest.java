@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -8,7 +9,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 
 import javax.persistence.*;
 import javax.sql.DataSource;
@@ -52,6 +53,12 @@ public class DbSchemaUtilImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    protected SchedulingTaskExecutor schedulingTaskExecutor;
+
+    @Injectable
+    protected DomainContextProvider domainContextProvider;
+
     @Mock
     private EntityManager entityManager;
 
@@ -69,7 +76,7 @@ public class DbSchemaUtilImplTest {
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService, domibusPropertyProvider);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService, domibusPropertyProvider, schedulingTaskExecutor, domainContextProvider);
     }
 
     @Test
