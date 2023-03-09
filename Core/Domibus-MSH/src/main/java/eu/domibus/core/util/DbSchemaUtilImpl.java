@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
@@ -10,16 +11,18 @@ import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.context.annotation.Lazy;
+import org.hibernate.HibernateException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -45,19 +48,16 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     protected volatile String generalSchema;
 
-    private EntityManager entityManager;
-
-    private final EntityManagerFactory entityManagerFactory;
-
     private final DomibusConfigurationService domibusConfigurationService;
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public DbSchemaUtilImpl(@Lazy EntityManagerFactory entityManagerFactory,
+    protected final DataSource dataSource;
+
+    public DbSchemaUtilImpl(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                             DomibusConfigurationService domibusConfigurationService,
                             DomibusPropertyProvider domibusPropertyProvider) {
-        this.entityManagerFactory = entityManagerFactory;
-
+        this.dataSource = dataSource;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
@@ -119,26 +119,50 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        if (entityManager == null) {
-            entityManager = entityManagerFactory.createEntityManager();
-        }
-        String databaseSchema = null;
+        Connection connection = null;
         try {
-            //set corresponding db schema
-            entityManager.getTransaction().begin();
-            databaseSchema = getDatabaseSchema(domain);
-            String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
-            Query q = entityManager.createNativeQuery(schemaChangeSQL);
-            //check if the domain's database schema can be accessed
-            q.executeUpdate();
-
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            LOG.warn("Could not create a connection.");
             return true;
+        }
+
+        String databaseSchema = getDatabaseSchema(domain);
+        try {
+            setSchema(connection, databaseSchema);
         } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
             LOG.warn("Could not set database schema [{}] for domain [{}]", databaseSchema, domain.getCode());
             return false;
-        } finally {
-            //revert changing of the current schema
-            entityManager.getTransaction().rollback();
+        }
+
+        try {
+            tryCreateExistingTable(databaseSchema, connection);
+            return false;
+        } catch (final SQLException e) {
+            return true;
+        }
+    }
+
+    private void tryCreateExistingTable(String databaseSchema, Connection connection) throws SQLException {
+        try (final Statement statement = connection.createStatement()) {
+            final String sql = getCreateTableSql(databaseSchema);
+            LOG.trace("Checking if a table exists: [{}]", sql);
+            statement.execute(sql);
+            statement.execute("DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE");
+            LOG.trace("Dropping table exists: [{}]", sql);
+        }
+    }
+
+    protected void setSchema(final Connection connection, String databaseSchema) {
+        try {
+            try (final Statement statement = connection.createStatement()) {
+                final String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
+                LOG.trace("Change current schema:[{}]", schemaChangeSQL);
+                statement.execute(schemaChangeSQL);
+            }
+        } catch (final SQLException e) {
+            throw new FaultyDatabaseSchemaNameException("Could not alter JDBC connection to specified schema [" + databaseSchema + "]", e);
         }
     }
 
@@ -164,7 +188,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         String result;
 
         if (!isDatabaseSchemaNameSane(databaseSchemaName)) {
-            LOG.error("Faulty database schema name: [{}]",databaseSchemaName);
+            LOG.error("Faulty database schema name: [{}]", databaseSchemaName);
             throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: " + databaseSchemaName);
         }
 
@@ -177,6 +201,33 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
                 break;
             case ORACLE:
                 result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchemaName;
+                break;
+            default:
+                LOG.error("Unsupported database engine: {}", databaseEngine);
+                throw new DomibusDatabaseNotSupportedException("Unsupported database engine: [" + databaseEngine + "]");
+        }
+
+        LOG.debug("Generated SQL string for changing the schema: {}", result);
+
+        return result;
+    }
+
+    private String getCreateTableSql(String databaseSchemaName) {
+        final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
+        String result;
+
+        if (!isDatabaseSchemaNameSane(databaseSchemaName)) {
+            LOG.error("Faulty database schema name: [{}]", databaseSchemaName);
+            throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: " + databaseSchemaName);
+        }
+
+        switch (databaseEngine) {
+            case MYSQL:
+            case H2:
+                result = "CREATE TABLE " + databaseSchemaName + ".TB_USER_MESSAGE (ID INT)";
+                break;
+            case ORACLE:
+                result = "CREATE TABLE " + databaseSchemaName + ".TB_USER_MESSAGE (ID number)";
                 break;
             default:
                 LOG.error("Unsupported database engine: {}", databaseEngine);

@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.*;
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,9 @@ public class DbSchemaUtilImplTest {
     private static final String DOMAIN_DB_SCHEMA = "domibus_domain";
 
     private DbSchemaUtilImpl dbSchemaUtilImpl;
+
+    @Mock
+    private DataSource dataSource;
 
     @Mock
     private DomibusConfigurationService domibusConfigurationService;
@@ -60,7 +64,7 @@ public class DbSchemaUtilImplTest {
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(entityManagerFactory, domibusConfigurationService, domibusPropertyProvider);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService, domibusPropertyProvider);
     }
 
     @Test
