@@ -19,7 +19,9 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -129,33 +131,37 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
 
         return submit(() -> {
-            Connection connection;
-            try {
-                connection = dataSource.getConnection();
-                connection.setAutoCommit(false);
-            } catch (SQLException e) {
-                LOG.warn("Could not create a connection for domain [{}].", domain);
-                return false;
-            }
-
-            String databaseSchema = getDatabaseSchema(domain);
-
-            try {
-                setSchema(connection, databaseSchema);
-            } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
-                LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
-                return false;
-            }
-
-            try {
-                checkTableExists(databaseSchema, connection);
-                LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
-                return true;
-            } catch (final Exception e) {
-                LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
-                return false;
-            }
+            return doIsDatabaseSchemaForDomainValid(domain);
         }, domain);
+    }
+
+    protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
+        Connection connection;
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            LOG.warn("Could not create a connection for domain [{}].", domain);
+            return false;
+        }
+
+        String databaseSchema = getDatabaseSchema(domain);
+
+        try {
+            setSchema(connection, databaseSchema);
+        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
+            LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
+            return false;
+        }
+
+        try {
+            checkTableExists(databaseSchema, connection);
+            LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
+            return true;
+        } catch (final Exception e) {
+            LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
+            return false;
+        }
     }
 
     @Override
@@ -272,8 +278,8 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    protected  <T extends Object> T submit(Callable<T> task, Domain domain) {
-        DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
+    protected <T extends Object> T submit(Callable<T> task, Domain domain) {
+        DomainCallable<T> domainCallable = new DomainCallable<>(domainContextProvider, task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);

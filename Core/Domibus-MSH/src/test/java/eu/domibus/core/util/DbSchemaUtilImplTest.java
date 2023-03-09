@@ -23,6 +23,7 @@ import javax.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class DbSchemaUtilImplTest {
 
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
-    @Injectable
+    @Mock
     private DataSource dataSource;
 
     @Mock
@@ -53,7 +54,7 @@ public class DbSchemaUtilImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
+    @Mock
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
     @Injectable
@@ -71,7 +72,11 @@ public class DbSchemaUtilImplTest {
     @Mock
     Map<Domain, String> domainSchemas;
 
-    @Mock Connection connection;
+    @Mock
+    Connection connection;
+
+    @Mock
+    Statement statement;
 
     @Before
     public void init() {
@@ -125,11 +130,12 @@ public class DbSchemaUtilImplTest {
 
         //when
         Mockito.when(dataSource.getConnection()).thenReturn(connection);
+        Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
-        boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
+        boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
         Assert.assertTrue(actualResult);
@@ -142,11 +148,12 @@ public class DbSchemaUtilImplTest {
 
         //when
         Mockito.when(dataSource.getConnection()).thenReturn(connection);
+        Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.H2);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("SET SCHEMA " + DOMAIN_DB_SCHEMA)).thenReturn(query);
-        boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
+        boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
         Assert.assertTrue(actualResult);
@@ -160,11 +167,12 @@ public class DbSchemaUtilImplTest {
 
         //when
         Mockito.when(dataSource.getConnection()).thenReturn(connection);
+        Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("ALTER SESSION SET CURRENT_SCHEMA = " + DOMAIN_DB_SCHEMA)).thenReturn(query);
-        boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
+        boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
         Assert.assertTrue(actualResult);
@@ -178,12 +186,13 @@ public class DbSchemaUtilImplTest {
 
         //when
         Mockito.when(dataSource.getConnection()).thenReturn(connection);
+        Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
         Mockito.when(query.executeUpdate()).thenThrow(PersistenceException.class);
-        boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
+        boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
         Assert.assertFalse(actualResult);
