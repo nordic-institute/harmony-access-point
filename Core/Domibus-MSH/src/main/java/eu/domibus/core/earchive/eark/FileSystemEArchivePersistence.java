@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.eark;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
@@ -51,18 +52,21 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     private final EARKSIPFileService eArkSipBuilderService;
 
     private final EArchivingEventService eArchivingEventService;
+    private final FileServiceUtil fileServiceUtil;
 
 
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
                                          DomibusVersionService domibusVersionService,
                                          EArchivingFileService eArchivingFileService,
                                          EARKSIPFileService earksipFileService,
-                                         EArchivingEventService eArchivingEventService) {
+                                         EArchivingEventService eArchivingEventService,
+                                         FileServiceUtil fileServiceUtil) {
         this.storageProvider = storageProvider;
         this.domibusVersionService = domibusVersionService;
         this.eArchivingFileService = eArchivingFileService;
         this.eArkSipBuilderService = earksipFileService;
         this.eArchivingEventService = eArchivingEventService;
+        this.fileServiceUtil = fileServiceUtil;
     }
 
     @Override
@@ -124,12 +128,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    private void addUserMessage(EArchiveBatchUserMessage messageId, Path batchDirectory, MetsWrapper mainMETSWrapper) {
-        Map<String, ArchivingFileDTO> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
+    private void addUserMessage(EArchiveBatchUserMessage eArchiveBatchUserMessage, Path batchDirectory, MetsWrapper mainMETSWrapper) {
+        Map<String, ArchivingFileDTO> archivingFile = eArchivingFileService.getArchivingFiles(eArchiveBatchUserMessage.getUserMessageEntityId());
 
         for (Map.Entry<String, ArchivingFileDTO> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
-            String messageFolder = messageId.getMessageId();
+            String messageFolder = fileServiceUtil.URLEncode(eArchiveBatchUserMessage.getMessageId());
+
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageFolder + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageFolder);
@@ -145,5 +150,4 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, archivingFileDTO);
         }
     }
-
 }
