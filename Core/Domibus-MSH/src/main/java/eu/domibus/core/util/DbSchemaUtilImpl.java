@@ -3,6 +3,7 @@ package eu.domibus.core.util;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,7 +12,9 @@ import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.PersistenceException;
@@ -19,9 +22,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -106,6 +107,10 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return generalSchema;
     }
 
+    @Autowired
+    @Lazy
+    DomainTaskExecutor domainTaskExecutor;
+
     @Override
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         //in single tenancy the schema validity check is not needed
@@ -119,32 +124,34 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        Connection connection;
-        try {
-            connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            LOG.warn("Could not create a connection for domain [{}].", domain);
-            return false;
-        }
+        return domainTaskExecutor.submit(() -> {
+            Connection connection;
+            try {
+                connection = dataSource.getConnection();
+                connection.setAutoCommit(false);
+            } catch (SQLException e) {
+                LOG.warn("Could not create a connection for domain [{}].", domain);
+                return false;
+            }
 
-        String databaseSchema = getDatabaseSchema(domain);
+            String databaseSchema = getDatabaseSchema(domain);
 
-        try {
-            setSchema(connection, databaseSchema);
-        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
-            LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
-            return false;
-        }
+            try {
+                setSchema(connection, databaseSchema);
+            } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
+                LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
+                return false;
+            }
 
-        try {
-            createTable(databaseSchema, connection);
-            LOG.warn("Could create a supposedly existing table for domain [{}], so it is not a proper schema.", domain.getCode());
-            return false;
-        } catch (final SQLException e) {
-            LOG.trace("Could not create table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
-            return true;
-        }
+            try {
+                checkTableExists(databaseSchema, connection);
+                LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
+                return true;
+            } catch (final Exception e) {
+                LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
+                return false;
+            }
+        }, domain);
     }
 
     @Override
@@ -206,18 +213,15 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
-    private void createTable(String databaseSchema, Connection connection) throws SQLException {
+    private void checkTableExists(String databaseSchema, Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
-            String sql = getCreateTableSql(databaseSchema);
-            statement.execute(sql);
-            LOG.trace("Executed statement [{}] for schema [{}]", sql, databaseSchema);
-            sql = "DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE";
+            String sql = getCheckTableExistsSql(databaseSchema);
             statement.execute(sql);
             LOG.trace("Executed statement [{}] for schema [{}]", sql, databaseSchema);
         }
     }
 
-    private String getCreateTableSql(String databaseSchemaName) {
+    private String getCheckTableExistsSql(String databaseSchemaName) {
         final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
         String result;
 
@@ -229,10 +233,8 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         switch (databaseEngine) {
             case MYSQL:
             case H2:
-                result = "CREATE TABLE " + databaseSchemaName + ".TB_USER_MESSAGE (ID INT)";
-                break;
             case ORACLE:
-                result = "CREATE TABLE " + databaseSchemaName + ".TB_USER_MESSAGE (ID number)";
+                result = "SELECT ID_PK FROM " + databaseSchemaName + ".TB_USER_MESSAGE WHERE ID_PK=19700101";
                 break;
             default:
                 LOG.error("Unsupported database engine: {}", databaseEngine);
