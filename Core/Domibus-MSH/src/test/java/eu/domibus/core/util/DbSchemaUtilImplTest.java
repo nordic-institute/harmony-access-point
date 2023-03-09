@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,6 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.*;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +40,7 @@ public class DbSchemaUtilImplTest {
 
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
-    @Mock
+    @Injectable
     private DataSource dataSource;
 
     @Mock
@@ -60,6 +63,8 @@ public class DbSchemaUtilImplTest {
 
     @Mock
     Map<Domain, String> domainSchemas;
+
+    @Mock Connection connection;
 
     @Before
     public void init() {
@@ -107,11 +112,12 @@ public class DbSchemaUtilImplTest {
     }
 
     @Test
-    public void givenDomainWithValidDbSchemaWhenTestingOnMySqlValidityTrueShouldBeReturned() {
+    public void givenDomainWithValidDbSchemaWhenTestingOnMySqlValidityTrueShouldBeReturned() throws SQLException {
         Domain domain = new Domain(DOMAIN, DOMAIN);
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
+        Mockito.when(dataSource.getConnection()).thenReturn(connection);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
@@ -123,11 +129,12 @@ public class DbSchemaUtilImplTest {
     }
 
     @Test
-    public void givenDomainWithValidDbSchemaWhenTestingOnH2ValidityTrueShouldBeReturned() {
+    public void givenDomainWithValidDbSchemaWhenTestingOnH2ValidityTrueShouldBeReturned() throws SQLException {
         Domain domain = new Domain(DOMAIN, DOMAIN);
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
+        Mockito.when(dataSource.getConnection()).thenReturn(connection);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.H2);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
@@ -139,12 +146,13 @@ public class DbSchemaUtilImplTest {
     }
 
     @Test
-    public void givenDomainWithValidDbSchemaWhenTestingOnOracleValidityTrueShouldBeReturned() {
+    public void givenDomainWithValidDbSchemaWhenTestingOnOracleValidityTrueShouldBeReturned() throws SQLException {
         //given
         Domain domain = new Domain(DOMAIN, DOMAIN);
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
+        Mockito.when(dataSource.getConnection()).thenReturn(connection);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
@@ -156,12 +164,13 @@ public class DbSchemaUtilImplTest {
     }
 
     @Test
-    public void givenDomainWithFaultyDbSchemaWhenTestingValidityFalseShouldBeReturned() {
+    public void givenDomainWithFaultyDbSchemaWhenTestingValidityFalseShouldBeReturned() throws SQLException {
         //given
         Domain domain = new Domain(DOMAIN, DOMAIN);
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
         //when
+        Mockito.when(dataSource.getConnection()).thenReturn(connection);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
