@@ -133,8 +133,7 @@ public class DbSchemaUtilImplTest {
         Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
-        Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
+        Mockito.when(statement.execute("USE " + DOMAIN_DB_SCHEMA)).thenReturn(true);
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
@@ -151,8 +150,7 @@ public class DbSchemaUtilImplTest {
         Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.H2);
-        Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("SET SCHEMA " + DOMAIN_DB_SCHEMA)).thenReturn(query);
+        Mockito.when(statement.execute("SET SCHEMA " + DOMAIN_DB_SCHEMA)).thenReturn(true);
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
@@ -170,8 +168,7 @@ public class DbSchemaUtilImplTest {
         Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
-        Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("ALTER SESSION SET CURRENT_SCHEMA = " + DOMAIN_DB_SCHEMA)).thenReturn(query);
+        Mockito.when(statement.execute("ALTER SESSION SET CURRENT_SCHEMA = " + DOMAIN_DB_SCHEMA)).thenReturn(true);
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
@@ -189,9 +186,7 @@ public class DbSchemaUtilImplTest {
         Mockito.when(connection.createStatement()).thenReturn(statement);
         Mockito.when(domainSchemas.get(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
-        Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
-        Mockito.when(query.executeUpdate()).thenThrow(PersistenceException.class);
+        Mockito.when(statement.execute("USE " + DOMAIN_DB_SCHEMA)).thenThrow(PersistenceException.class);
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then

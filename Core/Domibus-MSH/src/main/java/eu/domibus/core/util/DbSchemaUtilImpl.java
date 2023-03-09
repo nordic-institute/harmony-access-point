@@ -130,7 +130,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        return submit(() -> {
+        return excuteOnNewThread(() -> {
             return doIsDatabaseSchemaForDomainValid(domain);
         }, domain);
     }
@@ -223,6 +223,11 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
+    @Override
+    public boolean isDatabaseSchemaNameSane(final String schemaName) {
+        return schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
+    }
+
     private void checkTableExists(String databaseSchema, Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
             String sql = getCheckTableExistsSql(databaseSchema);
@@ -278,7 +283,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    protected <T extends Object> T submit(Callable<T> task, Domain domain) {
+    protected <T extends Object> T excuteOnNewThread(Callable<T> task, Domain domain) {
         DomainCallable<T> domainCallable = new DomainCallable<>(domainContextProvider, task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
@@ -290,8 +295,4 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    @Override
-    public boolean isDatabaseSchemaNameSane(final String schemaName) {
-        return schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
-    }
 }
