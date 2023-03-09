@@ -191,26 +191,8 @@
                     </execution>
                     <!-- 5.1 end here -->
 
-                    <!-- partitioning migration 5.0.1 to 5.1 starts here -->
-                    <execution>
-                        <id>generate-oracle-script-partitioning-delta-5.1</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/partitioning/oracle/changelog-partitioning-delta.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-partitioning-delta.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-partitioning-migration.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- partitioning migration 5.0.1 to 5.1 ends here -->
+                    <!-- partitioning migration 5.0 to 5.1 starts here -->
+                    <!-- partitioning migration 5.0 to 5.1 ends here -->
 
                     <!-- 5.0.1 starts here -->
                     <execution>
