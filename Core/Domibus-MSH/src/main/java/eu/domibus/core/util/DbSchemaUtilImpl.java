@@ -119,16 +119,17 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        Connection connection = null;
+        Connection connection;
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
         } catch (SQLException e) {
-            LOG.warn("Could not create a connection.");
-            return true;
+            LOG.warn("Could not create a connection for domain [{}].", domain);
+            return false;
         }
 
         String databaseSchema = getDatabaseSchema(domain);
+
         try {
             setSchema(connection, databaseSchema);
         } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
@@ -137,8 +138,8 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
 
         try {
-            tryCreateExistingTable(databaseSchema, connection);
-            LOG.warn("Could create table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
+            createExistingTable(databaseSchema, connection);
+            LOG.warn("Could create a supposedly existing table for domain [{}], so it is not a proper schema.", domain.getCode());
             return false;
         } catch (final SQLException e) {
             LOG.trace("Could not create table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
@@ -205,13 +206,14 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
-    private void tryCreateExistingTable(String databaseSchema, Connection connection) throws SQLException {
+    private void createExistingTable(String databaseSchema, Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
-            final String sql = getCreateTableSql(databaseSchema);
-            LOG.trace("Checking if a table exists: [{}]", sql);
+            String sql = getCreateTableSql(databaseSchema);
             statement.execute(sql);
-            statement.execute("DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE");
-            LOG.trace("Dropping table exists: [{}]", sql);
+            LOG.trace("Executed statement [{}] for schema [{}]", sql, databaseSchema);
+            sql = "DROP TABLE " + databaseSchema + ".TB_USER_MESSAGE";
+            statement.execute(sql);
+            LOG.trace("Executed statement [{}] for schema [{}]", sql, databaseSchema);
         }
     }
 
