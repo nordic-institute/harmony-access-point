@@ -43,5 +43,10 @@ public interface DbSchemaUtil {
      */
     boolean isDatabaseSchemaNameSane(final String schemaName);
 
+    /**
+     * Tells a connection what schema to be used
+     * @param connection the connection
+     * @param databaseSchema the schema on which to operate
+     */
     void setSchema(final Connection connection, String databaseSchema);
 }
