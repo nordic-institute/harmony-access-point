@@ -138,7 +138,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
 
         try {
-            createExistingTable(databaseSchema, connection);
+            createTable(databaseSchema, connection);
             LOG.warn("Could create a supposedly existing table for domain [{}], so it is not a proper schema.", domain.getCode());
             return false;
         } catch (final SQLException e) {
@@ -206,7 +206,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         return result;
     }
 
-    private void createExistingTable(String databaseSchema, Connection connection) throws SQLException {
+    private void createTable(String databaseSchema, Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
             String sql = getCreateTableSql(databaseSchema);
             statement.execute(sql);
