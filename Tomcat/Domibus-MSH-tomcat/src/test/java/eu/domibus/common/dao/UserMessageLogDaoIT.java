@@ -131,8 +131,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         sendMessage(deletedWithProperties, timeT, DELETED, true, null);
         sendMessage(receivedWithProperties, timeT, RECEIVED, true, null);
         sendMessage(downloadedWithProperties, timeT, DOWNLOADED, true, null);
-        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, true, null); //findMessagesToDelete
-        sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, true, null); //findFailedMessages_originalSender findFailedMessages findMessagesToDelete
+        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, true, null);
+        sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, true, null);
 
         maxEntityId = Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
