@@ -234,33 +234,14 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: dss-utils-5.8.jar
-   ]]></notes>
+                file name: dss-utils-5.8.jar
+                ]]>
+        </notes>
         <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus\-default\-ws\-plugin\-stub\-utils@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-4277</cve>-->
-<!--    </suppress>-->
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: eu.domibus:dss-utils-apache-commons:5.0.3-SNAPSHOT-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils\-apache\-commons@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-4277</cve>-->
-<!--    </suppress>-->
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: eu.domibus:dss-utils:5.0.3-SNAPSHOT-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-4277</cve>-->
-<!--    </suppress>-->
     <!-- End CVE-2021-4277 -->
+
     <suppress>
         <notes><![CDATA[
    file name: @angular/core:8.2.14
