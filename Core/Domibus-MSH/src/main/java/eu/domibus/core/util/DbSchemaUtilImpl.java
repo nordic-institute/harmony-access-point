@@ -1,7 +1,9 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.datasource.DataSourceConstants;
-import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
+import static eu.domibus.api.model.UserMessage.DEFAULT_USER_MESSAGE_ID_PK;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT_IN_SECONDS;
@@ -58,18 +61,14 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     protected final SchedulingTaskExecutor schedulingTaskExecutor;
 
-    protected final DomainContextProvider domainContextProvider;
-
     public DbSchemaUtilImpl(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                             DomibusConfigurationService domibusConfigurationService,
                             DomibusPropertyProvider domibusPropertyProvider,
-                            @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) SchedulingTaskExecutor schedulingTaskExecutor,
-                            DomainContextProvider domainContextProvider) {
+                            @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) SchedulingTaskExecutor schedulingTaskExecutor) {
         this.dataSource = dataSource;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.schedulingTaskExecutor = schedulingTaskExecutor;
-        this.domainContextProvider = domainContextProvider;
     }
 
     /**
@@ -249,7 +248,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             case MYSQL:
             case H2:
             case ORACLE:
-                result = "SELECT ID_PK FROM " + databaseSchemaName + ".TB_USER_MESSAGE WHERE ID_PK=19700101";
+                result = "SELECT ID_PK FROM " + databaseSchemaName + ".TB_USER_MESSAGE WHERE ID_PK=" + DEFAULT_USER_MESSAGE_ID_PK;
                 break;
             default:
                 LOG.error("Unsupported database engine: {}", databaseEngine);
@@ -284,7 +283,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     protected <T extends Object> T excuteOnNewThread(Callable<T> task, Domain domain) {
-        DomainCallable<T> domainCallable = new DomainCallable<>(domainContextProvider, task, domain);
+        DomainCallable<T> domainCallable = new DomainCallable<>(task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
@@ -292,6 +291,27 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             // Restore interrupted state
             Thread.currentThread().interrupt();
             throw new DomainTaskException("Could not execute task", e);
+        }
+    }
+
+    static class DomainCallable<T> implements Callable<T> {
+
+        protected Callable<T> callable;
+        protected Domain domain;
+
+        public DomainCallable(Callable<T> callable, Domain domain) {
+            this.callable = callable;
+            this.domain = domain;
+        }
+
+        @Override
+        public T call() throws Exception {
+            if (domain == null) {
+                LOG.removeMDC(DomibusLogger.MDC_DOMAIN);
+            } else {
+                LOG.putMDC(DomibusLogger.MDC_DOMAIN, domain.getCode());
+            }
+            return callable.call();
         }
     }
 
