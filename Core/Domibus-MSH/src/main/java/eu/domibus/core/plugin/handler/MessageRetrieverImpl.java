@@ -19,6 +19,7 @@ import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -175,10 +176,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
-        if (userMessageLog == null && errorResults.isEmpty()) {
+        if (userMessageLog == null && CollectionUtils.isEmpty(errorResults)) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
-        return errorLogService.getErrors(messageId, role);
+        return errorResults;
     }
 
     @Override
