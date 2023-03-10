@@ -29,16 +29,16 @@
 <!--        &ndash;&gt;-->
 <!--        <cve>CVE-2020-8908</cve>-->
 <!--    </suppress>-->
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: dss-utils-google-guava-5.5.jar-->
-<!--   ]]></notes>-->
-<!--        &lt;!&ndash;-->
-<!--        dss library is using same version of Google guava considered safe above-->
-<!--         &ndash;&gt;-->
-<!--        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>-->
-<!--        <cpe>cpe:/a:google:guava</cpe>-->
-<!--    </suppress>-->
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-google-guava-5.5.jar
+   ]]></notes>
+        <!--
+        dss library is using same version of Google guava considered safe above
+         -->
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
