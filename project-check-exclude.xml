@@ -32,36 +32,25 @@
 
 <!--    <suppress>-->
 <!--        <notes><![CDATA[-->
-<!--   file name: dss-utils-google-guava-5.5.jar-->
+<!--   file name: spring-session-core-2.6.3.jar-->
 <!--   ]]></notes>-->
 <!--        &lt;!&ndash;-->
-<!--        dss library is using same version of Google guava considered safe above-->
-<!--         &ndash;&gt;-->
-<!--        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>-->
-<!--        <cpe>cpe:/a:google:guava</cpe>-->
+<!--        the features reported with vulnerabilities are not directly used in the project-->
+<!--        &ndash;&gt;-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-core@.*$</packageUrl>-->
+<!--        <cpe>cpe:/a:vmware:spring_framework</cpe>-->
 <!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-session-core-2.6.3.jar
-   ]]></notes>
-        <!--
-        the features reported with vulnerabilities are not directly used in the project
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-core@.*$</packageUrl>
-        <cpe>cpe:/a:vmware:spring_framework</cpe>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-session-jdbc-2.6.3.jar
-   ]]></notes>
-        <!--
-        the features reported with vulnerabilities are not directly used in the project
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
-        <cpe>cpe:/a:vmware:spring_framework</cpe>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-session-jdbc-2.6.3.jar-->
+<!--   ]]></notes>-->
+<!--        &lt;!&ndash;-->
+<!--        the features reported with vulnerabilities are not directly used in the project-->
+<!--        &ndash;&gt;-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>-->
+<!--        <cpe>cpe:/a:vmware:spring_framework</cpe>-->
+<!--    </suppress>-->
 
     <!-- test modules exclusions start here -->
     <suppress>
