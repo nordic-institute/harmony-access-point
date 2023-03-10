@@ -20,8 +20,10 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +33,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static eu.domibus.api.crypto.TLSCertificateManager.TLS_TRUSTSTORE_NAME;
 import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 /**
  * TLS Truststore Domibus services.
@@ -87,22 +93,20 @@ public class TLSTrustStoreExtResource {
 
     @Operation(summary = "Download TLS truststore", description = "Upload the TLS truststore file",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @GetMapping(value = "/download", produces = "application/octet-stream")
+    @GetMapping(value = "/download", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
         KeyStoreContentInfoDTO contentInfoDTO;
         byte[] content;
         try {
             contentInfoDTO = tlsTruststoreExtService.downloadTruststoreContent();
             content = contentInfoDTO.getContent();
-        } catch (Exception e) {
-            LOG.error("Could not download TLS truststore.", e);
-            return ResponseEntity.notFound().build();
+        } catch (Exception exception) {
+            throw new CryptoExtException("Could not download TLS truststore.");
         }
         HttpStatus status = HttpStatus.OK;
         if (content.length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
-
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header("content-disposition", "attachment; filename=" + getFileName())
