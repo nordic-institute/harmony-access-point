@@ -1,10 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
@@ -127,26 +124,24 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
-    public List<String> findAllPartitionsOlderThan(String partitionName, String dbUser) {
+    public List<DatabasePartition> findAllPartitions(String dbUser) {
         Query q = em.createNamedQuery("UserMessage.findPartitionsForUser_ORACLE");
         q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
-        q.setParameter("PNAME", partitionName);
         q.setParameter("DB_USER", dbUser.toUpperCase());
-        final List<String> partitionNames = q.getResultList();
-        LOG.debug("Partitions [{}]", partitionNames);
-        return partitionNames;
+        final List<DatabasePartition> partitions = q.getResultList();
+        LOG.debug("Partitions [{}]", partitions);
+        return partitions;
     }
 
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
-    public List<String> findAllPartitionsOlderThan(String partitionName) {
+    public List<DatabasePartition> findAllPartitions() {
         Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
         q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
-        q.setParameter("PNAME", partitionName);
-        final List<String> partitionNames = q.getResultList();
-        LOG.debug("Partitions [{}]", partitionNames);
-        return partitionNames;
+        final List<DatabasePartition> partitions = q.getResultList();
+        LOG.debug("Partitions [{}]", partitions);
+        return partitions;
     }
 
     @Timer(clazz = UserMessageDao.class, value = "dropPartition")
