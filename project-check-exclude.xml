@@ -67,45 +67,37 @@
 
 <!--    <suppress>-->
 <!--        <notes><![CDATA[-->
-<!--   file name: accessors-smart-1.2.jar-->
+<!--   file name: jakarta.el-3.0.3.jar-->
 <!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-27568</cve>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-28170</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: cxf-rt-features-metrics-3.4.1.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-features\-metrics@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-22696</cve>-->
+<!--        <cve>CVE-2021-30468</cve>-->
 <!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: jakarta.el-3.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>
-        <cve>CVE-2021-28170</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-rt-features-metrics-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-features\-metrics@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: cxf-spring-boot-autoconfigure-3.4.1.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-autoconfigure@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-22696</cve>-->
+<!--        <cve>CVE-2021-30468</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-spring-boot-autoconfigure-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-autoconfigure@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-spring-boot-starter-jaxws-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-starter\-jaxws@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: cxf-spring-boot-starter-jaxws-3.4.1.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-starter\-jaxws@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-22696</cve>-->
+<!--        <cve>CVE-2021-30468</cve>-->
+<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: cxf-rt-bindings-soap-3.5.5.jar
