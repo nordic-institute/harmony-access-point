@@ -64,40 +64,6 @@
         <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: jakarta.el-3.0.3.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-28170</cve>-->
-<!--    </suppress>-->
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: cxf-rt-features-metrics-3.4.1.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-features\-metrics@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-22696</cve>-->
-<!--        <cve>CVE-2021-30468</cve>-->
-<!--    </suppress>-->
-
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: cxf-spring-boot-autoconfigure-3.4.1.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-autoconfigure@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-22696</cve>-->
-<!--        <cve>CVE-2021-30468</cve>-->
-<!--    </suppress>-->
-
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: cxf-spring-boot-starter-jaxws-3.4.1.jar-->
-<!--   ]]></notes>-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-starter\-jaxws@.*$</packageUrl>-->
-<!--        <cve>CVE-2021-22696</cve>-->
-<!--        <cve>CVE-2021-30468</cve>-->
-<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: cxf-rt-bindings-soap-3.5.5.jar
@@ -149,131 +115,131 @@
     <!-- test modules exclusions end here -->
 
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-tx-5.3.20.jar
-   ]]></notes>
-        <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-tx-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        &lt;!&ndash;-->
+<!--        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)-->
+<!--        &ndash;&gt;-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-core-5.3.20.jar
-   ]]></notes>
-        <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-core-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        &lt;!&ndash;-->
+<!--        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)-->
+<!--        &ndash;&gt;-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-aop-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-aop@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-aop-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-aop@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jcl-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jcl@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-jcl-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jcl@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jms-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jms@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-jms-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jms@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-orm-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-orm@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-orm-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-orm@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-web-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-web-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jdbc-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jdbc@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-jdbc-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jdbc@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-test-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-test@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-test-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-test@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-beans-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-beans@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-beans-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-beans@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-webmvc-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-webmvc-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-context-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-context-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-messaging-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-messaging-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-expression-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-expression-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-context-support-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context\-support@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: spring-context-support-5.3.20.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context\-support@.*$</packageUrl>-->
+<!--        <cve>CVE-2016-1000027</cve>-->
+<!--    </suppress>-->
 
     <suppress>
         <notes><![CDATA[
