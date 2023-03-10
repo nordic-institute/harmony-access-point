@@ -474,9 +474,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             (new java.net.URL(url)).openStream().close();
             return true;
         } catch (Exception ex) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("URL is not accessible", ex);
-            }
+            LOG.warn("URL [{}] is not accessible", url, ex);
         }
         return false;
     }
