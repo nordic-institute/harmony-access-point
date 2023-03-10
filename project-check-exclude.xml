@@ -30,29 +30,6 @@
         <cve>CVE-2020-8908</cve>
     </suppress>
 
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: spring-session-core-2.6.3.jar-->
-<!--   ]]></notes>-->
-<!--        &lt;!&ndash;-->
-<!--        the features reported with vulnerabilities are not directly used in the project-->
-<!--        &ndash;&gt;-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-core@.*$</packageUrl>-->
-<!--        <cpe>cpe:/a:vmware:spring_framework</cpe>-->
-<!--    </suppress>-->
-
-<!--    <suppress>-->
-<!--        <notes><![CDATA[-->
-<!--   file name: spring-session-jdbc-2.6.3.jar-->
-<!--   ]]></notes>-->
-<!--        &lt;!&ndash;-->
-<!--        the features reported with vulnerabilities are not directly used in the project-->
-<!--        &ndash;&gt;-->
-<!--        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>-->
-<!--        <cpe>cpe:/a:vmware:spring_framework</cpe>-->
-<!--    </suppress>-->
-
-    <!-- test modules exclusions start here -->
     <suppress>
         <notes><![CDATA[
    file name: tomcat-embed-xxx-yyy.jar
@@ -88,13 +65,13 @@
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   file name: accessors-smart-1.2.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
-        <cve>CVE-2021-27568</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: accessors-smart-1.2.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-27568</cve>-->
+<!--    </suppress>-->
 
     <suppress>
         <notes><![CDATA[
