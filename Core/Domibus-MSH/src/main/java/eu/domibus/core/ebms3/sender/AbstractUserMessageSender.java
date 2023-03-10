@@ -217,13 +217,13 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                     reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
                 }
             }
-            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
 
+            getLog().debug("Finally handle reliability");
+            reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
                 getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
             }
-            getLog().debug("Finally handle reliability");
-            reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
         }
     }
 
