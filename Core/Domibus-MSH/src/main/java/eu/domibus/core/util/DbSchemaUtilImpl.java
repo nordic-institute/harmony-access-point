@@ -2,7 +2,6 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.property.DataBaseEngine;
@@ -284,7 +283,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     protected <T extends Object> T excuteOnNewThread(Callable<T> task, Domain domain) {
-        DomainCallable2<T> domainCallable = new DomainCallable2<>(task, domain);
+        DomainCallable<T> domainCallable = new DomainCallable<>(task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
@@ -295,12 +294,12 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    class DomainCallable2<T> implements Callable<T> {
+    static class DomainCallable<T> implements Callable<T> {
 
         protected Callable<T> callable;
         protected Domain domain;
 
-        public DomainCallable2(Callable<T> callable, Domain domain) {
+        public DomainCallable(Callable<T> callable, Domain domain) {
             this.callable = callable;
             this.domain = domain;
         }
