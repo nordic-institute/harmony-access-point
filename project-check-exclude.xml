@@ -226,10 +226,10 @@
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
     <suppress>
         <notes><![CDATA[
-                This suppresses the checks for any file named: domibus-*.jar
+                This suppresses the checks for any file named: *.jar
                 ]]>
         </notes>
-        <gav regex="true">^eu\.domibus:domibus-.*:.*$</gav>
+        <gav regex="true">^*:.*:.*$</gav>
         <cve>CVE-2021-4277</cve>
     </suppress>
 <!--    <suppress>-->
