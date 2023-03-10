@@ -15,7 +15,8 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.*;
+import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
 import org.springframework.context.ApplicationEventPublisher;
@@ -177,7 +178,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         if (userMessageLog == null && errorResults.isEmpty()) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
-        return errorResults;
+        return errorLogService.getErrors(messageId, role);
     }
 
     @Override
