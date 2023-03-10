@@ -1,7 +1,6 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -57,9 +56,6 @@ public class DbSchemaUtilImplTest {
     @Mock
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
-    @Injectable
-    protected DomainContextProvider domainContextProvider;
-
     @Mock
     private EntityManager entityManager;
 
@@ -81,7 +77,8 @@ public class DbSchemaUtilImplTest {
     @Before
     public void init() {
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService, domibusPropertyProvider, schedulingTaskExecutor, domainContextProvider);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService,
+                domibusPropertyProvider, schedulingTaskExecutor);
     }
 
     @Test
