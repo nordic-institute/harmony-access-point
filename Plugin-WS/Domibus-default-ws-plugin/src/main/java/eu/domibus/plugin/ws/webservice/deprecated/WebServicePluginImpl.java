@@ -20,6 +20,7 @@ import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
+import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -41,6 +42,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 
 /**
  * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
@@ -431,22 +434,30 @@ public class WebServicePluginImpl implements BackendInterface {
     }
 
     @Override
-    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) {
-        String messageId = messageErrorsRequest.getMessageID();
+    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws eu.domibus.plugin.webService.generated.GetMessageErrorsFault {
+
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequest.getMessageID());
+
+        if (StringUtils.isEmpty(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
+        }
+
         try {
             return transformFromErrorResults(wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID()));
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + messageId + "]", mnfEx);
             }
-            LOG.error(MESSAGE_NOT_FOUND_ID + messageId + "]");
+            throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "].", webServicePluginExceptionFactory.createFault(mnfEx.getMessage()));
         } catch (final DuplicateMessageException exception) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(DUPLICATE_MESSAGE_ID + messageId + "]", exception);
             }
-            LOG.error(DUPLICATE_MESSAGE_ID + messageId + "]");
+            throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault(DUPLICATE_MESSAGE_ID + messageId + "].", webServicePluginExceptionFactory.createFault(exception.getMessage()));
+        } catch (Exception ex) {
+            throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault("Couldn't find message errors [" + messageId + "]", webServicePluginExceptionFactory.createFault(ex.getMessage()));
         }
-        return new ErrorResultImplArray();
     }
 
     public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {

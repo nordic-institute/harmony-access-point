@@ -4,10 +4,12 @@ package eu.domibus.core.util;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.neethi.Policy;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +24,25 @@ public class SecurityProfileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileService.class);
 
-    private final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
+    protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
-    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader) {
+    protected final PolicyService policyService;
+
+    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader, PolicyService policyService) {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
+        this.policyService = policyService;
+    }
+
+    public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
+        Policy policy;
+        try {
+            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+        } catch (final ConfigurationException e) {
+            String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
+            throw new ConfigurationException(message);
+        }
+
+        return !policyService.isNoSecurityPolicy(policy);
     }
 
     /**
@@ -37,8 +54,11 @@ public class SecurityProfileService {
      * @return the Asymmetric Signature Algorithm
      */
     public String getSecurityAlgorithm(LegConfiguration legConfiguration) throws ConfigurationException {
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        if (!isSecurityPolicySet(legConfiguration)) {
+            return null;
+        }
 
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         if (securityProfile == null) {
             LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
             securityProfile = SecurityProfile.RSA;

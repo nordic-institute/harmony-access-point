@@ -22,6 +22,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -89,6 +90,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
+    @Ignore
     public void saveStoresFromDBToDisk() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");

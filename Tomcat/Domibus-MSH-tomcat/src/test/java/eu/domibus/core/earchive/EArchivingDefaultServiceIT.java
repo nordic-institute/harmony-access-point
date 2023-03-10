@@ -248,6 +248,18 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Assert.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
         Assert.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
     }
+    @Test
+    @Transactional
+    public void getNotArchivedMessages_noStartnoEnd() {
+        List<String> messages = eArchivingService.getNotArchivedMessages(null,
+                null, null, null);
+
+        // According to the discussion service must return all messages which does not have set archive date!
+        int expectedCount = 8;
+        Assert.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
+        Assert.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
+        Assert.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
+    }
 
     @Test
     @Transactional

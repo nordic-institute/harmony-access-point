@@ -11,6 +11,7 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
@@ -19,6 +20,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 
 
 /**
@@ -29,8 +32,9 @@ public class FSProcessFileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
-    //Constructor injection produces circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
-    @Resource(name = "backendFSPlugin")
+    @Resource(name = PLUGIN_NAME)
+    // EDELIVERY-10980: fix circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
+    @Lazy
     protected FSPluginImpl backendFSPlugin;
 
     @Autowired

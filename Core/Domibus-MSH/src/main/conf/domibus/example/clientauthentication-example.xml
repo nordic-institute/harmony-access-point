@@ -1,9 +1,9 @@
-
-
-
-<http-conf:tlsClientParameters
-        xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
-        xmlns:security="http://cxf.apache.org/configuration/security">
+<http-conf:tlsClientParameters secureSocketProtocol="TLS"
+                               xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+                               xmlns:security="http://cxf.apache.org/configuration/security">
+    <!--                                                 secureSocketProtocol="TLS" will allow TLSv1.2 and TLSv1.3 (default)                                      -->
+    <!--                                                 secureSocketProtocol="TLSv1.3" will only allow TLSv1.3                                                   -->
+    <!--  Protocols TLSv1.0 and TLSv1.1 are disabled by default for java version 11.0.11+9 and 8u291 b10 (see https://www.java.com/en/jre-jdk-cryptoroadmap.html) -->
     <security:trustManagers>
         <security:keyStore type="JKS" password="123456"
                            file="${domibus.config.location}/client_trust.jks"/>

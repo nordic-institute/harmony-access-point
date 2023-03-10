@@ -1,11 +1,9 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.KeystorePersistenceInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -18,10 +16,8 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,11 +57,6 @@ public class KeystoreResource extends TruststoreResourceBase {
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.errorHandlerService = errorHandlerService;
-    }
-
-    @ExceptionHandler({CryptoException.class})
-    public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @Override

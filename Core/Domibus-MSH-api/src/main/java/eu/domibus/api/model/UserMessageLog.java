@@ -161,7 +161,7 @@ import java.util.Date;
                 query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId)                " +
                         "from UserMessageLog uml                                                                     " +
                         "where uml.entityId > :LAST_ENTITY_ID                                                        " +
-                        "  and uml.entityId < :MAX_ENTITY_ID                                                         " +
+                        "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID)                             " +
                         "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
                         "  and uml.deleted IS NULL                                                                   " +
                         "  and uml.exported IS NULL                                                                  " +

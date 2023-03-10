@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -47,6 +48,9 @@ public class MessageRetrieverImplTest {
 
     @Tested
     MessageRetrieverImpl messageRetriever;
+
+    @Injectable
+    protected UserMessageSecurityService userMessageSecurityService;
 
     @Injectable
     protected UserMessageDefaultService userMessageService;
