@@ -19,14 +19,14 @@
         <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   file name: activemq-protobuf-1.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
-        <!-- we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries -->
-        <cpe>cpe:/a:apache:activemq:1.1</cpe>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: activemq-protobuf-1.1.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>-->
+<!--        &lt;!&ndash; we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries &ndash;&gt;-->
+<!--        <cpe>cpe:/a:apache:activemq:1.1</cpe>-->
+<!--    </suppress>-->
 
     <suppress>
         <notes><![CDATA[
@@ -148,7 +148,14 @@
         <cve>CVE-2021-22696</cve>
         <cve>CVE-2021-30468</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-bindings-soap-3.5.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
+        <!-- According to AS4 profile, Domibus must use https, the bug reproduces on http. More, Domibus uses Soap 1.2, the vulnerabilities is reported on Apache SOAP version 2.2 and later versions. -->
+        <cve>CVE-2022-40705</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: json-xxx-yyy.jar
