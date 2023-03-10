@@ -124,11 +124,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
-    public List<Partition> findAllPartitions(String dbUser) {
+    public List<DatabasePartition> findAllPartitions(String dbUser) {
         Query q = em.createNamedQuery("UserMessage.findPartitionsForUser_ORACLE");
         q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
         q.setParameter("DB_USER", dbUser.toUpperCase());
-        final List<Partition> partitions = q.getResultList();
+        final List<DatabasePartition> partitions = q.getResultList();
         LOG.debug("Partitions [{}]", partitions);
         return partitions;
     }
@@ -136,10 +136,10 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
-    public List<Partition> findAllPartitions() {
+    public List<DatabasePartition> findAllPartitions() {
         Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
         q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
-        final List<Partition> partitions = q.getResultList();
+        final List<DatabasePartition> partitions = q.getResultList();
         LOG.debug("Partitions [{}]", partitions);
         return partitions;
     }

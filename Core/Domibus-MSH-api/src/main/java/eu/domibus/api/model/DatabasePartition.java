@@ -3,12 +3,16 @@ package eu.domibus.api.model;
 import javax.persistence.Entity;
 import java.util.Objects;
 
+/**
+ * @author idragusa
+ * @since 5.1
+ */
 @Entity
-public class Partition extends AbstractBaseEntity {
+public class DatabasePartition extends AbstractBaseEntity {
     protected String partitionName;
     protected Long highValue;
 
-    public Partition(String partitionName, Long highValue) {
+    public DatabasePartition(String partitionName, Long highValue) {
         this.partitionName = partitionName;
         this.highValue = highValue;
     }
@@ -33,7 +37,7 @@ public class Partition extends AbstractBaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Partition partition = (Partition) o;
+        DatabasePartition partition = (DatabasePartition) o;
         return partitionName.equals(partition.partitionName) && highValue.equals(partition.highValue);
     }
 

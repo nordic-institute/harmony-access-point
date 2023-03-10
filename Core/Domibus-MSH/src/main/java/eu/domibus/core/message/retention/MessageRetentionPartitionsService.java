@@ -2,7 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.Partition;
+import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -148,7 +148,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected List<String> getExpiredPartitions(int maxRetention) {
-        List<Partition> partitions;
+        List<DatabasePartition> partitions;
         if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
             partitions = userMessageDao.findAllPartitions(dbSchemaUtil.getDatabaseSchema(currentDomain));
@@ -165,7 +165,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 partitions.stream()
                         .filter(p -> !StringUtils.equalsIgnoreCase(p.getPartitionName(), DEFAULT_PARTITION))
                         .filter(p -> p.getHighValue() < partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate) )
-                        .map(Partition::getPartitionName)
+                        .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
         LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
         if(LOG.isDebugEnabled()) {

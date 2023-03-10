@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK;
-
 /**
  * This service class is responsible for the handling of partitions
  *

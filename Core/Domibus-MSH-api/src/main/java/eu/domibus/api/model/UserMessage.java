@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -57,7 +56,7 @@ import java.util.Set;
         name = "PartitionMapping",  // same as resultSetMapping above in NativeQuery
         classes = {
                 @ConstructorResult(
-                        targetClass = eu.domibus.api.model.Partition.class,
+                        targetClass = eu.domibus.api.model.DatabasePartition.class,
                         columns = {
                                 @ColumnResult( name = "PARTITION_NAME", type = String.class),
                                 @ColumnResult( name = "HIGH_VALUE", type = Long.class)
