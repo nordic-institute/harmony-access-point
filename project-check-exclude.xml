@@ -226,11 +226,18 @@
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
     <suppress>
         <notes><![CDATA[
-   file name: dss-utils-5.8.jar
+   file name: xxx.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/eu\.*@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: dss-utils-5.8.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>-->
+<!--        <cve>CVE-2021-4277</cve>-->
+<!--    </suppress>-->
 <!--    <suppress>-->
 <!--        <notes><![CDATA[-->
 <!--   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT-->
