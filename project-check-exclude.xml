@@ -10,15 +10,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-                This suppresses the checks for any file named: domibus-test-*.jar
-                ]]>
-        </notes>
-        <gav regex="true">^eu\.domibus:domibus-test:.*$</gav>
-        <cpe>cpe:/a:test:test</cpe>
-        <cpe>cpe:/a:json-java_project:json-java</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: activemq-protobuf-1.1.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
@@ -172,6 +163,20 @@
         <vulnerabilityName>Fixed an mXSS-based bypass caused by nested forms inside MathML</vulnerabilityName>
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.el-3.0.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/javax\.el@.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-28170</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: json-path-2.4.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
     </suppress>
     <!-- test modules exclusions end here -->
 
