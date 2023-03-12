@@ -10,10 +10,10 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-                This suppresses the checks for any file named: domibus-msh-test-*.jar
+                This suppresses the checks for any file named: domibus-test-*.jar
                 ]]>
         </notes>
-        <gav regex="true">^eu\.domibus:domibus-msh-test:.*$</gav>
+        <gav regex="true">^eu\.domibus:domibus-test:.*$</gav>
         <cpe>cpe:/a:test:test</cpe>
         <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
