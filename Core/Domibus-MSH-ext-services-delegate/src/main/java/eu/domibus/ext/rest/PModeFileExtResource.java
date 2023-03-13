@@ -59,7 +59,7 @@ public class PModeFileExtResource {
         try {
             rawConfiguration = pModeExtService.getPModeFile(id);
         } catch (Exception exception) {
-            throw new PModeExtException("Could not download the PMode.");
+            throw new PModeExtException("Could not download the PMode.", exception);
         }
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
         if (rawConfiguration != null) {

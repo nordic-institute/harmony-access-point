@@ -95,7 +95,7 @@ public class TLSTrustStoreExtResource {
             contentInfoDTO = tlsTruststoreExtService.downloadTruststoreContent();
             content = contentInfoDTO.getContent();
         } catch (Exception exception) {
-            throw new CryptoExtException("Could not download TLS truststore.");
+            throw new CryptoExtException("Could not download TLS truststore.", exception);
         }
         HttpStatus status = HttpStatus.OK;
         if (content.length == 0) {

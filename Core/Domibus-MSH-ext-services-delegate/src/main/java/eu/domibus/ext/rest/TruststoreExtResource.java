@@ -88,7 +88,7 @@ public class TruststoreExtResource {
             info = truststoreExtService.downloadTruststoreContent();
             content = info.getContent();
         } catch (Exception exception) {
-            throw new CryptoExtException("Could not download truststore.");
+            throw new CryptoExtException("Could not download truststore.", exception);
         }
 
         HttpStatus status = HttpStatus.OK;
