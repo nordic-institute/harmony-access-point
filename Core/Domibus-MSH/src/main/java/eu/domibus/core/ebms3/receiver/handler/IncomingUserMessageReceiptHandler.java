@@ -25,6 +25,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.interceptor.Fault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,6 +135,11 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
             reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
+                final Boolean isTestMessage = sentUserMessage.isTestMessage();
+                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+            }
         }
         return null;
     }

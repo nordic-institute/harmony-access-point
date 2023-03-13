@@ -210,14 +210,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } finally {
-            if (userMessage.isTestMessage()) {
+            final Boolean isTestMessage = userMessage.isTestMessage();
+            if (isTestMessage) {
                 String destinationParty = userMessage.getPartyInfo().getToParty();
                 if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
                     reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
                 }
             }
+
             getLog().debug("Finally handle reliability");
             reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
+                getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+            }
         }
     }
 
