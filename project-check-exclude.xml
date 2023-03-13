@@ -614,4 +614,13 @@
         <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
         <cve>CVE-2022-40152</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: moment:2.29.3
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/moment@.*$</packageUrl>
+        <!-- Domibus does not use string-to-date parsing in moment -->
+        <vulnerabilityName>CVE-2022-31129</vulnerabilityName>
+    </suppress>
+
 </suppressions>
