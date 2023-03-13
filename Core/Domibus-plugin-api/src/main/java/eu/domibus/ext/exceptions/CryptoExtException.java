@@ -24,5 +24,8 @@ public class CryptoExtException extends DomibusServiceExtException {
         this(DomibusErrorCode.DOM_001, message);
     }
 
+    public CryptoExtException(String message, Throwable cause) {
+        this(DomibusErrorCode.DOM_001, message, cause);
+    }
 }
 

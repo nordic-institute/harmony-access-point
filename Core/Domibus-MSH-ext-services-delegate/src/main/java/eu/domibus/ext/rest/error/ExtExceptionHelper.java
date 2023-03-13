@@ -8,8 +8,10 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.ext.domain.ErrorDTO;
+import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
+import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
@@ -51,6 +53,14 @@ public class ExtExceptionHelper {
         }
         if (cause instanceof AuthenticationException) {
             return createResponseFromCoreException(cause, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (cause instanceof CryptoExtException) {
+            return createResponse(cause, HttpStatus.NOT_FOUND, true);
+        }
+
+        if (cause instanceof PModeExtException) {
+            return createResponse(cause, HttpStatus.NOT_FOUND, true);
         }
 
         if (cause instanceof MessageNotFoundException) {

@@ -80,16 +80,15 @@ public class TruststoreExtResource {
 
     @Operation(summary = "Download truststore", description = "Upload the truststore file",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @GetMapping(value = "/download", produces = "application/octet-stream")
+    @GetMapping(value = "/download", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
         KeyStoreContentInfoDTO info;
         byte[] content;
         try {
             info = truststoreExtService.downloadTruststoreContent();
             content = info.getContent();
-        } catch (Exception e) {
-            LOG.error("Could not find truststore.", e);
-            return ResponseEntity.notFound().build();
+        } catch (Exception exception) {
+            throw new CryptoExtException("Could not download truststore.", exception);
         }
 
         HttpStatus status = HttpStatus.OK;

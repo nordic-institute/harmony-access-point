@@ -52,14 +52,14 @@ public class PModeFileExtResource {
 
     @Operation(summary="Get PMode file", description="Retrieve the PMode file of specified id",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") long id) {
         LOG.debug("downloadPMode -> start");
         final byte[] rawConfiguration;
         try {
             rawConfiguration = pModeExtService.getPModeFile(id);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+        } catch (Exception exception) {
+            throw new PModeExtException("Could not download the PMode.", exception);
         }
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
         if (rawConfiguration != null) {

@@ -23,5 +23,8 @@ public class PModeExtException extends DomibusServiceExtException {
     public PModeExtException(String message) {
         this(DomibusErrorCode.DOM_003, message);
     }
+    public PModeExtException(String message, Throwable cause) {
+        this(DomibusErrorCode.DOM_003, message, cause);
+    }
 
 }
