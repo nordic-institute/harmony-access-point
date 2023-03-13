@@ -1,13 +1,13 @@
-﻿import {Injectable, Injector} from '@angular/core';
-import {
-  NavigationEnd,
-  NavigationStart,
-  Router,
-  RouterEvent
-} from '@angular/router';
+﻿import {Injectable} from '@angular/core';
+import {NavigationEnd, NavigationStart, Router, RouterEvent} from '@angular/router';
 import {Subject} from 'rxjs/Subject';
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './support/multiple-items-response';
+import {
+  instanceOfErrorRO,
+  instanceOfMultipleItemsResponse,
+  MultipleItemsResponse,
+  ResponseItemDetail
+} from './support/multiple-items-response';
 import {MatSnackBar} from '@angular/material';
 import {AlertComponent} from './alert.component';
 
@@ -69,6 +69,8 @@ export class AlertService {
     } else {
       if (instanceOfMultipleItemsResponse(response)) {
         message = this.processMultipleItemsResponse(response);
+      } else if (instanceOfErrorRO(response)) {
+        return this.formatResponse(response.message);
       }
     }
     return message;
@@ -105,8 +107,12 @@ export class AlertService {
   }
 
   escapeHtml(unsafe: string): string {
-    if (!unsafe) return '';
-    if (!unsafe.replace) unsafe = unsafe.toString();
+    if (!unsafe) {
+      return '';
+    }
+    if (!unsafe.replace) {
+      unsafe = unsafe.toString();
+    }
     return unsafe.replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -177,7 +183,7 @@ export class AlertService {
       if (res0 && res0.length > 0) {
         res = res0[1];
       }
-      if(!res) {
+      if (!res) {
         let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
         if (res1 && res1.length > 0) {
           res = res1[1];

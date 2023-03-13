@@ -47,11 +47,11 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.bind.JAXBContext;
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -150,9 +150,7 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(EventService.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(KeystorePersistenceService.class),
-                Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
-                Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
                 Mockito.spy(SecurityUtilImpl.class),
@@ -161,7 +159,7 @@ public class DynamicDiscoveryPModeProviderTest {
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
-        InputStream xmlStream = Files.newInputStream(new File(RESOURCE_PATH + resourceXML).toPath());
+        InputStream xmlStream = Files.newInputStream(Paths.get(RESOURCE_PATH + resourceXML));
         JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
 

@@ -679,7 +679,7 @@ public class FSPluginImplTest {
     }
 
     @Test
-    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException {
+    public void testMessageStatusChanged_SendFailedErrorFile() throws IOException, MessageNotFoundException {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent();
         event.setMessageId(messageId);
         event.setFromStatus(MessageStatus.SEND_ENQUEUED);

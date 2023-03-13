@@ -148,6 +148,7 @@
             <column name="SIGNAL_MESSAGE_ID"/>
             <column name="MSH_ROLE_ID_FK" />
         </createIndex>
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
         <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" tableName="TB_SIGNAL_MESSAGE" />
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"

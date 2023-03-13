@@ -4,6 +4,7 @@ package eu.domibus.plugin.handler;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 
@@ -86,7 +87,7 @@ public interface MessageRetriever {
      * @deprecated since 5.1 Use instead {@link #getStatus(String messageId, MSHRole role)}
      */
     @Deprecated
-    MessageStatus getStatus(String messageId);
+    MessageStatus getStatus(String messageId) throws DuplicateMessageException;
 
     MessageStatus getStatus(String messageId, MSHRole mshRole);
 
@@ -106,9 +107,9 @@ public interface MessageRetriever {
      * @deprecated since 5.1 Use instead {@link #getErrorsForMessage(String messageId, MSHRole role)}
      */
     @Deprecated
-    List<? extends ErrorResult> getErrorsForMessage(String messageId);
+    List<? extends ErrorResult> getErrorsForMessage(String messageId) throws MessageNotFoundException, DuplicateMessageException;
 
-    List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
+    List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     void markMessageAsDownloaded(String messageId);
 }

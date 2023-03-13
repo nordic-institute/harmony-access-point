@@ -72,26 +72,10 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
 
-        message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
-
-        final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
-        message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-        message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
-
-        String receiverPartyName = extractReceiverPartyName(pModeKey);
-        String encryptionAlias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverPartyName);
-
-        message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionAlias);
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionAlias);
-
+        Policy policy;
         try {
-            final Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
-            message.put(PolicyConstants.POLICY_OVERRIDE, policy);
-            message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
-
         } catch (final ConfigurationException e) {
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
@@ -99,6 +83,25 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
                     .message("Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity())
                     .build());
         }
+
+        if (!policyService.isNoSecurityPolicy(policy)) {
+            message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
+
+            final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
+            message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+            message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
+
+            String receiverPartyName = extractReceiverPartyName(pModeKey);
+            String encryptionAlias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverPartyName);
+
+            message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionAlias);
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionAlias);
+        }
+
+        message.put(PolicyConstants.POLICY_OVERRIDE, policy);
+        message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
     }
 
     protected String extractReceiverPartyName(String pModeKey) {

@@ -1,4 +1,5 @@
 Domibus 5.1
+- Add property for disabling the use of system default certificates (cacerts) on https exchanges.
 - Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
 - Added a new method to the WS plugin interface to getStatus based on the messageId and the role of the access Point. The old method to getStatus based on messageId is marked as deprecated.
 - Removed domainValidity cache since the call to validate domains is done once now.
@@ -15,8 +16,9 @@ Domibus 5.1
 - Files can be sent to WS Plugin as references to the filesystem
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
-Domibus 5.0.4
 - Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
+Domibus 5.0.4
+    - Fixed OWASP vulnerabilities
 Domibus 5.0.3
 - Fixed partition creation/dropping issue
 - Fixed the error when trying to use a PKCS12 format for the keystore

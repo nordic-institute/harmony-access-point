@@ -19,6 +19,11 @@ public class SynchronizedRunnableFactory {
     @Autowired
     SynchronizationService synchronizationService;
 
+    /**
+     * Instantiates a SynchronizedRunnable
+     * IMPORTANT: Only use with tasks that are short in duration since the locking requires an active database transaction
+     * @see SynchronizedRunnable
+     */
     @Bean(autowireCandidate = false)
     @Scope("prototype")
     public SynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {

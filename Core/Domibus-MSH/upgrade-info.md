@@ -2,7 +2,13 @@
 
   ## Domibus 5.1 (from 5.0.3)
                 - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
-                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists.
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists
+                - Update your logback.xml configuration so that logs contain the correct origin line number. At the begginging of your <configuration> declare the conversion word domibusLine: 
+                <conversionRule conversionWord="domibusLine" converterClass="eu.domibus.logging.DomibusLineOfCallerConverter" />
+                And then change your log pattern layouts by replacing %L and %line with %domibusLine. For example, the pattern:
+                    <property name="encoderPattern" value="%d{ISO8601} [%X{d_user}] [%X{d_domain}] [%X{d_messageId}] [%X{d_messageEntityId}] [%thread] %5p %c{1}:%L - %m%n" scope="global"/>
+                should become:
+                    <property name="encoderPattern" value="%d{ISO8601} [%X{d_user}] [%X{d_domain}] [%X{d_messageId}] [%X{d_messageEntityId}] [%thread] %5p %c{1}:%domibusLine - %m%n" scope="global"/>
                  o [MySQL only]
                     - Changed MySQL dialect property from MySQL5InnoDBDialect to MySQL8Dialect in the domibus.properties file:
                             domibus.entityManagerFactory.jpaProperty.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
@@ -11,7 +17,15 @@
                         - domain schemas:
                             - grant privileges to the general schema using oracle-5.1-multi-tenancy-rights.sql, updating the schema names before execution
                             Please note that this script execution is required even though it may have been executed before.
-  ### DB migration script
+                - [Custom plugins] For custom plugins the interface to Domibus has changed.
+                    - getErrorsForMessage(String messageId) became @deprecated and now throws MessageNotFoundException and DuplicateMessageException 
+                    - getStatus(String messageId) became @deprecated and now throws DuplicateMessageException
+                    - DuplicateMessageException is thrown in the self sending scenario, when two messages ACKNOWLEDGED and RECEIVED have the same messageId.
+                    - Both methods should be replaced with the equivalent method that receives also the AP Role as parameter to differentiate between sent and received messages.
+                    - The default list of message statuses for which notifications are sent has changed. As a consequence, the plugins that rely on notifications should customize this list of statuses in their properties file. For example, FS-Plugin should also include PAYLOAD_PROCESSED in the property fsplugin.messages.notifications from fs-plugin.properties.
+                        - the new (5.1) list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE, MESSAGE_DELETED, MESSAGE_DELETE_BATCH, PAYLOAD_SUBMITTED, PAYLOAD_PROCESSED
+                        - the previous list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE
+### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
                         - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
@@ -20,7 +34,7 @@
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
                               - To run the partitioning scripts please make sure following grants are added to the user:
-                                  GRANT REDEFINE ANY TABLE  TO [domibus_user];
+                                  GRANT REDEFINE ANY TABLE TO [domibus_user];
                                   GRANT CREATE MATERIALIZED VIEW TO [domibus_user];
                                   GRANT EXECUTE ON DBMS_REDEFINITION TO [domibus_user];
                                   GRANT SELECT ON USER_CONSTRAINTS TO [domibus_user];
@@ -39,6 +53,7 @@
                               or, for multitenancy:
                                   mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                   mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.1-data-migration.ddl
                           - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
                                   GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                             and then specifying the target databases as part of the command. For example, for single tenancy:
@@ -46,9 +61,11 @@
                                    mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
                                or, for multitenancy:
                                    mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-migration.ddl.
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
 ### Partitioning only (oracle)

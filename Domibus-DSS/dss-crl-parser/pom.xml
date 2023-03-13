@@ -19,7 +19,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15to18</artifactId>
+                    <artifactId>bcprov-jdk18on</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

@@ -40,6 +40,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     this.filter = {};
     this.activeFilter = {};
+
+    this.advancedSearch = true;
+    setTimeout(() => this.advancedSearch = false, 10);
   }
 
   /**
@@ -97,6 +100,20 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       }
     });
     this.onResetAdvancedSearchParams();
+  }
+
+  public getAdvancedSearchParams(): string {
+    let filters = '';
+    this.advancedFilters.forEach(filterName => {
+      let filterValue = this.filter[filterName];
+      if (filterValue) {
+        if (Object.prototype.toString.call(filterValue) === '[object Date]') {
+          filterValue = filterValue.toISOString().substring(0, filterValue.toISOString().indexOf('.')).replace('T', ' ');
+        }
+        filters += ' & ' + filterName + '=' + filterValue;
+      }
+    });
+    return filters.substring(3);
   }
 
   resetFiltersToInitial() {

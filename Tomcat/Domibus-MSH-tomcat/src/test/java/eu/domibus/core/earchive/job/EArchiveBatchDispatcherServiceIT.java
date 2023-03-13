@@ -18,14 +18,17 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +46,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
 @Transactional
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
@@ -66,6 +68,9 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -84,6 +89,8 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock("name"));
         domain = new Domain("default", "default");
         uploadPmode(SERVICE_PORT);
 
@@ -100,6 +107,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
             }
         };
     }
+
 
     @Test
     public void startBatch() {

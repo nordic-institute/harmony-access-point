@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.ws.algorithm;
 
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.cxf.DomibusBus;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.Bus;
@@ -99,6 +100,10 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
     }
 
     public AlgorithmSuiteType getAlgorithmSuiteType(SecurityProfile securityProfile) {
+        if (domibusAlgorithmSuite == null) {
+            String message = String.format("No algorithm suite type defined for security profile [%s]", securityProfile.getProfile());
+            throw new ConfigurationException(message);
+        }
         return domibusAlgorithmSuite.getAlgorithmSuiteType(securityProfile);
     }
 }

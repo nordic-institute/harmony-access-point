@@ -1,13 +1,13 @@
 package eu.domibus.core.earchive.eark;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
-import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
+import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -18,7 +18,6 @@ import org.apache.commons.io.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.roda_project.commons_ip2.model.MetsWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -31,8 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author François Gautier
@@ -55,21 +52,21 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     private final EARKSIPFileService eArkSipBuilderService;
 
     private final EArchivingEventService eArchivingEventService;
-
-    @Autowired
-    private MetricRegistry metricRegistry;
+    private final FileServiceUtil fileServiceUtil;
 
 
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
                                          DomibusVersionService domibusVersionService,
                                          EArchivingFileService eArchivingFileService,
                                          EARKSIPFileService earksipFileService,
-                                         EArchivingEventService eArchivingEventService) {
+                                         EArchivingEventService eArchivingEventService,
+                                         FileServiceUtil fileServiceUtil) {
         this.storageProvider = storageProvider;
         this.domibusVersionService = domibusVersionService;
         this.eArchivingFileService = eArchivingFileService;
         this.eArkSipBuilderService = earksipFileService;
         this.eArchivingEventService = eArchivingEventService;
+        this.fileServiceUtil = fileServiceUtil;
     }
 
     @Override
@@ -79,41 +76,27 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         String batchId = batchEArchiveDTO.getBatchId();
         LOG.info("Create eArchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
-            com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("createEArkSipStructure", "batchDirectory", "timer")).time();
             EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
             File storageDirectory = currentStorage.getStorageDirectory();
             String absolutePath = storageDirectory.getAbsolutePath();
             Path batchDirectory = Paths.get(absolutePath, batchId);
-            methodTimer.stop();
-            com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
             FileUtils.forceMkdir(batchDirectory.toFile());
-            cleanTimer.stop();
-            com.codahale.metrics.Timer.Context eArkSi = metricRegistry.timer(name("createEArkSipStructure", "getMetsWrapper", "timer")).time();
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
                     domibusVersionService.getArtifactName(),
                     domibusVersionService.getDisplayVersion(),
                     batchId);
-            eArkSi.stop();
 
-            com.codahale.metrics.Timer.Context addRep = metricRegistry.timer(name("createEArkSipStructure", "addRepresentation1", "timer")).time();
             addRepresentation1(userMessageEntityIds, batchDirectory, mainMETSWrapper);
-            addRep.stop();
 
-            com.codahale.metrics.Timer.Context addMes = metricRegistry.timer(name("createEArkSipStructure", "addMetsFileToFolder", "timer")).time();
             Path path = eArkSipBuilderService.addMetsFileToFolder(batchDirectory, mainMETSWrapper);
-            addMes.stop();
-            com.codahale.metrics.Timer.Context chkSum = metricRegistry.timer(name("createEArkSipStructure", "getChecksum", "timer")).time();
             String checksum = eArkSipBuilderService.getChecksum(path);
-            chkSum.stop();
             batchEArchiveDTO.setManifestChecksum(checksum);
-            com.codahale.metrics.Timer.Context crtBatch = metricRegistry.timer(name("createEArkSipStructure", "createBatchJson", "timer")).time();
 
             if (messageStartDate != null && messageEndDate != null) {
                 batchEArchiveDTO.setMessageStartDate(DateTimeFormatter.ISO_DATE_TIME.format(messageStartDate.toInstant().atZone(ZoneOffset.UTC)));
                 batchEArchiveDTO.setMessageEndDate(DateTimeFormatter.ISO_DATE_TIME.format(messageEndDate.toInstant().atZone(ZoneOffset.UTC)));
             }
             createBatchJson(batchEArchiveDTO, batchDirectory);
-            crtBatch.stop();
 
             return new DomibusEARKSIPResult(batchDirectory, checksum);
         } catch (DomibusEArchiveExportException ex) {
@@ -138,35 +121,25 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, Path batchDirectory, MetsWrapper mainMETSWrapper) {
-        com.codahale.metrics.Timer.Context addB = metricRegistry.timer(name("addRepresentation1", "addBatchJsonToMETS", "timer")).time();
         eArkSipBuilderService.addBatchJsonToMETS(mainMETSWrapper, BATCH_JSON_PATH);
-        addB.stop();
-        com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addRepresentation1", "loop", "timer")).time();
         for (EArchiveBatchUserMessage eArchiveBatchUserMessage : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", eArchiveBatchUserMessage.getMessageId());
-            com.codahale.metrics.Timer.Context addMess = metricRegistry.timer(name("addRepresentation1", "addUserMessage", "timer")).time();
             addUserMessage(eArchiveBatchUserMessage, batchDirectory, mainMETSWrapper);
-            addMess.stop();
         }
-        filLoc.stop();
     }
 
-    private void addUserMessage(EArchiveBatchUserMessage messageId, Path batchDirectory, MetsWrapper mainMETSWrapper) {
-        com.codahale.metrics.Timer.Context getArch = metricRegistry.timer(name("addUserMessage", "getArchivingFiles", "timer")).time();
-        Map<String, ArchivingFileDTO> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
-        getArch.stop();
+    private void addUserMessage(EArchiveBatchUserMessage eArchiveBatchUserMessage, Path batchDirectory, MetsWrapper mainMETSWrapper) {
+        Map<String, ArchivingFileDTO> archivingFile = eArchivingFileService.getArchivingFiles(eArchiveBatchUserMessage.getUserMessageEntityId());
 
         for (Map.Entry<String, ArchivingFileDTO> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
-            String messageFolder = messageId.getMessageId();
+            String messageFolder = fileServiceUtil.URLEncode(eArchiveBatchUserMessage.getMessageId());
+
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageFolder + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
-            com.codahale.metrics.Timer.Context getPath = metricRegistry.timer(name("addUserMessage", "getPath", "timer")).time();
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageFolder);
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
-            getPath.stop();
 
-            com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addUserMessage", "createDataFile", "timer")).time();
             ArchivingFileDTO archivingFileDTO = file.getValue();
             archivingFileDTO.setPath(path);
             try (InputStream inputStream = archivingFileDTO.getInputStream()) {
@@ -174,12 +147,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + archivingFileDTO + "]", e);
             }
-            crtFile.stop();
-            com.codahale.metrics.Timer.Context mets = metricRegistry.timer(name("addUserMessage", "addDataFileInfoToMETS", "timer")).time();
             eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, archivingFileDTO);
-            mets.stop();
-
         }
     }
-
 }

@@ -54,7 +54,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-@Ignore
+
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
@@ -131,7 +131,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Transactional
     @Before
     public void before() throws IOException, XmlProcessingException {
-        messageId = UUID.randomUUID() + "@domibus.eu";
+        messageId = BackendConnectorMock.MESSAGE_ID;
         filename = "SOAPMessage2.xml";
 
         uploadPmode();

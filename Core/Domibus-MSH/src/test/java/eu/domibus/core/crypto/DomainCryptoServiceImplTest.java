@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static org.mockito.Mockito.*;
 
 /**
@@ -23,7 +24,6 @@ import static org.mockito.Mockito.*;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class DomainCryptoServiceImplTest {
 
     @Mock
@@ -43,61 +43,67 @@ public class DomainCryptoServiceImplTest {
         MockitoAnnotations.initMocks(this);
     }
 
-//    @Test
-//    public void init() {
-//        final String dss = "DSS";
-//        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        when(defaultSpi.getIdentifier()).thenReturn("DEFAULT");
-//        when(dssSpi.getIdentifier()).thenReturn(dss);
-//        when(domain.getCode()).thenReturn("DEF");
-//        when(domain.getName()).thenReturn("DEFAULT");
-//        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-//        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-//        domainCryptoService.init();
-//        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
-//        verify(dssSpi, times(1)).init();
-//    }
-//
-//
-//    @Test(expected = IllegalStateException.class)
-//    public void initTooManyProviderForGivenIdentifier() {
-//        final String dss = "DSS";
-//        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        when(defaultSpi.getIdentifier()).thenReturn(dss);
-//        when(dssSpi.getIdentifier()).thenReturn(dss);
-//        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-//        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-//        domainCryptoService.init();
-//    }
-//
-//    @Test(expected = IllegalStateException.class)
-//    public void initNoProviderCorrespondToIdentifier() {
-//        final String dss = "DSS";
-//        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        when(defaultSpi.getIdentifier()).thenReturn(dss);
-//        when(dssSpi.getIdentifier()).thenReturn(dss);
-//        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList());
-//        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-//        domainCryptoService.init();
-//    }
-//
-//    @Test
-//    public void initTrustStore() {
-//        final String dss = "DSS";
-//        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-//        when(defaultSpi.getIdentifier()).thenReturn("DEFAULT");
-//        when(dssSpi.getIdentifier()).thenReturn(dss);
-//        when(domain.getCode()).thenReturn("DEF");
-//        when(domain.getName()).thenReturn("DEFAULT");
-//        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-//        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-//        domainCryptoService.init();
-//        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
-//        verify(dssSpi, times(1)).init();
-//    }
+    @Test
+    public void init() {
+        final String dss = "DSS";
+        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        when(defaultSpi.getIdentifier()).thenReturn("DEFAULT");
+        when(dssSpi.getIdentifier()).thenReturn(dss);
+        when(domain.getCode()).thenReturn("DEF");
+        when(domain.getName()).thenReturn("DEFAULT");
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
+        domainCryptoService.init();
+
+        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
+        verify(dssSpi, times(1)).init();
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void initTooManyProviderForGivenIdentifier() {
+        final String dss = "DSS";
+        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        when(defaultSpi.getIdentifier()).thenReturn(dss);
+        when(dssSpi.getIdentifier()).thenReturn(dss);
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
+        domainCryptoService.init();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void initNoProviderCorrespondToIdentifier() {
+        final String dss = "DSS";
+        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        when(defaultSpi.getIdentifier()).thenReturn(dss);
+        when(dssSpi.getIdentifier()).thenReturn(dss);
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList());
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
+        domainCryptoService.init();
+    }
+
+    @Test
+    public void initTrustStore() {
+        final String dss = "DSS";
+        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        when(defaultSpi.getIdentifier()).thenReturn("DEFAULT");
+        when(dssSpi.getIdentifier()).thenReturn(dss);
+        when(domain.getCode()).thenReturn("DEF");
+        when(domain.getName()).thenReturn("DEFAULT");
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
+        domainCryptoService.init();
+
+        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
+        verify(dssSpi, times(1)).init();
+    }
 }
 

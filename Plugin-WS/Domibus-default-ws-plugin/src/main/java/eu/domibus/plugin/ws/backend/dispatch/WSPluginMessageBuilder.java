@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static eu.domibus.plugin.ws.backend.reliability.retry.WSPluginBackendScheduleRetryService.MESSAGE_ID_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 
 /**
@@ -205,7 +206,7 @@ public class WSPluginMessageBuilder {
 
     protected DeleteBatch getDeleteBatch(WSBackendMessageLogEntity messageLogEntity) {
         DeleteBatch deleteBatch = new ObjectFactory().createDeleteBatch();
-        String[] split = StringUtils.split(messageLogEntity.getMessageId(), ";");
+        String[] split = StringUtils.split(messageLogEntity.getMessageId(), MESSAGE_ID_SEPARATOR);
         if (split == null || split.length == 0) {
             throw new WSPluginException("DELETE_BATCH cannot be send because no message ids found");
         }

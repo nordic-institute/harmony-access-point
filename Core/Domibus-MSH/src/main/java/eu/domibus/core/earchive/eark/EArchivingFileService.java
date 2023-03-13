@@ -138,7 +138,7 @@ public class EArchivingFileService {
                     .setInputStream(partInfo.getPayloadDatahandler().getInputStream())
                     .build();
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
+            throw new DomibusEArchiveExportException(entityId, "Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
         }
     }
 

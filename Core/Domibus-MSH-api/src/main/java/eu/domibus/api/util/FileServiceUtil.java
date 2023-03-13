@@ -25,4 +25,12 @@ public interface FileServiceUtil {
     String getExtension(String mime);
 
     byte[] getContentFromFile(String location) throws IOException;
+
+    /**
+     * Translates a string into application/x-www-form-urlencoded format using a specific encoding scheme.
+     *
+     * @param s String to be translated
+     * @return the translated String.
+     */
+    String URLEncode(String s);
 }

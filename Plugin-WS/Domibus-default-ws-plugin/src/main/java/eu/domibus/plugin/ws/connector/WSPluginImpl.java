@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MESSAGE_NOTIFICATIONS;
 import static eu.domibus.plugin.ws.property.listeners.WSPluginDispatcherCronExpressionChangeListener.SEND_RETRY_JOB_NAME;
 
 /**
@@ -59,13 +61,18 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
                         WSPluginBackendService wsPluginBackendService,
-                        WSPluginPropertyManager wsPluginPropertyManager, WSSendMessageListenerContainer wsSendMessageListenerContainer) {
+                        WSPluginPropertyManager wsPluginPropertyManager,
+                        WSSendMessageListenerContainer wsSendMessageListenerContainer,
+                        DomibusPropertyExtService domibusPropertyExtService) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
         this.wsSendMessageListenerContainer = wsSendMessageListenerContainer;
+        this.domibusPropertyExtService = domibusPropertyExtService;
+
+        setRequiredNotifications();
     }
 
     @Override
@@ -119,7 +126,6 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
             throw mpEx;
         }
     }
-
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
@@ -210,6 +216,12 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     @Override
     public PluginMessageListenerContainer getMessageListenerContainerFactory() {
         return wsSendMessageListenerContainer;
+    }
+
+    public void setRequiredNotifications() {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        setRequiredNotifications(messageNotifications);
     }
 
 }
