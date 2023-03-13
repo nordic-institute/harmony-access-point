@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
 import javax.xml.transform.TransformerFactory;
 
@@ -20,4 +21,8 @@ public interface XMLUtilExtService {
      * @return {@link TransformerFactory} with {@link javax.xml.XMLConstants#FEATURE_SECURE_PROCESSING} true
      */
     TransformerFactory getTransformerFactory();
+
+    DocumentBuilderFactory getDocumentBuilderFactory();
+
+    DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware();
 }
