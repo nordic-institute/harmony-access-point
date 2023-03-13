@@ -181,6 +181,9 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public Long getNotArchivedMessagesCount(Long startMessageId, Long endMessageId) {
+        if (startMessageId == null) {
+            startMessageId = 0L;
+        }
         return eArchiveBatchDao.getNotArchivedMessageCountForPeriod(startMessageId, endMessageId);
     }
 
