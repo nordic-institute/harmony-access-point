@@ -621,6 +621,6 @@
         <packageUrl regex="true">^pkg:npm/moment@.*$</packageUrl>
         <!-- Domibus does not use string-to-date parsing in moment -->
         <vulnerabilityName>CVE-2022-31129</vulnerabilityName>
+        <vulnerabilityName>1090141</vulnerabilityName>
     </suppress>
-
 </suppressions>
