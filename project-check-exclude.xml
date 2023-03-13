@@ -21,15 +21,6 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: activemq-protobuf-1.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
-        <!-- we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries -->
-        <cpe>cpe:/a:apache:activemq:1.1</cpe>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
    file name: guava-29.0-jre.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
@@ -38,40 +29,7 @@
         -->
         <cve>CVE-2020-8908</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: dss-utils-google-guava-5.5.jar
-   ]]></notes>
-        <!--
-        dss library is using same version of Google guava considered safe above
-         -->
-        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
-        <cpe>cpe:/a:google:guava</cpe>
-    </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-session-core-2.6.3.jar
-   ]]></notes>
-        <!--
-        the features reported with vulnerabilities are not directly used in the project
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-core@.*$</packageUrl>
-        <cpe>cpe:/a:vmware:spring_framework</cpe>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-session-jdbc-2.6.3.jar
-   ]]></notes>
-        <!--
-        the features reported with vulnerabilities are not directly used in the project
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
-        <cpe>cpe:/a:vmware:spring_framework</cpe>
-    </suppress>
-
-    <!-- test modules exclusions start here -->
     <suppress>
         <notes><![CDATA[
    file name: tomcat-embed-xxx-yyy.jar
@@ -106,49 +64,14 @@
         <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
-   file name: accessors-smart-1.2.jar
+   file name: cxf-rt-bindings-soap-3.5.5.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
-        <cve>CVE-2021-27568</cve>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
+        <!-- According to AS4 profile, Domibus must use https, the bug reproduces on http. More, Domibus uses Soap 1.2, the vulnerabilities is reported on Apache SOAP version 2.2 and later versions. -->
+        <cve>CVE-2022-40705</cve>
     </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: jakarta.el-3.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>
-        <cve>CVE-2021-28170</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-rt-features-metrics-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-features\-metrics@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-spring-boot-autoconfigure-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-autoconfigure@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-spring-boot-starter-jaxws-3.4.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-starter\-jaxws@.*$</packageUrl>
-        <cve>CVE-2021-22696</cve>
-        <cve>CVE-2021-30468</cve>
-    </suppress>
-
     <suppress>
         <notes><![CDATA[
    file name: json-xxx-yyy.jar
@@ -191,130 +114,11 @@
     </suppress>
     <!-- test modules exclusions end here -->
 
-
     <suppress>
         <notes><![CDATA[
-   file name: spring-tx-5.3.20.jar
-   ]]></notes>
-        <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-core-5.3.20.jar
-   ]]></notes>
-        <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-aop-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-aop@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jcl-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jcl@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jms-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jms@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-orm-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-orm@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-web-5.3.20.jar
+   file name: spring-web-5.3.25.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-jdbc-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jdbc@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-test-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-test@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-beans-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-beans@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-webmvc-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-context-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-messaging-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-expression-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-context-support-5.3.20.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context\-support@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
 
@@ -422,33 +226,22 @@
     <!-- Start CVE-2021-4277: Processing of the file screenshot_sync of the component Filename Handler is not used in Domibus -->
     <suppress>
         <notes><![CDATA[
-   file name: dss-utils-5.8.jar
-   ]]></notes>
+                This suppresses the checks for any file named: domibus-*.jar
+                ]]>
+        </notes>
+        <gav regex="true">^eu\.domibus:.*:.*$</gav>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+                file name: dss-utils-5.8.jar
+                ]]>
+        </notes>
         <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils.*@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: eu.domibus:domibus-default-ws-plugin-stub-utils:5.0.3-SNAPSHOT
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus\-default\-ws\-plugin\-stub\-utils@.*$</packageUrl>
-        <cve>CVE-2021-4277</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: eu.domibus:dss-utils-apache-commons:5.0.3-SNAPSHOT
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils\-apache\-commons@.*$</packageUrl>
-        <cve>CVE-2021-4277</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: eu.domibus:dss-utils:5.0.3-SNAPSHOT
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/eu\.domibus/dss\-utils@.*$</packageUrl>
-        <cve>CVE-2021-4277</cve>
-    </suppress>
     <!-- End CVE-2021-4277 -->
+
     <suppress>
         <notes><![CDATA[
    file name: @angular/core:8.2.14
