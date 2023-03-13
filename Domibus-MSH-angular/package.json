@@ -6,8 +6,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy-config.js --serve-path domibus",
-    "build": "set NODE_OPTIONS=--openssl-legacy-provider; ng build --base-href /domibus/",
-    "prod": "set NODE_OPTIONS=--openssl-legacy-provider; ng build --prod --output-path=./src/main/resources/META-INF/resources",
+    "build": "ng build --base-href /domibus/",
+    "prod": "ng build --prod --output-path=./src/main/resources/META-INF/resources",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
