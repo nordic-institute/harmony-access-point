@@ -129,36 +129,35 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        return excuteOnNewThread(() -> {
+        return executeOnNewThread(() -> {
             return doIsDatabaseSchemaForDomainValid(domain);
         }, domain);
     }
 
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
-        Connection connection;
-        try {
-            connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
+
+            String databaseSchema = getDatabaseSchema(domain);
+
+            try {
+                setSchema(connection, databaseSchema);
+            } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
+                LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
+                return false;
+            }
+
+            try {
+                checkTableExists(databaseSchema, connection);
+                LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
+                return true;
+            } catch (final Exception e) {
+                LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
+                return false;
+            }
+
         } catch (SQLException e) {
             LOG.warn("Could not create a connection for domain [{}].", domain);
-            return false;
-        }
-
-        String databaseSchema = getDatabaseSchema(domain);
-
-        try {
-            setSchema(connection, databaseSchema);
-        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
-            LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
-            return false;
-        }
-
-        try {
-            checkTableExists(databaseSchema, connection);
-            LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
-            return true;
-        } catch (final Exception e) {
-            LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
             return false;
         }
     }
@@ -282,7 +281,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    protected <T extends Object> T excuteOnNewThread(Callable<T> task, Domain domain) {
+    protected <T extends Object> T executeOnNewThread(Callable<T> task, Domain domain) {
         DomainCallable<T> domainCallable = new DomainCallable<>(task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {
