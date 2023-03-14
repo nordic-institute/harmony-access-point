@@ -44,7 +44,7 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
                 LOG.trace("Using incomingMessagePullRequestHandler");
                 return incomingMessagePullRequestHandler;
             } else if (signalMessage.getReceipt() != null) {
-                if (ebms3Messaging.getUserMessage() == null) {
+                if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getOtherAttributes().size() == 0) {
                     LOG.trace("Using incomingMessagePullReceiptHandler");
                     return incomingMessagePullReceiptHandler;
                 }
