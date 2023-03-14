@@ -158,10 +158,22 @@ public class MessageDaoTestUtil {
         userMessageDao.create(userMessage);
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setReceived(received);
         userMessageLog.setMshRole(mshRoleDao.findOrCreate(mshRole));
         userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
-        switch (messageStatus) {
+        setUserMessageLogDates(userMessageLog, received, archivedAndExported);
+        userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
+
+        userMessageLog.setUserMessage(userMessage);
+        userMessageLogDao.create(userMessageLog);
+
+        return userMessageLog;
+    }
+
+    public static void setUserMessageLogDates(UserMessageLog userMessageLog, Date received, Date archivedAndExported) {
+        userMessageLog.setExported(archivedAndExported);
+        userMessageLog.setArchived(archivedAndExported);
+        userMessageLog.setReceived(received);
+        switch (userMessageLog.getMessageStatus()) {
             case DELETED:
                 userMessageLog.setDeleted(received);
                 break;
@@ -178,14 +190,6 @@ public class MessageDaoTestUtil {
                 userMessageLog.setScheduled(false);
                 break;
         }
-        userMessageLog.setExported(archivedAndExported);
-        userMessageLog.setArchived(archivedAndExported);
-        userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
-
-        userMessageLog.setUserMessage(userMessage);
-        userMessageLogDao.create(userMessageLog);
-
-        return userMessageLog;
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.ITTestsService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
@@ -8,9 +9,16 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.MpcDao;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.test.common.BackendConnectorMock;
 import org.junit.*;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +38,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -43,34 +51,39 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
 
     private final static String NUMBER_FORMAT_DEFAULT = "%010d";
+    public static final String WS_PLUGIN = "wsPlugin";
+    public static final String ORIGINAL_SENDER = "originalSender1";
+    public static final String FINAL_RECIPIENT = "finalRecipient2";
 
     @Autowired
-    UserMessageLogDao userMessageLogDao;
+    private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    UserMessageDao userMessageDao;
+    private DateUtil dateUtil;
 
     @Autowired
-    DateUtil dateUtil;
+    private MessageDaoTestUtil messageDaoTestUtil;
 
     @Autowired
-    MessageDaoTestUtil messageDaoTestUtil;
+    private ITTestsService itTestsService;
+
+    @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
 
     private Date before;
-    private Date timeT;
     private Date after;
     private Date old;
 
-    private final String deletedNoProperties = randomUUID().toString();
-    private final String deletedWithProperties = randomUUID().toString();
-    private final String receivedNoProperties = randomUUID().toString();
-    private final String receivedWithProperties = randomUUID().toString();
-    private final String downloadedNoProperties = randomUUID().toString();
-    private final String downloadedWithProperties = randomUUID().toString();
-    private final String waitingForRetryNoProperties = randomUUID().toString();
-    private final String waitingForRetryWithProperties = randomUUID().toString();
-    private final String sendFailureNoProperties = randomUUID().toString();
-    private final String sendFailureWithProperties = randomUUID().toString();
+    private final String deletedNoProperties = "deletedNoProperties" + randomUUID();
+    private final String deletedWithProperties = "deletedWithProperties" + randomUUID();
+    private final String receivedNoProperties = "receivedNoProperties" + randomUUID();
+    private final String receivedWithProperties = "receivedWithProperties" + randomUUID();
+    private final String downloadedNoProperties = "downloadedNoProperties" + randomUUID();
+    private final String downloadedWithProperties = "downloadedWithProperties" + randomUUID();
+    private final String waitingForRetryNoProperties = "waitingForRetryNoProperties" + randomUUID();
+    private final String waitingForRetryWithProperties = "waitingForRetryWithProperties" + randomUUID();
+    private final String sendFailureNoProperties = "sendFailureNoProperties" + randomUUID();
+    private final String sendFailureWithProperties = "sendFailureWithProperties" + randomUUID();
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
     private UserMessageLog msg1;
@@ -78,32 +91,48 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private UserMessageLog msg2;
     private UserMessageLog msg3;
 
+    @Autowired
+    private MpcDao mpcDao;
+
+    @Autowired
+    private NotificationStatusDao notificationStatusDao;
+
     @Before
     @Transactional
-    public void setup() {
+    public void setup() throws Exception {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
-        timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
+        Date timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        msg1 = messageDaoTestUtil.createUserMessageLog("msg1-" + UUID.randomUUID(), timeT);
-        msg1Fragment = messageDaoTestUtil.createUserMessageLogFragment("msg1-" + UUID.randomUUID(), timeT);
-        msg2 = messageDaoTestUtil.createUserMessageLog("msg2-" + randomUUID(), timeT);
-        msg3 = messageDaoTestUtil.createUserMessageLog("msg3-" + UUID.randomUUID(), old);
+        uploadPmode();
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock(WS_PLUGIN));
+        String messageOneId = "msg1-" + randomUUID();
+        String messageTwoId = "msg2-" + randomUUID();
+        String messageThreeId = "msg3-" + randomUUID();
+        String messageFourId = "msg4-" + randomUUID();
+        msg1 = receiveMessage(messageOneId, timeT, false);
+
+        msg2 = receiveMessage(messageTwoId , timeT, false);
+
+        msg3 = receiveMessage(messageThreeId, old, false);
+
+        msg1Fragment = receiveMessage(messageFourId, timeT, true);
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
-        messageDaoTestUtil.createUserMessageLog(deletedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, false, MPC, new Date());
-        messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, RECEIVED, false, MPC, new Date());
-        messageDaoTestUtil.createUserMessageLog(downloadedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, false, MPC, new Date());
-        messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC, new Date());
-        messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC, new Date());
+        sendMessage(deletedNoProperties, timeT, DELETED, false, new Date());
+        sendMessage(receivedNoProperties, timeT, RECEIVED, false, new Date());
+        sendMessage(downloadedNoProperties, timeT, DOWNLOADED, false, new Date());
+        sendMessage(waitingForRetryNoProperties, timeT, WAITING_FOR_RETRY, false, new Date());
+        sendMessage(sendFailureNoProperties, timeT, SEND_FAILURE, false, new Date());
 
-        messageDaoTestUtil.createUserMessageLog(deletedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, RECEIVED, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(downloadedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC, null);
-        messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC, null);
+        sendMessage(deletedWithProperties, timeT, DELETED, true, null);
+        sendMessage(receivedWithProperties, timeT, RECEIVED, true, null);
+        sendMessage(downloadedWithProperties, timeT, DOWNLOADED, true, null);
+        sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, true, null);
+        sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, true, null);
 
         maxEntityId = Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
@@ -111,6 +140,32 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .format(ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH)) + String.format(NUMBER_FORMAT_DEFAULT, 0));
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
+
+    private void sendMessage(String messageId, Date timeT, MessageStatus status, boolean hasProperties, Date archivedAndExported) throws MessagingProcessingException {
+        UserMessageLog userMessageLog = itTestsService.sendMessageWithStatus(status, messageId);
+        userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
+        UserMessage userMessage = userMessageLog.getUserMessage();
+        userMessage.setMpc(mpcDao.findOrCreateMpc(MPC));
+
+        Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
+        messageProperties.clear();
+        if(hasProperties){
+            MessageProperty messageProperty1 = messageDaoTestUtil.createMessageProperty("originalSender", ORIGINAL_SENDER, "");
+            MessageProperty messageProperty2 = messageDaoTestUtil.createMessageProperty("finalRecipient", FINAL_RECIPIENT, "");
+            messageProperties.addAll(Arrays.asList(messageProperty1, messageProperty2));
+        }
+        MessageDaoTestUtil.setUserMessageLogDates(userMessageLog, timeT, archivedAndExported);
+    }
+
+    private UserMessageLog receiveMessage(String messageId, Date timeT, boolean isFragment) throws Exception {
+        itTestsService.receiveMessage(messageId);
+        UserMessageLog msg = userMessageLogDao.findByMessageId(messageId);
+        MessageDaoTestUtil.setUserMessageLogDates(msg, timeT, null);
+        if(isFragment){
+            msg.getUserMessage().setMessageFragment(true);
+        }
+        return msg;
     }
 
     @BeforeClass
@@ -307,9 +362,11 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
-        final String finalRecipient = "finalRecipient2";
+        final String finalRecipient = FINAL_RECIPIENT;
 
-        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        Long idPkStartDate = dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER));
+        Long idPkEndDate = dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER));
+        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, idPkStartDate, idPkEndDate);
         assertEquals(3, message.size());
     }
 
@@ -319,7 +376,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
-        final String finalRecipient = "finalRecipient2";
+        final String finalRecipient = FINAL_RECIPIENT;
 
         List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(1, message.size());
@@ -353,9 +410,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
-        final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, "originalSender1", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, ORIGINAL_SENDER, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(1, message.size());
     }
 
@@ -365,9 +421,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
-        final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, "notExists", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, "notExists", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(0, message.size());
     }
 
@@ -601,7 +656,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Transactional
     public void findBackendForMessageId() {
         String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId(), msg1.getUserMessage().getMshRole().getRole());
-        assertNull(backendForMessageId);
+        assertEquals(WS_PLUGIN, backendForMessageId);
     }
 
     @Test
