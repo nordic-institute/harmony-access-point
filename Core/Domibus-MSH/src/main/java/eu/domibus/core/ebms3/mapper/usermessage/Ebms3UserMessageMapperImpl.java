@@ -78,7 +78,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setTimestamp(messageInfo.getTimestamp());
         userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
 
-        final Boolean testMessage =testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
         userMessage.setTestMessage(testMessage);
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 
