@@ -46,6 +46,7 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
                 return incomingMessagePullRequestHandler;
             } else if (signalMessage.getReceipt() != null) {
                 final String contentsOfReceipt = signalMessage.getReceipt().getAny().get(0);
+                //ebms3Messaging.getOtherAttributes().size() is used to differentiate between pull mode with no security policy and split and join
                 if (ebms3Messaging.getUserMessage() == null &&
                         (ebms3Messaging.getOtherAttributes().size() == 0 || !StringUtils.contains(contentsOfReceipt, "UserMessage"))) {
                     LOG.trace("Using incomingMessagePullReceiptHandler");
