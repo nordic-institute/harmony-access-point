@@ -4,7 +4,9 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.ext.services.XMLUtilExtService;
 import org.springframework.stereotype.Service;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.MessageFactory;
+import javax.xml.transform.TransformerFactory;
 
 /**
  * Delegate class allowing Domibus extension/plugin to use XML utility class of Domibus
@@ -23,5 +25,19 @@ public class XMLUtilDelegate implements XMLUtilExtService {
 
     public MessageFactory getMessageFactorySoap12() {
         return xmlUtil.getMessageFactorySoap12();
+    }
+
+    public TransformerFactory getTransformerFactory() {
+        return xmlUtil.getTransformerFactory();
+    }
+
+    @Override
+    public DocumentBuilderFactory getDocumentBuilderFactory() {
+        return xmlUtil.getDocumentBuilderFactory();
+    }
+
+    @Override
+    public DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
+        return xmlUtil.getDocumentBuilderFactoryNamespaceAware();
     }
 }

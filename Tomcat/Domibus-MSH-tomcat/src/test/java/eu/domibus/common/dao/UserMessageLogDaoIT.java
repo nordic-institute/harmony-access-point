@@ -14,6 +14,7 @@ import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -31,9 +32,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -76,6 +74,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
     private UserMessageLog msg1;
+    private UserMessageLog msg1Fragment;
     private UserMessageLog msg2;
     private UserMessageLog msg3;
 
@@ -88,6 +87,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
         msg1 = messageDaoTestUtil.createUserMessageLog("msg1-" + UUID.randomUUID(), timeT);
+        msg1Fragment = messageDaoTestUtil.createUserMessageLogFragment("msg1-" + UUID.randomUUID(), timeT);
         msg2 = messageDaoTestUtil.createUserMessageLog("msg2-" + randomUUID(), timeT);
         msg3 = messageDaoTestUtil.createUserMessageLog("msg3-" + UUID.randomUUID(), old);
 
@@ -153,7 +153,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true, false);
         assertEquals(3, downloadedUserMessagesOlderThan.size());
-        Assert.assertThat(downloadedUserMessagesOlderThan
+        assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
@@ -171,7 +171,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(3, downloadedUserMessagesOlderThan.size());
-        Assert.assertThat(downloadedUserMessagesOlderThan
+        assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(downloadedNoProperties, downloadedWithProperties));
@@ -196,7 +196,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(3, undownloadedUserMessagesOlderThan.size());
-        Assert.assertThat(undownloadedUserMessagesOlderThan
+        assertThat(undownloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(receivedNoProperties, receivedWithProperties));
@@ -221,7 +221,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(3, deletedUserMessagesOlderThan.size());
-        Assert.assertThat(deletedUserMessagesOlderThan
+        assertThat(deletedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(deletedNoProperties, deletedWithProperties));
@@ -270,7 +270,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         long count = userMessageLogDao.countEntries(filters);
 
-        assertEquals(12, count);
+        assertEquals(13, count);
     }
 
     @Test
@@ -285,7 +285,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         long count = userMessageLogDao.countEntries(filters);
 
-        assertEquals(2, count);
+        assertEquals(3, count);
     }
 
     @Test
@@ -298,7 +298,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
 
-        assertEquals(7, messages.size());
+        assertEquals(8, messages.size());
     }
 
     @Test

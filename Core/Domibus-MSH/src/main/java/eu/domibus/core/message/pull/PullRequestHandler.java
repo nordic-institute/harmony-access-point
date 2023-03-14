@@ -23,6 +23,7 @@ import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
+import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -72,6 +73,9 @@ public class PullRequestHandler {
     @Autowired
     private PullMessageService pullMessageService;
 
+    @Autowired
+    private SecurityProfileService securityProfileService;
+
     public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
             LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
@@ -114,8 +118,10 @@ public class PullRequestHandler {
                 }
                 LOG.info("Initiator is [{}]", initiatorPartyName);
 
-                messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
-                messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
+                if (securityProfileService.isSecurityPolicySet(leg)) {
+                    messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
+                    messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
+                }
                 leg = pullContext.filterLegOnMpc();
 
                 final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());

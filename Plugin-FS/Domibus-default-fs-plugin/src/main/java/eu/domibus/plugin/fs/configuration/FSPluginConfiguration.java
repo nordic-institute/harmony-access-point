@@ -1,14 +1,18 @@
 package eu.domibus.plugin.fs.configuration;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationType;
+import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.ObjectFactory;
-import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
+import eu.domibus.plugin.fs.worker.FSDomainService;
+import eu.domibus.plugin.fs.worker.FSProcessFileService;
+import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +22,10 @@ import org.springframework.core.env.Environment;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 
 /**
  * Class responsible for the configuration of the plugin, independent of any server
@@ -36,21 +41,14 @@ public class FSPluginConfiguration {
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
     public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";
 
-    protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
-                            NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
-                            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE, NotificationType.PAYLOAD_PROCESSED);
-
-    @Bean("backendFSPlugin")
-    public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
-        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
-        LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        if (!messageNotifications.containsAll(defaultMessageNotifications)) {
-            LOG.warn("FSPlugin will not function properly if the following message notifications will not be set: [{}]",
-                    defaultMessageNotifications);
-        }
-
-        FSPluginImpl fsPlugin = new FSPluginImpl();
-        fsPlugin.setRequiredNotifications(messageNotifications);
+    @Bean(PLUGIN_NAME)
+    public FSPluginImpl createFSPlugin(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
+                                       FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
+                                       DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
+                                       FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper,
+                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService) {
+        FSPluginImpl fsPlugin = new FSPluginImpl(defaultTransformer, fsFilesManager, fsPluginProperties, fsSendMessagesService, fsProcessFileService, domainTaskExtExecutor,
+                fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService);
         return fsPlugin;
     }
 

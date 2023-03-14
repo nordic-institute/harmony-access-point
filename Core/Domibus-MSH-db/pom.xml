@@ -191,50 +191,27 @@
                     </execution>
                     <!-- 5.1 end here -->
 
-                    <!-- partitioning migration 5.0.1 to 5.1 starts here -->
-                    <!-- partitioning migration 5.0.1 to 5.1 ends here -->
-
-                    <!-- 5.0.1 starts here -->
+                    <!-- partitioning migration 5.0 to 5.1 starts here -->
                     <execution>
-                        <id>generate-oracle-script-partitioning-5.0.1</id>
+                        <id>generate-oracle-partitioning-delta-5.1</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/archive/5.0.1/partitioning/oracle/changelog-5.0.1-partitioning.xml
+                                src/main/resources/db/partitioning/oracle/changelog-partitioning-5.1-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.1-partitioning.oracle
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.1-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0.1-partitioning.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-partitioning-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- 5.0.1 end here -->
+                    <!-- partitioning migration 5.0 to 5.1 ends here -->
 
-                    <!-- 5.0 starts here -->
-                    <execution>
-                        <id>generate-oracle-script-partitioning-5.0</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- 5.0 end here -->
 
                     <!-- partitioning 5.0 populated table starts here -->
                     <execution>
@@ -438,7 +415,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -456,7 +433,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>

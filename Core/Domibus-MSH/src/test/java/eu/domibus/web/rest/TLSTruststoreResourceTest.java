@@ -1,7 +1,9 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -9,7 +11,6 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.Expectations;
@@ -69,42 +70,37 @@ public class TLSTruststoreResourceTest {
     @Injectable
     KeystorePersistenceService keystorePersistenceService;
 
-//    @Test
-//    public void replaceTruststore() {
-//        final byte[] fileContent = new byte[]{1, 0, 1};
-//        String filename = "filename";
-//
-//        new Expectations() {{
-//        }};
-//
-//        // When
-//        String pass = "pass";
-//        tlsTruststoreResource.doUploadStore(fileContent, filename, pass);
-//
-//        new Verifications() {{
-//            tlsCertificateManager.replaceTrustStore(filename, fileContent, pass);
-//        }};
-//    }
+    @Test
+    public void replaceTruststore(@Injectable KeyStoreContentInfo storeInfo) {
 
-//    @Test
-//    public void addTLSCertificateOK() {
-//        byte[] content = {1, 0, 1};
-//        String filename = "filename", alias = "blue_gw";
-//        MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
-//        new Expectations() {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            result = content;
-//            tlsCertificateManager.addCertificate(content, alias);
-//        }};
-//
-//        String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
-//
-//        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the [" + tlsTruststoreResource.getStoreName() + "]."));
-//
-//        new Verifications() {{
-//            tlsCertificateManager.addCertificate(content, alias);
-//        }};
-//    }
+        // When
+        tlsTruststoreResource.doUploadStore(storeInfo);
+
+        new Verifications() {{
+            tlsCertificateManager.replaceTrustStore(storeInfo);
+        }};
+    }
+
+    @Test
+    public void addTLSCertificateOK() {
+        byte[] content = {1, 0, 1};
+        String filename = "filename", alias = "blue_gw";
+        MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
+        new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            result = content;
+            tlsCertificateManager.addCertificate(content, alias);
+            result = true;
+        }};
+
+        String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
+
+        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the [" + tlsTruststoreResource.getStoreName() + "]."));
+
+        new Verifications() {{
+            tlsCertificateManager.addCertificate(content, alias);
+        }};
+    }
 
     @Test
     public void addTLSCertificaEmpty() {

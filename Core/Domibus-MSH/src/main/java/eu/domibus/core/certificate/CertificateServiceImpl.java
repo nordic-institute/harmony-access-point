@@ -2,9 +2,9 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.NoKeyStoreContentInformationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -18,7 +18,6 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
-import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -86,11 +85,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final KeystorePersistenceService keystorePersistenceService;
 
-    protected final DomainService domainService;
-
     protected final DomainTaskExecutor domainTaskExecutor;
-
-    protected final TruststoreDao truststoreDao;
 
     private final PasswordDecryptionService passwordDecryptionService;
 
@@ -108,9 +103,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   EventService eventService,
                                   CertificateHelper certificateHelper,
                                   KeystorePersistenceService keystorePersistenceService,
-                                  DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
-                                  TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   DomainContextProvider domainContextProvider,
                                   SecurityUtilImpl securityUtil,
@@ -122,9 +115,8 @@ public class CertificateServiceImpl implements CertificateService {
         this.eventService = eventService;
         this.certificateHelper = certificateHelper;
         this.keystorePersistenceService = keystorePersistenceService;
-        this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
-        this.truststoreDao = truststoreDao;
+
         this.passwordDecryptionService = passwordDecryptionService;
         this.domainContextProvider = domainContextProvider;
         this.alertConfigurationService = alertConfigurationService;
@@ -147,7 +139,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean isCertificateChainValid(KeyStore keyStore, String alias) throws DomibusCertificateException {
-        X509Certificate[] certificateChain;
+        X509Certificate[] certificateChain = null;
         try {
             certificateChain = getCertificateChain(keyStore, alias);
         } catch (KeyStoreException e) {
@@ -386,7 +378,7 @@ public class CertificateServiceImpl implements CertificateService {
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
-        } catch (CryptoException exc) {
+        } catch (Exception exc) {
             throw new CryptoException("Could not replace store " + storeName, exc);
         }
     }
@@ -400,7 +392,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<TrustStoreEntry> getStoreEntries(KeystorePersistenceInfo keystorePersistenceInfo) {
         KeyStoreContentInfo storeInfo = keystorePersistenceService.loadStore(keystorePersistenceInfo);
-
         KeyStore store = loadStore(storeInfo);
 
         return getStoreEntries(store);
@@ -501,6 +492,12 @@ public class CertificateServiceImpl implements CertificateService {
         return different;
     }
 
+    @Override
+    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
+        return KeyStore.getInstance(storeType);
+    }
+
+    
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore store = getStore(persistenceInfo);
 
@@ -586,23 +583,16 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    @Override
-    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+        if (storeInfo == null) {
+            throw new NoKeyStoreContentInformationException("Could not load a null store");
+        }
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
-            KeyStore keystore = KeyStore.getInstance(storeInfo.getType());
+            KeyStore keystore = getNewKeystore(storeInfo.getType());
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
             return keystore;
         } catch (Exception ex) {
-            throw new DomibusCertificateException("Could not load store named " + storeInfo.getName(), ex);
-        }
-    }
-
-    protected void closeStream(Closeable stream) {
-        try {
-            LOG.debug("Closing output stream [{}].", stream);
-            stream.close();
-        } catch (IOException e) {
-            LOG.error("Could not close [{}]", stream, e);
+            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
         }
     }
 

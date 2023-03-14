@@ -10,6 +10,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
@@ -91,7 +92,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
-    public MessageStatus getStatus(String messageId) {
+    public MessageStatus getStatus(String messageId) throws MessageNotFoundException, DuplicateMessageException {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
         } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
@@ -102,7 +103,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
-    public MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
+    public MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
@@ -114,7 +115,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
-    public MessageStatus getStatus(Long messageEntityId) {
+    public MessageStatus getStatus(Long messageEntityId) throws MessageNotFoundException {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
         } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
@@ -125,14 +126,14 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
-    public List<? extends ErrorResult> getErrorsForMessage(String messageId) {
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId) throws MessageNotFoundException, DuplicateMessageException {
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return messageRetriever.getErrorsForMessage(messageId);
     }
 
     @Override
-    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
 
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);

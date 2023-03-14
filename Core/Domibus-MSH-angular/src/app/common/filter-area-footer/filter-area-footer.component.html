@@ -10,4 +10,5 @@
   </button>
   <a href="#" *ngIf="isAdvancedVisible && !parent.advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
   <a href="#" *ngIf="parent.advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>
+  <span *ngIf="!parent.advancedSearch && parent.getAdvancedSearchParams()" style="margin-left: 20px;"> Advanced filters: {{parent.getAdvancedSearchParams()}}</span>
 </div>

@@ -4,6 +4,7 @@ import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,7 +33,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.tika.mime.MimeTypeException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.common.MessageStatus.*;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS;
 
 /**
  * File system backend integration plugin.
@@ -76,43 +77,54 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             SEND_FAILURE
     );
 
+    protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
+            NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
+            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE, NotificationType.PAYLOAD_PROCESSED);
+
     // receiving statuses should be REJECTED, RECEIVED_WITH_WARNINGS, DOWNLOADED, DELETED, RECEIVED
 
-    @Autowired
-    protected FSMessageTransformer defaultTransformer;
+    protected final FSMessageTransformer defaultTransformer;
 
-    @Autowired
-    protected FSFilesManager fsFilesManager;
+    protected final FSFilesManager fsFilesManager;
 
-    @Autowired
-    protected FSPluginProperties fsPluginProperties;
+    protected final FSPluginProperties fsPluginProperties;
 
-    @Autowired
-    protected FSSendMessagesService fsSendMessagesService;
+    protected final FSSendMessagesService fsSendMessagesService;
 
-    @Autowired
-    protected FSProcessFileService fsProcessFileService;
+    protected final FSProcessFileService fsProcessFileService;
 
-    @Autowired
-    protected DomainTaskExtExecutor domainTaskExtExecutor;
+    protected final DomainTaskExtExecutor domainTaskExtExecutor;
 
-    @Autowired
-    protected FSDomainService fsDomainService;
+    protected final FSDomainService fsDomainService;
 
-    @Autowired
-    protected FSXMLHelper fsxmlHelper;
+    protected final FSXMLHelper fsxmlHelper;
 
-    @Autowired
-    protected FSMimeTypeHelper fsMimeTypeHelper;
+    protected final FSMimeTypeHelper fsMimeTypeHelper;
 
-    @Autowired
-    protected FSFileNameHelper fsFileNameHelper;
+    protected final FSFileNameHelper fsFileNameHelper;
 
-    @Autowired
-    FSSendMessageListenerContainer fsSendMessageListenerContainer;
+    protected final FSSendMessageListenerContainer fsSendMessageListenerContainer;
 
-    public FSPluginImpl() {
+    public FSPluginImpl(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
+                        FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
+                        DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
+                        FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper, FSSendMessageListenerContainer fsSendMessageListenerContainer,
+                        DomibusPropertyExtService domibusPropertyExtService) {
         super(PLUGIN_NAME);
+        this.defaultTransformer = defaultTransformer;
+        this.fsFilesManager = fsFilesManager;
+        this.fsPluginProperties = fsPluginProperties;
+        this.fsSendMessagesService = fsSendMessagesService;
+        this.fsProcessFileService = fsProcessFileService;
+        this.domainTaskExtExecutor = domainTaskExtExecutor;
+        this.fsDomainService = fsDomainService;
+        this.fsxmlHelper = fsxmlHelper;
+        this.fsMimeTypeHelper = fsMimeTypeHelper;
+        this.fsFileNameHelper = fsFileNameHelper;
+        this.fsSendMessageListenerContainer = fsSendMessageListenerContainer;
+        this.domibusPropertyExtService = domibusPropertyExtService;
+
+        setRequiredNotifications();
     }
 
     @Override
@@ -367,12 +379,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
             fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
 
-        } catch (IOException e) {
+        } catch (IOException | MessageNotFoundException e) {
             throw new FSPluginException("Error handling the send failed message file " + messageId, e);
         }
     }
 
-    protected String getErrorMessage(String messageId, MSHRole mshRole) {
+    protected String getErrorMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
         String content;
         if (!errors.isEmpty()) {
@@ -552,6 +564,16 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     public PluginMessageListenerContainer getMessageListenerContainerFactory() {
         return fsSendMessageListenerContainer;
+    }
+
+    public void setRequiredNotifications() {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        if (!messageNotifications.containsAll(defaultMessageNotifications)) {
+            LOG.warn("FSPlugin will not function properly if the following message notifications will not be set: [{}]",
+                    defaultMessageNotifications);
+        }
+        setRequiredNotifications(messageNotifications);
     }
 
 }

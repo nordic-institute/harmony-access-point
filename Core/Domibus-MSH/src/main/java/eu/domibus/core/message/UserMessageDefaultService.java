@@ -64,6 +64,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -523,10 +524,6 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
 
-        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
-        }
-
         return userMessageLog;
     }
 
@@ -827,7 +824,12 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(domibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
+                InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
+                if (isCompressedFile(pInfo)) {
+                    inputStream = new GZIPInputStream(inputStream);
+                }
+                result.put(fileName, inputStream);
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
@@ -878,14 +880,23 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = null;
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
-                extension = fileServiceUtil.getExtension(property.getValue());
-                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
-            }
+        String extension = info.getPartProperties().stream()
+                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                .map(PartProperty::getValue)
+                .map(fileServiceUtil::getExtension)
+                .findFirst()
+                .orElse(null);
+        if(StringUtils.isBlank(extension)){
+            LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
+        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         return extension;
+    }
+
+    private boolean isCompressedFile(PartInfo info) {
+        return info.getPartProperties().stream()
+                .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
+                        && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {

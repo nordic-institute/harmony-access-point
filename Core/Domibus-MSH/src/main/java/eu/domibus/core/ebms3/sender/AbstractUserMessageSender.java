@@ -165,18 +165,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             Validate.notNull(receiverParty, "Responder party was not found");
 
-            try {
-                messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
-                messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
-            } catch (ChainCertificateInvalidException cciEx) {
-                getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx);
-                attempt.setError(cciEx.getMessage());
-                attempt.setStatus(MessageAttemptStatus.ERROR);
-                // this flag is used in the finally clause
-                reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
-                getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, cciEx.getMessage(), MSHRole.SENDING, userMessage);
-                return;
+            if (!policyService.isNoSecurityPolicy(policy)) {
+                try {
+                    messageExchangeService.verifyReceiverCertificate(legConfiguration, receiverParty.getName());
+                    messageExchangeService.verifySenderCertificate(legConfiguration, sendingParty.getName());
+                } catch (ChainCertificateInvalidException cciEx) {
+                    getLog().securityError(DomibusMessageCode.SEC_INVALID_X509CERTIFICATE, cciEx);
+                    attempt.setError(cciEx.getMessage());
+                    attempt.setStatus(MessageAttemptStatus.ERROR);
+                    // this flag is used in the finally clause
+                    reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                    getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
+                    errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, cciEx.getMessage(), MSHRole.SENDING, userMessage);
+                    return;
+                }
             }
 
             getLog().debug("PMode found : [{}]", pModeKey);
@@ -208,14 +210,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } finally {
-            if (userMessage.isTestMessage()) {
+            final Boolean isTestMessage = userMessage.isTestMessage();
+            if (isTestMessage) {
                 String destinationParty = userMessage.getPartyInfo().getToParty();
                 if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
                     reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
                 }
             }
+
             getLog().debug("Finally handle reliability");
             reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
+                getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+            }
         }
     }
 

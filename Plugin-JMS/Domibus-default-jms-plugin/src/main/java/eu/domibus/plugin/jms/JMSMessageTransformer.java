@@ -442,10 +442,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     private DataHandler getPayloadDataHandler(MapMessage messageIn, String mimeType, String propPayload) throws JMSException {
-        //try to get the payload as an URL eg file sytem
+        //try to get the payload as a URL (e.g. file system)
         String payloadReference = messageIn.getStringProperty(propPayload);
         if (StringUtils.isNotBlank(payloadReference)) {
             LOG.debug("Trying to get the payload via URL [{}]", payloadReference);
+            if (!isURLAccessible(payloadReference)) {
+                throw new DefaultJmsPluginException("Could not get payload [" + propPayload + "] via URL reference [" + payloadReference + "], aborting transformation");
+            }
             try {
                 return new DataHandler(new URLDataSource(new URL(payloadReference)));
             } catch (MalformedURLException e) {
@@ -464,6 +467,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             LOG.debug("Could not get data as byte[] for payload [" + propPayload + "]", jmsEx);
         }
         throw new DefaultJmsPluginException("Could not get the content for payload [" + propPayload + "]");
+    }
+
+    public boolean isURLAccessible(String url) {
+        try {
+            (new java.net.URL(url)).openStream().close();
+            return true;
+        } catch (Exception ex) {
+            LOG.warn("URL [{}] is not accessible", url, ex);
+        }
+        return false;
     }
 
     /**

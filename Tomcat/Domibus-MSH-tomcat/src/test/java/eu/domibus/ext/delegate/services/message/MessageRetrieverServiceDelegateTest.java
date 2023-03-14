@@ -1,5 +1,6 @@
 package eu.domibus.ext.delegate.services.message;
 
+import eu.domibus.messaging.*;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
@@ -71,7 +72,7 @@ public class MessageRetrieverServiceDelegateTest {
     }
 
     @Test
-    public void testGetStatus() {
+    public void testGetStatus() throws MessageNotFoundException, DuplicateMessageException {
         // Given
         new Expectations() {{
             messageRetriever.getStatus(MESS_ID);
@@ -91,7 +92,7 @@ public class MessageRetrieverServiceDelegateTest {
     }
 
     @Test
-    public void testGetStatusAccessDenied() {
+    public void testGetStatusAccessDenied() throws MessageNotFoundException, DuplicateMessageException {
         // Given
         new Expectations() {{
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);

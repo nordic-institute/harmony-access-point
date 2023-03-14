@@ -15,9 +15,9 @@ import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.ext.exceptions.SameResourceCryptoExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -44,7 +44,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
 
-    protected static final String IAM_AUTHENTICATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
     private DomainCryptoServiceSpi iamProvider;
 
@@ -297,14 +296,14 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         return iamProvider.isKeyStoreChanged();
     }
 
-    private void getIAMProvider() {
-        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
-        if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
+    protected void getIAMProvider() {
+        String spiIdentifier = getSpiIdentifier();
+        if (DEFAULT_AUTHENTICATION_SPI.equals(spiIdentifier) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
                     DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
         }
         final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
-                filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
+                filter(domainCryptoServiceSpi -> StringUtils.equals(spiIdentifier, domainCryptoServiceSpi.getIdentifier())).
                 collect(Collectors.toList());
 
         if (LOG.isDebugEnabled()) {
@@ -323,6 +322,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
+    }
+
+    protected String getSpiIdentifier() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER);
     }
 
 }

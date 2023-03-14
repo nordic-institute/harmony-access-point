@@ -242,6 +242,36 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-banned-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>false</searchTransitive>
+                                    <excludes>
+                                        <exclude>eu.domibus:*</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>eu.domibus:domibus-plugin-api</include>
+                                        <include>eu.domibus:domibus-ext-model</include>
+                                        <include>eu.domibus:domibus-logging</include>
+                                        <include>eu.domibus:domibus-msh-test-common</include>
+                                        <include>eu.domibus:domibus-msh-test</include>
+                                    </includes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

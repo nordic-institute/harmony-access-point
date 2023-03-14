@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
-import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -45,16 +44,14 @@ public class WebServiceConfiguration {
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
 
     @Bean(WSPluginImpl.PLUGIN_NAME)
-    public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
-                                             StubDtoTransformer defaultTransformer,
+    public WSPluginImpl createBackendJMSImpl(StubDtoTransformer defaultTransformer,
                                              WSMessageLogService wsMessageLogService,
                                              WSPluginBackendService wsPluginBackendService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
-                                             WSSendMessageListenerContainer wsSendMessageListenerContainer) {
-        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
-        LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService, wsPluginPropertyManager, wsSendMessageListenerContainer);
-        jmsPlugin.setRequiredNotifications(messageNotifications);
+                                             WSSendMessageListenerContainer wsSendMessageListenerContainer,
+                                             DomibusPropertyExtService domibusPropertyExtService) {
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService,
+                wsPluginPropertyManager, wsSendMessageListenerContainer, domibusPropertyExtService);
         return jmsPlugin;
     }
 

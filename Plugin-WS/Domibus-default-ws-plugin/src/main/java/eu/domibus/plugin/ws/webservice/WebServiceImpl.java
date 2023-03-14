@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
@@ -12,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -74,6 +74,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
+    public static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
@@ -642,12 +643,17 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-
-        validateMessageId(trimmedMessageId);
-
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        try {
+            validateMessageId(trimmedMessageId);
+            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        } catch (final DuplicateMessageException exception) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", exception);
+            }
+            LOG.error(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]");
+            throw new StatusFault(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, exception.getMessage()));
+        }
     }
 
     /**
@@ -657,15 +663,10 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
-
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
-
         validateMessageId(trimmedMessageId);
-
         validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
-
         MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
-
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
     }
 
@@ -695,10 +696,10 @@ public class WebServiceImpl implements WebServicePluginInterface {
         validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+        } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
-        } catch (DuplicateMessageFoundException e) {
+        } catch (DuplicateMessageException e) {
             throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
@@ -726,7 +727,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId, role);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+        } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (Exception e) {

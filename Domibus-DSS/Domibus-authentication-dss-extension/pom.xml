@@ -157,7 +157,7 @@
             <scope>provided</scope>
             <exclusions>
                 <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
-                 bcprov-jdk15to18 version instead -->
+                 bcprov-jdk18on version instead -->
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15on</artifactId>
@@ -166,12 +166,12 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15to18</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15to18</artifactId>
+            <artifactId>bcpkix-jdk18on</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

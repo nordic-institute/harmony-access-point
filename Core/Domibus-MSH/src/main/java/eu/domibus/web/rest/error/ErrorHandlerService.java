@@ -12,7 +12,6 @@ import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.HibernateException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +42,11 @@ public class ErrorHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorHandlerService.class);
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    final DomibusPropertyProvider domibusPropertyProvider;
+
+    public ErrorHandlerService(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex) {
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -72,7 +74,7 @@ public class ErrorHandlerService {
     }
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex, HttpStatus status) {
-        LOG.error(ex.getMessage(), ex);
+        logException(ex, status);
 
         //unwrap the domain task exception for the root error
         if (ex instanceof DomainTaskException) {
@@ -81,6 +83,14 @@ public class ErrorHandlerService {
         }
 
         return createResponseEntity(ex.getMessage(), status);
+    }
+
+    private void logException(Throwable ex, HttpStatus status) {
+        if (status == HttpStatus.OK) {
+            LOG.info(ex.getMessage());
+            return;
+        }
+        LOG.error(ex.getMessage(), ex);
     }
 
     public ResponseEntity<ErrorRO> createResponse(String message, HttpStatus status) {
@@ -124,7 +134,6 @@ public class ErrorHandlerService {
         return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-
     public ResponseEntity<ErrorRO> createHibernateExceptionResponse(HibernateException ex) {
         LOG.error("Hibernate error", ex);
         // hide precise errors (like SQL statements from the response) - see EDELIVERY-9027
@@ -141,4 +150,5 @@ public class ErrorHandlerService {
             }
         }
     }
+
 }

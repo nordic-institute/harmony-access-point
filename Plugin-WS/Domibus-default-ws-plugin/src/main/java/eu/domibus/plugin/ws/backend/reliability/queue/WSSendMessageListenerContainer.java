@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.plugin.ws.backend.reliability.queue.WSMessageListenerContainerConfiguration.WS_PLUGIN_OUT_CONTAINER;
-import static eu.domibus.plugin.ws.connector.WSPluginImpl.PLUGIN_NAME;
 
 /**
  * WSPlugin Out {@code MessageListenerContainer} which implements {@code PluginMessageListenerContainer}

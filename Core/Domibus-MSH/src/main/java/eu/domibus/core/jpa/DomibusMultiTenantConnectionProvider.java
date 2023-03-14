@@ -118,12 +118,8 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     protected void setSchema(final Connection connection, String databaseSchema) {
         try {
-            try (final Statement statement = connection.createStatement()) {
-                final String schemaChangeSQL = dbSchemaUtil.getSchemaChangeSQL(databaseSchema);
-                LOG.trace("Change current schema:[{}]", schemaChangeSQL);
-                statement.execute(schemaChangeSQL);
-            }
-        } catch (final SQLException | FaultyDatabaseSchemaNameException e) {
+            dbSchemaUtil.setSchema(connection, databaseSchema);
+        } catch (final FaultyDatabaseSchemaNameException e) {
             throw new HibernateException("Could not alter JDBC connection to specified schema [" + databaseSchema + "]", e);
         }
     }

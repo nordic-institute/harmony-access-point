@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.eark;
 
 import com.codahale.metrics.MetricRegistry;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -62,6 +63,9 @@ public class FileSystemEArchivePersistenceIT {
     @Injectable
     private EArchivingEventService eArchivingEventService;
 
+    @Injectable
+    private FileServiceUtil fileServiceUtil;
+
     @Tested
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
@@ -112,7 +116,6 @@ public class FileSystemEArchivePersistenceIT {
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         EARKSIPFileService value = new EARKSIPFileService();
-        value.setMetricRegistry(new MetricRegistry());
         ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", value);
 
         Map<String, ArchivingFileDTO> messageId1 = new HashMap<>();
@@ -136,6 +139,12 @@ public class FileSystemEArchivePersistenceIT {
 
             eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
             result = new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
+
+            fileServiceUtil.URLEncode(userMessageEntityIds.get(0).getMessageId());
+            result = userMessageEntityIds.get(0).getMessageId();
+
+            fileServiceUtil.URLEncode(userMessageEntityIds.get(1).getMessageId());
+            result = userMessageEntityIds.get(1).getMessageId();
 
             eArchivingFileService.getArchivingFiles(entityId1);
             result = messageId1;
