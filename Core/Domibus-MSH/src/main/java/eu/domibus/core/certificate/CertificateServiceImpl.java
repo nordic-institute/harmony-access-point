@@ -583,7 +583,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         if (storeInfo == null) {
             throw new NoKeyStoreContentInformationException("Could not load a null store");
         }

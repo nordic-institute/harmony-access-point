@@ -443,4 +443,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
     String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
     //End distributed cache properties
+
+    String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
 }

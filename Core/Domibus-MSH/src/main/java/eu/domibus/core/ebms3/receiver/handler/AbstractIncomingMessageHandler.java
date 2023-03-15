@@ -99,7 +99,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
                 throw new UserMessageException(e);
             } catch (final EbMS3Exception e) {
                 try {
-                    if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+                    if (legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
                         backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
                     }
                 } catch (Exception ex) {
