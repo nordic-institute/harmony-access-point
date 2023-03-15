@@ -5,8 +5,6 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.jms.JMSMessageConstants;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -72,8 +70,8 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + ACTION, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE, Type.BOOLEAN, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_TYPE, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_CONTEXT, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_URL, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true)
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_CONTEXT, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_URL, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true)
     );
 
     @Override
