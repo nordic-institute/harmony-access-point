@@ -186,7 +186,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
             userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
-
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;

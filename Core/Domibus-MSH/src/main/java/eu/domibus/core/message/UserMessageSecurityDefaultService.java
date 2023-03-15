@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,19 +36,15 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     @Override
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
-        try {
-            validateUserAccessWithUnsecureLoginAllowed(userMessage);
-        } catch (AccessDeniedException e) {
-            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
-        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     /**
      * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
-     * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
+     * @throws AuthenticationException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
      */
     @Override
-    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AccessDeniedException {
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
@@ -99,7 +94,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
         if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
             LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
-            throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+            throw new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
         }
     }
 
@@ -121,7 +116,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         validateUserAccess(userMessage);
     }
 
-    // we keep this for back-ward compatibility
+    // we keep this for back-ward compatibility for ext services
     @Override
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
@@ -139,7 +134,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
-    // we keep this for now
+    // we keep this for back-ward compatibility for ext services
     @Override
     public void checkMessageAuthorization(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
