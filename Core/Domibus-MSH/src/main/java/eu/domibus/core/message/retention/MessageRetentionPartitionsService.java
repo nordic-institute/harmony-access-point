@@ -158,13 +158,12 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("There are [{}] partitions.", partitions.size());
 
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
-
         LOG.debug("Date to check partitions expiration: [{}]", newestPartitionToCheckDate);
-
+        Long maxHighValue = partitionService.getExpiredPartitionsHighValue(partitions, newestPartitionToCheckDate);
         List<String> partitionNames =
                 partitions.stream()
                         .filter(p -> !StringUtils.equalsIgnoreCase(p.getPartitionName(), DEFAULT_PARTITION))
-                        .filter(p -> p.getHighValue() < partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate) )
+                        .filter(p -> p.getHighValue() < maxHighValue)
                         .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
         LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
