@@ -38,7 +38,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     @Override
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
         try {
-            validateUserAccess(userMessage);
+            validateUserAccessWithUnsecureLoginAllowed(userMessage);
         } catch (AccessDeniedException e) {
             throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
         }
@@ -48,20 +48,18 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
      * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
      * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
      */
+    @Override
     public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AccessDeniedException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
             return;
         }
-        try {
-            validateUserAccess(userMessage);
-        } catch (AccessDeniedException e) {
-            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
-        }
+
+        validateUserAccess(userMessage);
     }
 
-    public void validateUserAccess(UserMessage userMessage) {
+    protected void validateUserAccess(UserMessage userMessage) {
         String authOriginalUser = authUtils.getOriginalUserOrNullIfAdmin();
         List<String> propertyNames = new ArrayList<>();
         propertyNames.add(MessageConstants.ORIGINAL_SENDER);
@@ -85,11 +83,12 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         }
         if (!found) {
             LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-            throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
+            throw new AuthenticationException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
         }
         LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
     }
 
+    @Override
     public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
         if (StringUtils.isBlank(authOriginalUser)) {
             LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
@@ -104,6 +103,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         }
     }
 
+    @Override
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
         UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {
@@ -118,10 +118,11 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }
-        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        validateUserAccess(userMessage);
     }
 
     // we keep this for back-ward compatibility
+    @Override
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -139,16 +140,14 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     // we keep this for now
+    @Override
     public void checkMessageAuthorization(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }
-        try {
-            validateUserAccess(userMessage);
-        } catch (AccessDeniedException e) {
-            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
-        }
+
+        validateUserAccess(userMessage);
     }
 
 }
