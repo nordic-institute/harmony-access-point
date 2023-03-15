@@ -57,7 +57,7 @@ public class DomibusPropertyValidatorService {
     private void validateUnsecureLoginAllowed() {
         Boolean unsecureLoginAllowed = domibusPropertyProvider.getBooleanProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED);
         if (unsecureLoginAllowed) {
-            LOG.warn(WarningUtil.warnOutput("domibus.auth.unsecureLoginAllowed property is true but it has no effect in multi-tenancy environment!"));
+            LOG.warn(WarningUtil.warnOutput(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED + " property is true but it has no effect in multi-tenancy environment!"));
         }
     }
 
