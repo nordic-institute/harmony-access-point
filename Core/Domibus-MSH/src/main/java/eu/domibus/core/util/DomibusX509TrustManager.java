@@ -69,7 +69,7 @@ public class DomibusX509TrustManager implements X509TrustManager {
             LOG.debug("Could not check the server trusted against custom certificates", e);
         }
 
-        if (domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CACERTS_VALIDATION_ENABLED)) {
+        if (domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DOWNLOAD_CACERTS_ENABLED)) {
             LOG.debug("Validation of server trust against default system certificates enabled");
             X509TrustManager defaultTm;
             try {

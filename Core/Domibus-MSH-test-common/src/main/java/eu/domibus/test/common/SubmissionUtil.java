@@ -31,13 +31,20 @@ public class SubmissionUtil {
     private static final String PROPERTY_ENDPOINT = "endPointAddress";
 
     public Submission createSubmission() {
+        return createSubmission(null);
+    }
+
+    public Submission createSubmission(String messageId) {
         Submission submission = new Submission();
         submission.setMpc(Ebms3Constants.DEFAULT_MPC);
         submission.setAction(ACTION_TC1LEG1);
         submission.setService(SERVICE_NOPROCESS);
         submission.setServiceType(SERVICE_TYPE_TC1);
         submission.setConversationId("123");
-        submission.setMessageId(UUID.randomUUID() + "@domibus.eu");
+        if(messageId==null){
+            messageId = UUID.randomUUID() + "@domibus.eu";
+        }
+        submission.setMessageId(messageId);
         submission.addFromParty(DOMIBUS_BLUE, UNREGISTERED_PARTY_TYPE);
         submission.setFromRole(INITIATOR_ROLE);
         submission.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);

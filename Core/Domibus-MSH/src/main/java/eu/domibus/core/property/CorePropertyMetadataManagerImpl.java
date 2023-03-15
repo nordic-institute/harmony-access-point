@@ -163,7 +163,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION, Type.REGEXP),
 
 
-            new DomibusPropertyMetadata(DOMIBUS_CACERTS_VALIDATION_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DOWNLOAD_CACERTS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING, Type.BOOLEAN, Usage.DOMAIN, true),

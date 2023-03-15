@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.mapper.usermessage;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.*;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.dictionary.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,9 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     protected PartPropertyDictionaryService partPropertyDictionaryService;
     protected PartyRoleDictionaryService partyRoleDictionaryService;
     protected MshRoleDao mshRoleDao;
+    protected TestMessageValidator testMessageValidator;
 
-    public Ebms3UserMessageMapperImpl(MpcDictionaryService mpcDictionaryService, ActionDictionaryService actionService, ServiceDictionaryService serviceDictionaryService, PartyIdDictionaryService partyIdDictionaryService, AgreementDictionaryService agreementDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartPropertyDictionaryService partPropertyDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, MshRoleDao mshRoleDao) {
+    public Ebms3UserMessageMapperImpl(MpcDictionaryService mpcDictionaryService, ActionDictionaryService actionService, ServiceDictionaryService serviceDictionaryService, PartyIdDictionaryService partyIdDictionaryService, AgreementDictionaryService agreementDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartPropertyDictionaryService partPropertyDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, MshRoleDao mshRoleDao, TestMessageValidator testMessageValidator) {
         this.mpcDictionaryService = mpcDictionaryService;
         this.actionService = actionService;
         this.serviceDictionaryService = serviceDictionaryService;
@@ -36,6 +38,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         this.partPropertyDictionaryService = partPropertyDictionaryService;
         this.partyRoleDictionaryService = partyRoleDictionaryService;
         this.mshRoleDao = mshRoleDao;
+        this.testMessageValidator = testMessageValidator;
     }
 
     @Override
@@ -75,6 +78,8 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setTimestamp(messageInfo.getTimestamp());
         userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
 
+        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+        userMessage.setTestMessage(testMessage);
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 
         final ActionEntity actionEntity = actionService.findOrCreateAction(collaborationInfo.getAction());
