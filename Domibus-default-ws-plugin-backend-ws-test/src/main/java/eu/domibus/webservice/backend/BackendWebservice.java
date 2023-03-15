@@ -41,9 +41,9 @@ public class BackendWebservice implements BackendInterface {
     }
 
     @Override
-    public void submitMessage(SubmitRequest submitRequest, Messaging headerInfo) throws SubmitMessageFault {
+    public void submitRequest(SubmitRequest submitRequest, Messaging headerInfo) throws SubmitRequestFault {
         String messageID = headerInfo.getUserMessage().getMessageInfo().getMessageId();
-        LOG.info("SubmitMessage received for id [{}]. Bodyload [{}]. [{}] Payload(s)",
+        LOG.info("SubmitRequest received for id [{}]. Bodyload [{}]. [{}] Payload(s)",
                 messageID,
                 submitRequest.getBodyload(),
                 submitRequest.getPayload().size());
@@ -62,7 +62,7 @@ public class BackendWebservice implements BackendInterface {
             }
         }
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
-            throw new SubmitMessageFault(getErrorMessage(messageID), getDefaultFaultDetail());
+            throw new SubmitRequestFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
     }
 
