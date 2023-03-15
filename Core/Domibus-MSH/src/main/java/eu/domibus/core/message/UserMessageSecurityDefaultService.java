@@ -89,7 +89,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
+    public void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName) {
         if (StringUtils.isBlank(authOriginalUser)) {
             LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
             return;
@@ -116,7 +116,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     public void checkMessageAuthorization(String messageId, MSHRole mshRole) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, mshRole);
         }
         validateUserAccess(userMessage);
     }
@@ -134,7 +134,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, mshRole);
         }
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }

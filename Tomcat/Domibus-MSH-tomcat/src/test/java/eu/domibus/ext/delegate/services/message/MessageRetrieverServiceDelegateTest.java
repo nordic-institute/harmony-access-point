@@ -2,7 +2,6 @@ package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.messaging.*;
 import eu.domibus.api.message.UserMessageSecurityService;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -53,7 +52,7 @@ public class MessageRetrieverServiceDelegateTest {
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
             result = new AccessDeniedException("You are not allowed to handle this message");
         }};
 
