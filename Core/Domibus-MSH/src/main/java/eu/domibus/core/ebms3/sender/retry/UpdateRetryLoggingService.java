@@ -23,7 +23,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
@@ -196,9 +195,9 @@ public class UpdateRetryLoggingService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void messageFailedInANewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, final MessageAttempt messageAttempt) {
-        LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageId());
+    @Transactional
+    public void messageFailedAndDeleteRawEnvelope(UserMessage userMessage, UserMessageLog userMessageLog) {
+        LOG.debug("Marking message [{}] as failed and deleting the user message raw envelope", userMessage.getMessageId());
 
         messageFailed(userMessage, userMessageLog);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
@@ -212,7 +211,7 @@ public class UpdateRetryLoggingService {
 
         LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
-        if (NotificationStatus.REQUIRED.equals(notificationStatus.getStatus()) && !isTestMessage) {
+        if (NotificationStatus.REQUIRED.equals(notificationStatus.getStatus())) {
             LOG.info("Notifying backend for message failure");
             backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
         }
