@@ -54,7 +54,11 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             LOG.debug("Unsecured login is allowed");
             return;
         }
-        validateUserAccess(userMessage);
+        try {
+            validateUserAccess(userMessage);
+        } catch (AccessDeniedException e) {
+            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
+        }
     }
 
     public void validateUserAccess(UserMessage userMessage) {
@@ -118,7 +122,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     // we keep this for back-ward compatibility
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId){
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
