@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
+import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;

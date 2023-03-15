@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_TEST_DELIVERY;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
@@ -108,8 +108,8 @@ public class BackendNotificationService {
         this.objectMapper = objectMapper;
     }
 
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceivedFailure")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceivedFailure")
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
         BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
@@ -384,14 +384,16 @@ public class BackendNotificationService {
             LOG.warn("User message is null");
             return false;
         }
-        if (userMessage.isTestMessage()) {
-            LOG.debug("Message [{}] is of type test so no notification", userMessage);
-            return false;
-        }
 
         if (!backendConnectorService.isBackendConnectorEnabled(backendName)) {
             LOG.info("Backend connector [{}] is disabled so exiting notification", backendName);
             return false;
+        }
+
+        if (userMessage.isTestMessage()) {
+            final Boolean testMessageNotification = domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_TEST_DELIVERY);
+            LOG.debug("Notification status [{}] for Test message [{}]", testMessageNotification, userMessage);
+            return testMessageNotification;
         }
 
         return true;
@@ -437,7 +439,7 @@ public class BackendNotificationService {
 
     private MSHRole getMshRole(MessageEvent messageEvent) {
         MSHRole role = null;
-        Map<String,String> props = messageEvent.getProps();
+        Map<String, String> props = messageEvent.getProps();
         if (MapUtils.isEmpty(props)) {
             LOG.info("No properties in MessageEvent object of type [{}]", messageEvent.getClass());
             return role;
