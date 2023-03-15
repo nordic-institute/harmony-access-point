@@ -24,7 +24,7 @@ public interface UserMessageSecurityService {
 
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
-    void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
+    void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException;
 
     void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage);
 

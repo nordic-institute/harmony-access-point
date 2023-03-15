@@ -35,8 +35,8 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
-        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
+        validateUserAccess(userMessage);
     }
 
     /**
