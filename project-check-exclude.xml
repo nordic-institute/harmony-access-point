@@ -180,13 +180,13 @@
     </suppress>
 
     <!-- Used in dss test module -->
-   <suppress>
-       <notes><![CDATA[
+    <suppress>
+        <notes><![CDATA[
   file name: jakarta.activation-api-2.1.1.jar
   ]]></notes>
-       <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
-       <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-   </suppress>
+        <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
