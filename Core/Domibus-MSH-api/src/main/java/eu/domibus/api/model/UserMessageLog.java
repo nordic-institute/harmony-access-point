@@ -164,7 +164,7 @@ import java.util.Date;
                         "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID)                             " +
                         "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
                         "  and uml.deleted IS NULL                                                                   " +
-                        "  and uml.exported IS NULL                                                                  " +
+                        "  and uml.archived IS NULL                                                                  " +
                         "  and uml.userMessage.testMessage IS FALSE                                                  " +
                         "  and (uml.userMessage.messageFragment IS FALSE OR uml.userMessage.messageFragment IS NULL) " +
                         "order by uml.entityId asc                                                                   "),
@@ -176,7 +176,7 @@ import java.util.Date;
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.userMessage.testMessage IS FALSE " +
                         "  and uml.deleted IS NULL " +
-                        "  and uml.exported IS NULL "),
+                        "  and uml.archived IS NULL "),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query =
                 "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
