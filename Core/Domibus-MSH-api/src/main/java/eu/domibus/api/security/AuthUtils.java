@@ -36,10 +36,6 @@ public interface AuthUtils {
 
     void hasUserOrAdminRole();
 
-    void hasAdminRole();
-
-    void hasUserRole();
-
     void setAuthenticationToSecurityContext(String user, String password);
 
     void setAuthenticationToSecurityContext(String user, String password, AuthRole authRole);

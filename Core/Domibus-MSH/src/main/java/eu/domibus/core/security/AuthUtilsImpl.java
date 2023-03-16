@@ -141,16 +141,10 @@ public class AuthUtilsImpl implements AuthUtils {
         LOG.debug("Logged with USER_ROLE, ORIGINAL_USER is {}", originalUser);
     }
 
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasAdminRole() {
-        // PreAuthorize
-    }
-
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
-    public void hasUserRole() {
-        // PreAuthorize
+    public void checkUserRolesWithUnsecureLoginAllowed() {
+        if (!isUnsecureLoginAllowed()) {
+            hasUserOrAdminRole();
+        }
     }
 
     @Override
