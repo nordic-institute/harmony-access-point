@@ -441,7 +441,7 @@ public class MessageSubmitterImplTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 

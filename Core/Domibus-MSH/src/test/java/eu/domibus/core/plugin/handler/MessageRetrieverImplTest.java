@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.pmode.PModeConstants;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -66,6 +67,9 @@ public class MessageRetrieverImplTest {
 
     @Injectable
     protected ApplicationEventPublisher applicationEventPublisher;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Test
     public void testDownloadMessageOK(@Injectable UserMessage userMessage,

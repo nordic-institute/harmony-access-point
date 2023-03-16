@@ -244,40 +244,32 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     protected void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
-        checkUnsecure();
+        checkUserRoleWithUnsecuredLoginAllowed();
 
         MSHRole role = MSHRole.valueOf(mshRole.name());
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
-        checkMessageAuthorization(userMessage);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void checkMessageAuthorization(Long messageEntityId) {
-        checkUnsecure();
+        checkUserRoleWithUnsecuredLoginAllowed();
 
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
-        checkMessageAuthorization(userMessage);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void checkMessageAuthorization(String messageId) {
-        checkUnsecure();
+        checkUserRoleWithUnsecuredLoginAllowed();
 
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
-        checkMessageAuthorization(userMessage);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
-    private void checkUnsecure() {
+    private void checkUserRoleWithUnsecuredLoginAllowed() {
         if (authUtils.isUnsecureLoginAllowed()) {
             return;
         }
         authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
 
-    protected void checkMessageAuthorization(UserMessage userMessage) {
-        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        String displayUser = originalUser == null ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
-
-        // Authorization check
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-    }
 }

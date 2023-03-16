@@ -161,10 +161,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
         }
 
-        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        String displayUser = (originalUser == null) ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
-
         String messageId = null;
         try {
             backendMessageValidator.validateSubmissionSending(submission);
@@ -184,7 +180,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;

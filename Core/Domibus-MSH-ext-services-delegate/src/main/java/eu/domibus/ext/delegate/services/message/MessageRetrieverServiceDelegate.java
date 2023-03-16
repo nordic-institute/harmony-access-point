@@ -171,11 +171,6 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     protected void checkMessageAuthorization(UserMessage userMessage) {
-        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        String displayUser = originalUser == null ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
-
-        // Authorization check
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 }
