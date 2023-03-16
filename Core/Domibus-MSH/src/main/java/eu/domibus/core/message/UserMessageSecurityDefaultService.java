@@ -84,11 +84,18 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName) {
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
+        /* unsecured login allowed */
+        if (authUtils.isUnsecureLoginAllowed()) {
+            LOG.debug("Unsecured login is allowed");
+            return;
+        }
+
         if (StringUtils.isBlank(authOriginalUser)) {
             LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
             return;
         }
+
         LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
         /* check the message belongs to the authenticated user */
         String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);

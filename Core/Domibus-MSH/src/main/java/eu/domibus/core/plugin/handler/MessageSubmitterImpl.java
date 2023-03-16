@@ -184,7 +184,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
-            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;

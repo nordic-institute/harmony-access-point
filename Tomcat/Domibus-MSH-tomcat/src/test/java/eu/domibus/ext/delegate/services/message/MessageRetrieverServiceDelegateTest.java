@@ -53,7 +53,7 @@ public class MessageRetrieverServiceDelegateTest {
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
-            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
             result = new AuthenticationException("You are not allowed to handle this message");
         }};
 

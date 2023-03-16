@@ -28,7 +28,7 @@ public interface UserMessageSecurityService {
 
     void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage);
 
-    void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName);
+    void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName);
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId);
 

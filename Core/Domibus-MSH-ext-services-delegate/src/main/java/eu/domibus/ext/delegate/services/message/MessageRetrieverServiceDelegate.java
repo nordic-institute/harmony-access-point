@@ -176,6 +176,6 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         LOG.debug("Authorized as [{}]", displayUser);
 
         // Authorization check
-        userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
     }
 }
