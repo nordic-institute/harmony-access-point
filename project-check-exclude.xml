@@ -112,20 +112,6 @@
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: javax.el-3.0.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish/javax\.el@.*$</packageUrl>
-        <vulnerabilityName>CVE-2021-28170</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: json-path-2.4.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
-        <cve>CVE-2022-45688</cve>
-    </suppress>
     <!-- test modules exclusions end here -->
 
     <suppress>
@@ -265,63 +251,5 @@
         -->
         <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
         <vulnerabilityName>1088994</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: cxf-rt-bindings-soap-3.4.10.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
-        <!-- According to AS4 profile, Domibus must use https, the bug reproduces on http. More, Domibus uses Soap 1.2, the vulnerabilities is reported on Apache SOAP version 2.2 and later versions. -->
-        <cve>CVE-2022-40705</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: json-xxx-yyy.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-.*@.*$</packageUrl>
-        <cve>CVE-2021-27568</cve>
-        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
-        <cve>CVE-2022-45688</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: metrics-json-4.1.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
-        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
-        <cve>CVE-2022-45688</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: commons-fileupload-1.4.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/commons\-fileupload/commons\-fileupload@.*$</packageUrl>
-        <!-- Domibus limits the max upload size based on the property domibus.file.upload.maxSize -->
-        <cve>CVE-2023-24998</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-core-2.13.2.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
-        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
-        <cve>CVE-2022-45688</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: stax2-api-4.2.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.codehaus\.woodstox/stax2\-api@.*$</packageUrl>
-        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
-        <cve>CVE-2022-40152</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: moment:2.29.3
-   ]]></notes>
-        <packageUrl regex="true">^pkg:npm/moment@.*$</packageUrl>
-        <!-- Domibus does not use string-to-date parsing in moment -->
-        <vulnerabilityName>CVE-2022-31129</vulnerabilityName>
-        <vulnerabilityName>1090141</vulnerabilityName>
     </suppress>
 </suppressions>
