@@ -44,7 +44,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
      * @throws AuthenticationException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
      */
     @Override
-    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
@@ -84,7 +84,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String propertyName) {
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage, String propertyName) {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
@@ -114,7 +114,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         if (userMessage == null) {
             throw new MessageNotFoundException(messageEntityId);
         }
-        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }
-        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
@@ -141,7 +141,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId, mshRole);
         }
-        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     // we keep this for back-ward compatibility for ext services

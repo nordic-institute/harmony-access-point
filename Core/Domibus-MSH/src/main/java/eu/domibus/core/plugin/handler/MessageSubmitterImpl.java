@@ -158,7 +158,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
         }
 
         String messageId = null;
@@ -180,7 +180,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;

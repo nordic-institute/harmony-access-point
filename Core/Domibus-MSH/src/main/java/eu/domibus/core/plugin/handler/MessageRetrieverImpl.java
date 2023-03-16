@@ -248,28 +248,28 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
         MSHRole role = MSHRole.valueOf(mshRole.name());
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void checkMessageAuthorization(Long messageEntityId) {
         checkUserRoleWithUnsecuredLoginAllowed();
 
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected void checkMessageAuthorization(String messageId) {
         checkUserRoleWithUnsecuredLoginAllowed();
 
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     private void checkUserRoleWithUnsecuredLoginAllowed() {
         if (authUtils.isUnsecureLoginAllowed()) {
             return;
         }
-        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
 }

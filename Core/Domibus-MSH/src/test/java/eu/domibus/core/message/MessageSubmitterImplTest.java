@@ -213,6 +213,9 @@ public class MessageSubmitterImplTest {
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -254,6 +257,9 @@ public class MessageSubmitterImplTest {
         String refToMessageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
 
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -281,7 +287,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
@@ -292,6 +298,9 @@ public class MessageSubmitterImplTest {
     @Test
     public void testSubmitMessageStoreNOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -359,6 +368,9 @@ public class MessageSubmitterImplTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -415,7 +427,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -432,6 +444,9 @@ public class MessageSubmitterImplTest {
 
         String originalUser = "mycorner";
         new Expectations(messageSubmitterImpl) {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -441,7 +456,7 @@ public class MessageSubmitterImplTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
@@ -505,6 +520,9 @@ public class MessageSubmitterImplTest {
                                              @Injectable MessageStatusEntity messageStatus) throws Exception {
         final UserMessage userMessage = new UserMessage();
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -556,6 +574,9 @@ public class MessageSubmitterImplTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -616,7 +637,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -641,6 +662,9 @@ public class MessageSubmitterImplTest {
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendMessageValidator.validateSubmissionSending(submission);
             result = new DuplicateMessageException("Message with id [" + MESS_ID + "] already exists. Message identifiers must be unique");
         }};
@@ -663,6 +687,9 @@ public class MessageSubmitterImplTest {
         UserMessage userMessage = createUserMessage();
 
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -703,7 +730,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -721,6 +748,9 @@ public class MessageSubmitterImplTest {
     public void testSubmitPullMessageGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo,
                                                  @Injectable MessageStatusEntity messageStatus) throws Exception {
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -786,6 +816,9 @@ public class MessageSubmitterImplTest {
         String messageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
 
         new Expectations() {{
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            result = false;
+
             backendConnectorService.isBackendConnectorEnabled(BACKEND);
             result = true;
 
@@ -814,7 +847,7 @@ public class MessageSubmitterImplTest {
             authUtils.isUnsecureLoginAllowed();
             times = 1;
 
-            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
 
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);

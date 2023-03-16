@@ -55,7 +55,7 @@ public class UserMessageSecurityDefaultServiceTest {
             userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
-            userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+            userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
             times = 1;
         }};
 
@@ -82,7 +82,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test(expected = AuthenticationException.class)
@@ -137,7 +137,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = other;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
 }

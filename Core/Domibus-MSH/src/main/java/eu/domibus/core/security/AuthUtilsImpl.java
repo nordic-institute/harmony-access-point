@@ -129,7 +129,7 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasAdminRoleOrUserRoleWithOriginalUser() {
+    public void checkHasAdminRoleOrUserRoleWithOriginalUser() {
         if (isAdmin() || isSuperAdmin()) {
             return;
         }
