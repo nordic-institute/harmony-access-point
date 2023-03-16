@@ -828,7 +828,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
 
-        Map<String,String> propertiesList = messageReceiveFailureEvent.getProps();
+        Map<String, String> propertiesList = messageReceiveFailureEvent.getProps();
         assertEquals(1, messageReceiveFailureEvent.getProps().size());
 
         assertEquals(errorCodeName, propertiesList.get(MessageConstants.ERROR_CODE));
@@ -906,7 +906,7 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            backendConnectorService.isBackendConnectorEnabled(BACKEND_NAME);
             result = true;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -933,10 +933,10 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            backendConnectorService.isBackendConnectorEnabled(BACKEND_NAME);
             result = true;
 
-            backendNotificationService.notify((MessageSendSuccessEvent)any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
+            backendNotificationService.notify((MessageSendSuccessEvent) any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -1123,6 +1123,9 @@ public class BackendNotificationServiceTest {
             @Mocked PartInfo partInfo) {
 
         new Expectations(backendNotificationService) {{
+            backendConnectorService.isBackendConnectorEnabled(anyString);
+            result = true;
+
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
@@ -1234,7 +1237,7 @@ public class BackendNotificationServiceTest {
             userMessageLog.getBackend();
             result = BACKEND_NAME;
 
-            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            backendConnectorService.isBackendConnectorEnabled(BACKEND_NAME);
             result = true;
 
             userMessage.isMessageFragment();
@@ -1258,13 +1261,13 @@ public class BackendNotificationServiceTest {
             userMessageLog.getBackend();
             result = BACKEND_NAME;
 
-            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            backendConnectorService.isBackendConnectorEnabled(BACKEND_NAME);
             result = true;
 
             userMessage.isMessageFragment();
             result = false;
 
-            backendNotificationService.notify((MessageSendFailedEvent)any, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
+            backendNotificationService.notify((MessageSendFailedEvent) any, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
             times = 1;
         }};
 
@@ -1341,6 +1344,9 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageDeleted_test(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
         new Expectations(backendNotificationService) {{
+            backendConnectorService.isBackendConnectorEnabled(anyString);
+            result = true;
+
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
@@ -1359,6 +1365,9 @@ public class BackendNotificationServiceTest {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
+
+            backendConnectorService.isBackendConnectorEnabled(anyString);
+            result = true;
 
             userMessage.isTestMessage();
             result = false;
