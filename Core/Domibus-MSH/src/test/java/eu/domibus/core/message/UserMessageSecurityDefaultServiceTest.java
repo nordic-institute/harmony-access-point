@@ -4,6 +4,7 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
@@ -12,7 +13,6 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.security.access.AccessDeniedException;
 
 /**
  * @author Cosmin Baciu
@@ -55,7 +55,7 @@ public class UserMessageSecurityDefaultServiceTest {
             userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
-            userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+            userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
             times = 1;
         }};
 
@@ -82,7 +82,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -115,10 +115,10 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test(expected = AuthenticationException.class)
     public void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
         String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
@@ -137,7 +137,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = other;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
 }

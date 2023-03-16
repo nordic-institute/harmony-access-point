@@ -24,11 +24,11 @@ public interface UserMessageSecurityService {
 
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
-    void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
+    void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException;
 
-    void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage);
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage);
 
-    void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName);
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage, String propertyName);
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId);
 

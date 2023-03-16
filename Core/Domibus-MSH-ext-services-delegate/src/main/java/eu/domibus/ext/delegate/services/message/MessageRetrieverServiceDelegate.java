@@ -167,15 +167,10 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         if (authUtils.isUnsecureLoginAllowed()) {
             return;
         }
-        authUtils.hasUserOrAdminRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     protected void checkMessageAuthorization(UserMessage userMessage) {
-        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        String displayUser = originalUser == null ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
-
-        // Authorization check
-        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 }

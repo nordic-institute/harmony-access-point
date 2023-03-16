@@ -129,7 +129,7 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasUserOrAdminRole() {
+    public void checkHasAdminRoleOrUserRoleWithOriginalUser() {
         if (isAdmin() || isSuperAdmin()) {
             return;
         }
@@ -139,18 +139,6 @@ public class AuthUtilsImpl implements AuthUtils {
             throw new AuthenticationException("User " + getAuthenticatedUser() + " has USER_ROLE but is missing the ORIGINAL_USER in the db");
         }
         LOG.debug("Logged with USER_ROLE, ORIGINAL_USER is {}", originalUser);
-    }
-
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasAdminRole() {
-        // PreAuthorize
-    }
-
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
-    public void hasUserRole() {
-        // PreAuthorize
     }
 
     @Override

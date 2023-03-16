@@ -39,49 +39,30 @@ public class AuthUtilsImplIT {
 
     @Test(expected = AuthenticationCredentialsNotFoundException.class)
     public void hasAdminRole_noUser() {
-        authUtils.hasAdminRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test(expected = AccessDeniedException.class)
-    @WithMockUser
+    @WithMockUser(username = "ecas", roles={"ECAS"})
     public void hasAdminRole_user() {
-        //default WithMockUser is with ROLE USER
-        authUtils.hasAdminRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test
     @WithMockUser(username = "admin", roles={"AP_ADMIN"})
     public void hasAdminRole_apAdmin() {
-        authUtils.hasAdminRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test
     @WithMockUser(username = "admin", roles={"ADMIN"})
     public void hasAdminRole_admin() {
-        authUtils.hasAdminRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
     
     @Test(expected = AuthenticationCredentialsNotFoundException.class)
     public void hasUserRole_noUser() {
-        authUtils.hasUserRole();
+        authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
     }
 
-    @Test
-    @WithMockUser
-    public void hasUserRole_user() {
-        //default WithMockUser is with ROLE USER
-        authUtils.hasUserRole();
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    @WithMockUser(username = "admin", roles={"AP_ADMIN"})
-    public void hasUserRole_apAdmin() {
-        authUtils.hasUserRole();
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    @WithMockUser(username = "admin", roles={"ADMIN"})
-    public void hasUserRole_admin() {
-        authUtils.hasUserRole();
-    }
 }
