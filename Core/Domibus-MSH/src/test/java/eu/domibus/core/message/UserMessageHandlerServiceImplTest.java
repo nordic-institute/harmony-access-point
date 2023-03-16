@@ -41,6 +41,7 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
+import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -570,7 +571,7 @@ public class UserMessageHandlerServiceImplTest {
             result = false;
 
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            result = new SubmissionValidationException("Error while submitting the message!!");
+            result = new PluginMessageReceiveException("Error while submitting the message!!", ErrorCode.EbMS3ErrorCode.EBMS_0004);
         }};
         try {
             userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
