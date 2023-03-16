@@ -34,7 +34,7 @@ public interface AuthUtils {
 
     boolean isAdmin();
 
-    void hasUserOrAdminRole();
+    void hasAdminRoleOrUserRoleWithOriginalUser();
 
     void setAuthenticationToSecurityContext(String user, String password);
 

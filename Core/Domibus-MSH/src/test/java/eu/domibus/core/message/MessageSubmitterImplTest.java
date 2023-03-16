@@ -281,7 +281,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
@@ -415,7 +415,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -616,7 +616,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -703,7 +703,7 @@ public class MessageSubmitterImplTest {
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
@@ -814,7 +814,7 @@ public class MessageSubmitterImplTest {
             authUtils.isUnsecureLoginAllowed();
             times = 1;
 
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             times = 1;
 
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);

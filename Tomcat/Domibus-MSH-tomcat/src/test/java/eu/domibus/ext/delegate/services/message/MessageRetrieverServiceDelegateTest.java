@@ -65,7 +65,7 @@ public class MessageRetrieverServiceDelegateTest {
         }
 
         new Verifications() {{
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
         }};
 

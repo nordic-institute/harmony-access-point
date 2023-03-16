@@ -158,7 +158,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
+            authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
         }
 
         String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();

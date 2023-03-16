@@ -291,7 +291,7 @@ public class AuthUtilsImplTest {
             result = "TEST_USER";
         }};
 
-        authUtilsImpl.hasUserOrAdminRole();
+        authUtilsImpl.hasAdminRoleOrUserRoleWithOriginalUser();
 
         new FullVerifications() {
         };
@@ -309,7 +309,7 @@ public class AuthUtilsImplTest {
             result = "";
         }};
 
-        authUtilsImpl.hasUserOrAdminRole();
+        authUtilsImpl.hasAdminRoleOrUserRoleWithOriginalUser();
 
         new FullVerifications() {
         };
@@ -325,7 +325,7 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        authUtilsImpl.hasUserOrAdminRole();
+        authUtilsImpl.hasAdminRoleOrUserRoleWithOriginalUser();
 
         new FullVerifications() {
         };
@@ -339,7 +339,7 @@ public class AuthUtilsImplTest {
             result = true;
         }};
 
-        authUtilsImpl.hasUserOrAdminRole();
+        authUtilsImpl.hasAdminRoleOrUserRoleWithOriginalUser();
 
         new FullVerifications() {
         };

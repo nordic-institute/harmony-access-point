@@ -167,7 +167,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         if (authUtils.isUnsecureLoginAllowed()) {
             return;
         }
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     protected void checkMessageAuthorization(UserMessage userMessage) {

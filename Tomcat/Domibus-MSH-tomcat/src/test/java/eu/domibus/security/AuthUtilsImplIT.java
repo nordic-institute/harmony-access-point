@@ -39,30 +39,30 @@ public class AuthUtilsImplIT {
 
     @Test(expected = AuthenticationCredentialsNotFoundException.class)
     public void hasAdminRole_noUser() {
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test(expected = AccessDeniedException.class)
     @WithMockUser(username = "ecas", roles={"ECAS"})
     public void hasAdminRole_user() {
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test
     @WithMockUser(username = "admin", roles={"AP_ADMIN"})
     public void hasAdminRole_apAdmin() {
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
 
     @Test
     @WithMockUser(username = "admin", roles={"ADMIN"})
     public void hasAdminRole_admin() {
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
     
     @Test(expected = AuthenticationCredentialsNotFoundException.class)
     public void hasUserRole_noUser() {
-        authUtils.hasUserOrAdminRole();
+        authUtils.hasAdminRoleOrUserRoleWithOriginalUser();
     }
-    
+
 }
