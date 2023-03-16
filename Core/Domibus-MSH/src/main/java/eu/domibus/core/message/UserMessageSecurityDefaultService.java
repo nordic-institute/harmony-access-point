@@ -36,7 +36,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     @Override
     public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
-        validateUserAccess(userMessage);
+        doCheckMessageAuthorization(userMessage);
     }
 
     /**
@@ -51,36 +51,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             return;
         }
 
-        validateUserAccess(userMessage);
-    }
-
-    protected void validateUserAccess(UserMessage userMessage) {
-        String authOriginalUser = authUtils.getOriginalUserOrNullIfAdmin();
-        List<String> propertyNames = new ArrayList<>();
-        propertyNames.add(MessageConstants.ORIGINAL_SENDER);
-        propertyNames.add(MessageConstants.FINAL_RECIPIENT);
-
-        if (StringUtils.isBlank(authOriginalUser)) {
-            LOG.trace("OriginalUser is [{}] is admin", authOriginalUser);
-            return;
-        }
-
-        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
-
-        /* check the message belongs to the authenticated user */
-        boolean found = false;
-        for (String propertyName : propertyNames) {
-            String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
-            if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-            throw new AuthenticationException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
-        }
-        LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
+        doCheckMessageAuthorization(userMessage);
     }
 
     @Override
@@ -123,7 +94,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId, mshRole);
         }
-        validateUserAccess(userMessage);
+        doCheckMessageAuthorization(userMessage);
     }
 
     // we keep this for back-ward compatibility for ext services
@@ -152,7 +123,35 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             throw new MessageNotFoundException(messageId);
         }
 
-        validateUserAccess(userMessage);
+        doCheckMessageAuthorization(userMessage);
     }
 
+    protected void doCheckMessageAuthorization(UserMessage userMessage) {
+        String authOriginalUser = authUtils.getOriginalUserOrNullIfAdmin();
+        List<String> propertyNames = new ArrayList<>();
+        propertyNames.add(MessageConstants.ORIGINAL_SENDER);
+        propertyNames.add(MessageConstants.FINAL_RECIPIENT);
+
+        if (StringUtils.isBlank(authOriginalUser)) {
+            LOG.trace("OriginalUser is [{}] is admin", authOriginalUser);
+            return;
+        }
+
+        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
+
+        /* check the message belongs to the authenticated user */
+        boolean found = false;
+        for (String propertyName : propertyNames) {
+            String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+            if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
+            throw new AuthenticationException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
+        }
+        LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
+    }
 }

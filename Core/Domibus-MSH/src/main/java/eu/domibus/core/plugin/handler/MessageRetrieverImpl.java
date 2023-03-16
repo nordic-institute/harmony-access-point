@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -244,24 +245,22 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     protected void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
-        checkUserRoleWithUnsecuredLoginAllowed();
-
         MSHRole role = MSHRole.valueOf(mshRole.name());
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+        checkMessageAuthorization(() -> userMessageService.getByMessageId(messageId, role));
     }
 
     protected void checkMessageAuthorization(Long messageEntityId) {
-        checkUserRoleWithUnsecuredLoginAllowed();
-
-        final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+        checkMessageAuthorization(() -> userMessageService.getByMessageEntityId(messageEntityId));
     }
 
     protected void checkMessageAuthorization(String messageId) {
+        checkMessageAuthorization(() -> userMessageService.getByMessageId(messageId));
+    }
+
+    protected void checkMessageAuthorization(Supplier<UserMessage> messageGetter) {
         checkUserRoleWithUnsecuredLoginAllowed();
 
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        final UserMessage userMessage = messageGetter.get();
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
