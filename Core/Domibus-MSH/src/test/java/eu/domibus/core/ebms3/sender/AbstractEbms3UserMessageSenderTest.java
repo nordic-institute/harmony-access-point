@@ -18,10 +18,10 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -152,7 +152,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -242,7 +242,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = configurationException;
 
         }};
@@ -353,7 +353,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -476,7 +476,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);

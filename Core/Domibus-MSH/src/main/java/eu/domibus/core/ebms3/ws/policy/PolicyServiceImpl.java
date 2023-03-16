@@ -1,15 +1,17 @@
 
 package eu.domibus.core.ebms3.ws.policy;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.cxf.DomibusBus;
+import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuite;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
@@ -20,12 +22,12 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Arun Raj
@@ -48,7 +50,6 @@ public class PolicyServiceImpl implements PolicyService {
     @Autowired
     private DomibusBus domibusBus;
 
-
     /**
      * To retrieve the domibus security policy xml from the specified location and create the Security Policy object.
      *
@@ -58,12 +59,39 @@ public class PolicyServiceImpl implements PolicyService {
      */
     @Override
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "policyCache", sync = true)
-    public Policy parsePolicy(final String location) throws ConfigurationException {
+    public Policy parsePolicy(final String location, final SecurityProfile securityProfile) throws ConfigurationException {
         final PolicyBuilder pb = domibusBus.getExtension(PolicyBuilder.class);
-        try (InputStream inputStream = new FileInputStream(new File(domibusConfigurationService.getConfigLocation(), location))){
-            return pb.getPolicy(inputStream);
+        try (InputStream inputStream = Files.newInputStream(new File(domibusConfigurationService.getConfigLocation(), location).toPath())){
+            InputStream inputStreamWithUpdatedPolicy = getAlgorithmSuiteInPolicy(inputStream, securityProfile);
+            return pb.getPolicy(inputStreamWithUpdatedPolicy);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             throw new ConfigurationException(e);
+        }
+    }
+
+    private InputStream getAlgorithmSuiteInPolicy(InputStream inputStream, final SecurityProfile securityProfile) {
+        String modifiedPolicyString;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            modifiedPolicyString = reader.lines()
+                    .map(l -> l.replace("algorithmSuitePlaceholder", getAlgoName(securityProfile)))
+                    .collect(Collectors.joining());
+        } catch (IOException e) {
+            throw new ConfigurationException(e);
+        }
+        return IOUtils.toInputStream(modifiedPolicyString, Charset.defaultCharset());
+    }
+
+    private String getAlgoName(final SecurityProfile securityProfile) {
+        if (securityProfile == null) {
+            //legacy single keystore alias
+            return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
+        }
+        switch (securityProfile) {
+            case ECC:
+                return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC;
+            case RSA:
+            default:
+                return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
         }
     }
 
@@ -76,7 +104,7 @@ public class PolicyServiceImpl implements PolicyService {
      */
     @Override
     public Policy getPolicy(LegConfiguration legConfiguration) throws ConfigurationException {
-        return parsePolicy(POLICIES + File.separator + legConfiguration.getSecurity().getPolicy());
+        return parsePolicy(POLICIES + File.separator + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
     }
 
     /**

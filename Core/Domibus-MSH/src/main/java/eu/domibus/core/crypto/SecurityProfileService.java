@@ -35,7 +35,7 @@ public class SecurityProfileService {
     public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
         Policy policy;
         try {
-            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         } catch (final ConfigurationException e) {
             String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
             throw new ConfigurationException(message);
