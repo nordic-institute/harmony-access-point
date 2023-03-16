@@ -12,6 +12,7 @@ import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -52,7 +53,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
 import java.io.IOException;
@@ -442,14 +442,14 @@ public class MessageSubmitterImplTest {
             result = userMessage;
 
             userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-            result = new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
+            result = new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
         try {
             messageSubmitterImpl.submit(messageData, BACKEND);
-            Assert.fail("It should throw AccessDeniedException");
-        } catch (AccessDeniedException ex) {
-            LOG.debug("AccessDeniedException catched: " + ex.getMessage());
+            Assert.fail("It should throw AuthenticationException");
+        } catch (AuthenticationException ex) {
+            LOG.debug("AuthenticationException catched: " + ex.getMessage());
             assertTrue(ex.getMessage().contains("You are not allowed to handle this message. You are authorized as [mycorner]"));
         }
 
