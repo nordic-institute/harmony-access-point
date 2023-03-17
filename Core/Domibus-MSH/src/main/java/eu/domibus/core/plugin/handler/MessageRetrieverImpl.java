@@ -203,7 +203,11 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
 
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
+            throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
+        }
 
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
