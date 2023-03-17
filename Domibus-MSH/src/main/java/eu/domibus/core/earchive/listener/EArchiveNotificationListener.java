@@ -183,8 +183,8 @@ public class EArchiveNotificationListener implements MessageListener {
     protected BatchNotification buildBatchNotification(EArchiveBatchEntity eArchiveBatch) {
         BatchNotification batchNotification = new BatchNotification();
         batchNotification.setBatchId(eArchiveBatch.getBatchId());
-        batchNotification.setErrorCode(eArchiveBatch.getErrorCode());
-        batchNotification.setErrorDescription(eArchiveBatch.getErrorMessage());
+        batchNotification.setCode(eArchiveBatch.getDomibusCode());
+        batchNotification.setMessage(eArchiveBatch.getMessage());
         batchNotification.setStatus(BatchNotification.StatusEnum.valueOf(eArchiveBatch.getEArchiveBatchStatus().name()));
         if (eArchiveBatch.getRequestType() == EArchiveRequestType.CONTINUOUS || eArchiveBatch.getRequestType() == EArchiveRequestType.SANITIZER) {
             batchNotification.setRequestType(BatchNotification.RequestTypeEnum.CONTINUOUS);

@@ -49,11 +49,11 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "BATCH_SIZE")
     protected Integer batchSize;
 
-    @Column(name = "ERROR_CODE")
-    protected String errorCode;
+    @Column(name = "DOMIBUS_CODE")
+    protected String domibusCode;
 
-    @Column(name = "ERROR_DETAIL")
-    protected String errorMessage;
+    @Column(name = "MESSAGE")
+    protected String message;
 
     @Column(name = "STORAGE_LOCATION")
     protected String storageLocation;
@@ -147,20 +147,20 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.eArchiveBatchStatus = eArchiveBatchStatus;
     }
 
-    public String getErrorCode() {
-        return errorCode;
+    public String getDomibusCode() {
+        return domibusCode;
     }
 
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
+    public void setDomibusCode(String domibusCode) {
+        this.domibusCode = domibusCode;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public List<EArchiveBatchUserMessage> geteArchiveBatchUserMessages() {
@@ -191,8 +191,8 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 ", firstPkUserMessage=" + firstPkUserMessage +
                 ", lastPkUserMessage=" + lastPkUserMessage +
                 ", batchSize=" + batchSize +
-                ", errorCode='" + errorCode + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
+                ", code='" + domibusCode + '\'' +
+                ", description='" + message + '\'' +
                 ", storageLocation='" + storageLocation + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
                 '}';
@@ -213,8 +213,8 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 .append(dateRequested, that.dateRequested)
                 .append(lastPkUserMessage, that.lastPkUserMessage)
                 .append(batchSize, that.batchSize)
-                .append(errorCode, that.errorCode)
-                .append(errorMessage, that.errorMessage)
+                .append(domibusCode, that.domibusCode)
+                .append(message, that.message)
                 .append(storageLocation, that.storageLocation)
                 .append(firstPkUserMessage, that.firstPkUserMessage)
                 .append(manifestChecksum, that.manifestChecksum)
@@ -233,8 +233,8 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 .append(dateRequested)
                 .append(lastPkUserMessage)
                 .append(batchSize)
-                .append(errorCode)
-                .append(errorMessage)
+                .append(domibusCode)
+                .append(message)
                 .append(storageLocation)
                 .append(firstPkUserMessage)
                 .append(manifestChecksum)

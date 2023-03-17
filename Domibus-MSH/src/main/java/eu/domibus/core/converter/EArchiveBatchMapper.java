@@ -23,7 +23,7 @@ public abstract class EArchiveBatchMapper {
 
     @Mapping(ignore = true, target = "version")
     @Mapping(source = "EArchiveBatchStatus", target = "status")
-    @Mapping(source = "errorMessage", target = "errorDescription")
+    @Mapping(source = "message", target = "message")
     @Mapping(source = "dateRequested", target = "timestamp")
     @Mapping(source = "lastPkUserMessage", target = "messageEndId")
     @Mapping(source = "firstPkUserMessage", target = "messageStartId")

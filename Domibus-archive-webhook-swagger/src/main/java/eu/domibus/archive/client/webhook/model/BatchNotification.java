@@ -16,8 +16,8 @@ public class BatchNotification {
     LocalDateTime messageStartDate;
     LocalDateTime messageEndDate;
     List<String> messages;
-    String errorCode;
-    String errorDescription;
+    String code;
+    String message;
 
     public String getBatchId() {
         return batchId;
@@ -75,19 +75,19 @@ public class BatchNotification {
         this.messages = messages;
     }
 
-    public String getErrorCode() {
-        return errorCode;
+    public String getCode() {
+        return code;
     }
 
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getErrorDescription() {
-        return errorDescription;
+    public String getMessage() {
+        return message;
     }
 
-    public void setErrorDescription(String errorDescription) {
-        this.errorDescription = errorDescription;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

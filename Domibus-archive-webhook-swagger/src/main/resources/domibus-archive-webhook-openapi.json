@@ -127,10 +127,10 @@
               "type" : "string"
             }
           },
-          "errorCode" : {
+          "code" : {
             "type" : "string"
           },
-          "errorDescription" : {
+          "message" : {
             "type" : "string"
           }
         }
