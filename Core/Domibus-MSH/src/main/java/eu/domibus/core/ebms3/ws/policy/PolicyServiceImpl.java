@@ -61,8 +61,8 @@ public class PolicyServiceImpl implements PolicyService {
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "policyCache", sync = true)
     public Policy parsePolicy(final String location, final SecurityProfile securityProfile) throws ConfigurationException {
         final PolicyBuilder pb = domibusBus.getExtension(PolicyBuilder.class);
-        try (InputStream inputStream = Files.newInputStream(new File(domibusConfigurationService.getConfigLocation(), location).toPath())){
-            InputStream inputStreamWithUpdatedPolicy = getAlgorithmSuiteInPolicy(inputStream, securityProfile);
+        try (InputStream inputStream = Files.newInputStream(new File(domibusConfigurationService.getConfigLocation(), location).toPath());
+             InputStream inputStreamWithUpdatedPolicy = getAlgorithmSuiteInPolicy(inputStream, securityProfile)) {
             return pb.getPolicy(inputStreamWithUpdatedPolicy);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             throw new ConfigurationException(e);
@@ -71,9 +71,10 @@ public class PolicyServiceImpl implements PolicyService {
 
     private InputStream getAlgorithmSuiteInPolicy(InputStream inputStream, final SecurityProfile securityProfile) {
         String modifiedPolicyString;
+        String algoName = getAlgoName(securityProfile);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             modifiedPolicyString = reader.lines()
-                    .map(l -> l.replace("algorithmSuitePlaceholder", getAlgoName(securityProfile)))
+                    .map(line -> line.replace("algorithmSuitePlaceholder", algoName))
                     .collect(Collectors.joining());
         } catch (IOException e) {
             throw new ConfigurationException(e);
@@ -84,13 +85,16 @@ public class PolicyServiceImpl implements PolicyService {
     private String getAlgoName(final SecurityProfile securityProfile) {
         if (securityProfile == null) {
             //legacy single keystore alias
+            LOG.debug("Using [{}] algorithm for legacy single keystore alias", DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
             return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
         }
         switch (securityProfile) {
             case ECC:
+                LOG.debug("Using [{}] algorithm for [{}] profile", DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC, securityProfile);
                 return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC;
             case RSA:
             default:
+                LOG.debug("Using [{}] algorithm for [{}] profile", DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA, securityProfile);
                 return DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA;
         }
     }
