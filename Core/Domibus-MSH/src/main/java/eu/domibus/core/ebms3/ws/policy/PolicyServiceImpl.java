@@ -71,10 +71,10 @@ public class PolicyServiceImpl implements PolicyService {
 
     private InputStream getAlgorithmSuiteInPolicy(InputStream inputStream, final SecurityProfile securityProfile) {
         String modifiedPolicyString;
-        String algoName = getAlgoName(securityProfile);
+        String algoName = getAlgorithmName(securityProfile);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             modifiedPolicyString = reader.lines()
-                    .map(line -> line.replace("algorithmSuitePlaceholder", algoName))
+                    .map(line -> line.replace("${algorithmSuitePlaceholder}", algoName))
                     .collect(Collectors.joining());
         } catch (IOException e) {
             throw new ConfigurationException(e);
@@ -82,7 +82,7 @@ public class PolicyServiceImpl implements PolicyService {
         return IOUtils.toInputStream(modifiedPolicyString, Charset.defaultCharset());
     }
 
-    private String getAlgoName(final SecurityProfile securityProfile) {
+    private String getAlgorithmName(final SecurityProfile securityProfile) {
         if (securityProfile == null) {
             //legacy single keystore alias
             LOG.debug("Using [{}] algorithm for legacy single keystore alias", DomibusAlgorithmSuite.BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA);
