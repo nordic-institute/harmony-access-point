@@ -78,8 +78,6 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setTimestamp(messageInfo.getTimestamp());
         userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
 
-        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
-        userMessage.setTestMessage(testMessage);
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 
         final ActionEntity actionEntity = actionService.findOrCreateAction(collaborationInfo.getAction());
@@ -88,6 +86,9 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         final Ebms3Service ebms3Service = collaborationInfo.getService();
         final ServiceEntity serviceEntity = serviceDictionaryService.findOrCreateService(ebms3Service.getValue(), ebms3Service.getType());
         userMessage.setService(serviceEntity);
+
+        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getService().getValue(), userMessage.getAction().getValue());
+        userMessage.setTestMessage(testMessage);
 
         userMessage.setConversationId(collaborationInfo.getConversationId());
 
