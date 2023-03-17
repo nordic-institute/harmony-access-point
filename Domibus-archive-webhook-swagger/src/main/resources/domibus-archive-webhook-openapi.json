@@ -127,6 +127,12 @@
               "type" : "string"
             }
           },
+          "errorCode" : {
+            "type" : "string"
+          },
+          "errorDescription" : {
+            "type" : "string"
+          },
           "code" : {
             "type" : "string"
           },
