@@ -157,8 +157,8 @@ public class EArchiveBatchRequestDTO {
                 ", batchId='" + batchId + '\'' +
                 ", requestType='" + requestType + '\'' +
                 ", status='" + status + '\'' +
-                ", errorCode='" + domibusCode + '\'' +
-                ", errorDescription='" + message + '\'' +
+                ", domibusCode='" + domibusCode + '\'' +
+                ", message='" + message + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", messageStartDate='" + messageStartId + '\'' +
                 ", messageEndDate='" + messageEndId + '\'' +
