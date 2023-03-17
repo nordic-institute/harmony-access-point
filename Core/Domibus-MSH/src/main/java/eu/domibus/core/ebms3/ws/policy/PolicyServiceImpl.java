@@ -54,11 +54,12 @@ public class PolicyServiceImpl implements PolicyService {
      * To retrieve the domibus security policy xml from the specified location and create the Security Policy object.
      *
      * @param location the policy xml file location
+     * @param securityProfile the current security profile
      * @return the security policy
      * @throws ConfigurationException if the policy xml cannot be read or parsed from the file
      */
     @Override
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "policyCache", sync = true)
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "policyCache", key = "#location + #securityProfile", sync = true)
     public Policy parsePolicy(final String location, final SecurityProfile securityProfile) throws ConfigurationException {
         final PolicyBuilder pb = domibusBus.getExtension(PolicyBuilder.class);
         try (InputStream inputStream = Files.newInputStream(new File(domibusConfigurationService.getConfigLocation(), location).toPath());
