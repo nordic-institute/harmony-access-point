@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -90,7 +91,7 @@ public class SetPolicyInServerInterceptorTest {
         new Verifications() {{
             soapService.getMessage(message);
             times = 1;
-            policyService.parsePolicy("policies" + File.separator + anyString);
+            policyService.parsePolicy("policies" + File.separator + anyString, SecurityProfile.RSA);
             times = 1;
         }};
     }
@@ -112,7 +113,7 @@ public class SetPolicyInServerInterceptorTest {
 
         new FullVerifications() {{
             soapService.getMessage(message);
-            policyService.parsePolicy("policies" + File.separator + anyString);
+            policyService.parsePolicy("policies" + File.separator + anyString, SecurityProfile.RSA);
             setPolicyInServerInterceptor.setBindingOperation(message);
         }};
     }
@@ -135,7 +136,7 @@ public class SetPolicyInServerInterceptorTest {
         new Verifications() {{
             soapService.getMessage(message);
             times = 1;
-            policyService.parsePolicy("policies" + File.separator + anyString);
+            policyService.parsePolicy("policies" + File.separator + anyString, SecurityProfile.RSA);
             times = 1;
             setPolicyInServerInterceptor.setBindingOperation(message);
             times = 1;
