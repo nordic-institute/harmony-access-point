@@ -54,10 +54,10 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     @Transactional
-    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
+    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String message, String code) {
         eArchiveBatchByBatchId.setEArchiveBatchStatus(status);
-        eArchiveBatchByBatchId.setErrorMessage(error);
-        eArchiveBatchByBatchId.setErrorCode(errorCode);
+        eArchiveBatchByBatchId.setMessage(message);
+        eArchiveBatchByBatchId.setDomibusCode(code);
         return merge(eArchiveBatchByBatchId);
     }
 
