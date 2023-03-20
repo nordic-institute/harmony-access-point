@@ -26,6 +26,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
+import 'moment-precise-range-plugin';
 import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MessageLogEntry} from './support/messagelogentry';
@@ -157,10 +158,24 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const res = await this.propertiesService.getMessageLogInitialIntervalProperty();
     const val = +res.value;
     let interval = this.messageIntervals.find(el => el.value == val * 60);
-    if (!interval) {
-      interval = this.messageIntervals[0];
+    if (interval) {
+      return interval;
     }
-    return interval;
+
+    const starts = moment().subtract(val, 'hours');
+    const ends = moment();
+    // @ts-ignore
+    const diffHuman = moment.preciseDiff(starts, ends);
+    const newValue = {value: val * 60, text: diffHuman};
+
+    const index = this.messageIntervals.findIndex(el => el.value > val * 60);
+    if (index >= 0) {
+      this.messageIntervals.splice(index, 0, newValue);
+    } else {
+      this.messageIntervals.splice(this.messageIntervals.length - 1, 0, newValue);
+    }
+
+    return newValue;
   }
 
   async ngAfterViewInit() {
