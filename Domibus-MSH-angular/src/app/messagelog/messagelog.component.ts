@@ -161,20 +161,23 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (interval) {
       return interval;
     }
+    
+    const newValue = this.addInterval(val);
+    return newValue;
+  }
 
+  private addInterval(val: number) {
     const starts = moment().subtract(val, 'hours');
     const ends = moment();
     // @ts-ignore
     const diffHuman = moment.preciseDiff(starts, ends);
     const newValue = {value: val * 60, text: 'Last ' + diffHuman};
 
-    const index = this.messageIntervals.findIndex(el => el.value > val * 60);
-    if (index >= 0) {
-      this.messageIntervals.splice(index, 0, newValue);
-    } else {
-      this.messageIntervals.splice(this.messageIntervals.length - 1, 0, newValue);
+    let index = this.messageIntervals.findIndex(el => el.value > val * 60);
+    if (index < 0) {
+      index = this.messageIntervals.length - 1;
     }
-
+    this.messageIntervals.splice(index, 0, newValue);
     return newValue;
   }
 
