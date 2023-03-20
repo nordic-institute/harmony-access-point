@@ -166,7 +166,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const ends = moment();
     // @ts-ignore
     const diffHuman = moment.preciseDiff(starts, ends);
-    const newValue = {value: val * 60, text: diffHuman};
+    const newValue = {value: val * 60, text: 'Last ' + diffHuman};
 
     const index = this.messageIntervals.findIndex(el => el.value > val * 60);
     if (index >= 0) {
