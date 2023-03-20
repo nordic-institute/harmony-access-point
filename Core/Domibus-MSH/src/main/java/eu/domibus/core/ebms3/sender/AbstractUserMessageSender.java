@@ -149,7 +149,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
             Policy policy;
             try {
-                policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+                policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             } catch (final ConfigurationException e) {
                 throw EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)

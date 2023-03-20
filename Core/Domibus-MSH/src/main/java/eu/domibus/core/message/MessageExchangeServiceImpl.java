@@ -357,7 +357,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
             LOG.debug("Validation of the receiver certificate is skipped.");
             return;
@@ -401,7 +401,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         if (policyService.isNoSecurityPolicy(policy)) {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;

@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.ws.policy;
 
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import org.apache.neethi.Policy;
@@ -15,7 +16,7 @@ public interface PolicyService {
 
     boolean isNoEncryptionPolicy(Policy policy);
 
-    Policy parsePolicy(final String location) throws ConfigurationException;
+    Policy parsePolicy(final String location, final SecurityProfile securityProfile) throws ConfigurationException;
 
     Policy getPolicy(final LegConfiguration legConfiguration) throws ConfigurationException;
 
