@@ -209,7 +209,7 @@ public class BackendNotificationService {
     protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> messageIds = userMessageLogs
                 .stream()
-                .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
+                .filter(userMessageLog -> StringUtils.equals(userMessageLog.getBackend(), backend))
                 .map(this::getMessageDeletedEvent)
                 .collect(toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
