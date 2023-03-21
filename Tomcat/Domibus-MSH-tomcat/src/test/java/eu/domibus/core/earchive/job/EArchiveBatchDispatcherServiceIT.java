@@ -18,6 +18,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -71,6 +72,9 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     @Autowired
     private BackendConnectorProvider backendConnectorProvider;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -89,6 +93,8 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
+        payloadFileStorageProvider.initialize();
+
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         domain = new Domain("default", "default");

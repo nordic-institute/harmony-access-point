@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -56,10 +57,14 @@ public class MessageSubmitterTestIT extends AbstractIT {
     @Autowired
     UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @Before
     public void before() {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        payloadFileStorageProvider.initialize();
     }
 
     @Test
