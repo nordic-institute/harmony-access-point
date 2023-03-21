@@ -4,10 +4,12 @@ import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.core.spi.soapenvelope.UserMessageSoapEnvelopeSpi;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.message.Attachment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
+import java.util.Collection;
 
 /**
  * @author Cosmin Baciu
@@ -37,6 +39,18 @@ public class UserMessageSoapEnvelopeSpiDelegateImpl implements UserMessageSoapEn
         LOG.debug("Finished executing beforeSigningAndEncryption hook");
 
         return resultSoapMessage;
+    }
+
+    @Override
+    public void afterSigningAndEncryption(SOAPMessage soapMessage, Collection<Attachment> attachments) {
+        if (!isSoapEnvelopeSpiActive()) {
+            LOG.debug("afterSigningAndEncryption hook skipped: SPI is not active");
+            return;
+        }
+
+        LOG.debug("Executing afterSigningAndEncryption hook");
+        soapEnvelopeSpi.afterSigningAndEncryption(soapMessage, attachments);
+        LOG.debug("Finished executing afterSigningAndEncryption hook");
     }
 
     protected boolean isSoapEnvelopeSpiActive() {
