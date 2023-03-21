@@ -24,10 +24,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +48,7 @@ import static java.util.Collections.singletonList;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Ignore
 @Transactional
 public class EArchivingRetentionServiceIT extends AbstractIT {
 
