@@ -102,7 +102,6 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Before
     public void setUp() throws Exception {
         payloadFileStorageProvider.initialize();
-        eArchiveFileStorageProvider.initialize();
 
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
@@ -119,6 +118,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 .createBatchEArchiveDTO();
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
+
+        eArchiveFileStorageProvider.initialize();
 
         uploadPmode(SERVICE_PORT);
 
