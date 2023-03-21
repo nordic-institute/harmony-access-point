@@ -26,7 +26,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -53,7 +52,6 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
 @Transactional
 public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
@@ -121,7 +119,6 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
-        eArchiveFileStorageProvider.initialize();
 
         uploadPmode(SERVICE_PORT);
 
@@ -132,6 +129,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+
+        eArchiveFileStorageProvider.initialize();
 
         // reset
         EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
