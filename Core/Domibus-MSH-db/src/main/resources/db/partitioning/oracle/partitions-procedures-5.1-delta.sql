@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE FUNCTION generate_partition_id(p_date IN DATE)
     RETURN NUMBER IS
     p_id NUMBER;
@@ -34,3 +35,7 @@ CREATE OR REPLACE PROCEDURE drop_partition (partition_name IN VARCHAR2) IS
       execute immediate 'ALTER TABLE TB_USER_MESSAGE DROP PARTITION ' || partition_name || ' UPDATE INDEXES';
    END;
 /
+
+DROP PROCEDURE IF EXISTS generate_partition;
+DROP PROCEDURE IF EXISTS PARTITIONSGEN;
+DROP JOB IF EXISTS "GENERATE_PARTITIONS_JOB";
