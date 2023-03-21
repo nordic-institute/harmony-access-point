@@ -3037,5 +3037,11 @@
         </createTable>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
     </changeSet>
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-10924">
+        <sql>
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>
