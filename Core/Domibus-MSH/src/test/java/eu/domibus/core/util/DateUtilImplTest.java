@@ -140,7 +140,7 @@ public class DateUtilImplTest {
     public void getIdPkDateHour() {
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
 
-        Assert.assertEquals(220101100000000000L, idPkDateHour);
+        Assert.assertEquals(220101090000000000L, idPkDateHour);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class DateUtilImplTest {
     public void getIdPkDateHour_onlyDate() {
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
 
-        Assert.assertEquals(220101000000000000L, idPkDateHour);
+        Assert.assertEquals(211231230000000000L, idPkDateHour);
     }
 
     @Test
