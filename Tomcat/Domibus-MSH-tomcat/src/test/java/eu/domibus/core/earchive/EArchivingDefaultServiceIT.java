@@ -334,6 +334,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
-        Assert.assertEquals(message, batchUpdated.getErrorMessage());
+        Assert.assertEquals(message, batchUpdated.getMessage());
     }
 }

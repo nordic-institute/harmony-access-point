@@ -244,8 +244,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, null, null);
     }
 
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
-        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, error, errorCode);
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String message, String code) {
+        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, message, code);
     }
 
     public void sendToNotificationQueue(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus type) {

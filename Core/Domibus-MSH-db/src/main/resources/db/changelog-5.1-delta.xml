@@ -207,4 +207,9 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="Francois Gautier" id="EDELIVERY-10913">
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_CODE" newColumnName="DOMIBUS_CODE" columnDataType="VARCHAR(255)"/>
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_DETAIL" newColumnName="MESSAGE" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
 </databaseChangeLog>
