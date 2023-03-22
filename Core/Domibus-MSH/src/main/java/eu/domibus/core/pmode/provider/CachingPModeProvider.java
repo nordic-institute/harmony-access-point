@@ -467,6 +467,9 @@ public class CachingPModeProvider extends PModeProvider {
         boolean mpcEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED);
         if (!mpcEnabled) {
             LOG.debug("Mpc validation disabled");
+            if (!equalsIgnoreCase(candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc())) {
+                LOG.warn("For legConfiguration [{}], the PMode Mpc value [{}] doesn't match with the Mpc value [{}] in the message.", candidateLeg.getName(), candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc());
+            }
             return;
         }
 
