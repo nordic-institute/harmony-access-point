@@ -207,11 +207,15 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="Francois Gautier" id="EDELIVERY-10913">
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_CODE" newColumnName="DOMIBUS_CODE" columnDataType="VARCHAR(255)"/>
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_DETAIL" newColumnName="MESSAGE" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
     <changeSet author="idragusa" id="EDELIVERY-10924">
         <sql dbms="oracle" >
             DROP INDEX IDX_USER_LOG_RECEIVED;
             CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
         </sql>
     </changeSet>
-
 </databaseChangeLog>

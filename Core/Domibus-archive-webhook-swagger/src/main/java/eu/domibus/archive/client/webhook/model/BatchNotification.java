@@ -16,8 +16,12 @@ public class BatchNotification {
     LocalDateTime messageStartDate;
     LocalDateTime messageEndDate;
     List<String> messages;
+    @Deprecated
     String errorCode;
+    @Deprecated
     String errorDescription;
+    String code;
+    String message;
 
     public String getBatchId() {
         return batchId;
@@ -75,19 +79,39 @@ public class BatchNotification {
         this.messages = messages;
     }
 
+    @Deprecated
     public String getErrorCode() {
         return errorCode;
     }
 
+    @Deprecated
     public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
     }
 
+    @Deprecated
     public String getErrorDescription() {
         return errorDescription;
     }
 
+    @Deprecated
     public void setErrorDescription(String errorDescription) {
         this.errorDescription = errorDescription;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
