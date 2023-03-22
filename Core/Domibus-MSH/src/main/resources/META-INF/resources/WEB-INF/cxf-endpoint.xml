@@ -11,6 +11,7 @@
         <jaxws:outInterceptors>
             <ref bean="setPolicyOutInterceptor"/>
             <ref bean="httpHeaderOutInterceptor"/>
+            <ref bean="messageOutgoingInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="setSignatureAlgorithmInInterceptor"/>
