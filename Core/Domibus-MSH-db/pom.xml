@@ -206,7 +206,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.1-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-partitioning-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-to-5.1-partitioning-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
