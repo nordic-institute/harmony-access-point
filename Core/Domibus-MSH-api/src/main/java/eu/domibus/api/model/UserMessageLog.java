@@ -164,11 +164,31 @@ import java.util.Date;
                         "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID)                             " +
                         "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
                         "  and uml.deleted IS NULL                                                                   " +
-                        "  and uml.archived IS NULL                                                                  " +
+                        "  and uml.exported IS NULL                                                                  " +
                         "  and uml.userMessage.testMessage IS FALSE                                                  " +
                         "  and (uml.userMessage.messageFragment IS FALSE OR uml.userMessage.messageFragment IS NULL) " +
                         "order by uml.entityId asc                                                                   "),
         @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
+                query = "select new java.lang.Long(count(uml.entityId)) " +
+                        "from UserMessageLog uml " +
+                        "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID) " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.userMessage.testMessage IS FALSE " +
+                        "  and uml.deleted IS NULL " +
+                        "  and uml.exported IS NULL "),
+        @NamedQuery(name = "UserMessageLog.findMessagesNotArchivedAsc",
+                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId)                " +
+                        "from UserMessageLog uml                                                                     " +
+                        "where uml.entityId > :LAST_ENTITY_ID                                                        " +
+                        "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID)                             " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
+                        "  and uml.deleted IS NULL                                                                   " +
+                        "  and uml.archived IS NULL                                                                  " +
+                        "  and uml.userMessage.testMessage IS FALSE                                                  " +
+                        "  and (uml.userMessage.messageFragment IS FALSE OR uml.userMessage.messageFragment IS NULL) " +
+                        "order by uml.entityId asc                                                                   "),
+        @NamedQuery(name = "UserMessageLog.countMessagesNotArchived",
                 query = "select new java.lang.Long(count(uml.entityId)) " +
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +

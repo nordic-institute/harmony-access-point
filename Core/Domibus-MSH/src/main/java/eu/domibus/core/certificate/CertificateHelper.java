@@ -74,9 +74,9 @@ public class CertificateHelper {
     }
 
     public String getStoreFileExtension(String storeType) {
-        if (StringUtils.equals(storeType, PKCS_12)) {
+        if (StringUtils.equalsIgnoreCase(storeType, PKCS_12)) {
             return P_12;
-        } else if (StringUtils.equals(storeType, JKS)) {
+        } else if (StringUtils.equalsIgnoreCase(storeType, JKS)) {
             return JKS;
         } else {
             throw new DomibusCertificateException("Invalid store type:" + storeType);
