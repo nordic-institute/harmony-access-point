@@ -89,6 +89,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
     {value: 3 * 24 * 60, text: 'Last 3 days'},
     {value: 7 * 24 * 60, text: 'Last 7 days'},
     {value: 30 * 24 * 60, text: 'Last 30 days'},
+    {value: 182.5 * 24 * 60, text: 'Last 6 months'},
+    {value: 365 * 24 * 60, text: 'Last year'},
+    {value: 5 * 365 * 24 * 60, text: 'Last 5 years'},
     {value: 0, text: 'Custom'},
   ];
 
