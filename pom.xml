@@ -485,6 +485,7 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -496,6 +497,7 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -507,6 +509,7 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -1150,6 +1153,7 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
