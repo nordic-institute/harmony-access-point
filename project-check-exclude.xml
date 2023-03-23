@@ -17,6 +17,7 @@
         <gav regex="true">^eu\.domibus:domibus-msh-test:.*$</gav>
         <cpe>cpe:/a:test:test</cpe>
         <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cpe>cpe:/a:json-smart_project:json-smart</cpe>
     </suppress>
 
     <suppress>
