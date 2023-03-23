@@ -23,7 +23,7 @@
         and keeps the customizations needed by Domibus -->
         <xmlsec.version>2.3.0</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
-        <spring.version>5.3.25</spring.version>
+        <spring.version>5.3.26</spring.version>
         <spring.security.version>5.8.1</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
