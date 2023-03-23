@@ -397,7 +397,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.1-delta.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-5.0-to-5.1-SNAPSHOT-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.0-to-5.1-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -415,7 +415,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-5.1-SNAPSHOT-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -433,7 +433,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.1-SNAPSHOT-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -451,7 +451,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.1-multi-tenancy-delta.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-5.0-to-5.1-SNAPSHOT-multi-tenancy-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -469,7 +469,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.1-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-SNAPSHOT-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -487,7 +487,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.1-multi-tenancy-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-SNAPSHOT-multi-tenancy-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
