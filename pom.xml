@@ -24,7 +24,8 @@
         <xmlsec.version>2.3.0</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.26</spring.version>
-        <spring.security.version>5.8.1</spring.security.version>
+        <!-- When upgrading the version, please check the usages, to decide if the exclusion of <artifactId>spring-expression</artifactId> is still needed -->
+        <spring.security.version>5.8.2</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.12</springdoc.version>
@@ -484,16 +485,34 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${spring.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${spring.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Spring Security -->
 
@@ -1131,6 +1150,12 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
                 <scope>test</scope>
             </dependency>
             <dependency>
