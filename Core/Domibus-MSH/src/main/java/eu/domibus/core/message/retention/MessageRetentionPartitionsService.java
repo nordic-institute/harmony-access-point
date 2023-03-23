@@ -41,7 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
 
-    private static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]+|P[0-9]+";
+    protected static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]+|P[0-9]+";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 

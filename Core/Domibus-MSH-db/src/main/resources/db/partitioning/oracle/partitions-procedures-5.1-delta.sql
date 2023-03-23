@@ -37,9 +37,8 @@ CREATE OR REPLACE PROCEDURE drop_partition (partition_name IN VARCHAR2) IS
 /
 
 DROP FUNCTION generate_partition;
-/
 DROP PROCEDURE PARTITIONSGEN;
-/
+
 BEGIN
     dbms_scheduler.drop_job(job_name => 'GENERATE_PARTITIONS_JOB');
 END;
