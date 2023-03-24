@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusDateTimeException;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,12 @@ public class DateUtilImplTest {
 
     @Tested
     private DateUtilImpl dateUtilImpl;
+
+    @After
+    public void tearDown() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
+    }
+
 
     @Test
     public void convertsIso8601ValuesToDates_SummerTime() {
@@ -138,9 +145,18 @@ public class DateUtilImplTest {
 
     @Test
     public void getIdPkDateHour() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
 
         Assert.assertEquals(220101090000000000L, idPkDateHour);
+    }
+
+    @Test
+    public void getIdPkDateHour_utc() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
+
+        Assert.assertEquals(220101100000000000L, idPkDateHour);
     }
 
     @Test
@@ -154,7 +170,17 @@ public class DateUtilImplTest {
     }
 
     @Test
+    public void getIdPkDateHour_onlyDate_Utc() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
+
+        Assert.assertEquals(220101000000000000L, idPkDateHour);
+    }
+
+
+    @Test
     public void getIdPkDateHour_onlyDate() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
 
         Assert.assertEquals(211231230000000000L, idPkDateHour);
