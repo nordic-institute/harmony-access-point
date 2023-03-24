@@ -1,0 +1,29 @@
+{   "services": 
+[     
+{       "name": "t2c",       
+		"actionMetadata": [         
+		{           "name": "*",           
+					"uumds-metadata": 
+					{           "domain": "TAX",             
+								"application": "CESOP",             
+								"type-of-actor": "MS_SYSTEM",             
+								"type-of-identifier":"X509"           
+					}         
+		}       ]     
+},
+	{
+      "name": "testService",
+      "actionMetadata": [
+        {
+					"name": "*",
+					"uumds-metadata": 
+					{           "domain": "TAX",             
+								"application": "CESOP",             
+								"type-of-actor": "MS_SYSTEM",             
+								"type-of-identifier":"X509"           
+					}
+        }
+      ]	 
+    }   
+] 
+}
