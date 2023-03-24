@@ -1,0 +1,142 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="maierga" id="Partition populated tables" dbms="oracle">
+        <sqlFile path="src/main/resources/db/archive/5.0/partitioning/oracle/partitions-procedures-5.0.sql"
+                 endDelimiter="\n/"/>
+        <sql endDelimiter="\n/">
+            CREATE OR REPLACE PROCEDURE LOG_DOMIBUS(message IN VARCHAR2) IS
+            BEGIN
+                DECLARE
+                    time_format VARCHAR2(100) := 'HH24:MI:SS';
+                BEGIN
+                    DBMS_OUTPUT.put_line(TO_CHAR(SYSDATE, time_format) || ' ' || message);
+                end;
+            end;
+            /
+
+            -- Partition the TB_USER_MESSAGE when the database is populated with messages. Assumes the database has version 5.0
+            -- Pass as a parameter the name of the schema where TB_USER_MESSAGE is located
+            -- Requirements: execution rights on the DBMS_REDEFINITION package
+            --      (for eg. execute it as SYS or give these grants to your edelivery_user
+            --          GRANT REDEFINE ANY TABLE  TO [edelivery_user];
+            --          GRANT CREATE MATERIALIZED VIEW TO [edelivery_user];
+            --          GRANT EXECUTE ON DBMS_REDEFINITION TO [edelivery_user];
+            --          GRANT SELECT ON USER_CONSTRAINTS TO [edelivery_user];
+            --      );
+            --              depends on the procedures PARTITIONSGEN and LOG_DOMIBUS
+            -- Example of usage:
+            --             SET SERVEROUTPUT ON;
+            --             EXECUTE PARTITION_USER_MESSAGE('DOMIBUS');
+            --             SET SERVEROUTPUT OFF;
+            --             CONNECT [edelivery_user]
+            --             @oracle-5.0-partition-detail-tables.sql
+            --             @oracle-5.0-create-partitions-job.sql
+            CREATE OR REPLACE PROCEDURE PARTITION_USER_MESSAGE(schema_name IN VARCHAR2) IS
+            BEGIN
+                DECLARE
+                    tmp_table  VARCHAR2(100) := schema_name || '.TMP_TB_USER_MESSAGE';
+                    num_errors PLS_INTEGER;
+                BEGIN
+                    LOG_DOMIBUS('Starting for schema_name=' || schema_name);
+
+                    EXECUTE IMMEDIATE
+                            'CREATE TABLE ' || tmp_table ||
+                            '   PARTITION BY RANGE (ID_PK) (PARTITION P19700000 VALUES LESS THAN (19700102)) ' ||
+                            '   AS SELECT * FROM ' || schema_name || '.TB_USER_MESSAGE WHERE 1 = 0';
+                    LOG_DOMIBUS('Temporary table with 1970 partition created');
+
+                    PARTITIONSGEN(-7, tmp_table);
+
+                    PARTITIONSGEN(-6, tmp_table);
+
+                    PARTITIONSGEN(-5, tmp_table);
+
+                    PARTITIONSGEN(-4, tmp_table);
+
+                    PARTITIONSGEN(-3, tmp_table);
+
+                    PARTITIONSGEN(-2, tmp_table);
+
+                    PARTITIONSGEN(-1, tmp_table);
+
+                    PARTITIONSGEN(0, tmp_table);
+
+                    PARTITIONSGEN(1, tmp_table);
+
+                    PARTITIONSGEN(2, tmp_table);
+
+                    PARTITIONSGEN(3, tmp_table);
+
+                    PARTITIONSGEN(4, tmp_table);
+
+                    PARTITIONSGEN(5, tmp_table);
+
+                    PARTITIONSGEN(6, tmp_table);
+
+                    LOG_DOMIBUS('Hourly partitions created for 7 days in the past and 7 days in the future');
+
+                    FOR q IN (
+                        SELECT 'ALTER TABLE "' || owner || '"."' || table_name || '" DROP CONSTRAINT "' ||
+                               CONSTRAINT_NAME || '"' AS sql_text
+                        FROM USER_CONSTRAINTS
+                        WHERE table_name = 'TMP_TB_USER_MESSAGE'
+                        )
+                        LOOP
+                            LOG_DOMIBUS('execute ' || q.sql_text);
+                            EXECUTE IMMEDIATE q.sql_text;
+                        END LOOP;
+
+                    LOG_DOMIBUS('Initializing table redefinition process...');
+                    DBMS_REDEFINITION.start_redef_table(schema_name,
+                                                        'TB_USER_MESSAGE',
+                                                        'TMP_TB_USER_MESSAGE');
+                    LOG_DOMIBUS('done');
+
+                    LOG_DOMIBUS('Copying table dependent objects...');
+                    DBMS_REDEFINITION.COPY_TABLE_DEPENDENTS(schema_name,
+                                                            'TB_USER_MESSAGE',
+                                                            'TMP_TB_USER_MESSAGE',
+                                                            DBMS_REDEFINITION.CONS_ORIG_PARAMS,
+                                                            TRUE,
+                                                            TRUE,
+                                                            TRUE,
+                                                            FALSE,
+                                                            num_errors);
+                    LOG_DOMIBUS('done (Number of errors=' || num_errors || ')');
+
+                    IF num_errors > 0 THEN
+                        LOG_DOMIBUS('Aborting...');
+                        DBMS_REDEFINITION.ABORT_REDEF_TABLE(schema_name, 'TB_USER_MESSAGE', 'TMP_TB_USER_MESSAGE');
+                        LOG_DOMIBUS('Table partition ended with errors');
+                        RETURN;
+                    END IF;
+
+                    LOG_DOMIBUS('Resynchronizing with the original table...');
+                    DBMS_REDEFINITION.SYNC_INTERIM_TABLE(schema_name,
+                                                         'TB_USER_MESSAGE',
+                                                         'TMP_TB_USER_MESSAGE');
+                    LOG_DOMIBUS('done');
+
+                    LOG_DOMIBUS('Completing the redefinition process...');
+                    DBMS_REDEFINITION.FINISH_REDEF_TABLE(schema_name,
+                                                         'TB_USER_MESSAGE',
+                                                         'TMP_TB_USER_MESSAGE');
+                    LOG_DOMIBUS('done');
+
+                    EXECUTE IMMEDIATE 'DROP TABLE ' || tmp_table || ' CASCADE CONSTRAINTS PURGE';
+                    LOG_DOMIBUS('Dropped temporary table');
+
+                    LOG_DOMIBUS('Table partition ended with SUCCESS!');
+                END;
+            END;
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
