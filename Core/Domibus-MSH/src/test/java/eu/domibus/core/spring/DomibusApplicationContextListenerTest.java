@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import javax.xml.ws.Endpoint;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
@@ -95,6 +96,9 @@ public class DomibusApplicationContextListenerTest {
 
     @Injectable
     BackendConnectorService backendConnectorService;
+
+    @Injectable
+    Endpoint endpoint;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
@@ -183,6 +187,8 @@ public class DomibusApplicationContextListenerTest {
 
             domibusQuartzStarter.initialize();
             times = 1;
+
+            endpoint.publish("/msh");
         }};
     }
 
