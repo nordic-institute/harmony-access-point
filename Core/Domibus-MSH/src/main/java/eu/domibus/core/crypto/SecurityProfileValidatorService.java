@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -60,9 +63,9 @@ public class SecurityProfileValidatorService {
         int totalNumberOfAliasesInitiallyInStore = aliasesList.size();
         List<String> invalidCertificateAliases = new ArrayList<>();
         aliasesList.forEach(alias -> {
-                if (!isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType)) {
-                    invalidCertificateAliases.add(alias);
-                }
+            if (!isCertificateTypeForStoreAliasValid(securityProfileAliasConfigurations, alias, store, storeType)) {
+                invalidCertificateAliases.add(alias);
+            }
         });
         invalidCertificateAliases.forEach(invalidAlias -> {
             try {
@@ -129,12 +132,17 @@ public class SecurityProfileValidatorService {
             String exceptionMessage = String.format("[%s] alias [%s] does not contain a possible certificate purpose name(sign/encrypt)", storeType, alias);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
+        if (certificatePurpose == CertificatePurpose.ENCRYPT) {
+            //for encrypt we use the same certificate type definition as specified for decrypt
+            certificatePurpose = CertificatePurpose.DECRYPT;
+        }
 
         SecurityProfile securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
 
+        CertificatePurpose certificatePurposeToTest = certificatePurpose;
         Optional<SecurityProfileAliasConfiguration>  securityProfileConfigurationForAlias = securityProfileAliasConfigurations.stream()
                 .filter(profile -> profile.getSecurityProfile() == securityProfileExtractedFromAlias
-                        && getCertificatePurposeFromAlias(profile.getAlias()) == certificatePurpose)
+                        && getCertificatePurposeFromAlias(profile.getAlias()) == certificatePurposeToTest)
                 .findFirst();
 
         if (!securityProfileConfigurationForAlias.isPresent()) {
@@ -204,6 +212,7 @@ public class SecurityProfileValidatorService {
             return;
         }
         switch (certificatePurpose) {
+            case ENCRYPT:
             case DECRYPT:
                 validateDecryptionCertificateType(securityProfile, certificateAlgorithm, certificatePurpose, alias, storeType);
                 break;

@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public enum CertificatePurpose {
     SIGN("SIGN"),
+    ENCRYPT("ENCRYPT"),
     DECRYPT("DECRYPT");
 
     private static final Map<String, CertificatePurpose> nameIndex =
