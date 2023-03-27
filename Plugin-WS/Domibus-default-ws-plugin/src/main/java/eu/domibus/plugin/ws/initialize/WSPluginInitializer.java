@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.ws.Endpoint;
 
+/**
+ * @since 5.1.1
+ * @author Cosmin Baciu
+ */
 @Service
 public class WSPluginInitializer implements PluginInitializer {
 
