@@ -15,12 +15,14 @@ import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.exception.TransformationException;
 import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListenerContainer;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
+import eu.domibus.plugin.ws.initialize.WSPluginInitializer;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -58,12 +60,15 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     private final WSSendMessageListenerContainer wsSendMessageListenerContainer;
 
+    protected WSPluginInitializer wsPluginInitializer;
+
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
                         WSPluginBackendService wsPluginBackendService,
                         WSPluginPropertyManager wsPluginPropertyManager,
                         WSSendMessageListenerContainer wsSendMessageListenerContainer,
-                        DomibusPropertyExtService domibusPropertyExtService) {
+                        DomibusPropertyExtService domibusPropertyExtService,
+                        WSPluginInitializer wsPluginInitializer) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
@@ -71,6 +76,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         this.wsPluginPropertyManager = wsPluginPropertyManager;
         this.wsSendMessageListenerContainer = wsSendMessageListenerContainer;
         this.domibusPropertyExtService = domibusPropertyExtService;
+        this.wsPluginInitializer = wsPluginInitializer;
 
         setRequiredNotifications();
     }
@@ -216,6 +222,11 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     @Override
     public PluginMessageListenerContainer getMessageListenerContainerFactory() {
         return wsSendMessageListenerContainer;
+    }
+
+    @Override
+    public PluginInitializer getPluginInitializer() {
+        return wsPluginInitializer;
     }
 
     public void setRequiredNotifications() {

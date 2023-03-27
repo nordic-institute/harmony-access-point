@@ -38,8 +38,9 @@ import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN
 public class MSHWebserviceConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);
+    public static final String MSH_BEAN_NAME = "msh";
 
-    @Bean("msh")
+    @Bean(MSH_BEAN_NAME)
     public Endpoint msh(DomibusBus domibusBus,
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
@@ -73,7 +74,6 @@ public class MSHWebserviceConfiguration {
         LOG.info("Configuring MSH task executor on /msh endpoint.");
         endpoint.setExecutor(executor);
 
-        endpoint.publish("/msh");
         return endpoint;
     }
 

@@ -7,6 +7,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.ebms3.receiver.MSHWebserviceConfiguration;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.metrics.JmsQueueCountSetScheduler;
@@ -21,11 +22,13 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.initialize.PluginInitializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import javax.xml.ws.Endpoint;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -88,7 +91,27 @@ public class DomibusApplicationContextListener {
 
     protected PluginInitializerProvider pluginInitializerProvider;
 
-    public DomibusApplicationContextListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService, StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService, DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator, MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager, UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService, BackendConnectorService backendConnectorService, MessageListenerContainerInitializer messageListenerContainerInitializer, JmsQueueCountSetScheduler jmsQueueCountSetScheduler, PayloadFileStorageProvider payloadFileStorageProvider, RoutingService routingService, DomibusQuartzStarter domibusQuartzStarter, EArchiveFileStorageProvider eArchiveFileStorageProvider, PluginInitializerProvider pluginInitializerProvider) {
+    protected Endpoint mshEndpoint;
+
+    public DomibusApplicationContextListener(EncryptionService encryptionService,
+                                             BackendFilterInitializerService backendFilterInitializerService,
+                                             StaticDictionaryService messageDictionaryService,
+                                             DomibusConfigurationService domibusConfigurationService,
+                                             DomainTaskExecutor domainTaskExecutor,
+                                             GatewayConfigurationValidator gatewayConfigurationValidator,
+                                             MultiDomainCryptoService multiDomainCryptoService,
+                                             TLSCertificateManager tlsCertificateManager,
+                                             UserManagementServiceImpl userManagementService,
+                                             DomibusPropertyValidatorService domibusPropertyValidatorService,
+                                             BackendConnectorService backendConnectorService,
+                                             MessageListenerContainerInitializer messageListenerContainerInitializer,
+                                             JmsQueueCountSetScheduler jmsQueueCountSetScheduler,
+                                             PayloadFileStorageProvider payloadFileStorageProvider,
+                                             RoutingService routingService,
+                                             DomibusQuartzStarter domibusQuartzStarter,
+                                             EArchiveFileStorageProvider eArchiveFileStorageProvider,
+                                             PluginInitializerProvider pluginInitializerProvider,
+                                             @Qualifier(MSHWebserviceConfiguration.MSH_BEAN_NAME) Endpoint mshEndpoint) {
         this.encryptionService = encryptionService;
         this.backendFilterInitializerService = backendFilterInitializerService;
         this.messageDictionaryService = messageDictionaryService;
@@ -107,6 +130,7 @@ public class DomibusApplicationContextListener {
         this.domibusQuartzStarter = domibusQuartzStarter;
         this.eArchiveFileStorageProvider = eArchiveFileStorageProvider;
         this.pluginInitializerProvider = pluginInitializerProvider;
+        this.mshEndpoint = mshEndpoint;
     }
 
     @EventListener
@@ -175,6 +199,8 @@ public class DomibusApplicationContextListener {
         backendConnectorService.ensureValidConfiguration();
 
         initializePluginsNonSynchronized();
+
+        mshEndpoint.publish("/msh");
     }
 
     private void initializePluginsNonSynchronized() {
