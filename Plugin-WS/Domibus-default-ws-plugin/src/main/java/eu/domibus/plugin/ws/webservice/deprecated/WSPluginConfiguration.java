@@ -34,6 +34,7 @@ import java.util.*;
 public class WSPluginConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginConfiguration.class);
+    public static final String BACKEND_INTERFACE_ENDPOINT_DEPRECATED_BEAN_NAME = "backendInterfaceEndpointDeprecated";
 
     @Bean("backendWebserviceDeprecated")
     public WebServicePluginImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
@@ -56,7 +57,7 @@ public class WSPluginConfiguration {
                 messagingMapper);
     }
 
-    @Bean("backendInterfaceEndpointDeprecated")
+    @Bean(BACKEND_INTERFACE_ENDPOINT_DEPRECATED_BEAN_NAME)
     public Endpoint backendInterfaceEndpointDeprecated(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                                        WebServicePluginImpl backendWebService,
                                                        WSPluginPropertyManager wsPluginPropertyManager,
@@ -74,7 +75,6 @@ public class WSPluginConfiguration {
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
 
-        endpoint.publish("/backend");
         return endpoint;
     }
 
