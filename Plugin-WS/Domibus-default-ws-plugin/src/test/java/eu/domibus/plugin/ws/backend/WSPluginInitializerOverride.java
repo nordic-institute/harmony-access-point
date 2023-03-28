@@ -17,15 +17,15 @@ import javax.xml.ws.Endpoint;
  */
 @Service
 @Primary
-public class WSPluginInitializerOverrideTest extends WSPluginInitializer {
+public class WSPluginInitializerOverride extends WSPluginInitializer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginInitializerOverrideTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginInitializerOverride.class);
 
     private boolean endpointsInitialized;
 
 
-    public WSPluginInitializerOverrideTest(@Qualifier(WebServiceConfiguration.BACKEND_INTERFACE_ENDPOINT_BEAN_NAME) Endpoint wsPlugin,
-                                           @Qualifier(WSPluginConfiguration.BACKEND_INTERFACE_ENDPOINT_DEPRECATED_BEAN_NAME) Endpoint wsPluginDeprecated) {
+    public WSPluginInitializerOverride(@Qualifier(WebServiceConfiguration.BACKEND_INTERFACE_ENDPOINT_BEAN_NAME) Endpoint wsPlugin,
+                                       @Qualifier(WSPluginConfiguration.BACKEND_INTERFACE_ENDPOINT_DEPRECATED_BEAN_NAME) Endpoint wsPluginDeprecated) {
         super(wsPlugin, wsPluginDeprecated);
     }
     @Override
