@@ -119,8 +119,8 @@ public class DateUtilImpl implements DateUtil {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
         try {
-            ZonedDateTime parse = LocalDateTime.parse(date, REST_FORMATTER).atZone(ZoneOffset.UTC);
-            String format = parse.format(ofPattern(DATETIME_FORMAT_DEFAULT));
+            LocalDateTime localDateTime = LocalDateTime.parse(date, REST_FORMATTER);
+            String format = getUtcLocalDateTime(localDateTime).format(ofPattern(DATETIME_FORMAT_DEFAULT));
             return Long.parseLong(format + MIN);
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);
