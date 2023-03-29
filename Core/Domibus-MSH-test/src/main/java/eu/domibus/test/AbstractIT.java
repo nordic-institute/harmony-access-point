@@ -112,7 +112,10 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
 
-        domibusApplicationContextListener.doInitialize();
+        if(!springContextInitialized) {
+            LOG.info("Executing the ApplicationContextListener initialization");
+            domibusApplicationContextListener.doInitialize();
+        }
     }
 
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
