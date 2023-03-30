@@ -322,7 +322,7 @@ public class AbstractEbms3UserMessageSenderTest {
         }};
     }
 
-    @Ignore
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testSendMessage_UnmarshallingError_Exception(@Injectable final Messaging messaging,
                                                              @Injectable final UserMessage userMessage,
