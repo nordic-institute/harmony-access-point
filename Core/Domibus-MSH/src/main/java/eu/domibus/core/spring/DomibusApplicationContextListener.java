@@ -200,8 +200,10 @@ public class DomibusApplicationContextListener {
 
         initializePluginsNonSynchronized();
 
-        LOG.info("Publishing the /msh endpoint");
-        mshEndpoint.publish("/msh");
+        if(!mshEndpoint.isPublished()) {
+            LOG.info("Publishing the /msh endpoint");
+            mshEndpoint.publish("/msh");
+        }
     }
 
     private void initializePluginsNonSynchronized() {
