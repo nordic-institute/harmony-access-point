@@ -13,6 +13,7 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,7 +26,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -84,6 +84,12 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Autowired
     private BackendConnectorProvider backendConnectorProvider;
 
+    @Autowired
+    private PayloadFileStorageProvider payloadFileStorageProvider;
+
+    @Autowired
+    private EArchiveFileStorageProvider eArchiveFileStorageProvider;
+
     private File temp;
 
     private BatchEArchiveDTO batchEArchiveDTO;
@@ -95,6 +101,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Transactional
     @Before
     public void setUp() throws Exception {
+        payloadFileStorageProvider.initialize();
+
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         // because we must not use DirtyContext do not use common identifiers!
@@ -111,6 +119,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
+
         uploadPmode(SERVICE_PORT);
 
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId, false));
@@ -120,6 +129,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+
+        eArchiveFileStorageProvider.initialize();
 
         // reset
         EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();

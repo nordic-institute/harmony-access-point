@@ -1,5 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.UserMessage;
@@ -105,6 +106,9 @@ public class MessageFragmentSenderTest {
 
     @Injectable
     MessageSenderService messageSenderService;
+
+    @Injectable
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
 
     @Test
     public void validateBeforeSendingSuccessful() {

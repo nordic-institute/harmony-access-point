@@ -5,6 +5,7 @@ import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.ws.initialize.WSPluginInitializer;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
@@ -86,6 +87,9 @@ public class WSPluginImplTest {
 
     @Injectable
     WSSendMessageListenerContainer wsSendMessageListenerContainer;
+
+    @Injectable
+    WSPluginInitializer wsPluginInitializer;
 
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,

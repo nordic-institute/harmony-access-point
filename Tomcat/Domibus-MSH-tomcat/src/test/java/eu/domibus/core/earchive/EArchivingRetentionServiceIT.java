@@ -9,11 +9,13 @@ import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.job.EArchivingRetentionService;
 import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -22,8 +24,15 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.VFS;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -34,7 +43,8 @@ import java.util.*;
 
 import static eu.domibus.api.earchive.EArchiveBatchStatus.DELETED;
 import static eu.domibus.api.earchive.EArchiveBatchStatus.EXPIRED;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static java.util.Collections.singletonList;
 
 /**
@@ -77,6 +87,22 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
     UserMessageLog uml1, uml2, uml3;
     private File temp;
 
+    @Configuration
+    static class ContextConfiguration {
+
+        @Primary
+        @Bean
+        public DomibusSchedulerExtService domibusSchedulerExt() {
+            return Mockito.mock(DomibusSchedulerExtService.class);
+        }
+
+        @Primary
+        @Bean
+        public DomibusScheduler domibusScheduler() {
+            return Mockito.mock(DomibusScheduler.class);
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
@@ -84,10 +110,13 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
+
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+
+        storageProvider.initialize();
 
         // reset
         EArchiveFileStorage currentStorage = storageProvider.getCurrentStorage();
