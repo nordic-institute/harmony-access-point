@@ -191,8 +191,6 @@ public class DomibusApplicationContextListenerTest {
             mshEndpoint.publish("/msh");
             times = 1;
 
-            mshEndpoint.isPublished();
-            times = 1;
         }};
     }
 
