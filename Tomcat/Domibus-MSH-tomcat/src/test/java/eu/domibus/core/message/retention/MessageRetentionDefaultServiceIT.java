@@ -158,13 +158,13 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
 
-        //TODO: check why the below invocation is not made anymore
-//        Mockito.verify(backendConnector, Mockito.times(1)).messageStatusChanged(argCaptor.capture());
-//        MessageStatusChangeEvent event = argCaptor.getValue();
-//        assertEquals(eu.domibus.common.MessageStatus.DOWNLOADED, event.getFromStatus());
-//        assertEquals(eu.domibus.common.MessageStatus.DELETED, event.getToStatus());
-//        assertEquals(messageId, event.getMessageId());
+        Mockito.verify(backendConnector, Mockito.times(1)).messageStatusChanged(argCaptor.capture());
+        MessageStatusChangeEvent event = argCaptor.getValue();
+        assertEquals(eu.domibus.common.MessageStatus.DOWNLOADED, event.getFromStatus());
+        assertEquals(eu.domibus.common.MessageStatus.DELETED, event.getToStatus());
+        assertEquals(messageId, event.getMessageId());
     }
+
 
     @Test
     public void deleteExpiredSent_deletesAll_ifIsDeleteMessageMetadataAndZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
