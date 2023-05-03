@@ -95,7 +95,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
         try {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
-            Assert.assertTrue(reply.contains("domibus-MSH"));
+            Assert.assertTrue(reply.contains("harmony-MSH"));
 
         } catch (UnsupportedEncodingException e) {
             Assert.fail();
