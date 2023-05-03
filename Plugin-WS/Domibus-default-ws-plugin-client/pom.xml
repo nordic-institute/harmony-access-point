@@ -6,8 +6,8 @@
 
     <parent>
         <artifactId>plugin-ws</artifactId>
-        <groupId>eu.domibus</groupId>
-        <version>5.1</version>
+        <groupId>org.niis</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>Domibus-default-ws-plugin-client</artifactId>
@@ -53,13 +53,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-ws-plugin-stubs</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-default-ws-plugin-stubs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

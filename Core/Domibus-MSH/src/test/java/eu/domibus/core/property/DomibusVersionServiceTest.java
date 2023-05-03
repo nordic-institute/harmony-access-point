@@ -30,7 +30,7 @@ public class DomibusVersionServiceTest {
 
         DomibusVersionService service = new DomibusVersionService();
 
-        assertEquals("domibus-MSH", service.getArtifactName());
+        assertEquals("harmony-MSH", service.getArtifactName());
         assertNotEquals("", service.getBuiltTime());
         assertNotEquals("", service.getArtifactVersion());
 

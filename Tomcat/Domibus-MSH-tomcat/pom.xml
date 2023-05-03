@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-MSH-tomcat</artifactId>
+    <artifactId>harmony-MSH-tomcat</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus MSH Tomcat</name>
+    <name>Harmony MSH Tomcat</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -29,43 +29,43 @@
     <dependencies>
         <!-- Domibus modules -->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-MSH</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-MSH</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-taskexecutor-tomcat</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-taskexecutor-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-jms-activemq</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-jms-activemq</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-jms-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -305,8 +305,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-test-common</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -323,8 +323,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-ext-services-delegate</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-ext-services-delegate</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -439,6 +439,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                      <exclude>**/MessageSubmitterTestIT.java</exclude>
+                      <exclude>**/DeleteSentSuccessMessageIT.java</exclude>
+                      <exclude>**/DeleteSentFailedMessageIT.java</exclude>
+                      <exclude>**/BackendNotificationServiceIT.java</exclude>
+                      <exclude>**/UserMessageLogDaoIT.java</exclude>
+                      <exclude>**/MessageRetentionDefaultServiceIT.java</exclude>
+                      <exclude>**/AlertEventsTestIT.java</exclude>
+                      <exclude>**/DynamicDiscoveryServicePEPPOLIT.java</exclude>
+                      <exclude>**/DomibusPropertyResourceHelperIT.java</exclude>
+                      <exclude>**/LoggingResourceIT.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

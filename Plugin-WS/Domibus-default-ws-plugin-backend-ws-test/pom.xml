@@ -5,18 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>plugin-ws</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-default-ws-plugin-backend-ws-test</artifactId>
-    <name>Domibus MSH Backend WS Test</name>
+    <artifactId>harmony-default-ws-plugin-backend-ws-test</artifactId>
+    <name>Harmony MSH Backend WS Test</name>
 
     <dependencies>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-ws-plugin-backend-ws-stubs</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-default-ws-plugin-backend-ws-stubs</artifactId>
             <version>${project.version}</version>
         </dependency>
 

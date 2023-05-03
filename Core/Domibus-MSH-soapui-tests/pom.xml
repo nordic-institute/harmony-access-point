@@ -6,13 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>core</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-msh-soapui-tests</artifactId>
+    <artifactId>harmony-msh-soapui-tests</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus MSH SoapUI</name>
+    <name>Harmony MSH SoapUI</name>
 
     <properties>
         <!-- the soap ui specific dependencies -->

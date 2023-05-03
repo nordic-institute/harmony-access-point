@@ -6,25 +6,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>plugin-jms</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-default-jms-plugin</artifactId>
+    <artifactId>harmony-default-jms-plugin</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus MSH Default JMS Plugin</name>
+    <name>Harmony MSH Default JMS Plugin</name>
 
     <dependencies>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-plugin-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -40,8 +40,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -105,14 +105,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-test</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-test-common</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

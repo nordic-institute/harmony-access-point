@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.domibus</groupId>
-    <artifactId>domibus</artifactId>
-    <version>5.1</version>
+    <groupId>org.niis</groupId>
+    <artifactId>harmony</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Domibus MSH</name>
+    <name>Harmony MSH</name>
     <modules>
         <module>Core</module>
         <module>Core/Domibus-MSH-customizations</module>
@@ -179,38 +179,49 @@
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
     </properties>
 
-    <scm>
-        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git</developerConnection>
-    </scm>
-
-    <!-- Where to deploy the binaries -->
-    <distributionManagement>
-        <repository>
-            <id>cefdigital-releases</id>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/eDelivery/</url>
-        </repository>
-        <snapshotRepository>
-            <id>cefdigital-snapshots</id>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/eDelivery-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <!-- Where are we looking for JARs -->
     <pluginRepositories>
         <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
             <id>cefdigital-releases</id>
             <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
         <pluginRepository>
             <id>SmartBearPluginRepository</id>
             <url>https://www.soapui.org/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
         <pluginRepository>
             <id>smartbear</id>
             <url>http://smartbearsoftware.com/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>cefdigital-releases</id>
             <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
@@ -226,26 +237,24 @@
             <id>cefdigital-dss</id>
             <name>CEF Digital</name>
             <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/esignaturedss/</url>
-        </repository>
-        <repository>
-            <id>cefdigital-snapshots</id>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/eDelivery-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>
             <id>SmartBearDependencyRepository</id>
             <url>https://www.soapui.org/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>KEEPS-Artifacts</id>
             <name>KEEP Artifacts-releases</name>
             <url>https://artifactory.keep.pt/artifactory/keep</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -253,8 +262,8 @@
         <dependencies>
             <!-- Domibus modules -->
             <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>domibus-logging</artifactId>
+                <groupId>org.niis</groupId>
+                <artifactId>harmony-logging</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -1739,7 +1748,7 @@
                                 MPL 2.0|
                             </includedLicenses>
                             <!-- license validation scope  -->
-                            <excludedGroups>^eu.domibus.*</excludedGroups>
+                            <excludedGroups>^eu.domibus.*,^org,niis.*</excludedGroups>
                             <!--
                             dom4j:dom4j:1.6.1 -  BSD licence
                             javax.servlet:servlet-api:2.4  - CDDL

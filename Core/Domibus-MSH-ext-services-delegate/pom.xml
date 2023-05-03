@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>core</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-msh-ext-services-delegate</artifactId>
-    <name>Domibus MSH Ext Services Delegate</name>
+    <artifactId>harmony-msh-ext-services-delegate</artifactId>
+    <name>Harmony MSH Ext Services Delegate</name>
 
     <build>
         <plugins>
@@ -40,32 +40,32 @@
 
         <!-- Domibus modules -->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-iam-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-iam-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-MSH-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-MSH-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->

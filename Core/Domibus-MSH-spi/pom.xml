@@ -4,20 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>core</artifactId>
-        <groupId>eu.domibus</groupId>
-        <version>5.1</version>
+        <groupId>org.niis</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>domibus-MSH-spi</artifactId>
+    <artifactId>harmony-MSH-spi</artifactId>
 
-    <name>Domibus MSH SPI</name>
+    <name>Harmony MSH SPI</name>
 
     <dependencies>
         <!--Domibus dependencies-->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

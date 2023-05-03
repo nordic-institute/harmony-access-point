@@ -1,13 +1,13 @@
 <project>
     <parent>
         <artifactId>core</artifactId>
-        <groupId>eu.domibus</groupId>
-        <version>5.1</version>
+        <groupId>org.niis</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>Domibus-archive-client</artifactId>
+    <artifactId>harmony-archive-client</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus eArchive client</name>
+    <name>Harmony eArchive client</name>
 
     <build>
         <plugins>
@@ -50,12 +50,12 @@
     <dependencies>
         <!--Domibus dependencies-->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

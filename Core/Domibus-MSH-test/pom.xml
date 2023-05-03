@@ -6,13 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
+        <groupId>org.niis</groupId>
         <artifactId>core</artifactId>
-        <version>5.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-msh-test</artifactId>
+    <artifactId>harmony-msh-test</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus MSH Test</name>
+    <name>Harmony MSH Test</name>
 
     <build>
         <plugins>
@@ -129,53 +129,53 @@
     <dependencies>
         <!-- Domibus modules -->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-MSH-tomcat</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-MSH-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-MSH</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-MSH</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-taskexecutor-tomcat</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-taskexecutor-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-jms-activemq</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-jms-activemq</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-jms-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-ext-services-delegate</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-ext-services-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->
@@ -386,8 +386,8 @@
             <version>${json-smart.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-test-common</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-msh-test-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
