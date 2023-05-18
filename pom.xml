@@ -919,6 +919,18 @@
                 <groupId>eu.europa.ec.dynamic-discovery</groupId>
                 <artifactId>dynamic-discovery-client</artifactId>
                 <version>${dynamic.discovery.client.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk18on and bcpkix-jdk18on
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End eDelivery SMP profile -->
 
