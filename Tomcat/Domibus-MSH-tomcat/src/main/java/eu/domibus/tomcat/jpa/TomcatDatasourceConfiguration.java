@@ -59,7 +59,7 @@ public class TomcatDatasourceConfiguration {
         dataSource.setIdleTimeout(idleTimeout * MILLIS_PER_SECOND);
 
         final Integer minimumIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MINIMUM_IDLE);
-        dataSource.setMinimumIdle(minimumIdle * (int) MILLIS_PER_SECOND);
+        dataSource.setMinimumIdle(minimumIdle);
 
         final String poolName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_POOL_NAME);
         if (!StringUtils.isBlank(poolName)) {
