@@ -1,0 +1,90 @@
+<div class="domibus-page">
+  <page-header id="connectionmonitorheader_id">Connection Monitoring</page-header>
+
+  <div *ngIf="sender && sender.identifiers.length>1" style="margin-bottom: 20px;margin-top: 20px; margin-left: 10px;">
+    <span>Party ids for sender party:</span>
+    <div style="margin-left: 20px; width: 300px; display: inline-block;">
+      <mat-select [ngModel]="currentSenderPartyId" (selectionChange)="onCurrentSenderPartyId($event)" id="senderPartyIds">
+        <mat-option *ngFor="let id of sender.identifiers" [value]="id.partyId">
+          {{id.partyId}}
+        </mat-option>
+      </mat-select>
+    </div>
+  </div>
+
+  <div class="domibus-grid-container">
+    <page-grid [parent]="this" [selectionType]="'none'"></page-grid>
+  </div>
+
+  <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Monitoring</span>
+  </ng-template>
+  <ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="connection-monitor-status">
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
+      <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+    </span>
+  </ng-template>
+
+  <ng-template #alertableStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Alert On Fail</span>
+  </ng-template>
+  <ng-template #alertableStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="connection-monitor-status">
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.alertable" (change)="toggleAlertable(row)"></mat-slide-toggle>
+      <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+    </span>
+  </ng-template>
+
+  <ng-template #deleteOldStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allDeleteHistory" (change)="toggleDeleteAllHistory()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Delete History</span>
+  </ng-template>
+  <ng-template #deleteOldStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="connection-monitor-status">
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.deleteHistory" (change)="toggleDeleteHistory(row)"></mat-slide-toggle>
+      <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+    </span>
+  </ng-template>
+
+  <ng-template #connectionStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <div *ngIf="row.testable && row.status" class="connection-status">
+      <span>
+        <mat-icon *ngIf="row.status == 'OK'" style="color: green">check_circle</mat-icon>
+        <mat-icon *ngIf="row.status == 'BROKEN'" (click)="showErrors(row)" style="color: red; cursor: pointer;">error</mat-icon>
+        <mat-icon *ngIf="row.status == 'UNKNOWN'" style="color: orange">indeterminate_check_box</mat-icon>
+        <mat-progress-spinner *ngIf="row.status == 'PENDING'" mode="indeterminate" diameter="32"></mat-progress-spinner>
+      </span>
+      <div>
+        <label>Last sent: </label>
+        <span *ngIf="row.lastSent">{{ formatDate(row.lastSent.timeReceived)  }}</span>
+        <span *ngIf="!row.lastSent">never</span>
+      </div>
+
+      <div>
+        <label>Last received: </label>
+        <span *ngIf="row.lastReceived">{{ formatDate(row.lastReceived.timeReceived) }}</span>
+        <span *ngIf="!row.lastReceived">never</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+    <div *ngIf="row.testable">
+      <button mat-icon-button (click)="openDetails(row)"
+              color="primary" matTooltip="Details" button-click-behaviour>
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button (click)="refreshMonitor(row)"
+              color="primary" matTooltip="Refresh" button-click-behaviour>
+        <mat-icon>cached</mat-icon>
+      </button>
+      <button mat-icon-button (click)="sendTestMessage(row)"
+              color="primary" matTooltip="Send" button-click-behaviour>
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Step_4
+            - it is an optional step which will drop the original tables and the migration subprograms
+            - it will drop OLD_* tables
+            - it will drop migration subprograms
+
+        All operations here are irreversible and should be done once Step_1, Step_2 and Step_3 are successful (data in
+        previous old tables will be lost in this step)
+    -->
+
+    <include file="common/changelog-42-50-data-migration-step4.xml" relativeToChangelogFile="true"/>
+
+    <include file="single-tenancy/changelog-42-50-data-migration-step4.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

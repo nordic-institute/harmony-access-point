@@ -4,81 +4,92 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.domibus</groupId>
-    <artifactId>domibus</artifactId>
-    <version>4.2.4</version>
+    <groupId>org.niis</groupId>
+    <artifactId>harmony</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Domibus MSH</name>
+    <name>Harmony MSH</name>
     <modules>
-        <module>Domibus-MSH</module>
-        <module>Domibus-MSH-api</module>
-        <module>Domibus-MSH-ext-services-delegate</module>
-        <module>Domibus-MSH-logging</module>
-        <module>Domibus-MSH-jms-spi</module>
-        <module>Domibus-MSH-jms-spi-helper</module>
-        <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-plugin-api</module>
-        <module>Domibus-MSH-test</module>
-        <module>Domibus-iam-spi</module>
-        <module>Domibus-ext-model</module>
+        <module>Core</module>
+        <module>Core/Domibus-MSH-customizations</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.3.11</cxf.version>
-        <wss4j-ws-security.version>2.2.6</wss4j-ws-security.version>
-        <spring.version>5.2.16.RELEASE</spring.version>
-        <spring.security.version>5.4.7</spring.security.version>
-        <hibernate.version>5.4.25.Final</hibernate.version>
-        <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
-        <activemq.version>5.15.14</activemq.version>
-        <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.28</slf4j.version>
-        <logback.version>1.2.3</logback.version>
-        <logback.elasticsearch.appender.version>1.6</logback.elasticsearch.appender.version>
-        <httpclient.version>4.5.13</httpclient.version>
+        <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
+        <cxf.version>3.5.5</cxf.version>
+        <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
+        <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
+        gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
+        and keeps the customizations needed by Domibus -->
+        <xmlsec.version>2.3.0</xmlsec.version>
+        <messaging.saaj.version>1.5.3</messaging.saaj.version>
+        <spring.version>5.3.26</spring.version>
+        <!-- When upgrading the version, please check the usages, to decide if the exclusion of artifactId spring-expression is still needed -->
+        <spring.security.version>5.8.2</spring.security.version>
+        <spring.session.core.version>2.7.0</spring.session.core.version>
+        <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
+        <springdoc.version>1.6.12</springdoc.version>
+        <io.swagger.core.v3.version>2.2.4</io.swagger.core.v3.version>
+        <swagger-ui.version>4.15.5</swagger-ui.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
+        <activemq.version>5.16.5</activemq.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
+        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
+        <logback.version>1.2.11</logback.version>
+        <httpclient.version>4.5.14</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.9</commons-lang3.version>
-        <commons-io.version>2.7</commons-io.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-codec.version>1.13</commons-codec.version>
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <bouncycastle.version>1.72</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <c3p0.version>0.9.5.4</c3p0.version>
-        <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
-        <jackson.version>2.9.10</jackson.version>
+        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
+        <jackson.version>2.14.2</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.8</jackson-databind.version>
-        <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.17</xstream.version>
-        <freemarker.version>2.3.29</freemarker.version>
+        <jackson-databind.version>2.14.2</jackson-databind.version>
+        <commons-test.version>4.3</commons-test.version>
+        <freemarker.version>2.3.32</freemarker.version>
         <mail.version>1.6.2</mail.version>
-        <jaxb.version>2.3.0</jaxb.version>
-        <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>1.26</tika.version>
-        <peppol.version>1.1.3</peppol.version>
-        <dynamic.discovery.client.version>1.12</dynamic.discovery.client.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-impl.version>2.3.8</jaxb-impl.version>
+        <dom4j.version>2.1.4</dom4j.version>
+        <tika.version>2.7.0</tika.version>
+        <peppol.version>2.4.0</peppol.version>
+        <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
+        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
-        <h2.version>1.4.178</h2.version>
-        <liquibase.version>3.5.3</liquibase.version>
-        <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
-        <wiremock.version>2.26.2</wiremock.version>
-        <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <dependency.check.version>6.2.2</dependency.check.version>
-        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <h2.version>2.1.214</h2.version>
+        <liquibase.version>4.17.0</liquibase.version>
+        <mysql.connector.java.version>8.0.32</mysql.connector.java.version>
+        <wiremock.version>2.27.2</wiremock.version>
+        <handlebars.version>4.3.1</handlebars.version>
+        <dropwizard.metrics.version>4.2.17</dropwizard.metrics.version>
+        <owasp.dependency.check.version>7.4.4</owasp.dependency.check.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <hikaricp.version>4.0.3</hikaricp.version>
+        <wlthint3client.version>12.1.1</wlthint3client.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <dss.version>5.8</dss.version>
+        <tomcat-embed.version>9.0.71</tomcat-embed.version>
+        <json-smart.version>2.4.8</json-smart.version>
+        <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
+        <!--suppress UnresolvedMavenProperty -->
         <sonar.jacoco.codeCoveragePath>${maven.multiModuleProjectDirectory}/target</sonar.jacoco.codeCoveragePath>
         <sonar.jacoco.reportPath>${sonar.jacoco.codeCoveragePath}/jacoco-ut.exec</sonar.jacoco.reportPath>
         <sonar.jacoco.itReportPath>${sonar.jacoco.codeCoveragePath}/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.scm.disabled>true</sonar.scm.disabled>
         <sonar.exclusions>
             **/target/**,
-            **/Domibus-MSH-angular/node_modules/**,
+            **/Core/Domibus-MSH-angular/node_modules/**,
             **/swagger*.js,
             **/web.xml,
             **/common/model/configuration/**,
@@ -95,97 +106,124 @@
             **/*Ro.java,
             **/*Exception.java,
             **/eu/domibus/ebms3/common/model/**,
-            **/eu/domibus/api/**
+            **/eu/domibus/common/model/configuration/**,
+            **/eu/domibus/api/**,
+            **/org/apache/cxf/jaxws/handler/soap/**,
+            **/org/apache/xml/security/utils/**,
+            **/pom.xml
         </sonar.coverage.exclusions>
         <sonar.core.coveragePlugin>jacoco</sonar.core.coveragePlugin>
         <sonar.host.url>http://localhost:9000/sonar/</sonar.host.url>
         <sonar.ws.timeout>300</sonar.ws.timeout>
         <jacoco.maven.plugin.version>0.7.7.201606060606</jacoco.maven.plugin.version>
+        <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
         <!--   Enable the proxy when running sonar from within the EC network -->
         <!--<sonar.web.javaAdditionalOpts>-Dhttp.proxyHost=158.169.9.13 -Dhttp.proxyPort=8012 -Dhttp.proxyUser=theuser -Dhttp.proxyPassword=thepassword -Dhttps.proxyHost=158.169.9.13 -Dhttps.proxyPort=8012 -Dhttps.proxyUser=theuser -Dhttps.proxyPassword=thepassword -Dhttps.nonProxyHosts=localhost -Dhttp.nonProxyHosts=localhost</sonar.web.javaAdditionalOpts>-->
         <!--IAM extension properties -->
-        <dss.version>5.5</dss.version>
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <java-uuid-generator.version>3.2.0</java-uuid-generator.version>
-        <guava.version>28.0-jre</guava.version>
-        <joda.version>2.4</joda.version>
-        <findbugs.version>3.0.2</findbugs.version>
-        <opencsv.version>5.0</opencsv.version>
-        <gson.version>2.8.6</gson.version>
+        <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
+        <guava.version>31.1-jre</guava.version>
+        <opencsv.version>5.7.1</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.2</junit.version>
+        <awaitility.version>4.2.0</awaitility.version>
         <jmockit.version>1.22</jmockit.version>
-        <log4j.version>1.2.17</log4j.version>
-        <atomikos.version>4.0.6</atomikos.version>
-        <org.reflections.version>0.9.11</org.reflections.version>
-        <messaging.saaj.version>1.5.1</messaging.saaj.version>
-        <jaxws-api.version>2.2</jaxws-api.version>
-        <javax.annotation.version>1.3.1</javax.annotation.version>
-        <netty.version>4.1.46.Final</netty.version>
+        <org.reflections.version>0.10.2</org.reflections.version>
+        <jaxws-api.version>2.3.1</jaxws-api.version>
+        <javax.annotation.version>1.3.2</javax.annotation.version>
 
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
-        <activation.version>1.1</activation.version>
+        <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-
-        <xmlsec.version>2.1.5</xmlsec.version>
-        <httpcore.version>4.4.5</httpcore.version>
-        <ehcache.version>2.10.6</ehcache.version>
-        <hamcrest.version>1.3</hamcrest.version>
-        <commons-collections.version>3.2</commons-collections.version>
-        <commons-net.version>3.5</commons-net.version>
+        <httpcore.version>4.4.16</httpcore.version>
+        <ehcache.version>3.10.8</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-net.version>3.9.0</commons-net.version>
         <jcifs.version>1.3.17</jcifs.version>
-        <commons-vfs2.version>2.1</commons-vfs2.version>
+        <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <jakarta.activation.version>1.2.1</jakarta.activation.version>
-        <jakarta.xml.bind-api.version>2.3.2</jakarta.xml.bind-api.version>
-        <asm.version>5.2</asm.version>
+        <jakarta.activation.version>2.1.1</jakarta.activation.version>
+        <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version>
         <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
         <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
-        <neethi.version>3.1.1</neethi.version>
+        <neethi.version>3.2.0</neethi.version>
         <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version>
         <javax.activation-api.version>1.2.0</javax.activation-api.version>
         <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
-        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
 
+        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
+        <commons-compress.version>1.22</commons-compress.version>
+        <commons-configuration2.version>2.8.0</commons-configuration2.version>
+        <httpmime.version>4.5.14</httpmime.version>
+        <jdom2.version>2.0.6.1</jdom2.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
+        <hazelcast-all.version>4.2.7</hazelcast-all.version>
+
+        <project.scm.id>edelivery-scm</project.scm.id>
+        <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+
+        <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <javassist.version>3.28.0-GA</javassist.version>
+        <project.scm.id>edelivery-scm</project.scm.id>
     </properties>
-
-    <!-- Where to deploy the binaries -->
-    <distributionManagement>
-        <repository>
-            <id>cefdigital-releases</id>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/</url>
-        </repository>
-        <snapshotRepository>
-            <id>cefdigital-snapshots</id>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <!-- Where are we looking for JARs -->
     <pluginRepositories>
         <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
             <id>cefdigital-releases</id>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/groups/public/</url>
+            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
         <pluginRepository>
             <id>SmartBearPluginRepository</id>
             <url>https://www.soapui.org/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
         <pluginRepository>
             <id>smartbear</id>
             <url>http://smartbearsoftware.com/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
     <repositories>
         <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>cefdigital-releases</id>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/groups/public/</url>
+            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -197,17 +235,24 @@
         <repository>
             <id>cefdigital-dss</id>
             <name>CEF Digital</name>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/esignaturedss/</url>
+            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/esignaturedss/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
-            <id>cefdigital-snapshots</id>
-            <url>https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
+            <id>SmartBearDependencyRepository</id>
+            <url>https://www.soapui.org/repository/maven2</url>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>KEEPS-Artifacts</id>
+            <name>KEEP Artifacts-releases</name>
+            <url>https://artifactory.keep.pt/artifactory/keep</url>
+            <snapshots>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
     </repositories>
@@ -216,12 +261,19 @@
         <dependencies>
             <!-- Domibus modules -->
             <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>domibus-logging</artifactId>
+                <groupId>org.niis</groupId>
+                <artifactId>harmony-logging</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <!-- End Domibus modules -->
+
+            <!-- Hazelcast  -->
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-all</artifactId>
+                <version>${hazelcast-all.version}</version>
+            </dependency>
 
             <!-- MapStruct  -->
             <dependency>
@@ -266,6 +318,13 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
+                <!-- This dependency picks up commons-test's calls to Log4J and redirects them to SLF4J -->
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -301,6 +360,12 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <!-- Removed as in DSS -->
+                    <!-- Synchronize with santuario version (1/2) -->
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -325,26 +390,40 @@
             <!-- BouncyCastle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
+
+            <!-- Swagger + springdoc tools -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-jaxrs2</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-webmvc-core</artifactId>
+                <version>${springdoc.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- End Swagger +  springdoc -->
 
             <dependency>
                 <groupId>com.fasterxml.uuid</groupId>
                 <artifactId>java-uuid-generator</artifactId>
                 <version>${java-uuid-generator.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
             </dependency>
 
             <!-- Spring -->
@@ -417,16 +496,37 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Spring Security -->
 
@@ -453,15 +553,38 @@
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-runtime</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-jcache</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <!-- End Hibernate -->
+
+            <!-- validation apis -->
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate.validator.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.mchange</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>${c3p0.version}</version>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>${glassfish.javax.el.version}</version>
             </dependency>
-            <!-- End Hibernate -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax</groupId>
@@ -497,11 +620,6 @@
                 <groupId>javax.jws</groupId>
                 <artifactId>jsr181-api</artifactId>
                 <version>${jsr181-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
             </dependency>
 
             <!-- ActiveMQ -->
@@ -593,6 +711,14 @@
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk18on version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -618,6 +744,12 @@
                 <groupId>org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
                 <version>${neethi.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>woodstox-core-asl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -633,6 +765,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-vfs2</artifactId>
                 <version>${commons-vfs2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs-client</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
@@ -643,11 +781,27 @@
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j-ws-security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk18on version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-common</artifactId>
                 <version>${wss4j-ws-security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk18on version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Apache Commons -->
 
@@ -657,11 +811,18 @@
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${cxf.version}</version>
             </dependency>
-            <!-- Weblogic 12.1.3 fix as apache cxf 3.2.11 brings asm v7 which is not compatible which Java 8-->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-security</artifactId>
                 <version>${cxf.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                    bcprov-jdk18on version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -714,17 +875,12 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${jaxb-impl.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.soap</groupId>
@@ -735,9 +891,26 @@
 
             <!-- Difi libraries -->
             <dependency>
-                <groupId>no.difi.vefa</groupId>
+                <groupId>network.oxalis.vefa</groupId>
                 <artifactId>peppol-lookup</artifactId>
                 <version>${peppol.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>network.oxalis.vefa</groupId>
+                <artifactId>peppol-security</artifactId>
+                <version>${peppol.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk18on and bcpkix-jdk18on
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Difi libraries -->
 
@@ -746,6 +919,18 @@
                 <groupId>eu.europa.ec.dynamic-discovery</groupId>
                 <artifactId>dynamic-discovery-client</artifactId>
                 <version>${dynamic.discovery.client.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk18on and bcpkix-jdk18on
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End eDelivery SMP profile -->
 
@@ -763,16 +948,24 @@
 
             <!-- Ehcache -->
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
+                <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.fastinfoset</groupId>
+                        <artifactId>FastInfoset</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-
-            <!-- XStream -->
             <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>${xstream.version}</version>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${cache-api.version}</version>
             </dependency>
 
             <!-- FreeMarker-->
@@ -821,40 +1014,6 @@
                 <version>${tika.version}</version>
             </dependency>
 
-            <!-- Atomikos Library for distributed transactions -->
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jta</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jdbc</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-api</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jms</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-hibernate4</artifactId>
-                <version>${atomikos.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>hibernate</artifactId>
-                        <groupId>org.hibernate</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- End Atomikos Library for distributed transactions -->
-
             <!-- Metrics -->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
@@ -878,92 +1037,109 @@
             </dependency>
             <!-- End Miscellaneous -->
 
-            <!-- IAM dependencies -->
+            <!-- commons-ip2 -->
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>org.roda-project</groupId>
+                <artifactId>commons-ip2</artifactId>
+                <version>${commons-ip2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons-configuration2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpmime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>${jdom2.version}</version>
+            </dependency>
+            <!-- End commons-ip2 -->
+
+            <!-- DSS dependencies -->
+            <dependency>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-document</artifactId>
-                <version>${dss.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-tsl-validation</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-                <artifactId>dss-utils-google-guava</artifactId>
-                <version>${dss.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>eu.domibus</groupId>
+                <artifactId>dss-utils-apache-commons</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-service</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-                <artifactId>dss-crl-parser-x509crl</artifactId>
-                <version>${dss.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-utils</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-policy-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-model</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>validation-policy</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-xades</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-simple-report-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-detailed-report-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-enumerations</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-spi</artifactId>
-                <version>${dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!--UUMDS extension -->
 
@@ -977,6 +1153,11 @@
                         <artifactId>json-smart</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
             </dependency>
             <!-- Test dependencies -->
             <dependency>
@@ -995,6 +1176,13 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring.security.version}</version>
+                <!-- Exclude spring-expression as a newer version is added via spring-core -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1036,6 +1224,14 @@
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
                 </exclusions>
                 <scope>test</scope>
             </dependency>
@@ -1052,9 +1248,25 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+                <version>${handlebars.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>${org.reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.weblogic</groupId>
+                <artifactId>wlthint3client</artifactId>
+                <version>${wlthint3client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.weblogic</groupId>
+                <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
+                <version>${com.oracle.css.weblogic.security.wls_7.0.0.0.version}</version>
             </dependency>
             <!-- End Test dependencies -->
         </dependencies>
@@ -1062,6 +1274,15 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven-release-plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -1101,7 +1322,7 @@
                                     <artifactItem>
                                         <groupId>javax.xml.bind</groupId>
                                         <artifactId>jaxb-api</artifactId>
-                                        <version>${jaxb.version}</version>
+                                        <version>${jaxb-api.version}</version>
                                     </artifactItem>
                                     <artifactItem>
                                         <groupId>javax.xml.ws</groupId>
@@ -1132,6 +1353,16 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -1156,11 +1387,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.18.1</version>
+                    <version>3.0.0</version>
                     <executions>
                         <execution>
                             <id>default-test</id>
                             <configuration>
+                                <!--suppress UnresolvedMavenProperty -->
                                 <argLine>-server -ea -Duser.language=en -Xms512m -Xmx1024m ${surefire.argLine}
                                 </argLine>
                                 <excludes>
@@ -1173,54 +1405,32 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.19.1</version>
+                    <version>${maven-failsafe-plugin.version}</version>
                     <executions>
                         <execution>
-                            <id>integration-tests-database</id>
+                            <id>integration-tests</id>
                             <phase>integration-test</phase>
                             <goals>
                                 <goal>integration-test</goal>
-                                <goal>verify</goal>
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx1024m -Duser.language=en ${failsafeArgLine}
+                                <!--suppress UnresolvedMavenProperty -->
+                                <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
+                                <!--suppress UnresolvedMavenProperty -->
                                 <skipTests>${skipITs}</skipTests>
-                                <systemPropertyVariables>
-                                    <attachment.mode>DATABASE</attachment.mode>
-                                </systemPropertyVariables>
                             </configuration>
                         </execution>
                         <execution>
-                            <id>integration-tests-filesystem</id>
-                            <phase>integration-test</phase>
+                            <id>verify</id>
+                            <phase>verify</phase>
                             <goals>
-                                <goal>integration-test</goal>
                                 <goal>verify</goal>
                             </goals>
-                            <configuration>
-                                <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx1024m -Duser.language=en ${failsafeArgLine}
-                                </argLine>
-                                <!-- Skips integration tests if the value of skipITs property is true-->
-                                <skipTests>${skipITs}</skipTests>
-                                <systemPropertyVariables>
-                                    <attachment.mode>FILESYSTEM</attachment.mode>
-                                    <storage.location>${project.build.testOutputDirectory}/dataset/storage
-                                    </storage.location>
-                                </systemPropertyVariables>
-                            </configuration>
                         </execution>
                     </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.surefire</groupId>
-                            <artifactId>surefire-junit47</artifactId>
-                            <version>2.19.1</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1261,6 +1471,21 @@
                     <groupId>com.coderplus.maven.plugins</groupId>
                     <artifactId>copy-rename-maven-plugin</artifactId>
                     <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.swagger.core.v3</groupId>
+                    <artifactId>swagger-maven-plugin</artifactId>
+                    <version>${swagger-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.swagger.codegen.v3</groupId>
+                    <artifactId>swagger-codegen-maven-plugin</artifactId>
+                    <version>${swagger-codegen-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${license-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1306,94 +1531,96 @@
 
     <profiles>
         <profile>
-            <id>tomcat</id>
+            <id>distribution</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
-                <module>Domibus-MSH-jms-activemq</module>
-                <module>Domibus-MSH-taskexecutor-tomcat</module>
-                <module>Domibus-MSH-tomcat</module>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>sample-configuration</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>tomcat</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <modules>
+                <module>Tomcat</module>
             </modules>
         </profile>
         <profile>
             <id>weblogic</id>
             <modules>
-                <module>Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Domibus-MSH-jms-weblogic</module>
-                <module>Domibus-MSH-weblogic-common</module>
-                <module>Domibus-MSH-weblogic</module>
+                <module>Weblogic</module>
             </modules>
+            <dependencies>
+                <!--excluding this jar that's needed only for versions of Java greater than 8; fixing BEA-160248-->
+                <dependency>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>4.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>weblogic-ecas</id>
             <modules>
-                <module>Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Domibus-MSH-jms-weblogic</module>
-                <module>Domibus-MSH-weblogic-common</module>
-                <module>Domibus-MSH-weblogic-ecas</module>
+                <module>Weblogic</module>
             </modules>
+            <dependencies>
+                <!--excluding this jar that's needed only for versions of Java greater than 8; fixing BEA-160248-->
+                <dependency>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>4.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>wildfly</id>
             <modules>
-                <module>Domibus-MSH-jms-wildfly-artemis</module>
-                <module>Domibus-MSH-taskexecutor-wildfly</module>
-                <module>Domibus-MSH-wildfly</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>UI</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Domibus-MSH-angular</module>
+                <module>Wildfly</module>
             </modules>
         </profile>
         <profile>
             <id>default-plugins</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
-                <module>Domibus-ws-stubs</module>
-                <module>Domibus-default-ws-plugin</module>
-                <module>Domibus-default-jms-plugin</module>
-                <module>Domibus-default-fs-plugin</module>
+                <module>Plugin-WS</module>
+                <module>Plugin-JMS</module>
+                <module>Plugin-FS</module>
             </modules>
         </profile>
         <profile>
             <id>dss-extension</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>default</name>
+                </property>
             </activation>
             <modules>
-                <module>Domibus-authentication-dss-extension</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>database</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Domibus-MSH-db</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>distribution</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Domibus-MSH-distribution</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>swagger</id>
-            <modules>
-                <module>Domibus-MSH-swagger</module>
+                <module>Domibus-DSS</module>
             </modules>
         </profile>
         <profile>
@@ -1403,7 +1630,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency.check.version}</version>
+                        <version>${owasp.dependency.check.version}</version>
                         <inherited>false</inherited>
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
@@ -1420,6 +1647,178 @@
                                 <goals>
                                     <goal>aggregate</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>dependency-license-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>download-licenses</id>
+                                <goals>
+                                    <goal>aggregate-download-licenses</goal>
+                                    <goal>aggregate-add-third-party</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <licenseMerges>
+                                <licenseMerge>Apache License, Version 2.0
+                                    |Apache Software Licenses
+                                    |Apache Software License - Version 2.0
+                                    |Apache License 2.0
+                                    |Apache 2.0
+                                    |Apache-2.0
+                                    |Similar to Apache License but with the acknowledgment clause removed
+                                    |Apache License|The Apache Software License, Version 2.0
+                                    |Apache Public License 2.0|Apache 2|Apache License, version 2.0
+                                    |The Apache License, Version 2.0</licenseMerge>
+                                <!--  Common Public License Version 1.0|CPL was replaced by Eclipse Public License -->
+                                <licenseMerge>Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)
+                                    |Eclipse Public License 1.0 (EPL-1.0)
+                                    |Eclipse Public License, Version 1.0
+                                    |EPL 2.0
+                                    |Eclipse Distribution License v. 1.0
+                                    |Eclipse Public License (EPL) v1.0
+                                    |Eclipse Public License - v 1.0
+                                    |Eclipse Public License - v 2.0
+                                    |Eclipse Distribution License - v 1.0
+                                    |Eclipse Public License 1.0
+                                    |EDL 1.0
+                                    |Common Public License Version 1.0
+                                    |CPL
+                                    |MPL 2.0 or EPL 1.0</licenseMerge>
+                                <licenseMerge>The MIT License|MIT License</licenseMerge>
+                                <!-- jaxen  - jaxen:jaxen:1.1.4 from the page is noted BSD license -->
+                                <licenseMerge>BSD license (all versions)
+                                    |http://jaxen.codehaus.org/license.html
+                                    |BSD-2-Clause|The BSD 3-Clause License
+                                    |BSD
+                                    |The New BSD License
+                                    |BSD License
+                                    |The BSD License
+                                    |BSD 3-clause New License
+                                    |BSD Licence 3
+                                    |3-Clause BSD License
+                                    |BSD-Style License
+                                    |BSD-3-Clause
+                                    |New BSD License</licenseMerge>
+                                <licenseMerge>Dual license consisting of the CDDL v1.1 and GPL v2
+                                    |CDDL+GPLv2
+                                    |CDDL + GPLv2 with classpath exception
+                                    |CDDL/GPLv2+CE
+                                    |CDDL+GPL License</licenseMerge>
+                                <licenseMerge>Common Development and Distribution License (CDDL) (all versions)
+                                    |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+                                    |Common Development and Distribution License (CDDL) v1.0
+                                    |Common Development and Distribution License (CDDL)
+                                    |Common Development and Distribution License
+                                    |Common Development and Distribution
+                                    |CDDL 1.1|</licenseMerge>
+                                <!-- https://hibernate.org/community/license/ - hibernate label it as GNU Library General Public License v2.1 == GNU Lesser General Public License version 2.1  -->
+                                <licenseMerge>GNU Lesser General Public License
+                                    |GNU Lesser General Public License, version 2.1
+                                    |GNU Library General Public License v2.1 or later
+                                    |LGPL-2.1
+                                    |LGPL</licenseMerge>
+                            </licenseMerges>
+                            <failOnMissing>true</failOnMissing>
+                            <failOnBlacklist>true</failOnBlacklist>
+                            <!-- 'No Copyright' used by 1 dependencies:
+                                -bagit-java (gov.loc:bagit:4.12.2 - https://github.com/LibraryOfCongress/bagit-java -->
+                            <includedLicenses>
+                                Apache License, Version 2.0|
+                                Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)|
+                                The MIT License|
+                                BSD license (all versions)|
+                                European Union Public Licence (EUPL v.1.1)|
+                                Dual license consisting of the CDDL v1.1 and GPL v2|
+                                Common Development and Distribution License (CDDL) (all versions)|
+                                GNU Lesser General Public License|
+                                Bouncy Castle Licence|
+                                Mozilla Public License Version 2.0|
+                                No Copyright|
+                                EPL 1.0|
+                                MPL 2.0|
+                            </includedLicenses>
+                            <!-- license validation scope  -->
+                            <excludedGroups>^eu.domibus.*,^org,niis.*</excludedGroups>
+                            <!--
+                            dom4j:dom4j:1.6.1 -  BSD licence
+                            javax.servlet:servlet-api:2.4  - CDDL
+                            javax.xml.soap:saaj-api:1.3.1 - CDDL
+                            org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
+                            -->
+                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2|jsr311-api|aopalliance|json|reactive-streams</excludedArtifacts>
+                            <excludedScopes>system,test,provided,runtime</excludedScopes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>enforce</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-versions</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <!-- more rules to be added here -->
+                                        <requireMavenVersion>
+                                            <version>[3.1,)</version>
+                                            <level>WARN</level>
+                                        </requireMavenVersion>
+                                        <requireJavaVersion>
+                                            <version>1.8</version>
+                                            <level>WARN</level>
+                                        </requireJavaVersion>
+                                        <banDuplicatePomDependencyVersions>
+                                            <level>ERROR</level>
+                                        </banDuplicatePomDependencyVersions>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- this will check only dependency convergence from maven-enforcer-plugin -->
+        <profile>
+            <id>enforceDependency</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-versions</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <DependencyConvergence/>
+                                    </rules>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

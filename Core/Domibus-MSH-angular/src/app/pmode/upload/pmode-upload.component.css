@@ -1,0 +1,16 @@
+
+.form-field {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.custom-text-area {
+  resize: none;
+  width: 100%;
+  height: 100%;
+}
+
+.error-style {
+  color: red;
+  font-size: 70%;
+}

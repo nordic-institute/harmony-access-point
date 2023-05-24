@@ -1,0 +1,113 @@
+<S12:Envelope xmlns:S12="http://www.w3.org/2003/05/soap-envelope" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+              xmlns:eb3="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
+              xmlns:ebbp="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0"
+              xmlns:ebint="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/multihop/200902/"
+              xmlns:wsa="http://www.w3.org/2005/08/addressing"
+              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+              xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <S12:Header>
+        <eb3:Messaging S12:mustUnderstand="true" id="_ebmessaging_N65541"
+                       wsu:Id="_13cd4ed9d31aacd518db9f13ef2d7b28e48230e4bb434a8640e39a93adc076a85">
+            <eb3:SignalMessage>
+                <eb3:MessageInfo>
+                    <eb3:Timestamp>2022-08-11T15:13:18.000Z</eb3:Timestamp>
+                    <eb3:MessageId>219edfdf-1988-11ed-a89e-4a530ed366ed@domibus.eu</eb3:MessageId>
+                    <eb3:RefToMessageId>a000ce3f-1987-11ed-b65f-4a530ed366ed@domibus.eu</eb3:RefToMessageId>
+                </eb3:MessageInfo>
+                <eb3:Receipt>
+                    <ebbp:NonRepudiationInformation>
+                        <ebbp:MessagePartNRInformation>
+                            <ds:Reference xmlns:env="http://www.w3.org/2003/05/soap-envelope"
+                                          URI="#_23cd4ed9d31aacd518db9f13ef2d7b28e48230e4bb434a8640e39a93adc076a85">
+                                <ds:Transforms>
+                                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                </ds:Transforms>
+                                <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                                <ds:DigestValue>AGrNSDAwXqDYNzo9AFwkC5FyS9ylysA2toDsgaJjksw=</ds:DigestValue>
+                            </ds:Reference>
+                        </ebbp:MessagePartNRInformation>
+                        <ebbp:MessagePartNRInformation>
+                            <ds:Reference xmlns:env="http://www.w3.org/2003/05/soap-envelope"
+                                          URI="#_13cd4ed9d31aacd518db9f13ef2d7b28e48230e4bb434a8640e39a93adc076a85">
+                                <ds:Transforms>
+                                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                </ds:Transforms>
+                                <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                                <ds:DigestValue>etR6R+1sEJqa1skvUc28zRI5Tc5tuvwH0HzHDogjS0I=</ds:DigestValue>
+                            </ds:Reference>
+                        </ebbp:MessagePartNRInformation>
+                        <ebbp:MessagePartNRInformation>
+                            <ds:Reference xmlns:env="http://www.w3.org/2003/05/soap-envelope" URI="cid:message">
+                                <ds:Transforms>
+                                    <ds:Transform
+                                            Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+                                </ds:Transforms>
+                                <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                                <ds:DigestValue>EsCW4yjyIQ0WVh8swWQx16Nt84LBP7ufBWcyBePJEE8=</ds:DigestValue>
+                            </ds:Reference>
+                        </ebbp:MessagePartNRInformation>
+                    </ebbp:NonRepudiationInformation>
+                </eb3:Receipt>
+            </eb3:SignalMessage>
+        </eb3:Messaging>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+                       S12:mustUnderstand="true">
+            <wsse:BinarySecurityToken
+                    EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+                    ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
+                    wsu:Id="G9f8baa91-645f-4bec-901b-cc29b1d4c6cd">
+                MIIFwjCCA6qgAwIBAgIDBg6DMA0GCSqGSIb3DQEBCwUAMDcxHDAaBgNVBAoME0V1cm9wZWFuIENvbW1pc3Npb24xFzAVBgNVBAMMDkNvbW1pc1NpZ24gLSAyMB4XDTIyMDcyNjE1MTI0NVoXDTI0MDcyNjE1MTI0NVowgYExCzAJBgNVBAYTAkJFMRowGAYDVQQKDBFlRGVsaXZlcnkgU3VwcG9ydDEgMB4GA1UECwwXQ0VGX2VEZWxpdmVyeS5ldXJvcGEuZXUxEDAOBgNVBAsMB0FQX1RFU1QxDTALBgNVBAsMBFRFU1QxEzARBgNVBAMMCmRvbWlidXMtYzIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCmn5+I3uVK1ruuru+83idEcdjRzEWJ4Vem7aDmC2XeYOm0CfHKxa+swmKlZuW/jc7vNjjhQdGafd05xvbFkjC3KUFD3ffIo8LZQ1B2jipfCTrXgusTIs0naPOAoRpTO1VpXH1dqdWS6LTqoSjEGy5b2m1thuGIjuCBiDzLTkzUTWenKip/8sQd3/Y8Am29ZYtlFIxsWWhJTwdC7S9PVr26HBtPg/x9HydkfZYjBfy+NQ+LUIuVIcDLFgmlk+LTJE0N1zAFAJsu30972Q1xD62e0iKspEwVXaq4b7Xz3AsvGnj5RFSz8Ljy3fTaYMpOUMweQZOoyNOy3tmClj4piAdhAgMBAAGjggGKMIIBhjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBQwvcwT8aX5rqaq8URMNqKvAJfyQzAfBgNVHSMEGDAWgBSa+492ZpjcrCzXdzZxbbrjZ0eR9jBPBgNVHSAESDBGMEQGBgQAj3oBATA6MDgGCCsGAQUFBwIBFixodHRwczovL2NvbW1pc3NpZ24ucGtpLmVjLmV1cm9wYS5ldS9pbmZvL2NwLzAOBgNVHQ8BAf8EBAMCBaAwSQYDVR0fBEIwQDA+oDygOoY4aHR0cDovL2NvbW1pc3NpZ24ucGtpLmVjLmV1cm9wYS5ldS9pbmZvL2NybC9vbmxpbmVDQS5jcmwwgYkGCCsGAQUFBwEBBH0wezBEBggrBgEFBQcwAoY4aHR0cDovL2NvbW1pc3NpZ24ucGtpLmVjLmV1cm9wYS5ldS9pbmZvL2FpYS9vbmxpbmVDQS5jcnQwMwYIKwYBBQUHMAGGJ2h0dHA6Ly9jb21taXNzaWduLnBraS5lYy5ldXJvcGEuZXUvb2NzcDANBgkqhkiG9w0BAQsFAAOCAgEALvwvccLwZNuN9sFNHWsxJ8wHk4iNN0lIDxl2NEaag2AYzOvwW3/efmm6A5u+1G/uDxYR87f1fRfBttupe2i0AknBZsKfwN2xFIZoyLdRQXu1yOv8vbm4/091ATGk6hgUR4dCs7SO4MNg0FziStPyPYxoMpCrEkt1SNpk1fjIc1C7a+FZef6s+gIe6QXjLkN3wwGkwpI4MgisWlCGGbivWA+c7wNvYyKq7kFqx2BvxMEyTdcG1ovdwq0GG1sjKtTPcF1QteNdxknYb2gRRmhapWNIlfk9NdjY3OWoYZAiPuFL5aTFIMQrzxcCVwJqzWRSTMlBvzi8IDYj+bxwiiv4f6a7YF99PA3v7aBJIU6xvyWkTT349ESPr+b0tBzXdIAsXu7WQFtq1y5qC6tWP6uOC987J4xyYyGAZ5Ig4yTffaUcvW1uYZj7r8xtUCcswuboSviq/+YXTuWS06xzYO1SnkqGTjVV2njG6b2CiFoGftQa0/rg6a7OYwGgKcSQipG3B3+TsusohXT5a8ZVVIvuO22/c6LdTr/v2+/jHIfqmKnbMJpPtJTnOq2ezgtKRPxQ4L2gn5I5Xq0fxqGIcCKPkXkudmMrTWfeKk0paL8AEmgqVAfhhdj7R1ejTdjdOVJQ4TFSDVuKUO/N4IKliQ2F7Ilz3OT2J3WK3VgZQkL5E7g=
+            </wsse:BinarySecurityToken>
+            <wsse:BinarySecurityToken
+                    EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+                    ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1"
+                    wsu:Id="X509-2234645f-3a17-4b6d-80ba-0aabac0964cf">
+                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
+            </wsse:BinarySecurityToken>
+            <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="SIG-c69b8369-12cb-4964-9dbd-bc262e8d267b">
+                <ds:SignedInfo>
+                    <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                        <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"
+                                                PrefixList="S12 ds eb3 ebbp ebint wsa wsse wsu"/>
+                    </ds:CanonicalizationMethod>
+                    <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+                    <ds:Reference URI="#N65677">
+                        <ds:Transforms>
+                            <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"
+                                                        PrefixList="ds eb3 ebbp ebint wsa wsse"/>
+                            </ds:Transform>
+                        </ds:Transforms>
+                        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                        <ds:DigestValue>M/flcia3uygTwGT86FgaDs0TNlgxU3pDBqs8Fy2207A=</ds:DigestValue>
+                    </ds:Reference>
+                    <ds:Reference URI="#_13cd4ed9d31aacd518db9f13ef2d7b28e48230e4bb434a8640e39a93adc076a85">
+                        <ds:Transforms>
+                            <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"
+                                                        PrefixList="ds ebbp ebint wsa wsse"/>
+                            </ds:Transform>
+                        </ds:Transforms>
+                        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                        <ds:DigestValue>HRHER5bLLmtkGgd2k/dSJRnoG53ZR14hVJI+zwQFxtM=</ds:DigestValue>
+                    </ds:Reference>
+                </ds:SignedInfo>
+                <ds:SignatureValue>
+                    VDimUUvDkkOiHHOPFOKgi8i3UfdNQpbFNvFOqQGXCH2PnYD28uGAlotiA90DLn2udo8vhUPvS+S/StqTs7GRA8q/hTY6QtYv2w7OYqJ1dRBwWwtwsj4IskUKGfc0ouj7Y9Yzu36PDN9ONTultd9RQKsk7sXfZqmEI2fMthpJ2VOQtooJ+YtPOwX+FymsEUhNvQIJSbpe5UU3hXnmSRo/hD0h78i1SYmO8v7I/er6+Hk7+HUAFQ95T5QwoHh96gj3qZqyPkNQKTxantCwyDCp5EfT/B4sAau+fRIADtNh47hspXSZ0LwUF0fMgMyK5ih5sgMhdCu7DO8BUMmSIqiUBQ==
+                </ds:SignatureValue>
+                <ds:KeyInfo Id="KI-eebbd595-0d20-4905-b9eb-0f8e218e958d">
+                    <wsse:SecurityTokenReference
+                            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+                            xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd"
+                            xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                            wsse11:TokenType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1"
+                            wsu:Id="STR-5e872d81-69a9-42f2-9ec5-255c6707305e">
+                        <wsse:Reference URI="#X509-2234645f-3a17-4b6d-80ba-0aabac0964cf"
+                                        ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1"/>
+                    </wsse:SecurityTokenReference>
+                </ds:KeyInfo>
+            </ds:Signature>
+        </wsse:Security>
+    </S12:Header>
+    <S12:Body wsu:Id="N65677"/>
+</S12:Envelope>
