@@ -41,9 +41,9 @@ export class PageHelperComponent implements OnInit {
 
   private async setHelpPages() {
     const domibusInfo = await this.domibusInfoService.getDomibusInfo();
-    const MAIN_HELP_PAGE = `https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
+    const MAIN_HELP_PAGE = 'https://edelivery.digital/';
 
-    const VERSION_SPECIFIC_PAGE = `#Domibusv${domibusInfo.versionNumber}AdminConsoleHelp-`;
+    const VERSION_SPECIFIC_PAGE = `#harmony-ap-v${domibusInfo.versionNumber}-help-`;
 
     const routes = this.router.config;
     routes.forEach(route => {
