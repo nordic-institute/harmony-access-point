@@ -79,7 +79,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
-    static final String MESSAGE = "Message [";;
+    static final String MESSAGE = "Message [";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
     static final String MIME_TYPE = "MimeType";
