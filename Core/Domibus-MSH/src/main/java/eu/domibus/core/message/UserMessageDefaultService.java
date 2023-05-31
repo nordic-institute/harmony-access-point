@@ -69,6 +69,8 @@ import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -83,9 +85,6 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
     static final String MIME_TYPE = "MimeType";
-    static final String BUSINESS_CONTENT_ATTACHMENT = "businessContentAttachment";
-    static final String BUSINESS_CONTENT_ATTACHMENT_ENABLED = "domibus.payload.business.content.attachment.enabled";
-
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -862,10 +861,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
-        Boolean businessContentAttachmentEnabled = domibusPropertyProvider.getBooleanProperty(BUSINESS_CONTENT_ATTACHMENT_ENABLED);
-        if (BooleanUtils.isTrue(businessContentAttachmentEnabled)) {
+        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED))) {
             for (PartProperty property : info.getPartProperties()) {
-                if (BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && property.getValue() != null) {
+                if (DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && property.getValue() != null) {
                     return property.getValue();
                 }
             }
