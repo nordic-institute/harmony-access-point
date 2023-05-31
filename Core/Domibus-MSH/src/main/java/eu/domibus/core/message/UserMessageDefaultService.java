@@ -44,6 +44,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,10 +79,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
-    static final String MESSAGE = "Message [";
+    static final String MESSAGE = "Message [";;
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
     static final String MIME_TYPE = "MimeType";
+    static final String BUSINESS_CONTENT_ATTACHMENT = "businessContentAttachment";
+    static final String BUSINESS_CONTENT_ATTACHMENT_ENABLED = "domibus.payload.business.content.attachment.enabled";
+
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -858,6 +862,15 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
+        Boolean businessContentAttachmentEnabled = domibusPropertyProvider.getBooleanProperty(BUSINESS_CONTENT_ATTACHMENT_ENABLED);
+        if (BooleanUtils.isTrue(businessContentAttachmentEnabled)) {
+            for (PartProperty property : info.getPartProperties()) {
+                if (BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && property.getValue() != null) {
+                    return property.getValue();
+                }
+            }
+        }
+
         if (StringUtils.isEmpty(info.getHref())) {
             return "bodyload.xml";
         }
