@@ -38,6 +38,8 @@ public interface DomibusConfigurationService {
 
     boolean isPayloadEncryptionActive(Domain domain);
 
+    boolean isPayloadBusinessContentAttachmentEnabled(Domain domain);
+
     boolean isPasswordEncryptionActive();
 
     boolean isPasswordEncryptionActive(Domain domain);
