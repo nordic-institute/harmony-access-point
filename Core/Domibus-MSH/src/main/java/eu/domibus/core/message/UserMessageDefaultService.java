@@ -861,9 +861,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
-        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED))) {
+        if (isBusinessContentAttachmentEnabled()) {
             for (PartProperty property : info.getPartProperties()) {
-                if (DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && property.getValue() != null) {
+                if (DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && !StringUtils.isEmpty(property.getValue())) {
                     return property.getValue();
                 }
             }
@@ -908,6 +908,10 @@ public class UserMessageDefaultService implements UserMessageService {
         return info.getPartProperties().stream()
                 .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
                         && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
+    }
+
+    protected boolean isBusinessContentAttachmentEnabled() {
+        return BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
