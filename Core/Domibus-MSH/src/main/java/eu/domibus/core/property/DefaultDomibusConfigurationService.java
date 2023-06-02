@@ -90,6 +90,11 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
+    public boolean isPayloadBusinessContentAttachmentEnabled(Domain domain) {
+        return getBooleanProperty(domain, PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_PROPERTY);
+    }
+
+    @Override
     public boolean isPasswordEncryptionActive() {
         return getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
     }

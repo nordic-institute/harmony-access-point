@@ -53,6 +53,8 @@ import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT;
 import static eu.domibus.core.message.UserMessageDefaultService.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -821,6 +823,68 @@ public class UserMessageDefaultServiceTest {
         Assert.assertEquals("1234Payload.xml", userMessageDefaultService.getPayloadName(partInfoWithPayload));
         Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
+
+    @Test
+    public void testPayloadNameWithBusinessContentAttachmentAndItsPropertyEnabled(@Injectable final PartInfo partInfoWithPartProperties, 
+                                                                                  @Injectable PartProperty partProperty) {
+
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
+        new Expectations(userMessageDefaultService) {{
+            partInfoWithPartProperties.getPartProperties();
+            result = partProperties;
+            partProperty.getName();
+            result = DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT;
+            partProperty.getValue();
+            result = "file.xml";
+            userMessageDefaultService.isBusinessContentAttachmentEnabled();
+            result = Boolean.TRUE;
+        }};
+
+        Assert.assertEquals("file.xml", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
+    }
+
+    @Test
+    public void testPayloadNameWithoutBusinessContentAttachmentWithPropertyEnabled(@Injectable final PartInfo partInfoWithPartProperties, 
+                                                                                   @Injectable PartProperty partProperty) {
+
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
+        new Expectations(userMessageDefaultService) {{
+            partInfoWithPartProperties.getPartProperties();
+            result = partProperties;
+            partProperty.getName();
+            result = PAYLOAD_NAME;
+            userMessageDefaultService.isBusinessContentAttachmentEnabled();
+            result = Boolean.TRUE;
+        }};
+
+        Assert.assertEquals("bodyload.xml", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
+    }
+
+    @Test
+    public void testPayloadNameWithBusinessContentAttachmentAndItsPropertyDisabled(@Injectable final PartInfo partInfoWithPartProperties, 
+                                                                                   @Injectable PartProperty partProperty) {
+
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
+        new Expectations(userMessageDefaultService) {{
+            partInfoWithPartProperties.getHref();
+            result = "cid:1234";
+            partInfoWithPartProperties.getPartProperties();
+            result = partProperties;
+            partProperty.getName();
+            result = DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT;
+            userMessageDefaultService.getPayloadExtension(partInfoWithPartProperties);
+            result = ".xml";
+            userMessageDefaultService.isBusinessContentAttachmentEnabled();
+            result = Boolean.FALSE;
+
+        }};
+
+        Assert.assertEquals("1234Payload.xml", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
+    }   
+
 
     @Test
     public void getUserMessageById() {

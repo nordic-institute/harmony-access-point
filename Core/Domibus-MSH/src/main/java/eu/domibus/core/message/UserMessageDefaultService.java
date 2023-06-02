@@ -44,6 +44,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,6 +69,8 @@ import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -858,6 +861,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
+        if (isBusinessContentAttachmentEnabled()) {
+            for (PartProperty property : info.getPartProperties()) {
+                if (DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT.equalsIgnoreCase(property.getName()) && !StringUtils.isEmpty(property.getValue())) {
+                    return property.getValue();
+                }
+            }
+        }
+
         if (StringUtils.isEmpty(info.getHref())) {
             return "bodyload.xml";
         }
@@ -897,6 +908,10 @@ public class UserMessageDefaultService implements UserMessageService {
         return info.getPartProperties().stream()
                 .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
                         && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
+    }
+
+    protected boolean isBusinessContentAttachmentEnabled() {
+        return BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_BUSINESS_CONTENT_ATTACHMENT_ENABLED));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
