@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836-multitenancy">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
+    </changeSet>
+    <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
+        <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
+            <column name="sequence_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
+            </column>
+            <column name="next_val" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+    <include file="migration/common/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+
+    <include file="migration/multitenancy/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
+            <column name="VERSION" type="VARCHAR(30)"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
+    </changeSet>
+
+    <changeSet author="nperpion" id="EDELIVERY-8503_3">
+        <createTable tableName="TB_LOCK" remarks="Stores keys used for locking/synchronizing in cluster">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_LOCK"/>
+            </column>
+            <column name="LOCK_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
+
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-9451">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
+        <createTable tableName="TB_USER_DOMAIN_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="DOMAIN_MOD" type="BOOLEAN"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERREDDOMAIN_MOD" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+
+    <!--views-->
+    <changeSet author="Ion Perpegel" id="EDELIVERY-8688-General Schema Audit">
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV;
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+    </changeSet>
+
+    <!-- indexes -->
+    <changeSet author="Catalin Enache" id="1564496480476-30-new-indices">
+        <comment>create indexes</comment>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- foreign keys -->
+    <changeSet author="Catalin Enache" id="1564496480476-56-new-foreign-keys">
+        <comment>create foreign keys</comment>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8895-multitenancy-performance">
+        <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME" columnDataType="VARCHAR(255)" />
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
+    <include file="../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+
+</databaseChangeLog>

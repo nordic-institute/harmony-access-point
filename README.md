@@ -1,4 +1,5 @@
-
+[![Go to Harmony Community Slack](https://img.shields.io/badge/Go%20to%20Community%20Slack-grey.svg)](https://harmonyedelivery.slack.com/)
+[![Get invited](https://img.shields.io/badge/No%20Slack-Get%20invited-green.svg)](https://edelivery.digital/harmony-edelivery-access-community)
 [![License badge](https://img.shields.io/badge/license-EUPL-blue.svg)](LICENSE.md)
 [![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://github.com/nordic-institute/harmony-common/tree/main/doc)
 [![Support badge]( https://img.shields.io/badge/support-sof-yellowgreen.svg)](https://edelivery.digital/contact)
@@ -31,17 +32,17 @@ In addition, the following documents that are available on the [Domibus release 
 
 In order to build Harmony Access Point including all release artifacts use the following profiles:
 
-    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI 
+    mvn clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI 
 
 **Note:** Running the tests takes a long time (~20 min or more).
 
 Integration tests can be skipped using the `skipITs` property:
 
-    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -DskipITs=true
+    mvn clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -DskipITs=true
 
 All tests can be skipped using the `maven.test.skip` property
 
-    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -Dmaven.test.skip=true
+    mvn clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -Dmaven.test.skip=true
 
 Full build instruction are available in the `harmony-common` [repository](https://github.com/nordic-institute/harmony-common/).
 

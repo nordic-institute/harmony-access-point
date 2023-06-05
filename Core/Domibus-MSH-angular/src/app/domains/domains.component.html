@@ -1,0 +1,21 @@
+<page-header id="connectionmonitorheader_id">Domains</page-header>
+
+<div class="panel"></div>
+
+<button mat-icon-button (click)="refresh()" [disabled]="isBusy()" color="primary"
+        button-click-behaviour matTooltip="Reload"
+        style="position: absolute;right: 20px;top: 77px;z-index: 999;">
+  <mat-icon>cached</mat-icon>
+</button>
+
+<page-grid [parent]="this" [selectionType]="'none'"></page-grid>
+
+<!--<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template></ng-template>-->
+
+<ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+  <span class="connection-monitor-status">
+    <mat-slide-toggle [(ngModel)]="row.active" (change)="toggleActiveState(row)" [disabled]="isBusy()"></mat-slide-toggle>
+  </span>
+</ng-template>
+
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="current_db_user" value="user" dbms="oracle"/>
+    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
+    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
+    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+
+    <changeSet id="EDELIVERY_8033" author="idragusa">
+
+        <sql dbms="oracle">
+            ALTER TABLE TB_USER_MESSAGE_DELETION_JOB RENAME CONSTRAINT PK_TB_USER_MESSAGE_DELETION_JOB TO PK_TB_USER_MSG_DELETION_JOB;
+        </sql>
+
+        <renameTable oldTableName="TB_USER_MESSAGE_DELETION_JOB" newTableName="TB_USER_MSG_DELETION_JOB"/>
+
+        <dropIndex indexName="IDX_MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG"/>
+
+        <dropIndex indexName="IDX_MESSAGE_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG"/>
+
+        <dropIndex indexName="IDX_MESSAGE_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG"/>
+
+        <createIndex indexName="IDX_MSG_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
+            <column name="MODIFICATION_TIME"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
+            <column name="MESSAGE_TYPE"/>
+        </createIndex>
+
+        <sql dbms="oracle">
+            DROP PROCEDURE DeleteExpiredDownloadedMessages;
+            DROP PROCEDURE DeleteExpiredSentMessages;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

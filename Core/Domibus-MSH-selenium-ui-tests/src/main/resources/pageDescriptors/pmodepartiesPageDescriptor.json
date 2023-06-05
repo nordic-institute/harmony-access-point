@@ -1,0 +1,110 @@
+{
+  "title": "PMode - Parties",
+  "filters": [
+    {
+      "name": "nameInput",
+      "placeholder": "Name",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "endpointInput",
+      "placeholder": "End Point",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "partyIDInput",
+      "placeholder": "Party Id",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "processInput",
+      "placeholder": "Process",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "processRoleSelect",
+      "placeholder": "Process Role",
+      "isDefault": true,
+      "type": "SELECT"
+    }
+  ],
+  "grid": {
+    "columnsControls": true,
+    "rowsControls": true,
+    "exportCSV": true,
+    "defaultSort": "",
+    "columns": [
+      {
+        "name": "Party Name",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "End Point",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Party Id",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Process (I=Initiator, R=Responder, IR=Both)",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Actions",
+        "type": "ACTION",
+        "sortable": false,
+        "visibleByDefault": true
+      }
+    ],
+    "pagination": {
+      "showSelectedNo": true,
+      "showTotalNo": true,
+      "showPageControls": true
+    }
+  },
+  "buttons": [
+    {
+      "name": "cancelBtn",
+      "label": "Cancel",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "saveBtn",
+      "label": "Save",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "deleteBtn",
+      "label": "Delete",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "newBtn",
+      "label": "New",
+      "enabledByDefault": true,
+      "visibleByDefault": true
+    },
+    {
+      "name": "editBtn",
+      "label": "Edit",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    }
+  ]
+}

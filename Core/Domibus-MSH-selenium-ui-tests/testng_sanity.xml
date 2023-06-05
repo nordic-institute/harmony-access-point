@@ -1,0 +1,220 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="SanityCheckSuite">
+
+    <groups>
+        <run>
+            <include name="multiTenancy"/>
+            <exclude name="TlsConfig"></exclude>
+        </run>
+    </groups>
+
+    <test name="SanityCheckTest">
+        <classes>
+            <class name="domibus.ui.functional.AccessRightsTest">
+                <methods>
+                    <include name="userRights"/>
+                    <include name="userAccessDomainSwitch"/>
+                    <include name="adminRights"/>
+                    <include name="adminDomainSwitch"/>
+                    <include name="superAdminRights"/>
+                    <include name="userResendMessage"/>
+                    <include name="adminAccessLoggingPage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.AlertPgTest">
+                <methods>
+                    <include name="openAlertsPage"/>
+                    <include name="showDomainAlertCheckedForSecDomain"/>
+                    <include name="superAdminrecordAbsenceForAdmin"/>
+                    <include name="checkProcessed"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.ConnectionMonitorTest">
+                <methods>
+                    <include name="openWindowNoPmode"/>
+                    <include name="checkSendFeature"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.JMSMessPgTest">
+                <methods>
+                    <include name="deleteJMSMessage"/>
+                    <include name="jmsMsgDelOnDomainChange"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.LoggingPgTest">
+                <methods>
+                    <include name="verifyReset"/>
+                    <include name="modifyLevelForPackageAndSubpackage"/>
+                    <include name="modifyLevelForPackage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.LoginPgTest">
+                <methods>
+                    <include name="validLogin"/>
+                    <include name="blockUserAccountTest"/>
+                    <include name="unblockedAccountCanLogin"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilterPgTest">
+                <methods>
+                    <include name="openMessagesFilterPage"/>
+                    <include name="newFilterSave"/>
+                    <include name="shuffleAndSave"/>
+                    <include name="editAndSave"/>
+                    <include name="deleteAndSave"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessagesPgTest">
+                <methods>
+                    <include name="downloadMessage"/>
+                    <include name="resendMessage"/>
+                    <include name="checkMsgEnvXML"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PluginUsersPgTest">
+                <methods>
+                    <include name="newUserSave"/>
+                    <include name="editAndSave"/>
+                    <include name="deleteAndSave"/>
+                    <include name="createCertificatePluginUserSave"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PModeCurrentPgTests">
+                <methods>
+                    <include name="openPModeCurrentWindow"/>
+                    <include name="uploadPmode"/>
+                    <include name="uploadInvalidPmode"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PmodePartiesPgTest">
+                <methods>
+                    <include name="deleteParty"/>
+                    <include name="createParty"/>
+                    <include name="editParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PModeValidationsTest">
+                <methods>
+                    <include name="invalidURLs"/>
+                    <include name="integerAttributesValidations"/>
+                    <include name="validationsBooleans"/>
+                    <include name="currentPmodeNoCurrentParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.Properties2PgTest">
+                <methods>
+                    <include name="adminAccessToProperties"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PropertiesPgTest">
+                <methods>
+                    <include name="pageAvailability"/>
+                    <include name="openPageSuper"/>
+                    <include name="openPageAdmin"/>
+                    <include name="updateAndSave"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.TlsTrustStorePgTest">
+                <methods>
+                    <include name="removeAllCert"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.TruststorePgTest">
+                <methods>
+                    <include name="uploadValidFile"/>
+                    <include name="uploadJksWithNoAliasPass"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.UsersPgTest">
+                <methods>
+                    <include name="deleteUserAndSave"/>
+                    <include name="newUserSave"/>
+                    <include name="editUserAndSave"/>
+                    <include name="adminChangesUserPassword"/>
+                    <include name="editUserRoleAndCheckPrivileges"/>
+                    <include name="deleteAllAdmin"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.AlertPgUXTest">
+                <methods>
+                    <include name="delDomainAlertbySuperAdmin"/>
+                    <include name="delSuperAlert"/>
+                    <include name="delDomainAlertByAdmin"/>
+                    <include name="markDomainAlrtProcessed"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.AuditPgUXTest">
+                <methods>
+                    <include name="openAuditPage"/>
+                    <include name="basicFilter"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.ChangePasswordPgUXTest">
+                <methods>
+                    <include name="unchangedPasswordOnNavigation"/>
+                    <include name="differentPasswordsValidData"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.ErrorLogPgUXTest">
+                <methods>
+                    <include name="openErrorLogPage"/>
+                    <include name="doubleClickErr"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.JMSMessPgUXTest">
+                <methods>
+                    <include name="openJMSMessagesPage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.MessagesPgUXTest">
+                <methods>
+                    <include name="openMessagesPage"/>
+                    <include name="resendMsg"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPg2UXTest">
+                <methods>
+                    <include name="editCertificateUsr"/>
+                    <include name="delCertificateUsr"/>
+                    <include name="originalUserOnAddEditBasic"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPgUXTest">
+                <methods>
+                    <include name="openWindow"/>
+                    <include name="editPassErrMess"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PModeArchiveUXTest">
+                <methods>
+                    <include name="openPmodeArchivePage"/>
+                    <include name="restoreOrDeleteCurrentPMode"/>
+                    <include name="doubleclickCurrentPMode"/>
+                    <include name="restoreOldFile"/>
+                    <include name="deleteOldFile"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PmodePartiesPgUXTest">
+                <methods>
+                    <include name="openPModePartiesPage"/>
+                    <include name="updateParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.TlsTruststoreUXTest">
+                <methods>
+                    <include name="downloadCert"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.TruststorePgUXTest">
+                <methods>
+                    <include name="openTrustorePage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.UsersPgUXTest">
+                <methods>
+                    <include name="openWindow"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Start migration for renamed unique key constraints  -->
+    <changeSet author="Soumya" id="EDELIVERY-7840-Rename-unique-key-constraints-common">
+        <sql dbms="oracle">
+            ALTER TABLE TB_COMMAND_PROPERTY RENAME CONSTRAINT UNI_COMMAND_PROP_NAME TO UK_COMMAND_PROP_NAME;
+            ALTER INDEX UNI_COMMAND_PROP_NAME RENAME TO UK_COMMAND_PROP_NAME;
+        </sql>
+        <sql dbms="mysql">
+            ALTER TABLE TB_COMMAND_PROPERTY RENAME INDEX UNI_COMMAND_PROP_NAME TO UK_COMMAND_PROP_NAME;
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_USER RENAME CONSTRAINT USER_NAME TO UK_USER_NAME;
+            ALTER INDEX USER_NAME RENAME TO UK_USER_NAME;
+        </sql>
+        <sql dbms="mysql">
+            ALTER TABLE TB_USER RENAME INDEX USER_NAME TO UK_USER_NAME;
+        </sql>
+
+        <sql dbms="oracle">
+            ALTER TABLE TB_USER_ROLE RENAME CONSTRAINT UQ_ROLE_NAME TO UK_ROLE_NAME;
+            ALTER INDEX UQ_ROLE_NAME RENAME TO UK_ROLE_NAME;
+        </sql>
+        <sql dbms="mysql">
+            ALTER TABLE TB_USER_ROLE RENAME INDEX UQ_ROLE_NAME TO UK_ROLE_NAME;
+        </sql>
+    </changeSet>
+    <!-- End migration for renamed unique key constraints  -->
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-primary-key-index-names-common">
+        <sql dbms="oracle">
+            ALTER TABLE TB_ALERT RENAME CONSTRAINT PK_TB_ALERT TO PK_ALERT;
+            ALTER INDEX PK_TB_ALERT RENAME TO PK_ALERT;
+
+            ALTER TABLE TB_COMMAND RENAME CONSTRAINT PK_TB_COMMAND TO PK_COMMAND;
+            ALTER INDEX PK_TB_COMMAND RENAME TO PK_COMMAND;
+
+            ALTER TABLE TB_EVENT RENAME CONSTRAINT PK_TB_EVENT TO PK_EVENT;
+            ALTER INDEX PK_TB_EVENT RENAME TO PK_EVENT;
+
+            ALTER TABLE TB_EVENT_PROPERTY RENAME CONSTRAINT PK_TB_EVENT_PROPERTY TO PK_EVENT_PROPERTY;
+            ALTER INDEX PK_TB_EVENT_PROPERTY RENAME TO PK_EVENT_PROPERTY;
+
+            ALTER TABLE TB_REV_CHANGES RENAME CONSTRAINT PK_TB_REV_CHANGES TO PK_REV_CHANGES;
+            ALTER INDEX PK_TB_REV_CHANGES RENAME TO PK_REV_CHANGES;
+
+            ALTER TABLE TB_REV_INFO RENAME CONSTRAINT PK_TB_REV_INFO TO PK_REV_INFO;
+            ALTER INDEX PK_TB_REV_INFO RENAME TO PK_REV_INFO;
+
+            ALTER TABLE TB_USER RENAME CONSTRAINT PK_TB_USER TO PK_USER;
+            ALTER INDEX PK_TB_USER RENAME TO PK_USER;
+
+            ALTER TABLE TB_USER_PASSWORD_HISTORY RENAME CONSTRAINT PK_TB_USER_PASSWORD_HISTORY TO PK_USER_PASSWORD_HISTORY;
+            ALTER INDEX PK_TB_USER_PASSWORD_HISTORY RENAME TO PK_USER_PASSWORD_HISTORY;
+
+            ALTER TABLE TB_USER_ROLE RENAME CONSTRAINT PK_TB_USER_ROLE TO PK_USER_ROLE;
+            ALTER INDEX PK_TB_USER_ROLE RENAME TO PK_USER_ROLE;
+        </sql>
+    </changeSet>
+</databaseChangeLog>
