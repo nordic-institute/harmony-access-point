@@ -83,7 +83,6 @@
             ALTER TABLE TB_USER_MESSAGE SET INTERVAL (10000000000);
         </sql>
 
-        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures.sql" endDelimiter="\n/"/>
     </changeSet>
 
 </databaseChangeLog>
