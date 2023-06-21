@@ -129,7 +129,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
     }
 
     @Override
-    public List<AuthenticationEntity> findByRole(String roleName) {
+    public List<AuthenticationEntity> findByRole(AuthRole roleName) {
         throw new NotImplementedException("findByRole");
     }
 

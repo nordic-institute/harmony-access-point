@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_TEST_DELIVERY;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
@@ -108,8 +110,12 @@ public class BackendNotificationService {
         this.objectMapper = objectMapper;
     }
 
+    @Autowired
+    protected MetricRegistry metricRegistry;
+
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceivedFailure")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceivedFailure")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
         BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
@@ -222,6 +228,34 @@ public class BackendNotificationService {
                     getMessageDeletedEventsForBackend(backend, userMessageLogsToNotify);
             createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
+    }
+
+    protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
+        backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
+    }
+
+    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
+        List<MessageDeletedEvent> messageIds = userMessageLogs
+                .stream()
+                .filter(userMessageLog -> StringUtils.equals(userMessageLog.getBackend(), backend))
+                .map(this::getMessageDeletedEvent)
+                .collect(toList());
+        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
+        return messageIds;
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
+        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getProperties());
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Map<String, String> properties) {
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
+        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
+        return messageDeletedEvent;
     }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -539,8 +573,10 @@ public class BackendNotificationService {
                                MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("sendMessageToQueue.timer")).time();
         NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
         jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
+        methodTimer.stop();
     }
 
     protected void notifySync(MessageEvent messageEvent, BackendConnector<?, ?> backendConnector,

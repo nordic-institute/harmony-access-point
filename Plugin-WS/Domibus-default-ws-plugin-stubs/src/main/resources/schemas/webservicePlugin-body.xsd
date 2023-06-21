@@ -269,14 +269,14 @@
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="tns:errorResultImpl"/>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:element name="getStatusRequest" nillable="true">
+    <xsd:element name="getStatusRequest">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    <xsd:element name="statusRequest" nillable="true">
+    <xsd:element name="statusRequest">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
@@ -307,5 +307,5 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    <xsd:element name="getMessageErrorsResponse" nillable="true" type="tns:errorResultImplArray"/>
+    <xsd:element name="getMessageErrorsResponse" type="tns:errorResultImplArray"/>
 </xsd:schema>

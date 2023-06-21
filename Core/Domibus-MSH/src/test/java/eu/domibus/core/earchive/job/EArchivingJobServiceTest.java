@@ -33,6 +33,7 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_MPCS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -108,7 +109,7 @@ public class EArchivingJobServiceTest {
         map.put("mpc1", asList(legConfiguration11,
                 legConfiguration12,
                 legConfiguration13));
-        map.put("mpc2", Collections.singletonList(null));
+        map.put("mpc2", singletonList(null));
         new Expectations() {{
             legConfiguration11.getReceptionAwareness();
             result = receptionAwareness11;
@@ -125,7 +126,7 @@ public class EArchivingJobServiceTest {
             result = 3;
         }};
 
-        int mpc1 = eArchivingJobService.getMaxRetryTimeOutFiltered(Collections.singletonList("mpc1"), new LegConfigurationPerMpc(map));
+        int mpc1 = eArchivingJobService.getMaxRetryTimeOutFiltered(singletonList("mpc1"), new LegConfigurationPerMpc(map));
 
         assertEquals(3, mpc1);
         new FullVerifications() {
@@ -150,21 +151,16 @@ public class EArchivingJobServiceTest {
     }
 
     @Test
-    public void createEventOnNonFinalMessages(@Injectable  EArchiveBatchUserMessage batchUserMessage) {
+    public void createEventOnNonFinalMessages() {
+        String messageId = "someMessageId";
         new Expectations(){{
             userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
-            result =  asList(batchUserMessage);
-
-            batchUserMessage.getMessageId();
-            result = "messageId";
-
-            userMessageLogDao.getMessageStatus(batchUserMessage.getUserMessageEntityId());
-            result = MessageStatus.NOT_FOUND;
+            result = singletonList(new EArchiveBatchUserMessage(123L, messageId, MessageStatus.NOT_FOUND));
         }};
         eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);
 
         new FullVerifications(){{
-            eArchivingEventService.sendEventMessageNotFinal("messageId", MessageStatus.NOT_FOUND);
+            eArchivingEventService.sendEventMessageNotFinal(messageId, MessageStatus.NOT_FOUND);
             times = 1;
         }};
     }

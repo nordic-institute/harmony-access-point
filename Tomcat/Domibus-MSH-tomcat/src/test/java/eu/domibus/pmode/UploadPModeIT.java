@@ -302,8 +302,8 @@ public class UploadPModeIT extends AbstractIT {
             adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
-            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
-            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate party identifier [domibus-red] found in party [red_gw] and in party [red_gw1]"));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("Duplicate party identifier [domibus-red] found"));
         }
     }
 

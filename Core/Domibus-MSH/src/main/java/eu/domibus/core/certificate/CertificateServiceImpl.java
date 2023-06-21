@@ -18,6 +18,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -58,6 +59,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 
@@ -497,7 +499,7 @@ public class CertificateServiceImpl implements CertificateService {
         return KeyStore.getInstance(storeType);
     }
 
-    
+
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore store = getStore(persistenceInfo);
 
@@ -791,9 +793,12 @@ public class CertificateServiceImpl implements CertificateService {
         return entry;
     }
 
-    private String extractFingerprints(final X509Certificate certificate) {
-        if (certificate == null)
+    @Override
+    public String extractFingerprints(final X509Certificate certificate) {
+        if (certificate == null) {
+            LOG.debug("No fingerprint to extract because no certificate provided");
             return null;
+        }
 
         MessageDigest md;
         try {

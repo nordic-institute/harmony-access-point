@@ -889,6 +889,8 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
+
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -1024,6 +1026,13 @@
         </createIndex>
     </changeSet>
     <!--End UserMessage Tables -->
+
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-10924">
+        <sql>
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
+    </changeSet>
 
     <!-- Start Miscellaneous Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Miscellaneous Tables">
@@ -2481,8 +2490,8 @@
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
-            <column name="ERROR_CODE" type="VARCHAR(255)"/>
-            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="DOMIBUS_CODE" type="VARCHAR(255)"/>
+            <column name="MESSAGE" type="VARCHAR(255)"/>
             <column name="MANIFEST_CHECK_SUM" type="VARCHAR(255)"/>
             <column name="BATCH_SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
@@ -2519,7 +2528,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_EARCHIVE_BATCH_ID" baseTableName="TB_EARCHIVEBATCH_UM"
                                  constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
         <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_ID" tableName="TB_EARCHIVEBATCH_UM">
             <column name="FK_USER_MESSAGE_ID"/>
@@ -3038,5 +3047,12 @@
         </createTable>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
     </changeSet>
+
+    <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> <!-- oracle creates index for the unique constraint -->
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+
 
 </databaseChangeLog>

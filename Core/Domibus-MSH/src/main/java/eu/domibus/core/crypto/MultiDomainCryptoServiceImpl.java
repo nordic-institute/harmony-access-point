@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -55,23 +56,28 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     private final KeystorePersistenceService keystorePersistenceService;
 
+    private final ObjectProvider<DomibusCryptoType> domibusCryptoTypes;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusLocalCacheService domibusLocalCacheService,
                                         CertificateHelper certificateHelper,
                                         CertificateService certificateService,
                                         DomainService domainService,
-                                        KeystorePersistenceService keystorePersistenceService) {
+                                        KeystorePersistenceService keystorePersistenceService,
+                                        ObjectProvider<DomibusCryptoType> domibusCryptoTypes) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusLocalCacheService = domibusLocalCacheService;
         this.certificateHelper = certificateHelper;
         this.certificateService = certificateService;
         this.domainService = domainService;
         this.keystorePersistenceService = keystorePersistenceService;
+        this.domibusCryptoTypes = domibusCryptoTypes;
     }
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
-        LOG.debug("Get certificates for domain [{}] and cryptoType [{}]", domain, cryptoType);
+        LOG.debug("Get certificates for domain [{}] and cryptoType [{}]", domain,
+                domibusCryptoTypes.getObject(cryptoType).asString());
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getX509Certificates(cryptoType);
     }

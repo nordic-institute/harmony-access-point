@@ -68,6 +68,12 @@
                                    mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                    mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
                                    mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-migration.ddl.
+## Domibus 5.0.5 (from 5.0.4):
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
+                - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
+                - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-migration.ddl for MySQL or oracle-5.0.4-to-5.0.5-migration.ddl for Oracle)
+### Partitioning only (oracle)
+                - Run as edelivery_user oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"

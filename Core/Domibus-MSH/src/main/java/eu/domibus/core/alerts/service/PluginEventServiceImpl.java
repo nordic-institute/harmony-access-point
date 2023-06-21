@@ -39,7 +39,7 @@ public class PluginEventServiceImpl implements PluginEventService {
     }
 
     public void enqueueMessageEvent(AlertEvent alertEvent) {
-        Event event = new Event(EventType.PLUGIN);
+        Event event = new Event(alertEvent.getEventType());
         for (Map.Entry<String, String> stringStringEntry : alertEvent.getProperties().entrySet()) {
             event.addStringKeyValue(stringStringEntry.getKey(), stringStringEntry.getValue());
         }

@@ -57,6 +57,12 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         }
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKeyContextProperty);
 
+        String pModeKeyContextProperty = (String) message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+        if (StringUtils.isBlank(pModeKeyContextProperty)) {
+            throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode key context property is empty");
+        }
+        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKeyContextProperty);
+
         message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
         message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
     }

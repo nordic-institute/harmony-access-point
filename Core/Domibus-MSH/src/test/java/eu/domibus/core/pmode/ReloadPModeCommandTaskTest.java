@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -36,6 +37,9 @@ public class ReloadPModeCommandTaskTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected DomibusCacheService domibusCacheService;
 
     @Test
     public void canHandle() {

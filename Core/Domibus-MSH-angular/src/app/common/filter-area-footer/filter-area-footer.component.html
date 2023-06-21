@@ -1,4 +1,8 @@
 <div class="searchArea">
+  <div *ngIf="!parent.advancedSearch && parent.getAdvancedSearchParams()" style="margin-bottom: 20px; font-weight: bold">
+    Active filters: {{parent.getAdvancedSearchParams()}}
+  </div>
+
   <button mat-raised-button color="primary" [disabled]="!canSearch()" id="searchbutton_id" button-click-behaviour>
     <mat-icon>search</mat-icon>
     <span>Search</span>
@@ -8,7 +12,7 @@
     <mat-icon>restore</mat-icon>
     <span>Reset</span>
   </button>
+
   <a href="#" *ngIf="isAdvancedVisible && !parent.advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
   <a href="#" *ngIf="parent.advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>
-  <span *ngIf="!parent.advancedSearch && parent.getAdvancedSearchParams()" style="margin-left: 20px;"> Advanced filters: {{parent.getAdvancedSearchParams()}}</span>
 </div>

@@ -20,13 +20,6 @@ import javax.validation.constraints.NotNull;
                 )
         }
 )
-@NamedQueries({
-        @NamedQuery(name = "Lock.findByLockName",
-                query = "select l from LockEntity l where l.lockKey=:LOCK_KEY",
-                lockMode = LockModeType.PESSIMISTIC_WRITE,
-                hints = @QueryHint(name = "javax.persistence.lock.timeout", value = "10000")
-        ),
-})
 public class LockEntity extends AbstractBaseEntity {
 
     @NotNull

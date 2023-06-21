@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
@@ -31,7 +30,7 @@ public class DomibusJMSWebLogicQueueConfiguration {
     @Bean(DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
     public ConnectionFactory cachingConnectionFactory(@Qualifier(DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+        DomibusCachingConnectionFactory cachingConnectionFactory = new DomibusCachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
         cachingConnectionFactory.setSessionCacheSize(sessionCacheSize);

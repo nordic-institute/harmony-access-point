@@ -181,6 +181,14 @@ public interface CertificateService {
     void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
 
     /**
+     * Generates and returns a SHA-256 fingerprint hash from the provided certificate.
+     *
+     * @param certificate the certificate for which to extract the fingerprint
+     * @return the fingerprint of the certificate.
+     */
+    String extractFingerprints(X509Certificate certificate);
+
+    /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
      * If the certificate policy extension is unavailable, returns an empty list.
      *

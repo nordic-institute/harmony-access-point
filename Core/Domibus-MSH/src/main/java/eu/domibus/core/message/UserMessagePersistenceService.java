@@ -40,7 +40,7 @@ public class UserMessagePersistenceService {
     }
 
     @Transactional
-    public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName, UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult) {
+    public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName, UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult, Runnable notifyBackend) {
         messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
 
@@ -79,7 +79,7 @@ public class UserMessagePersistenceService {
             signalMessageLogDao.create(signalMessageLog);
         }
 
-
+        notifyBackend.run();
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PERSISTED);
     }

@@ -102,7 +102,13 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Override
     public void init() {
-        super.init();
+        load();
+    }
+
+    @Override
+    protected void load() {
+        super.load();
+
         LOG.debug("Initialising the dynamic discovery configuration.");
         cachedToPartyId.clear();
         dynamicResponderProcesses = findDynamicResponderProcesses();
@@ -204,7 +210,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
             String cacheKey = getCacheKeyForDynamicDiscovery(userMessage);
             PartyId partyId = cachedToPartyId.get(cacheKey);
-            if (partyId!=null && domibusLocalCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
+            if (partyId != null && domibusLocalCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
                 LOG.debug("Skip ddc lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", cacheKey);
                 userMessage.getPartyInfo().getTo().setToPartyId(partyId);
                 if (userMessage.getPartyInfo().getTo().getToRole() == null) {
@@ -220,10 +226,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     /**
-     *
      * Method lookups and updates pmode configuration and truststore
      *
-     * @param cacheKey cached key matches the key for lookup data
+     * @param cacheKey    cached key matches the key for lookup data
      * @param userMessage - user message which triggered the dynamic discovery search
      * @param candidates  for dynamic discovery
      * @throws EbMS3Exception
@@ -241,6 +246,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final String receiverURL = endpointInfo.getAddress();
         setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
     }
+
     /**
      * Method returns cache key for dynamic discovery lookup.
      *
@@ -430,9 +436,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             userMessage.getPartyInfo().getTo().setToRole(partyRole);
         }
 
-        LOG.debug("Add public certificate to the truststore");
-        multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, cn, true);
-        LOG.debug("Certificate added");
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, cn, true);
+        if (added) {
+            LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
+        }
         return receiverParty;
     }
 

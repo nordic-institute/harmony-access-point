@@ -41,8 +41,8 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
         testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
-        testEntity.setErrorCode("DOM10");
-        testEntity.setErrorMessage("Error message: " + UUID.randomUUID());
+        testEntity.setDomibusCode("DOM10");
+        testEntity.setMessage("Error message: " + UUID.randomUUID());
         testEntity.setFirstPkUserMessage(10L);
         testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
@@ -54,8 +54,8 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
         Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
         Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
-        Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
-        Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
+        Assert.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
+        Assert.assertEquals(testEntity.getMessage(), result.getMessage());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
         Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
         Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
@@ -75,8 +75,8 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
         testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
-        testEntity.setErrorCode("DOM10");
-        testEntity.setErrorMessage("Error message: " + UUID.randomUUID());
+        testEntity.setDomibusCode("DOM10");
+        testEntity.setMessage("Message: " + UUID.randomUUID());
         testEntity.setFirstPkUserMessage(10L);
         testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
@@ -89,8 +89,8 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
         Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
         Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
-        Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
-        Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
+        Assert.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
+        Assert.assertEquals(testEntity.getMessage(), result.getMessage());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
         Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
         Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());

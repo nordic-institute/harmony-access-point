@@ -56,7 +56,7 @@ public class CertificateHelperTest extends TestCase {
             certificateHelper.validateStoreType(JKS, "test_filename_no_extension");
             Assert.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertEquals(true, e.getMessage().contains(JKS));
+            assertEquals(true, e.getMessage().contains("Store file extension is empty"));
         }
     }
 

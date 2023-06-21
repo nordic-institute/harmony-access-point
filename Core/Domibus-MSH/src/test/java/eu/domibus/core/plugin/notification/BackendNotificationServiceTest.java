@@ -2,6 +2,7 @@ package eu.domibus.core.plugin.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
@@ -128,6 +129,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     MessagingModuleConfiguration messageCommunicationConfiguration;
+
+    @Injectable
+    protected MetricRegistry metricRegistry;
 
     @Injectable
     TestMessageValidator testMessageValidator;
@@ -1452,7 +1456,7 @@ public class BackendNotificationServiceTest {
         long messageEntityId = 1L;
         backendNotificationService.notifyAsync(messageEvent, asyncNotificationConfiguration, MSHRole.SENDING, notificationType, properties);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 

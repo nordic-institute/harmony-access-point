@@ -14,4 +14,6 @@ public interface EArchiveFileStorageProvider extends DomainsAware {
     EArchiveFileStorage forDomain(Domain domain);
 
     EArchiveFileStorage getCurrentStorage();
+
+    void reset(Domain domain);
 }

@@ -4,9 +4,13 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
 import eu.domibus.api.plugin.BackendConnectorService;
+import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.common.NotificationType;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
+import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
@@ -15,7 +19,9 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -23,7 +29,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
+import mockit.Injectable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -33,12 +42,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jms.UncategorizedJmsException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.Queue;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -115,6 +128,18 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected PayloadFileStorageProvider payloadFileStorageProvider;
 
+    @Autowired
+    protected BackendConnectorHelper backendConnectorHelper;
+
+    @Autowired
+    protected PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
+
+    @Injectable
+    private Queue queue;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -149,6 +174,43 @@ public class MshWebServiceTestIT extends AbstractIT {
         assertEquals(firstReceipt, secondReceipt);
 
         messageRetentionService.deleteAllMessages();
+    }
+
+    @Test
+    public void testAsyncNotifInError() throws Exception {
+        Object saveField = ReflectionTestUtils.getField(backendNotificationService, "jmsManager");
+        ReflectionTestUtils.setField(backendNotificationService, "jmsManager", new JMSManagerImpl() {
+            public void sendMessageToQueue(JmsMessage message, Queue destination) {
+                throw new UncategorizedJmsException("Expected Jms Error");
+            }
+        });
+
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(backendConnector)).thenReturn(Arrays.asList(NotificationType.MESSAGE_RECEIVED));
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+        Mockito.when(backendFilter.getBackendName()).thenReturn("jmsPlugin");
+        Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(new BackendConnectorMock("jmsPlugin"));
+        Mockito.when(pluginAsyncNotificationConfiguration.getQueueName()).thenReturn("notificationQueue");
+        Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(queue);
+
+        String filename = "SOAPMessage2.xml";
+        String messageId = UUID.randomUUID() + "@domibus.eu";
+        try {
+
+            mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage(filename, messageId));
+            fail();
+        } catch (RuntimeException e) {
+            //do nothing
+        } catch (Exception e) {
+            //do nothing
+        }
+
+        UserMessageLog byMessageId = userMessageLogService.findByMessageId(messageId);
+
+        assertNull(byMessageId);
+        ReflectionTestUtils.setField(backendNotificationService, "jmsManager", saveField);
     }
 
     @Transactional

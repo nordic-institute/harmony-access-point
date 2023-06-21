@@ -79,8 +79,8 @@
                               <td valign="top" align="left" style=" font-size: 13px; font-family: Arial, Helvetica, sans-serif; color: #000;"><br/>
                                 <br/>
                                 <p><strong>Message id:</strong> ${MESSAGE_ID}</p>
-                                <p><strong>From party:</strong> ${FROM_PARTY!""}</p>
-                                <p><strong>To party:</strong> ${TO_PARTY!""}</p>
+                                <p><strong>From party:</strong> ${FROM_PARTY!"Not found. User message from party was " + USER_MESSAGE_FROM_PARTY}</p>
+                                <p><strong>To party:</strong> ${TO_PARTY!"Not found. User message to party was " + USER_MESSAGE_TO_PARTY}</p>
                                 <p><strong>Old status:</strong> ${OLD_STATUS}</p>
                                 <p><strong>New status:</strong> ${NEW_STATUS}</p>
                                 <p><strong>Alert level:</strong> ${ALERT_LEVEL}</p>
