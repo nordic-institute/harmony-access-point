@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import com.codahale.metrics.MetricRegistry;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
@@ -57,7 +56,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
@@ -74,7 +73,6 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
-    public static final String HASH_SIGN = "#";
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -165,38 +163,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected MetricRegistry metricRegistry;
-
-    @Autowired
-    protected MetricRegistry metricRegistry;
-
-    @Transactional
-    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
-    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
-    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
-        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-
-        final boolean sourceMessage = userMessage.isSourceMessage();
-        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                backendName);
-        if (!sourceMessage) {
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
-        }
-    }
-
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
-        if (MessageStatus.READY_TO_PULL != messageStatus) {
-            // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
-        }
-    }
-
-    private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
-    }
 
     @Override
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
@@ -367,10 +333,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .build();
         }
 
-        persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
-
         try {
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+            persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult, () -> notifyMessageReceived(userMessage, messageId, matchingBackendFilter, backendName));
         } catch (PluginMessageReceiveException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -386,6 +350,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
             splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
         }
+    }
+
+    private void notifyMessageReceived(UserMessage userMessage, String messageId, BackendFilter matchingBackendFilter, String backendName) throws PluginMessageReceiveException {
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
     }
 
     /**

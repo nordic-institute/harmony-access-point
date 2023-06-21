@@ -1,13 +1,13 @@
 package eu.domibus.core.message;
 
 import com.codahale.metrics.MetricRegistry;
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3PartInfo;
 import eu.domibus.api.ebms3.model.Ebms3PartProperties;
 import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
@@ -15,10 +15,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.Reliability;
-import eu.domibus.common.model.configuration.ReplyPattern;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -48,7 +45,6 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.plugin.exception.PluginMessageReceiveException;
-import eu.domibus.plugin.validation.SubmissionValidationException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -62,11 +58,12 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashSet;
 
 import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
 import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Dussart

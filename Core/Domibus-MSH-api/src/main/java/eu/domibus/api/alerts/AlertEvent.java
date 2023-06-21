@@ -1,12 +1,8 @@
 package eu.domibus.api.alerts;
 
-import eu.domibus.core.alerts.model.common.EventType;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static eu.domibus.core.alerts.model.common.EventType.PLUGIN;
 
 /**
  * @author François Gautier
@@ -17,7 +13,6 @@ public class AlertEvent {
     private String name;
     private String emailSubject;
     private String emailBody;
-    private EventType eventType = PLUGIN;
     private Map<String, String> properties = new HashMap<>(); //NOSONAR
 
     public AlertLevel getAlertLevel() {
@@ -64,11 +59,4 @@ public class AlertEvent {
         this.properties.put(key, value);
     }
 
-    public EventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
 }

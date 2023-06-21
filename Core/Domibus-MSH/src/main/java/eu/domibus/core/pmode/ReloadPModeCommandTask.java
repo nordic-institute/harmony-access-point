@@ -1,12 +1,12 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,13 +27,13 @@ public class ReloadPModeCommandTask implements CommandTask {
     protected PModeProvider pModeProvider;
     protected MultiDomainCryptoService multiDomainCryptoService;
     protected DomainContextProvider domainContextProvider;
-    protected DomibusCacheService domibusCacheService;
+    protected DomibusLocalCacheService domibusLocalCacheService;
 
-    public ReloadPModeCommandTask(PModeProvider pModeProvider, MultiDomainCryptoService multiDomainCryptoService, DomainContextProvider domainContextProvider, DomibusCacheService domibusCacheService) {
+    public ReloadPModeCommandTask(PModeProvider pModeProvider, MultiDomainCryptoService multiDomainCryptoService, DomainContextProvider domainContextProvider, DomibusLocalCacheService domibusLocalCacheService) {
         this.pModeProvider = pModeProvider;
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainContextProvider = domainContextProvider;
-        this.domibusCacheService = domibusCacheService;
+        this.domibusLocalCacheService = domibusLocalCacheService;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ReloadPModeCommandTask implements CommandTask {
     public void execute(Map<String, String> properties) {
         LOGGER.debug("Reloading PMode command");
 
-        domibusCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
+        domibusLocalCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         pModeProvider.refresh();
         multiDomainCryptoService.resetTrustStore(currentDomain);

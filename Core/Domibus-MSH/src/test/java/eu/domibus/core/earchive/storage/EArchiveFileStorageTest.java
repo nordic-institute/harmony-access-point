@@ -4,15 +4,12 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.FileSystemUtil;
-import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Tested;
 import mockit.Verifications;
 import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.file.Path;
 
@@ -41,9 +38,7 @@ public class EArchiveFileStorageTest {
         domibusPropertyProvider = mock(DomibusPropertyProvider.class);
         fileSystemUtil = mock(FileSystemUtil.class);
 
-        eArchiveFileStorage = new EArchiveFileStorage(domain);
-        ReflectionTestUtils.setField(eArchiveFileStorage, "domibusPropertyProvider", domibusPropertyProvider);
-        ReflectionTestUtils.setField(eArchiveFileStorage, "fileSystemUtil", fileSystemUtil);
+        eArchiveFileStorage = new EArchiveFileStorage(domain, domibusPropertyProvider, fileSystemUtil);
     }
 
     @Test

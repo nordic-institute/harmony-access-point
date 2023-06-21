@@ -68,7 +68,13 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         String messageId = "notFound";
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
 
-        webServicePluginInterface.getMessageErrors(errorsRequest);
+        ErrorResultImplArray response = null;
+        try {
+            response = webServicePluginInterface.getMessageErrors(errorsRequest);
+            Assert.fail();
+        } catch (GetMessageErrorsFault e) {
+            //OK
+        }
     }
 
     private GetErrorsRequest createMessageErrorsRequest(final String messageId) {

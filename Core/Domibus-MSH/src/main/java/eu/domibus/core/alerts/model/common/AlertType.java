@@ -49,6 +49,7 @@ public enum AlertType {
     ARCHIVING_MESSAGE_EXPORT_FAILED("archiving_message_export_failed.ftl", DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_PREFIX),
 
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, AlertCategory.WITH_FREQUENCY, PartitionConfigurationManager.class),
+    OLD_ONGOING_MESSAGES("plugin.ftl", "NA"), // TODO Francois GAUTIER 21/06/2023 EDELIVERY-11342 title "Ongoing messages not processed anymore"
 
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX, AlertCategory.WITH_FREQUENCY,
             ConnectionMonitoringFailedConfigurationManager.class);

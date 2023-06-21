@@ -48,10 +48,8 @@ public class PartyIdentifierValidator implements PModeValidator {
             validateForbiddenCharactersInParty(issues, party);
         });
 
-        allParties.forEach(party -> {
-            issues.addAll(validateDuplicatePartyNameInAllParties(party, allParties));
-            issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
-        });
+        issues.addAll(validateDuplicateIdentifiersInAllParties(allParties));
+
         return issues;
     }
 

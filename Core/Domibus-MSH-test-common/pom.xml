@@ -61,6 +61,19 @@
         </dependency>
         <!-- End Domibus modules -->
 
+        <!-- maven enforcer -->
+        <dependency>
+            <groupId>org.apache.maven.enforcer</groupId>
+            <artifactId>enforcer-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- maven enforcer -->
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>

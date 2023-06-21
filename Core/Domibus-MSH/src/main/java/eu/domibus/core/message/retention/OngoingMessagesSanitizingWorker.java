@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -97,7 +96,7 @@ public class OngoingMessagesSanitizingWorker  extends DomibusQuartzJobBean {
         alertEvent.setEmailBody(body.replace("{" + MESSAGES + "}", messageIds));
         alertEvent.setEmailSubject(subject);
         alertEvent.setName(subject);
-        alertEvent.setEventType(EventType.OLD_ONGOING_MESSAGES);
+        //alertEvent.setEventType(EventType.OLD_ONGOING_MESSAGES); // TODO Francois GAUTIER 21/06/2023 EDELIVERY-11342
 
         pluginEventService.enqueueMessageEvent(alertEvent);
     }

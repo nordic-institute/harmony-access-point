@@ -3,7 +3,6 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -152,7 +151,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         List<DatabasePartition> partitions;
         if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
-            partitions = userMessageDao.findAllPartitions(domainService.getDatabaseSchema(currentDomain));
+            partitions = userMessageDao.findAllPartitions(dbSchemaUtil.getDatabaseSchema(currentDomain));
         } else {
             partitions = userMessageDao.findAllPartitions();
         }

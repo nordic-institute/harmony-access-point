@@ -21,7 +21,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -31,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_NOTIFICATION_URL;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED;
 
 /**
@@ -97,10 +97,10 @@ public class EArchiveNotificationListener implements MessageListener {
 
         try {
             if (notificationType == EArchiveBatchStatus.FAILED) {
-                getEarchivingClientApi().putStaleNotification(notification, eArchiveBatch.getBatchId());
+                getEArchivingClientApi().putStaleNotification(notification, eArchiveBatch.getBatchId());
             }
             if (notificationType == EArchiveBatchStatus.EXPORTED) {
-                getEarchivingClientApi().putExportNotification(notification, eArchiveBatch.getBatchId());
+                getEArchivingClientApi().putExportNotification(notification, eArchiveBatch.getBatchId());
             }
         } catch (HttpServerErrorException | HttpClientErrorException ex) {
             LOG.warn("Notifying the eArchive client at [{}] failed: the remote server returned an error [{}]", domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL), ex.getStatusCode());

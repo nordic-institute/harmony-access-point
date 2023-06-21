@@ -1,10 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
-import eu.domibus.api.model.ActionEntity;
-import eu.domibus.api.model.DatabasePartition;
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;

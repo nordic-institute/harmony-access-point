@@ -31,8 +31,10 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
@@ -229,13 +231,6 @@ public class BackendNotificationService {
             createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
     }
-
-    protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
-        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
-        messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
-        backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
-    }
-
     protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> messageIds = userMessageLogs
                 .stream()
@@ -244,18 +239,6 @@ public class BackendNotificationService {
                 .collect(toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
         return messageIds;
-    }
-
-    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
-        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getProperties());
-    }
-
-    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Map<String, String> properties) {
-        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-        messageDeletedEvent.setMessageId(messageId);
-        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
-        return messageDeletedEvent;
     }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
