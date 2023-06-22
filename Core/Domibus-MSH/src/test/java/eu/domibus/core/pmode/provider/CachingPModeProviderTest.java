@@ -292,6 +292,9 @@ public class CachingPModeProviderTest {
     public void testRefresh() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations() {{
+            cachingPModeProvider.configurationDAO.configurationExists();
+            result = true;
+
             cachingPModeProvider.configurationDAO.readEager();
             result = configuration;
         }};

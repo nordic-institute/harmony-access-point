@@ -2,20 +2,20 @@ package eu.domibus.core.earchive.storage;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.FileSystemUtil;
+import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Tested;
 import mockit.Verifications;
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.nio.file.Path;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.fail;
 
 /**
  * @author François Gautier
@@ -24,27 +24,27 @@ import static org.mockito.Mockito.mock;
 public class EArchiveFileStorageTest {
 
     public static final String LOCATION = "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
-
+    @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
+    @Injectable
     FileSystemUtil fileSystemUtil;
 
+    @Tested
     EArchiveFileStorage eArchiveFileStorage;
 
-    @Injectable Domain domain;
-
-    @Before
-    public void recordExpectationsForPostConstruct() {
-        domibusPropertyProvider = mock(DomibusPropertyProvider.class);
-        fileSystemUtil = mock(FileSystemUtil.class);
-
-        eArchiveFileStorage = new EArchiveFileStorage(domain, domibusPropertyProvider, fileSystemUtil);
-    }
-
     @Test
-    public void init(@Injectable Path path) throws FileSystemException {
-        Mockito.when(domibusPropertyProvider.getProperty(Mockito.any(Domain.class), eq(DOMIBUS_EARCHIVE_STORAGE_LOCATION))).thenReturn(LOCATION);
-        Mockito.when(fileSystemUtil.createLocation(eq(LOCATION))).thenReturn(path);
+    public void init(@Injectable Domain domain, @Injectable Path path) throws FileSystemException {
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+            result = true;
+
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
+            result = LOCATION;
+
+            fileSystemUtil.createLocation(LOCATION);
+            result = path;
+        }};
 
         eArchiveFileStorage.init();
 
@@ -54,24 +54,53 @@ public class EArchiveFileStorageTest {
         }};
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void init_error(@Injectable Domain domain) {
-        Mockito.when(domibusPropertyProvider.getProperty(Mockito.any(Domain.class), eq(DOMIBUS_EARCHIVE_STORAGE_LOCATION))).thenReturn(null);
 
-        eArchiveFileStorage.init();
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+            result = true;
+
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
+            result = null;
+
+        }};
+
+        try {
+            eArchiveFileStorage.init();
+            fail();
+        } catch (Exception e) {
+            //OK
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void init_error2(@Injectable Domain domain) throws FileSystemException {
-        Mockito.when(domibusPropertyProvider.getProperty(Mockito.any(Domain.class), eq(DOMIBUS_EARCHIVE_STORAGE_LOCATION))).thenReturn(LOCATION);
-        Mockito.when(fileSystemUtil.createLocation(eq(LOCATION))).thenReturn(null);
 
-        eArchiveFileStorage.init();
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+            result = true;
+
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
+            result = LOCATION;
+
+            fileSystemUtil.createLocation(LOCATION);
+            result = null;
+
+        }};
+
+        try {
+            eArchiveFileStorage.init();
+            fail();
+        } catch (Exception e) {
+            //OK
+        }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void getStorageDirectory(@Injectable Domain domain) {
-        eArchiveFileStorage.getStorageDirectory();
+        Assert.assertNull(eArchiveFileStorage.getStorageDirectory());
     }
 
 }

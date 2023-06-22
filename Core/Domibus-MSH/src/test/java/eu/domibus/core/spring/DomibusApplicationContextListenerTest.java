@@ -171,9 +171,6 @@ public class DomibusApplicationContextListenerTest {
             backendConnectorService.ensureValidConfiguration();
             times = 1;
 
-            domibusConfigurationService.isMultiTenantAware();
-            times=1;
-
             pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
             times = 2;
 

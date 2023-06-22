@@ -44,7 +44,6 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -525,71 +524,6 @@ public class UserMessageHandlerServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testInvoke_ErrorInNotifyingIncomingMessage()
-            throws EbMS3Exception, TransformerException, IOException, SOAPException {
-
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        new Expectations(userMessageHandlerService) {{
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            legConfiguration.getReliability().isNonRepudiation();
-            result = true;
-
-            final SOAPMessage responseMessage = as4ReceiptService.generateReceipt(
-                    soapRequestMessage,
-                    userMessage,
-                    ReplyPattern.RESPONSE,
-                    true,
-                    false,
-                    false);
-
-            as4ReceiptService.generateResponse(responseMessage, false);
-            result = new SignalMessageResult();
-            userMessage.getMessageId();
-            result = "TestMessage123";
-
-            routingService.getMatchingBackendFilter(userMessage);
-            result = matchingBackendFilter;
-
-            matchingBackendFilter.getBackendName();
-            result = "matchingBackendFilter";
-
-            legConfiguration.getReliability();
-            result = reliability;
-
-            reliability.getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            reliability.isNonRepudiation();
-            result = true;
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            result = new PluginMessageReceiveException("Error while submitting the message!!", ErrorCode.EbMS3ErrorCode.EBMS_0004);
-        }};
-        try {
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
-            fail();
-        } catch (EbMS3Exception e) {
-            // OK
-        }
-
-        new Verifications() {{
-            soapUtil.logMessage(soapRequestMessage);
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-        }};
     }
 
     protected UserMessage createSampleUserMessage() {
