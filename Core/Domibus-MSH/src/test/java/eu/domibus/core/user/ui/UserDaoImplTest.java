@@ -1,5 +1,6 @@
 package eu.domibus.core.user.ui;
 
+import eu.domibus.api.security.AuthRole;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -188,14 +189,12 @@ public class UserDaoImplTest {
 
     @Test
     public void findByRole() {
-        final String username = "admin";
-
         new Expectations() {{
             entityManager.createNamedQuery("User.findByRoleName", User.class);
             result = namedQuery;
         }};
 
-        userDao.findByRole(username);
+        userDao.findByRole(AuthRole.ROLE_ADMIN);
 
         new Verifications() {{
             namedQuery.getResultList().stream().collect(Collectors.toList());

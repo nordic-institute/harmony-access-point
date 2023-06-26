@@ -7,8 +7,13 @@
     <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="idragusa" id="Partition tables" dbms="oracle">
-        <sql>
-            ALTER TABLE TB_USER_MESSAGE MODIFY PARTITION BY RANGE (ID_PK) (PARTITION P1970 VALUES LESS THAN (190000000000000000), PARTITION P230000 VALUES LESS THAN (230000000000000000)) UPDATE INDEXES ( IDX_USER_MSG_MESSAGE_ID	LOCAL, IDX_USER_MSG_ACTION_ID LOCAL, IDX_USER_MSG_AGREEMENT_ID LOCAL, IDX_USER_MSG_SERVICE_ID LOCAL, IDX_USER_MSG_MPC_ID LOCAL, IDX_FROM_ROLE_ID LOCAL, IDX_USER_MSG_TO_PARTY_ID LOCAL, IDX_TO_ROLE_ID LOCAL, IDX_USER_MSG_FROM_PARTY_ID LOCAL, IDX_TEST_MESSAGE LOCAL );
+        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures.sql" endDelimiter="\n/"/>
+
+        <!-- creates partitions for existing data on TB_USER_MESSAGE table -->
+        <sql endDelimiter="\n/">
+            BEGIN
+            PARTITION_TB_USER_MESSAGE();
+            END;
         </sql>
 
         <sql>
@@ -48,7 +53,7 @@
         </sql>
 
         <sql>
-            ALTER TABLE TB_SIGNAL_MESSAGE MODIFY PARTITION BY REFERENCE ( FK_TB_SIGNAL_USER_MSG ) UPDATE INDEXES ( IDX_SIG_MESS_REF_TO_MESS_ID LOCAL, IDX_SIG_MESS_SIGNAL_MESS_ID LOCAL );
+            ALTER TABLE TB_SIGNAL_MESSAGE MODIFY PARTITION BY REFERENCE ( FK_TB_SIGNAL_USER_MSG ) UPDATE INDEXES ( IDX_SIG_MESS_REF_TO_MESS_ID LOCAL);
         </sql>
 
         <sql>
@@ -75,7 +80,6 @@
             ALTER TABLE TB_USER_MESSAGE SET INTERVAL (10000000000);
         </sql>
 
-        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures.sql" endDelimiter="\n/"/>
     </changeSet>
 
 </databaseChangeLog>

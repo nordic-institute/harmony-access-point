@@ -73,7 +73,6 @@ public class Process extends AbstractBaseEntity {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_PM_JOIN_PROCESS_RESP_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
     private Set<Party> responderParties;
-
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_PM_JOIN_PROCESS_LEG", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "LEG_FK"))
@@ -288,5 +287,9 @@ public class Process extends AbstractBaseEntity {
 
     public void setResponderPartiesXml(ResponderParties responderPartiesXml) {
         this.responderPartiesXml = responderPartiesXml;
+    }
+
+    public void setLegs(Set<LegConfiguration> legs) {
+        this.legs = legs;
     }
 }

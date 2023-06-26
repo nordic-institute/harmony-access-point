@@ -11,19 +11,17 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DAYS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -65,21 +63,31 @@ public class EArchivingRetentionService {
     @Timer(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
     @Counter(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
     public void cleanStoredBatches() {
+        final Boolean eArchiveActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+        if (!eArchiveActive) {
+            LOG.debug("eArchiving is not enabled for current domain, so no storage cleaning.");
+            return;
+        }
+
         final Integer maxBatchesToDelete = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX);
 
-        List<EArchiveBatchStatus> eligibleStatuses = Arrays.asList(
-                EArchiveBatchStatus.EXPIRED,
+        Set<EArchiveBatchStatus> eligibleStatuses = EnumSet.of(EArchiveBatchStatus.EXPIRED,
                 EArchiveBatchStatus.ARCHIVED,
                 EArchiveBatchStatus.ARCHIVE_FAILED,
                 EArchiveBatchStatus.FAILED);
-        List<EArchiveBatchEntity> batches = eArchiveBatchDao.findBatchesByStatus(eligibleStatuses, maxBatchesToDelete);
 
+        final Boolean deleteFromDB = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_DB);
+        if (deleteFromDB) {
+            // for getting old, not-deleted batches from db (when deleteFromDB was false)
+            eligibleStatuses.add(EArchiveBatchStatus.DELETED);
+        }
+        List<EArchiveBatchEntity> batches = eArchiveBatchDao.findBatchesByStatus(new ArrayList<>(eligibleStatuses), maxBatchesToDelete);
         LOG.debug("[{}] batches eligible for deletion found", batches.size());
 
-        batches.forEach(this::deleteBatch);
+        batches.forEach((batch) -> deleteBatch(batch, deleteFromDB));
     }
 
-    protected void deleteBatch(EArchiveBatchEntity batch) {
+    protected void deleteBatch(EArchiveBatchEntity batch, Boolean deleteFromDB) {
         com.codahale.metrics.Timer.Context metricDeleteBatch = metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time();
 
         LOG.debug("Deleting eArchive structure for batchId [{}]", batch.getBatchId());
@@ -87,8 +95,17 @@ public class EArchivingRetentionService {
         LOG.debug("Clean folder [{}]", folderToClean);
 
         try {
-            FileUtils.deleteDirectory(folderToClean.toFile());
-            eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
+            if (batch.getEArchiveBatchStatus() != EArchiveBatchStatus.DELETED) {
+                LOG.debug("Deleting eArchive files from disk [{}]", folderToClean);
+                FileUtils.deleteDirectory(folderToClean.toFile());
+            }
+            if (deleteFromDB) {
+                LOG.debug("Deleting physically batch [{}] from the database", batch.getBatchId());
+                eArchiveBatchDao.delete(batch);
+            } else {
+                LOG.debug("Marking as deleted the batch [{}]", batch.getBatchId());
+                eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
+            }
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
         }

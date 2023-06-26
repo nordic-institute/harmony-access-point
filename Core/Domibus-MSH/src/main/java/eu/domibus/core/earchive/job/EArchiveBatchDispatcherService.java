@@ -60,11 +60,11 @@ public class EArchiveBatchDispatcherService {
     public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
         LOG.debug("start eArchive batch for domain [{}] and of type [{}]", domain, eArchiveRequestType);
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
-
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             LOG.debug("eArchiving is not enabled");
             return;
         }
+
         EArchiveBatchStart continuousStartDate = eArchivingJobService.getContinuousStartDate(eArchiveRequestType);
         Long lastEntityIdProcessed = continuousStartDate.getLastPkUserMessage();
         Long newLastEntityIdProcessed = lastEntityIdProcessed;

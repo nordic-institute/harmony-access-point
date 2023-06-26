@@ -76,9 +76,6 @@ public class UserManagementServiceImpl implements UserService {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    DomainService domainService;
-
-    @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
@@ -244,12 +241,16 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     protected void ensureAtLeastOneActiveAdmin() {
-        AuthRole role = getAdminRole();
-        List<User> users = userDao.findByRole(role.toString());
-        long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
-        if (count == 0) {
+        if (!hasAtLeastOneActiveAdmin()) {
             throw new AtLeastOneAdminException();
         }
+    }
+
+    protected boolean hasAtLeastOneActiveAdmin() {
+        AuthRole role = getAdminRole();
+        List<User> users = userDao.findByRole(role);
+        long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
+        return count > 0;
     }
 
     /**
@@ -294,30 +295,26 @@ public class UserManagementServiceImpl implements UserService {
             return;
         }
 
-        // super if multi, admin if single
-        String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
-
-        // check already exists
-        try {
-            userSecurityPolicyManager.validateUniqueUser(userName);
-        } catch (UserManagementException ex) {
-            LOG.info("User [{}] already exists; exiting.", userName);
+        // check already exists an active admin user
+        if (hasAtLeastOneActiveAdmin()) {
+            LOG.info("A user with role [{}] already exists; exiting.", getAdminRole());
             return;
         }
 
-        // create api user
-        createDefaultUser(userName);
+        String userName = getDefaultUserName();
+        eu.domibus.api.user.User user = createDefaultUser(userName);
+
+        userPersistenceService.updateUsers(Arrays.asList(user));
     }
 
-    protected void createDefaultUser(String userName) {
+    protected eu.domibus.api.user.User createDefaultUser(String userName) {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
 
         user.setUserName(userName);
         user.setStatus(UserState.NEW.name());
 
-        // AP_ADMIN if multi, ADMIN if single
-        String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
-        user.setAuthorities(Arrays.asList(userRole));
+        AuthRole userRole = getAdminRole();
+        user.setAuthorities(Arrays.asList(userRole.name()));
 
         // need to set the hasDefaultPassword property
         user.setDefaultPassword(true);
@@ -326,13 +323,9 @@ public class UserManagementServiceImpl implements UserService {
         // generate password as guid
         String password = getPassword();
         user.setPassword(password);
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            user.setDomain(domainService.DEFAULT_DOMAIN.getCode());
-        }
-
-        userPersistenceService.updateUsers(Arrays.asList(user));
-
         LOG.info("Default password for user [{}] is [{}].", userName, password);
+
+        return user;
     }
 
     private String getPassword() {
@@ -384,5 +377,9 @@ public class UserManagementServiceImpl implements UserService {
 
     protected AuthRole getAdminRole() {
         return AuthRole.ROLE_ADMIN;
+    }
+
+    protected String getDefaultUserName() {
+        return "admin";
     }
 }

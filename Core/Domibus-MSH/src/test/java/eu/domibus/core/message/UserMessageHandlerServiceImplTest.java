@@ -1,6 +1,9 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.model.*;
+import com.codahale.metrics.MetricRegistry;
+import eu.domibus.api.ebms3.model.Ebms3PartInfo;
+import eu.domibus.api.ebms3.model.Ebms3PartProperties;
+import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
@@ -41,8 +44,6 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.plugin.exception.PluginMessageReceiveException;
-import eu.domibus.plugin.validation.SubmissionValidationException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -57,11 +58,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashSet;
 
 import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
 import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Dussart
@@ -229,6 +230,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Injectable
     protected Party to;
+    @Injectable
+    protected MetricRegistry metricRegistry;
+
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";
@@ -318,7 +322,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "1234";
 
-            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "backEndName", null);
+            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "backEndName", null, (Runnable) any);
             result = "persist";
 
         }};
@@ -446,7 +450,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "", null);
+            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "", null, () -> {});
             fail();
         } catch (Exception e) {
             Assert.assertTrue("Expecting Ebms3 exception", e instanceof EbMS3Exception);
@@ -473,7 +477,7 @@ public class UserMessageHandlerServiceImplTest {
             result = "TestMessageId123";
         }};
         try {
-            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "", null);
+            userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "", null, () -> {});
             fail("Exception for compression failure expected!");
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getErrorCode());
@@ -520,71 +524,6 @@ public class UserMessageHandlerServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testInvoke_ErrorInNotifyingIncomingMessage()
-            throws EbMS3Exception, TransformerException, IOException, SOAPException {
-
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        new Expectations(userMessageHandlerService) {{
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            legConfiguration.getReliability().isNonRepudiation();
-            result = true;
-
-            final SOAPMessage responseMessage = as4ReceiptService.generateReceipt(
-                    soapRequestMessage,
-                    userMessage,
-                    ReplyPattern.RESPONSE,
-                    true,
-                    false,
-                    false);
-
-            as4ReceiptService.generateResponse(responseMessage, false);
-            result = new SignalMessageResult();
-            userMessage.getMessageId();
-            result = "TestMessage123";
-
-            routingService.getMatchingBackendFilter(userMessage);
-            result = matchingBackendFilter;
-
-            matchingBackendFilter.getBackendName();
-            result = "matchingBackendFilter";
-
-            legConfiguration.getReliability();
-            result = reliability;
-
-            reliability.getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            reliability.isNonRepudiation();
-            result = true;
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            result = new PluginMessageReceiveException("Error while submitting the message!!", ErrorCode.EbMS3ErrorCode.EBMS_0004);
-        }};
-        try {
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
-            fail();
-        } catch (EbMS3Exception e) {
-            // OK
-        }
-
-        new Verifications() {{
-            soapUtil.logMessage(soapRequestMessage);
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-        }};
     }
 
     protected UserMessage createSampleUserMessage() {
@@ -691,7 +630,7 @@ public class UserMessageHandlerServiceImplTest {
 
         new Expectations(userMessageHandlerService) {{
 
-            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, null, null);
+            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, null, null, (Runnable) any);
             result = "received";
         }};
 
@@ -716,7 +655,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null);
+            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getErrorCode());
@@ -755,7 +694,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null);
+            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
@@ -799,7 +738,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null);
+            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());

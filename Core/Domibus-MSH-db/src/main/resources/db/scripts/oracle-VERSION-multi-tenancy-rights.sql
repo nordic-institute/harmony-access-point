@@ -32,9 +32,9 @@ BEGIN
             )
         THEN
             sql_stmt := 'GRANT SELECT, UPDATE, INSERT, DELETE ON '
-            || DOMAIN_SCHEMA || '.'
+            || DOMAIN_SCHEMA || '."'
             || t.object_name
-            || ' TO ' || GENERAL_SCHEMA;
+            || '" TO ' || GENERAL_SCHEMA;
             EXECUTE IMMEDIATE sql_stmt;
             DBMS_OUTPUT.PUT_LINE(sql_stmt);
         ELSIF
@@ -44,9 +44,9 @@ BEGIN
             )
         THEN
             sql_stmt := 'GRANT SELECT ON '
-            || DOMAIN_SCHEMA || '.'
+            || DOMAIN_SCHEMA || '."'
             || t.object_name
-            || ' TO ' || GENERAL_SCHEMA;
+            || '" TO ' || GENERAL_SCHEMA;
             EXECUTE IMMEDIATE sql_stmt;
             DBMS_OUTPUT.PUT_LINE(sql_stmt);
         ELSIF
@@ -55,9 +55,9 @@ BEGIN
             )
         THEN
             sql_stmt := 'GRANT EXECUTE ON '
-            || DOMAIN_SCHEMA || '.'
+            || DOMAIN_SCHEMA || '."'
             || t.object_name
-            || ' TO ' || GENERAL_SCHEMA;
+            || '" TO ' || GENERAL_SCHEMA;
             EXECUTE IMMEDIATE sql_stmt;
             DBMS_OUTPUT.PUT_LINE(sql_stmt);
         END IF;

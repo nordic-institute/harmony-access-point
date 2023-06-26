@@ -13,13 +13,13 @@
         </schema>
     </wsdl:types>
 
-    <wsdl:message name="submitMessage">
+    <wsdl:message name="submitRequest">
         <wsdl:part element="tns:submitRequest" name="submitRequest"/>
         <wsdl:part element="tns:Messaging" name="headerInfo"/>
     </wsdl:message>
-    <wsdl:message name="submitMessageResponse"/>
-    <wsdl:message name="submitMessageFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="submitMessageFault"/>
+    <wsdl:message name="submitRequestResponse"/>
+    <wsdl:message name="submitRequestFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="submitRequestFault"/>
     </wsdl:message>
 
     <wsdl:message name="sendSuccess">
@@ -78,12 +78,12 @@
     </wsdl:message>
 
     <wsdl:portType name="BackendInterface">
-        <wsdl:operation name="submitMessage">
-            <wsdl:input message="tns:submitMessage" name="submitRequest">
+        <wsdl:operation name="submitRequest">
+            <wsdl:input message="tns:submitRequest" name="submitRequest">
             </wsdl:input>
-            <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse">
+            <wsdl:output message="tns:submitRequestResponse" name="submitRequestResponse">
             </wsdl:output>
-            <wsdl:fault message="tns:submitMessageFault" name="submitMessageFault">
+            <wsdl:fault message="tns:submitRequestFault" name="submitRequestFault">
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="sendSuccess">
@@ -146,17 +146,17 @@
 
     <wsdl:binding name="BackendServiceSoapBinding" type="tns:BackendInterface">
         <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-        <wsdl:operation name="submitMessage">
+        <wsdl:operation name="submitRequest">
             <soap12:operation soapAction="" style="document"/>
-            <wsdl:input name="submitMessage">
-                <soap12:header message="tns:submitMessage" part="headerInfo" use="literal"/>
+            <wsdl:input name="submitRequest">
+                <soap12:header message="tns:submitRequest" part="headerInfo" use="literal"/>
                 <soap12:body parts="submitRequest" use="literal"/>
             </wsdl:input>
-            <wsdl:output name="submitMessageResponse">
+            <wsdl:output name="submitRequestResponse">
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="submitMessageFault">
-                <soap12:fault name="submitMessageFault" use="literal"/>
+            <wsdl:fault name="submitRequestFault">
+                <soap12:fault name="submitRequestFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="sendSuccess">

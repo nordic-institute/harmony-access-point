@@ -241,8 +241,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, null, null);
     }
 
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
-        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, error, errorCode);
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String message, String code) {
+        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, message, code);
     }
 
     public void sendToNotificationQueue(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus type) {
@@ -267,8 +267,10 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     @Transactional
     public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
-        setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
-        if(userMessageDtos.size() > 0 ) {
+        if (eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.ARCHIVED) {
+            setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
+        }
+        if (userMessageDtos.size() > 0) {
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
                     eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
                     userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));

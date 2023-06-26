@@ -70,6 +70,15 @@ public class MessageRetentionPartitionsServiceTest {
     AlertConfigurationService alertConfigurationService;
 
     @Test
+    public void testPartitionName() {
+        String partitionNameOld = "P23032207";
+        String partitionNameNew = "SYS_P12345";
+
+        Assert.assertTrue(partitionNameOld.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
+        Assert.assertTrue(partitionNameNew.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
+    }
+
+    @Test
     public void deleteExpiredMessagesTest() {
 
         List<String> mpcs = new ArrayList<>();

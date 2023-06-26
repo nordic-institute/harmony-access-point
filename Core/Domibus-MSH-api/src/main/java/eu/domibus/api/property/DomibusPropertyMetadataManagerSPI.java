@@ -166,6 +166,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_FOURCORNERMODEL_ENABLED = "domibus.fourcornermodel.enabled";
     String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
     String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
+    String DOMIBUS_LOGGING_REMOTE_CERTIFICATES_PRINT = "domibus.logging.remote.certificates.print";
+    String DOMIBUS_LOGGING_LOCAL_CERTIFICATES_PRINT = "domibus.logging.local.certificates.print";
     String DOMIBUS_LOGGING_EBMS3_ERROR_PRINT = "domibus.logging.ebms3.error.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
     String DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE = "domibus.connection.cxf.ssl.offload.enable";
@@ -187,6 +189,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON = "domibus.payload.temp.job.retention.cron";
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON = "domibus.ongoingMessagesSanitizing.worker.cron";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_LEVEL = "domibus.ongoingMessagesSanitizing.alert.level";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT = "domibus.ongoingMessagesSanitizing.alert.email.subject";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY = "domibus.ongoingMessagesSanitizing.alert.email.body";
     String DOMIBUS_MSH_PULL_CRON = "domibus.msh.pull.cron";
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
@@ -303,6 +309,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
     String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
     String DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED = "domibus.scheduler.bootstrap.synchronized";
+    String DOMIBUS_SYNCHRONIZATION_TIMEOUT = "domibus.synchronization.timeout";
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
@@ -408,6 +415,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_RETENTION_DAYS = "domibus.earchive.retention.days";
     String DOMIBUS_EARCHIVE_RETENTION_CRON = "domibus.earchive.retention.cron";
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
+    String DOMIBUS_EARCHIVE_RETENTION_DELETE_DB = "domibus.earchive.retention.delete.db";
     String DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS = "domibus.earchive.start_date.stopped.allowed_hours";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";

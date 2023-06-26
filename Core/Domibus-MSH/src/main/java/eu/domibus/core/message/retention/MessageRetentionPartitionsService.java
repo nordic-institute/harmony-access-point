@@ -1,8 +1,8 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.DatabasePartition;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -41,7 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
 
-    private static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]{6}|P[0-9]{6}";
+    protected static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]+|P[0-9]+";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
@@ -158,13 +158,12 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("There are [{}] partitions.", partitions.size());
 
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
-
         LOG.debug("Date to check partitions expiration: [{}]", newestPartitionToCheckDate);
-
+        Long maxHighValue = partitionService.getExpiredPartitionsHighValue(partitions, newestPartitionToCheckDate);
         List<String> partitionNames =
                 partitions.stream()
                         .filter(p -> !StringUtils.equalsIgnoreCase(p.getPartitionName(), DEFAULT_PARTITION))
-                        .filter(p -> p.getHighValue() < partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate) )
+                        .filter(p -> p.getHighValue() < maxHighValue )
                         .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
         LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());

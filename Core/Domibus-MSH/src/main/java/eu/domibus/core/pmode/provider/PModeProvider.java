@@ -143,17 +143,15 @@ public abstract class PModeProvider {
     }
 
     public UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
-        //unmarshall the PMode with whitespaces ignored
-        UnmarshallerResult unmarshalledConfigurationWithWhiteSpacesIgnored = unmarshall(bytes, true);
+        UnmarshallerResult result = unmarshall(bytes, true);
 
-        if (!unmarshalledConfigurationWithWhiteSpacesIgnored.isValid()) {
-            String errorMessage = "The PMode file is not XSD compliant(whitespaces are ignored). Please correct the issues: [" + unmarshalledConfigurationWithWhiteSpacesIgnored.getErrorMessage() + "]";
+        if (!result.isValid()) {
+            String errorMessage = "The PMode file is not XSD compliant. Please correct the issues: [" + result.getErrorMessage() + "]";
             XmlProcessingException xmlProcessingException = new XmlProcessingException(errorMessage);
-            xmlProcessingException.addErrors(unmarshalledConfigurationWithWhiteSpacesIgnored.getErrors());
+            xmlProcessingException.addErrors(result.getErrors());
             throw xmlProcessingException;
         }
 
-        //unmarshall the PMode taking into account the whitespaces
         return unmarshall(bytes, false);
     }
 
@@ -171,9 +169,6 @@ public abstract class PModeProvider {
         final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
 
         List<ValidationIssue> issues = new ArrayList<>();
-        if (!unmarshalledConfiguration.isValid()) {
-            issues.add(createParseWarning(unmarshalledConfiguration));
-        }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
 
@@ -198,17 +193,6 @@ public abstract class PModeProvider {
         signalService.signalPModeUpdate();
 
         return issues;
-    }
-
-    private ValidationIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
-        List<String> resultMessage = new ArrayList<>();
-        resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
-        resultMessage.addAll(unmarshalledConfiguration.getErrors());
-        final String message = StringUtils.join(resultMessage, " ");
-
-        LOG.warn(message);
-
-        return new ValidationIssue(message, ValidationIssue.Level.WARNING);
     }
 
     private String validateDescriptionSize(final String description) {

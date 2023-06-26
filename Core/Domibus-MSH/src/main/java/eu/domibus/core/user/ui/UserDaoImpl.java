@@ -1,6 +1,7 @@
 package eu.domibus.core.user.ui;
 
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 
@@ -101,9 +102,9 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     }
 
     @Override
-    public List<User> findByRole(String roleName) {
+    public List<User> findByRole(AuthRole role) {
         TypedQuery<User> namedQuery = em.createNamedQuery("User.findByRoleName", User.class);
-        namedQuery.setParameter("ROLE_NAME", roleName);
+        namedQuery.setParameter("ROLE_NAME", role.name());
         return namedQuery.getResultList().stream().collect(Collectors.toList());
     }
 

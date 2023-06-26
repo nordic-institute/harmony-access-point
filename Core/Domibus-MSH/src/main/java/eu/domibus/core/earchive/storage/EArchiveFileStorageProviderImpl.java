@@ -5,12 +5,15 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 
 /**
  * @author François Gautier
@@ -27,14 +30,18 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     private final DomainContextProvider domainContextProvider;
 
-    private final Map<Domain, EArchiveFileStorage> instances = new HashMap<>();
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    protected Map<Domain, EArchiveFileStorage> instances = new HashMap<>();
 
     public EArchiveFileStorageProviderImpl(EArchiveFileStorageFactory storageFactory,
                                            DomainService domainService,
-                                           DomainContextProvider domainContextProvider) {
+                                           DomainContextProvider domainContextProvider,
+                                           DomibusPropertyProvider domibusPropertyProvider) {
         this.storageFactory = storageFactory;
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -68,6 +75,12 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     }
 
     private void createStorage(Domain domain) {
+        final Boolean eArchiveActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+        if (!eArchiveActive) {
+            LOG.debug("eArchiving is not enabled for domain [{}], so no storage created", domain);
+            return;
+        }
+
         EArchiveFileStorage instance = storageFactory.create(domain);
         instances.put(domain, instance);
         LOG.info("eArchiving Storage initialized for domain [{}]", domain);
@@ -82,10 +95,16 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     public EArchiveFileStorage getCurrentStorage() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         EArchiveFileStorage currentStorage = forDomain(currentDomain);
-        LOG.debug("Retrieved eArchiving Storage for domain [{}]", currentDomain);
         if (currentStorage == null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not retrieve eArchiving Storage for domain" + currentDomain + " is null");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "eArchiving Storage for domain [" + currentDomain + "] is null");
         }
+        LOG.debug("Retrieved eArchiving Storage for domain [{}]=[{}]", currentDomain, currentStorage.getStorageDirectory());
         return currentStorage;
+    }
+
+    @Override
+    public void reset(Domain domain) {
+        removeStorage(domain);
+        createStorage(domain);
     }
 }

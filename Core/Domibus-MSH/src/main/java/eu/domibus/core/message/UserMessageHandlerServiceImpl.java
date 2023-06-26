@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
@@ -55,8 +56,9 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
 import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
@@ -71,7 +73,6 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
-    public static final String HASH_SIGN = "#";
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -159,6 +160,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
+    @Autowired
+    protected MetricRegistry metricRegistry;
 
     @Override
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
@@ -275,7 +279,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             try {
                 backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             } catch (PluginMessageReceiveException e) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
                 throw EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(e.getEbMS3ErrorCode())
                         .message(e.getMessage())
@@ -330,10 +333,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .build();
         }
 
-        persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
-
         try {
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+            persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult, () -> notifyMessageReceived(userMessage, messageId, matchingBackendFilter, backendName));
         } catch (PluginMessageReceiveException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -349,6 +350,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
             splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
         }
+    }
+
+    private void notifyMessageReceived(UserMessage userMessage, String messageId, BackendFilter matchingBackendFilter, String backendName) throws PluginMessageReceiveException {
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
     }
 
     /**
@@ -368,7 +373,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             List<PartInfo> partInfoList,
             Ebms3MessageFragmentType ebms3MessageFragmentType,
             final String backendName,
-            SignalMessageResult signalMessageResult)
+            SignalMessageResult signalMessageResult,
+            Runnable notifyRunnable)
             throws EbMS3Exception {
 
         //add messageId to MDC map
@@ -379,7 +385,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
 
-        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
+        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult, notifyRunnable);
 
         if (ebms3MessageFragmentType != null) {
             handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
@@ -393,11 +399,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, final String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult) throws EbMS3Exception {
         LOG.info("Persisting received SourceMessage");
         userMessage.setSourceMessage(true);
-
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
+        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult, () -> {});
     }
 
-    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult) throws EbMS3Exception {
+    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult, Runnable notifyBackend) throws EbMS3Exception {
         //skip payload and property profile validations for message fragments
         if (ebms3MessageFragmentType == null) {
             try {
@@ -452,7 +457,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .build();
         }
 
-        userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, userMessageRaw, signalMessageResult);
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("saveIncomingMessage.timer")).time();
+        userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, userMessageRaw, signalMessageResult, notifyBackend);
+        methodTimer.stop();
 
         return userMessage.getMessageId();
     }

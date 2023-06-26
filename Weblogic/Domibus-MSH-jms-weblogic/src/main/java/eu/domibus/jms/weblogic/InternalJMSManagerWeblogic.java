@@ -259,17 +259,14 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     protected List<String> getManagedServerNames() {
-        if (managedServerNames == null) {
-            managedServerNames = jmxTemplate.query(
-                    new JMXOperation() {
-                        @Override
-                        public List<String> execute(MBeanServerConnection mbsc) {
-                            return getManagedServerNames(mbsc);
-                        }
+        managedServerNames = jmxTemplate.query(
+                new JMXOperation() {
+                    @Override
+                    public List<String> execute(MBeanServerConnection mbsc) {
+                        return getManagedServerNames(mbsc);
                     }
-            );
-            return managedServerNames;
-        }
+                }
+        );
         return managedServerNames;
     }
 
@@ -460,12 +457,12 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         }
         //the uniform distributed topics do not work correctly in WebLogic 12.1.3
         // the JMS message is not correctly replicated to all managed servers when the cluster is composed of more than 2 managed servers
-        LOG.debug("Cluster deployment: using command signaling via database instead of uniform distributed topic");
         String command = (String) internalJmsMessage.getProperty(Command.COMMAND);
         String originServer = (String) internalJmsMessage.getProperty(CommandProperty.ORIGIN_SERVER);
+        LOG.info("Cluster deployment: using command signaling via database instead of uniform distributed topic, command: [{}] origin server: [{}]", command, originServer);
 
         final List<String> managedServerNamesList = getManagedServerNames();
-        LOG.debug("Found managed servers [{}]", managedServerNamesList);
+        LOG.info("Cluster deployment: found managed servers [{}]", managedServerNamesList);
 
         if (StringUtils.isNotBlank(originServer)) {
             managedServerNamesList.remove(originServer);

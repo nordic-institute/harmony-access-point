@@ -43,8 +43,7 @@ import java.util.*;
 
 import static eu.domibus.api.earchive.EArchiveBatchStatus.DELETED;
 import static eu.domibus.api.earchive.EArchiveBatchStatus.EXPIRED;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static java.util.Collections.singletonList;
 
 /**
@@ -211,6 +210,8 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         } catch (Exception e) {
             LOG.error("Error reading eark structure for batch [{}]", eArchiveBatch.getBatchId(), e);
         }
+
+        domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_DB, "false");
 
         eArchivingRetentionService.cleanStoredBatches();
 

@@ -158,7 +158,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findMessagesForArchivingAsc",
-                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId)                " +
+                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId, uml.messageStatus.messageStatus)                " +
                         "from UserMessageLog uml                                                                     " +
                         "where uml.entityId > :LAST_ENTITY_ID                                                        " +
                         "  and (:MAX_ENTITY_ID IS NULL OR uml.entityId < :MAX_ENTITY_ID)                             " +

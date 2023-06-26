@@ -331,4 +331,8 @@ public class LegConfiguration extends AbstractBaseEntity {
     public Action getAction() {
         return this.action;
     }
+
+    public void setAction(final Action action) {
+        this.action = action;
+    }
 }

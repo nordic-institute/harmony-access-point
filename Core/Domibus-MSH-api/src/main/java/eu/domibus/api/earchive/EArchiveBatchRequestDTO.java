@@ -18,9 +18,9 @@ public class EArchiveBatchRequestDTO {
 
     String status;
 
-    String errorCode;
+    String domibusCode;
 
-    String errorDescription;
+    String message;
 
     Date timestamp;
 
@@ -46,8 +46,8 @@ public class EArchiveBatchRequestDTO {
     public EArchiveBatchRequestDTO(String batchId,
                                    String requestType,
                                    String status,
-                                   String errorCode,
-                                   String errorDescription,
+                                   String domibusCode,
+                                   String message,
                                    Date timestamp,
                                    Long messageStartId,
                                    Long messageEndId
@@ -55,8 +55,8 @@ public class EArchiveBatchRequestDTO {
         this.batchId = batchId;
         this.requestType = requestType;
         this.status = status;
-        this.errorCode = errorCode;
-        this.errorDescription = errorDescription;
+        this.domibusCode = domibusCode;
+        this.message = message;
         this.timestamp = timestamp;
         this.messageStartId = messageStartId;
         this.messageEndId = messageEndId;
@@ -94,20 +94,20 @@ public class EArchiveBatchRequestDTO {
         this.status = status;
     }
 
-    public String getErrorCode() {
-        return errorCode;
+    public String getDomibusCode() {
+        return domibusCode;
     }
 
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
+    public void setDomibusCode(String domibusCode) {
+        this.domibusCode = domibusCode;
     }
 
-    public String getErrorDescription() {
-        return errorDescription;
+    public String getMessage() {
+        return message;
     }
 
-    public void setErrorDescription(String errorDescription) {
-        this.errorDescription = errorDescription;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public Date getTimestamp() {
@@ -157,8 +157,8 @@ public class EArchiveBatchRequestDTO {
                 ", batchId='" + batchId + '\'' +
                 ", requestType='" + requestType + '\'' +
                 ", status='" + status + '\'' +
-                ", errorCode='" + errorCode + '\'' +
-                ", errorDescription='" + errorDescription + '\'' +
+                ", domibusCode='" + domibusCode + '\'' +
+                ", message='" + message + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", messageStartDate='" + messageStartId + '\'' +
                 ", messageEndDate='" + messageEndId + '\'' +

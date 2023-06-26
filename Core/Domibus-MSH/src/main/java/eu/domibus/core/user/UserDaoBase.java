@@ -1,5 +1,6 @@
 package eu.domibus.core.user;
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserEntityBase;
 
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public interface UserDaoBase<U extends UserEntityBase> {
 
     void update(List<U> users);
 
-    List<U> findByRole(String roleName);
+    List<U> findByRole(AuthRole roleName);
 
     /**
      * Checks if there is a user with the specified name

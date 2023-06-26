@@ -170,6 +170,8 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <enforcer-api.version>3.3.0</enforcer-api.version>
+        <maven-core.version>3.1.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
@@ -1114,6 +1116,20 @@
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>${javax.ws.rs-api.version}</version>
             </dependency>
+
+            <!-- Maven Enforcer -->
+            <dependency>
+                <groupId>org.apache.maven.enforcer</groupId>
+                <artifactId>enforcer-api</artifactId>
+                <version>${enforcer-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven-core.version}</version>
+            </dependency>
+            <!-- Maven Enforcer -->
+
             <!-- Test dependencies -->
             <dependency>
                 <groupId>javax.servlet</groupId>

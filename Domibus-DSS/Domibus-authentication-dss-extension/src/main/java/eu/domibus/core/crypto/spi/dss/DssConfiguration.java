@@ -198,6 +198,8 @@ public class DssConfiguration {
         commonsDataLoader.setTimeoutSocket(socketTimeout);
         commonsDataLoader.setTimeoutConnection(connectionTimeout);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
+        commonsDataLoader.setSupportedSSLProtocols(new String[] {  "TLSv1.3","TLSv1.2" });
+        commonsDataLoader.setSslProtocol("TLS");
         return commonsDataLoader;
     }
 

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
 
@@ -176,7 +177,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void convertAndSendToQueue(final Object message, final Queue destination, final String selector) {
-        jmsTemplate.convertAndSend(destination, message, message1 -> {
+        MessagePostProcessor messagePostProcessor = message1 -> {
             final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             message1.setStringProperty(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination.getQueueName());
             //that scenario occurs when sending an event with super user... EG:Login failure with super user.
@@ -187,7 +188,8 @@ public class JMSManagerImpl implements JMSManager {
             }
             message1.setStringProperty(SELECTOR, selector);
             return message1;
-        });
+        };
+        jmsTemplate.convertAndSend(destination, message, messagePostProcessor);
     }
 
     @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")

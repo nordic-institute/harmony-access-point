@@ -17,8 +17,19 @@ Domibus 5.1
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
 - Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
+Domibus 5.0.6
+- Add validation to check there is no duplicate dependencies in the distributions (tomcat, weblogic and wildfly)
+- [WSPLUGIN] Distribution files have a wsdl folder with wsdl for the the wsPlugin client and the backend client for the push functionality.
+Domibus 5.0.5
+- Added domain properties domibus.ongoingMessagesSanitizing.* to configure the job searching for messages stuck in ongoing statuses and the resulting email alert
+- Improved upload time for large (MB) pMode files
+- Disabled metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
+- Added domain properties domibus.logging.remote.certificates.print and domibus.logging.local.certificates.print to enable printing of the remote and local certificates used to encrypt, decrypt, sign or verify trust for outgoing and incoming messages. Default to false.
+- Add reverse index to improve the performance of the Admin Console
+- Implement interval partitioning
+- Fix duplicate signal message id error
 Domibus 5.0.4
-    - Fixed OWASP vulnerabilities
+- Fixed OWASP vulnerabilities
 Domibus 5.0.3
 - Fixed partition creation/dropping issue
 - Fixed the error when trying to use a PKCS12 format for the keystore
@@ -26,7 +37,7 @@ Domibus 5.0.3
 - Fixed issue when fsplugin.messages.location to point another disk (Windows) files are not picked up
 - Fixed issue causing that after DB migration from 4.2.11 to 5.0.1, Domibus fails to start at first two attempts
 - Fixed OWASP vulnerabilities
-- Fix for show domain checkbox is not present in property page
+- Fixed for show domain checkbox is not present in property page
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors
@@ -34,8 +45,9 @@ Domibus 5.0.2
 - Default value of domibus.metrics.monitor.jms.queues.refresh.period changed to 10
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
-- Filter out TEST messages from earchived messages
-- Updated two earchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
+- Filter out TEST messages from eArchived messages
+- Updated two eArchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
+- Updated http timeouts for MSH communication
 - Fixed the properties issue for ext/messages/acknowledgments/delivered API"
 - Added possibility to throw a specific exception while receiving a message in the plugin
 - Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup

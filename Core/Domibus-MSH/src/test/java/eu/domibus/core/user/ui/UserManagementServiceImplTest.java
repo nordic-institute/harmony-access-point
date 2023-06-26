@@ -229,7 +229,7 @@ public class UserManagementServiceImplTest {
                 deletedUser,
                 inactiveUser);
         new Expectations() {{
-            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
+            userDao.findByRole(AuthRole.ROLE_ADMIN);
             result = users;
         }};
         try {
@@ -259,7 +259,7 @@ public class UserManagementServiceImplTest {
                 inactiveUser);
 
         new Expectations() {{
-            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
+            userDao.findByRole(AuthRole.ROLE_ADMIN);
             result = users;
         }};
         userManagementService.ensureAtLeastOneActiveAdmin();

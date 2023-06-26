@@ -17,6 +17,10 @@ public class DomibusJMSException extends DomibusCoreException {
         super(dce, message, cause);
     }
 
+    public DomibusJMSException(String message) {
+        super(DomibusCoreErrorCode.DOM_001, message);
+    }
+
     public DomibusJMSException(Throwable cause) {
         super(DomibusCoreErrorCode.DOM_001, cause.getMessage(), cause);
     }
