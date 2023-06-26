@@ -6,12 +6,6 @@
 ## PMD Eclipse plugin files ##
 .pmd
 
-## soapUI test reports ##
-
-## soapUI test execution cookie ##
-Domibus-MSH-soapui-tests/src/main/soapui/cookie.txt
-*.xml_SoapuiStringReplace
-
 ## Maven output folder ##
 target/
 
