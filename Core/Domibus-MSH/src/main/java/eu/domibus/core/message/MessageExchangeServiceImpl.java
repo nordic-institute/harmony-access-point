@@ -18,6 +18,7 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -135,6 +136,19 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         return messageStatusDao.findOrCreate(messageStatus);
     }
 
+    @Override
+    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
+        List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
+        if (!processes.isEmpty()) {
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(processes));
+            messageStatus = MessageStatus.READY_TO_PULL;
+        } else {
+            LOG.debug("No pull process found for message configuration");
+        }
+        return messageStatusDao.findOrCreate(messageStatus);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -150,10 +164,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Transactional(readOnly = true)
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId, MSHRole role) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
-        if (forcePullOnMpc(userMessage)) {
-            return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
+        try {
+            if (forcePullOnMpc(userMessage)) {
+                return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
+            }
+            return getMessageStatus(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING));
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }
-        return getMessageStatusForPush();
     }
 
 
