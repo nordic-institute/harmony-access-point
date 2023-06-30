@@ -168,7 +168,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             if (forcePullOnMpc(userMessage)) {
                 return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
             }
-            return getMessageStatus(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING));
+            MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            return getMessageStatus(userMessageExchangeContext);
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }
