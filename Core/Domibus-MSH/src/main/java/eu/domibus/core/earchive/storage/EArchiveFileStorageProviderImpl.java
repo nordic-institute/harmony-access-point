@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 
 /**
  * @author François Gautier
@@ -96,9 +97,11 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         EArchiveFileStorage currentStorage = forDomain(currentDomain);
         if (currentStorage == null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "eArchiving Storage for domain [" + currentDomain + "] is null");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001,
+                    "eArchiving Storage [" + DOMIBUS_EARCHIVE_STORAGE_LOCATION + "] for domain [" + currentDomain + "] is not accessible. " +
+                            "The location from the property  -> [" + domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_EARCHIVE_STORAGE_LOCATION) + "]");
         }
-        LOG.debug("Retrieved eArchiving Storage for domain [{}]=[{}]", currentDomain, currentStorage.getStorageDirectory());
+        LOG.debug("Retrieved eArchiving Storage for domain [{}] = [{}]", currentDomain, currentStorage.getStorageDirectory());
         return currentStorage;
     }
 
