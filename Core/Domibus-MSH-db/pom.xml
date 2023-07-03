@@ -17,6 +17,7 @@
     <properties>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <liquibase.logging>debug</liquibase.logging>
     </properties>
 
     <dependencies>
@@ -381,6 +382,67 @@
                         </configuration>
                     </execution>
                     <!-- 5.1 ends here -->
+
+
+                    <!-- partitioning delta from 5.0.4 to 5.0.5 starts here -->
+                    <execution>
+                        <id>generate-oracle-script-partitioning-migration</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-partitioning-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.0.5-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- partitioning delta from 5.0.4 to 5.0.5 ends here -->
+
+                    <!-- delta 5.0.4 to 5.0.5 starts here -->
+                    <execution>
+                        <id>generate-mysql-script-delta-5.0.5</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.0.5-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.0.4-to-5.0.5-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.0.5</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.5-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0.4-to-5.0.5-migration-fix.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.0.4 to 5.0.5 ends here -->
 
                     <!-- delta 5.0.2 to 5.1 starts here -->
                     <execution>

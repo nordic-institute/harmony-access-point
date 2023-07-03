@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="Francois Gautier" id="EDELIVERY-10913">
         <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_CODE" newColumnName="DOMIBUS_CODE" columnDataType="VARCHAR(255)"/>
@@ -44,6 +44,6 @@
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
