@@ -87,6 +87,14 @@
                                         ${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql
                                     </destinationFile>
                                 </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0.5/migration/oracle/oracle-5.0.5-partitioning-fix.ddl
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/sql-scripts/oracle-5.0.5-partitioning-fix.ddl
+                                    </destinationFile>
+                                </fileSet>
                             </fileSets>
                         </configuration>
                     </execution>
