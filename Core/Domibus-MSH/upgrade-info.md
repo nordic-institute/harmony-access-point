@@ -77,8 +77,8 @@
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.4 database, that contains user messages and was partitioned
                     - Run as edelivery_user:
-    @oracle-5.0.4-to-5.0.5-migration-fix.ddl
-    @oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
+    @oracle-5.0-partition-migration-procedures.sql
+    EXECUTE MIGRATE_5_0_4_PARTITIONED_TO_5_0_5;
 
 #### Situation B: upgrading an existing 5.0.4 database, that contains user messages and was not partitioned
                - Run as edelivery_user:
@@ -88,52 +88,52 @@
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
-                - Run the appropriate DB migration script(mysql-5.0.3-to-5.0.4-migration.ddl for MySQL or oracle-5.0.3-to-5.0.4-migration.ddl for Oracle)
 ### Partitioning (only oracle)
-#### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned and - no changes needed
+#### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned
+- no changes needed
 #### Situation B: upgrading an existing 5.0.3 database, that contains user messages and was not partitioned
-From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
-
                     - Run as sys:
-    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
-    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
-    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
-    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
 
                 - Run as edelivery_user:
-    @oracle-5.0-partitioning-populated-table.ddl
-    SET SERVEROUTPUT ON;
-    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
-    SET SERVEROUTPUT OFF;
+    @oracle-5.0-partition-migration-procedures.sql
+    EXECUTE MIGRATE_5_0_3_UNPARTITIONED_TO_5_0_4;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
 ### Partitioning (only oracle)
-#### Situation A: upgrading an existing 5.0.2 database, that contains user messages and was partitioned and
+#### Situation A: upgrading an existing 5.0.2 database, that contains user messages and was partitioned
                     - Run as edelivery_user:
-    ALTER TABLE TB_USER_MESSAGE SPLIT PARTITION P22000000 AT (19700102) INTO (PARTITION P19700000, PARTITION P22000000) UPDATE GLOBAL INDEXES;
+    @oracle-5.0-partition-migration-procedures.sql
+    EXECUTE MIGRATE_5_0_2_PARTITIONED_TO_5_0_3;
 #### Situation B: upgrading an existing 5.0.2 database, that contains user messages and was not partitioned
-From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
-
                     - Run as sys:
-    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
-    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
-    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
-    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
 
                 - Run as edelivery_user:
-    @oracle-5.0-partitioning-populated-table.ddl
-    SET SERVEROUTPUT ON;
-    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
-    SET SERVEROUTPUT OFF;
+    @oracle-5.0-partition-migration-procedures.sql
+    EXECUTE MIGRATE_5_0_2_UNPARTITIONED_TO_5_0_3;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
+### Partitioning (only oracle)
+#### Situation A: partitioning an existing 5.0.2 database, that contains user messages
+
+                    - Run as sys:
+    GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+
+                - Run as edelivery_user:
+    @oracle-5.0-partition-migration-procedures.sql
+    EXECUTE MIGRATE_5_0_1_PARTITIONED_TO_5_0_2;
+    @oracle-5.0-partition-detail-tables.sql
+    @oracle-5.0-create-partitions-job.sql
+#### Situation B: partitioning an empty 5.0.2 database
+
+                - Run as edelivery_user:
+    @oracle-5.0.2-partitioning.ddl
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war
