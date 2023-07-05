@@ -61,23 +61,5 @@
                 <module>Domibus-MSH-swagger</module>
             </modules>
         </profile>
-        <profile>
-            <id>bamboo-rest</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>bamboo-remote</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>selenium_local</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
     </profiles>
 </project>
