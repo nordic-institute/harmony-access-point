@@ -1,11 +1,11 @@
 # Domibus upgrade information
 
-  ## Domibus 5.1.1 (from 5.1)
+## Domibus 5.1.1 (from 5.1)
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
 
-  ## Domibus 5.1 (from 5.0.3)
+## Domibus 5.1 (from 5.0.3)
                 - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists
                 - Update your logback.xml configuration so that logs contain the correct origin line number. At the begginging of your <configuration> declare the conversion word domibusLine: 
@@ -72,20 +72,87 @@
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
                 - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-migration.ddl for MySQL or oracle-5.0.4-to-5.0.5-migration.ddl for Oracle)
-### Partitioning only (oracle)
-                - Run as edelivery_user oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
+### Partitioning (only oracle)
+#### Situation A: upgrading an existing 5.0.4 database, that contains user messages and was partitioned
+                    - Run as edelivery_user:
+    @oracle-5.0.4-to-5.0.5-migration-fix.ddl
+    @oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
+
+#### Situation B: upgrading an existing 5.0.4 database, that contains user messages and was not partitioned
+               - Run as edelivery_user:
+    @oracle-5.0.4-to-5.0.5-migration-fix.ddl
+    @oracle-5.0.5-partitioning-fix.ddl
+
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
+### Partitioning (only oracle)
+#### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned and - no changes needed
+#### Situation B: upgrading an existing 5.0.3 database, that contains user messages and was not partitioned
+From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
+
+                    - Run as sys:
+    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
+    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
+    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+
+                - Run as edelivery_user:
+    @oracle-5.0-partitioning-populated-table.ddl
+    SET SERVEROUTPUT ON;
+    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
+    SET SERVEROUTPUT OFF;
+    @oracle-5.0-partition-detail-tables.sql
+    @oracle-5.0-create-partitions-job.sql
 ## Domibus 5.0.3 (from 5.0.2):
                 - Replace the Domibus war
-### Partitioning only (oracle)
+### Partitioning (only oracle)
+#### Situation A: upgrading an existing 5.0.2 database, that contains user messages and was partitioned and
+                    - Run as edelivery_user:
+    ALTER TABLE TB_USER_MESSAGE SPLIT PARTITION P22000000 AT (19700102) INTO (PARTITION P19700000, PARTITION P22000000) UPDATE GLOBAL INDEXES;
+#### Situation B: upgrading an existing 5.0.2 database, that contains user messages and was not partitioned
+From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
+
                     - Run as sys:
-                            GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
-                    - Run as edelivery_user partitions-procedures.sql to replace the PARTITIONSGEN procedure
+    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
+    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
+    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+
+                - Run as edelivery_user:
+    @oracle-5.0-partitioning-populated-table.ddl
+    SET SERVEROUTPUT ON;
+    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
+    SET SERVEROUTPUT OFF;
+    @oracle-5.0-partition-detail-tables.sql
+    @oracle-5.0-create-partitions-job.sql
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
+### Partitioning (only oracle)
+#### Situation A: partitioning an existing 5.0.2 database, that contains user messages
+From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
+
+                    - Run as sys:
+    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
+    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
+    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
+    GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+
+                - Run as edelivery_user:
+    @oracle-5.0-partitioning-populated-table.ddl
+    SET SERVEROUTPUT ON;
+    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
+    SET SERVEROUTPUT OFF;
+    @oracle-5.0-partition-detail-tables.sql
+    @oracle-5.0-create-partitions-job.sql
+#### Situation B: partitioning an empty 5.0.2 database
+
+                - Run as edelivery_user:
+    @oracle-5.0.2-partitioning.ddl
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war

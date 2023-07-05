@@ -4,10 +4,10 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="idragusa" id="Interval partitions" dbms="oracle">
-        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures-5.0.5-delta.sql" endDelimiter="\n/"/>
+        <sqlFile path="src/main/resources/db/archive/5.0.5/migration/oracle/partitions-procedures-5.0.5-delta.sql" endDelimiter="\n/"/>
 
         <sql>
             ALTER TABLE TB_USER_MESSAGE SET INTERVAL (10000000000);
