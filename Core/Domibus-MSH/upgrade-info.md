@@ -31,6 +31,8 @@
                         - the new (5.1) list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE, MESSAGE_DELETED, MESSAGE_DELETE_BATCH, PAYLOAD_SUBMITTED, PAYLOAD_PROCESSED
                         - the previous list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE
 ### DB migration script
+                - Follow the upgrade procedures described bellow to upgrade to the latest version of Domibus 5.0.x. For example, upgrade to Domibus 5.0.4 (from 5.0.3), then upgrade to Domibus 5.0.5, etc.
+
                 - Run the appropriate DB migration script:
                     o [Oracle only]
                         - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
@@ -86,6 +88,7 @@
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
+                - Run the appropriate DB migration script(mysql-5.0.3-to-5.0.4-migration.ddl for MySQL or oracle-5.0.3-to-5.0.4-migration.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned and - no changes needed
 #### Situation B: upgrading an existing 5.0.3 database, that contains user messages and was not partitioned
@@ -131,28 +134,6 @@ From website containing the release artefacts on the Digital site (see "Binaries
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
-### Partitioning (only oracle)
-#### Situation A: partitioning an existing 5.0.2 database, that contains user messages
-From website containing the release artefacts on the Digital site (see "Binaries repository" the Administration Guide) download and unzip domibus-msh-distribution-5.1-sql-scripts.zip. There you will find the scripts oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partitioning-populated-table.ddl, @oracle-5.0-partition-detail-tables.sql needed for the following step.
-
-                    - Run as sys:
-    GRANT REDEFINE ANY TABLE TO <edelivery_user>;
-    GRANT CREATE MATERIALIZED VIEW TO <edelivery_user>;
-    GRANT EXECUTE ON DBMS_REDEFINITION TO <edelivery_user>;
-    GRANT SELECT ON USER_CONSTRAINTS TO <edelivery_user>;
-    GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
-
-                - Run as edelivery_user:
-    @oracle-5.0-partitioning-populated-table.ddl
-    SET SERVEROUTPUT ON;
-    EXECUTE PARTITION_USER_MESSAGE('<your_edelivery_schema>');
-    SET SERVEROUTPUT OFF;
-    @oracle-5.0-partition-detail-tables.sql
-    @oracle-5.0-create-partitions-job.sql
-#### Situation B: partitioning an empty 5.0.2 database
-
-                - Run as edelivery_user:
-    @oracle-5.0.2-partitioning.ddl
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war

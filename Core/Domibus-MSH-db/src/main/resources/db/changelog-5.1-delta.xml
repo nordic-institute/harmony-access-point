@@ -8,12 +8,6 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-    <changeSet author="Ion Perpegel" id="EDELIVERY-10627">
-        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="MESSAGE_IDS" type="CLOB"/>
-        </addColumn>
-    </changeSet>
-
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
