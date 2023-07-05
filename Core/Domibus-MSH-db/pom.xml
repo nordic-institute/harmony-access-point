@@ -430,6 +430,12 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.4-to-5.0.5-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVars>
+                                <property>
+                                    <name>DomibusVersion</name>
+                                    <value>5.0.5</value>
+                                </property>
+                            </expressionVars>
                         </configuration>
                     </execution>
                     <execution>
