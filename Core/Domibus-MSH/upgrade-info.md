@@ -84,7 +84,6 @@
                - Run as edelivery_user:
     @oracle-5.0.4-to-5.0.5-migration-fix.ddl
     @oracle-5.0.5-partitioning-fix.ddl
-
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
