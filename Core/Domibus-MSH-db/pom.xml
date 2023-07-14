@@ -72,15 +72,15 @@
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/partitioning/oracle/common/oracle-5.0-create-partitions-job.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/sql-scripts/oracle-5.0-create-partitions-job.sql</destinationFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-5.0-create-partitions-job.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/partitioning/oracle/common/oracle-5.0-partition-detail-tables.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/sql-scripts/oracle-5.0-partition-detail-tables.sql</destinationFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/partitioning/oracle/common/oracle-5.0-partition-migration-procedures.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/sql-scripts/oracle-5.0-partition-migration-procedures.sql</destinationFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-5.0-partition-migration-procedures.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>
