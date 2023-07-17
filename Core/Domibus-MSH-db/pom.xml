@@ -138,17 +138,11 @@
                 <version>${liquibase.version}</version>
                 <configuration>
                     <outputFileEncoding>UTF-8</outputFileEncoding>
-                    <expressionVars>
-                        <property>
-                            <!--Override this property with the correct value where migrating to an older version -->
-                            <name>DomibusVersion</name>
-                            <value>${project.version}</value>
-                        </property>
-                        <property>
-                            <name>DomibusBuildTime</name>
-                            <value>${timestamp}</value>
-                        </property>
-                    </expressionVars>
+                    <expressionVariables>
+                        <!--Override this property with the correct value where migrating to an older version -->
+                        <DomibusVersion>${project.version}</DomibusVersion>
+                        <DomibusBuildTime>${timestamp}</DomibusBuildTime>
+                    </expressionVariables>
                 </configuration>
                 <executions>
 
@@ -441,12 +435,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.4-to-5.0.5-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.5</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.5</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -597,12 +588,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.3-to-5.0.4-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.4</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.4</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -621,12 +609,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0.3-to-5.0.4-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.4</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.4</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.0.3 to 5.0.4 ends here -->
@@ -648,12 +633,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.2</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -672,12 +654,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.2</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.0.1 to 5.0.2 ends here -->
@@ -699,12 +678,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.1</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -723,12 +699,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.1</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.0 to 5.0.1 ends here -->
@@ -750,12 +723,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -774,12 +744,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
 
                         </configuration>
                     </execution>
@@ -799,12 +766,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -823,12 +787,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 4.2.9 to 5.0 ends here -->
