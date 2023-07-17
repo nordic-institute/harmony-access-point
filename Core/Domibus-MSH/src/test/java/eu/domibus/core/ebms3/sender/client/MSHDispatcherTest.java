@@ -19,11 +19,13 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.neethi.Policy;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +33,11 @@ import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -195,6 +199,79 @@ public class MSHDispatcherTest {
 
             dispatch.invoke(requestSoapMessage);
             result = new WebServiceException();
+        }};
+
+        try {
+            mshDispatcher.dispatch(requestSoapMessage, endPoint, policy, legConfiguration, pModeKey);
+            Assert.fail("Webservice Exception was expected");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof EbMS3Exception);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
+        }
+
+    }
+
+    @Test
+    public void testDispatch_WSSecurityExceptionDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
+                                                               @Injectable final Policy policy,
+                                                               @Injectable final Dispatch<SOAPMessage> dispatch,
+                                                               @Injectable SOAPFault soapFault) {
+        final String endPoint = "http://localhost";
+        final String algorithm = "algorithm";
+        final String pModeKey = "myPmodeKey";
+        final boolean cacheable = false;
+        final Domain domain = new Domain("default", "Default");
+        SOAPFaultException exception = new SOAPFaultException(soapFault);
+        exception.initCause(new SoapFault("Test", new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY, "test"), null));
+        new Expectations(mshDispatcher) {{
+            domainContextProvider.getCurrentDomain();
+            result = domain;
+
+            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
+            result = dispatch;
+
+            legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            result = algorithm;
+
+            dispatch.invoke(requestSoapMessage);
+            result = exception;
+        }};
+
+        try {
+            mshDispatcher.dispatch(requestSoapMessage, endPoint, policy, legConfiguration, pModeKey);
+            Assert.fail("Webservice Exception was expected");
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof EbMS3Exception);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0103, ((EbMS3Exception) e).getErrorCode());
+        }
+
+    }
+
+
+    @Test
+    public void testDispatch_SoapFaultDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
+                                                     @Injectable final Policy policy,
+                                                     @Injectable final Dispatch<SOAPMessage> dispatch,
+                                                     @Injectable SOAPFault soapFault) {
+        final String endPoint = "http://localhost";
+        final String algorithm = "algorithm";
+        final String pModeKey = "myPmodeKey";
+        final boolean cacheable = false;
+        final Domain domain = new Domain("default", "Default");
+        SOAPFaultException exception = new SOAPFaultException(soapFault);
+        exception.initCause(new SoapFault("Test", null));
+        new Expectations(mshDispatcher) {{
+            domainContextProvider.getCurrentDomain();
+            result = domain;
+
+            dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
+            result = dispatch;
+
+            legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            result = algorithm;
+
+            dispatch.invoke(requestSoapMessage);
+            result = exception;
         }};
 
         try {
