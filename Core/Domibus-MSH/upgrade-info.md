@@ -73,7 +73,7 @@
 ## Domibus 5.0.5 (from 5.0.4):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
-                - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-migration.ddl for MySQL or oracle-5.0.4-to-5.0.5-migration.ddl for Oracle)
+                - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-migration-fix.ddl for MySQL or oracle-5.0.4-to-5.0.5-migration-fix.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.4 database, that contains user messages and was partitioned
                     - Run as edelivery_user:
@@ -87,6 +87,7 @@
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
+                - Run the appropriate DB migration script(mysql-5.0.3-to-5.0.4-migration.ddl for MySQL or oracle-5.0.3-to-5.0.4-migration.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned
 - no changes needed
