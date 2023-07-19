@@ -116,7 +116,7 @@
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
 ### Partitioning (only oracle)
-#### Situation A: partitioning an existing 5.0.2 database, that contains user messages
+#### Situation A: partitioning an existing 5.0.2 database, that contains user messages and was not partitioned
 
                     - Run as sys:
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
@@ -126,7 +126,7 @@
     EXECUTE MIGRATE_5_0_1_PARTITIONED_TO_5_0_2;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
-#### Situation B: partitioning an empty 5.0.2 database
+#### Situation B: partitioning an empty 5.0.2 database that was not partitioned
 
                 - Run as edelivery_user:
     @oracle-5.0.2-partitioning.ddl
