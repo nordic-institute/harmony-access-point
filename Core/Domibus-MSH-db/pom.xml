@@ -211,48 +211,6 @@
                     </execution>
                     <!-- 5.1 end here -->
 
-                    <!-- partitioning migration 5.0 to 5.1 starts here -->
-                    <execution>
-                        <id>generate-oracle-partitioning-delta-5.1</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/partitioning/oracle/changelog-partitioning-5.1-delta.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.1-delta.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-to-5.1-partitioning-migration.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- partitioning migration 5.0 to 5.1 ends here -->
-
-
-                    <!-- partitioning 5.0 populated table starts here -->
-                    <execution>
-                        <id>generate-oracle-script-partitioning-populated-table-to-5.0</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning-populated-table.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning-populated-table.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-populated-table.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- partitioning 5.0 populated table ends here -->
                     <!-- partitioning ends here -->
 
                     <!-- 5.1 starts here -->
