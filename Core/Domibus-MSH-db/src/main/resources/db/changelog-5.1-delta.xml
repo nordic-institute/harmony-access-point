@@ -132,7 +132,7 @@
         <sql dbms="mysql" splitStatements="false">
             DELIMITER $$
 
-            CREATE PROCEDURE drop_index_if_exists(in indexName varchar(128), in tableName varchar(128))
+            CREATE PROCEDURE drop_index_if_exists(in indexName varchar(64), in tableName varchar(64))
             BEGIN
                 IF((SELECT COUNT(*) AS index_exists
                     FROM information_schema.statistics
