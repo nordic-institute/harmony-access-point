@@ -114,7 +114,43 @@
 
         <!--For Signal Messages-->
         <!--drop existing-->
-        <dropIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE" />
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+            index_not_exists EXCEPTION;
+            PRAGMA EXCEPTION_INIT (index_not_exists, -1418);
+            BEGIN
+                EXECUTE IMMEDIATE 'drop index IDX_SIG_MESS_SIGNAL_MESS_ID';
+                EXCEPTION
+                   WHEN index_not_exists
+                   THEN
+                      NULL;
+            END;
+        </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_index_if_exists
+        </sql>
+        <sql dbms="mysql" splitStatements="false">
+            DELIMITER $$
+
+            CREATE PROCEDURE drop_index_if_exists(in indexName varchar(64), in tableName varchar(64))
+            BEGIN
+                IF((SELECT COUNT(*) AS index_exists
+                    FROM information_schema.statistics
+                    WHERE TABLE_SCHEMA = DATABASE() and upper(table_name) = tableName AND upper(index_name) = indexName) > 0)
+                THEN
+                    SET @s = CONCAT('DROP INDEX ' , indexName , ' ON ' , tableName);
+                    PREPARE stmt FROM @s;
+                    EXECUTE stmt;
+                END IF;
+            END$$
+
+            DELIMITER ;
+
+        </sql>
+        <sql dbms="mysql">
+            CALL drop_index_if_exists('IDX_SIG_MESS_SIGNAL_MESS_ID', 'TB_SIGNAL_MESSAGE')
+        </sql>
+
         <!--add column-->
         <addColumn tableName="TB_SIGNAL_MESSAGE">
             <column name="MSH_ROLE_ID_FK" type="BIGINT" />
@@ -142,7 +178,45 @@
             <column name="SIGNAL_MESSAGE_ID"/>
             <column name="MSH_ROLE_ID_FK" />
         </createIndex>
+
+        <!-- drop constraint if exists-->
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+            constraint_not_exists EXCEPTION;
+            PRAGMA EXCEPTION_INIT (constraint_not_exists, -02443);
+            BEGIN
+                EXECUTE IMMEDIATE 'ALTER TABLE TB_SIGNAL_MESSAGE DROP CONSTRAINT UK_SIGNAL_MSG_MESSAGE_ID';
+                EXCEPTION
+                WHEN constraint_not_exists
+                THEN
+                    NULL;
+            END;
+        </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_constraint_if_exists
+        </sql>
+        <sql dbms="mysql" splitStatements="false">
+            DELIMITER $$
+
+            CREATE PROCEDURE drop_constraint_if_exists(in constraintName varchar(128), in tableName varchar(128))
+            BEGIN
+                IF((SELECT COUNT(*) AS constraint_exists
+                    FROM information_schema.TABLE_CONSTRAINTS
+                    WHERE TABLE_SCHEMA = DATABASE() and upper(table_name) = tableName AND upper(constraint_name) = constraintName) > 0)
+                THEN
+                    SET @s = CONCAT('DROP INDEX ' , constraintName , ' ON ' , tableName);
+                    PREPARE stmt FROM @s;
+                    EXECUTE stmt;
+                END IF;
+            END$$
+
+            DELIMITER ;
+        </sql>
+        <sql dbms="mysql">
+            CALL drop_constraint_if_exists('UK_SIGNAL_MSG_MESSAGE_ID', 'TB_SIGNAL_MESSAGE');
+        </sql>
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
+
         <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" tableName="TB_SIGNAL_MESSAGE" />
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
