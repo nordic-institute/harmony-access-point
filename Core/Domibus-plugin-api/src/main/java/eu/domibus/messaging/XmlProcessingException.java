@@ -22,12 +22,12 @@ public class XmlProcessingException extends MessagingProcessingException {
 
     public XmlProcessingException(String message) {
         super(message);
-        super.setEbms3ErrorCode(ErrorCode.EBMS_0065);
+        super.setEbms3ErrorCode(ErrorCode.EBMS_0004);
     }
 
     public XmlProcessingException(String message, Throwable cause) {
         super(message, cause);
-        super.setEbms3ErrorCode(ErrorCode.EBMS_0065);
+        super.setEbms3ErrorCode(ErrorCode.EBMS_0004);
     }
 
     public Set<String> getErrors() {

@@ -2,6 +2,8 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
+import eu.domibus.core.crypto.spi.model.AuthenticationError;
+import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.ext.services.PkiExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -118,9 +120,15 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         x509Certificates.forEach(x509Certificate -> LOG.debug("Certificate to be validated value:[{}] canonical:[{}]", x509Certificate, x509Certificate.getSubjectX500Principal().getName("CANONICAL")));
     }
 
-    protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
+    protected void validate(CertificateValidator certificateValidator) {
+
         LOG.trace("Validate certificate");
-        CertificateReports reports = certificateValidator.validate();
+        CertificateReports reports;
+        try {
+            reports = certificateValidator.validate();
+        } catch (RuntimeException e) {
+            throw new AuthenticationException(AuthenticationError.EBMS_0101, "Certificate validation failed in DSS module");
+        }
         LOG.trace("Validate extract constraint mapper");
         final List<ConstraintInternal> constraints = constraintMapper.map();
         LOG.trace("Analysing certificate reports.");
@@ -130,6 +138,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             validationReport.checkConstraint(invalidConstraints);
         }
         LOG.trace("Incoming message certificate chain has been validated by DSS.");
+
     }
 
     protected CertificateValidator prepareCertificateValidator(X509Certificate leafCertificate, CertificateVerifier certificateVerifier) {

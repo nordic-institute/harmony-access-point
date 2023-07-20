@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.neethi.builders.converters.ConverterException;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,12 +115,15 @@ public class FaultInHandler extends AbstractFaultHandler {
     private EbMS3Exception getEBMS3Exception(Exception exception, String messageId) {
         EbMS3Exception ebMS3Exception = null;
 
-        final Throwable cause = exception.getCause();
+        Throwable cause = exception.getCause();
 
         if (cause != null) {
             //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
             if (!(cause instanceof EbMS3Exception)) {
                 //do mapping of non ebms exceptions
+                if (cause instanceof AuthenticationException) {
+                    cause = cause.getCause();
+                }
                 if (cause instanceof NoMatchingPModeFoundException) {
                     ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
@@ -178,6 +183,13 @@ public class FaultInHandler extends AbstractFaultHandler {
                             .mshRole(MSHRole.RECEIVING)
                             .build();
                 }
+            } else if (exception instanceof ConverterException) {
+                ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .message(cause.getMessage())
+                        .cause(cause)
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
             } else {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
