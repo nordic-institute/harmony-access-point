@@ -43,6 +43,12 @@
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-10627">
+        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="MESSAGE_IDS" type="CLOB"/>
+        </addColumn>
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="../../../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
