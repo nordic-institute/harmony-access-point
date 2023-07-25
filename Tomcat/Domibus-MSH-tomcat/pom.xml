@@ -363,7 +363,7 @@
         <plugins>
             <plugin>
                 <groupId>com.smartbear.soapui</groupId>
-                <artifactId>soapui-pro-maven-plugin</artifactId>
+                <artifactId>soapui-maven-plugin</artifactId>
                 <version>5.1.2</version>
                 <executions>
                     <execution>
