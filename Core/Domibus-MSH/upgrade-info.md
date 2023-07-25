@@ -82,7 +82,6 @@
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
-                - Run the appropriate DB migration script(mysql-5.0.3-to-5.0.4-migration.ddl for MySQL or oracle-5.0.3-to-5.0.4-migration.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.3 database, that contains user messages and was partitioned
 - no changes needed
