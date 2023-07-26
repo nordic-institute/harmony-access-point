@@ -17,6 +17,7 @@ import java.util.Objects;
  * @author François Gautier
  * @since 5.0
  */
+@Deprecated
 public class DomibusCacheRegionFactory extends JCacheRegionFactory {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheRegionFactory.class);

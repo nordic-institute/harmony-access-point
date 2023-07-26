@@ -137,7 +137,7 @@ public class DomibusLocalCacheServiceImplTest {
         domibusCacheService.clear2LCCaches(true);
 
         new Verifications() {{
-            sessionFactory.getCache().evictAll();
+            sessionFactory.getCache().evictAllRegions();
             times = 1;
         }};
     }

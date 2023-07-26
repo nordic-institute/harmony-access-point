@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
+import eu.domibus.core.cache.DomibusCacheKeysFactory;
 import eu.domibus.core.property.PrefixedProperties;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -81,6 +82,10 @@ public class DomibusJPAConfiguration {
             if (tenantIdentifierResolver.isPresent()) {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
+        }
+
+        if (tenantIdentifierResolver.isPresent()) {
+            DomibusCacheKeysFactory.setTenantIdentifierResolver(tenantIdentifierResolver.get());
         }
 
         result.setJpaProperties(jpaProperties);
