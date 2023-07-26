@@ -391,4 +391,9 @@ public class MultiDomainPModeProvider extends PModeProvider {
     public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
         return getCurrentPModeProvider().deleteFinalRecipientsOlderThan(numberOfDays);
     }
+
+    @Override
+    public boolean hasLegWithSplittingConfiguration() {
+        return getCurrentPModeProvider().hasLegWithSplittingConfiguration();
+    }
 }

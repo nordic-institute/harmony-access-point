@@ -959,6 +959,20 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public boolean hasLegWithSplittingConfiguration() {
+        final BusinessProcesses businessProcesses = getConfiguration().getBusinessProcesses();
+        final Set<eu.domibus.common.model.configuration.LegConfiguration> legConfigurations = businessProcesses.getLegConfigurations();
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(legConfigurations)) {
+            LOG.debug("No splitting configuration found: no legs found");
+            return false;
+        }
+        final long legsCountHavingSplittingConfiguration = legConfigurations.stream()
+                .filter(legConfiguration -> legConfiguration.getSplitting() != null)
+                .count();
+        return legsCountHavingSplittingConfiguration > 0;
+    }
+
+    @Override
     public boolean isConfigurationLoaded() {
         if (this.configuration != null) return true;
         return configurationDAO.configurationExists();
