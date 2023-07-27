@@ -212,7 +212,7 @@ public class MSHDispatcherTest {
 
     }
 
-    @Ignore
+    @Ignore //TODO: to be fixed with EDELIVERY-11863
     @Test
     public void testDispatch_WSSecurityExceptionDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
                                                                @Injectable final Policy policy,
@@ -249,7 +249,7 @@ public class MSHDispatcherTest {
 
     }
 
-    @Ignore
+    @Ignore //TODO: to be fixed with EDELIVERY-11863
     @Test
     public void testDispatch_SoapFaultDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
                                                      @Injectable final Policy policy,
