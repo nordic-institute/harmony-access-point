@@ -262,17 +262,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-            try {
-                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
-            } catch (SubmissionValidationException e) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                        .message(e.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(e)
-                        .build();
-            }
             String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
@@ -320,18 +309,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         // we add this objects for use in out Interceptor to notify when reply is sent; these values must be set before throwing any exception so that they can be available in the interceptor
         userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
         userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
-
-        try {
-            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
-        } catch (SubmissionValidationException e) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .message(e.getMessage())
-                    .refToMessageId(messageId)
-                    .cause(e)
-                    .build();
-        }
 
         try {
             persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult, () -> notifyMessageReceived(userMessage, messageId, matchingBackendFilter, backendName));
@@ -435,6 +412,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .refToMessageId(userMessage.getMessageId())
                     .cause(e)
                     .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        try {
+            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
+        } catch (SubmissionValidationException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, userMessage.getMessageId());
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message(e.getMessage())
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
                     .build();
         }
 
