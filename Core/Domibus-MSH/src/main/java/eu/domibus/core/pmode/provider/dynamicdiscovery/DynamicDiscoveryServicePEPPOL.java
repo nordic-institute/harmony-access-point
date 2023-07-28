@@ -74,7 +74,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
     private X509CertificateService x509CertificateService;
     private final ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
 
-    private final ObjectProvider<BusdoxLocator> busdoxLocators;
+    private final ObjectProvider<DomibusBusdoxLocator> busdoxLocators;
 
     private final ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
 
@@ -90,7 +90,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
                                          DomibusHttpRoutePlanner domibusHttpRoutePlanner,
                                          X509CertificateService x509CertificateService,
                                          ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
-                                         ObjectProvider<BusdoxLocator> busdoxLocators,
+                                         ObjectProvider<DomibusBusdoxLocator> busdoxLocators,
                                          ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
                                          ObjectProvider<EndpointInfo> endpointInfos,
                                          DynamicDiscoveryUtil dynamicDiscoveryUtil) {

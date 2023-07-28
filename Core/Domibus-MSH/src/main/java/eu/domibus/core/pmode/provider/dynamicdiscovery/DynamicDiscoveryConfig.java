@@ -40,8 +40,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public BusdoxLocator busdoxLocator(String smlInfo) {
-        return new BusdoxLocator(smlInfo);
+    public DomibusBusdoxLocator busdoxLocator(String smlInfo) {
+        return new DomibusBusdoxLocator(smlInfo);
     }
 
     @Bean
