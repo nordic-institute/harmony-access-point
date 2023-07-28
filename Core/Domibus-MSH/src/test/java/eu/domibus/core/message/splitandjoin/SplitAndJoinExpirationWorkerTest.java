@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -40,10 +41,16 @@ public class SplitAndJoinExpirationWorkerTest {
     @Injectable
     private DatabaseUtil databaseUtil;
 
+    @Injectable
+    PModeProvider pModeProvider;
+
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) {
         new Expectations() {{
             configurationDAO.configurationExists();
+            result = true;
+
+            pModeProvider.hasLegWithSplittingConfiguration();
             result = true;
         }};
 
