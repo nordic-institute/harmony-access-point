@@ -101,6 +101,8 @@ public abstract class PModeProvider {
 
     public abstract boolean isConfigurationLoaded();
 
+    public abstract boolean hasLegWithSplittingConfiguration();
+
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         if (rawConfiguration == null) {
