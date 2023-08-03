@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class DomainServiceImpl implements DomainService {
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
-    private List<Domain> domains;
+    private List<Domain> domains = new ArrayList<>();
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
