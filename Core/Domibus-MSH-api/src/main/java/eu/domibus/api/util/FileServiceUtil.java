@@ -1,6 +1,8 @@
 package eu.domibus.api.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Catalin Enache
@@ -33,4 +35,11 @@ public interface FileServiceUtil {
      * @return the translated String.
      */
     String URLEncode(String s);
+
+    /**
+     * Copy the contents of the given InputStream to the given File. Closes the inputs stream when done.
+     * @return the number of bytes copied
+     * @throws IOException - in case of I/O errors
+     */
+    int copyToFile(InputStream in, File out) throws IOException;
 }
