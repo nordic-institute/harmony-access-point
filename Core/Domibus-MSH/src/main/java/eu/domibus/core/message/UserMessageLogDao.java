@@ -395,7 +395,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
-        countQuery.setParameter("MESSAGESTATUS", messageStatus);
+        countQuery.setParameter("MESSAGESTATUS", messageStatus.name());
         if(startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
