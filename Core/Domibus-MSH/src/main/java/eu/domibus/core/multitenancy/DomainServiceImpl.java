@@ -30,7 +30,9 @@ public class DomainServiceImpl implements DomainService {
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
-    private List<Domain> domains = new ArrayList<>();
+    private List<Domain> domains;
+
+    private Object domainsLock = new Object();
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -57,7 +59,7 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public List<Domain> getDomains() {
         if (domains == null) {
-            synchronized (domains) {
+            synchronized (domainsLock) {
                 if (domains == null) {
                     domains = getAllValidDomains();
                 }
