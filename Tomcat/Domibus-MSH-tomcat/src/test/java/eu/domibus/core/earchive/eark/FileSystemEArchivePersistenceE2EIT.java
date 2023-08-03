@@ -156,7 +156,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2)), messageStartDate, messageEndDate);
         try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
-            // must have more that one subfolder item
+            // must have more than one subfolder item
             assertTrue(temp.listFiles().length > 0);
             File batchFolder = getFileItem(batchDirectory.getName().getBaseName(), temp.listFiles(), true);
             assertNotNull(batchFolder);
@@ -181,7 +181,6 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                     BatchEArchiveDTO batchEArchiveDTO = new ObjectMapper().readValue(file, BatchEArchiveDTO.class);
                     assertNotNull(batchEArchiveDTO.getManifestChecksum());
                     assertEquals(byMessageId.getMessageId(), batchEArchiveDTO.getMessages().get(0));
-                    assertEquals(batchEArchiveDTO.getBatchId(), batchEArchiveDTO.getBatchId());
                 }
                 if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
                     List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
