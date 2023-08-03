@@ -54,9 +54,13 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public synchronized List<Domain> getDomains() {
+    public List<Domain> getDomains() {
         if (domains == null) {
-            domains = getAllValidDomains();
+            synchronized (domains) {
+                if (domains == null) {
+                    domains = getAllValidDomains();
+                }
+            }
         }
         return domains;
     }

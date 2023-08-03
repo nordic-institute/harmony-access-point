@@ -50,6 +50,9 @@ public class XMLUtilImpl implements XMLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
 
+    public static final String DOCUMENT_BUILDER_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl";
+    public static final String TRANSFORMER_FACTORY_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
+
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     public XMLUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
@@ -58,10 +61,16 @@ public class XMLUtilImpl implements XMLUtil {
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal =
             ThreadLocal.withInitial(() -> {
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                makeSafe(documentBuilderFactory);
+                DocumentBuilderFactory documentBuilderFactory = XMLUtilImpl.createDocumentBuilderFactory();
                 return documentBuilderFactory;
             });
+
+    public static DocumentBuilderFactory createDocumentBuilderFactory() {
+        ClassLoader classLoader = XMLUtilImpl.class.getClassLoader();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance(DOCUMENT_BUILDER_FACTORY_IMPL, classLoader);
+        makeSafe(documentBuilderFactory);
+        return documentBuilderFactory;
+    }
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryNamespaceAwareThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -99,7 +108,8 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     public static TransformerFactory createTransformerFactory() {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        ClassLoader classLoader = XMLUtilImpl.class.getClassLoader();
+        TransformerFactory transformerFactory = TransformerFactory.newInstance(TRANSFORMER_FACTORY_IMPL, classLoader);
         try {
             transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException e) {
@@ -213,6 +223,8 @@ public class XMLUtilImpl implements XMLUtil {
 
             feature = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
             dbf.setFeature(feature, false);
+
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         } catch (ParserConfigurationException e) {
             throw new DomibusXMLException(String.format("The feature [%s] is probably not supported by your XML processor", feature), e);
         }
