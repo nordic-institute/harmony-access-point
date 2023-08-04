@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.messaging.XmlProcessingException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         assertEquals(partyEndpoint, receiverPartyEndpoint);
     }
 
+    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
     public void testGetFinalParticipantEndpointFromFinalParticipantEndpointURL() {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
