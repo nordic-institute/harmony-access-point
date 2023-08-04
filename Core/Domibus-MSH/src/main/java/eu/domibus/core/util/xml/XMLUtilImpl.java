@@ -17,6 +17,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
@@ -49,6 +51,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class XMLUtilImpl implements XMLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
+    public static final String DOCUMENT_BUILDER_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl";
+    public static final String TRANSFORMER_FACTORY_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
+    public static final String DATA_TYPE_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.datatype.DatatypeFactoryImpl";
 
     public static final String DOCUMENT_BUILDER_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl";
     public static final String TRANSFORMER_FACTORY_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
@@ -78,6 +83,9 @@ public class XMLUtilImpl implements XMLUtil {
         makeSafe(documentBuilderFactory);
         return documentBuilderFactory;
     });
+
+    private static final ThreadLocal<DatatypeFactory> datatypeFactoryThreadLocal =
+            ThreadLocal.withInitial(XMLUtilImpl::createDatatypeFactory);
 
     private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal =
             ThreadLocal.withInitial(XMLUtilImpl::createTransformerFactory);
@@ -118,6 +126,16 @@ public class XMLUtilImpl implements XMLUtil {
         return transformerFactory;
     }
 
+    public static DatatypeFactory createDatatypeFactory() {
+        ClassLoader classLoader = XMLUtilImpl.class.getClassLoader();
+        DatatypeFactory transformerFactory = null;
+        try {
+            transformerFactory = DatatypeFactory.newInstance(DATA_TYPE_FACTORY_IMPL, classLoader);
+        } catch (DatatypeConfigurationException e) {
+            throw new DomibusXMLException("Error initializing DatatypeFactory", e);
+        }
+        return transformerFactory;
+    }
 
     @Override
     public MessageFactory getMessageFactorySoap12() {
@@ -127,6 +145,11 @@ public class XMLUtilImpl implements XMLUtil {
     @Override
     public TransformerFactory getTransformerFactory() {
         return transformerFactoryThreadLocal.get();
+    }
+
+    @Override
+    public DatatypeFactory getDatatypeFactory() {
+        return datatypeFactoryThreadLocal.get();
     }
 
     @Override

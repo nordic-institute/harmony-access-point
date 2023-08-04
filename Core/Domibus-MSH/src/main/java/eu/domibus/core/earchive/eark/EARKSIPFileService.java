@@ -1,6 +1,9 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.util.FileServiceUtil;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -18,11 +21,11 @@ import org.roda_project.commons_ip2.model.impl.eark.EARKMETSUtils;
 import org.roda_project.commons_ip2.model.impl.eark.EARKSIP;
 import org.roda_project.commons_ip2.utils.METSUtils;
 import org.roda_project.commons_ip2.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.Optional;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author François Gautier
@@ -46,6 +51,21 @@ public class EARKSIPFileService {
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
+
+    @Autowired
+    protected FileServiceUtil fileServiceUtil;
+
+    public void setMetricRegistry(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+    }
+
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     public MetsWrapper getMetsWrapper(String artifactName, String displayVersion, String batchId) throws IPException {
         EARKSIP sip = new EARKSIP();
         sip.addCreatorSoftwareAgent(artifactName, displayVersion);
@@ -68,12 +88,14 @@ public class EARKSIPFileService {
     @Counter(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
     public void createDataFile(Path path, InputStream value) {
         try {
-            FileUtils.copyToFile(value, path.toFile());
+            fileServiceUtil.copyToFile(value, path.toFile());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not create file [" + path.toFile().getAbsolutePath() + "]", e);
         }
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
     public String getChecksum(Path path) {
         try {
             return SHA_256 + getChecksumSHA256(path);
@@ -88,6 +110,8 @@ public class EARKSIPFileService {
         mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
     protected Path addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
             return METSUtils.marshallMETS(mainMETSWrapper.getMets(), Paths.get(destinationDirectory.toFile().getAbsolutePath(), IPConstants.METS_FILE), true);
@@ -101,28 +125,36 @@ public class EARKSIPFileService {
     }
 
     public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, ArchivingFileDTO archivingFileDTO) {
+        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time();
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
+        crtFile.stop();
 
+        com.codahale.metrics.Timer.Context setBF = metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time();
         // set mimetype, date creation, etc.
         setFileBasicInformation(archivingFileDTO, file);
+        setBF.stop();
 
         // add to file section
+        com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addDataFileInfoToMETS", "fileLocation", "timer")).time();
         FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
         file.getFLocat().add(fileLocation);
         representationMETS.getDataFileGroup().getFile().add(file);
+        filLoc.stop();
 
+        com.codahale.metrics.Timer.Context strMap = metricRegistry.timer(name("addDataFileInfoToMETS", "structMap", "timer")).time();
         // add to struct map
         if (representationMETS.getDataDiv().getFptr().isEmpty()) {
             DivType.Fptr fptr = new DivType.Fptr();
             fptr.setFILEID(representationMETS.getDataFileGroup());
             representationMETS.getDataDiv().getFptr().add(fptr);
         }
+        strMap.close();
     }
 
     public void setFileBasicInformation(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         initMimeTypeInfo(archivingFileDTO, fileType);
-        initDateCreation(fileType, getFileName(archivingFileDTO));
+        initDateCreation(fileType);
         if (archivingFileDTO != null) {
             initSizeInfo(archivingFileDTO, fileType);
             initChecksum(archivingFileDTO, fileType);
@@ -141,12 +173,9 @@ public class EARKSIPFileService {
 
     }
 
-    private void initDateCreation(FileType fileType, String name) {
-        try {
-            fileType.setCREATED(getDatatypeFactory().newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
-        } catch (DatatypeConfigurationException e) {
-            throw new DomibusEArchiveException("Error getting curent calendar [" + name + "]", e);
-        }
+    private void initDateCreation(FileType fileType) {
+        final DatatypeFactory datatypeFactory = xmlUtil.getDatatypeFactory();
+        fileType.setCREATED(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
     }
 
     private void initMimeTypeInfo(ArchivingFileDTO archivingFileDTO, FileType fileType) {
@@ -174,13 +203,13 @@ public class EARKSIPFileService {
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
+        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time();
         try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
             return DigestUtils.sha256Hex(inputStream);
+        } finally {
+            crtFile.stop();
         }
-    }
 
-    private DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {
-        return DatatypeFactory.newInstance();
     }
 
     private String getFileMimetype(@Nullable ArchivingFileDTO archivingFileDTO) throws IOException {
