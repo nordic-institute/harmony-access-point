@@ -40,7 +40,7 @@
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
-                              - if your database is not partitioned then run @oracle-5.0.6-partitioning.ddl
+                              - if your database is not partitioned then run @oracle-5.1.1-partitioning.ddl
                   o [MySQL only]
                       The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                           - the root user, specifying the target databases as part of the command. For example, for single tenancy:
