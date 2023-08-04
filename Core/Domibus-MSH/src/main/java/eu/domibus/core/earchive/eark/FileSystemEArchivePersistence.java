@@ -153,8 +153,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             ArchivingFileDTO archivingFileDTO = file.getValue();
             archivingFileDTO.setPath(path);
             MessageDigest instance = getMessageDigest();
-            try (InputStream inputStream = new DigestInputStream(archivingFileDTO.getInputStream(), instance)) {
-                eArkSipBuilderService.createDataFile(path, inputStream);
+
+            try (InputStream inputStream = archivingFileDTO.getInputStream();
+                 InputStream digestInputStream = new DigestInputStream(inputStream, instance)) {
+                eArkSipBuilderService.createDataFile(path, digestInputStream);
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + archivingFileDTO + "]", e);
             }
