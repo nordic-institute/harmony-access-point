@@ -55,9 +55,6 @@ public class XMLUtilImpl implements XMLUtil {
     public static final String TRANSFORMER_FACTORY_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
     public static final String DATA_TYPE_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.datatype.DatatypeFactoryImpl";
 
-    public static final String DOCUMENT_BUILDER_FACTORY_IMPL = "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl";
-    public static final String TRANSFORMER_FACTORY_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
-
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     public XMLUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
