@@ -11,6 +11,14 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.TypedQuery;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0
+ *
+ * @implNote This DAO class works with {@link NotificationStatusEntity}, which is a static dictionary
+ * based on the {@link NotificationStatus} enum: no new values are expected to be added at runtime;
+ * therefore, {@link NotificationStatusDao} can be used directly, without subclassing {@link AbstractDictionaryService}.
+ */
 @Service
 public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
 
