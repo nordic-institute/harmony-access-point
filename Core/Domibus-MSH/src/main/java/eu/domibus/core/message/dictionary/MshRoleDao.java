@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
  *
  * @implNote This DAO class works with {@link MSHRoleEntity}, which is a static dictionary
  * based on the {@link MSHRole} enum: no new values are expected to be added at runtime;
- * therefore, {@link MshRoleDao} can be used directly, without subclassing {@link AbstractDictionaryService}.
+ * therefore, {@code MshRoleDao} can be used directly, without subclassing {@link AbstractDictionaryService}.
  */
 @Repository
 public class MshRoleDao extends BasicDao<MSHRoleEntity> {

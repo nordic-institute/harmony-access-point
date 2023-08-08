@@ -16,7 +16,7 @@ import javax.persistence.TypedQuery;
  *
  * @implNote This DAO class works with {@link MessageStatusEntity}, which is a static dictionary
  * based on the {@link MessageStatus} enum: no new values are expected to be added at runtime;
- * therefore, {@link MessageStatusDao} can be used directly, without subclassing AbstractDictionaryService.
+ * therefore, {@code MessageStatusDao} can be used directly, without subclassing {@code AbstractDictionaryService}.
  */
 @Service
 public class MessageStatusDao extends BasicDao<MessageStatusEntity> {
