@@ -512,6 +512,10 @@ public class MessageUtil {
     }
 
     protected String getTextContent(Node node) {
+        if (node == null) {
+            LOG.error("Unexpected null value for node.");
+            return null;
+        }
         return StringUtils.trim(node.getTextContent());
     }
 
