@@ -130,7 +130,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         //Only 1 new batch created because START_DATE of continuous forbid the sanitizer to pick up the last message
         List<EArchiveBatchEntity> batchesByStatus = userMessageDao.findBatchesByStatus(Arrays.asList(EArchiveBatchStatus.values()), 10000);
         for (EArchiveBatchEntity byStatus : batchesByStatus) {
-            List<EArchiveBatchUserMessage> batchMessageList = eArchiveBatchUserMessageDao.getBatchMessageList(byStatus.getBatchId(), 0, 1000);
+            List<EArchiveBatchUserMessage> batchMessageList = eArchiveBatchUserMessageDao.getBatchMessageList(byStatus.getEntityId(), 0, 1000);
             for (EArchiveBatchUserMessage eArchiveBatchUserMessage : batchMessageList) {
                 if (StringUtils.equals(eArchiveBatchUserMessage.getMessageId(), messageId1)) {
                     LOG.info(eArchiveBatchUserMessage.toString());
