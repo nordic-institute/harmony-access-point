@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -76,8 +77,8 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     }
 
     private void createStorage(Domain domain) {
-        final Boolean eArchiveActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
-        if (!eArchiveActive) {
+        final Boolean eArchiveActive = domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isNotTrue(eArchiveActive)) {
             LOG.debug("eArchiving is not enabled for domain [{}], so no storage created", domain);
             return;
         }
