@@ -121,7 +121,7 @@ public class EArchivingJobService {
         if (originEntity == null) {
             throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "eArchive batch not found batchId: [" + batchId + "]");
         }
-        List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getEntityId(), null, null);
 
         EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
                 originEntity.getFirstPkUserMessage(),

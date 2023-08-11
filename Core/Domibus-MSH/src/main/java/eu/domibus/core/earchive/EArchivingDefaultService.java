@@ -134,7 +134,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         List<EArchiveBatchEntity> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter);
         if (BooleanUtils.isTrue(returnMessages)) {
             for (EArchiveBatchEntity eArchiveBatchEntity : requestDTOList) {
-                eArchiveBatchEntity.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatchEntity.getBatchId(), null, null));
+                eArchiveBatchEntity.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatchEntity.getEntityId(), null, null));
             }
         }
         return requestDTOList.stream()
@@ -153,7 +153,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                 || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.STARTED) {
             return Collections.emptyList();
         }
-        return eArchiveBatchUtils.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batchId, pageStart, pageSize));
+        return eArchiveBatchUtils.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batch.getEntityId(), pageStart, pageSize));
     }
 
     @Override
@@ -232,7 +232,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
             throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "eArchive batch not found for batchEntityId: [" + entityId + "]");
         }
         if (fetchEarchiveBatchUm) {
-            eArchiveBatch.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatch.getBatchId(), null, null));
+            eArchiveBatch.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatch.getEntityId(), null, null));
         }
         return eArchiveBatch;
     }
