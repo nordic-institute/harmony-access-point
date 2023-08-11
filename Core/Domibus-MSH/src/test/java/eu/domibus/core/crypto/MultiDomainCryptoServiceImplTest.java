@@ -1,8 +1,8 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
+import eu.domibus.api.crypto.DomibusCryptoType;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
@@ -10,7 +10,6 @@ import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;

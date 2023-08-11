@@ -1,15 +1,14 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
+import eu.domibus.api.crypto.DomibusCryptoType;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
