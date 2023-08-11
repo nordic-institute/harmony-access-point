@@ -517,6 +517,10 @@ public class MessageUtil {
 
     protected String getErrorDetail(Node errorNode) {
         final Node errorDetailNode = getFirstChild(errorNode, ERROR_DETAIL);
+        if (errorDetailNode == null) {
+            LOG.debug("ErrorDetail node is null");
+            return null;
+        }
         return getTextContent(errorDetailNode);
     }
 
