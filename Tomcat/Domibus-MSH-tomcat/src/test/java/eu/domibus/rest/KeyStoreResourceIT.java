@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -103,6 +102,7 @@ public class KeyStoreResourceIT extends AbstractIT {
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_keystore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_keystore.jks", content, storePassword);
+            multiDomainCryptoService.resetKeyStore(domain);
             multiDomainCryptoService.replaceKeyStore(domain, storeInfo);
         } catch (Exception e) {
             LOG.info("Error restoring initial keystore", e);
