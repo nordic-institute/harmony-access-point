@@ -137,7 +137,7 @@ public interface BackendConnector<U, T> {
      * @deprecated since 5.1 Use instead {@link #getErrorsForMessage(String messageId, MSHRole role)}
      */
     @Deprecated
-    List<ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException;
+    List<ErrorResult> getErrorsForMessage(final String messageId) throws DuplicateMessageException;
 
     List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) throws MessageNotFoundException;
 

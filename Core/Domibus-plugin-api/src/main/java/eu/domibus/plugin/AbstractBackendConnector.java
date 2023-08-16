@@ -215,7 +215,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public List<ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
+    public List<ErrorResult> getErrorsForMessage(final String messageId) throws DuplicateMessageException {
         List<ErrorResult> errorResults = new ArrayList<>();
         try{
             errorResults= new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
