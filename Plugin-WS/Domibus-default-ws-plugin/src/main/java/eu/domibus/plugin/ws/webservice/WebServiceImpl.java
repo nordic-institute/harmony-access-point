@@ -9,9 +9,9 @@ import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -24,7 +24,6 @@ import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -482,7 +481,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     /**
-     * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     * The message status is updated to downloaded (the message is also removed from the plugin table ws_plugin_tb_message_log containing the pending messages)
      *
      * @param markMessageAsDownloadedRequest
      * @param markMessageAsDownloadedResponse
@@ -512,6 +511,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         markMessageAsDownloadedResponse.value = WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
         markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
+
+        wsMessageLogService.delete(wsMessageLogEntity);
     }
 
     /**
