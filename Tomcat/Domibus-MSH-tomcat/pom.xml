@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.0.0</version>
+        <version>2.1.0</version>
     </parent>
 
     <artifactId>harmony-MSH-tomcat</artifactId>
@@ -363,7 +363,7 @@
         <plugins>
             <plugin>
                 <groupId>com.smartbear.soapui</groupId>
-                <artifactId>soapui-pro-maven-plugin</artifactId>
+                <artifactId>soapui-maven-plugin</artifactId>
                 <version>5.1.2</version>
                 <executions>
                     <execution>

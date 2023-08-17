@@ -11,13 +11,13 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,12 +45,13 @@ public class ErrorLogDaoIT extends AbstractIT {
     public void setUp() {
         errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
 
-        createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", new Date());
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(new Date(), -1));
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(new Date(), -2));
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 3", DateUtils.addDays(new Date(), -5));
+        final Date date = new Date();
+        createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", date);
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(date, -1));
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(date, -3));
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 3", DateUtils.addDays(date, -5));
 
-        createErrorLog(MSHRole.RECEIVING, "messageId_2", ErrorCode.EBMS_0004, "error test filter", new Date());
+        createErrorLog(MSHRole.RECEIVING, "messageId_2", ErrorCode.EBMS_0004, "error test filter", date);
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
