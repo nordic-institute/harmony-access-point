@@ -204,6 +204,7 @@ public class TruststoreResourceIT extends AbstractIT {
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
+            multiDomainCryptoService.resetTrustStore(domain);
             multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
         } catch (Exception e) {
             LOG.info("Error restoring initial keystore", e);

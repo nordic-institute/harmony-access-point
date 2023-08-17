@@ -18,7 +18,6 @@ import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +25,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.constraints.AssertFalse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -333,8 +331,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     private void resetInitialTruststore() {
         try {
-            String storePassword = "test123";
             Domain domain = DomainService.DEFAULT_DOMAIN;
+            multiDomainCryptoService.resetTrustStore(domain);
+            String storePassword = "test123";
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
