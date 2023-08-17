@@ -155,17 +155,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
-        try {
-            UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
-            if (userMessageLog == null) {
-                throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
-            }
-        } catch (DuplicateMessageFoundException exception) {
-            throw new DuplicateMessageException(exception.getMessage());
+        UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
 
-        return errorsForMessage.stream().map(errorLogEntry -> errorLogService.convert(errorLogEntry)).collect(Collectors.toList());
+        return errorsForMessage.stream().map(errorLogService::convert).collect(Collectors.toList());
     }
 
     @Override
