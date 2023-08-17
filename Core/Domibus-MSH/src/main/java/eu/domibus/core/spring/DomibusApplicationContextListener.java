@@ -18,6 +18,8 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -71,6 +73,7 @@ public class DomibusApplicationContextListener {
 
     protected final UserManagementServiceImpl userManagementService;
 
+    final SuperUserManagementServiceImpl superUserManagementService;
 
     protected final DomibusPropertyValidatorService domibusPropertyValidatorService;
 
@@ -102,6 +105,7 @@ public class DomibusApplicationContextListener {
                                              MultiDomainCryptoService multiDomainCryptoService,
                                              TLSCertificateManager tlsCertificateManager,
                                              UserManagementServiceImpl userManagementService,
+                                             SuperUserManagementServiceImpl superUserManagementService,
                                              DomibusPropertyValidatorService domibusPropertyValidatorService,
                                              BackendConnectorService backendConnectorService,
                                              MessageListenerContainerInitializer messageListenerContainerInitializer,
@@ -121,6 +125,7 @@ public class DomibusApplicationContextListener {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.tlsCertificateManager = tlsCertificateManager;
         this.userManagementService = userManagementService;
+        this.superUserManagementService = superUserManagementService;
         this.domibusPropertyValidatorService = domibusPropertyValidatorService;
         this.backendConnectorService = backendConnectorService;
         this.messageListenerContainerInitializer = messageListenerContainerInitializer;
@@ -164,7 +169,7 @@ public class DomibusApplicationContextListener {
         domibusPropertyValidatorService.enforceValidation();
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
-        userManagementService.createDefaultUserIfApplicable();
+        getUserService().createDefaultUserIfApplicable();
 
         initializePluginsWithLockIfNeeded();
     }
@@ -236,6 +241,14 @@ public class DomibusApplicationContextListener {
         final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
         LOG.debug("Cluster deployment? [{}]", clusterDeployment);
         return clusterDeployment;
+    }
+
+    UserService getUserService() {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return superUserManagementService;
+        } else {
+            return userManagementService;
+        }
     }
 
 }
