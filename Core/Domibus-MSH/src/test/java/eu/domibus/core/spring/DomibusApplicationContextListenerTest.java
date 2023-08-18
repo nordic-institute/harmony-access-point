@@ -191,6 +191,9 @@ public class DomibusApplicationContextListenerTest {
 
             domibusQuartzStarter.initialize();
             times = 1;
+            
+            domibusConfigurationService.isMultiTenantAware();
+            times=1;
 
             mshEndpoint.publish("/msh");
             times = 1;
