@@ -64,7 +64,7 @@
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
 ### Partitioning (only oracle)
 #### If the database was not partitioned
-               - Run as edelivery_user: @oracle-5.0.6-partitioning.ddl
+               - Run as edelivery_user: @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
 ## Domibus 5.0.5 (from 5.0.4):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
