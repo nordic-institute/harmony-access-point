@@ -8,7 +8,7 @@ import java.util.UUID;
 public class SendJMSMessageOnTomcat {
 
     public static void main(String[] args) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:6416");
         Connection connection;
         MessageProducer producer;
         try {
@@ -60,10 +60,13 @@ public class SendJMSMessageOnTomcat {
 
             messageMap.setJMSCorrelationID("12345");
             //Set up the payload properties
-            messageMap.setStringProperty("totalNumberOfPayloads", "1");
+            messageMap.setStringProperty("totalNumberOfPayloads", "2");
             messageMap.setStringProperty("payload_1_description", "message");
             messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
             messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+            messageMap.setStringProperty("payload_2", "http://localhost:8085/gsc/ws/download/cda172dd-bf82-471c-8e82-b2f7d7dcd7fd/wk00638.en21.pdf");
+            messageMap.setStringProperty("payload_2_mimeContentId", "cid:attachment01");
+            messageMap.setStringProperty("payload_2_mimeType", "application/octet-stream");
             messageMap.setStringProperty("processingType","PUSH");
 
             //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional

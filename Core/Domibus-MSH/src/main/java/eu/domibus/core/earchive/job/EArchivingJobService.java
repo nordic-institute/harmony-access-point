@@ -160,7 +160,11 @@ public class EArchivingJobService {
     @Transactional(readOnly = true)
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
+            return Long.min(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage(),
+                    Long.parseLong(ZonedDateTime
+                            .now(ZoneOffset.UTC)
+                            .minusHours(getSanitizerDelay())
+                            .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         }
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
@@ -181,6 +185,14 @@ public class EArchivingJobService {
         }
         long hours = retryTimeOut / 60L;
         return (hours + 1) * 60;
+    }
+
+    protected long getSanitizerDelay() {
+        Long delay = domibusPropertyProvider.getLongProperty(DOMIBUS_EARCHIVE_SANITY_DELAY);
+        if (delay == null) {
+            return 0L;
+        }
+        return delay;
     }
 
     protected long getRetryTimeOut() {
