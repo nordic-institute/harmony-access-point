@@ -40,7 +40,7 @@
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
-                              - if your database is not partitioned then run @oracle-5.1.1-partitioning.ddl
+                            - if your database is not partitioned then run @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
                   o [MySQL only]
                       The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                           - the root user, specifying the target databases as part of the command. For example, for single tenancy:
@@ -64,7 +64,7 @@
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
 ### Partitioning (only oracle)
 #### If the database was not partitioned
-               - Run as edelivery_user: @oracle-5.0.6-partitioning.ddl
+               - Run as edelivery_user: @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
 ## Domibus 5.0.5 (from 5.0.4):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
