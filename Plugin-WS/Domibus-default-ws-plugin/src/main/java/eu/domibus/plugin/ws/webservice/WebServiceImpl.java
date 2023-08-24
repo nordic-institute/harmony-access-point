@@ -74,6 +74,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
     public static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
+    public static final String ERROR_MESSAGE_ID = "Error message, id [";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
@@ -370,7 +371,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
-        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
+        ListPushFailedMessagesRequest validListPushFailedMessagesRequest = getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
 
         final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
@@ -486,7 +487,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
      * @param markMessageAsDownloadedRequest
      * @param markMessageAsDownloadedResponse
      * @param ebMSHeaderInfo
-     * @throws eu.domibus.plugin.webService.generated.MarkMessageAsDownloadedFault
+     * @throws eu.domibus.plugin.ws.generated.MarkMessageAsDownloadedFault
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
@@ -699,11 +700,20 @@ public class WebServiceImpl implements WebServicePluginInterface {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
         } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + messageId + "]", exception);
+            }
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (DuplicateMessageException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(DUPLICATE_MESSAGE_ID + messageId + "]", e);
+            }
             throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(ERROR_MESSAGE_ID + messageId + "]", e);
+            }
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         }
         return transformFromErrorResults(errorsForMessage);
