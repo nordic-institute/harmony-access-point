@@ -9,6 +9,7 @@ import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -25,6 +26,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -722,12 +724,17 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
-        if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
-            return finalRecipientAPUrl;
-        }
+        final boolean useDynamicDiscovery = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        if (useDynamicDiscovery) {
+            //try to get the party URL from the cached final participant URLs
+            String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
 
+            if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
+                LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+                return finalRecipientAPUrl;
+            }
+        }
+        //in case of dynamic discovery, we default to the endpoint from the PMode which is added dynamically at runtime
         final String receiverPartyEndpoint = receiverParty.getEndpoint();
         LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
         return receiverPartyEndpoint;
@@ -956,6 +963,20 @@ public class CachingPModeProvider extends PModeProvider {
             finalRecipientService.clearFinalRecipientAccessPointUrls(domain);
             this.init(); //reloads the config
         }
+    }
+
+    @Override
+    public boolean hasLegWithSplittingConfiguration() {
+        final BusinessProcesses businessProcesses = getConfiguration().getBusinessProcesses();
+        final Set<eu.domibus.common.model.configuration.LegConfiguration> legConfigurations = businessProcesses.getLegConfigurations();
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(legConfigurations)) {
+            LOG.debug("No splitting configuration found: no legs found");
+            return false;
+        }
+        final long legsCountHavingSplittingConfiguration = legConfigurations.stream()
+                .filter(legConfiguration -> legConfiguration.getSplitting() != null)
+                .count();
+        return legsCountHavingSplittingConfiguration > 0;
     }
 
     @Override

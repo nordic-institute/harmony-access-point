@@ -253,7 +253,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Test
     public void testExecuteBatchIsArchived() {
         // given
-        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getEntityId(), null, null);
         Assert.assertEquals(3, messageList.size());
         for (EArchiveBatchUserMessage eArchiveBatchUserMessage : messageList) {
             Assert.assertNull(userMessageLogDao.findByMessageId(eArchiveBatchUserMessage.getMessageId()).getArchived());
@@ -271,7 +271,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         // messages and
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
 
-        List<EArchiveBatchUserMessage> messageListFinal = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messageListFinal = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getEntityId(), null, null);
         Assert.assertEquals(3, messageListFinal.size());
         for (EArchiveBatchUserMessage eArchiveBatchUserMessage : messageListFinal) {
             Assert.assertNotNull(userMessageLogDao.findByMessageId(eArchiveBatchUserMessage.getMessageId()).getArchived());
@@ -281,7 +281,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Test
     public void testExecuteBatchIsArchivedDelete() {
         // given
-        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getEntityId(), null, null);
         Assert.assertEquals(3, messageList.size());
         Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
 

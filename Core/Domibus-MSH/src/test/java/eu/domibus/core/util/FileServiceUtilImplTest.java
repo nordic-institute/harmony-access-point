@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
  * @since 4.1.4
  */
 @RunWith(JMockit.class)
-public class FileEbms3ServiceUtilImplTest {
+public class FileServiceUtilImplTest {
 
     @Tested
     FileServiceUtilImpl fileServiceUtil;

@@ -88,7 +88,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
 
     @Injectable
-    private ObjectProvider<BusdoxLocator> busdoxLocators;
+    private ObjectProvider<DomibusBusdoxLocator> busdoxLocators;
 
     @Injectable
     private ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
@@ -100,7 +100,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private DomibusCertificateValidator domibusCertificateValidator;
 
     @Injectable
-    private BusdoxLocator busdoxLocator;
+    private DomibusBusdoxLocator busdoxLocator;
 
     @Injectable
     private DomibusApacheFetcher domibusApacheFetcher;

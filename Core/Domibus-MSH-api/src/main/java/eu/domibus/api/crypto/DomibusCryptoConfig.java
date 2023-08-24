@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto;
+package eu.domibus.api.crypto;
 
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.springframework.beans.factory.config.BeanDefinition;

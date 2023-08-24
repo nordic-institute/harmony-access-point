@@ -1,5 +1,6 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -21,10 +22,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
+import static eu.domibus.core.message.retention.MessageRetentionPartitionsService.DEFAULT_PARTITION;
+import static eu.domibus.core.message.retention.MessageRetentionPartitionsService.PARTITION_NAME_REGEXP;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author idragusa
@@ -32,6 +41,14 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @RunWith(JMockit.class)
 public class MessageRetentionPartitionsServiceTest {
+
+    public static final DatabasePartition DB_PARTITION_DEFAULT = new DatabasePartition(DEFAULT_PARTITION, 220000000000000000L);
+    public static final DatabasePartition DB_PARTITION_MESSAGES_BEFORE_PARTIONING = new DatabasePartition("P123", 230701090000000000L);
+    public static final DatabasePartition DB_PARTITION_UNTIL_NOW_MINUS_1H = new DatabasePartition("SYS_P111", 230702080000000000L);
+    public static final DatabasePartition DB_PARTITION_UNTIL_NOW = new DatabasePartition("SYS_P222", 230702090000000000L);
+    public static final DatabasePartition DB_PARTITION_UNTIL_NOW_PLUS_1H = new DatabasePartition("SYS_P333", 230702100000000000L);
+    public static final Long NOW_AS_NUMBER = 230702090000000000L;
+    public static final long TWO_HOURS = 20000000000L;
 
     @Tested
     MessageRetentionPartitionsService messageRetentionPartitionsService;
@@ -74,13 +91,12 @@ public class MessageRetentionPartitionsServiceTest {
         String partitionNameOld = "P23032207";
         String partitionNameNew = "SYS_P12345";
 
-        Assert.assertTrue(partitionNameOld.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
-        Assert.assertTrue(partitionNameNew.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
+        Assert.assertTrue(partitionNameOld.matches(PARTITION_NAME_REGEXP));
+        Assert.assertTrue(partitionNameNew.matches(PARTITION_NAME_REGEXP));
     }
 
     @Test
     public void deleteExpiredMessagesTest() {
-
         List<String> mpcs = new ArrayList<>();
         mpcs.add("mpc1");
         mpcs.add("mpc2");
@@ -99,6 +115,19 @@ public class MessageRetentionPartitionsServiceTest {
 
             pModeProvider.getMpcURIList();
             result = mpcs;
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            userMessageDao.findAllPartitions();
+            result = Arrays.asList(
+                    DB_PARTITION_DEFAULT,
+                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
+                    DB_PARTITION_UNTIL_NOW_MINUS_1H
+            );
+
+            partitionService.getPartitionHighValueFromDate(withAny(new Date()));
+            result = NOW_AS_NUMBER;
         }};
 
         messageRetentionPartitionsService.deleteExpiredMessages();
@@ -112,9 +141,69 @@ public class MessageRetentionPartitionsServiceTest {
             result = false;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
             result = false;
-
         }};
 
         Assert.assertTrue(messageRetentionPartitionsService.verifyIfAllMessagesAreArchived("mypart"));
+    }
+
+
+    @Test
+    public void testGetExpiredPartitionsWithNothingExpired() {
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            userMessageDao.findAllPartitions();
+            result = Arrays.asList(
+                    DB_PARTITION_DEFAULT,
+                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
+                    DB_PARTITION_UNTIL_NOW_MINUS_1H,
+                    DB_PARTITION_UNTIL_NOW,
+                    DB_PARTITION_UNTIL_NOW_PLUS_1H
+            );
+
+            partitionService.getPartitionHighValueFromDate(withAny(new Date()));
+            result = NOW_AS_NUMBER - TWO_HOURS;
+
+        }};
+
+        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(120);
+
+        assertThat(expiredPartitions, empty());
+    }
+
+    @Test
+    public void testGetExpiredPartitionsWithOneExpiredPartition() {
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            userMessageDao.findAllPartitions();
+            result = Arrays.asList(
+                    DB_PARTITION_DEFAULT,
+                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
+                    DB_PARTITION_UNTIL_NOW_MINUS_1H,
+                    DB_PARTITION_UNTIL_NOW,
+                    DB_PARTITION_UNTIL_NOW_PLUS_1H
+            );
+
+            partitionService.getPartitionHighValueFromDate(withAny(new Date()));
+            result = NOW_AS_NUMBER;
+        }};
+
+        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(1);
+
+        assertThat(expiredPartitions, containsInAnyOrder(DB_PARTITION_UNTIL_NOW_MINUS_1H.getPartitionName()));
+    }
+
+    @Test
+    public void testGetOldestNonDefaultPartition(){
+        DatabasePartition oldestNonDefaultPartition = MessageRetentionPartitionsService.getOldestNonDefaultPartition(Arrays.asList(
+                DB_PARTITION_DEFAULT,
+                DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
+                DB_PARTITION_UNTIL_NOW_MINUS_1H,
+                DB_PARTITION_UNTIL_NOW_PLUS_1H
+        ));
+        assertEquals(DB_PARTITION_MESSAGES_BEFORE_PARTIONING, oldestNonDefaultPartition);
     }
 }

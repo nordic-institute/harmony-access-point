@@ -7,17 +7,14 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ConfigurationRawDAO;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
-import org.h2.tools.Server;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,6 +47,8 @@ import static org.junit.Assert.*;
 @SuppressWarnings("ConstantConditions")
 @Transactional
 public class UploadPModeIT extends AbstractIT {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UploadPModeIT.class);
 
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
@@ -235,6 +234,23 @@ public class UploadPModeIT extends AbstractIT {
             assertEquals(2, ex.getIssues().size());
             assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxLength"));
         }
+    }
+
+    @Test
+    public void testCheckLegsWithSplittingConfiguration() throws IOException {
+        String pmodeName = "domibus-configuration-splitting-valid.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile(pmodeName, pmodeName, "text/xml", IOUtils.toByteArray(is));
+
+        try {
+            adminGui.uploadPMode(pModeContent, "description");
+        } catch (Exception e) {
+            LOG.error("Failed to upload Pmode", e);
+            fail("Uploading Pmode failed");
+        }
+
+        final boolean hasLegWithSplittingConfiguration = pModeProvider.hasLegWithSplittingConfiguration();
+        assertTrue(hasLegWithSplittingConfiguration);
     }
 
     /**

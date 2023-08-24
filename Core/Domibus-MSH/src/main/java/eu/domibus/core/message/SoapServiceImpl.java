@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -11,13 +12,18 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.StaxInInterceptor;
+import org.apache.neethi.builders.converters.ConverterException;
 import org.apache.neethi.builders.converters.StaxToDOMConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
@@ -43,6 +49,9 @@ public class SoapServiceImpl implements SoapService {
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
 
 
     public Ebms3Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
@@ -87,10 +96,21 @@ public class SoapServiceImpl implements SoapService {
                     .message("Messaging header is missing!")
                     .build();
         }
-        final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
+        final Element soapEnvelope = convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         return soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
+    }
+
+    protected Element convert(XMLStreamReader reader) {
+        try {
+            DocumentBuilderFactory dbf = xmlUtil.getDocumentBuilderFactory();
+            Document doc = dbf.newDocumentBuilder().newDocument();
+            StaxToDOMConverter.readDocElements(doc, doc, reader);
+            return doc.getDocumentElement();
+        } catch (ParserConfigurationException | XMLStreamException ex) {
+            throw new ConverterException(ex);
+        }
     }
 }
 
