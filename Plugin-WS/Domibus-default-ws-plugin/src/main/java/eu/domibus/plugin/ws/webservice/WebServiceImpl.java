@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
+import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
@@ -700,20 +701,15 @@ public class WebServiceImpl implements WebServicePluginInterface {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
         } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + messageId + "]", exception);
-            }
+            LOG.debug(MESSAGE_NOT_FOUND_ID + messageId + "]", exception);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (DuplicateMessageException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(DUPLICATE_MESSAGE_ID + messageId + "]", e);
-            }
+            LOG.businessError(DUPLICATE_MESSAGEID, messageId);
+            LOG.debug(DUPLICATE_MESSAGE_ID + messageId + "]", e);
             throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(ERROR_MESSAGE_ID + messageId + "]", e);
-            }
+            LOG.debug(ERROR_MESSAGE_ID + messageId + "]", e);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         }
         return transformFromErrorResults(errorsForMessage);
