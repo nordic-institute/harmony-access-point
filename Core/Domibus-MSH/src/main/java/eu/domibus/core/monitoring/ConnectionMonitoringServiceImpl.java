@@ -176,8 +176,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
                         return null;
                     });
             } catch (IOException | MessagingProcessingException e) {
-                    LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
-                }
+                LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e){
+                LOG.warn(String.format("Could not send test message from [%s] to [%s] - unexpected exception", senderParty, receiverParty), e);       //should never happen
+            }
         }
     }
 
