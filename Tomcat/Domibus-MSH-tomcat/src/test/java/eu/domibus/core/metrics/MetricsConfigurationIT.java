@@ -53,6 +53,7 @@ public class MetricsConfigurationIT extends AbstractIT {
             Timer.Context context = timer.time();
             methodToTimeThrowingException();
             context.stop();
+            fail();
         } catch (Throwable t) {
             LOG.debug("Caught exception as expected", t);
         }
