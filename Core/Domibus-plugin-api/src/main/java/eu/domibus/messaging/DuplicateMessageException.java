@@ -13,5 +13,10 @@ public class DuplicateMessageException extends MessagingProcessingException {
         super.setEbms3ErrorCode(ErrorCode.EBMS_0004);
     }
 
+    public DuplicateMessageException(String message, Throwable throwable) {
+        super(message, throwable);
+        super.setEbms3ErrorCode(ErrorCode.EBMS_0004);
+    }
+
 
 }

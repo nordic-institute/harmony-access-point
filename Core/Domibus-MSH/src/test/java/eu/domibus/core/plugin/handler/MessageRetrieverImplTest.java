@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -142,6 +143,24 @@ public class MessageRetrieverImplTest {
             errorLogService.convert(errorLogEntry);
             times = 1;
             Assert.assertNotNull(results);
+        }};
+
+    }
+
+    @Test
+    public void testGetErrorsForMessageOk_Exception(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
+        List<ErrorLogEntry> list = new ArrayList<>();
+        list.add(errorLogEntry);
+        new Expectations() {{
+            userMessageLogService.findByMessageId(MESS_ID);
+            result = new DuplicateMessageFoundException(MESS_ID);
+        }};
+
+        Assert.assertThrows(DuplicateMessageException.class, () -> messageRetriever.getErrorsForMessage(MESS_ID));
+
+        new Verifications() {{
+            errorLogService.convert(errorLogEntry);
+            times = 0;
         }};
 
     }
