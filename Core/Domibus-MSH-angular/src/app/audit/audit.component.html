@@ -28,7 +28,7 @@
                             [(ngModel)]="filter.from" name="from" [type]="'datetime'"
                             [max]="timestampFromMaxDate"
                             (change)='onTimestampFromChange($event)'
-                            #timestampControl="ngModel" id="from_id" *ngIf="advancedSearch"
+                            id="from_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <md2-datepicker placeholder=" Changed to:" appClearInvalid
@@ -36,7 +36,7 @@
                             [min]="timestampToMinDate"
                             [max]="timestampToMaxDate"
                             (change)='onTimestampToChange($event)'
-                            #timestampControl="ngModel" id="to_id" *ngIf="advancedSearch"
+                            id="to_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
 
