@@ -535,7 +535,6 @@ export class JmsComponent extends mix(BaseListComponent)
     this.calculateOriginalQueuePrefix();
 
     this.filter.originalQueue = this.getOriginalQueueForFiltering();
-    console.log('TODO IB !!!! onSelectOriginalQueue2 this.filter: ', this.filter);
   }
 
   getOriginalQueueForFiltering() {
