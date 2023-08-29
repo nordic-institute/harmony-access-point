@@ -103,6 +103,9 @@ export class JmsComponent extends mix(BaseListComponent)
     this.filter.toDate = new Date();
     this.filter.toDate.setHours(23, 59, 59, 999);
 
+    // reset original queue in filter
+    this.originalQueueName = null;
+
     this.markedForDeletionMessages = [];
 
     this.loadDestinations();
@@ -532,6 +535,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.calculateOriginalQueuePrefix();
 
     this.filter.originalQueue = this.getOriginalQueueForFiltering();
+    console.log('TODO IB !!!! onSelectOriginalQueue2 this.filter: ', this.filter);
   }
 
   getOriginalQueueForFiltering() {
