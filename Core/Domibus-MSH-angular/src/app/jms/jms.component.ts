@@ -54,7 +54,6 @@ export class JmsComponent extends mix(BaseListComponent)
   queues: any[];
   filteredQueues: any[];
   originalQueues: any[];
-  // orderedQueues: any[];
 
   currentSearchSelectedSource;
 
@@ -75,6 +74,8 @@ export class JmsComponent extends mix(BaseListComponent)
     this._selectedSource = value;
     this.filter.source = value.name;
     this.defaultQueueSet.emit(oldVal);
+    this.originalQueueName = null;
+    this.filter.originalQueue = null;
   }
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
@@ -97,11 +98,11 @@ export class JmsComponent extends mix(BaseListComponent)
     this.queues = [];
     this.filteredQueues = [];
     this.originalQueues = [];
-    // this.orderedQueues = [];
 
     // set toDate equals to now
     this.filter.toDate = new Date();
     this.filter.toDate.setHours(23, 59, 59, 999);
+    this.originalQueueName = null;
 
     this.markedForDeletionMessages = [];
 
@@ -119,6 +120,11 @@ export class JmsComponent extends mix(BaseListComponent)
         }
       });
     });
+  }
+
+  public async tryFilter(userInitiated = true): Promise<boolean> {
+    console.log('filter=', this.filter);
+    return super.tryFilter(userInitiated);
   }
 
   ngAfterViewInit() {
