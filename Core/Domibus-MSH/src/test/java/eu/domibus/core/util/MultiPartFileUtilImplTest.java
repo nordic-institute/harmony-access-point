@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -20,7 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 public class MultiPartFileUtilImplTest {
     @Injectable
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
