@@ -3,6 +3,7 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.junit.Assert;
@@ -18,11 +19,14 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 public class MultiPartFileUtilImplTest {
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
 
     @Test(expected = RequestValidationException.class)
-    public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) throws IOException {
+    public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) {
         new Expectations() {{
             file.isEmpty();
             result = true;
@@ -33,8 +37,7 @@ public class MultiPartFileUtilImplTest {
     }
 
     @Test(expected = RequestValidationException.class)
-    public void sanitiseFileUpload_maxSize(final @Mocked MultipartFile file,
-                                           final @Mocked DomibusPropertyProvider domibusPropertyProvider) {
+    public void sanitiseFileUpload_maxSize(final @Mocked MultipartFile file) {
         new Expectations() {{
             file.isEmpty();
             result = false;
