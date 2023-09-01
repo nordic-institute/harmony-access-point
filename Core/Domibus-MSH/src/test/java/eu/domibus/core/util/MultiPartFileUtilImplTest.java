@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
@@ -10,12 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
+
 /**
  * @author Ion Perpegel
  * @since 4.2
  */
 public class MultiPartFileUtilImplTest {
-
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
 
@@ -24,6 +26,22 @@ public class MultiPartFileUtilImplTest {
         new Expectations() {{
             file.isEmpty();
             result = true;
+        }};
+
+        //tested
+        multiPartFileUtil.validateAndGetFileContent(file);
+    }
+
+    @Test(expected = RequestValidationException.class)
+    public void sanitiseFileUpload_maxSize(final @Mocked MultipartFile file,
+                                           final @Mocked DomibusPropertyProvider domibusPropertyProvider) {
+        new Expectations() {{
+            file.isEmpty();
+            result = false;
+            file.getSize();
+            result = 100;
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+            result = 25;
         }};
 
         //tested
