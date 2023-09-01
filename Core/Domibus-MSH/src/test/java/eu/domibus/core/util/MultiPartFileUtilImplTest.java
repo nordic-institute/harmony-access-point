@@ -6,8 +6,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
+@RunWith(JMockit.class)
 public class MultiPartFileUtilImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
