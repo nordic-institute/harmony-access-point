@@ -44,13 +44,13 @@ public class FileUploadMaxSizeChangeListenerTest {
 
         new FullVerifications() {{
             multipartResolver.setMaxUploadSize(100);
-            times = 1;
+            times = 0;
         }};
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidPropertyValueChanged() {
-        listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
+        listener.propertyValueChanged(null, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
         Assert.fail("Invalid property value shouldn't have been accepted");
     }
 }

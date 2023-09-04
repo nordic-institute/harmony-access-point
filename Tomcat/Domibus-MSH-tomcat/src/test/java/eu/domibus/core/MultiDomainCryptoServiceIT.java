@@ -284,7 +284,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    public void isChangedObDisk() throws KeyStoreException, IOException {
+    public void isChangedOnDisk() throws KeyStoreException, IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
