@@ -1,16 +1,17 @@
 package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.BrokenMockMultipartFile;
 import eu.domibus.web.rest.KeystoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.junit.Assert;
@@ -25,9 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.KeyStoreException;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 public class KeyStoreResourceIT extends AbstractIT {
@@ -73,7 +74,7 @@ public class KeyStoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void isChangedObDisk() throws KeyStoreException, IOException {
+    public void isChangedObDisk() throws IOException {
         List<TrustStoreRO> trustStore = storeResource.listEntries();
         Assert.assertEquals(2, trustStore.size());
 
@@ -94,6 +95,54 @@ public class KeyStoreResourceIT extends AbstractIT {
         storeResource.reset();
         trustStore = storeResource.listEntries();
         Assert.assertEquals(9, trustStore.size());
+    }
+
+    @Test
+    public void testEmptyUpload() {
+        String fileName = "gateway_keystore2.jks";
+        byte[] content = new byte[]{};
+        MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
+
+        try {
+            storeResource.uploadKeystoreFile(multiPartFile, "test123");
+            Assert.fail("Expected exception was not raised!");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("it was empty"));
+        }
+    }
+
+    @Test
+    public void testUploadWithIOException() {
+        byte[] content = new byte[]{1};
+        MultipartFile multiPartFile = new BrokenMockMultipartFile("file.jks", content);
+        try {
+            storeResource.uploadKeystoreFile(multiPartFile, "test123");
+            Assert.fail("Expected exception was not raised!");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("could not read the content"));
+        }
+    }
+
+    @Test
+    public void testUploadWithMaxSize() throws IOException {
+        Domain defaultDomain = new Domain("default", "default");
+        String previousFileUploadMaxSize = domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+
+        try {
+            domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "100", false);
+            String fileName = "gateway_keystore2.jks";
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
+            byte[] content = Files.readAllBytes(path);
+            MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
+
+            storeResource.uploadKeystoreFile(multiPartFile, "test123");
+            Assert.fail("Expected exception was not raised!");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
+        }
+        finally {
+            domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, previousFileUploadMaxSize, false);
+        }
     }
 
     private void resetInitialStore() {
