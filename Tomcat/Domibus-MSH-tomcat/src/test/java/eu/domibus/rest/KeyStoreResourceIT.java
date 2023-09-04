@@ -74,7 +74,7 @@ public class KeyStoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void isChangedObDisk() throws IOException {
+    public void isChangedOnDisk() throws IOException {
         List<TrustStoreRO> trustStore = storeResource.listEntries();
         Assert.assertEquals(2, trustStore.size());
 
