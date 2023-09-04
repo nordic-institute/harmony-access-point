@@ -50,7 +50,7 @@ public class FileUploadMaxSizeChangeListenerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidPropertyValueChanged() {
-        listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
+        listener.propertyValueChanged(null, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
         Assert.fail("Invalid property value shouldn't have been accepted");
     }
 }
