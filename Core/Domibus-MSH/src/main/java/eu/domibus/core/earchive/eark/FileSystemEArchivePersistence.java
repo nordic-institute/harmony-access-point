@@ -106,6 +106,11 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             throw ex;
         } catch (IPException | IOException e) {
             throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
+        } catch (DomibusEArchiveException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "] - unexpected failure", e);       //should never happen
         }
     }
 

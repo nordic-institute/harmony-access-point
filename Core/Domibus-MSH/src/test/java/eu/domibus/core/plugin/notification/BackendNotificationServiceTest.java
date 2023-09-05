@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.notification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
@@ -1446,6 +1447,9 @@ public class BackendNotificationServiceTest {
 
             asyncNotificationConfiguration.getBackendConnector().getName();
             result = "BackEnd";
+
+            metricRegistry.timer(anyString);
+            result = new Timer();
 
             jmsManager.sendMessageToQueue((JmsMessage) any, backendNotificationQueue);
             times = 1;

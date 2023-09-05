@@ -125,33 +125,43 @@ public class EARKSIPFileService {
     }
 
     public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, ArchivingFileDTO archivingFileDTO) {
-        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time();
         FileType file = new FileType();
-        file.setID(Utils.generateRandomAndPrefixedUUID());
-        crtFile.stop();
+        metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time(
+                () -> file.setID(Utils.generateRandomAndPrefixedUUID())
+        );
 
-        com.codahale.metrics.Timer.Context setBF = metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time();
-        // set mimetype, date creation, etc.
-        setFileBasicInformation(archivingFileDTO, file);
-        setBF.stop();
+        metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time(
+                () -> setFileBasicInformation(archivingFileDTO, file)
+        );
 
-        // add to file section
-        com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addDataFileInfoToMETS", "fileLocation", "timer")).time();
-        FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
-        file.getFLocat().add(fileLocation);
-        representationMETS.getDataFileGroup().getFile().add(file);
-        filLoc.stop();
+        metricRegistry.timer(name("addDataFileInfoToMETS", "fileLocation", "timer")).time(
+                () -> addToFileSection(representationMETS, pathFromData, file)
+        );
 
-        com.codahale.metrics.Timer.Context strMap = metricRegistry.timer(name("addDataFileInfoToMETS", "structMap", "timer")).time();
-        // add to struct map
+        metricRegistry.timer(name("addDataFileInfoToMETS", "structMap", "timer")).time(
+                () -> addToStructMap(representationMETS)
+        );
+    }
+
+    private void addToStructMap(MetsWrapper representationMETS) {
         if (representationMETS.getDataDiv().getFptr().isEmpty()) {
             DivType.Fptr fptr = new DivType.Fptr();
             fptr.setFILEID(representationMETS.getDataFileGroup());
             representationMETS.getDataDiv().getFptr().add(fptr);
         }
-        strMap.close();
     }
 
+    private void addToFileSection(MetsWrapper representationMETS, String pathFromData, FileType file) {
+        FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
+        file.getFLocat().add(fileLocation);
+        representationMETS.getDataFileGroup().getFile().add(file);
+    }
+
+    /**
+     * set mimetype, date creation, etc.
+     * @param archivingFileDTO
+     * @param fileType
+     */
     public void setFileBasicInformation(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         initMimeTypeInfo(archivingFileDTO, fileType);
         initDateCreation(fileType);
@@ -203,13 +213,19 @@ public class EARKSIPFileService {
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
-        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time();
-        try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
-            return DigestUtils.sha256Hex(inputStream);
-        } finally {
-            crtFile.stop();
+        try {
+            return metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time(
+                    () -> {
+                        try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
+                            return DigestUtils.sha256Hex(inputStream);
+                        }
+                    }
+            );
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DomibusEArchiveException("Unexpected error", e);  //should never happen
         }
-
     }
 
     private String getFileMimetype(@Nullable ArchivingFileDTO archivingFileDTO) throws IOException {
