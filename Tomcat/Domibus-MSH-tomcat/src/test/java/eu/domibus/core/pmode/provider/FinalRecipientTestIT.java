@@ -6,6 +6,7 @@ import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +30,11 @@ public class FinalRecipientTestIT extends AbstractIT {
 
     @Autowired
     protected FinalRecipientService finalRecipientService;
+
+    @Before
+    public void initialize() {
+        deleteAllEntriesFromDB();
+    }
 
     @After
     public void clean() {

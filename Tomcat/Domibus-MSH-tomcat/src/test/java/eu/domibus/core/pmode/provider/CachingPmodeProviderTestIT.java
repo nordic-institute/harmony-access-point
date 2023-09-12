@@ -51,6 +51,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
+        finalRecipientDao.deleteAll(finalRecipientDao.findAll());
         domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
     }
 
