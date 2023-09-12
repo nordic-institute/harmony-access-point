@@ -6,8 +6,8 @@ import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -83,7 +82,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected SynchronizedRunnableFactory synchronizedRunnableFactory;
+    protected DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     @Autowired
     BackendConnectorProvider backendConnectorProvider;
@@ -100,8 +99,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         boolean useLock = domibusConfigurationService.isClusterDeployment()
                 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED));
         if (useLock) {
-            SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
-            synchronizedRunnable.run();
+            DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
+            DBClusterSynchronizedRunnable.run();
 
             if (schedulers.isEmpty()) {
                 throw new DomibusSchedulerException("Could not initialize the Quartz Scheduler in a timely manner");

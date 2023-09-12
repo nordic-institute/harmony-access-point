@@ -41,6 +41,7 @@ public class FinalRecipientDao extends BasicDao<FinalRecipientEntity> {
     public void createOrUpdate(FinalRecipientEntity finalRecipientEntity) {
         if (finalRecipientEntity.getEntityId() > 0) {
             update(finalRecipientEntity);
+            return;
         }
         //create
         create(finalRecipientEntity);

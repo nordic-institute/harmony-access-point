@@ -1,13 +1,13 @@
 package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.model.participant.FinalRecipientEntity;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,51 +49,54 @@ public class FinalRecipientService {
         }
         finalRecipientAPUrl = finalRecipientEntity.getEndpointURL();
         LOG.debug("Updating the cache from database for final recipient [{}] with endpoint URL [{}]", finalRecipient, finalRecipientAPUrl);
-        finalRecipientAccessPointUrls.putIfAbsent(finalRecipient, finalRecipientAPUrl);
+        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
         return finalRecipientAPUrl;
     }
 
+    /**
+     * Save the final recipient URL in the database and in the memory cache
+     */
     @Transactional
-    public void saveFinalRecipientEndpoint(String finalRecipient, String finalRecipientEndpointUrl, Domain domain) {
-        synchronized (ConfigurationLockContainer.getForDomain(domain)) {
-            FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
-            if (finalRecipientEntity == null) {
-                LOG.debug("Creating final recipient instance for [{}]", finalRecipient);
-                finalRecipientEntity = new FinalRecipientEntity();
-                finalRecipientEntity.setFinalRecipient(finalRecipient);
-            }
-            LOG.debug("Updating in database the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-            finalRecipientEntity.setEndpointURL(finalRecipientEndpointUrl);
+    public void saveFinalRecipientEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+        FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
+        if (finalRecipientEntity == null) {
+            LOG.debug("Creating final recipient instance for [{}]", finalRecipient);
+            finalRecipientEntity = new FinalRecipientEntity();
+            finalRecipientEntity.setFinalRecipient(finalRecipient);
+        }
+        LOG.debug("Updating in database the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
+        finalRecipientEntity.setEndpointURL(finalRecipientEndpointUrl);
+        try {
             finalRecipientDao.createOrUpdate(finalRecipientEntity);
-
-            //update the cache
-            finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientEndpointUrl);
+        } catch (DataIntegrityViolationException e) {
+            //in a cluster environment, an entity associated for a final recipient can be created in parallel and a unique constraint is raised
+            //in case a constraint violation occurs we don't do anything because the other node added the latest data in parallel
+            LOG.warn("Could not create or update final recipient entity with entity id [{}]. It could be that another node updated the same entity in parallel", finalRecipientEntity.getEntityId(), e);
         }
+
+        //update the final recipient URL cache
+        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientEndpointUrl);
     }
 
-    public void clearFinalRecipientAccessPointUrls(Domain domain) {
-        synchronized (ConfigurationLockContainer.getForDomain(domain)) {
-            finalRecipientAccessPointUrls.clear();
-        }
+    public void clearFinalRecipientAccessPointUrlsCache() {
+        finalRecipientAccessPointUrls.clear();
     }
 
     @Transactional
-    public void deleteFinalRecipients(List<FinalRecipientEntity> finalRecipients, Domain domain) {
+    public void deleteFinalRecipients(List<FinalRecipientEntity> finalRecipients) {
         if (CollectionUtils.isEmpty(finalRecipients)) {
             LOG.debug("There are no FinalRecipients to delete");
             return;
         }
-        synchronized (ConfigurationLockContainer.getForDomain(domain)) {
-            finalRecipientDao.deleteAll(finalRecipients);
-            for (FinalRecipientEntity finalRecipient : finalRecipients) {
-                finalRecipientAccessPointUrls.remove(finalRecipient.getFinalRecipient());
-            }
+        finalRecipientDao.deleteAll(finalRecipients);
+        for (FinalRecipientEntity finalRecipient : finalRecipients) {
+            finalRecipientAccessPointUrls.remove(finalRecipient.getFinalRecipient());
         }
     }
 
     @Transactional(readOnly = true)
     public List<FinalRecipientEntity> getFinalRecipientsOlderThan(int numberOfDays) {
-        if(numberOfDays < 0){
+        if (numberOfDays < 0) {
             LOG.debug("The number of days after which FinalRecipients are deleted should be a positive number (numberOfDays=[{}])", numberOfDays);
             return Collections.emptyList();
         }

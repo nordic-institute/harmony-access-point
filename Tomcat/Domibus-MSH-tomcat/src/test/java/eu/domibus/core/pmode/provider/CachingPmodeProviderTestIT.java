@@ -5,12 +5,14 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.messaging.XmlProcessingException;
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
 import static org.junit.Assert.*;
 
 
@@ -43,15 +46,27 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
     @Autowired
     DomibusPropertyResourceHelperImpl configurationPropertyResourceHelper;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Before
+    public void setUp() throws Exception {
+        domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
+    }
+
+    @After
+    public void clean() {
+        domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
+    }
+
     @Test
-    public void testGetFinalParticipantEndpointFromParty() {
+    public void testGetReceiverEndpointURLFromParty() {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         //no final recipients saved in the database
         assertTrue(finalRecipientDao.findAll().isEmpty());
 
         String finalRecipient = "0001:recipient1";
-        String finalRecipientURL = "http://localhost:8080/domibus/services/msh?domain=domain1";
         Party party = new Party();
         party.setName("domibus-blue");
         final String partyEndpoint = "http://localhost:8080/domibus/services/msh?domain=default";
@@ -63,9 +78,8 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         assertEquals(partyEndpoint, receiverPartyEndpoint);
     }
 
-    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
-    public void testGetFinalParticipantEndpointFromFinalParticipantEndpointURL() {
+    public void testGetReceiverEndpointURLFromFinalRecipientEndpointURL() {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         //no final recipients saved in the database
@@ -78,22 +92,23 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         final String partyEndpoint = "http://localhost:8080/domibus/services/msh?domain=default";
         party.setEndpoint(partyEndpoint);
 
-        //get the endpoint URL from Pmode Party
+        //the final recipient URL is not saved in DB; the endpoint URL is retrieved from the Pmode Party
         String receiverPartyEndpoint = pmodeProvider.getReceiverPartyEndpoint(party, finalRecipient);
         assertEquals(partyEndpoint, receiverPartyEndpoint);
 
-        pmodeProvider.setReceiverPartyEndpoint(finalRecipient, finalRecipientURL);
+        //we save the final recipient URL in the database
+        pmodeProvider.saveFinalRecipientEndpoint(finalRecipient, finalRecipientURL);
         //final recipient should be saved in the database after we retrieved the URL
         assertEquals(1, finalRecipientDao.findAll().size());
 
-        //get the endpoint URL from the database
+        //the retrieved URL should be taken from the final recipient database
         receiverPartyEndpoint = pmodeProvider.getReceiverPartyEndpoint(party, finalRecipient);
         assertEquals(finalRecipientURL, receiverPartyEndpoint);
 
         //clear the cache to simulate a second server which doesn't have the endpoint URL in the cache
-        finalRecipientService.clearFinalRecipientAccessPointUrls(domainContextProvider.getCurrentDomain());
+        finalRecipientService.clearFinalRecipientAccessPointUrlsCache();
 
-        //the endpoint URL should be retrieved from the database
+        //the retrieved URL should be taken from the final recipient database
         receiverPartyEndpoint = pmodeProvider.getReceiverPartyEndpoint(party, finalRecipient);
         assertEquals(finalRecipientURL, receiverPartyEndpoint);
     }

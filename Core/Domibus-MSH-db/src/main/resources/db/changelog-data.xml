@@ -65,6 +65,13 @@
         </insert>
     </changeSet>
 
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-11903">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
+            <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
     <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
