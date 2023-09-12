@@ -257,7 +257,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //save certificate in the truststore using synchronisation
         boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
         if (added) {
-            LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
+            LOG.debug("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
         }
 
         //saving the time when the DDC certificate was discovered last time

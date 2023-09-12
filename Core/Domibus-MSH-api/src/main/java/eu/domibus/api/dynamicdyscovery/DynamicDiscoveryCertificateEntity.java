@@ -14,7 +14,8 @@ import java.util.Date;
  */
 @NamedQueries({
         @NamedQuery(name = "DynamicDiscoveryCertificateEntity.findByCertificateCN", query = "select cert from DynamicDiscoveryCertificateEntity cert where cert.cn=:CERT_CN"),
-        @NamedQuery(name = "DynamicDiscoveryCertificateEntity.findCertificatesNotUsed", query = "select cert from DynamicDiscoveryCertificateEntity cert where cert.dynamicDiscoveryTime < :DDC_TIME"),
+        @NamedQuery(name = "DynamicDiscoveryCertificateEntity.findCertificatesNotDiscoveredInTheLastPeriod", query = "select cert from DynamicDiscoveryCertificateEntity cert where cert.dynamicDiscoveryTime < :DDC_TIME"),
+        @NamedQuery(name = "DynamicDiscoveryCertificateEntity.deleteCertificateByCN", query = "delete from DynamicDiscoveryCertificateEntity cert where cert.cn=:CERT_CN"),
 })
 @Entity
 @Table(name = "TB_DDC_CERTIFICATE")

@@ -18,12 +18,14 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import java.security.KeyStoreException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Autowired
     DynamicDiscoveryCertificateDao dynamicDiscoveryCertificateDao;
+
+    @Autowired
+    DynamicDiscoveryCertificateService dynamicDiscoveryCertificateService;
 
     @Configuration
     static class ContextConfiguration {
@@ -189,6 +194,49 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //id adds in the PMode the discovered party and it adds in the truststore the certificate of the discovered party
         assertNotNull(dynamicDiscoveryPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
     }
+
+    @Test
+    public void deleteDDCCertificatesNotDiscoveredInTheLastPeriod() throws EbMS3Exception, KeyStoreException {
+        //clean up
+        cleanBeforeLookup();
+
+        final String finalRecipient1PartyName = participantConfigurations.get(FINAL_RECIPIENT1).getPartyName();
+        LOG.info("---first lookup for final recipient [{}] and party [{}]", FINAL_RECIPIENT1, finalRecipient1PartyName);
+        //we expect the party and the certificate are added
+        doLookupForFinalRecipient(FINAL_RECIPIENT1, finalRecipient1PartyName, 3, 2, 1, 1);
+
+        final String finalRecipient3PartyName = participantConfigurations.get(FINAL_RECIPIENT3).getPartyName();
+        LOG.info("---first lookup for final recipient [{}] and party [{}]", FINAL_RECIPIENT3, finalRecipient3PartyName);
+        //we expect the party and the certificate are added
+        //we expect the URL for FINAL_RECIPIENT2 is saved in the database
+        doLookupForFinalRecipient(FINAL_RECIPIENT3, finalRecipient3PartyName, 4, 3, 2, 2);
+
+        //we expect that one entry is added in the database for the final recipient 1
+        DynamicDiscoveryCertificateEntity finalRecipient1DdcCertificate = dynamicDiscoveryCertificateDao.findByCommonName(finalRecipient1PartyName);
+        assertNotNull(finalRecipient1DdcCertificate);
+
+        //we expect that one entry is added in the database for the final recipient 3
+        DynamicDiscoveryCertificateEntity finalRecipient3DdcCertificate = dynamicDiscoveryCertificateDao.findByCommonName(finalRecipient3PartyName);
+        assertNotNull(finalRecipient3DdcCertificate);
+
+        //we set the DDC time for the PARTY 1 certificate to 25h ago
+        Date ddcTime = DateUtils.addHours(new Date(), 25 * -1);
+        finalRecipient1DdcCertificate.setDynamicDiscoveryTime(ddcTime);
+        dynamicDiscoveryCertificateDao.createOrUpdate(finalRecipient1DdcCertificate);
+
+        dynamicDiscoveryCertificateService.deleteDDCCertificatesNotDiscoveredInTheLastPeriod(24);
+
+        //we expect that the entry for PARTY_NAME1 was deleted from the database and from the truststore; DDC time is still recent
+        DynamicDiscoveryCertificateEntity finalRecipient1DdcCertificateAfterJobRan = dynamicDiscoveryCertificateDao.findByCommonName(finalRecipient1PartyName);
+        assertNull(finalRecipient1DdcCertificateAfterJobRan);
+        assertNull(multiDomainCertificateProvider.getCertificateFromTruststore(DOMAIN, finalRecipient1PartyName));
+
+        //we expect that the entry for PARTY_NAME2 is still present in the database and in the truststore; DDC time is still recent
+        DynamicDiscoveryCertificateEntity finalRecipient3DdcCertificateAfterJobRan = dynamicDiscoveryCertificateDao.findByCommonName(finalRecipient3PartyName);
+        assertNotNull(finalRecipient3DdcCertificateAfterJobRan);
+        assertNotNull(multiDomainCertificateProvider.getCertificateFromTruststore(DOMAIN, finalRecipient3PartyName));
+    }
+
 
     private void cleanBeforeLookup() {
         List<String> initialAliasesInTheTruststore = new ArrayList<>();
