@@ -88,6 +88,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Autowired
     protected DomibusLocalCacheService domibusLocalCacheService;
 
+    @Autowired
+    DynamicDiscoveryCertificateService dynamicDiscoveryCertificateService;
+
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
     protected Map<String, PartyId> cachedToPartyId = new ConcurrentHashMap<>();
@@ -254,9 +257,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //save certificate in the truststore using synchronisation
         boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
         if (added) {
-            //TODO add a table for DDC certificates
             LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
         }
+
+        //saving the time when the DDC certificate was discovered last time
+        dynamicDiscoveryCertificateService.saveCertificateDynamicDiscoveryDate(certificateCn, x509Certificate);
 
         cachedToPartyId.put(cacheKey, toPartyId);
 

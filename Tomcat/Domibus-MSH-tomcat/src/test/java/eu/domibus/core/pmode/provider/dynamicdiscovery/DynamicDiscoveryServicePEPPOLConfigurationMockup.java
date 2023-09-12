@@ -36,11 +36,11 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
     public static final String FINAL_RECIPIENT3 = "0208:3333";
     public static final String FINAL_RECIPIENT4 = "0208:4444";
 
-    private static final String PARTY_NAME1 = "party1";
-    private static final Long PARTY_NAME1_CERTIFICATE_SERIAL_NUMBER = 100L;
-    private static final String PARTY_NAME2 = "party2";
-    private static final String PARTY_NAME3 = "party3";
-    private static final Long PARTY_NAME2_CERTIFICATE_SERIAL_NUMBER = 200L;
+    public static final String PARTY_NAME1 = "party1";
+    public static final Long PARTY_NAME1_CERTIFICATE_SERIAL_NUMBER = 100L;
+    public static final String PARTY_NAME2 = "party2";
+    public static final String PARTY_NAME3 = "party3";
+    public static final Long PARTY_NAME2_CERTIFICATE_SERIAL_NUMBER = 200L;
 
     public static Map<String, FinalRecipientConfiguration> participantConfigurations = new HashMap<>();
 

@@ -1,6 +1,7 @@
 package eu.domibus.api.model.participant;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 
@@ -37,5 +38,13 @@ public class FinalRecipientEntity extends AbstractBaseEntity {
 
     public void setEndpointURL(String endpointURL) {
         this.endpointURL = endpointURL;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("finalRecipient", finalRecipient)
+                .append("endpointURL", endpointURL)
+                .toString();
     }
 }

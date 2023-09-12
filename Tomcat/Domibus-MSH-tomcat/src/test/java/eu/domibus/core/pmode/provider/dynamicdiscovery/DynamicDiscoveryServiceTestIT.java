@@ -1,47 +1,29 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryCertificateEntity;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.participant.FinalRecipientEntity;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.provider.FinalRecipientService;
-import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
-import eu.domibus.test.common.PKIUtil;
-import network.oxalis.vefa.peppol.common.lang.PeppolLoadingException;
-import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
-import network.oxalis.vefa.peppol.common.model.*;
-import network.oxalis.vefa.peppol.lookup.api.LookupException;
-import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
-import java.math.BigInteger;
-import java.net.URI;
-import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +53,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Autowired
     FinalRecipientDao finalRecipientDao;
+
+    @Autowired
+    DynamicDiscoveryCertificateDao dynamicDiscoveryCertificateDao;
 
     @Configuration
     static class ContextConfiguration {
@@ -107,9 +92,37 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //we expect the party and the certificate are added
         doLookupForFinalRecipient(FINAL_RECIPIENT1, finalRecipient1PartyName, 3, 2, 1, 1);
 
+        //we expect that one entry is added in the database for the first lookup
+        final DynamicDiscoveryCertificateEntity finalRecipient1PartyEntityFirstLookup = dynamicDiscoveryCertificateDao.findByCommonName(participantConfigurations.get(FINAL_RECIPIENT1).getPartyName());
+        assertNotNull(finalRecipient1PartyEntityFirstLookup);
+        assertEquals(PARTY_NAME1, finalRecipient1PartyEntityFirstLookup.getCn());
+        final Date dynamicDiscoveryTimeFirstLookup = finalRecipient1PartyEntityFirstLookup.getDynamicDiscoveryTime();
+        assertNotNull(dynamicDiscoveryTimeFirstLookup);
+        assertNotNull(finalRecipient1PartyEntityFirstLookup.getFingerprint());
+        assertNotNull(finalRecipient1PartyEntityFirstLookup.getSubject());
+        assertNotNull(finalRecipient1PartyEntityFirstLookup.getSerial());
+
+        try {
+            //sleep 100 milliseconds so that the second DDC lookup time is after the first lookup
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error sleeping thread", e);
+        }
+
         LOG.info("---second lookup for final recipient [{}] and party [{}]", FINAL_RECIPIENT1, finalRecipient1PartyName);
         //we expect that no new certificates are added in the truststore and no new parties are added in the Pmode
         doLookupForFinalRecipient(FINAL_RECIPIENT1, finalRecipient1PartyName, 3, 2, 1, 1);
+
+        //we expect that the DDC lookup time was updated
+        final DynamicDiscoveryCertificateEntity finalRecipient1PartyEntitySecondLookup = dynamicDiscoveryCertificateDao.findByCommonName(participantConfigurations.get(FINAL_RECIPIENT1).getPartyName());
+        assertNotNull(finalRecipient1PartyEntitySecondLookup);
+        assertEquals(PARTY_NAME1, finalRecipient1PartyEntitySecondLookup.getCn());
+        final Date dynamicDiscoveryTimeSecondLookup = finalRecipient1PartyEntitySecondLookup.getDynamicDiscoveryTime();
+        assertNotNull(dynamicDiscoveryTimeSecondLookup);
+
+        LOG.debug("first lookup [{}], second lookup [{}]", dynamicDiscoveryTimeFirstLookup, dynamicDiscoveryTimeSecondLookup);
+        //we expect that the DDC lookup time was updated
+        assertTrue(dynamicDiscoveryTimeSecondLookup.compareTo(dynamicDiscoveryTimeFirstLookup) > 0);
 
         final String finalRecipient2PartyName = DynamicDiscoveryServicePEPPOLConfigurationMockup.participantConfigurations.get(FINAL_RECIPIENT2).getPartyName();
         LOG.info("---first lookup for final recipient [{}] and party [{}]", FINAL_RECIPIENT2, finalRecipient2PartyName);
