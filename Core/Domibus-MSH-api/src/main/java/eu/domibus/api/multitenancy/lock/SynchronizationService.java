@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 /**
  * @author Ion Perpegel
- * @since 5.2
+ * @since 5.1.1
  */
 public interface SynchronizationService {
 

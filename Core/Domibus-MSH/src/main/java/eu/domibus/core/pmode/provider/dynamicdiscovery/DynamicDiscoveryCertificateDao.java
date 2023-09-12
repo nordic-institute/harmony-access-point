@@ -15,6 +15,10 @@ import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 @Repository
 public class DynamicDiscoveryCertificateDao extends BasicDao<DynamicDiscoveryCertificateEntity> {
 

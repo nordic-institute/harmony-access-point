@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Executes a task with a lock (either a db lock for cluster deployment or a simple java lock otherwise)
  *
  * @author Ion Perpegel
- * @since 5.2
+ * @since 5.1.1
  */
 @Service
 public class SynchronizationServiceImpl implements SynchronizationService {

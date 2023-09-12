@@ -15,6 +15,10 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 @Service
 public class DynamicDiscoveryCertificateService {
 

@@ -19,7 +19,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Cosmin Baciu
  * @since 5.1.1
  */
-
 @DisallowConcurrentExecution
 public class DynamicDiscoveryCertificateJob extends DomibusQuartzJobBean {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryCertificateJob.class);

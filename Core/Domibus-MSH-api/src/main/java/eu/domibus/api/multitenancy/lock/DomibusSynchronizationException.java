@@ -5,7 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 
 /**
  * @author Cosmin Baciu
- * @since 5.0
+ * @since 5.1.1
  */
 public class DomibusSynchronizationException extends DomibusCoreException {
 

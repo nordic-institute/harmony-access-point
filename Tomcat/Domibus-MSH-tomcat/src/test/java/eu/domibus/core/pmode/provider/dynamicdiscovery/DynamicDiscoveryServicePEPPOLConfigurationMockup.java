@@ -26,6 +26,10 @@ import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 @Configuration
 public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
 

@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * @author Cosmin Baciu
- * @since 5.0
+ * @since 5.1.1
  */
 @NamedQueries({
         @NamedQuery(name = "DynamicDiscoveryCertificateEntity.findByCertificateCN", query = "select cert from DynamicDiscoveryCertificateEntity cert where cert.cn=:CERT_CN"),

@@ -5,6 +5,10 @@ import network.oxalis.vefa.peppol.common.model.ServiceMetadata;
 
 import java.security.cert.X509Certificate;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 public class FinalRecipientConfiguration {
         protected X509Certificate certificate;
         protected ServiceMetadata serviceMetadata;
