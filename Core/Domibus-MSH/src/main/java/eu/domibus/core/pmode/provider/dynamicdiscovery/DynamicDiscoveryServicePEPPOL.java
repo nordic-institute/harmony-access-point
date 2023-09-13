@@ -141,7 +141,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
 
         final String certRegex = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.warn("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
+            LOG.info("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         }
 
         List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
