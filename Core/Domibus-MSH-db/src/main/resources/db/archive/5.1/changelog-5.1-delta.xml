@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
@@ -273,54 +273,6 @@
                 <constraints nullable="true"/>
             </column>
         </addColumn>
-    </changeSet>
-
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-11903">
-        <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_FRU_FINAL_RECIPIENT"
-                             tableName="TB_FINAL_RECIPIENT_URL"/>
-
-        <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
-            <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
-        </insert>
-
-        <createTable tableName="TB_DDC_CERTIFICATE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_DDC_CERTIFICATE"/>
-            </column>
-            <column name="ISSUER_SUBJECT" type="VARCHAR(500)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CN" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="SUBJECT" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="SERIAL" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="FINGERPRINT" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="DDC_TIME" type="TIMESTAMP"/>
-
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-        <!-- certificates are added in the Domibus truststore with an alias equal to the certificate CN extracted from the subject; therefore we need to ensure that certificates CNs added in this table are unique -->
-        <addUniqueConstraint columnNames="CN" constraintName="UK_DDC_CERTIFICATE_CN" tableName="TB_DDC_CERTIFICATE"/>
-    </changeSet>
-    <changeSet dbms="mysql" author="Cosmin Baciu" id="EDELIVERY-11903-1"> <!-- oracle creates index for the unique constraint -->
-        <createIndex indexName="IDX_DDC_CERTIFICATE_CN" tableName="TB_DDC_CERTIFICATE">
-            <column name="CN"/>
-        </createIndex>
     </changeSet>
 
 </databaseChangeLog>
