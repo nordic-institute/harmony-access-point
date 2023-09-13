@@ -191,8 +191,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
         final UserMessage userMessage = buildUserMessage(FINAL_RECIPIENT4);
         //it triggers dynamic discovery lookup in SMP  because toParty is empty
-        //id adds in the PMode the discovered party and it adds in the truststore the certificate of the discovered party
-        assertNotNull(dynamicDiscoveryPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
+        //it throws an exception because the discovered certificate is expired
+        dynamicDiscoveryPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
     }
 
     @Test
