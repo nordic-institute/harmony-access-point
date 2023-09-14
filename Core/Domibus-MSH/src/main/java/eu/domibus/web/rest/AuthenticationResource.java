@@ -97,7 +97,7 @@ public class AuthenticationResource {
             domainContextProvider.clearCurrentDomain();
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());
             if (StringUtils.isBlank(domainCode)) {
-                LOG.securityInfo(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
+                LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
                 throw new BadCredentialsException("The username/password combination you provided are not valid. Please try again or contact your administrator.");
             }
 
