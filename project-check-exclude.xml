@@ -192,6 +192,30 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: spring-boot-starter-json-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-json@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-tomcat-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-tomcat@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-logging-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-logging@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: spring-boot-starter-2.6.14.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter@.*$</packageUrl>
