@@ -434,7 +434,7 @@ public class CachingPModeProvider extends PModeProvider {
      * @param legFilterCriteria
      * @return Set of {@link LegConfiguration} having no mismatch errors.
      */
-    protected  Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
+    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
         Set<String> mismatchedMpcs = new HashSet<>();
         boolean foundMatchedMpc = false;
@@ -740,11 +740,9 @@ public class CachingPModeProvider extends PModeProvider {
         return receiverPartyEndpoint;
     }
 
-    public void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+    public void saveFinalRecipientEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
         LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-        synchronized (configurationLock) {
-            finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl, domain);
-        }
+        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
     }
 
     @Override
@@ -817,7 +815,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionDownloaded();
         }
 
@@ -842,7 +840,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionUndownloaded();
         }
 
@@ -854,7 +852,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionSentByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionSent();
         }
 
@@ -863,9 +861,9 @@ public class CachingPModeProvider extends PModeProvider {
         return -1;
     }
 
-    public int getMetadataRetentionOffsetByMpcURI(String mpcURI){
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getMetadataRetentionOffset();
         }
 
@@ -876,7 +874,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Optional<Mpc> findMpcByQualifiedName(String mpcURI) {
         Set<Mpc> mpcSet = getConfiguration().getMpcs();
-        if(CollectionUtils.isNotEmpty(mpcSet)){
+        if (CollectionUtils.isNotEmpty(mpcSet)) {
             return mpcSet.stream()
                     .filter(mpc -> equalsIgnoreCase(mpc.getQualifiedName(), mpcURI))
                     .findFirst();
@@ -941,13 +939,15 @@ public class CachingPModeProvider extends PModeProvider {
                 return role;
             }
         }
-        LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if (rolesEnabled) {
+            LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("No matching role found with value: " + roleValue)
                     .build();
+        } else {
+            LOG.debug("No Role with value [{}] has been found", roleValue);
         }
 
         return null;
@@ -960,7 +960,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            finalRecipientService.clearFinalRecipientAccessPointUrls(domain);
+            finalRecipientService.clearFinalRecipientAccessPointUrlsCache();
             this.init(); //reloads the config
         }
     }
@@ -1099,7 +1099,7 @@ public class CachingPModeProvider extends PModeProvider {
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                if (legConfiguration.getService()!= null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                if (legConfiguration.getService() != null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                         && legConfiguration.getAction() != null && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
                     result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }
@@ -1277,9 +1277,9 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays){
+    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
         List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
-        finalRecipientService.deleteFinalRecipients(oldFinalRecipients, domain);
+        finalRecipientService.deleteFinalRecipients(oldFinalRecipients);
         return oldFinalRecipients;
     }
 }

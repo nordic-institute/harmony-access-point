@@ -190,6 +190,10 @@ public class Process extends AbstractBaseEntity {
         return this.responderParties;
     }
 
+    public void setResponderParties(Set<Party> responderParties) {
+        this.responderParties = responderParties;
+    }
+
     /**
      * Method changes Set from internal hibernate PersistentSet to HashSet. Due to
      * hibernate session state, the PersistentSet.contain function return false even-thought the object is in a list

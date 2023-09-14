@@ -9,8 +9,8 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 public interface DynamicDiscoveryService {
 
     EndpointInfo lookupInformation(final String domain,
-                                   final String participantId,
-                                   final String participantIdScheme,
+                                   final String finalRecipientValue,
+                                   final String finalRecipientType,
                                    final String documentId,
                                    final String processId,
                                    final String processIdScheme) throws EbMS3Exception;

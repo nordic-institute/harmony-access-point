@@ -134,7 +134,7 @@ public class WSPluginBackendService {
         String finalRecipient = batchEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
 
         if (StringUtils.isBlank(finalRecipient)) {
-            LOG.warn("No recipient found for batchEvent: [{}]", batchEvent);
+            LOG.debug("No recipient found for batchEvent: [{}]", batchEvent);
             return;
         }
         List<String> messageIdsPerFinalRecipient = messageIdGroupedByRecipient.get(finalRecipient);
