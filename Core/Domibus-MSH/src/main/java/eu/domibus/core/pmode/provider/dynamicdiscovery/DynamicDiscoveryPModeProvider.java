@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
@@ -9,7 +10,6 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -29,9 +29,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -87,9 +88,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Autowired
     protected DomibusLocalCacheService domibusLocalCacheService;
 
+    @Autowired
+    DynamicDiscoveryCertificateService dynamicDiscoveryCertificateService;
+
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
-    protected Map<String, PartyId> cachedToPartyId = new HashMap<>();
+    protected Map<String, PartyId> cachedToPartyId = new ConcurrentHashMap<>();
 
     // default type in eDelivery profile
     protected static final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
@@ -207,11 +211,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             updateInitiatorPartiesInPmode(candidates, configurationParty);
 
         } else {//MSHRole.SENDING
+            String finalRecipientCacheKey = getFinalRecipientCacheKeyForDynamicDiscovery(userMessage);
+            PartyId partyId = cachedToPartyId.get(finalRecipientCacheKey);
 
-            String cacheKey = getCacheKeyForDynamicDiscovery(userMessage);
-            PartyId partyId = cachedToPartyId.get(cacheKey);
-            if (partyId != null && domibusLocalCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
-                LOG.debug("Skip ddc lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", cacheKey);
+            //we skip the dynamic discovery lookup in case we find in the cache the toParty and final recipient Endpoint from SMP
+            if (partyId != null && domibusLocalCacheService.containsCacheForKey(finalRecipientCacheKey, DYNAMIC_DISCOVERY_ENDPOINT)) {
+                LOG.debug("Skip DDC lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", finalRecipientCacheKey);
                 userMessage.getPartyInfo().getTo().setToPartyId(partyId);
                 if (userMessage.getPartyInfo().getTo().getToRole() == null) {
                     String responderRoleValue = dynamicDiscoveryService.getResponderRole();
@@ -220,7 +225,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                 }
             } else {
                 // do the lookup
-                lookupAndUpdateConfigurationForToPartyId(cacheKey, userMessage, candidates);
+                lookupAndUpdateConfigurationForToPartyId(finalRecipientCacheKey, userMessage, candidates);
             }
         }
     }
@@ -228,23 +233,51 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     /**
      * Method lookups and updates pmode configuration and truststore
      *
-     * @param cacheKey    cached key matches the key for lookup data
-     * @param userMessage - user message which triggered the dynamic discovery search
-     * @param candidates  for dynamic discovery
+     * @param cacheKey          cached key matches the key for lookup data
+     * @param userMessage       - user message which triggered the dynamic discovery search
+     * @param processCandidates for dynamic discovery
      * @throws EbMS3Exception
      */
-    public void lookupAndUpdateConfigurationForToPartyId(String cacheKey, UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> candidates) throws EbMS3Exception {
+    public void lookupAndUpdateConfigurationForToPartyId(String cacheKey, UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> processCandidates) throws EbMS3Exception {
+        //we lookup in SMP based on the combination of(final recipient, service,action)
+        //if the lookup was previously done, it is retrieved from cache
+        //cache is domain specific
         EndpointInfo endpointInfo = lookupByFinalRecipient(userMessage);
-        LOG.debug("Found endpoint. Configure PMode and truststore!");
-        PartyId toPartyId = updateToParty(userMessage, endpointInfo.getCertificate());
-        cachedToPartyId.put(cacheKey, toPartyId);
-        Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
-        updateResponderPartiesInPmode(candidates, configurationParty);
+        LOG.debug("Found endpoint [{}]. Configuring PMode and truststore", endpointInfo.getAddress());
 
+        final X509Certificate x509Certificate = endpointInfo.getCertificate();
+        final String certificateCn = getCommonNameFromCertificate(userMessage, x509Certificate);
+
+        //we add the party to in the UserMessage
+        PartyId toPartyId = addToPartyInUserMessage(userMessage, certificateCn);
+
+        //we add the certificate in the Domibus truststore, domain specific
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        //save certificate in the truststore using synchronisation
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
+        if (added) {
+            LOG.debug("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
+        }
+
+        //saving the time when the DDC certificate was discovered last time
+        dynamicDiscoveryCertificateService.saveCertificateDynamicDiscoveryDate(certificateCn, x509Certificate);
+
+        cachedToPartyId.put(cacheKey, toPartyId);
+
+        //update party in the Pmode with the latest discovered values; synchronized
+        Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
+
+        //party is added in the responder parties only if it doesn't exist; synchronized
+        updateToPartyInPmodeResponderParties(processCandidates, configurationParty);
+
+        //save the final recipient value and URL in the database
         Property finalRecipient = getFinalRecipient(userMessage);
         final String finalRecipientValue = finalRecipient.getValue();
         final String receiverURL = endpointInfo.getAddress();
-        setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
+
+        //save the final recipient URL in the database and in the memory cache
+        saveFinalRecipientEndpoint(finalRecipientValue, receiverURL);
     }
 
     /**
@@ -253,7 +286,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * @param userMessage
      * @return cache key string with format: #domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
      */
-    protected String getCacheKeyForDynamicDiscovery(UserMessage userMessage) {
+    protected String getFinalRecipientCacheKeyForDynamicDiscovery(UserMessage userMessage) {
         //"
         Property finalRecipient = getFinalRecipient(userMessage);
         // create key
@@ -293,10 +326,13 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         return userMessage.getMessageId();
     }
 
-    protected synchronized Party updateConfigurationParty(String name, String type, String endpoint) {
-        LOG.info("Update the configuration party with [{}] [{}] [{}]", name, type, endpoint);
-        // update the list of party types
-        PartyIdType configurationType = updateConfigurationType(type);
+    /**
+     * Update party in the Pmode with the latest discovered values
+     */
+    protected synchronized Party updateConfigurationParty(String name, String partyType, String endpoint) {
+        LOG.info("Update the configuration party with [{}] [{}] [{}]", name, partyType, endpoint);
+        // get the party type from Pmode; add it if party type doesn't exist
+        PartyIdType partyIdType = getOrAddPartyIdTypeInPmode(partyType);
 
         // search if the party exists in the pMode
         Party configurationParty = null;
@@ -319,12 +355,15 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             newEndpoint = MSH_ENDPOINT;
             if (configurationParty != null && configurationParty.getEndpoint() != null) {
                 newEndpoint = configurationParty.getEndpoint();
+                LOG.debug("Setting the party endpoint from the Pmode [{}]", newEndpoint);
             }
         }
 
+        //add the party in the Pmode
+
         LOG.debug("New endpoint is [{}]", newEndpoint);
-        Party newConfigurationParty = buildNewConfigurationParty(name, configurationType, newEndpoint);
-        LOG.debug("Add new configuration party: " + newConfigurationParty.getName());
+        Party newConfigurationParty = buildNewConfigurationParty(name, partyIdType, newEndpoint);
+        LOG.debug("Add new configuration party in Pmode [{}]", newConfigurationParty.getName());
         getConfiguration().getBusinessProcesses().addParty(newConfigurationParty);
 
         return newConfigurationParty;
@@ -342,7 +381,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         return newConfigurationParty;
     }
 
-    protected PartyIdType updateConfigurationType(String type) {
+    protected PartyIdType getOrAddPartyIdTypeInPmode(String partyType) {
         Set<PartyIdType> partyIdTypes = getConfiguration().getBusinessProcesses().getPartyIdTypes();
         if (partyIdTypes == null) {
             LOG.info("Empty partyIdTypes set");
@@ -351,24 +390,25 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
         PartyIdType configurationType = null;
         for (final PartyIdType t : partyIdTypes) {
-            if (StringUtils.equalsIgnoreCase(t.getValue(), type)) {
-                LOG.debug("PartyIdType exists in the pmode [{}]", type);
+            if (StringUtils.equalsIgnoreCase(t.getValue(), partyType)) {
+                LOG.debug("PartyIdType exists in the pmode [{}]", partyType);
                 configurationType = t;
             }
         }
         // add to partyIdType list
         if (configurationType == null) {
-            LOG.debug("Add new PartyIdType [{}]", type);
+            LOG.debug("Add new PartyIdType [{}]", partyType);
             configurationType = new PartyIdType();
-            configurationType.setName(type);
-            configurationType.setValue(type);
+            configurationType.setName(partyType);
+            configurationType.setValue(partyType);
             partyIdTypes.add(configurationType);
             this.getConfiguration().getBusinessProcesses().setPartyIdTypes(partyIdTypes);
         }
         return configurationType;
     }
 
-    protected synchronized void updateResponderPartiesInPmode(Collection<eu.domibus.common.model.configuration.Process> candidates, Party configurationParty) {
+    //party is added in the responder parties only if it doesn't exist
+    protected synchronized void updateToPartyInPmodeResponderParties(Collection<eu.domibus.common.model.configuration.Process> candidates, Party configurationParty) {
         LOG.debug("updateResponderPartiesInPmode with party " + configurationParty.getName());
         for (final Process candidate : candidates) {
             boolean partyFound = false;
@@ -402,7 +442,32 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
     }
 
-    protected PartyId updateToParty(UserMessage userMessage, final X509Certificate certificate) throws EbMS3Exception {
+    protected PartyId addToPartyInUserMessage(UserMessage userMessage, String certificateCn) throws EbMS3Exception {
+
+        //set toPartyId in UserMessage
+        String type = dynamicDiscoveryService.getPartyIdType();
+        LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", certificateCn, type);
+
+        // double check not to add empty value as a type
+        // because it is invalid by the oasis messaging  xsd
+        if (StringUtils.isEmpty(type)) {
+            type = null;
+        }
+
+        final PartyId receiverParty = partyIdDictionaryService.findOrCreateParty(certificateCn, type);
+
+        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
+        if (userMessage.getPartyInfo().getTo().getToRole() == null) {
+            String responderRoleValue = dynamicDiscoveryService.getResponderRole();
+            PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
+            userMessage.getPartyInfo().getTo().setToRole(partyRole);
+        }
+
+
+        return receiverParty;
+    }
+
+    private String getCommonNameFromCertificate(UserMessage userMessage, X509Certificate certificate) throws EbMS3Exception {
         String cn;
         try {
             //parse certificate for common name = toPartyId
@@ -417,31 +482,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .cause(e)
                     .build();
         }
-        //set toPartyId in UserMessage
-        String type = dynamicDiscoveryService.getPartyIdType();
-        LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", cn, type);
-
-        // double check not to add empty value as a type
-        // because it is invalid by the oasis messaging  xsd
-        if (StringUtils.isEmpty(type)) {
-            type = null;
-        }
-
-        final PartyId receiverParty = partyIdDictionaryService.findOrCreateParty(cn, type);
-
-        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
-        if (userMessage.getPartyInfo().getTo().getToRole() == null) {
-            String responderRoleValue = dynamicDiscoveryService.getResponderRole();
-            PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
-            userMessage.getPartyInfo().getTo().setToRole(partyRole);
-        }
-
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, cn, true);
-        if (added) {
-            LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
-        }
-        return receiverParty;
+        return cn;
     }
 
     protected EndpointInfo lookupByFinalRecipient(UserMessage userMessage) throws EbMS3Exception {

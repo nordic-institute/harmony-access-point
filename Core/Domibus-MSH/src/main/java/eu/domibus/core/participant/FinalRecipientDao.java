@@ -40,14 +40,17 @@ public class FinalRecipientDao extends BasicDao<FinalRecipientEntity> {
     @Transactional
     public void createOrUpdate(FinalRecipientEntity finalRecipientEntity) {
         if (finalRecipientEntity.getEntityId() > 0) {
+            LOG.debug("Updating final recipient entry with entity id [{}]", finalRecipientEntity.getEntityId());
             update(finalRecipientEntity);
+            return;
         }
         //create
+        LOG.debug("Creating final recipient entry [{}]", finalRecipientEntity);
         create(finalRecipientEntity);
     }
 
     public List<FinalRecipientEntity> findFinalRecipientsOlderThan(int numberOfDays) {
-        Date dateLimit = DateUtils.addDays(new Date(), numberOfDays  * -1);
+        Date dateLimit = DateUtils.addDays(new Date(), numberOfDays * -1);
         final TypedQuery<FinalRecipientEntity> query = em.createNamedQuery("FinalRecipientEntity.findFinalRecipientsModifiedBefore", FinalRecipientEntity.class);
         query.setParameter("MODIFICATION_DATE", dateLimit);
         return query.getResultList();

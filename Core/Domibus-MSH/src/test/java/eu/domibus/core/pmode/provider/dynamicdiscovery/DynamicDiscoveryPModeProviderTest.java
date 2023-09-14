@@ -122,6 +122,9 @@ public class DynamicDiscoveryPModeProviderTest {
     DomainContextProvider domainProvider;
 
     @Mock
+    DynamicDiscoveryCertificateService dynamicDiscoveryCertificateService;
+
+    @Mock
     FinalRecipientDao finalRecipientDao;
 
     @Mock
