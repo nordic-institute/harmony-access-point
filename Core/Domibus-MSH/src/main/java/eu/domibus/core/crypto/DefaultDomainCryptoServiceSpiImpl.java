@@ -68,9 +68,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
 
-    private static final String CHANGE_LOCK = "changeLock";
+    /**
+     * the following locks are used for performing changes to the keystore/truststore in a synchronized way; see also {@link eu.domibus.api.multitenancy.lock.SynchronizationService}
+     */
 
-    private static final String SYNC_LOCK_KEY = "keystore-synchronization.lock";
+    private static final String JAVA_CHANGE_LOCK = "changeLock";
+
+    private static final String DB_SYNC_LOCK_KEY = "keystore-synchronization.lock";
 
     protected Domain domain;
 
@@ -814,7 +818,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private void executeWithLock(Runnable task) {
         try {
-            synchronizationService.execute(task, SYNC_LOCK_KEY, CHANGE_LOCK);
+            synchronizationService.execute(task, DB_SYNC_LOCK_KEY, JAVA_CHANGE_LOCK);
         } catch (DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {
@@ -826,7 +830,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private <R> R executeWithLock(Callable<R> task) {
         try {
-            return synchronizationService.execute(task, SYNC_LOCK_KEY, CHANGE_LOCK);
+            return synchronizationService.execute(task, DB_SYNC_LOCK_KEY, JAVA_CHANGE_LOCK);
         } catch (DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {
