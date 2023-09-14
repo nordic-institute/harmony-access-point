@@ -451,6 +451,54 @@
         <!-- Serializing Map objects via Jackson is not done on user supplied input -->
         <cve>CVE-2023-35116</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-gcp:2.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-gcp@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-hibernate53:2.1.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-hibernate53@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-sql-core:4.2.7)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-sql\-core@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-wm:4.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-wm@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:janino:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/janino@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-all@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
 
     <!-- Use in test -->
     <suppress>
