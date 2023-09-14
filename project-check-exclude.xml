@@ -249,7 +249,14 @@
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: wiremock-2.27.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.tomakehurst/wiremock@.*$</packageUrl>
+        <cve>CVE-2023-41329</cve>
+        <cve>CVE-2023-41327</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
@@ -257,6 +264,7 @@
         <packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
+        <cve>CVE-2020-23064</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -270,6 +278,7 @@
         <vulnerabilityName>Fixed an mXSS-based bypass caused by nested forms inside MathML</vulnerabilityName>
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
+        <cve>CVE-2020-26870</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -492,6 +501,14 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: woodstox-core-6.4.0.jar (shaded: com.sun.xml.bind.jaxb:isorelax:20090621)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
+        <cve>CVE-2023-34411</cve>
     </suppress>
 
     <suppress>
