@@ -115,7 +115,15 @@
         <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-
+    <suppress>
+        <!-- jetty-server is not used in production - used in tests -->
+        <notes><![CDATA[
+   file name: jetty-server-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: accessors-smart-1.2.jar
@@ -165,6 +173,22 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-autoconfigure@.*$</packageUrl>
         <!--Used in testing environment-->
         <vulnerabilityName>CVE-2023-20883</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-web-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-web@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
     </suppress>
 
     <suppress>
@@ -615,6 +639,13 @@
         <!-- We're not using the affected functionality-->
         <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: quartz-2.3.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+        <!-- params are received only from the admin user, no unchecked params are passed in-->
+        <cve>CVE-2023-39017</cve>
+    </suppress>
 
 </suppressions>
