@@ -32,7 +32,7 @@ import eu.europa.esig.dss.tsl.function.OfficialJournalSchemeInformationURI;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
-import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
+import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import org.apache.commons.lang3.StringUtils;
@@ -405,7 +405,7 @@ public class DssConfiguration {
         job.setOnlineDataLoader(onlineLoader(dataLoader));
         job.setOfflineDataLoader(offlineLoader(dataLoader));
         job.setTrustedListCertificateSource(trustedListSource());
-        job.setSynchronizationStrategy(new AcceptAllStrategy());
+        job.setSynchronizationStrategy(new ExpirationAndSignatureCheckStrategy());
         job.setCacheCleaner(cacheCleaner);
 
         job.setListOfTrustedListSources(europeanLOTL);
