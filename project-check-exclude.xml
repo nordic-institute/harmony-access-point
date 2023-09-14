@@ -517,12 +517,37 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-azure:2.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-azure@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-sql:4.2.7)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-sql@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:janino:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/janino@.*$</packageUrl>
+        <!--User supplied input comes only from trusted sources-->
+        <cve>CVE-2023-33546</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: hazelcast-all-4.2.7.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-all@.*$</packageUrl>
         <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
         <cve>CVE-2023-33264</cve>
     </suppress>
+
 
     <!-- Use in test -->
     <suppress>
