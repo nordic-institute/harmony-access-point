@@ -160,6 +160,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
     private CookieCsrfTokenRepository csrfTokenRepository() {
         final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 
+        // the XSRF-TOKEN cookie needs to be read by the Angular code in our domibus admin console, so we cannot mark it as 'httpOnly'
         Boolean secure = domibusPropertyProvider.getBooleanProperty(DOMIBUS_UI_SESSION_SECURE);
         repository.setSecure(secure);
 
