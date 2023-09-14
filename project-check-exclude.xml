@@ -262,6 +262,7 @@
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
    ]]></notes>
         <packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+        <!--Used in testing environment-->
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
         <cve>CVE-2020-23064</cve>
@@ -447,6 +448,14 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
         <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-core-5.8.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+        <!--Domibus does not use Spring Webflux-->
+        <cve>CVE-2023-34034</cve>
     </suppress>
 
     <suppress>
