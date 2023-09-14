@@ -51,6 +51,15 @@
 
     <suppress>
         <notes><![CDATA[
+   file name: guava-31.1-jre.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <!-- we don't use com.google.common.io.createTempDir com.google.common.io.FileBackedOutputStream-->
+        <cve>CVE-2023-2976</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    file name: spring-session-core-2.6.3.jar
    ]]></notes>
         <!--
@@ -434,6 +443,15 @@
         <cve>CVE-2020-26168</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.fasterxml.jackson.core:jackson-databind:2.14.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <!-- Serializing Map objects via Jackson is not done on user supplied input -->
+        <cve>CVE-2023-35116</cve>
+    </suppress>
+
     <!-- Use in test -->
     <suppress>
         <notes><![CDATA[
@@ -532,4 +550,23 @@
         <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
         <cve>CVE-2022-40152</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk15on-1.68.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk18on-1.72.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk18on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+
+
 </suppressions>
