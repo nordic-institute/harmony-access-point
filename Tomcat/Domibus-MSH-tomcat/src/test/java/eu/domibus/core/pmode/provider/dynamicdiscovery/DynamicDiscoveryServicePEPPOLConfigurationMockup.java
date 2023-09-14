@@ -39,11 +39,15 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
     public static final String FINAL_RECIPIENT2 = "0208:2222";
     public static final String FINAL_RECIPIENT3 = "0208:3333";
     public static final String FINAL_RECIPIENT4 = "0208:4444";
+    public static final String FINAL_RECIPIENT_MULTIPLE_THREADS_FORMAT = "9925:%s";
 
     public static final String PARTY_NAME1 = "party1";
     public static final Long PARTY_NAME1_CERTIFICATE_SERIAL_NUMBER = 100L;
+    public static final String PARTY_NAME_MULTIPLE_THREADS_CERTIFICATE_SERIAL_NUMBER_FORMAT = "1000%s";
     public static final String PARTY_NAME2 = "party2";
     public static final String PARTY_NAME3 = "party3";
+
+    public static final String PARTY_NAME_MULTIPLE_THREADS_FORMAT = "threadParty%s";
     public static final Long PARTY_NAME2_CERTIFICATE_SERIAL_NUMBER = 200L;
 
     public static Map<String, FinalRecipientConfiguration> participantConfigurations = new HashMap<>();
@@ -103,7 +107,7 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
                     String documentId,
                     String smlInfo,
                     String mode,
-                    DomibusCertificateValidator domibusSMPCertificateValidator) throws PeppolLoadingException, LookupException, PeppolSecurityException, PeppolParsingException {
+                    DomibusCertificateValidator domibusSMPCertificateValidator) {
                 final FinalRecipientConfiguration configuration = participantConfigurations.get(finalRecipient);
                 if (configuration == null) {
                     throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not find the final recipient configuration for final recipient [" + finalRecipient + "]");
@@ -114,11 +118,14 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
         };
     }
 
-
-    private static void addParticipantConfiguration(String finalRecipient, String partyName, X509Certificate certificate) {
+    public static void addParticipantConfiguration(String finalRecipient, String partyName, X509Certificate certificate) {
         ServiceMetadata serviceMetadata = buildServiceMetadata(partyName, certificate, finalRecipient);
         FinalRecipientConfiguration configuration = new FinalRecipientConfiguration(certificate, serviceMetadata, partyName);
         participantConfigurations.put(finalRecipient, configuration);
+    }
+
+    public static void removeParticipantConfiguration(String finalRecipient) {
+        participantConfigurations.remove(finalRecipient);
     }
 
     private static ServiceMetadata buildServiceMetadata(String partyName, X509Certificate certificate, String finalRecipient) {
