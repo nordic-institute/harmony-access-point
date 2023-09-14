@@ -30,6 +30,7 @@ import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -203,7 +204,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .build();
         }
 
-        LOG.info("Found [{}] dynamic discovery candidates. MSHRole: [{}]", candidates.size(), mshRole);
+        LOG.info("Found [{}] dynamic discovery candidates: [{}]. MSHRole: [{}]", candidates.size(), candidates.stream().map(process -> process.getName()).collect(Collectors.toList()), mshRole);
 
         if (MSHRole.RECEIVING.equals(mshRole)) {
             PartyId fromPartyId = getFromPartyId(userMessage);
@@ -494,7 +495,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .refToMessageId(userMessage.getMessageId())
                     .build();
         }
-        LOG.info("Perform lookup by finalRecipient: " + finalRecipient.getName() + " " + finalRecipient.getType() + " " + finalRecipient.getValue());
+        LOG.info("Perform lookup by finalRecipient with name [{}], type [{}] and value [{}]", finalRecipient.getName(), finalRecipient.getType(), finalRecipient.getValue());
 
         //lookup sml/smp - result is cached
         final EndpointInfo endpoint = dynamicDiscoveryService.lookupInformation(domainProvider.getCurrentDomain().getCode(), finalRecipient.getValue(),

@@ -939,13 +939,15 @@ public class CachingPModeProvider extends PModeProvider {
                 return role;
             }
         }
-        LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if (rolesEnabled) {
+            LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("No matching role found with value: " + roleValue)
                     .build();
+        } else {
+            LOG.debug("No Role with value [{}] has been found", roleValue);
         }
 
         return null;
