@@ -402,7 +402,7 @@ public class DssConfiguration {
 
     @Bean
     public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner, DssExtensionPropertyManager dssExtensionPropertyManager) {
-        boolean useExpirationAndSignatureCheckStrategy = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_USE_EXPIRATION_AND_SIGNATURE_CHECK_STRATEGY));
+        boolean useExpirationAndSignatureCheckStrategy = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_TRUSTED_LIST_SIGNATURE_VERIFICATION));
 
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
