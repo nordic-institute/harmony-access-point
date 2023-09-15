@@ -8,6 +8,17 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
+    <changeSet id="EDELIVERY-12048" author="Gabriel Maier">
+        <dropIndex tableName="TB_SIGNAL_MESSAGE" indexName="IDX_SIG_MESS_SIGNAL_MESS_ID"/>
+    </changeSet>
+
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-10924">
+        <sql>
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
+    </changeSet>
+
     <changeSet author="Cosmin Baciu" id="EDELIVERY-11903">
         <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_FRU_FINAL_RECIPIENT"
                              tableName="TB_FINAL_RECIPIENT_URL"/>
@@ -55,5 +66,8 @@
             <column name="CN"/>
         </createIndex>
     </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
