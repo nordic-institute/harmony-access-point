@@ -200,16 +200,9 @@ public class EARKSIPFileService {
 
     private void initChecksum(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         // checksum
-        String checksumSHA256;
-        try {
-            checksumSHA256 = getChecksumSHA256(archivingFileDTO.getPath());
-            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, archivingFileDTO.getPath().toFile().getName());
-            fileType.setCHECKSUM(checksumSHA256);
-            fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
-        } catch (IOException e) {
-            fileType.setCHECKSUM("ERROR");
-            LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
-        }
+        LOG.debug("checksumSHA256 [{}] for file [{}]", archivingFileDTO.getCheckSum(), archivingFileDTO.getPath().toFile().getName());
+        fileType.setCHECKSUM(archivingFileDTO.getCheckSum());
+        fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
