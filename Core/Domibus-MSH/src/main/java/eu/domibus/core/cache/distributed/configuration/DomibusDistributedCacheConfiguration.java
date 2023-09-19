@@ -45,7 +45,7 @@ public class DomibusDistributedCacheConfiguration {
     public org.springframework.cache.CacheManager distributedCacheManager(HazelcastInstance instance) {
         LOG.info("Creating the distributed cache bean");
 
-        final HazelcastCacheManager hazelcastCacheManager = new HazelcastCacheManager(instance);
+        final HazelcastCacheManager hazelcastCacheManager = new com.hazelcast.spring.cache.HazelcastCacheManager(instance);
 
         LOG.info("Finished creating the distributed cache bean");
         return hazelcastCacheManager;

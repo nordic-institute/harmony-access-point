@@ -164,7 +164,7 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast-all.version>4.2.7</hazelcast-all.version>
+        <hazelcast-all.version>5.3.1</hazelcast-all.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -262,6 +262,11 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
+                <version>${hazelcast-all.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-spring</artifactId>
                 <version>${hazelcast-all.version}</version>
             </dependency>
 
