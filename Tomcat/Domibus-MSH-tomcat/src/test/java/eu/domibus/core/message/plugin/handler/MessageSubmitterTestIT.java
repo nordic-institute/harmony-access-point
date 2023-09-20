@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -78,7 +79,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
 
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
-        messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
+        messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters, Collections.emptyList());
     }
 
     @Test

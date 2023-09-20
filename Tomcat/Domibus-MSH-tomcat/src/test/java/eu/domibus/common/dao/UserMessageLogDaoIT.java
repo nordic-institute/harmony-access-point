@@ -296,9 +296,13 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 {"receivedTo", after},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
+        List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 100, "received", true, filters, Collections.emptyList());
 
-        assertEquals(8, messages.size());
+        assertEquals(12, messages.size());
+
+        long count = userMessageLogDao.countEntries(filters);
+
+        assertEquals(count, messages.size());
     }
 
     @Test
@@ -615,8 +619,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void findAllInfoPaged() {
-        List<MessageLogInfo> backend = userMessageLogDao.findAllInfoPaged(0, 5, "BACKEND", true, new HashMap<>());
-        assertEquals(5, backend.size());
+        List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 5, "BACKEND", true, new HashMap<>(), Collections.emptyList());
+        assertEquals(12, messages.size());
     }
 
     @Ignore

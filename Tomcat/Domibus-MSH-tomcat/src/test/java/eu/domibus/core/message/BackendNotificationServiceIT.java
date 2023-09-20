@@ -146,7 +146,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @After
     public void after() {
         backendConnector.clear();
-        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
+        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>(), Collections.emptyList());
         if (list.size() > 0) {
             list.forEach(el -> {
                 UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
@@ -221,7 +221,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
-        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
+        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters, Collections.emptyList());
         assertNotNull(result);
         assertEquals(1, result.getMessageLogEntries().size());
         assertEquals(messageId, result.getMessageLogEntries().get(0).getMessageId());
