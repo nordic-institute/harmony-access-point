@@ -3,7 +3,7 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.NotificationStatusEntity;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.dao.SingleValueDictionaryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
@@ -13,14 +13,13 @@ import javax.persistence.TypedQuery;
 
 /**
  * @author Cosmin Baciu
- * @since 5.0
- *
  * @implNote This DAO class works with {@link NotificationStatusEntity}, which is a static dictionary
  * based on the {@link NotificationStatus} enum: no new values are expected to be added at runtime;
  * therefore, {@code NotificationStatusDao} can be used directly, without subclassing {@link AbstractDictionaryService}.
+ * @since 5.0
  */
 @Service
-public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
+public class NotificationStatusDao extends SingleValueDictionaryDao<NotificationStatusEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLog.class);
 
@@ -29,7 +28,7 @@ public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
     }
 
     public NotificationStatusEntity findOrCreate(NotificationStatus status) {
-        if(status == null) {
+        if (status == null) {
             return null;
         }
 
@@ -44,6 +43,15 @@ public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
     }
 
     public NotificationStatusEntity findByStatus(final NotificationStatus notificationStatus) {
+        return getEntity(notificationStatus);
+    }
+
+    @Override
+    public NotificationStatusEntity findByValue(Object value) {
+        return getEntity(value);
+    }
+
+    private NotificationStatusEntity getEntity(Object notificationStatus) {
         TypedQuery<NotificationStatusEntity> query = em.createNamedQuery("NotificationStatusEntity.findByStatus", NotificationStatusEntity.class);
         query.setParameter("NOTIFICATION_STATUS", notificationStatus);
         return DataAccessUtils.singleResult(query.getResultList());
