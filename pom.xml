@@ -164,7 +164,7 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast.version>5.3.0</hazelcast.version>
+        <hazelcast.version>5.3.1</hazelcast.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
