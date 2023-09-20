@@ -22,6 +22,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
@@ -98,7 +99,9 @@ public class AuthenticationResource {
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());
             if (StringUtils.isBlank(domainCode)) {
                 LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
-                throw new BadCredentialsException("The username/password combination you provided are not valid. Please try again or contact your administrator.");
+                LOG.debug("The username/password combination provided are not valid");
+                throw new BadCredentialsException(SpringSecurityMessageSource.getAccessor()
+                        .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
             }
 
             LOG.debug("Determined preferred domain [{}] for user [{}]", domainCode, loginRO.getUsername());
