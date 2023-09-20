@@ -99,7 +99,6 @@ public class AuthenticationResource {
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());
             if (StringUtils.isBlank(domainCode)) {
                 LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
-                LOG.debug("The username/password combination provided are not valid");
                 throw new BadCredentialsException(SpringSecurityMessageSource.getAccessor()
                         .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
             }
