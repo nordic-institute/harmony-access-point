@@ -395,6 +395,51 @@
                     </execution>
                     <!-- partitioning delta from 5.0.4 to 5.0.5 ends here -->
 
+                    <!-- delta 5.0.5 to 5.0.7 starts here -->
+                    <execution>
+                        <id>generate-mysql-script-delta-5.0.7</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.7/changelog-5.0.7-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.0.7-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.0.6-to-5.0.7-migration.ddl
+                            </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.7</DomibusVersion>
+                            </expressionVariables>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.0.7</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.7/changelog-5.0.7-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?changeLogFile=${project.build.directory}/liquibase/changelog-5.0.7-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0.6-to-5.0.7-migration.ddl
+                            </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.7</DomibusVersion>
+                            </expressionVariables>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.0.5 to 5.0.7 ends here -->
+
                     <!-- delta 5.0.4 to 5.0.5 starts here -->
                     <execution>
                         <id>generate-mysql-script-delta-5.0.5</id>
