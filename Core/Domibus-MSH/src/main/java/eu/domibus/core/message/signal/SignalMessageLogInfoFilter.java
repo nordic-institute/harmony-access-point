@@ -61,8 +61,8 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                 EMPTY_CONVERSATION_ID +
                 " partyFrom.value," +
                 " partyTo.value," +
-                (isFourCornerModel() ? " propsFrom.value," : "'',") +
-                (isFourCornerModel() ? " propsTo.value," : "'',") +
+                (" propsFrom.value,") +
+                (" propsTo.value," ) +
                 "signal.refToMessageId," +
                 "message.testMessage" +
                 ")" + getQueryBody(filters);
@@ -76,14 +76,12 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                 " from SignalMessageLog log " +
                         "join log.signalMessage signal " +
                         "join signal.userMessage message " +
-                        (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom " +
-                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
+                                        "left join message.messageProperties propsTo " +
                         "left join message.partyInfo.from.fromPartyId partyFrom " +
                         "left join message.partyInfo.to.toPartyId partyTo " +
-                        (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' " +
-                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                                        "and propsTo.name = 'finalRecipient' ";
     }
 
     @Override

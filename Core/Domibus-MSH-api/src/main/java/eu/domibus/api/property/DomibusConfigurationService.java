@@ -10,7 +10,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 public interface DomibusConfigurationService {
 
-    String FOURCORNERMODEL_ENABLED_KEY = DOMIBUS_FOURCORNERMODEL_ENABLED;
     String CLUSTER_DEPLOYMENT = DOMIBUS_DEPLOYMENT_CLUSTERED;
     String EXTERNAL_AUTH_PROVIDER = DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED;
     String PAYLOAD_ENCRYPTION_PROPERTY = DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE;
@@ -25,8 +24,6 @@ public interface DomibusConfigurationService {
     boolean isMultiTenantAware();
 
     boolean isSingleTenantAware();
-
-    boolean isFourCornerEnabled();
 
     /**
      * Returns true if external authentication provider is enabled

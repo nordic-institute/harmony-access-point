@@ -51,7 +51,6 @@ public class MessageLogResourceNonParameterizedTest {
     public void getCsv_fourCornersModeEnabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
         // GIVEN
         new Expectations(messageLogResource) {{
-            domibusConfigurationService.isFourCornerEnabled(); result = true;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString); result = any;
         }};
 
@@ -72,7 +71,6 @@ public class MessageLogResourceNonParameterizedTest {
     public void getCsv_fourCornersModeDisabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
         // GIVEN
         new Expectations(messageLogResource) {{
-            domibusConfigurationService.isFourCornerEnabled(); result = false;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString); result = any;
         }};
 

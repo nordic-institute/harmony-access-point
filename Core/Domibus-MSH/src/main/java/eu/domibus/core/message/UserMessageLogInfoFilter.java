@@ -32,8 +32,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "message.conversationId," +
                 "partyFrom.value," +
                 "partyTo.value," +
-                (isFourCornerModel() ? "propsFrom.value," : "'',") +
-                (isFourCornerModel() ? "propsTo.value," : "'',") +
+                "propsFrom.value,"  +
+                 "propsTo.value," +
                 "message.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
@@ -61,15 +61,13 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
         return
                 " from UserMessageLog log " +
                         "join log.userMessage message " +
-                        (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom "  +
-                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
+                                        "left join message.messageProperties propsTo "  +
                         "left join log.timezoneOffset timezoneOffset " +
                         "left join message.partyInfo.from.fromPartyId partyFrom " +
                         "left join message.partyInfo.to.toPartyId partyTo " +
-                        (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' "  +
-                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                                        "and propsTo.name = 'finalRecipient' ";
 
     }
 

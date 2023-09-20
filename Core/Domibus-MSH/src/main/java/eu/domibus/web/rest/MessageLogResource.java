@@ -153,10 +153,6 @@ public class MessageLogResource extends BaseResource {
 
     private List<String> getExcludedProperties() {
         List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT, PROPERTY_NEXTATTEMPT_TIMEZONEID, PROPERTY_NEXTATTEMPT_OFFSET, "testMessage", "pluginType", "partLength");
-        if (!domibusConfigurationService.isFourCornerEnabled()) {
-            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
-            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
-        }
         LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
         return excludedProperties;
     }

@@ -51,9 +51,6 @@ public class SignalMessageLogInfoFilterTest {
         new Expectations(signalMessageLogInfoFilter) {{
             signalMessageLogInfoFilter.filterQuery(anyString,anyString,anyBoolean,filters);
             result = QUERY;
-
-            signalMessageLogInfoFilter.isFourCornerModel();
-            result = true;
         }};
 
         String query = signalMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);

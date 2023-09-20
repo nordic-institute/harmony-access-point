@@ -49,9 +49,6 @@ public class UserMessageLogInfoFilterTest {
         new Expectations(userMessageLogInfoFilter) {{
             userMessageLogInfoFilter.filterQuery(anyString, anyString, anyBoolean, filters);
             result = QUERY;
-
-            userMessageLogInfoFilter.isFourCornerModel();
-            result = true;
         }};
 
         String query = userMessageLogInfoFilter.filterMessageLogQuery("column", true, filters);

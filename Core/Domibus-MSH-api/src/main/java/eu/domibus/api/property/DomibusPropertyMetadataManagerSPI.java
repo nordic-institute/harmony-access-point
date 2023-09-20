@@ -48,6 +48,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_UI_CSV_MAX_ROWS = "domibus.ui.csv.rows.max";
     String DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT = "domibus.ui.pages.messageLogs.countLimit";
     String DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL = "domibus.ui.pages.messageLogs.interval.default";
+    String DOMIBUS_UI_MESSAGE_LOGS_LANDING_PAGE = "domibus.ui.pages.messageLogs.landingPage.enabled";
+    String DOMIBUS_UI_MESSAGE_LOGS_SEARCH_ADVANCED_ENABLED = "domibus.ui.pages.messageLogs.search.advanced.enabled";
+
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_KEYSTORE_TYPE = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_KEYSTORE_PASSWORD = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "password";//NOSONAR
@@ -166,7 +169,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD = "domibus.sendMessage.failure.delete.payload";
     String DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD = "domibus.sendMessage.success.delete.payload";
     String DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE = "domibus.sendMessage.attempt.audit.active";
-    String DOMIBUS_FOURCORNERMODEL_ENABLED = "domibus.fourcornermodel.enabled";
     String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
     String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     String DOMIBUS_LOGGING_REMOTE_CERTIFICATES_PRINT = "domibus.logging.remote.certificates.print";

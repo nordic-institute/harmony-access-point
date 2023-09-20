@@ -183,15 +183,6 @@ public abstract class MessageLogInfoFilter {
         return query;
     }
 
-    /**
-     * in four corner model finalRecipient and originalSender exist as default properties
-     *
-     * @return true by default
-     */
-    public boolean isFourCornerModel() {
-        return domibusPropertyProvider.getBooleanProperty(DomibusConfigurationService.FOURCORNERMODEL_ENABLED_KEY);
-    }
-
     public abstract String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters);
 
     public abstract String getQueryBody(Map<String, Object> filters);
