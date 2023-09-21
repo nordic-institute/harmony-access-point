@@ -119,6 +119,7 @@ import {DomibusFutureDatePipe} from './common/customDate/domibusFutureDatePipe';
 import {DomainsComponent} from './domains/domains.component';
 import {DataTablePagerComponent} from './common/page-grid/datatable-pager.comonent';
 import {ManageBackendsComponent} from './messagefilter/manageBackends-form/manageBackends-form.component';
+import {LandingPageGuard} from './common/guards/landing-page.guard';
 
 @NgModule({
   declarations: [
@@ -256,6 +257,7 @@ import {ManageBackendsComponent} from './messagefilter/manageBackends-form/manag
     AuthExternalProviderGuard,
     AuthInternalProviderGuard,
     RedirectHomeGuard,
+    LandingPageGuard,
     HttpEventService,
     SecurityService,
     SessionService,

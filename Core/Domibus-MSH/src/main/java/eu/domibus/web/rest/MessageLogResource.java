@@ -67,17 +67,13 @@ public class MessageLogResource extends BaseResource {
 
     private final DateUtil dateUtil;
 
-    private final DomibusConfigurationService domibusConfigurationService;
-
     private final RequestFilterUtils requestFilterUtils;
 
     private final MessagesLogService messagesLogService;
 
-    public MessageLogResource(TestService testService, DateUtil dateUtil, DomibusConfigurationService domibusConfigurationService,
-                              RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
+    public MessageLogResource(TestService testService, DateUtil dateUtil, RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
-        this.domibusConfigurationService = domibusConfigurationService;
         this.requestFilterUtils = requestFilterUtils;
         this.messagesLogService = messagesLogService;
     }

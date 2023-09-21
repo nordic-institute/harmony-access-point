@@ -76,6 +76,16 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.pages.messageLogs.interval.default');
   }
 
+  async useMessageLogLandingPage(): Promise<boolean> {
+    const prop = await this.getProperty('domibus.ui.pages.messageLogs.landingPage.enabled');
+    return prop && prop.value && prop.value.toLowerCase() == 'true';
+  }
+
+  async getMessageLogPageAdvancedSearchEnabledProperty() {
+    const prop = await this.getProperty('domibus.ui.pages.messageLogs.search.advanced.enabled');
+    return prop;
+  }
+
   async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
     return this.getProperty('domibus.ui.resend.action.enabled.received.minutes');
   }
