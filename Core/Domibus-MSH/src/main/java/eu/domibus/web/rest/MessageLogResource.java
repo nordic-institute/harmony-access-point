@@ -41,23 +41,23 @@ public class MessageLogResource extends BaseResource {
 
     private static final String MODULE_NAME_MESSAGES = "messages";
 
-    private static final String PROPERTY_CONVERSATION_ID = "conversationId";
-    private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    static final String PROPERTY_CONVERSATION_ID = "conversationId";
+    static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
     public static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
     public static final String PROPERTY_TO_PARTY_ID = "toPartyId";
     public static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
-    private static final String PROPERTY_MESSAGE_ID = "messageId";
+    static final String PROPERTY_MESSAGE_ID = "messageId";
     public static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-    private static final String PROPERTY_TEST_MESSAGE = "testMessage";
+    static final String PROPERTY_TEST_MESSAGE = "testMessage";
     private static final String PROPERTY_MESSAGE_TYPE = "messageType";
     public static final String PROPERTY_MSH_ROLE = "mshRole";
     public static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
-    private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
-    private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
-    private static final String PROPERTY_RECEIVED_TO = "receivedTo";
-    private static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
-    private static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
-    private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
+    static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
+    static final String PROPERTY_RECEIVED_TO = "receivedTo";
+    static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
+    static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
+    static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
     public static final String PROPERTY_NEXT_ATTEMPT_TIMEZONEID = "nextAttemptTimezoneId";
     public static final String PROPERTY_NEXT_ATTEMPT_OFFSET = "nextAttemptOffsetSeconds";
