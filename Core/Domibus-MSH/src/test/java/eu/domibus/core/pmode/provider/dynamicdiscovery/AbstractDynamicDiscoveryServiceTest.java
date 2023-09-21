@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.core.pki.PKIUtil.*;
+import static eu.domibus.test.common.PKIUtil.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 

@@ -48,7 +48,7 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<TLSourc
         try {
             otherTrustedList.setUrl(customListUrl);
             otherTrustedList.setCertificateSource(new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword));
-            LOG.debug("Custom trusted list with keystore path:[{}] and type:[{}], URL:[{}]will be added to DSS", customListKeystorePath, customListKeystoreType, customListUrl);
+            LOG.debug("Custom trusted list with keystore path: [{}] and type: [{}], URL: [{}] will be added to DSS if valid", customListKeystorePath, customListKeystoreType, customListUrl);
             return otherTrustedList;
         } catch (IOException e) {
             LOG.error("Error while configuring custom trusted list with keystore path:[{}],type:[{}] ", customListKeystorePath, customListKeystoreType, e);

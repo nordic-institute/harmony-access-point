@@ -446,9 +446,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .build();
         }
 
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("saveIncomingMessage.timer")).time();
-        userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, userMessageRaw, signalMessageResult, notifyBackend);
-        methodTimer.stop();
+        final UserMessageRaw finalUserMessageRaw = userMessageRaw;
+        metricRegistry.timer(name("saveIncomingMessage.timer")).time(
+                () -> userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, finalUserMessageRaw, signalMessageResult, notifyBackend)
+        );
 
         return userMessage.getMessageId();
     }

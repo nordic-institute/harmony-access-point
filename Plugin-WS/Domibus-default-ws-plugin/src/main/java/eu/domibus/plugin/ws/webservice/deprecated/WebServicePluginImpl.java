@@ -14,13 +14,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -42,8 +41,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 
 /**
  * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
@@ -71,6 +68,8 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
 
+    private static final String ERROR_MESSAGE_ID = "Error message, id [";
+
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
@@ -87,6 +86,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private WSPluginImpl wsPlugin;
     private WSPluginMessagingMapper messagingMapper;
+
     public WebServicePluginImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                 WebServicePluginExceptionFactory webServicePluginExceptionFactory,
                                 WSMessageLogDao wsMessageLogDao,
@@ -378,7 +378,7 @@ public class WebServicePluginImpl implements BackendInterface {
             eu.domibus.plugin.ws.webservice.ExtendedPartInfo extPartInfo = (eu.domibus.plugin.ws.webservice.ExtendedPartInfo) partInfo;
             boolean isPayloadSentAsReference = extPartInfo.getPartProperties().getProperty().stream()
                     .anyMatch(property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(property.getName()));
-            if(isPayloadSentAsReference){
+            if (isPayloadSentAsReference) {
                 LOG.debug("Payload won't include the file contents because the file was sent as reference");
                 continue;
             }
@@ -456,6 +456,9 @@ public class WebServicePluginImpl implements BackendInterface {
             }
             throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault(DUPLICATE_MESSAGE_ID + messageId + "].", webServicePluginExceptionFactory.createFault(exception.getMessage()));
         } catch (Exception ex) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(ERROR_MESSAGE_ID + messageId + "]", ex);
+            }
             throw new eu.domibus.plugin.webService.generated.GetMessageErrorsFault("Couldn't find message errors [" + messageId + "]", webServicePluginExceptionFactory.createFault(ex.getMessage()));
         }
     }

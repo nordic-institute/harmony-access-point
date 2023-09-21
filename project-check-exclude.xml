@@ -51,6 +51,15 @@
 
     <suppress>
         <notes><![CDATA[
+   file name: guava-31.1-jre.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <!-- we don't use com.google.common.io.createTempDir com.google.common.io.FileBackedOutputStream-->
+        <cve>CVE-2023-2976</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    file name: spring-session-core-2.6.3.jar
    ]]></notes>
         <!--
@@ -106,7 +115,15 @@
         <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-
+    <suppress>
+        <!-- jetty-server is not used in production - used in tests -->
+        <notes><![CDATA[
+   file name: jetty-server-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: accessors-smart-1.2.jar
@@ -157,6 +174,62 @@
         <!--Used in testing environment-->
         <vulnerabilityName>CVE-2023-20883</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-web-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-web@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-json-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-json@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-tomcat-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-tomcat@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-logging-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-logging@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-validation-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-validation@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
@@ -176,14 +249,31 @@
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: json-smart-2.4.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
+        <!--Used in testing environment-->
+        <vulnerabilityName>CVE-2023-1370</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: wiremock-2.27.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.tomakehurst/wiremock@.*$</packageUrl>
+        <cve>CVE-2023-41329</cve>
+        <cve>CVE-2023-41327</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
    ]]></notes>
         <packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+        <!--Used in testing environment-->
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
+        <cve>CVE-2020-23064</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -197,6 +287,7 @@
         <vulnerabilityName>Fixed an mXSS-based bypass caused by nested forms inside MathML</vulnerabilityName>
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
+        <cve>CVE-2020-26870</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -366,6 +457,14 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
         <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-core-5.8.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+        <!--Domibus does not use Spring Webflux-->
+        <cve>CVE-2023-34034</cve>
+    </suppress>
 
     <suppress>
         <!-- snakeyaml is not used in production - used in swagger and tests -->
@@ -420,6 +519,14 @@
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: woodstox-core-6.4.0.jar (shaded: com.sun.xml.bind.jaxb:isorelax:20090621)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
+        <cve>CVE-2023-34411</cve>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
@@ -433,6 +540,104 @@
         <!-- The LDAP authentication method in LdapLoginModule is not used by Domibus -->
         <cve>CVE-2020-26168</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.fasterxml.jackson.core:jackson-databind:2.14.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <!-- Serializing Map objects via Jackson is not done on user supplied input -->
+        <cve>CVE-2023-35116</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-gcp:2.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-gcp@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-hibernate53:2.1.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-hibernate53@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-sql-core:4.2.7)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-sql\-core@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-wm:4.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-wm@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:janino:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/janino@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-azure:2.1)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-azure@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-sql:4.2.7)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-sql@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:janino:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/janino@.*$</packageUrl>
+        <!--User supplied input comes only from trusted sources-->
+        <cve>CVE-2023-33546</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: com.hazelcast:hazelcast-spring:4.2.7)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-spring@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:commons-compiler:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/commons\-compiler@.*$</packageUrl>
+        <!--User supplied input comes only from trusted sources-->
+        <cve>CVE-2023-33546</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-all@.*$</packageUrl>
+        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
+        <cve>CVE-2023-33264</cve>
+    </suppress>
+
 
     <!-- Use in test -->
     <suppress>
@@ -532,4 +737,30 @@
         <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
         <cve>CVE-2022-40152</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk15on-1.68.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk18on-1.72.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk18on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: quartz-2.3.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+        <!-- params are received only from the admin user, no unchecked params are passed in-->
+        <cve>CVE-2023-39017</cve>
+    </suppress>
+
 </suppressions>

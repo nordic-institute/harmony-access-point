@@ -556,10 +556,12 @@ public class BackendNotificationService {
                                MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("sendMessageToQueue.timer")).time();
-        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
-        jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
-        methodTimer.stop();
+        metricRegistry.timer(name("sendMessageToQueue.timer")).time(
+                () -> {
+                    NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
+                    jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
+                }
+        );
     }
 
     protected void notifySync(MessageEvent messageEvent, BackendConnector<?, ?> backendConnector,

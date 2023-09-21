@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
@@ -216,10 +217,15 @@ public class DateUtilImplTest {
         Date currentDate = dateUtilImpl.getUtcDate();
         Date newDate = DateUtils.addMinutes(currentDate, 10);
         Integer partitionNameEES = new Integer(sdf.format(newDate).substring(0, 8));
-        
+
         Integer partitionNameUTC = new Integer(dateUtilImpl.getIdPkDateHourPrefix(currentDate));
 
         Assert.assertTrue(partitionNameUTC - partitionNameEES > 0);
     }
-    
+
+    @Test
+    public void getDateHour() {
+        ZonedDateTime dateHour = dateUtilImpl.getDateHour("23091820" + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
+        Assert.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
+    }
 }

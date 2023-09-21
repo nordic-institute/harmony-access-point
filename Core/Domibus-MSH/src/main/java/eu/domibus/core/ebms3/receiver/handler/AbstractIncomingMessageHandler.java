@@ -67,52 +67,63 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     @Timer(clazz = AbstractIncomingMessageHandler.class, value = "processMessage")
     @Counter(clazz = AbstractIncomingMessageHandler.class, value = "processMessage")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
-        com.codahale.metrics.Timer.Context testMessageTimer = null;
-        com.codahale.metrics.Counter testMessageCounter = null;
+        String pmodeKey = null;
         try {
-            SOAPMessage responseMessage = null;
-            String pmodeKey = null;
-            try {
-                pmodeKey = (String) request.getProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
-            } catch (final SOAPException soapEx) {
-                //this error should never occur because pmode handling is done inside the in-interceptorchain
-                LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
-                assert false;
-            }
-            final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-            Boolean testMessage = userMessage.isTestMessage();
-            if(testMessage){
-                testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "timer")).time();
-                testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "counter"));
-                testMessageCounter.inc();
-
-            }
-            LOG.info("Using pmodeKey {}", pmodeKey);
-            final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
-            try {
-                responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
-                LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                        ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
-
-                LOG.debug("Ping message {}", testMessage);
-            } catch (TransformerException | SOAPException | JAXBException | IOException e) {
-                throw new UserMessageException(e);
-            } catch (final EbMS3Exception e) {
-                try {
-                    if (legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                        backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
-                    }
-                } catch (Exception ex) {
-                    LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());
-                }
-                throw new WebServiceException(e);
-            }
-            return responseMessage;
-
-        } finally {
-            Optional.ofNullable(testMessageTimer).ifPresent(com.codahale.metrics.Timer.Context::stop);
-            Optional.ofNullable(testMessageCounter).ifPresent(com.codahale.metrics.Counter::dec);
+            pmodeKey = (String) request.getProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+        } catch (final SOAPException soapEx) {
+            //this error should never occur because pmode handling is done inside the in-interceptorchain
+            LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
+            assert false;
         }
+        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        boolean testMessage = userMessage.isTestMessage();
+        if(testMessage) {
+            String finalPmodeKey = pmodeKey;
+            try {
+                return metricRegistry.timer(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "timer")).time(
+                        () -> {
+                            com.codahale.metrics.Counter testMessageCounter = null;
+                            try {
+                                testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "counter"));
+                                testMessageCounter.inc();
+                                return processMessage(request, ebms3Messaging, finalPmodeKey, userMessage, true);
+                            } finally {
+                                Optional.ofNullable(testMessageCounter).ifPresent(com.codahale.metrics.Counter::dec);
+                            }
+                        }
+                );
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e){
+                new WebServiceException("Unexpected exception", e);    //should never happen
+            }
+        }
+        return processMessage(request, ebms3Messaging, pmodeKey, userMessage, false);
+    }
+
+    private SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging, String pmodeKey, UserMessage userMessage, Boolean testMessage) {
+        SOAPMessage responseMessage;
+        LOG.info("Using pmodeKey {}", pmodeKey);
+        final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
+        try {
+            responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
+            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
+                    ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
+
+            LOG.debug("Ping message {}", testMessage);
+        } catch (TransformerException | SOAPException | JAXBException | IOException e) {
+            throw new UserMessageException(e);
+        } catch (final EbMS3Exception e) {
+            try {
+                if (legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
+                }
+            } catch (Exception ex) {
+                LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());
+            }
+            throw new WebServiceException(e);
+        }
+        return responseMessage;
     }
 
     protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;

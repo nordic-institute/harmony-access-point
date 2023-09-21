@@ -23,8 +23,8 @@
         and keeps the customizations needed by Domibus -->
         <xmlsec.version>2.3.0</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
-        <spring.version>5.3.25</spring.version>
-        <spring.security.version>5.8.1</spring.security.version>
+        <spring.version>5.3.29</spring.version>
+        <spring.security.version>5.8.5</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.12</springdoc.version>
@@ -75,7 +75,7 @@
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.71</tomcat-embed.version>
+        <tomcat-embed.version>9.0.80</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
         <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 

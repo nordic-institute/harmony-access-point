@@ -88,27 +88,28 @@ public class EArchivingRetentionService {
     }
 
     protected void deleteBatch(EArchiveBatchEntity batch, Boolean deleteFromDB) {
-        com.codahale.metrics.Timer.Context metricDeleteBatch = metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time();
+        metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time(
+                () -> {
+                    LOG.debug("Deleting eArchive structure for batchId [{}]", batch.getBatchId());
+                    Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
+                    LOG.debug("Clean folder [{}]", folderToClean);
 
-        LOG.debug("Deleting eArchive structure for batchId [{}]", batch.getBatchId());
-        Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
-        LOG.debug("Clean folder [{}]", folderToClean);
-
-        try {
-            if (batch.getEArchiveBatchStatus() != EArchiveBatchStatus.DELETED) {
-                LOG.debug("Deleting eArchive files from disk [{}]", folderToClean);
-                FileUtils.deleteDirectory(folderToClean.toFile());
-            }
-            if (deleteFromDB) {
-                LOG.debug("Deleting physically batch [{}] from the database", batch.getBatchId());
-                eArchiveBatchDao.delete(batch);
-            } else {
-                LOG.debug("Marking as deleted the batch [{}]", batch.getBatchId());
-                eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
-            }
-        } catch (Exception e) {
-            LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
-        }
-        metricDeleteBatch.stop();
+                    try {
+                        if (batch.getEArchiveBatchStatus() != EArchiveBatchStatus.DELETED) {
+                            LOG.debug("Deleting eArchive files from disk [{}]", folderToClean);
+                            FileUtils.deleteDirectory(folderToClean.toFile());
+                        }
+                        if (deleteFromDB) {
+                            LOG.debug("Deleting physically batch [{}] from the database", batch.getBatchId());
+                            eArchiveBatchDao.delete(batch);
+                        } else {
+                            LOG.debug("Marking as deleted the batch [{}]", batch.getBatchId());
+                            eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
+                        }
+                    } catch (Exception e) {
+                        LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
+                    }
+                }
+        );
     }
 }

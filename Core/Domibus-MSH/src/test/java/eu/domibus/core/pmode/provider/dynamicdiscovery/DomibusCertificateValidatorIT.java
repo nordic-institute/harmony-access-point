@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.core.pki.PKIUtil;
+import eu.domibus.test.common.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import network.oxalis.vefa.peppol.common.code.Service;
@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static eu.domibus.core.pki.PKIUtil.*;
+import static eu.domibus.test.common.PKIUtil.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.*;

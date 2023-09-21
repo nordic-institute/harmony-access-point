@@ -114,6 +114,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.peppolclient.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.oasisclient.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 = "domibus.dynamicdiscovery.transportprofileas4";
+
+    String DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_CRON = "domibus.dynamicdiscovery.certificate.retention.cron";
+    String DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_HOURS = "domibus.dynamicdiscovery.certificate.retention.hours";
     String DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT = "domibus.listPendingMessages.maxCount";
     String DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE = "domibus.jms.connectionFactory.session.cache.size";
     String DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE = "domibus.jms.queue.maxBrowseSize";
@@ -401,6 +404,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
+    String DOMIBUS_EARCHIVE_SANITY_DELAY = "domibus.earchive.sanitizer.messagesCheck.delay.hours";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
     String DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD = "domibus.earchive.batch.size.payload";
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";

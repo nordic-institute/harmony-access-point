@@ -1,5 +1,7 @@
-package eu.domibus.core.pki;
+package eu.domibus.test.common;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -39,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public class PKIUtil {
 
-    public static final String CERTIFICATE_POLICY_ANY="2.5.29.32.0";
+    public static final String CERTIFICATE_POLICY_ANY = "2.5.29.32.0";
     public static final String CERTIFICATE_POLICY_QCP_NATURAL = "0.4.0.194112.1.0";
     public static final String CERTIFICATE_POLICY_QCP_LEGAL = "0.4.0.194112.1.1";
     public static final String CERTIFICATE_POLICY_QCP_NATURAL_QSCD = "0.4.0.194112.1.2";
@@ -114,6 +116,21 @@ public class PKIUtil {
         return result.toArray(new DistributionPoint[0]);
     }
 
+    public X509Certificate createCertificateWithSubject(BigInteger serial, String certificateSubject, Date notBefore, Date notAfter) {
+        try {
+            return generateCertificate(certificateSubject, serial,
+                    notBefore,
+                    notAfter, null, null, null, null, null,
+                    "SHA256WithRSAEncryption", null);
+        } catch (Exception e) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not generate certificate with subject [" + certificateSubject + "]", e);
+        }
+    }
+
+    public X509Certificate createCertificateWithSubject(BigInteger serial, String certificateSubject) {
+        return createCertificateWithSubject(serial, certificateSubject, DateUtils.addDays(Calendar.getInstance().getTime(), -30), DateUtils.addDays(Calendar.getInstance().getTime(), 30));
+    }
+
 
     public X509Certificate createCertificate(BigInteger serial, List<String> crlUrls, List<String> policies) throws
             NoSuchAlgorithmException, CertificateException, OperatorCreationException, IOException {
@@ -168,7 +185,6 @@ public class PKIUtil {
      * @param signatureAlgorithm         - signature algorithms
      * @param certificatePolicies        - certificate policy
      * @param isRootCA                   - Add Extension.basicConstraints
-     *
      * @return
      * @throws IllegalStateException
      * @throws IOException
@@ -260,11 +276,12 @@ public class PKIUtil {
     }
 
     /**
-     *  Method generates certificate chain
-     * @param subjects in order from CA to leaf
+     * Method generates certificate chain
+     *
+     * @param subjects                in order from CA to leaf
      * @param certificatePoliciesOids Policy oids fromCA to leaf
-     * @param startDate valid certificates from
-     * @param expiryDate valid certificates to
+     * @param startDate               valid certificates from
+     * @param expiryDate              valid certificates to
      * @return
      * @throws Exception
      */
@@ -275,20 +292,20 @@ public class PKIUtil {
         long iSerial = 10000;
         X509Certificate[] certs = new X509Certificate[subjects.length];
 
-        for (int i=0;i<subjects.length;i++){
+        for (int i = 0; i < subjects.length; i++) {
             String subject = subjects[i];
 
-            List<String> certificatePolicies =certificatePoliciesOids.size()>i?certificatePoliciesOids.get(i): Collections.emptyList();
+            List<String> certificatePolicies = certificatePoliciesOids.size() > i ? certificatePoliciesOids.get(i) : Collections.emptyList();
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(1024);
             KeyPair key = keyGen.generateKeyPair();
 
-            X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(new X500Name(issuer ==null? subject:issuer),
+            X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(new X500Name(issuer == null ? subject : issuer),
                     BigInteger.valueOf(iSerial++), startDate, expiryDate, new X500Name(subject),
                     SubjectPublicKeyInfo.getInstance(key.getPublic().getEncoded()));
 
             // set basic basicConstraint  for all except the last leaf certificate
-            if (i!=subjects.length-1) {
+            if (i != subjects.length - 1) {
                 certBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
             }
 
@@ -304,11 +321,11 @@ public class PKIUtil {
 
             }
             ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WITHRSA")
-                    .build(issuerKey ==null?key.getPrivate():issuerKey);
+                    .build(issuerKey == null ? key.getPrivate() : issuerKey);
 
             // add certs in reverse order
-            certs[subjects.length-1-i] = new JcaX509CertificateConverter().getCertificate(certBuilder.build(sigGen));
-            issuer= subject;
+            certs[subjects.length - 1 - i] = new JcaX509CertificateConverter().getCertificate(certBuilder.build(sigGen));
+            issuer = subject;
             issuerKey = key.getPrivate();
 
         }

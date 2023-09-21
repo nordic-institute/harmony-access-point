@@ -10,11 +10,18 @@
       -->
     <changeSet id="EDELIVERY-7668-oracle" author="Catalin Enache" dbms="oracle">
         <sql>
-            MERGE INTO TB_VERSION USING dual ON ( VERSION = '${DomibusVersion}' )
+            MERGE INTO TB_VERSION
+            USING dual
+            ON (VERSION = '${DomibusVersion}')
             WHEN MATCHED
-            THEN UPDATE SET BUILD_TIME = '${DomibusBuildTime}', CREATION_TIME = ${now}
+                THEN
+                UPDATE
+                SET BUILD_TIME    = '${DomibusBuildTime}',
+                    CREATION_TIME = ${now}
             WHEN NOT MATCHED
-            THEN INSERT VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now});
+                THEN
+                INSERT (VERSION, BUILD_TIME, CREATION_TIME)
+                VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now});
         </sql>
     </changeSet>
 

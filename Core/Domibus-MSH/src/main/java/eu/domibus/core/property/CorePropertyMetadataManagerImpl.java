@@ -161,6 +161,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, Type.HYPHENED_NAME, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_HOURS, Type.NUMERIC, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL, Type.NUMERIC),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT, Type.NUMERIC),
@@ -276,6 +278,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITY_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITY_DELAY, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_MAX, Type.NUMERIC, Usage.DOMAIN, true),
@@ -406,7 +409,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
+            new DomibusPropertyMetadata(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC, Usage.GLOBAL_AND_DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CACHE_LOCATION),

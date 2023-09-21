@@ -33,6 +33,7 @@ import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
+import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import org.apache.commons.lang3.StringUtils;
@@ -400,12 +401,20 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner) {
+    public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner, DssExtensionPropertyManager dssExtensionPropertyManager) {
+        boolean useExpirationAndSignatureCheckStrategy = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_TRUSTED_LIST_SIGNATURE_VERIFICATION));
+
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
         job.setOfflineDataLoader(offlineLoader(dataLoader));
         job.setTrustedListCertificateSource(trustedListSource());
-        job.setSynchronizationStrategy(new AcceptAllStrategy());
+        if (useExpirationAndSignatureCheckStrategy) {
+            LOG.info("Using ExpirationAndSignatureCheckStrategy to skip expired/invalid trusted lists");
+            job.setSynchronizationStrategy(new ExpirationAndSignatureCheckStrategy());
+        } else {
+            LOG.info("Using AcceptAllStrategy. Will accept all trusted lists, even if expired/invalid.");
+            job.setSynchronizationStrategy(new AcceptAllStrategy());
+        }
         job.setCacheCleaner(cacheCleaner);
 
         job.setListOfTrustedListSources(europeanLOTL);

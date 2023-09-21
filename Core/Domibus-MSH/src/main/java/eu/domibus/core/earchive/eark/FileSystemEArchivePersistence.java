@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.earchive.DomibusEArchiveExportException;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.util.FileServiceUtil;
@@ -14,6 +15,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.model.IPConstants;
@@ -25,6 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -106,6 +111,11 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             throw ex;
         } catch (IPException | IOException e) {
             throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
+        } catch (DomibusEArchiveException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "] - unexpected failure", e);       //should never happen
         }
     }
 
@@ -142,12 +152,25 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
             ArchivingFileDTO archivingFileDTO = file.getValue();
             archivingFileDTO.setPath(path);
-            try (InputStream inputStream = archivingFileDTO.getInputStream()) {
-                eArkSipBuilderService.createDataFile(path, inputStream);
+            MessageDigest instance = getMessageDigest();
+
+            try (InputStream inputStream = archivingFileDTO.getInputStream();
+                 InputStream digestInputStream = new DigestInputStream(inputStream, instance)) {
+                eArkSipBuilderService.createDataFile(path, digestInputStream);
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + archivingFileDTO + "]", e);
             }
+            archivingFileDTO.setCheckSum(Hex.encodeHexString(instance.digest()));
             eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, archivingFileDTO);
         }
     }
+
+    private static MessageDigest getMessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_001, "SHA-256 should be supported");
+        }
+    }
+
 }
