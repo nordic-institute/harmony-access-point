@@ -15,6 +15,7 @@ import org.hibernate.HibernateException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXCEPTIONS_REST_ENABLE;
+import static eu.domibus.web.rest.error.ErrorMessages.DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS;
+import static eu.domibus.web.rest.error.ErrorMessages.DEFAULT_MESSAGE_FOR_GENERIC_ERRORS;
 
 /**
  * @author Ion Perpegel
@@ -81,8 +84,14 @@ public class ErrorHandlerService {
             Throwable rootCause = ExceptionUtils.getRootCause(ex);
             ex = rootCause == null ? ex : rootCause;
         }
+        String errorMessage;
+        if(AuthenticationException.class.isAssignableFrom(ex.getClass())) {
+            errorMessage = DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS;
+        } else {
+            errorMessage = getErrorMessage(ex.getMessage());
+        }
 
-        return createResponseEntity(ex.getMessage(), status);
+        return createResponseEntity(status, errorMessage);
     }
 
     private void logException(Throwable ex, HttpStatus status) {
@@ -96,7 +105,7 @@ public class ErrorHandlerService {
     public ResponseEntity<ErrorRO> createResponse(String message, HttpStatus status) {
         LOG.error(message);
 
-        return createResponseEntity(message, status);
+        return createResponseEntity(status, getErrorMessage(message));
     }
 
     public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
@@ -108,11 +117,15 @@ public class ErrorHandlerService {
         }
     }
 
-    private ResponseEntity createResponseEntity(String message, HttpStatus status) {
+    private ResponseEntity createResponseEntity(HttpStatus status, String errorMessage) {
         HttpHeaders headers = new HttpHeaders();
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
         headers.set(HttpHeaders.CONNECTION, "close");
+        ErrorRO body = new ErrorRO(errorMessage);
+        return new ResponseEntity(body, headers, status);
+    }
 
+    private String getErrorMessage(String message) {
         boolean enabled = true;
         try {
             enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE);
@@ -120,11 +133,10 @@ public class ErrorHandlerService {
             LOG.warn("Error reading domibus.exceptions.rest.enable as boolean: [{}]", e.getMessage());
         }
 
-        String errorMessage = enabled ? message : "A server error occurred";
-
-        ErrorRO body = new ErrorRO(errorMessage);
-
-        return new ResponseEntity(body, headers, status);
+        if (enabled) {
+            return message;
+        }
+        return DEFAULT_MESSAGE_FOR_GENERIC_ERRORS;
     }
 
     public ResponseEntity<ErrorRO> createConstraintViolationResponse(ConstraintViolationException ex) {

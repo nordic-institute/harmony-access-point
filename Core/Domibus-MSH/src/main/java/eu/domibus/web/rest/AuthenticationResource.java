@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.error.ErrorMessages;
 import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
+import static eu.domibus.web.rest.error.ErrorMessages.DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -99,8 +101,7 @@ public class AuthenticationResource {
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());
             if (StringUtils.isBlank(domainCode)) {
                 LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
-                throw new BadCredentialsException(SpringSecurityMessageSource.getAccessor()
-                        .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+                throw new BadCredentialsException(DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS);
             }
 
             LOG.debug("Determined preferred domain [{}] for user [{}]", domainCode, loginRO.getUsername());
