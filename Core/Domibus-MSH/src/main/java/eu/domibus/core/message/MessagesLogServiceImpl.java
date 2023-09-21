@@ -85,7 +85,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Transactional
     public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogDao dao = getMessageLogDao(messageType);
-        List<MessageLogInfo> resultList = dao.findAllInfoPaged(0, max, orderByColumn, asc, filters, Collections.emptyList());
+        List<MessageLogInfo> resultList = dao.findAllInfoPaged(0, max, orderByColumn, asc, filters, fields);
         resultList.forEach(msgInfo -> {
             messageLogDictionaryDataService.addDictionaryData(fields, msgInfo);
         });
