@@ -16,6 +16,7 @@
     <properties>
         <clientSkipTests>true</clientSkipTests>
         <maven.test.skip>${clientSkipTests}</maven.test.skip>
+        <jaxws-rt.version>2.3.6</jaxws-rt.version>
     </properties>
 
     <build>
@@ -59,6 +60,11 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -79,6 +85,13 @@
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
+        </dependency>
+<!--        TEST-->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>${jaxws-rt.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
