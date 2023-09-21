@@ -81,11 +81,9 @@ public class DomibusJPAConfiguration {
             jpaProperties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProviderImpl.get());
             if (tenantIdentifierResolver.isPresent()) {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
-            }
-        }
 
-        if (tenantIdentifierResolver.isPresent()) {
-            DomibusCacheKeysFactory.setTenantIdentifierResolver(tenantIdentifierResolver.get());
+                DomibusCacheKeysFactory.setTenantIdentifierResolver(tenantIdentifierResolver.get());
+            }
         }
 
         result.setJpaProperties(jpaProperties);
