@@ -60,6 +60,9 @@ public class MessageLogResourceParamTest {
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    RequestFilterUtils requestFilterUtils;
+
     @Parameterized.Parameter(0)
     public MessageType messageType;
 
@@ -91,7 +94,7 @@ public class MessageLogResourceParamTest {
         expectedMessageLogResult.setMessageLogEntries(resultList);
 
         new Expectations() {{
-            messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any, (List<String>)any);
+            messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any, (List<String>) any);
             result = expectedMessageLogResult;
         }};
 
@@ -151,8 +154,8 @@ public class MessageLogResourceParamTest {
     /**
      * Creates a {@link MessageLogRO} based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param testMessage    Test Message
+     * @param messageType Message Type
+     * @param testMessage Test Message
      * @return <code>MessageLog</code>
      */
     private static MessageLogRO createMessageLog(MessageType messageType, Boolean testMessage) {
@@ -180,7 +183,7 @@ public class MessageLogResourceParamTest {
     /**
      * Gets a MessageLog based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
+     * @param messageType Message Type
      * @param testMessage Message Subtype
      * @return <code>MessageLogResultRO</code> object
      */
@@ -196,8 +199,8 @@ public class MessageLogResourceParamTest {
     /**
      * Get a MessageLogInfo List based on <code>messageInfo</code>, <code>date</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param date           Date
+     * @param messageType Message Type
+     * @param date        Date
      * @param testMessage test Message
      * @return <code>List</code> of <code>MessageLogInfo</code> objects
      */
