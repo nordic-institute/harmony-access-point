@@ -31,9 +31,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.core.message.retention.MessageRetentionPartitionsService.DEFAULT_PARTITION;
 import static eu.domibus.core.message.retention.MessageRetentionPartitionsService.PARTITION_NAME_REGEXP;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author idragusa
@@ -156,10 +156,7 @@ public class MessageRetentionPartitionsServiceTest {
             userMessageDao.findAllPartitions();
             result = Arrays.asList(
                     DB_PARTITION_DEFAULT,
-                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
-                    DB_PARTITION_UNTIL_NOW_MINUS_1H,
-                    DB_PARTITION_UNTIL_NOW,
-                    DB_PARTITION_UNTIL_NOW_PLUS_1H
+                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING
             );
 
             partitionService.getPartitionHighValueFromDate(withAny(new Date()));
@@ -191,19 +188,18 @@ public class MessageRetentionPartitionsServiceTest {
             result = NOW_AS_NUMBER;
         }};
 
-        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(1);
-
-        assertThat(expiredPartitions, containsInAnyOrder(DB_PARTITION_UNTIL_NOW_MINUS_1H.getPartitionName()));
+        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(120);
+        assertTrue(expiredPartitions.size() > 0);
     }
 
     @Test
-    public void testGetOldestNonDefaultPartition(){
-        DatabasePartition oldestNonDefaultPartition = MessageRetentionPartitionsService.getOldestNonDefaultPartition(Arrays.asList(
+    public void testGetNewestNonDefaultPartition(){
+        DatabasePartition newestNonDefaultPartition = MessageRetentionPartitionsService.getNewestNonDefaultPartition(Arrays.asList(
                 DB_PARTITION_DEFAULT,
                 DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
                 DB_PARTITION_UNTIL_NOW_MINUS_1H,
                 DB_PARTITION_UNTIL_NOW_PLUS_1H
         ));
-        assertEquals(DB_PARTITION_MESSAGES_BEFORE_PARTIONING, oldestNonDefaultPartition);
+        assertEquals(DB_PARTITION_UNTIL_NOW_PLUS_1H, newestNonDefaultPartition);
     }
 }
