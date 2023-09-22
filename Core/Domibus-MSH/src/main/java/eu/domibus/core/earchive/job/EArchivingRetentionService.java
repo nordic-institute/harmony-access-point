@@ -87,6 +87,10 @@ public class EArchivingRetentionService {
         batches.forEach((batch) -> deleteBatch(batch, deleteFromDB));
     }
 
+    public void deleteBatch(EArchiveBatchEntity batch) {
+        deleteBatch(batch, domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_DB));
+    }
+
     protected void deleteBatch(EArchiveBatchEntity batch, Boolean deleteFromDB) {
         metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time(
                 () -> {

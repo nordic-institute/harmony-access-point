@@ -105,7 +105,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     @Override
     @Timer(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
-    @Transactional(readOnly = true)
     public void deleteExpiredMessages() {
         LOG.debug("Using MessageRetentionPartitionsService to deleteExpiredMessages");
         // A partition may have messages with all statuses, received/sent on any MPC
@@ -166,15 +165,15 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("Date to check partitions expiration: [{}]", newestPartitionToCheckDate);
         Long expiredHighValue = partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate);
 
-        //we have to keep the oldest non default partition, otherwise the hourly interval partitioning will generate more
+        //we have to keep the newest non default partition, otherwise the hourly interval partitioning will generate more
         //than the maximum nr of partitions allowed by Oracle (ORA-14300) when we would insert a new message
-        DatabasePartition oldestNonDefaultPartition = getOldestNonDefaultPartition(partitions);
+        DatabasePartition newestNonDefaultPartition = getNewestNonDefaultPartition(partitions);
 
         List<String> partitionNames =
                 partitions.stream()
                         .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
                         .filter(p -> p.getHighValue() < expiredHighValue )
-                        .filter(p -> !p.equals(oldestNonDefaultPartition))
+                        .filter(p -> !p.equals(newestNonDefaultPartition))
                         .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
         LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
@@ -186,10 +185,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         return partitionNames;
     }
 
-    protected static DatabasePartition getOldestNonDefaultPartition(List<DatabasePartition> partitions) {
+    protected static DatabasePartition getNewestNonDefaultPartition(List<DatabasePartition> partitions) {
         return partitions.stream()
                 .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
-                .min(Comparator.comparing(DatabasePartition::getHighValue))
+                .max(Comparator.comparing(DatabasePartition::getHighValue))
                 .orElseThrow(NoSuchElementException::new);
     }
 
@@ -250,9 +249,11 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         int retention = getRetention(mpc, messageStatus);
         int count;
         if(retention == -1){
+            LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
             count = userMessageLogDao.getAllMessagesWithStatus(mpc, messageStatus, partitionName);
         }
         else {
+            LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
             count = userMessageLogDao.getMessagesNewerThan(
                     DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);
         }
