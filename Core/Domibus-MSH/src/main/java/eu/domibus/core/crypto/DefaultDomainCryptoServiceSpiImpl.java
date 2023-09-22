@@ -302,7 +302,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
 
         X509Certificate x509Certificate = certificate.get();
-        LOG.info(message, CertUtil.subjectCN(x509Certificate));
+        if(LOG.isInfoEnabled()) {
+            LOG.info(message, CertUtil.subjectCN(x509Certificate));
+        }
 
         // Print all certificate details in DEBUG mode
         LOG.debug("Certificate details: [{}]", x509Certificate);
@@ -312,7 +314,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 fingerprint,
                 x509Certificate.getSubjectDN(),
                 x509Certificate.getNotBefore(),
-                x509Certificate.getNotBefore(),
+                x509Certificate.getNotAfter(),
                 x509Certificate.getIssuerDN(),
                 x509Certificate.getSerialNumber());
     }
