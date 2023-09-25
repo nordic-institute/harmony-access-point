@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
@@ -271,5 +272,9 @@ public class SecurityProfileValidatorService {
 
     public boolean isLegacySingleAliasKeystoreDefined() {
         return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null;
+    }
+
+    public boolean isLegacySingleAliasKeystoreDefined(Domain domain) {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null;
     }
 }
