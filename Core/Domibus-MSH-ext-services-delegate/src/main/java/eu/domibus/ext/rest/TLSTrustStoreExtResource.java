@@ -115,17 +115,13 @@ public class TLSTrustStoreExtResource {
     public String uploadTLSTruststoreFile(
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
-        byte[] truststoreFileContent;
-        try {
-            truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
-            if (StringUtils.isBlank(password)) {
-                throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
-            }
-        } catch (RequestValidationException requestValidationException) {
-
-            throw new CryptoExtException(requestValidationException);
+        if (StringUtils.isBlank(password)) {
+            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
+
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         tlsTruststoreExtService.uploadTruststoreFile(contentInfo);
 
@@ -138,17 +134,12 @@ public class TLSTrustStoreExtResource {
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
-        byte[] fileContent;
-        try {
-            if (StringUtils.isBlank(alias)) {
-                throw new RequestValidationException("Please provide an alias for the certificate.");
-            }
-
-            fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-        } catch (RequestValidationException requestValidationException) {
-
-            throw new CryptoExtException(requestValidationException);
+        if (StringUtils.isBlank(alias)) {
+            throw new RequestValidationException("Please provide an alias for the certificate.");
         }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
         tlsTruststoreExtService.addCertificate(fileContent, alias);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
