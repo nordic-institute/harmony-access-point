@@ -72,7 +72,7 @@ public class DynamicDiscoveryLookupService implements PModeEventListener {
 
     /**
      * Save the final recipient URL in the database and in the memory cache
-     * Saving the time when the DDC lookup was performed last time
+     * Save the time when the DDC lookup was performed last time
      * We use the discovered time as retention parameter to clean up using a job the dynamically discovered certificates and parties
      */
     @Override

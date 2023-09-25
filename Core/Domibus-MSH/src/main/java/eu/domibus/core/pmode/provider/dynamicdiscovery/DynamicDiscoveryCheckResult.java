@@ -4,6 +4,12 @@ import eu.domibus.common.model.configuration.Party;
 
 import java.security.cert.X509Certificate;
 
+/**
+ * Class responsible for holding the sending dynamic discovery query result
+ *
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 public class DynamicDiscoveryCheckResult {
 
     protected boolean performDynamicDiscovery;

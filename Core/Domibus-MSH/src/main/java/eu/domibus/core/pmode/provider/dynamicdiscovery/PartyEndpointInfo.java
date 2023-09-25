@@ -2,6 +2,11 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import java.security.cert.X509Certificate;
 
+
+/**
+ * @author Cosmin Baciu
+ * @since 5.1.1
+ */
 public class PartyEndpointInfo {
 
     protected String certificateCn;
