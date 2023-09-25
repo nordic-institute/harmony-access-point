@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.EArchiveBatchMapper;
 import eu.domibus.core.earchive.job.EArchiveBatchDispatcherService;
+import eu.domibus.core.earchive.job.EArchivingRetentionService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -53,6 +54,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
 
+    private final EArchivingRetentionService eArchivingRetentionService;
+
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
     private final DomainContextProvider domainContextProvider;
@@ -73,6 +76,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue,
                                     EArchiveBatchMapper eArchiveBatchMapper,
                                     EArchiveBatchDispatcherService eArchiveBatchDispatcherService,
+                                    EArchivingRetentionService eArchivingRetentionService,
                                     EArchiveBatchUtils eArchiveBatchUtils,
                                     DomainContextProvider domainContextProvider,
                                     DomibusPropertyProvider domibusPropertyProvider) {
@@ -81,6 +85,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.eArchiveBatchMapper = eArchiveBatchMapper;
         this.eArchiveBatchDispatcherService = eArchiveBatchDispatcherService;
+        this.eArchivingRetentionService = eArchivingRetentionService;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.domainContextProvider = domainContextProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -266,14 +271,22 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Transactional
     public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
-        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
-        if (eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.ARCHIVED) {
-            setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
+        LOG.debug("Update messages archived date for batch [{}]", eArchiveBatchByBatchId.batchId);
+        userMessageLogDefaultService.updateUserMessagesArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+        if (eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.ARCHIVED &&
+                eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.DELETED) {  // batch was already deleted from file system
+            LOG.debug("Set batch status ARCHIVED, for batch [{}], previous status [{}]", eArchiveBatchByBatchId.batchId, eArchiveBatchByBatchId.eArchiveBatchStatus);
+            setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED); // status has to be set, useful for replacing DELETED  status with a date
         }
         if (userMessageDtos.size() > 0) {
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
                     eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
                     userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
         }
+    }
+
+    public void executeDeleteBatch(EArchiveBatchEntity eArchiveBatchByBatchId) {
+        LOG.debug("Execute delete batch [{}]", eArchiveBatchByBatchId.batchId);
+        eArchivingRetentionService.deleteBatch(eArchiveBatchByBatchId);
     }
 }

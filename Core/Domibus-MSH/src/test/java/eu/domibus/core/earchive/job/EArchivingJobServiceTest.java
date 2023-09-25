@@ -7,6 +7,7 @@ import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.earchive.*;
@@ -25,7 +26,6 @@ import org.junit.runner.RunWith;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +70,9 @@ public class EArchivingJobServiceTest {
     private EArchivingEventService eArchivingEventService;
     @Injectable
     private PartInfoService partInfoService;
+
+    @Injectable
+    private DateUtil dateUtil;
 
     @Test
     public void getMpcs() {
