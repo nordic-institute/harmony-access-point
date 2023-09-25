@@ -69,11 +69,7 @@ public class MailSender {
             final String user = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_USER);
             final String password = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
 
-            LOG.info("Configuring mail server.");
-            LOG.info("Smtp url:[{}]", url);
-            LOG.info("Smtp port:[{}]", port);
-            LOG.info("Smtp timeout:[{}]", timeout);
-            LOG.info("Smtp user:[{}]", user);
+            LOG.info("Configuring mail server: url [{}], port [{}], timeout [{}], user [{}]", url, port, timeout, user);
 
             javaMailSender.setHost(url);
             javaMailSender.setPort(port);
