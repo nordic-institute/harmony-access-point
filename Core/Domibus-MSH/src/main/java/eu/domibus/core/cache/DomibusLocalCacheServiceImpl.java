@@ -87,7 +87,7 @@ public class DomibusLocalCacheServiceImpl implements DomibusLocalCacheService {
     @Override
     public void clear2LCCaches(boolean notification) throws DomibusCoreException {
         SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getCache().evictAll();
+        sessionFactory.getCache().evictAllRegions();
         if (notification) {
             notifyClear2LCaches();
         }
