@@ -32,11 +32,11 @@ public class WebserviceClientTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebserviceClientTest.class);
 
-    private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_submitRequest.xml";
+    private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "submitMessage_submitRequest.xml";
 
-    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_messaging.xml";
+    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "submitMessage_messaging.xml";
 
-    static final String SAMPLE_MSH_MESSAGE = "src/test/resources/eu/domibus/plugin/ws/client/sampleMSHMessage.xml";
+    static final String SAMPLE_MSH_MESSAGE = "sampleMSHMessage.xml";
 
     private static final String CONFIG_PROPERTIES = "config.properties";
 
@@ -109,8 +109,9 @@ public class WebserviceClientTest {
 
     @Test
     public void testSubmitMessage_CorrectRequest_NoErrorsExpected() throws Exception {
-        SubmitRequest submitRequest = WebserviceHelper.parseSendRequestXML(TEST_SUBMIT_MESSAGE_SUBMITREQUEST, SubmitRequest.class);
-        Messaging messaging = WebserviceHelper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
+        SubmitRequest submitRequest = WebserviceHelper.parseSendRequestXML(getClass().getClassLoader().getResourceAsStream(TEST_SUBMIT_MESSAGE_SUBMITREQUEST));
+
+        Messaging messaging = WebserviceHelper.parseMessagingXML(getClass().getClassLoader().getResourceAsStream(TEST_SUBMIT_MESSAGE_MESSAGING));
 
         SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);
@@ -129,7 +130,7 @@ public class WebserviceClientTest {
         largepayload.setValue(dataHandler);
         submitRequest.getPayload().add(largepayload);
 
-        Messaging messaging = WebserviceHelper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
+        Messaging messaging = WebserviceHelper.parseMessagingXML(getClass().getClassLoader().getResourceAsStream(TEST_SUBMIT_MESSAGE_MESSAGING));
 
         SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);
@@ -282,7 +283,7 @@ public class WebserviceClientTest {
 
         GetErrorsRequest messageErrorsRequest = new GetErrorsRequest();
         //The messageId determines the message for which the list of errors is requested
-        messageErrorsRequest.setMessageID(UUID.randomUUID().toString());
+        messageErrorsRequest.setMessageID(messageId);
 
         ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(messageErrorsRequest);
 
