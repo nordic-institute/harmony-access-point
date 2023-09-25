@@ -1,5 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.logging.DomibusLogger;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -28,6 +30,12 @@ public class AbstractDynamicDiscoveryServiceTest {
 
     @Injectable
     DomibusLogger logger;
+
+    @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {

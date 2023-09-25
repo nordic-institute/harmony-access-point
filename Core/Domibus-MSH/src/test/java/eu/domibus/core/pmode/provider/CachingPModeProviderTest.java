@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.provider;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -11,12 +12,12 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -28,7 +29,10 @@ import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PojoInstaciatorUtil;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,6 +123,9 @@ public class CachingPModeProviderTest {
     SignalService signalService;
 
     @Injectable
+    List<PModeEventListener> pModeEventListeners;
+
+    @Injectable
     PullProcessValidator pullProcessValidator;
 
     @Injectable
@@ -156,9 +163,6 @@ public class CachingPModeProviderTest {
 
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
-
-    @Injectable
-    FinalRecipientService finalRecipientService;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
@@ -1176,7 +1180,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getReceiverParty(pModeKey);
             fail();
         } catch (ConfigurationException ex) {
-            assertEquals(ex.getMessage(), "no matching receiver party found with name: " + partyKey);
+            assertEquals(ex.getMessage(), "No matching receiver party found with name: " + partyKey);
         }
     }
 

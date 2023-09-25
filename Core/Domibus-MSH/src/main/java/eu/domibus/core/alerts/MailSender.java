@@ -55,7 +55,7 @@ public class MailSender {
     @Autowired
     protected DomainContextProvider domainProvider;
 
-    private boolean mailSenderInitiated;
+    protected boolean mailSenderInitiated;
 
     protected void initMailSender() {
         final Boolean alertModuleEnabled = isAlertModuleEnabled();
@@ -69,11 +69,11 @@ public class MailSender {
             final String user = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_USER);
             final String password = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
 
-            LOG.debug("Configuring mail server.");
-            LOG.debug("Smtp url:[{}]", url);
-            LOG.debug("Smtp port:[{}]", port);
-            LOG.debug("Smtp timeout:[{}]", timeout);
-            LOG.debug("Smtp user:[{}]", user);
+            LOG.info("Configuring mail server.");
+            LOG.info("Smtp url:[{}]", url);
+            LOG.info("Smtp port:[{}]", port);
+            LOG.info("Smtp timeout:[{}]", timeout);
+            LOG.info("Smtp user:[{}]", user);
 
             javaMailSender.setHost(url);
             javaMailSender.setPort(port);
@@ -87,7 +87,7 @@ public class MailSender {
                     forEach(domibusPropertyName -> {
                         final String mailPropertyName = domibusPropertyName.substring(domibusPropertyName.indexOf(MAIL) + 1);
                         final String propertyValue = domibusPropertyProvider.getProperty(domibusPropertyName);
-                        LOG.debug("mail property:[{}] value:[{}]", mailPropertyName, propertyValue);
+                        LOG.info("Mail property:[{}] value:[{}]", mailPropertyName, propertyValue);
                         javaMailProperties.put(mailPropertyName, propertyValue);
                     });
         }
@@ -99,6 +99,10 @@ public class MailSender {
 
     private Boolean isSendEmailActive() {
         return domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE);
+    }
+
+    public boolean isMailSenderInitiated() {
+        return mailSenderInitiated;
     }
 
     /**

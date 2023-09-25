@@ -65,7 +65,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
             result = localAccessPointId;
 
-            userMessageServiceHelper.getFinalRecipient(userMessage);
+            userMessageServiceHelper.getFinalRecipientValue(userMessage);
             result = finalRecipient;
 
             messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties, true);
@@ -111,7 +111,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
             result = localAccessPointId;
 
-            userMessageServiceHelper.getFinalRecipient(userMessage);
+            userMessageServiceHelper.getFinalRecipientValue(userMessage);
             result = finalRecipient;
 
             messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties, true);

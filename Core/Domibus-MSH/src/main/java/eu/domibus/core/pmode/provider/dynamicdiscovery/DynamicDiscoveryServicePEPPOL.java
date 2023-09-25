@@ -47,7 +47,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 @Qualifier("dynamicDiscoveryServicePEPPOL")
-public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
+public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
 
@@ -126,8 +126,8 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         return DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #finalRecipientValue + #finalRecipientType + #documentId + #processId + #processIdScheme")
-    public EndpointInfo lookupInformation(final String domain, final String finalRecipientValue, final String finalRecipientType, final String documentId, final String processId, final String processIdScheme) {
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#lookupKey")
+    public EndpointInfo lookupInformation(final String lookupKey, final String finalRecipientValue, final String finalRecipientType, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", finalRecipientValue, finalRecipientType, documentId, processId, processIdScheme);
         final String smlInfo = domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);

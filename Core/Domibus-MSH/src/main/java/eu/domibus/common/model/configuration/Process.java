@@ -1,10 +1,15 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static eu.domibus.common.model.configuration.Process.*;
@@ -29,6 +34,8 @@ import static eu.domibus.common.model.configuration.Process.*;
         @NamedQuery(name = FIND_ALL_PROCESSES, query = "SELECT p FROM Process p"),
 })
 public class Process extends AbstractBaseEntity {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Process.class);
     @Transient
     @XmlTransient
     public static final String RETRIEVE_PULL_PROCESS_FROM_MESSAGE_CONTEXT = "Process.retrievePullProcessFromMessageContext";
@@ -200,7 +207,7 @@ public class Process extends AbstractBaseEntity {
      * and values which contributes to hash have the same value. This issue will be tackled in Domibus 5.0
      * in a general manner
      */
-    public void detachParties(){
+    public void detachParties() {
 
         Set<Party> initiatorPartiesNew = new HashSet<>();
         initiatorPartiesNew.addAll(initiatorParties);
@@ -275,6 +282,22 @@ public class Process extends AbstractBaseEntity {
             responderParties = new HashSet<>();
             responderParties.add(party);
         }
+    }
+
+    public Party removeResponder(String partyName) {
+        if (CollectionUtils.isEmpty(responderParties)) {
+            return null;
+        }
+        final Iterator<Party> iterator = responderParties.iterator();
+        while (iterator.hasNext()) {
+            Party party = iterator.next();
+            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
+                LOG.debug("Removing responder [{}] from process [{}]", partyName, name);
+                iterator.remove();
+                return party;
+            }
+        }
+        return null;
     }
 
     public InitiatorParties getInitiatorPartiesXml() {

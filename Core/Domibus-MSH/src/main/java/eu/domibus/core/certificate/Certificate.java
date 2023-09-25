@@ -19,7 +19,14 @@ import java.util.Objects;
 @Table(name = "TB_CERTIFICATE")
 @NamedQueries({
         @NamedQuery(name = "Certificate.findExpiredToNotifyCertificate", query = "FROM Certificate c where (c.alertExpiredNotificationDate is null OR c.alertExpiredNotificationDate<=:NEXT_NOTIFICATION) AND c.certificateStatus='REVOKED' AND c.notAfter>=:END_NOTIFICATION"),
-        @NamedQuery(name = "Certificate.findImminentExpirationToNotifyCertificate", query = "FROM Certificate c where (c.alertImminentNotificationDate is null OR c.alertImminentNotificationDate<=:NEXT_NOTIFICATION) AND c.certificateStatus!='REVOKED' AND c.notAfter>=:FROM_DATE AND c.notAfter<=:TO_DATE"),
+        //we skip the dynamically discovered public certificates
+        @NamedQuery(name = "Certificate.findImminentExpirationToNotifyCertificate", query = "FROM Certificate c where " +
+                "(c.alertImminentNotificationDate is null OR c.alertImminentNotificationDate<=:NEXT_NOTIFICATION) AND " +
+                "c.certificateStatus!='REVOKED' AND c.notAfter>=:FROM_DATE AND " +
+                "c.notAfter<=:TO_DATE AND " +
+                //certificate is public and not dynamically discovered or certificate is private
+                "(c.certificateType ='PUBLIC' AND c.alias NOT IN (select lookup.cn from DynamicDiscoveryLookupEntity lookup) or c.certificateType = 'PRIVATE')"
+        ),
         @NamedQuery(name = "Certificate.findByAlias", query = "FROM Certificate c where c.alias=:ALIAS"),
         @NamedQuery(name = "Certificate.findByAliasAndType", query = "FROM Certificate c where c.alias=:ALIAS AND c.certificateType=:CERTIFICATE_TYPE"),
         @NamedQuery(name = "Certificate.findByStatusAndNotificationDate", query = "FROM Certificate c where c.certificateStatus=:CERTIFICATE_STATUS AND (c.lastNotification is null OR c.lastNotification<:CURRENT_DATE)"),

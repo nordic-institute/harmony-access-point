@@ -17,7 +17,6 @@ import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.earchive.job.EArchivingCleanupJob;
 import eu.domibus.core.earchive.job.EArchivingContinuousJob;
 import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
-import eu.domibus.core.ebms3.receiver.job.FinalRecipientCleanupJob;
 import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
 import eu.domibus.core.message.pull.MessagePullerJob;
@@ -30,7 +29,7 @@ import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.monitoring.ConnectionMonitoringSelfJob;
 import eu.domibus.core.monitoring.DeleteReceivedTestMessageHistoryJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
-import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryCertificateJob;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupsJob;
 import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
 import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
@@ -637,27 +636,6 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     @Bean
-    public JobDetailFactoryBean finalRecipientCleanupJob() {
-        JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(FinalRecipientCleanupJob.class);
-        obj.setDurability(true);
-        return obj;
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean finalRecipientCleanupJobTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null) {
-            return null;
-        }
-        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
-        obj.setJobDetail(finalRecipientCleanupJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
-        return obj;
-    }
-
-    @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean dynamicDiscoveryCertificatesCleanupJobTrigger() {
         if (domainContextProvider.getCurrentDomainSafely() == null ) {
@@ -665,7 +643,7 @@ public class DomainSchedulerFactoryConfiguration {
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(dynamicDiscoveryCertificatesCleanupJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_CRON));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_CLEAN_RETENTION_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
@@ -673,7 +651,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     public JobDetailFactoryBean dynamicDiscoveryCertificatesCleanupJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(DynamicDiscoveryCertificateJob.class);
+        obj.setJobClass(DynamicDiscoveryLookupsJob.class);
         obj.setDurability(true);
         return obj;
     }

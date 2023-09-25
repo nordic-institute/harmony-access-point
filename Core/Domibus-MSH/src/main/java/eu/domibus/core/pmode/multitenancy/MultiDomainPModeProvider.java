@@ -3,7 +3,6 @@ package eu.domibus.core.pmode.multitenancy;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.ServiceEntity;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -58,7 +57,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
         getCurrentPModeProvider().refresh();
     }
 
-    protected PModeProvider getCurrentPModeProvider() {
+    public PModeProvider getCurrentPModeProvider() {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         LOG.debug("Get domain PMode provider for domain [{}]", currentDomain);
         PModeProvider pModeProvider = providerMap.get(currentDomain);
@@ -164,11 +163,6 @@ public class MultiDomainPModeProvider extends PModeProvider {
     @Override
     public Party getReceiverParty(String pModeKey) {
         return getCurrentPModeProvider().getReceiverParty(pModeKey);
-    }
-
-    @Override
-    public String getReceiverPartyEndpoint(Party party, String finalRecipient) {
-        return getCurrentPModeProvider().getReceiverPartyEndpoint(party, finalRecipient);
     }
 
     @Override
@@ -388,12 +382,22 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
-        return getCurrentPModeProvider().deleteFinalRecipientsOlderThan(numberOfDays);
+    public boolean hasLegWithSplittingConfiguration() {
+        return getCurrentPModeProvider().hasLegWithSplittingConfiguration();
     }
 
     @Override
-    public boolean hasLegWithSplittingConfiguration() {
-        return getCurrentPModeProvider().hasLegWithSplittingConfiguration();
+    public Party getPartyByName(String partyName) {
+        return getCurrentPModeProvider().getPartyByName(partyName);
+    }
+
+    @Override
+    public void removeReceiverParty(String partyName) {
+        getCurrentPModeProvider().removeReceiverParty(partyName);
+    }
+
+    @Override
+    public Party removeParty(String partyName) {
+        return getCurrentPModeProvider().removeParty(partyName);
     }
 }

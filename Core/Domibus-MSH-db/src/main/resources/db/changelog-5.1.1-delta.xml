@@ -20,34 +20,47 @@
     </changeSet>
 
     <changeSet author="Cosmin Baciu" id="EDELIVERY-11903">
-        <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_FRU_FINAL_RECIPIENT"
-                             tableName="TB_FINAL_RECIPIENT_URL"/>
-
         <insert tableName="TB_LOCK">
             <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
             <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
         </insert>
+    </changeSet>
 
-        <createTable tableName="TB_DDC_CERTIFICATE">
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-12066">
+        <dropTable tableName="TB_FINAL_RECIPIENT_URL" cascadeConstraints="true" />
+
+        <createTable tableName="TB_DDC_LOOKUP">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_DDC_CERTIFICATE"/>
             </column>
-            <column name="ISSUER_SUBJECT" type="VARCHAR(500)">
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
+            <column name="PARTY_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CN" type="VARCHAR(255)">
+            <column name="PARTY_TYPE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SUBJECT" type="VARCHAR(255)">
+            <column name="PARTY_PROCESSES" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SERIAL" type="VARCHAR(255)">
+            <column name="CERT_ISSUER_SUBJECT" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
-            <column name="FINGERPRINT" type="VARCHAR(255)">
+            <column name="CERT_CN" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="DDC_TIME" type="TIMESTAMP"/>
+            <column name="CERT_SUBJECT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_SERIAL" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_FINGERPRINT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- The last time when the certificate was discovered from SMP -->
+            <column name="DDC_LOOKUP_TIME" type="TIMESTAMP"/>
 
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -58,12 +71,25 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <!-- certificates are added in the Domibus truststore with an alias equal to the certificate CN extracted from the subject; therefore we need to ensure that certificates CNs added in this table are unique -->
-        <addUniqueConstraint columnNames="CN" constraintName="UK_DDC_CERTIFICATE_CN" tableName="TB_DDC_CERTIFICATE"/>
+        <!-- only one entry allowed per final recipient -->
+        <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP"/>
+
+        <!-- we add an index for columns used for filtering entries in the table -->
+        <createIndex indexName="IDX_DDC_PARTY_NAME" tableName="TB_DDC_LOOKUP">
+            <column name="PARTY_NAME"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_CERT_CN" tableName="TB_DDC_LOOKUP">
+            <column name="CERT_CN"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_DDC_LOOKUP_TIME" tableName="TB_DDC_LOOKUP">
+            <column name="DDC_LOOKUP_TIME"/>
+        </createIndex>
     </changeSet>
-    <changeSet dbms="mysql" author="Cosmin Baciu" id="EDELIVERY-11903-1"> <!-- oracle creates index for the unique constraint -->
-        <createIndex indexName="IDX_DDC_CERTIFICATE_CN" tableName="TB_DDC_CERTIFICATE">
-            <column name="CN"/>
+
+    <!-- oracle creates index for the unique constraint -->
+    <changeSet dbms="mysql" author="Cosmin Baciu" id="12066-1">
+        <createIndex indexName="IDX_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP">
+            <column name="FINAL_RECIPIENT"/>
         </createIndex>
     </changeSet>
 
