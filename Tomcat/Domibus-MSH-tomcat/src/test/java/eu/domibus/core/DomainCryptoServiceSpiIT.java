@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Ion Perpegel
- * @since 5.0
+ * @author François Gautier
+ * @since 5.1
  */
 
 public class DomainCryptoServiceSpiIT extends AbstractIT {
