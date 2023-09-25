@@ -42,7 +42,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_PROFILE_ORDER = "domibus.security.profile.order";
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
 
-    String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
+    String DOMIBUS_UI_TITLE_NAME = "domibus.ui.title.name";
     String DOMIBUS_UI_SUPPORT_TEAM_NAME = "domibus.ui.support.team.name";
     String DOMIBUS_UI_SUPPORT_TEAM_EMAIL = "domibus.ui.support.team.email";
     String DOMIBUS_UI_CSV_MAX_ROWS = "domibus.ui.csv.rows.max";
@@ -366,9 +366,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY = "domibus.jms.internal.command.concurrency";
     String DOMIBUS_INTERNAL_QUEUE_CONCURENCY = "domibus.internal.queue.concurency";
     String DOMIBUS_METRICS_JMX_REPORTER_ENABLE = "domibus.metrics.jmx.reporter.enable";
-    String DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE = "domibus.metrics.sl4j.reporter.enable";
-    String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT = "domibus.metrics.sl4j.reporter.period.time.unit";
-    String DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER = "domibus.metrics.sl4j.reporter.period.number";
+    String DOMIBUS_METRICS_SLF4J_REPORTER_ENABLE = "domibus.metrics.slf4j.reporter.enable";
+    String DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_TIME_UNIT = "domibus.metrics.slf4j.reporter.period.time.unit";
+    String DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_NUMBER = "domibus.metrics.slf4j.reporter.period.number";
     String DOMIBUS_METRICS_MONITOR_MEMORY = "domibus.metrics.monitor.memory";
     String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";

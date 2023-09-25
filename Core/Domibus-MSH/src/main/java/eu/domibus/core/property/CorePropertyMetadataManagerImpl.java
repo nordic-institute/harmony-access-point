@@ -65,9 +65,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, Type.CONCURRENCY),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_JMX_REPORTER_ENABLE, Type.BOOLEAN),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE, Type.BOOLEAN),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SLF4J_REPORTER_ENABLE, Type.BOOLEAN),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_TIME_UNIT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_NUMBER, Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_MEMORY, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_GC, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS, Type.BOOLEAN),

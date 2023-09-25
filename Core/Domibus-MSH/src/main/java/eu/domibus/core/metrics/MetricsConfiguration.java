@@ -99,13 +99,12 @@ public class MetricsConfiguration {
     }
 
     protected void addMetricsToLogs(DomibusPropertyProvider domibusPropertyProvider, MetricRegistry metricRegistry) {
-        Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE);
-        if (sl4jReporterEnabled) {
-            Integer periodProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER);
-            String timeUnitProperty = domibusPropertyProvider.getProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_TIME_UNIT);
+        Boolean slf4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SLF4J_REPORTER_ENABLE);
+        if (slf4jReporterEnabled) {
+            Integer periodProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_NUMBER);
+            String timeUnitProperty = domibusPropertyProvider.getProperty(DOMIBUS_METRICS_SLF4J_REPORTER_PERIOD_TIME_UNIT);
             TimeUnit timeUnit = TimeUnit.MINUTES;
             try {
-
                 TimeUnit configuredTimeUnit = TimeUnit.valueOf(timeUnitProperty);
                 switch (configuredTimeUnit) {
                     case SECONDS:
@@ -119,7 +118,7 @@ public class MetricsConfiguration {
             } catch (IllegalArgumentException e) {
                 LOG.warn("Invalid time unit property:[{}],setting default to MINUTE", timeUnitProperty, e);
             }
-            LOG.info("Sl4j metrics reporter enabled with reporting time unit:[{}] and period:[{}]", timeUnit, periodProperty);
+            LOG.info("SLF4J metrics reporter enabled with reporting time unit:[{}] and period:[{}]", timeUnit, periodProperty);
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(metricRegistry)
                     .outputTo(LoggerFactory.getLogger("eu.domibus.statistic"))
                     .convertRatesTo(TimeUnit.SECONDS)
