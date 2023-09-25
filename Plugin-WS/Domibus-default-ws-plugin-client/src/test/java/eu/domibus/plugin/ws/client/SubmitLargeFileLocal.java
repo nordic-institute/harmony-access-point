@@ -118,7 +118,7 @@ public class SubmitLargeFileLocal {
         largepayload.setValue(dataHandler);
         submitRequest.getPayload().add(largepayload);
 
-        Messaging messaging = WebserviceHelper.parseMessagingXML(SubmitLargeFileLocal.class.getResource(TEST_SUBMIT_MESSAGE_MESSAGING).getPath());
+        Messaging messaging = WebserviceHelper.parseMessagingXML(getClass().getClassLoader().getResourceAsStream(TEST_SUBMIT_MESSAGE_MESSAGING));
 
         SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);

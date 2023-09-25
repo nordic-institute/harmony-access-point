@@ -16,7 +16,6 @@
     <properties>
         <clientSkipTests>true</clientSkipTests>
         <maven.test.skip>${clientSkipTests}</maven.test.skip>
-        <jaxws-rt.version>2.3.6</jaxws-rt.version>
     </properties>
 
     <build>
@@ -56,6 +55,11 @@
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-default-ws-plugin-stubs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
