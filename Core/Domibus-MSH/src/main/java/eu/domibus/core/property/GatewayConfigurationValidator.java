@@ -85,8 +85,11 @@ public class GatewayConfigurationValidator implements DomainsAware {
     private void validateCertificates(List<Domain> domains) {
         for (Domain domain : domains) {
             domainContextProvider.setCurrentDomain(domain);
-            validateCerts(domain);
-            domainContextProvider.clearCurrentDomain();
+            try {
+                validateCerts(domain);
+            } finally {
+                domainContextProvider.clearCurrentDomain();
+            }
         }
     }
 
