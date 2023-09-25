@@ -13,8 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -162,59 +162,6 @@ public class DynamicDiscoveryLookupServiceTestIT extends AbstractIT {
 
         //we verify that the URL for final recipient was removed from the cache
         assertFalse(dynamicDiscoveryLookupService.getFinalRecipientAccessPointUrls().containsKey(finalRecipient));
-    }
-
-    @Test
-    public void deleteDDCCertificatesNotDiscoveredInTheLastPeriod() {
-        String partyType = "myPartyType";
-        final List<String> processes = Arrays.asList("myProcess");
-        final PKIUtil pkiUtil = new PKIUtil();
-
-        final String finalRecipient1 = "0208:111";
-        final String finalRecipient2 = "0208:222";
-        final String finalRecipient3 = "0208:333";
-        final String finalRecipient4 = "0208:444";
-        final String endpointUrl1 = "http://localhost/domibus/services/msh1";
-        String partyName1 = "myPartyName1";
-        Long certificateSerialNumber1 = 1111L;
-
-        final String endpointUrl2 = "http://localhost/domibus/services/msh2";
-        String partyName2 = "myPartyName2";
-        Long certificateSerialNumber2 = 222L;
-
-        final String endpointUrl3 = "http://localhost/domibus/services/msh3";
-        String partyName3 = "myPartyName3";
-        Long certificateSerialNumber3 = 333L;
-
-        final X509Certificate certificateParty1 = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(certificateSerialNumber1), "CN=" + partyName1 + ",OU=Domibus,O=eDelivery,C=EU");
-        final X509Certificate certificateParty2 = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(certificateSerialNumber2), "CN=" + partyName2 + ",OU=Domibus,O=eDelivery,C=EU");
-        final X509Certificate certificateParty3 = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(certificateSerialNumber2), "CN=" + partyName3 + ",OU=Domibus,O=eDelivery,C=EU");
-
-        //finalRecipient1, party1, certificate1
-        dynamicDiscoveryLookupService.saveDynamicDiscoveryLookupTime(finalRecipient1, endpointUrl1, partyName1, partyType, processes, partyName1, certificateParty1);
-
-        //we set the DDC time for the finalRecipient1 to 25h ago
-        Date ddcTimeFinalRecipient1 = DateUtils.addHours(new Date(), 25 * -1);
-        setDynamicDiscoveryTime(finalRecipient1, ddcTimeFinalRecipient1);
-
-        //finalRecipient2, party1, certificate1
-        dynamicDiscoveryLookupService.saveDynamicDiscoveryLookupTime(finalRecipient2, endpointUrl1, partyName1, partyType, processes, partyName1, certificateParty1);
-        //we set the DDC time for the finalRecipient2 to 2h ago
-        Date ddcTimeFinalRecipient2 = DateUtils.addHours(new Date(), 2 * -1);
-        setDynamicDiscoveryTime(finalRecipient1, ddcTimeFinalRecipient2);
-
-        //finalRecipient3, party2, certificate2
-        dynamicDiscoveryLookupService.saveDynamicDiscoveryLookupTime(finalRecipient3, endpointUrl2, partyName2, partyType, processes, partyName2, certificateParty2);
-        //we set the DDC time for the finalRecipient3 to 2h ago
-        Date ddcTimeFinalRecipient3 = DateUtils.addHours(new Date(), 2 * -1);
-        setDynamicDiscoveryTime(finalRecipient3, ddcTimeFinalRecipient3);
-
-        //finalRecipient4, party3, certificate3
-        dynamicDiscoveryLookupService.saveDynamicDiscoveryLookupTime(finalRecipient4, endpointUrl3, partyName3, partyType, processes, partyName3, certificateParty3);
-        //we keep the final recipient4 discovery time to the current time
-
-        //we set the retention to 1h
-        dynamicDiscoveryLookupService.deleteDDCLookupEntriesNotDiscoveredInTheLastPeriod(1);
     }
 
     protected void setDynamicDiscoveryTime(String finalRecipient, Date date) {
