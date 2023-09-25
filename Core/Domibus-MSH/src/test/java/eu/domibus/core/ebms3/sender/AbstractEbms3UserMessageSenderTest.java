@@ -179,13 +179,13 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
-            result = soapMessage;
-
             userMessageServiceHelper.getFinalRecipientValue(userMessage);
             result = finalRecipient;
 
-            pModeService.getReceiverPartyEndpoint(receiverParty.getName(), receiverParty.getEndpoint(), finalRecipient);
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
+            result = soapMessage;
+
+            pModeService.getReceiverPartyEndpoint(receiverName, receiverParty.getEndpoint(), finalRecipient);
             result = receiverURL;
 
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
