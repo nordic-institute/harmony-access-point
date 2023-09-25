@@ -275,7 +275,7 @@ public abstract class MessageLogInfoFilter {
                 + "[" + PROPERTY_TO_PARTY_ID + "]. Received " + "[" + filter.getKey() + "]");
     }
 
-    private static Object handleDates(Map.Entry<String, Object> filter, Object value) {
+    private Object handleDates(Map.Entry<String, Object> filter, Object value) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) filter.getValue()).toInstant(), ZoneOffset.UTC);
         LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
         switch (filter.getKey()) {

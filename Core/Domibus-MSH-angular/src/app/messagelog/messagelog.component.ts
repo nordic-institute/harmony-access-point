@@ -135,7 +135,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    this.detailedSearch = await this.isMessageLogPageAdvancedSearchEnabled();
+     this.detailedSearch = await this.isMessageLogPageAdvancedSearchEnabled();
     console.log('detailedSearch=', this.detailedSearch)
 
     this.timestampFromMaxDate = new Date();
