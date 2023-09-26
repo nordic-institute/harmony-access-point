@@ -80,14 +80,15 @@ public class MessageLogDictionaryDataService {
     }
 
     private void addTimeZoneOffset(MessageLogInfo msgInfo) {
-        if (msgInfo.getNextAttemptTimezonePk() == null) {
+        Long nextAttemptTimezonePk = msgInfo.getNextAttemptTimezonePk();
+        if (nextAttemptTimezonePk == null) {
             LOG.debug("TimezoneOffset id is null.");
             return;
         }
         LOG.debug("Adding TimezoneOffset.");
-        TimezoneOffset entity = timezoneOffsetDao.findByReference(msgInfo.getNextAttemptTimezonePk());
+        TimezoneOffset entity = timezoneOffsetDao.findByReference(nextAttemptTimezonePk);
         if (entity == null) {
-            LOG.warn("Could not find TimezoneOffset with id [{}]", msgInfo.getNextAttemptTimezonePk());
+            LOG.warn("Could not find TimezoneOffset with id [{}]", nextAttemptTimezonePk);
             return;
         }
         msgInfo.setNextAttemptTimezoneId(entity.getNextAttemptTimezoneId());
@@ -95,42 +96,45 @@ public class MessageLogDictionaryDataService {
     }
 
     private void addToParty(MessageLogInfo msgInfo) {
-        if (msgInfo.getToPartyIdPk() <= 0) {
+        Long toPartyIdPk = msgInfo.getToPartyIdPk();
+        if (toPartyIdPk == null || toPartyIdPk <= 0) {
             LOG.debug("ToPartyIdPk is null");
             return;
         }
         LOG.debug("Adding ToPartyIdPk.");
-        PartyId entity = partyIdDao.findByReference(msgInfo.getToPartyIdPk());
+        PartyId entity = partyIdDao.findByReference(toPartyIdPk);
         if (entity == null) {
-            LOG.warn("Could not find PartyId with id [{}]", msgInfo.getToPartyIdPk());
+            LOG.warn("Could not find PartyId with id [{}]", toPartyIdPk);
             return;
         }
         msgInfo.setToPartyId(entity.getValue());
     }
 
     private void addFromParty(MessageLogInfo msgInfo) {
-        if (msgInfo.getFromPartyIdPk() <= 0) {
+        Long fromPartyIdPk = msgInfo.getFromPartyIdPk();
+        if (fromPartyIdPk == null || fromPartyIdPk <= 0) {
             LOG.debug("FromPartyIdPk is null");
             return;
         }
         LOG.debug("Adding FromPartyIdPk.");
-        PartyId entity = partyIdDao.findByReference(msgInfo.getFromPartyIdPk());
+        PartyId entity = partyIdDao.findByReference(fromPartyIdPk);
         if (entity == null) {
-            LOG.warn("Could not find PartyId with id [{}]", msgInfo.getFromPartyIdPk());
+            LOG.warn("Could not find PartyId with id [{}]", fromPartyIdPk);
             return;
         }
         msgInfo.setFromPartyId(entity.getValue());
     }
 
     private void addService(List<String> fields, MessageLogInfo msgInfo) {
-        if (msgInfo.getServiceId() <= 0) {
+        Long serviceId = msgInfo.getServiceId();
+        if (serviceId == null || serviceId <= 0) {
             LOG.debug("ServiceId is null");
             return;
         }
         LOG.debug("Adding ServiceId.");
-        ServiceEntity entity = serviceDao.findByReference(msgInfo.getServiceId());
+        ServiceEntity entity = serviceDao.findByReference(serviceId);
         if (entity == null) {
-            LOG.warn("Could not find ServiceEntity with id [{}]", msgInfo.getServiceId());
+            LOG.warn("Could not find ServiceEntity with id [{}]", serviceId);
             return;
         }
         if (fields.contains(MESSAGE_SERVICE_TYPE)) {
@@ -142,56 +146,60 @@ public class MessageLogDictionaryDataService {
     }
 
     private void addAction(MessageLogInfo msgInfo) {
-        if (msgInfo.getActionId() <= 0) {
+        Long actionId = msgInfo.getActionId();
+        if (actionId == null || actionId <= 0) {
             LOG.debug("ActionId is null");
             return;
         }
         LOG.debug("Adding ActionId.");
-        ActionEntity entity = actionDao.findByReference(msgInfo.getActionId());
+        ActionEntity entity = actionDao.findByReference(actionId);
         if (entity == null) {
-            LOG.warn("Could not find ActionEntity with id [{}]", msgInfo.getActionId());
+            LOG.warn("Could not find ActionEntity with id [{}]", actionId);
             return;
         }
         msgInfo.setAction(entity.getValue());
     }
 
     private void addNotificationStatus(MessageLogInfo msgInfo) {
-        if (msgInfo.getNotificationStatusId() <= 0) {
+        Long notificationStatusId = msgInfo.getNotificationStatusId();
+        if (notificationStatusId == null || notificationStatusId <= 0) {
             LOG.debug("NotificationStatusId is null");
             return;
         }
         LOG.debug("Adding NotificationStatusId.");
-        NotificationStatusEntity entity = notificationStatusDao.findByReference(msgInfo.getNotificationStatusId());
+        NotificationStatusEntity entity = notificationStatusDao.findByReference(notificationStatusId);
         if (entity == null) {
-            LOG.warn("Could not find NotificationStatusEntity with id [{}]", msgInfo.getNotificationStatusId());
+            LOG.warn("Could not find NotificationStatusEntity with id [{}]", notificationStatusId);
             return;
         }
         msgInfo.setNotificationStatus(entity.getStatus());
     }
 
     private void addMshRole(MessageLogInfo msgInfo) {
-        if (msgInfo.getMshRoleId() <= 0) {
+        Long mshRoleId = msgInfo.getMshRoleId();
+        if (mshRoleId == null || mshRoleId <= 0) {
             LOG.debug("MshRoleId is null");
             return;
         }
         LOG.debug("Adding MshRoleId.");
-        MSHRoleEntity entity = mshRoleDao.findByReference(msgInfo.getMshRoleId());
+        MSHRoleEntity entity = mshRoleDao.findByReference(mshRoleId);
         if (entity == null) {
-            LOG.warn("Could not find MSHRoleEntity with id [{}]", msgInfo.getMshRoleId());
+            LOG.warn("Could not find MSHRoleEntity with id [{}]", mshRoleId);
             return;
         }
         msgInfo.setMshRole(entity.getRole());
     }
 
     private void addMessageStatus(MessageLogInfo msgInfo) {
-        if (msgInfo.getMessageStatusId() <= 0) {
+        Long messageStatusId = msgInfo.getMessageStatusId();
+        if (messageStatusId == null || messageStatusId <= 0) {
             LOG.debug("MessageStatusId is null");
             return;
         }
         LOG.debug("Adding MessageStatusId.");
-        MessageStatusEntity entity = messageStatusDao.findByReference(msgInfo.getMessageStatusId());
+        MessageStatusEntity entity = messageStatusDao.findByReference(messageStatusId);
         if (entity == null) {
-            LOG.warn("Could not find MessageStatusEntity with id [{}]", msgInfo.getMessageStatusId());
+            LOG.warn("Could not find MessageStatusEntity with id [{}]", messageStatusId);
             return;
         }
         msgInfo.setMessageStatus(entity.getMessageStatus());
