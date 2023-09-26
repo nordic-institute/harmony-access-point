@@ -38,7 +38,7 @@ public class DynamicDiscoveryCheckResult {
     protected Party pmodeReceiverParty;
 
     /**
-     * The receiver party public certificate already present in the truststore(if avaiilable)
+     * The receiver party public certificate already present in the truststore(if available)
      */
     protected X509Certificate receiverCertificate;
 
