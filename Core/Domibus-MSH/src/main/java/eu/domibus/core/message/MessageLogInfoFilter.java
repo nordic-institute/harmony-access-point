@@ -157,7 +157,7 @@ public abstract class MessageLogInfoFilter {
         }
 
         setSeparator(query, result);
-        if (filter.getValue() instanceof Date) {
+        if (isDateParameter(filter)) {
             String s = filter.getKey();
             if (StringUtils.equals(s, "receivedFrom") || StringUtils.equals(s, "minEntityId")) {
                 result.append(fieldName).append(" >= :").append(filter.getKey());
@@ -194,18 +194,29 @@ public abstract class MessageLogInfoFilter {
             LOG.debug("Filter value for field [{}] is empty", filter.getKey());
             return;
         }
-        Object value = filter.getValue();
-        if (value instanceof Date) {
-            value = handleDates(filter, value);
-        } else if (isSingleValueDictionary(filter)) {
-            value = handleSingleValueDictionary(filter);
-        } else if (isServiceDictionary(filter)) {
-            value = handleServiceDictionary(filter);
-        } else if (isPartyIdDictionary(filter)) {
-            value = handlePartyIdDictionary(filter);
-        }
+        Object value = getParameterValue(filter);
         LOG.debug("Set parameter [{}] the value [{}]", filter.getKey(), value);
         query.setParameter(filter.getKey(), value);
+    }
+
+    private Object getParameterValue(Map.Entry<String, Object> filter) {
+        if (isDateParameter(filter)) {
+            return handleDates(filter);
+        }
+        if (isSingleValueDictionary(filter)) {
+            return handleSingleValueDictionary(filter);
+        }
+        if (isServiceDictionary(filter)) {
+            return handleServiceDictionary(filter);
+        }
+        if (isPartyIdDictionary(filter)) {
+            return handlePartyIdDictionary(filter);
+        }
+        return filter.getValue();
+    }
+
+    private boolean isDateParameter(Map.Entry<String, Object> filter) {
+        return filter.getValue() instanceof Date;
     }
 
     private boolean isSingleValueDictionary(Map.Entry<String, Object> filter) {
@@ -275,8 +286,9 @@ public abstract class MessageLogInfoFilter {
                 + "[" + PROPERTY_TO_PARTY_ID + "]. Received " + "[" + filter.getKey() + "]");
     }
 
-    private Object handleDates(Map.Entry<String, Object> filter, Object value) {
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) filter.getValue()).toInstant(), ZoneOffset.UTC);
+    private Object handleDates(Map.Entry<String, Object> filter) {
+        Object value = filter.getValue();
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
         LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
         switch (filter.getKey()) {
             case "minEntityId":
