@@ -86,7 +86,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding TimezoneOffset.");
-        TimezoneOffset entity = timezoneOffsetDao.findByReference(nextAttemptTimezonePk);
+        TimezoneOffset entity = timezoneOffsetDao.read(nextAttemptTimezonePk);
         if (entity == null) {
             LOG.warn("Could not find TimezoneOffset with id [{}]", nextAttemptTimezonePk);
             return;
@@ -102,7 +102,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding ToPartyIdPk.");
-        PartyId entity = partyIdDao.findByReference(toPartyIdPk);
+        PartyId entity = partyIdDao.read(toPartyIdPk);
         if (entity == null) {
             LOG.warn("Could not find PartyId with id [{}]", toPartyIdPk);
             return;
@@ -117,7 +117,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding FromPartyIdPk.");
-        PartyId entity = partyIdDao.findByReference(fromPartyIdPk);
+        PartyId entity = partyIdDao.read(fromPartyIdPk);
         if (entity == null) {
             LOG.warn("Could not find PartyId with id [{}]", fromPartyIdPk);
             return;
@@ -132,7 +132,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding ServiceId.");
-        ServiceEntity entity = serviceDao.findByReference(serviceId);
+        ServiceEntity entity = serviceDao.read(serviceId);
         if (entity == null) {
             LOG.warn("Could not find ServiceEntity with id [{}]", serviceId);
             return;
@@ -152,7 +152,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding ActionId.");
-        ActionEntity entity = actionDao.findByReference(actionId);
+        ActionEntity entity = actionDao.read(actionId);
         if (entity == null) {
             LOG.warn("Could not find ActionEntity with id [{}]", actionId);
             return;
@@ -167,7 +167,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding NotificationStatusId.");
-        NotificationStatusEntity entity = notificationStatusDao.findByReference(notificationStatusId);
+        NotificationStatusEntity entity = notificationStatusDao.read(notificationStatusId);
         if (entity == null) {
             LOG.warn("Could not find NotificationStatusEntity with id [{}]", notificationStatusId);
             return;
@@ -182,7 +182,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding MshRoleId.");
-        MSHRoleEntity entity = mshRoleDao.findByReference(mshRoleId);
+        MSHRoleEntity entity = mshRoleDao.read(mshRoleId);
         if (entity == null) {
             LOG.warn("Could not find MSHRoleEntity with id [{}]", mshRoleId);
             return;
@@ -197,7 +197,7 @@ public class MessageLogDictionaryDataService {
             return;
         }
         LOG.debug("Adding MessageStatusId.");
-        MessageStatusEntity entity = messageStatusDao.findByReference(messageStatusId);
+        MessageStatusEntity entity = messageStatusDao.read(messageStatusId);
         if (entity == null) {
             LOG.warn("Could not find MessageStatusEntity with id [{}]", messageStatusId);
             return;
