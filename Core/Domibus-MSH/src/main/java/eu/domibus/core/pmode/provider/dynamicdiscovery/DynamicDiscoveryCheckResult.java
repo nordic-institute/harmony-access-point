@@ -5,20 +5,41 @@ import eu.domibus.common.model.configuration.Party;
 import java.security.cert.X509Certificate;
 
 /**
- * Class responsible for holding the sending dynamic discovery query result
+ * DTO class responsible for holding the data following the check if the dynamic discovery in SMP should be triggered
  *
  * @author Cosmin Baciu
  * @since 5.1.1
  */
 public class DynamicDiscoveryCheckResult {
 
+    /**
+     * True if dynamic discovery in SMP should be triggered
+     */
     protected boolean performDynamicDiscovery;
 
+    /**
+     * The key in the SMP lookup cache for the final recipient
+     */
     protected String finalRecipientCacheKey;
+
+    /**
+     * The SMP dynamic discovery result if it is present in the cache
+     */
     protected EndpointInfo endpointInfo;
+
+    /**
+     * The receiver party details extracted from the SMP lookup
+     */
     protected PartyEndpointInfo partyEndpointInfo;
 
+    /**
+     * The receiver party if it is already present in the PMode->responderParties
+     */
     protected Party pmodeReceiverParty;
+
+    /**
+     * The receiver party public certificate already present in the truststore(if avaiilable)
+     */
     protected X509Certificate receiverCertificate;
 
     public boolean isPerformDynamicDiscovery() {
