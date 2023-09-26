@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import com.google.common.collect.Maps;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.ServiceEntity;
 import eu.domibus.core.dao.SingleValueDictionaryDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
@@ -55,6 +56,12 @@ public abstract class MessageLogInfoFilter {
     public static final String MESSAGE_COLLABORATION_INFO_SERVICE = "message.service";
     public static final String MESSAGE_PARTY_INFO_FROM_FROM_PARTY_ID = "message.partyInfo.from.fromPartyId";
     public static final String MESSAGE_PARTY_INFO_TO_TO_PARTY_ID = "message.partyInfo.to.toPartyId";
+    public static final String MIN_ENTITY_ID = "minEntityId";
+    public static final String MAX_ENTITY_ID = "maxEntityId";
+    public static final String RECEIVED_FROM = "receivedFrom";
+    public static final String RECEIVED_TO = "receivedTo";
+
+    Map<String, FilterParameterExtractor> parameterExtractors = new HashMap<>();
 
     @Autowired
     ServiceDao serviceDao;
@@ -74,6 +81,22 @@ public abstract class MessageLogInfoFilter {
     @Autowired
     private ActionDao actionDao;
 
+    public MessageLogInfoFilter() {
+        parameterExtractors.put(MIN_ENTITY_ID, (filter) -> handleMinEntityId(filter));
+        parameterExtractors.put(MAX_ENTITY_ID, (filter) -> handleMaxEntityId(filter));
+
+        parameterExtractors.put(PROPERTY_MESSAGE_STATUS, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(PROPERTY_NOTIFICATION_STATUS, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(PROPERTY_MSH_ROLE, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(MESSAGE_ACTION, (filter) -> handleSingleValueDictionary(filter));
+
+        parameterExtractors.put(MESSAGE_SERVICE_TYPE, (filter) -> handleServiceType(filter));
+        parameterExtractors.put(MESSAGE_SERVICE_VALUE, (filter) -> handleServiceValue(filter));
+
+        parameterExtractors.put(PROPERTY_FROM_PARTY_ID, (filter) -> handlePartyIdDictionary(filter));
+        parameterExtractors.put(PROPERTY_TO_PARTY_ID, (filter) -> handlePartyIdDictionary(filter));
+    }
+
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
             case "entityId":
@@ -89,11 +112,11 @@ public abstract class MessageLogInfoFilter {
             case "deleted":
                 return LOG_DELETED;
             case "received":
-            case "receivedFrom":
-            case "receivedTo":
+            case RECEIVED_FROM:
+            case RECEIVED_TO:
                 return LOG_RECEIVED;
-            case "minEntityId":
-            case "maxEntityId":
+            case MIN_ENTITY_ID:
+            case MAX_ENTITY_ID:
                 return LOG_MESSAGE_ENTITY_ID;
             case "sendAttempts":
                 return LOG_SEND_ATTEMPTS;
@@ -157,21 +180,21 @@ public abstract class MessageLogInfoFilter {
         }
 
         setSeparator(query, result);
-        if (isDateParameter(filter)) {
-            String s = filter.getKey();
-            if (StringUtils.equals(s, "receivedFrom") || StringUtils.equals(s, "minEntityId")) {
-                result.append(fieldName).append(" >= :").append(filter.getKey());
-            } else if (StringUtils.equals(s, "receivedTo") || StringUtils.equals(s, "maxEntityId")) {
-                result.append(fieldName).append(" <= :").append(filter.getKey());
-            }
-        } else {
-            if (isListDictionary(filter)) {
-                result.append(fieldName).append(" IN :").append(filter.getKey());
-            } else {
-                result.append(fieldName).append(" = :").append(filter.getKey());
-            }
-        }
 
+        String operator = getOperator(filter);
+        result.append(fieldName).append(operator).append(filter.getKey());
+    }
+
+    private String getOperator(Map.Entry<String, Object> filter) {
+        String filterKey = filter.getKey();
+        if (StringUtils.equalsAny(filterKey, RECEIVED_FROM, MIN_ENTITY_ID)) {
+            return " >= :";
+        } else if (StringUtils.equalsAny(filterKey, RECEIVED_TO, MAX_ENTITY_ID)) {
+            return " <= :";
+        } else if (StringUtils.equalsAny(filterKey, MESSAGE_SERVICE_TYPE, MESSAGE_SERVICE_VALUE, PROPERTY_FROM_PARTY_ID, PROPERTY_TO_PARTY_ID)) {
+            return " IN :";
+        }
+        return " = :";
     }
 
     private void setSeparator(String query, StringBuilder result) {
@@ -200,31 +223,13 @@ public abstract class MessageLogInfoFilter {
     }
 
     private Object getParameterValue(Map.Entry<String, Object> filter) {
-        if (isDateParameter(filter)) {
-            return handleDates(filter);
+        FilterParameterExtractor extractor = parameterExtractors.get(filter.getKey());
+        if (extractor != null) {
+            LOG.debug("Found filter parameter extractor [{}] for parameter [{}]", extractor, filter);
+            return extractor.execute(filter);
         }
-        if (isSingleValueDictionary(filter)) {
-            return handleSingleValueDictionary(filter);
-        }
-        if (isServiceDictionary(filter)) {
-            return handleServiceDictionary(filter);
-        }
-        if (isPartyIdDictionary(filter)) {
-            return handlePartyIdDictionary(filter);
-        }
+        LOG.debug("Found no custom filter parameter extractor for parameter [{}]. Just calling filter.getValue()", filter);
         return filter.getValue();
-    }
-
-    private boolean isDateParameter(Map.Entry<String, Object> filter) {
-        return filter.getValue() instanceof Date;
-    }
-
-    private boolean isSingleValueDictionary(Map.Entry<String, Object> filter) {
-        return Arrays.asList(PROPERTY_MESSAGE_STATUS,
-                        PROPERTY_NOTIFICATION_STATUS,
-                        PROPERTY_MSH_ROLE,
-                        MESSAGE_ACTION)
-                .contains(filter.getKey());
     }
 
     private Object handleSingleValueDictionary(Map.Entry<String, Object> filter) {
@@ -248,60 +253,32 @@ public abstract class MessageLogInfoFilter {
         }
     }
 
-    private boolean isListDictionary(Map.Entry<String, Object> filter) {
-        return isServiceDictionary(filter) || isPartyIdDictionary(filter);
+    private List<ServiceEntity> handleServiceValue(Map.Entry<String, Object> filter) {
+        return serviceDao.searchByValue(filter.getValue());
     }
 
-    private boolean isServiceDictionary(Map.Entry<String, Object> filter) {
-        return Arrays.asList(MESSAGE_SERVICE_TYPE,
-                        MESSAGE_SERVICE_VALUE)
-                .contains(filter.getKey());
-    }
-
-    private Object handleServiceDictionary(Map.Entry<String, Object> filter) {
-        if (filter.getKey().equals(MESSAGE_SERVICE_TYPE)) {
-            return serviceDao.searchByType(filter.getValue());
-        }
-
-        if (filter.getKey().equals(MESSAGE_SERVICE_VALUE)) {
-            return serviceDao.searchByValue(filter.getValue());
-        }
-
-        throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "ServiceDao can be searched only by [" + MESSAGE_SERVICE_TYPE + "] or "
-                + "[" + MESSAGE_SERVICE_VALUE + "]. Received " + "[" + filter.getKey() + "]");
-    }
-
-    private boolean isPartyIdDictionary(Map.Entry<String, Object> filter) {
-        return Arrays.asList(PROPERTY_FROM_PARTY_ID, PROPERTY_TO_PARTY_ID)
-                .contains(filter.getKey());
+    private List<ServiceEntity> handleServiceType(Map.Entry<String, Object> filter) {
+        return serviceDao.searchByType(filter.getValue());
     }
 
     private Object handlePartyIdDictionary(Map.Entry<String, Object> filter) {
-        if (filter.getKey().equals(PROPERTY_FROM_PARTY_ID)
-                || filter.getKey().equals(PROPERTY_TO_PARTY_ID)) {
-            return partyIdDao.searchByValue((String) filter.getValue());
-        }
-
-        throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "PartyIdDao can be searched only by [" + PROPERTY_FROM_PARTY_ID + "] or "
-                + "[" + PROPERTY_TO_PARTY_ID + "]. Received " + "[" + filter.getKey() + "]");
+        return partyIdDao.searchByValue((String) filter.getValue());
     }
 
-    private Object handleDates(Map.Entry<String, Object> filter) {
+    private Object handleMaxEntityId(Map.Entry<String, Object> filter) {
+        return getLongValue(filter, MAX, "Turned [{}] into max entityId [{}]");
+    }
+
+    private Object handleMinEntityId(Map.Entry<String, Object> filter) {
+        return getLongValue(filter, MIN, "Turned [{}] into min entityId [{}]");
+    }
+
+    private Object getLongValue(Map.Entry<String, Object> filter, String max, String format) {
         Object value = filter.getValue();
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
         LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
-        switch (filter.getKey()) {
-            case "minEntityId":
-                value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
-                LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), (Long) value);
-                break;
-            case "maxEntityId":
-                value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-                LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), (Long) value);
-                break;
-            default: // includes receivedFrom and receivedTo
-                break;
-        }
+        value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + max);
+        LOG.debug(format, filter.getValue(), (Long) value);
         return value;
     }
 
