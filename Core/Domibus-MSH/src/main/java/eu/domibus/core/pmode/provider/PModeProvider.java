@@ -6,7 +6,6 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -470,7 +469,17 @@ public abstract class PModeProvider {
 
     public abstract Party getReceiverParty(String pModeKey);
 
-    public abstract String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient);
+    /**
+     * Removes party from the list of responderParties from all processes->responderParties
+     */
+    public abstract void removeReceiverParty(String partyName);
+
+    public abstract Party getPartyByName(String partyName);
+
+    /**
+     * Removes party from the list of available parties businessProcesses->parties
+     */
+    public abstract Party removeParty(String partyName);
 
     public abstract Service getService(String pModeKey);
 
@@ -548,10 +557,4 @@ public abstract class PModeProvider {
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
 
-    /**
-     * Delete FinalRecipientEntity that were modified more than numberOfDays ago; update the FinalRecipient cache
-     * @param numberOfDays
-     * @return the list of final recipients that were deleted
-     */
-    public abstract List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays);
 }

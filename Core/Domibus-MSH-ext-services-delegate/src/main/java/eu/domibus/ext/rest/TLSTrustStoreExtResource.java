@@ -116,11 +116,11 @@ public class TLSTrustStoreExtResource {
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
 
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
+
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         tlsTruststoreExtService.uploadTruststoreFile(contentInfo);

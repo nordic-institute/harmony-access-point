@@ -5,11 +5,10 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -26,7 +25,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,14 +56,14 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     private PullProcessValidator pullProcessValidator;
 
-    @Autowired
-    FinalRecipientService finalRecipientService;
-
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
+
+    @Autowired
+    protected List<PModeEventListener> pModeEventListeners;
 
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
@@ -233,17 +231,23 @@ public class CachingPModeProvider extends PModeProvider {
      * @param receiverParty the receiverParty
      */
     protected boolean matchResponder(final Process process, final String receiverParty) {
-        //Responder is always required for this method to return true
-        if (CollectionUtils.isEmpty(process.getResponderParties())) {
-            return false;
-        }
-
-        for (final Party party : process.getResponderParties()) {
-            if (equalsIgnoreCase(party.getName(), receiverParty)) {
-                return true;
-            }
+        final Party responderParty = getResponderParty(process, receiverParty);
+        if (responderParty != null) {
+            return true;
         }
         return false;
+    }
+
+    protected Party getResponderParty(final Process process, final String receiverParty) {
+        if (CollectionUtils.isEmpty(process.getResponderParties())) {
+            return null;
+        }
+        for (final Party party : process.getResponderParties()) {
+            if (equalsIgnoreCase(party.getName(), receiverParty)) {
+                return party;
+            }
+        }
+        return null;
     }
 
     protected void checkResponderMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
@@ -708,41 +712,60 @@ public class CachingPModeProvider extends PModeProvider {
                 return party;
             }
         }
-        throw new ConfigurationException("no matching sender party found with name: " + partyKey);
+        throw new ConfigurationException("No matching sender party found with name: " + partyKey);
     }
 
     @Override
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
-        for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            if (equalsIgnoreCase(party.getName(), partyKey)) {
-                return party;
-            }
+        final Party receiverPartyByPartyName = getPartyByName(partyKey);
+        if (receiverPartyByPartyName != null) {
+            return receiverPartyByPartyName;
         }
-        throw new ConfigurationException("no matching receiver party found with name: " + partyKey);
+        throw new ConfigurationException("No matching receiver party found with name: " + partyKey);
     }
 
     @Override
-    public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        final boolean useDynamicDiscovery = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
-        if (useDynamicDiscovery) {
-            //try to get the party URL from the cached final participant URLs
-            String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
-
-            if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-                LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
-                return finalRecipientAPUrl;
+    public synchronized void removeReceiverParty(String partyName) {
+        final List<Process> allProcesses = findAllProcesses();
+        for (Process process : allProcesses) {
+            final Party removedParty = process.removeResponder(partyName);
+            if (removedParty != null) {
+                LOG.info("Removed party [{}] from process [{}] ->responderParties [{}]", partyName, process.getName());
             }
         }
-        //in case of dynamic discovery, we default to the endpoint from the PMode which is added dynamically at runtime
-        final String receiverPartyEndpoint = receiverParty.getEndpoint();
-        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
-        return receiverPartyEndpoint;
     }
 
-    public void saveFinalRecipientEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
-        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
+    @Override
+    public synchronized Party removeParty(String partyName) {
+        //remove from businessProcesses->parties
+        final List<Party> partyList = this.getConfiguration().getBusinessProcesses().getParties();
+        final Iterator<Party> partyIterator = partyList.iterator();
+        while (partyIterator.hasNext()) {
+            Party party = partyIterator.next();
+            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
+                partyIterator.remove();
+                LOG.info("Removed party [{}] from the party list: businessProcesses->parties", partyName);
+                return party;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Search for the party in the Pmode parties list
+     */
+    @Override
+    public Party getPartyByName(final String partyName) {
+        LOG.debug("Finding party by name [{}]", partyName);
+        for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
+            if (equalsIgnoreCase(party.getName(), partyName)) {
+                LOG.debug("Found party by name [{}]", partyName);
+                return party;
+            }
+        }
+        LOG.debug("Could not find party by name [{}]", partyName);
+        return null;
     }
 
     @Override
@@ -960,7 +983,19 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            finalRecipientService.clearFinalRecipientAccessPointUrlsCache();
+
+            if (CollectionUtils.isNotEmpty(pModeEventListeners)) {
+                //we call the pmode event listeners
+                pModeEventListeners.stream().forEach(pModeEventListener -> {
+                    try {
+                        pModeEventListener.onRefreshPMode();
+                    } catch (Exception e) {
+                        LOG.error("Error in PMode event listener [{}]: onRefreshPMode", pModeEventListener.getName(), e);
+                    }
+                });
+            }
+
+            //add here a listener when clearing the pmode cache
             this.init(); //reloads the config
         }
     }
@@ -1274,12 +1309,5 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         return null;
-    }
-
-    @Override
-    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays) {
-        List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
-        finalRecipientService.deleteFinalRecipients(oldFinalRecipients);
-        return oldFinalRecipients;
     }
 }

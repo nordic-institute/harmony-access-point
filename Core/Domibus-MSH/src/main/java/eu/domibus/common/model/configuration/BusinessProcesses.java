@@ -329,7 +329,7 @@ public class BusinessProcesses extends AbstractBaseEntity {
     }
 
     public List<Party> getParties() {
-        return Collections.unmodifiableList(new ArrayList<>(this.parties));
+        return this.parties;
     }
 
     public void setParties(final List<Party> parties) {

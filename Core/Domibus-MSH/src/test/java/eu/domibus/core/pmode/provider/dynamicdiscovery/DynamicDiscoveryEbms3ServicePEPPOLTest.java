@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -65,6 +66,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Injectable
     private MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;

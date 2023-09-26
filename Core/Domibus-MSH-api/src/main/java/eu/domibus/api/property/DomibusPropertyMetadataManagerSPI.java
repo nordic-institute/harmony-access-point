@@ -118,8 +118,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.oasisclient.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 = "domibus.dynamicdiscovery.transportprofileas4";
 
-    String DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_CRON = "domibus.dynamicdiscovery.certificate.retention.cron";
-    String DOMIBUS_DYNAMICDISCOVERY_CERTIFICATE_RETENTION_HOURS = "domibus.dynamicdiscovery.certificate.retention.hours";
+
     String DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT = "domibus.listPendingMessages.maxCount";
     String DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE = "domibus.jms.connectionFactory.session.cache.size";
     String DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE = "domibus.jms.queue.maxBrowseSize";
@@ -400,6 +399,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
     String DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL ="domibus.dynamicdiscovery.lookup.cache.ttl";
+    String DOMIBUS_DYNAMICDISCOVERY_CLEAN_RETENTION_CRON = "domibus.dynamicdiscovery.lookup.clean.retention.cron";
+    String DOMIBUS_DYNAMICDISCOVERY_CLEAN_RETENTION_HOURS = "domibus.dynamicdiscovery.lookup.clean.retention.hours";
 
     String DOMIBUS_EARCHIVE_ACTIVE = "domibus.earchive.active";
     String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
@@ -438,8 +439,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED = "domibus.earchive.notification.details.enabled";
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
-    String DOMIBUS_FINAL_RECIPIENT_CLEANUP_CRON = "domibus.party.finalRecipient.cleanup.cron";
-    String DOMIBUS_FINAL_RECIPIENT_CLEANUP_OLDER_THAN = "domibus.party.finalRecipient.cleanup.olderThan.days";
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";

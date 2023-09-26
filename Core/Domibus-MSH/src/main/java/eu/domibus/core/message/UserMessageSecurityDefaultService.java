@@ -73,7 +73,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         /* check the message belongs to the authenticated user */
         boolean found = false;
         for (String propertyName : propertyNames) {
-            String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+            String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
             if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
                 found = true;
                 break;
@@ -93,7 +93,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         }
         LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
         /* check the message belongs to the authenticated user */
-        String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+        String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
         if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
             LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
             throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");

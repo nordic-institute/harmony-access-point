@@ -5,6 +5,7 @@ import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -67,6 +68,9 @@ public class MessageFragmentSenderTest {
 
     @Injectable
     protected PolicyService policyService;
+
+    @Injectable
+    PModeService pModeService;
 
     @Injectable
     protected ReliabilityService reliabilityService;

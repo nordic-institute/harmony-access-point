@@ -11,6 +11,7 @@ import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.FetcherResponse;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.impl.DefaultURLFetcher;
@@ -84,6 +85,9 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Injectable
     private DomibusProxyService domibusProxyService;
+
+    @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
 
     @Injectable
     private DomibusHttpRoutePlanner domibusHttpRoutePlanner;

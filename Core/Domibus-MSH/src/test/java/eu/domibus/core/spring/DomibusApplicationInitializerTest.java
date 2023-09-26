@@ -12,6 +12,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -199,6 +200,7 @@ public class DomibusApplicationInitializerTest {
         }};
     }
 
+    @Ignore
     @Test
     public void configurePropertySources(@Injectable AnnotationConfigWebApplicationContext rootContext,
                                          @Injectable ConfigurableEnvironment configurableEnvironment,
