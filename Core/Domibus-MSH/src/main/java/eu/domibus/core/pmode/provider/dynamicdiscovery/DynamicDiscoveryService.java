@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
 
 /**
@@ -8,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
  */
 public interface DynamicDiscoveryService {
 
-    EndpointInfo lookupInformation(final String domain,
+    EndpointInfo lookupInformation(String lookupCacheKey,
                                    final String finalRecipientValue,
                                    final String finalRecipientType,
                                    final String documentId,
@@ -17,4 +18,7 @@ public interface DynamicDiscoveryService {
 
     String getPartyIdType();
     String getResponderRole();
+
+    String getFinalRecipientCacheKeyForDynamicDiscovery(UserMessage userMessage);
+
 }

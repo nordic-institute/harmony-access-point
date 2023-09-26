@@ -11,6 +11,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.party.PartyNotReachableException;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -58,6 +59,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected PModeProvider pModeProvider;
+
+    @Autowired
+    protected PModeService pModeService;
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -188,7 +192,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("PMode found : [{}]", pModeKey);
             SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
 
-            String receiverUrl = pModeProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
+            String receiverUrl = pModeService.getReceiverPartyEndpoint(receiverParty.getName(), receiverParty.getEndpoint(), userMessageServiceHelper.getFinalRecipientValue(userMessage));
             requestSoapMessage = userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(requestSoapMessage);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverUrl, policy, legConfiguration, pModeKey);
             signalMessageSoapEnvelopeSpiDelegate.afterReceiving(responseSoapMessage);

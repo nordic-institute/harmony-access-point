@@ -239,7 +239,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void whenRetrievingTheFinalRecipient() {
-        finalRecipient = userMessageDefaultServiceHelper.getFinalRecipient(userMessage);
+        finalRecipient = userMessageDefaultServiceHelper.getFinalRecipientValue(userMessage);
     }
 
     private void whenRetrievingTheToParty() {

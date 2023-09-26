@@ -14,6 +14,8 @@ import java.util.Map;
 public class Command {
 
     public static final String COMMAND = "COMMAND";
+    public static final String DELETE_PMODE_PARTIES = "DELETE_PMODE_PARTIES";
+    public static final String DELETE_FINAL_RECIPIENTS_CACHE = "DELETE_FINAL_RECIPIENTS_CACHE";
     public static final String RELOAD_PMODE = "RELOAD_PMODE";
     public static final String EVICT_CACHES = "EVICT_CACHES";
     public static final String EVICT_2LC_CACHES = "EVICT_2LC_CACHES";

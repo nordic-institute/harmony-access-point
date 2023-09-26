@@ -61,7 +61,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 @Qualifier("dynamicDiscoveryServiceOASIS")
-public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
+public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
@@ -165,8 +165,8 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #finalRecipientValue + #finalRecipientType + #documentId + #processId + #processIdScheme")
-    public EndpointInfo lookupInformation(final String domain,
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#lookupKey")
+    public EndpointInfo lookupInformation(final String lookupKey,
                                           final String finalRecipientValue,
                                           final String finalRecipientType,
                                           final String documentId,
@@ -395,4 +395,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         }
         return isValidTransport;
     }
+
+
 }

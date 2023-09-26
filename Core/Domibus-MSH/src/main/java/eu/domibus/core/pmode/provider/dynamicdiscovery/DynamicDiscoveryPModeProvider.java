@@ -1,8 +1,10 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.PartyRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -14,12 +16,12 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,9 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.naming.InvalidNameException;
+import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
@@ -90,11 +92,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected DomibusLocalCacheService domibusLocalCacheService;
 
     @Autowired
-    DynamicDiscoveryCertificateService dynamicDiscoveryCertificateService;
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
-    protected Map<String, PartyId> cachedToPartyId = new ConcurrentHashMap<>();
 
     // default type in eDelivery profile
     protected static final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
@@ -115,7 +116,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         super.load();
 
         LOG.debug("Initialising the dynamic discovery configuration.");
-        cachedToPartyId.clear();
         dynamicResponderProcesses = findDynamicResponderProcesses();
         dynamicInitiatorProcesses = findDynamicSenderProcesses();
         if (DynamicDiscoveryClientSpecification.PEPPOL.getName().equalsIgnoreCase(domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION))) {
@@ -179,13 +179,28 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     @Override
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
         try {
-            return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
+            final MessageExchangeConfiguration userMessageExchangeContext = super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
+
+            if (useDynamicDiscovery()) {
+                final String partyToValue = userMessageServiceHelper.getPartyToValue(userMessage);
+                LOG.debug("Checking if public certificate for receiver party [{}] in the truststore", partyToValue);
+                final X509Certificate receiverCertificateFromTruststore = getCertificateFromTruststore(partyToValue, userMessage.getMessageId());
+                if (receiverCertificateFromTruststore == null) {
+                    LOG.info("Could not find public certificate for receiver party [{}] in the truststore. Triggering dynamic discovery", partyToValue);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                            .message("Could not find public certificate for receiver party [" + partyToValue + "] in the truststore. Triggering dynamic discovery")
+                            .refToMessageId(userMessage.getMessageId())
+                            .build();
+                }
+            }
+            return userMessageExchangeContext;
         } catch (final EbMS3Exception e) {
             if (useDynamicDiscovery()) {
-                LOG.info("PmodeKey not found, starting the dynamic discovery process");
+                LOG.info("PmodeKey/receiver public certificate not found, starting the dynamic discovery process: [{}]", e.getMessage());
                 doDynamicDiscovery(userMessage, mshRole);
             } else {
-                LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter [{}] for current domain.", DOMIBUS_SMLZONE);
+                LOG.error("PmodeKey/receiver public certificate not found and dynamic discovery is not enabled! Check property [{}] for current domain [{}]: [{}]", DOMIBUS_SMLZONE, domainProvider.getCurrentDomain(), e.getMessage());
                 throw e;
             }
         }
@@ -204,7 +219,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .build();
         }
 
-        LOG.info("Found [{}] dynamic discovery candidates: [{}]. MSHRole: [{}]", candidates.size(), candidates.stream().map(process -> process.getName()).collect(Collectors.toList()), mshRole);
+        LOG.info("Found [{}] dynamic discovery candidates: [{}]. MSHRole: [{}]", candidates.size(), getProcessNames(candidates), mshRole);
 
         if (MSHRole.RECEIVING.equals(mshRole)) {
             PartyId fromPartyId = getFromPartyId(userMessage);
@@ -212,22 +227,84 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             updateInitiatorPartiesInPmode(candidates, configurationParty);
 
         } else {//MSHRole.SENDING
-            String finalRecipientCacheKey = getFinalRecipientCacheKeyForDynamicDiscovery(userMessage);
-            PartyId partyId = cachedToPartyId.get(finalRecipientCacheKey);
+            final DynamicDiscoveryCheckResult dynamicDiscoveryCheckResult = checkIfDynamicDiscoveryShouldBePerformed(userMessage, candidates);
 
-            //we skip the dynamic discovery lookup in case we find in the cache the toParty and final recipient Endpoint from SMP
-            if (partyId != null && domibusLocalCacheService.containsCacheForKey(finalRecipientCacheKey, DYNAMIC_DISCOVERY_ENDPOINT)) {
-                LOG.debug("Skip DDC lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", finalRecipientCacheKey);
-                userMessage.getPartyInfo().getTo().setToPartyId(partyId);
+            final String finalRecipientCacheKey = dynamicDiscoveryCheckResult.getFinalRecipientCacheKey();
+            if (dynamicDiscoveryCheckResult.isPerformDynamicDiscovery()) {
+                // do the lookup
+                lookupAndUpdateConfigurationForToPartyId(finalRecipientCacheKey, userMessage, candidates);
+            } else {
+                LOG.debug("Skip DDC lookup and add 'To Party' to UserMessage retrieved from the cache using key [{}]", finalRecipientCacheKey);
+
+                final Party receiverPartyFromPmode = dynamicDiscoveryCheckResult.getPmodeReceiverParty();
+                final PartyId receiverPartyTo = getPartyToIdForDynamicDiscovery(receiverPartyFromPmode.getName());
+
+                userMessage.getPartyInfo().getTo().setToPartyId(receiverPartyTo);
                 if (userMessage.getPartyInfo().getTo().getToRole() == null) {
                     String responderRoleValue = dynamicDiscoveryService.getResponderRole();
                     PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
                     userMessage.getPartyInfo().getTo().setToRole(partyRole);
                 }
-            } else {
-                // do the lookup
-                lookupAndUpdateConfigurationForToPartyId(finalRecipientCacheKey, userMessage, candidates);
             }
+        }
+    }
+
+    private List<String> getProcessNames(Collection<Process> candidates) {
+        return candidates.stream().map(process -> process.getName()).collect(Collectors.toList());
+    }
+
+    protected DynamicDiscoveryCheckResult checkIfDynamicDiscoveryShouldBePerformed(final UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> foundProcesses) throws EbMS3Exception {
+        DynamicDiscoveryCheckResult result = new DynamicDiscoveryCheckResult();
+        String finalRecipientCacheKey = dynamicDiscoveryService.getFinalRecipientCacheKeyForDynamicDiscovery(userMessage);
+        result.setFinalRecipientCacheKey(finalRecipientCacheKey);
+
+        EndpointInfo endpointInfo = (EndpointInfo) domibusLocalCacheService.getEntryFromCache(DYNAMIC_DISCOVERY_ENDPOINT, finalRecipientCacheKey);
+        result.setEndpointInfo(endpointInfo);
+
+        //final recipient was not previously discovered
+        if (endpointInfo == null) {
+            LOG.debug("Dynamic discovery will be performed: could not find EndpointInfo in the cache for final recipient key [{}]", finalRecipientCacheKey);
+            result.setPerformDynamicDiscovery(true);
+            return result;
+        }
+        final PartyEndpointInfo partyEndpointInfo = getPartyEndpointInfo(endpointInfo, userMessage.getMessageId());
+        final String partyNameToFind = partyEndpointInfo.getCertificateCn();
+        final Party pmodeReceiverParty = findPartyInTheProcessResponderParties(foundProcesses, partyNameToFind);
+        result.setPmodeReceiverParty(pmodeReceiverParty);
+
+        //receiver party was not found in the Pmode receiver parties; it could be that the Pmode was overridden after the final recipient was discovered
+        if (pmodeReceiverParty == null) {
+            LOG.debug("Dynamic discovery will be performed: could not find Party [{}] in Pmode in none of the processes [{}]", partyNameToFind, getProcessNames(foundProcesses));
+            result.setPerformDynamicDiscovery(true);
+            return result;
+        }
+
+        X509Certificate receiverCertificateFromTruststore = getCertificateFromTruststore(partyNameToFind, userMessage.getMessageId());
+        result.setReceiverCertificate(receiverCertificateFromTruststore);
+
+        //the public certificate of the receiver was not found in the truststore; it could be that the truststore was overridden after the final recipient was discovered
+        if (receiverCertificateFromTruststore == null) {
+            LOG.debug("Dynamic discovery will be performed: could not find public certificate with alias [{}] in the truststore", partyNameToFind);
+            result.setPerformDynamicDiscovery(true);
+            return result;
+        }
+        LOG.debug("Dynamic discovery will be skipped: found all details in cache/pmode/truststore");
+        result.setPerformDynamicDiscovery(false);
+        return result;
+    }
+
+    protected X509Certificate getCertificateFromTruststore(String alias, String messageId) throws EbMS3Exception {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        try {
+            return multiDomainCertificateProvider.getCertificateFromTruststore(currentDomain, alias);
+        } catch (final KeyStoreException e) {
+            LOG.error("Error while checking if public certificate for party [" + alias + "] is in the truststore", e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Error while checking if public certificate for party [" + alias + "] is in the truststore")
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .build();
         }
     }
 
@@ -240,17 +317,23 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * @throws EbMS3Exception
      */
     public void lookupAndUpdateConfigurationForToPartyId(String cacheKey, UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> processCandidates) throws EbMS3Exception {
-        //we lookup in SMP based on the combination of(final recipient, service,action)
+        //we lookup in SMP based on the combination of (domain, participantId, participantIdScheme, action, serviceValue, serviceType)
         //if the lookup was previously done, it is retrieved from cache
         //cache is domain specific
-        EndpointInfo endpointInfo = lookupByFinalRecipient(userMessage);
+        EndpointInfo endpointInfo = lookupByFinalRecipient(cacheKey, userMessage);
         LOG.debug("Found endpoint [{}]. Configuring PMode and truststore", endpointInfo.getAddress());
 
-        final X509Certificate x509Certificate = endpointInfo.getCertificate();
-        final String certificateCn = getCommonNameFromCertificate(userMessage, x509Certificate);
+        //extract the party information from the Endpoint eg X509 certificate, cn, endpoint URL
+        final PartyEndpointInfo partyEndpointInfo = getPartyEndpointInfo(endpointInfo, userMessage.getMessageId());
 
-        //we add the party to in the UserMessage
-        PartyId toPartyId = addToPartyInUserMessage(userMessage, certificateCn);
+        final X509Certificate x509Certificate = partyEndpointInfo.getX509Certificate();
+        final String certificateCn = partyEndpointInfo.getCertificateCn();
+
+        //we create or get the partyTo based on the certificate common name
+        final PartyId receiverParty = getPartyToIdForDynamicDiscovery(certificateCn);
+
+        //we add the partyTo in the UserMessage
+        addPartyToInUserMessage(userMessage, receiverParty);
 
         //we add the certificate in the Domibus truststore, domain specific
         Domain currentDomain = domainProvider.getCurrentDomain();
@@ -258,48 +341,43 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //save certificate in the truststore using synchronisation
         boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
         if (added) {
-            LOG.debug("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
+            LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
         }
 
-        //saving the time when the DDC certificate was discovered last time
-        dynamicDiscoveryCertificateService.saveCertificateDynamicDiscoveryDate(certificateCn, x509Certificate);
-
-        cachedToPartyId.put(cacheKey, toPartyId);
-
         //update party in the Pmode with the latest discovered values; synchronized
-        Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
+        final String partyName = receiverParty.getValue();
+        final String partyType = receiverParty.getType();
+        Party configurationParty = updateConfigurationParty(partyName, partyType, partyEndpointInfo.getEndpointUrl());
 
         //party is added in the responder parties only if it doesn't exist; synchronized
         updateToPartyInPmodeResponderParties(processCandidates, configurationParty);
 
         //save the final recipient value and URL in the database
-        Property finalRecipient = getFinalRecipient(userMessage);
-        final String finalRecipientValue = finalRecipient.getValue();
+        final String finalRecipientValue = userMessageServiceHelper.getFinalRecipientValue(userMessage);
         final String receiverURL = endpointInfo.getAddress();
 
-        //save the final recipient URL in the database and in the memory cache
-        saveFinalRecipientEndpoint(finalRecipientValue, receiverURL);
+        final List<String> partyProcessNames = getProcessNames(processCandidates);
+
+
+        if (CollectionUtils.isNotEmpty(pModeEventListeners)) {
+            //we call the PMode event listeners
+            pModeEventListeners.stream().forEach(pModeEventListener -> {
+                try {
+                    LOG.debug("Notifying listener [{}] for event afterDynamicDiscoveryLookup", pModeEventListener.getName());
+                    pModeEventListener.afterDynamicDiscoveryLookup(finalRecipientValue, receiverURL, partyName, partyType, partyProcessNames, certificateCn, x509Certificate);
+                } catch (Exception e) {
+                    LOG.error("Error in PMode event listener [{}]: afterDynamicDiscoveryLookup", pModeEventListener.getName(), e);
+                }
+            });
+        }
     }
 
-    /**
-     * Method returns cache key for dynamic discovery lookup.
-     *
-     * @param userMessage
-     * @return cache key string with format: #domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
-     */
-    protected String getFinalRecipientCacheKeyForDynamicDiscovery(UserMessage userMessage) {
-        //"
-        Property finalRecipient = getFinalRecipient(userMessage);
-        // create key
-        //"#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
-        String cacheKey = domainProvider.getCurrentDomain().getCode() +
-                finalRecipient.getValue() +
-                finalRecipient.getType() +
-                userMessage.getActionValue() +
-                userMessage.getService().getValue() +
-                userMessage.getService().getType();
-        return cacheKey;
+    protected PartyEndpointInfo getPartyEndpointInfo(EndpointInfo endpointInfo, String messageId) throws EbMS3Exception {
+        final X509Certificate x509Certificate = endpointInfo.getCertificate();
+        final String certificateCn = getCommonNameFromCertificate(messageId, x509Certificate);
+        return new PartyEndpointInfo(certificateCn, x509Certificate, endpointInfo.getAddress());
     }
+
 
     protected PartyId getFromPartyId(UserMessage userMessage) throws EbMS3Exception {
         PartyId from = null;
@@ -410,20 +488,37 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     //party is added in the responder parties only if it doesn't exist
     protected synchronized void updateToPartyInPmodeResponderParties(Collection<eu.domibus.common.model.configuration.Process> candidates, Party configurationParty) {
-        LOG.debug("updateResponderPartiesInPmode with party " + configurationParty.getName());
+        LOG.debug("Update Pmode processes->responderParties with party [{}]", configurationParty.getName());
+
         for (final Process candidate : candidates) {
-            boolean partyFound = false;
-            for (final Party party : candidate.getResponderParties()) {
-                if (StringUtils.equalsIgnoreCase(configurationParty.getName(), party.getName())) {
-                    partyFound = true;
-                    LOG.debug("partyFound in candidate: " + candidate.getName());
-                    break;
-                }
-            }
-            if (!partyFound) {
+            final Party responderParty = findResponderPartyInProcess(candidate, configurationParty.getName());
+            if (responderParty == null) {
+                LOG.info("Adding party [{}] in the process responder parties [{}]", configurationParty.getName(), candidate.getName());
                 candidate.getResponderParties().add(configurationParty);
             }
         }
+    }
+
+    protected Party findPartyInTheProcessResponderParties(Collection<eu.domibus.common.model.configuration.Process> candidates, String partyName) {
+        for (final Process candidate : candidates) {
+            final Party responderParty = findResponderPartyInProcess(candidate, partyName);
+            if (responderParty != null) {
+                LOG.info("Found existing party [{}] in the process responder parties [{}]", partyName, candidate.getName());
+                return responderParty;
+            }
+        }
+        return null;
+    }
+
+    protected Party findResponderPartyInProcess(eu.domibus.common.model.configuration.Process process, String partyName) {
+        for (final Party party : process.getResponderParties()) {
+            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
+                LOG.debug("Party [{}] found in process [{}]", partyName, process.getName());
+                return party;
+            }
+        }
+
+        return null;
     }
 
     protected synchronized void updateInitiatorPartiesInPmode(Collection<eu.domibus.common.model.configuration.Process> candidates, Party configurationParty) {
@@ -443,11 +538,27 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
     }
 
-    protected PartyId addToPartyInUserMessage(UserMessage userMessage, String certificateCn) throws EbMS3Exception {
+    /**
+     * Set partyTo in UserMessage
+     */
+    protected void addPartyToInUserMessage(UserMessage userMessage, PartyId receiverParty) {
+        LOG.debug("Adding partyTo in the UserMessage [{}]", receiverParty);
 
-        //set toPartyId in UserMessage
+        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
+        if (userMessage.getPartyInfo().getTo().getToRole() == null) {
+            String responderRoleValue = dynamicDiscoveryService.getResponderRole();
+            LOG.debug("Adding partyTo role in the UserMessage [{}]", responderRoleValue);
+            PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
+            userMessage.getPartyInfo().getTo().setToRole(partyRole);
+        }
+    }
+
+    /**
+     * It creates or gets the receiver party based on the certificate common name
+     */
+    private PartyId getPartyToIdForDynamicDiscovery(String certificateCn) {
         String type = dynamicDiscoveryService.getPartyIdType();
-        LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", certificateCn, type);
+        LOG.debug("DDC: using configured party type [{}]", type);
 
         // double check not to add empty value as a type
         // because it is invalid by the oasis messaging  xsd
@@ -456,50 +567,42 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
 
         final PartyId receiverParty = partyIdDictionaryService.findOrCreateParty(certificateCn, type);
-
-        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
-        if (userMessage.getPartyInfo().getTo().getToRole() == null) {
-            String responderRoleValue = dynamicDiscoveryService.getResponderRole();
-            PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
-            userMessage.getPartyInfo().getTo().setToRole(partyRole);
-        }
-
-
         return receiverParty;
     }
 
-    private String getCommonNameFromCertificate(UserMessage userMessage, X509Certificate certificate) throws EbMS3Exception {
-        String cn;
+    private String getCommonNameFromCertificate(String messageId, X509Certificate certificate) throws EbMS3Exception {
         try {
             //parse certificate for common name = toPartyId
-            cn = certificateService.extractCommonName(certificate);
+            String cn = certificateService.extractCommonName(certificate);
             LOG.debug("Extracted the common name [{}]", cn);
+            return cn;
         } catch (final InvalidNameException e) {
             LOG.error("Error while extracting CommonName from certificate", e);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Error while extracting CommonName from certificate")
-                    .refToMessageId(userMessage.getMessageId())
+                    .refToMessageId(messageId)
                     .cause(e)
                     .build();
         }
-        return cn;
     }
 
-    protected EndpointInfo lookupByFinalRecipient(UserMessage userMessage) throws EbMS3Exception {
-        Property finalRecipient = getFinalRecipient(userMessage);
-        if (finalRecipient == null) {
+    protected EndpointInfo lookupByFinalRecipient(String lookupCacheKey, UserMessage userMessage) throws EbMS3Exception {
+        final String finalRecipientValue = userMessageServiceHelper.getFinalRecipientValue(userMessage);
+        final String finalRecipientType = userMessageServiceHelper.getFinalRecipientType(userMessage);
+
+        if (StringUtils.isBlank(finalRecipientValue)) {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("Dynamic discovery processes found for message but finalRecipient information is missing in messageProperties.")
                     .refToMessageId(userMessage.getMessageId())
                     .build();
         }
-        LOG.info("Perform lookup by finalRecipient with name [{}], type [{}] and value [{}]", finalRecipient.getName(), finalRecipient.getType(), finalRecipient.getValue());
+        LOG.info("Perform lookup by finalRecipient type [{}] and value [{}]", finalRecipientType, finalRecipientValue);
 
         //lookup sml/smp - result is cached
-        final EndpointInfo endpoint = dynamicDiscoveryService.lookupInformation(domainProvider.getCurrentDomain().getCode(), finalRecipient.getValue(),
-                finalRecipient.getType(),
+        final EndpointInfo endpoint = dynamicDiscoveryService.lookupInformation(lookupCacheKey, finalRecipientValue,
+                finalRecipientType,
                 userMessage.getActionValue(),
                 userMessage.getService().getValue(),
                 userMessage.getService().getType());
@@ -550,21 +653,4 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             return process.isDynamicResponder() || process.getResponderParties().contains(this.getConfiguration().getParty());
         }
     }
-
-    protected Property getFinalRecipient(UserMessage userMessage) {
-        if (userMessage.getMessageProperties() == null ||
-                userMessage.getMessageProperties().isEmpty()) {
-            LOG.warn("Empty property set");
-            return null;
-        }
-
-        for (final eu.domibus.api.model.Property p : userMessage.getMessageProperties()) {
-            if (p.getName() != null && StringUtils.equalsIgnoreCase(p.getName(), MessageConstants.FINAL_RECIPIENT)) {
-                return p;
-            }
-            LOG.debug("Property: " + p.getName());
-        }
-        return null;
-    }
-
 }

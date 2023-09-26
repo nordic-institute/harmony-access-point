@@ -2,10 +2,12 @@ package eu.domibus.core.pmode;
 
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupService;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.api.model.UserMessage;
@@ -30,10 +32,16 @@ public class PModeDefaultServiceTest {
     PModeDefaultService pModeDefaultService;
 
     @Injectable
+    DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
+
+    @Injectable
     UserMessageDao userMessageDao;
 
     @Injectable
     private PModeProvider pModeProvider;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private MessageExchangeService messageExchangeService;

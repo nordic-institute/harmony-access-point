@@ -743,6 +743,9 @@ public class CertificateServiceImpl implements CertificateService {
         return result;
     }
 
+    /**
+     * Send alerts for certificate imminent expiration. It does not take into account certificates which were dynamically discovered. The dynamically discovered certificates are updated periodically from SMP and it doesn't make sense to send alerts for them
+     */
     protected void sendCertificateImminentExpirationAlerts() {
         RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
         final Boolean activeModule = configuration.isActive();
@@ -758,7 +761,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());
         final Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant());
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]. Dynamically discovered certificates are not taken into account",
                 notificationDate, imminentExpirationDelay, maxDate);
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);

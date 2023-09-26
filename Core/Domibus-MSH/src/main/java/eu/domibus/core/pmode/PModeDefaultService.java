@@ -7,15 +7,19 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.pmode.domain.ReceptionAwareness;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupService;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,12 @@ public class PModeDefaultService implements PModeService {
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
 
     @Override
     public LegConfiguration getLegConfiguration(Long messageEntityId) {
@@ -139,5 +149,23 @@ public class PModeDefaultService implements PModeService {
 
     public NotificationStatus getNotificationStatus(eu.domibus.common.model.configuration.LegConfiguration legConfiguration) {
         return legConfiguration.getErrorHandling().isBusinessErrorNotifyProducer() ? NotificationStatus.REQUIRED : NotificationStatus.NOT_REQUIRED;
+    }
+
+    @Override
+    public String getReceiverPartyEndpoint(String partyName, String partyEndpoint, String finalRecipient) {
+        final boolean useDynamicDiscovery = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        if (useDynamicDiscovery) {
+            //try to get the party URL from the cached final participant URLs
+            String finalRecipientAPUrl = dynamicDiscoveryLookupService.getEndpointURL(finalRecipient);
+
+            if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
+                LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, partyName, finalRecipient);
+                return finalRecipientAPUrl;
+            }
+        }
+        //in case of dynamic discovery, we default to the endpoint from the PMode which is added dynamically at runtime
+        final String receiverPartyEndpoint = partyEndpoint;
+        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, partyName);
+        return receiverPartyEndpoint;
     }
 }

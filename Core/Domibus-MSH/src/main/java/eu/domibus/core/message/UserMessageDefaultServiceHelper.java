@@ -26,12 +26,17 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getOriginalSender(UserMessage userMessage) {
-        return getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+        return getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
     }
 
     @Override
-    public String getFinalRecipient(UserMessage userMessage) {
-        return getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+    public String getFinalRecipientValue(UserMessage userMessage) {
+        return getPropertyValue(userMessage, MessageConstants.FINAL_RECIPIENT);
+    }
+
+    @Override
+    public String getFinalRecipientType(UserMessage userMessage) {
+        return getPropertyType(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     protected To getTo(UserMessage userMessage) {
@@ -106,18 +111,34 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
 
     @Override
-    public String getProperty(UserMessage userMessage, String propertyName) {
+    public String getPropertyValue(UserMessage userMessage, String propertyName) {
+        final Property property = getProperty(userMessage, propertyName);
+        if (property == null) {
+            return null;
+        }
+        return property.getValue();
+    }
+
+    @Override
+    public String getPropertyType(UserMessage userMessage, String propertyName) {
+        final Property property = getProperty(userMessage, propertyName);
+        if (property == null) {
+            return null;
+        }
+        return property.getType();
+    }
+
+    protected Property getProperty(UserMessage userMessage, String propertyName) {
         if (userMessage == null || userMessage.getMessageProperties() == null) {
             return null;
         }
-        String originalUser = null;
+
         for (Property property : userMessage.getMessageProperties()) {
             if (StringUtils.equalsIgnoreCase(property.getName(), propertyName)) {
-                originalUser = property.getValue();
-                break;
+                return property;
             }
         }
-        return originalUser;
+        return null;
     }
 
     @Override

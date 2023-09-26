@@ -202,7 +202,7 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.debug("Message [{}]-[{}] does not exist", messageId, mshRole);
             return null;
         }
-        return userMessageServiceHelper.getFinalRecipient(userMessage);
+        return userMessageServiceHelper.getFinalRecipientValue(userMessage);
     }
 
     @Override

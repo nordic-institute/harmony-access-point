@@ -12,10 +12,13 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Topic;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,6 +76,40 @@ public class SignalServiceImpl implements SignalService {
 
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_PMODE);
+        commandProperties.put(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalDeletePmodeParties(List<String> partyNames) {
+        if (CollectionUtils.isEmpty(partyNames)) {
+            LOG.debug("Skip signaling of Pmode parties deletion: parties parameter is empty");
+            return;
+        }
+
+        LOG.debug("Signaling delete of parties [{}] from Pmode for [{}] domain", partyNames, domainContextProvider.getCurrentDomain().getCode());
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DELETE_PMODE_PARTIES);
+        commandProperties.put(CommandProperty.PMODE_PARTY_NAMES, StringUtils.join(partyNames, ","));
+        commandProperties.put(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalDeleteFinalRecipientCache(List<String> finalRecipients) {
+        if (CollectionUtils.isEmpty(finalRecipients)) {
+            LOG.debug("Skip signaling of final recipient cache deletion: final recipients parameter is empty");
+            return;
+        }
+
+        LOG.debug("Signaling delete of final recipients [{}] from cache for [{}] domain", finalRecipients, domainContextProvider.getCurrentDomain().getCode());
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DELETE_FINAL_RECIPIENTS_CACHE);
+        commandProperties.put(CommandProperty.FINAL_RECIPIENTS, StringUtils.join(finalRecipients, ","));
         commandProperties.put(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
 
         sendMessage(commandProperties);

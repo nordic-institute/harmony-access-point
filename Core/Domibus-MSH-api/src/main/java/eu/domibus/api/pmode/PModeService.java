@@ -49,11 +49,15 @@ public interface PModeService {
     String findServiceName(String service, String serviceType);
 
     /**
-     * Find the pmode configured name of an mpc from its value.
+     * Find the pmode configured name of a mpc from its value.
      * @param mpc the mpc value.
      * @return the mpc name.
      */
     String findMpcName(String mpc);
 
 
+    /**
+     * It returns the endpoint URL for the receiver party. When using dynamic discovery, it will get the URL of the party discovered from SMP. The party discovery is based on the final recipient value
+     */
+    String getReceiverPartyEndpoint(String partyName, String partyEndpoint, String finalRecipient);
 }
