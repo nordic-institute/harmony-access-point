@@ -11,28 +11,12 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static eu.domibus.core.message.MessageLogInfoFilter.*;
+import static eu.domibus.web.rest.MessageLogResource.*;
 
 @Component
 public class RequestFilterUtils {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RequestFilterUtils.class);
-
-    public static final int DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES = 60;
-    private static final String PROPERTY_CONVERSATION_ID = "conversationId";
-    private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
-    private static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
-    private static final String PROPERTY_MESSAGE_ID = "messageId";
-    private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-    private static final String PROPERTY_TEST_MESSAGE = "testMessage";
-    private static final String PROPERTY_MSH_ROLE = "mshRole";
-    private static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
-    private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
-    private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
-    private static final String PROPERTY_RECEIVED_TO = "receivedTo";
-    private static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
-    private static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
-    private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
-    private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
 
     private final DateUtil dateUtil;
 

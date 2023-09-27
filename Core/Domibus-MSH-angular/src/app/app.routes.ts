@@ -28,12 +28,13 @@ import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {KeystoreComponent} from './truststore/keystore.component';
 import {DomainsComponent} from './domains/domains.component';
+import {LandingPageGuard} from './common/guards/landing-page.guard';
 
 export const appRoutes: Routes = [
   {
     path: '',
     component: MessageLogComponent,
-    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard, LandingPageGuard],
     data: {
       checkRoles: SecurityService.USER_ROLES,
       helpPage: 'Messages'

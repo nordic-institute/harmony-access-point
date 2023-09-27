@@ -437,7 +437,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     @Override
-    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);
             for (Map.Entry<String, Object> stringObjectEntry : filters.entrySet()) {
@@ -453,7 +453,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             startTime = System.currentTimeMillis();
         }
 
-        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters);
+        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters, fields);
 
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();

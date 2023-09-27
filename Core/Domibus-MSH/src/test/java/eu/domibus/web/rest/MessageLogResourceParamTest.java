@@ -94,7 +94,7 @@ public class MessageLogResourceParamTest {
         expectedMessageLogResult.setMessageLogEntries(resultList);
 
         new Expectations() {{
-            messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
+            messagesLogService.countAndFindPaged(messageType, anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any, (List<String>) any);
             result = expectedMessageLogResult;
         }};
 
@@ -125,7 +125,7 @@ public class MessageLogResourceParamTest {
         List<MessageLogInfo> messageList = getMessageList(messageType, date, testMessage);
 
         new Expectations() {{
-            messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
+            messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any, Collections.emptyList());
             result = messageList;
 
             csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>) any, (List<String>) any);
@@ -140,6 +140,7 @@ public class MessageLogResourceParamTest {
             setOrderBy("received");
             setMessageType(messageType);
             setTestMessage(testMessage);
+            setFields(new ArrayList<>());
         }});
 
         // Then
@@ -153,8 +154,8 @@ public class MessageLogResourceParamTest {
     /**
      * Creates a {@link MessageLogRO} based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param testMessage    Test Message
+     * @param messageType Message Type
+     * @param testMessage Test Message
      * @return <code>MessageLog</code>
      */
     private static MessageLogRO createMessageLog(MessageType messageType, Boolean testMessage) {
@@ -182,7 +183,7 @@ public class MessageLogResourceParamTest {
     /**
      * Gets a MessageLog based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
+     * @param messageType Message Type
      * @param testMessage Message Subtype
      * @return <code>MessageLogResultRO</code> object
      */
@@ -198,17 +199,17 @@ public class MessageLogResourceParamTest {
     /**
      * Get a MessageLogInfo List based on <code>messageInfo</code>, <code>date</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param date           Date
+     * @param messageType Message Type
+     * @param date        Date
      * @param testMessage test Message
      * @return <code>List</code> of <code>MessageLogInfo</code> objects
      */
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
-        MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
-                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date, "Europe/Brussels",
-                0, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue",
+        MessageLogInfo messageLog = new MessageLogInfo("messageId", 1L, 1L, 1L,
+                date, date, 1, 5, date, 1L,
+                "conversationId", 1L, 1L, "originalSender", "finalRecipient",
+                "refToMessageId", date, date, testMessage, false, false, 1L, 1L,
                 "pluginType", 1L, date);
         result.add(messageLog);
         return result;

@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * @author Tiago Miguel
+ * @author Perpegel Ion
  * @since 3.3
  */
 @Service(value = "signalMessageLogInfoFilter")
@@ -51,39 +52,30 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
     }
 
     @Override
-    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
+    public String getFilterMessageLogQuery(String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
                 "signal.signalMessageId," +
-                "log.messageStatus.messageStatus," +
-                "message.mshRole.role," +
+                LOG_MESSAGE_STATUS + ".entityId," +
+                LOG_MSH_ROLE + ".entityId," +
                 "log.deleted," +
                 "log.received," +
                 EMPTY_CONVERSATION_ID +
-                " partyFrom.value," +
-                " partyTo.value," +
-                (isFourCornerModel() ? " propsFrom.value," : "'',") +
-                (isFourCornerModel() ? " propsTo.value," : "'',") +
+                MESSAGE_PARTY_INFO_FROM_FROM_PARTY_ID + ".entityId," +
+                MESSAGE_PARTY_INFO_TO_TO_PARTY_ID + ".entityId," +
+                (fields.contains(ORIGINAL_SENDER) ? PROPS_FROM_VALUE + "," : "'',") +
+                (fields.contains(FINAL_RECIPIENT) ? PROPS_TO_VALUE + "," : "'',") +
                 "signal.refToMessageId," +
                 "message.testMessage" +
-                ")" + getQueryBody(filters);
+                ")" +
+                getQueryBody(filters, fields);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
-    @Override
-    public String getQueryBody(Map<String, Object> filters) {
-        return
-                " from SignalMessageLog log " +
-                        "join log.signalMessage signal " +
-                        "join signal.userMessage message " +
-                        (isFourCornerModel() ?
-                                "left join message.messageProperties propsFrom " +
-                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
-                        "left join message.partyInfo.from.fromPartyId partyFrom " +
-                        "left join message.partyInfo.to.toPartyId partyTo " +
-                        (isFourCornerModel() ?
-                                "where propsFrom.name = 'originalSender' " +
-                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+    protected String getBaseQueryBody() {
+        return " from SignalMessageLog log " +
+                "join log.signalMessage signal " +
+                "join signal.userMessage message ";
     }
 
     @Override
@@ -93,27 +85,24 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
     protected Map<String, List<String>> createFromMappings() {
-        Map<String, List<String>> mappings = new HashMap<>();
-        String messageTable = " join log.signalMessage signal join signal.userMessage message ";
+        Map<String, List<String>> mappings = super.createFromMappings();
 
-        mappings.put("messaging", Arrays.asList(messageTable));
-        mappings.put("message", Arrays.asList(messageTable));
-        mappings.put("signal", Arrays.asList(messageTable));
-        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
-        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
-        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.fromPartyId partyFrom "));
-        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.toPartyId partyTo "));
+        mappings.put("messaging", Arrays.asList(getMessageTable()));
+        mappings.put("signal", Arrays.asList(getMessageTable()));
+
         return mappings;
+    }
+
+    protected String getMessageTable() {
+        return " join log.signalMessage signal join signal.userMessage message ";
     }
 
     @Override
     protected Map<String, List<String>> createWhereMappings() {
-        Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "1=1";
-        mappings.put("message", Arrays.asList(messageCriteria));
-        mappings.put("signal", Arrays.asList(messageCriteria));
-        mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
-        mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));
+        Map<String, List<String>> mappings = super.createWhereMappings();
+
+        mappings.put("signal", Arrays.asList(" 1=1 "));
+
         return mappings;
     }
 }

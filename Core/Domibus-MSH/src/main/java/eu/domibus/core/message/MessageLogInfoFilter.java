@@ -1,8 +1,11 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.Maps;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.core.dao.SingleValueDictionaryDao;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -14,11 +17,13 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
+import static eu.domibus.web.rest.MessageLogResource.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 
 /**
  * @author Tiago Miguel
+ * @author Perpegel Ion
  * @since 3.3
  */
 public abstract class MessageLogInfoFilter {
@@ -27,19 +32,19 @@ public abstract class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ENTITY_ID = "log.entityId";
     private static final String LOG_MESSAGE_ID = "message.messageId";
-    private static final String LOG_MSH_ROLE = "log.mshRole.role";
-    private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
-    private static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus.status";
+    public static final String LOG_MSH_ROLE = "log.mshRole";
+    public static final String LOG_MESSAGE_STATUS = "log.messageStatus";
+    public static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus";
     private static final String LOG_DELETED = "log.deleted";
     private static final String LOG_RECEIVED = "log.received";
     private static final String LOG_SEND_ATTEMPTS = "log.sendAttempts";
     private static final String LOG_SEND_ATTEMPTS_MAX = "log.sendAttemptsMax";
     private static final String LOG_NEXT_ATTEMPT = "log.nextAttempt";
-    private static final String PARTY_FROM_VALUE = "partyFrom.value";
-    private static final String PARTY_TO_VALUE = "partyTo.value";
-    private static final String INFO_REF_TO_MESSAGE_ID = "message.refToMessageId";
-    private static final String PROPS_FROM_VALUE = "propsFrom.value";
-    private static final String PROPS_TO_VALUE = "propsTo.value";
+    public static final String INFO_REF_TO_MESSAGE_ID = "message.refToMessageId";
+    public static final String PROPS_FROM_VALUE = "propsFrom.value";
+    public static final String ORIGINAL_SENDER = "originalSender";
+    public static final String PROPS_TO_VALUE = "propsTo.value";
+    public static final String FINAL_RECIPIENT = "finalRecipient";
     private static final String MESSAGE_COLLABORATION_INFO_CONVERSATION_ID = "message.conversationId";
     private static final String LOG_FAILED = "log.failed";
     private static final String LOG_RESTORED = "log.restored";
@@ -47,31 +52,71 @@ public abstract class MessageLogInfoFilter {
     public static final String MESSAGE_ACTION = "action";
     public static final String MESSAGE_SERVICE_TYPE = "serviceType";
     public static final String MESSAGE_SERVICE_VALUE = "serviceValue";
-    public static final String MESSAGE_COLLABORATION_INFO_ACTION = "message.action.value";
-    public static final String MESSAGE_COLLABORATION_INFO_SERVICE_TYPE = "message.service.type";
-    public static final String MESSAGE_COLLABORATION_INFO_SERVICE_VALUE = "message.service.value";
+    public static final String MESSAGE_COLLABORATION_INFO_ACTION = "message.action";
+    public static final String MESSAGE_COLLABORATION_INFO_SERVICE = "message.service";
+    public static final String MESSAGE_PARTY_INFO_FROM_FROM_PARTY_ID = "message.partyInfo.from.fromPartyId";
+    public static final String MESSAGE_PARTY_INFO_TO_TO_PARTY_ID = "message.partyInfo.to.toPartyId";
+    public static final String MIN_ENTITY_ID = "minEntityId";
+    public static final String MAX_ENTITY_ID = "maxEntityId";
+    public static final String RECEIVED_FROM = "receivedFrom";
+    public static final String RECEIVED_TO = "receivedTo";
+
+    Map<String, FilterParameterExtractor> parameterExtractors = new HashMap<>();
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    ServiceDao serviceDao;
+
+    @Autowired
+    PartyIdDao partyIdDao;
+
+    @Autowired
+    private MessageStatusDao messageStatusDao;
+
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
+    @Autowired
+    private NotificationStatusDao notificationStatusDao;
+
+    @Autowired
+    private ActionDao actionDao;
+
+    public MessageLogInfoFilter() {
+        parameterExtractors.put(MIN_ENTITY_ID, (filter) -> handleMinEntityId(filter));
+        parameterExtractors.put(MAX_ENTITY_ID, (filter) -> handleMaxEntityId(filter));
+
+        parameterExtractors.put(PROPERTY_MESSAGE_STATUS, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(PROPERTY_NOTIFICATION_STATUS, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(PROPERTY_MSH_ROLE, (filter) -> handleSingleValueDictionary(filter));
+        parameterExtractors.put(MESSAGE_ACTION, (filter) -> handleSingleValueDictionary(filter));
+
+        parameterExtractors.put(MESSAGE_SERVICE_TYPE, (filter) -> handleServiceType(filter));
+        parameterExtractors.put(MESSAGE_SERVICE_VALUE, (filter) -> handleServiceValue(filter));
+
+        parameterExtractors.put(PROPERTY_FROM_PARTY_ID, (filter) -> handlePartyIdDictionary(filter));
+        parameterExtractors.put(PROPERTY_TO_PARTY_ID, (filter) -> handlePartyIdDictionary(filter));
+    }
 
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
+            case "entityId":
+                return "message.entityId";
             case "messageId":
                 return LOG_MESSAGE_ID;
-            case "mshRole":
+            case PROPERTY_MSH_ROLE:
                 return LOG_MSH_ROLE;
-            case "messageStatus":
+            case PROPERTY_MESSAGE_STATUS:
                 return LOG_MESSAGE_STATUS;
-            case "notificationStatus":
+            case PROPERTY_NOTIFICATION_STATUS:
                 return LOG_NOTIFICATION_STATUS;
             case "deleted":
                 return LOG_DELETED;
             case "received":
-            case "receivedFrom":
-            case "receivedTo":
+            case RECEIVED_FROM:
+            case RECEIVED_TO:
                 return LOG_RECEIVED;
-            case "minEntityId":
-            case "maxEntityId":
+            case MIN_ENTITY_ID:
+            case MAX_ENTITY_ID:
                 return LOG_MESSAGE_ENTITY_ID;
             case "sendAttempts":
                 return LOG_SEND_ATTEMPTS;
@@ -79,15 +124,15 @@ public abstract class MessageLogInfoFilter {
                 return LOG_SEND_ATTEMPTS_MAX;
             case "nextAttempt":
                 return LOG_NEXT_ATTEMPT;
-            case "fromPartyId":
-                return PARTY_FROM_VALUE;
-            case "toPartyId":
-                return PARTY_TO_VALUE;
+            case PROPERTY_FROM_PARTY_ID:
+                return MESSAGE_PARTY_INFO_FROM_FROM_PARTY_ID;
+            case PROPERTY_TO_PARTY_ID:
+                return MESSAGE_PARTY_INFO_TO_TO_PARTY_ID;
             case "refToMessageId":
                 return INFO_REF_TO_MESSAGE_ID;
-            case "originalSender":
+            case ORIGINAL_SENDER:
                 return PROPS_FROM_VALUE;
-            case "finalRecipient":
+            case FINAL_RECIPIENT:
                 return PROPS_TO_VALUE;
             case "conversationId":
                 return MESSAGE_COLLABORATION_INFO_CONVERSATION_ID;
@@ -100,9 +145,8 @@ public abstract class MessageLogInfoFilter {
             case MESSAGE_ACTION:
                 return MESSAGE_COLLABORATION_INFO_ACTION;
             case MESSAGE_SERVICE_TYPE:
-                return MESSAGE_COLLABORATION_INFO_SERVICE_TYPE;
             case MESSAGE_SERVICE_VALUE:
-                return MESSAGE_COLLABORATION_INFO_SERVICE_VALUE;
+                return MESSAGE_COLLABORATION_INFO_SERVICE;
             default:
                 return "";
         }
@@ -113,40 +157,44 @@ public abstract class MessageLogInfoFilter {
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             handleFilter(result, query, filter);
         }
-
-        if (sortColumn != null) {
-            String usedColumn = getHQLKey(sortColumn);
-            if (!StringUtils.isBlank(usedColumn)) {
-                result.append(" order by ").append(usedColumn).append(asc ? " asc" : " desc");
-            }
+        if (sortColumn == null) {
+            return result;
         }
 
+        String usedColumn = getHQLKey(sortColumn);
+        if (!StringUtils.isBlank(usedColumn)) {
+            result.append(" order by ").append(usedColumn).append(asc ? " asc" : " desc");
+        }
         return result;
     }
 
     private void handleFilter(StringBuilder result, String query, Map.Entry<String, Object> filter) {
-        if (filter.getValue() != null) {
-            String tableName = getHQLKey(filter.getKey());
-            if (StringUtils.isBlank(tableName)) {
-                return;
-            }
-
-            setSeparator(query, result);
-            if (!(filter.getValue() instanceof Date)) {
-                if (!(filter.getValue().toString().isEmpty())) {
-                    result.append(tableName).append(" = :").append(filter.getKey());
-                }
-            } else {
-                if (StringUtils.isNotBlank(filter.getValue().toString())) {
-                    String s = filter.getKey();
-                    if (StringUtils.equals(s, "receivedFrom") || StringUtils.equals(s, "minEntityId")) {
-                        result.append(tableName).append(" >= :").append(filter.getKey());
-                    } else if (StringUtils.equals(s, "receivedTo") || StringUtils.equals(s, "maxEntityId")) {
-                        result.append(tableName).append(" <= :").append(filter.getKey());
-                    }
-                }
-            }
+        if (filter.getValue() == null || StringUtils.isBlank(filter.getValue().toString())) {
+            LOG.trace("Filter value for key [{}] is empty; exit", filter.getKey());
+            return;
         }
+        String fieldName = getHQLKey(filter.getKey());
+        if (StringUtils.isBlank(fieldName)) {
+            LOG.info("HQLKey for filter param [{}] is empty; exit", filter.getKey());
+            return;
+        }
+
+        setSeparator(query, result);
+
+        String operator = getOperator(filter);
+        result.append(fieldName).append(operator).append(filter.getKey());
+    }
+
+    private String getOperator(Map.Entry<String, Object> filter) {
+        String filterKey = filter.getKey();
+        if (StringUtils.equalsAny(filterKey, RECEIVED_FROM, MIN_ENTITY_ID)) {
+            return " >= :";
+        } else if (StringUtils.equalsAny(filterKey, RECEIVED_TO, MAX_ENTITY_ID)) {
+            return " <= :";
+        } else if (StringUtils.equalsAny(filterKey, MESSAGE_SERVICE_TYPE, MESSAGE_SERVICE_VALUE, PROPERTY_FROM_PARTY_ID, PROPERTY_TO_PARTY_ID)) {
+            return " IN :";
+        }
+        return " = :";
     }
 
     private void setSeparator(String query, StringBuilder result) {
@@ -159,42 +207,116 @@ public abstract class MessageLogInfoFilter {
 
     public <E> TypedQuery<E> applyParameters(TypedQuery<E> query, Map<String, Object> filters) {
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            if (filter.getValue() != null && StringUtils.isNotBlank(filter.getValue().toString())) {
-                Object value = filter.getValue();
-                if (filter.getValue() instanceof Date) {
-                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) filter.getValue()).toInstant(), ZoneOffset.UTC);
-                    LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
-                    switch (filter.getKey()) {
-                        case "minEntityId":
-                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
-                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), (Long)value);
-                            break;
-                        case "maxEntityId":
-                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), (Long)value);
-                            break;
-                        default: // includes receivedFrom and receivedTo
-                            break;
-                    }
-                }
-                query.setParameter(filter.getKey(), value);
-            }
+            setFilterParameter(query, filter);
         }
         return query;
     }
 
-    /**
-     * in four corner model finalRecipient and originalSender exist as default properties
-     *
-     * @return true by default
-     */
-    public boolean isFourCornerModel() {
-        return domibusPropertyProvider.getBooleanProperty(DomibusConfigurationService.FOURCORNERMODEL_ENABLED_KEY);
+    private <E> void setFilterParameter(TypedQuery<E> query, Map.Entry<String, Object> filter) {
+        if (filter.getValue() == null || StringUtils.isBlank(filter.getValue().toString())) {
+            LOG.debug("Filter value for field [{}] is empty", filter.getKey());
+            return;
+        }
+        Object value = getParameterValue(filter);
+        LOG.debug("Set parameter [{}] the value [{}]", filter.getKey(), value);
+        query.setParameter(filter.getKey(), value);
     }
 
-    public abstract String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters);
+    private Object getParameterValue(Map.Entry<String, Object> filter) {
+        FilterParameterExtractor extractor = parameterExtractors.get(filter.getKey());
+        if (extractor != null) {
+            LOG.debug("Found filter parameter extractor [{}] for parameter [{}]", extractor, filter);
+            return extractor.execute(filter);
+        }
+        LOG.debug("Found no custom filter parameter extractor for parameter [{}]. Just calling filter.getValue()", filter);
+        return filter.getValue();
+    }
 
-    public abstract String getQueryBody(Map<String, Object> filters);
+    private Object handleSingleValueDictionary(Map.Entry<String, Object> filter) {
+        SingleValueDictionaryDao dao = getSingleValueDao(filter.getKey());
+        LOG.debug("Using [{}] dao service to get the value for filter param [{}]", dao.getClass(), filter);
+        return dao.findByValue(filter.getValue());
+    }
+
+    private SingleValueDictionaryDao getSingleValueDao(String field) {
+        switch (field) {
+            case PROPERTY_MESSAGE_STATUS:
+                return messageStatusDao;
+            case PROPERTY_MSH_ROLE:
+                return mshRoleDao;
+            case PROPERTY_NOTIFICATION_STATUS:
+                return notificationStatusDao;
+            case MESSAGE_ACTION:
+                return actionDao;
+            default:
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "No DAO service found for field [" + field + "]");
+        }
+    }
+
+    private List<ServiceEntity> handleServiceValue(Map.Entry<String, Object> filter) {
+        return serviceDao.searchByValue(filter.getValue());
+    }
+
+    private List<ServiceEntity> handleServiceType(Map.Entry<String, Object> filter) {
+        return serviceDao.searchByType(filter.getValue());
+    }
+
+    private Object handlePartyIdDictionary(Map.Entry<String, Object> filter) {
+        return partyIdDao.searchByValue((String) filter.getValue());
+    }
+
+    private Object handleMaxEntityId(Map.Entry<String, Object> filter) {
+        return getLongValue(filter, MAX, "Turned [{}] into max entityId [{}]");
+    }
+
+    private Object handleMinEntityId(Map.Entry<String, Object> filter) {
+        return getLongValue(filter, MIN, "Turned [{}] into min entityId [{}]");
+    }
+
+    private Object getLongValue(Map.Entry<String, Object> filter, String max, String format) {
+        Object value = filter.getValue();
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
+        LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
+        value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + max);
+        LOG.debug(format, filter.getValue(), (Long) value);
+        return value;
+    }
+
+    public abstract String getFilterMessageLogQuery(String column, boolean asc, Map<String, Object> filters, List<String> fields);
+
+    /**
+     * Constructs the query body based on different conditions
+     *
+     * @return String query body
+     */
+    public String getQueryBody(Map<String, Object> filters, List<String> fields) {
+        String query = getBaseQueryBody();
+
+        if (!fields.contains(ORIGINAL_SENDER) && !fields.contains(FINAL_RECIPIENT)
+                && filters.get(ORIGINAL_SENDER) == null && filters.get(FINAL_RECIPIENT) == null) {
+            return query;
+        }
+
+        if (fields.contains(ORIGINAL_SENDER) || filters.containsKey(ORIGINAL_SENDER)) {
+            query += "left join message.messageProperties propsFrom ";
+        }
+        if (fields.contains(FINAL_RECIPIENT) || filters.containsKey(FINAL_RECIPIENT)) {
+            query += "left join message.messageProperties propsTo ";
+        }
+        query += "where ";
+        if (fields.contains(ORIGINAL_SENDER) || filters.containsKey(ORIGINAL_SENDER)) {
+            query += "propsFrom.name = '" + ORIGINAL_SENDER + "' ";
+        }
+        if (fields.contains(FINAL_RECIPIENT) || filters.containsKey(FINAL_RECIPIENT)) {
+            if (query.contains(ORIGINAL_SENDER)) {
+                query += "and ";
+            }
+            query += "propsTo.name = '" + FINAL_RECIPIENT + "' ";
+        }
+        return query;
+    }
+
+    protected abstract String getBaseQueryBody();
 
     public String getCountMessageLogQuery(Map<String, Object> filters) {
         String expression = "select count(log.id)";
@@ -238,6 +360,7 @@ public abstract class MessageLogInfoFilter {
         filters.keySet().stream().forEach(filterParam -> {
             String hqlKey = getHQLKey(filterParam);
             if (StringUtils.isEmpty(hqlKey)) {
+                LOG.info("HQLKey for filter param [{}] is empty; exit", filterParam);
                 return;
             }
             String table = hqlKey.substring(0, hqlKey.indexOf("."));
@@ -276,8 +399,28 @@ public abstract class MessageLogInfoFilter {
 
     protected abstract String getMainTable();
 
-    protected abstract Map<String, List<String>> createFromMappings();
+    protected Map<String, List<String>> createFromMappings() {
+        Map<String, List<String>> mappings = new HashMap<>();
+        String messageTable = getMessageTable();
 
-    protected abstract Map<String, List<String>> createWhereMappings();
+        mappings.put("message", Arrays.asList(messageTable));
+        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
+        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
+
+        return mappings;
+    }
+
+    protected abstract String getMessageTable();
+
+    protected Map<String, List<String>> createWhereMappings() {
+        Map<String, List<String>> mappings = new HashMap<>();
+
+        String messageCriteria = " 1=1 ";
+        mappings.put("message", Arrays.asList(messageCriteria));
+        mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
+        mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));
+
+        return mappings;
+    }
 
 }

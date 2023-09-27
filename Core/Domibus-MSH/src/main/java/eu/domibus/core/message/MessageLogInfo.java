@@ -18,15 +18,23 @@ public class MessageLogInfo {
 
     private String messageId;
 
+    private Long fromPartyIdPk;
     private String fromPartyId;
 
+    private Long toPartyIdPk;
     private String toPartyId;
 
+    private Long messageStatusId;
+
     private MessageStatus messageStatus;
+
+    private Long notificationStatusId;
 
     private NotificationStatus notificationStatus;
 
     private Date received;
+
+    private Long mshRoleId;
 
     private MSHRole mshRole;
 
@@ -35,6 +43,8 @@ public class MessageLogInfo {
     private int sendAttemptsMax;
 
     private Date nextAttempt;
+
+    private Long nextAttemptTimezonePk;
 
     private String nextAttemptTimezoneId;
 
@@ -62,7 +72,11 @@ public class MessageLogInfo {
 
     private Boolean sourceMessage;
 
+    private Long actionId;
+
     private String action;
+
+    private Long serviceId;
 
     private String serviceType;
 
@@ -79,27 +93,27 @@ public class MessageLogInfo {
 
     //constructor for signal messages
     public MessageLogInfo(final String messageId,
-                          final MessageStatus messageStatus,
-                          final MSHRole mshRole,
+                          final Long messageStatusId,
+                          final Long mshRoleId,
                           final Date deleted,
                           final Date received,
                           final String conversationId,
-                          final String fromPartyId,
-                          final String toPartyId,
+                          final Long fromPartyIdPk,
+                          final Long toPartyIdPk,
                           final String originalSender,
                           final String finalRecipient,
                           final String refToMessageId,
                           final Boolean testMessage) {
         this.messageType = MessageType.SIGNAL_MESSAGE;
         this.messageId = messageId;
-        this.messageStatus = messageStatus;
-        this.mshRole = mshRole;
+        this.messageStatusId = messageStatusId;
+        this.mshRoleId = mshRoleId;
         this.deleted = deleted;
         this.received = received;
         //message information UserMessage/SignalMessage
         this.conversationId = conversationId;
-        this.fromPartyId = fromPartyId;
-        this.toPartyId = toPartyId;
+        this.fromPartyIdPk = fromPartyIdPk;
+        this.toPartyIdPk = toPartyIdPk;
         this.originalSender = originalSender;
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
@@ -110,19 +124,18 @@ public class MessageLogInfo {
 
     //constructor for user messages
     public MessageLogInfo(final String messageId,
-                          final MessageStatus messageStatus,
-                          final NotificationStatus notificationStatus,
-                          final MSHRole mshRole,
+                          final Long messageStatusId,
+                          final Long notificationStatusId,
+                          final Long mshRoleId,
                           final Date deleted,
                           final Date received,
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
-                          final String nextAttemptTimezoneId,
-                          final Integer nextAttemptOffsetSeconds,
+                          final Long nextAttemptTimezonePk,
                           final String conversationId,
-                          final String fromPartyId,
-                          final String toPartyId,
+                          final Long fromPartyIdPk,
+                          final Long toPartyIdPk,
                           final String originalSender,
                           final String finalRecipient,
                           final String refToMessageId,
@@ -131,28 +144,25 @@ public class MessageLogInfo {
                           final Boolean testMessage,
                           final Boolean messageFragment,
                           final Boolean sourceMessage,
-                          final String action,
-                          final String serviceType,
-                          final String serviceValue,
+                          final Long actionId,
+                          final Long serviceId,
                           final String pluginType,
                           final Long partLength,
                           final Date archived
     ) {
-        this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
+        this(messageId, messageStatusId, mshRoleId, deleted, received, conversationId, fromPartyIdPk, toPartyIdPk,
                 originalSender, finalRecipient, refToMessageId, testMessage);
 
         this.messageType = MessageType.USER_MESSAGE;
-        this.notificationStatus = notificationStatus;
+        this.notificationStatusId = notificationStatusId;
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
         this.nextAttempt = nextAttempt;
-        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
-        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+        this.nextAttemptTimezonePk = nextAttemptTimezonePk;
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
-        this.action = action;
-        this.serviceType = serviceType;
-        this.serviceValue = serviceValue;
+        this.actionId = actionId;
+        this.serviceId = serviceId;
         this.failed = failed;
         this.restored = restored;
         this.pluginType = pluginType;
@@ -220,12 +230,20 @@ public class MessageLogInfo {
         this.conversationId = conversationId;
     }
 
+    public Long getFromPartyIdPk() {
+        return fromPartyIdPk;
+    }
+
     public String getFromPartyId() {
         return fromPartyId;
     }
 
     public void setFromPartyId(String fromPartyId) {
         this.fromPartyId = fromPartyId;
+    }
+
+    public Long getToPartyIdPk() {
+        return toPartyIdPk;
     }
 
     public String getToPartyId() {
@@ -264,12 +282,24 @@ public class MessageLogInfo {
         return messageId;
     }
 
+    public Long getMessageStatusId() {
+        return messageStatusId;
+    }
+
     public MessageStatus getMessageStatus() {
         return messageStatus;
     }
 
+    public Long getNotificationStatusId() {
+        return notificationStatusId;
+    }
+
     public NotificationStatus getNotificationStatus() {
         return notificationStatus;
+    }
+
+    public Long getMshRoleId() {
+        return mshRoleId;
     }
 
     public MSHRole getMshRole() {
@@ -298,6 +328,10 @@ public class MessageLogInfo {
 
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    public Long getNextAttemptTimezonePk() {
+        return nextAttemptTimezonePk;
     }
 
     public String getNextAttemptTimezoneId() {
@@ -332,6 +366,10 @@ public class MessageLogInfo {
         this.sourceMessage = sourceMessage;
     }
 
+    public Long getActionId() {
+        return actionId;
+    }
+
     public String getAction() {
         return action;
     }
@@ -342,6 +380,10 @@ public class MessageLogInfo {
 
     public String getServiceValue() {
         return serviceValue;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
     }
 
     public void setAction(String action) {

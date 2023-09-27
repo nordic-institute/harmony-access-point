@@ -19,7 +19,13 @@ import javax.persistence.*;
                 @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
         @NamedQuery(name = "Service.findByValue", hints = {
                 @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
-                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type is null")
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type is null"),
+        @NamedQuery(name = "Service.searchByType", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.type=:TYPE"),
+        @NamedQuery(name = "Service.searchByValue", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE")
 })
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ServiceEntity extends AbstractBaseEntity {

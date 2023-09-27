@@ -1,76 +1,57 @@
- package eu.domibus.core.message;
+package eu.domibus.core.message;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Tiago Miguel
+ * @author Perpegel Ion
  * @since 3.3
  */
 @Service(value = "userMessageLogInfoFilter")
 public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
-    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
+    public String getFilterMessageLogQuery(String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
                 "message.messageId," +
-                "log.messageStatus.messageStatus," +
-                "log.notificationStatus.status," +
-                "log.mshRole.role," +
+                LOG_MESSAGE_STATUS + ".entityId," +
+                LOG_NOTIFICATION_STATUS + ".entityId," +
+                LOG_MSH_ROLE + ".entityId," +
                 "log.deleted," +
                 "log.received," +
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
-                "timezoneOffset.nextAttemptTimezoneId," +
-                "timezoneOffset.nextAttemptOffsetSeconds," +
+                "log.timezoneOffset.entityId," +
                 "message.conversationId," +
-                "partyFrom.value," +
-                "partyTo.value," +
-                (isFourCornerModel() ? "propsFrom.value," : "'',") +
-                (isFourCornerModel() ? "propsTo.value," : "'',") +
+                MESSAGE_PARTY_INFO_FROM_FROM_PARTY_ID + ".entityId," +
+                MESSAGE_PARTY_INFO_TO_TO_PARTY_ID + ".entityId," +
+                (fields.contains(ORIGINAL_SENDER) ? PROPS_FROM_VALUE + "," : "'',") +
+                (fields.contains(FINAL_RECIPIENT) ? PROPS_TO_VALUE + "," : "'',") +
                 "message.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
                 "message.testMessage," +
                 "message.messageFragment," +
                 "message.sourceMessage," +
-                MESSAGE_COLLABORATION_INFO_ACTION + "," +
-                MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
-                MESSAGE_COLLABORATION_INFO_SERVICE_VALUE + "," +
-                "log.backend" + "," +
+                (fields.contains(MESSAGE_ACTION) ? MESSAGE_COLLABORATION_INFO_ACTION + ".entityId," : "0L,") +
+                (fields.contains(MESSAGE_SERVICE_TYPE) || fields.contains(MESSAGE_SERVICE_VALUE)
+                        ? MESSAGE_COLLABORATION_INFO_SERVICE + ".entityId," : "0L,") +
+                "log.backend," +
                 "0L," +
                 "log.archived" +
-                ")" + getQueryBody(filters);
+                ")" +
+                getQueryBody(filters, fields);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
-    /**
-     * Constructs the query body based on different conditions
-     *
-     * @return String query body
-     */
-    @Override
-    public String getQueryBody(Map<String, Object> filters) {
-        return
-                " from UserMessageLog log " +
-                        "join log.userMessage message " +
-                        (isFourCornerModel() ?
-                                "left join message.messageProperties propsFrom "  +
-                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
-                        "left join log.timezoneOffset timezoneOffset " +
-                        "left join message.partyInfo.from.fromPartyId partyFrom " +
-                        "left join message.partyInfo.to.toPartyId partyTo " +
-                        (isFourCornerModel() ?
-                                "where propsFrom.name = 'originalSender' "  +
-                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
-
+    protected String getBaseQueryBody() {
+        return " from UserMessageLog log " +
+                "join log.userMessage message ";
     }
 
 
@@ -79,28 +60,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
         return "UserMessageLog log ";
     }
 
-    @Override
-    protected Map<String, List<String>> createFromMappings() {
-        Map<String, List<String>> mappings = new HashMap<>();
-        String messageTable = " join log.userMessage message ";
-
-        mappings.put("message", Arrays.asList(messageTable));
-       // mappings.put("info", Arrays.asList(messageTable));
-        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
-        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
-        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.fromPartyId partyFrom "));
-        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.toPartyId partyTo "));
-        return mappings;
-    }
-
-    @Override
-    protected Map<String, List<String>> createWhereMappings() {
-        Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "1=1" ;
-        mappings.put("message", Arrays.asList(messageCriteria));
-        mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
-        mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));
-        return mappings;
+    protected String getMessageTable() {
+        return " join log.userMessage message ";
     }
 
 }
