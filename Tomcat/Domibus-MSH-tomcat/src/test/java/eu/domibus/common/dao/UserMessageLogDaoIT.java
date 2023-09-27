@@ -298,7 +298,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 100, "received", true, filters, Collections.emptyList());
 
-        assertEquals(12, messages.size());
+        assertEquals(13, messages.size());
 
         long count = userMessageLogDao.countEntries(filters);
 
