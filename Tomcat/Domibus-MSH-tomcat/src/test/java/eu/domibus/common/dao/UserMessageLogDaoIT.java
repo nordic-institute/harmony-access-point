@@ -620,7 +620,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     public void findAllInfoPaged() {
         List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 5, "BACKEND", true, new HashMap<>(), Collections.emptyList());
-        assertEquals(12, messages.size());
+        assertEquals(5, messages.size());
     }
 
     @Ignore

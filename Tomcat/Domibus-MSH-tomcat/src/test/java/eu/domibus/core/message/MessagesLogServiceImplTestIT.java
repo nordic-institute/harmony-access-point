@@ -79,10 +79,7 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
         uploadPmode();
 
         addMessages();
-
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-    }
+   }
 
     private void addMessages() {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
