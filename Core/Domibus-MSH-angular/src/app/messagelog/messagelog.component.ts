@@ -159,7 +159,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.applyDetailSearchLogic();
 
     this.filterData();
-    // this.columnPicker.allColumns.forEach(col => col.sortable = this.detailedSearch);
   }
 
   private async getMessageLogInitialInterval(): Promise<DateInterval> {
