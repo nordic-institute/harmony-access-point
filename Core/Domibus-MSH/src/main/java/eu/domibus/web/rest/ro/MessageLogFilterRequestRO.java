@@ -7,6 +7,7 @@ import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.validators.CustomWhiteListed;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -231,6 +232,9 @@ public class MessageLogFilterRequestRO implements Serializable {
     }
 
     public List<String> getFields() {
+        if (fields == null) {
+            fields = new ArrayList<>();
+        }
         return fields;
     }
 
