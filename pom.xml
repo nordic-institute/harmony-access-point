@@ -138,6 +138,7 @@
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <httpcore.version>4.4.16</httpcore.version>
+        <infinispan.version>13.0.18.Final</infinispan.version>
         <ehcache.version>3.10.8</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -539,8 +540,13 @@
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-infinispan</artifactId>
+                <artifactId>hibernate-jcache</artifactId>
                 <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-hibernate-cache-v53</artifactId>
+                <version>${infinispan.version}</version>
             </dependency>
             <!-- End Hibernate -->
 
