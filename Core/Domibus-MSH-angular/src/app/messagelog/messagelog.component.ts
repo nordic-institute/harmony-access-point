@@ -135,7 +135,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-     this.detailedSearch = await this.isMessageLogPageAdvancedSearchEnabled();
+    this.detailedSearch = await this.isMessageLogPageAdvancedSearchEnabled();
     console.log('detailedSearch=', this.detailedSearch)
 
     this.timestampFromMaxDate = new Date();
@@ -156,8 +156,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.filter = {testMessage: false};
     this.messageInterval = await this.getMessageLogInitialInterval();
+    this.applyDetailSearchLogic();
+
     this.filterData();
-    this.columnPicker.allColumns.forEach(col => col.sortable = this.detailedSearch);
   }
 
   private async getMessageLogInitialInterval(): Promise<DateInterval> {
@@ -328,11 +329,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   protected createAndSetParameters(): HttpParams {
-    if (!this.detailedSearch) {
-      super.orderBy = 'entityId';
-      super.asc = false;
-    }
-
     let filterParams = super.createAndSetParameters();
     this.columnPicker.allColumns
       .filter(col => col.isSelected)
@@ -452,7 +448,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   resendAll() {
     const filters = this.getFiltersAsObject();
     let url = MessageLogComponent.RESEND_ALL_URL;
-    this.http.put(url,  filters).subscribe(res => {
+    this.http.put(url, filters).subscribe(res => {
       this.alertService.success('The operation resend messages scheduled successfully. Please refresh the page after sometime.');
       setTimeout(() => {
         this.messageResent.emit();
@@ -491,11 +487,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   isResendAllButtonEnabled() {
     return this.rows.length > 1 && this.isMoreRowsWithSendFailure()
-      && this.rows.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+      && this.rows.filter(row => this.isRowResendButtonEnabled(row)).length > 1;
   }
 
   isResendSelectedButtonEnabled() {
-    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row => this.isRowResendButtonEnabled(row)).length > 1;
   }
 
 
@@ -528,11 +524,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private isMoreSelectedWithSendFailure() {
-      return this.selected.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+    return this.selected.filter(row => row.messageStatus === 'SEND_FAILURE').length > 1;
   }
 
   private isMoreRowsWithSendFailure() {
-    return this.rows.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+    return this.rows.filter(row => row.messageStatus === 'SEND_FAILURE').length > 1;
   }
 
   private async downloadMessage(row) {
@@ -655,6 +651,14 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   async detailedSearchChanged() {
+    this.applyDetailSearchLogic();
+
+    const prop = await this.propertiesService.getMessageLogPageAdvancedSearchEnabledProperty();
+    prop.value = String(this.detailedSearch);
+    this.propertiesService.updateProperty(prop);
+  }
+
+  private applyDetailSearchLogic() {
     if (!this.detailedSearch) {
       this.detailedSearchFields.forEach(field => {
         this.filter[field] = null;
@@ -667,12 +671,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
       });
     }
 
-    this.sortedColumns = this.detailedSearch ? this.sortedColumns = [{prop: 'received', dir: 'desc'}] : null;
+    let detailedDefaultSortColumn = 'received';
+    super.orderBy = this.detailedSearch ? detailedDefaultSortColumn : 'entityId';
+    super.asc = false;
+    this.sortedColumns = this.detailedSearch ? this.sortedColumns = [{prop: detailedDefaultSortColumn, dir: 'desc'}] : null;
+    console.log('this.sortedColumns =', this.sortedColumns)
     this.columnPicker.allColumns.forEach(col => col.sortable = this.detailedSearch);
-
-    const prop = await this.propertiesService.getMessageLogPageAdvancedSearchEnabledProperty();
-    prop.value = String(this.detailedSearch);
-    this.propertiesService.updateProperty(prop);
   }
 
   private async isMessageLogPageAdvancedSearchEnabled(): Promise<boolean> {
