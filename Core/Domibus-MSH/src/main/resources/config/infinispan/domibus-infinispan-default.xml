@@ -7,26 +7,42 @@
   -->
 <infinispan
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:infinispan:config:13.0 http://www.infinispan.org/schemas/infinispan-config-13.0.xsd"
+        xsi:schemaLocation="urn:infinispan:config:13.0 https://infinispan.org/schemas/infinispan-config-13.0.xsd"
         xmlns="urn:infinispan:config:13.0">
 
     <cache-container name="SampleCacheManager" statistics="false" default-cache="the-default-cache" shutdown-hook="DEFAULT">
+        <local-cache-configuration name="the-default-cache" statistics="false" statistics-available="false"/>
 
-        <local-cache-configuration name="the-default-cache" statistics="false" statistics-available="false" />
-
-        <!-- A config appropriate for query caching. Does not replicate queries. -->
-        <local-cache-configuration name="local-query" statistics="false" statistics-available="false">
-            <locking concurrency-level="1000" acquire-timeout="15000"/>
+        <!-- Default configuration is appropriate for entity/collection caching. -->
+        <local-cache-configuration name="entity" simple-cache="true" statistics="false" statistics-available="false">
+            <encoding media-type="application/x-java-object"/>
             <transaction mode="NONE" />
             <expiration max-idle="-1" interval="-1"/>
-            <memory>
-                <object size="20000" strategy="REMOVE" />
-            </memory>
+            <memory max-count="5000" when-full="REMOVE"/>
+        </local-cache-configuration>
+
+        <!-- A config appropriate for query caching. Does not replicate queries. -->
+        <local-cache-configuration name="local-query" simple-cache="true" statistics="false" statistics-available="false">
+            <encoding media-type="application/x-java-object"/>
+            <transaction mode="NONE"/>
+            <expiration max-idle="-1" interval="-1"/>
+            <memory max-count="20000" when-full="REMOVE"/>
+        </local-cache-configuration>
+
+        <local-cache-configuration name="timestamps" simple-cache="true" statistics="false" statistics-available="false">
+            <encoding media-type="application/x-java-object"/>
+            <locking concurrency-level="1000" acquire-timeout="15000"/>
+            <!-- Explicitly non transactional -->
+            <transaction mode="NONE"/>
+            <expiration interval="0"/>
+            <!--  Don't ever evict modification timestamps -->
+            <memory when-full="NONE"/>
         </local-cache-configuration>
 
         <!-- When providing custom configuration, always make this cache local and non-transactional.
              To avoid possible leaks, use expiration (max idle time). Optimize for speed.-->
         <local-cache-configuration name="pending-puts" simple-cache="true" statistics="false" statistics-available="false">
+            <encoding media-type="application/x-java-object"/>
             <transaction mode="NONE"/>
             <expiration max-idle="60000" />
         </local-cache-configuration>
