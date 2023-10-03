@@ -638,6 +638,15 @@
         <cve>CVE-2023-33264</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-5.3.1.jar (shaded: org.json:json:20230227)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
 
     <!-- Use in test -->
     <suppress>
