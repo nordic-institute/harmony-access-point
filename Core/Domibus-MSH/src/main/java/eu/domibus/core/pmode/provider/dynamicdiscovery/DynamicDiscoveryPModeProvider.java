@@ -187,6 +187,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             final MessageExchangeConfiguration userMessageExchangeContext = super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
 
             if (useDynamicDiscovery()) {
+                //the party was discovered a while ago and is still cached in the PMode memory and found above; we verify if the receiver's certificate is still in the truststore(someone could have overridden the truststore)
                 verifyIfReceiverPublicCertificateIsInTheTruststore(userMessage, userMessageExchangeContext);
             }
             return userMessageExchangeContext;
@@ -204,12 +205,15 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     protected void verifyIfReceiverPublicCertificateIsInTheTruststore(final UserMessage userMessage, final MessageExchangeConfiguration userMessageExchangeContext) throws EbMS3Exception {
+        //get the party name eg blue_gw
         final String partyToNameValue = userMessageExchangeContext.getReceiverParty();
 
         String pModeKey = userMessageExchangeContext.getPmodeKey();
         LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
         //use parsePolicy method to use caching
         Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+
+        //if no encryption is used, we don't need to check the receiver certificate in the truststore
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
             LOG.debug("Validation if public certificate of the receiver [{}] is present in the truststore: sign only/no security policy is used", partyToNameValue);
             return;
