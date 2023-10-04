@@ -59,9 +59,14 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
         LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, normalizedDomibusConfigLocation);
 
-        BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
-        bouncyCastleInitializer.registerBouncyCastle();
-        bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
+        try {
+            DomibusPropertiesPropertySource propertySource = createDomibusPropertiesPropertySource(normalizedDomibusConfigLocation);
+            BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer(propertySource);
+            bouncyCastleInitializer.registerBouncyCastle();
+            bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
+        } catch (IOException e) {
+            throw new ServletException("Error creating property source for " + normalizedDomibusConfigLocation, e);
+        }
 
         configureLogging(normalizedDomibusConfigLocation);
 
