@@ -6,12 +6,12 @@
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
                 - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1-migration.ddl for Oracle)
+                - Update all the domibus.UI.title.name domain property names to domibus.ui.title.name
+                - Update all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
 
 ## Domibus 5.1 (from 5.0.6)
                 - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists
-                - Update all the domibus.UI.title.name domain property names to domibus.ui.title.name
-                - Update all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
                 - Update your logback.xml configuration so that logs contain the correct origin line number. At the begginging of your <configuration> declare the conversion word domibusLine: 
                 <conversionRule conversionWord="domibusLine" converterClass="eu.domibus.logging.DomibusLineOfCallerConverter" />
                 And then change your log pattern layouts by replacing %L and %line with %domibusLine. For example, the pattern:
