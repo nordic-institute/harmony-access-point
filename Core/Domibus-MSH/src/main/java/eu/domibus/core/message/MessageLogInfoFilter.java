@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.dao.SingleValueDictionaryDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
@@ -80,6 +81,9 @@ public abstract class MessageLogInfoFilter {
 
     @Autowired
     private ActionDao actionDao;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     public MessageLogInfoFilter() {
         parameterExtractors.put(MIN_ENTITY_ID, (filter) -> handleMinEntityId(filter));
@@ -266,20 +270,15 @@ public abstract class MessageLogInfoFilter {
     }
 
     private Object handleMaxEntityId(Map.Entry<String, Object> filter) {
-        return getLongValue(filter, MAX, "Turned [{}] into max entityId [{}]");
+        Date filterValue = (Date) filter.getValue();
+        ZonedDateTime instant = ZonedDateTime.ofInstant(filterValue.toInstant(), ZoneOffset.UTC);
+        return dateUtil.getMaxEntityId(instant, 0);
     }
 
     private Object handleMinEntityId(Map.Entry<String, Object> filter) {
-        return getLongValue(filter, MIN, "Turned [{}] into min entityId [{}]");
-    }
-
-    private Object getLongValue(Map.Entry<String, Object> filter, String max, String format) {
-        Object value = filter.getValue();
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
-        LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
-        value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + max);
-        LOG.debug(format, filter.getValue(), (Long) value);
-        return value;
+        Date filterValue = (Date) filter.getValue();
+        ZonedDateTime instant = ZonedDateTime.ofInstant(filterValue.toInstant(), ZoneOffset.UTC);
+        return dateUtil.getMinEntityId(instant, 0);
     }
 
     public abstract String getFilterMessageLogQuery(String column, boolean asc, Map<String, Object> filters, List<String> fields);

@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
@@ -10,7 +11,6 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,16 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
-
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -59,10 +54,13 @@ public class RetryDefaultService implements RetryService {
     private MessagingLockDao messagingLockDao;
 
     @Autowired
-    PModeProvider pModeProvider;
+    private PModeProvider pModeProvider;
 
     @Autowired
-    UpdateRetryLoggingService updateRetryLoggingService;
+    private UpdateRetryLoggingService updateRetryLoggingService;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     /**
      * Tries to enqueue a message to be retried.
@@ -115,15 +113,14 @@ public class RetryDefaultService implements RetryService {
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
-        int maxRetryTimeout = getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
         int retryTimeoutDelay = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MSH_RETRY_TIMEOUT_DELAY);
+        LOG.trace("maxRetryTimeout [{}], retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
 
-        LOG.trace("maxRetryTimeout [{}] retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
-        long minEntityId = createMinEntityId(maxRetryTimeout + retryTimeoutDelay);
-        long maxEntityId = getCurrentTimeMaxEntityId();
+        long minEntityId = dateUtil.getMinEntityId(MINUTES.toSeconds(maxRetryTimeout + retryTimeoutDelay));
+        long maxEntityId = dateUtil.getMaxEntityId(0);
 
-
-        LOG.trace("minEntityId [{}] maxEntityId [{}]", minEntityId, maxEntityId);
+        LOG.trace("minEntityId [{}], maxEntityId [{}]", minEntityId, maxEntityId);
         final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId);
         if (messageEntityIdsToSend.isEmpty()) {
             LOG.trace("No message found to be resend");
@@ -161,51 +158,15 @@ public class RetryDefaultService implements RetryService {
     }
 
     /**
-     * Method call by job to to delete messages marked as failed.
+     * Method call by job to delete messages marked as failed.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
-        LOG.trace("Delete unecessary locks");
+        LOG.trace("Delete unnecessary locks");
         for (MessagingLock deletedLock : deletedLocks) {
             pullMessageService.deleteInNewTransaction(deletedLock.getMessageId());
         }
     }
-
-    protected int getMaxRetryTimeout() {
-        final LegConfigurationPerMpc legConfigurationPerMpc = pModeProvider.getAllLegConfigurations();
-        int maxRetry = -1;
-        List<LegConfiguration> legConfigurations = new ArrayList<>();
-        legConfigurationPerMpc.entrySet().stream().forEach(r -> legConfigurations.addAll(r.getValue()));
-
-        for(LegConfiguration legConfiguration : legConfigurations) {
-            int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
-            if(maxRetry < retryTimeout) {
-                maxRetry = retryTimeout;
-            }
-        }
-
-        LOG.debug("Got max retryTimeout [{}]", maxRetry);
-        return maxRetry;
-    }
-
-    protected long createMaxEntityId(int delay) {
-        return Long.parseLong(ZonedDateTime
-                .now(ZoneOffset.UTC)
-                .minusMinutes(delay)
-                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-    }
-
-    protected long createMinEntityId(int delay) {
-        return Long.parseLong(ZonedDateTime
-                .now(ZoneOffset.UTC)
-                .minusMinutes(delay)
-                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
-    }
-
-    protected long getCurrentTimeMaxEntityId() {
-        return createMaxEntityId(0);
-    }
-
 }
