@@ -182,9 +182,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             final MessageExchangeConfiguration userMessageExchangeContext = super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
 
             if (useDynamicDiscovery()) {
-                String pModeKey = userMessageExchangeContext.getPmodeKey();
-                LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
-
                 final String partyToValue = userMessageServiceHelper.getPartyToValue(userMessage);
                 LOG.debug("Checking if public certificate for receiver party [{}] in the truststore", partyToValue);
                 final X509Certificate receiverCertificateFromTruststore = getCertificateFromTruststore(partyToValue, userMessage.getMessageId());
