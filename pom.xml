@@ -75,7 +75,6 @@
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.80</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
         <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
@@ -223,11 +222,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>cefdigital-dss</id>
-            <name>CEF Digital</name>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/esignaturedss/</url>
-        </repository>
-        <repository>
             <id>cefdigital-snapshots</id>
             <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/eDelivery-snapshots/</url>
             <releases>
@@ -357,7 +351,7 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
-                    <!-- Removed as in DSS -->
+                    <!-- Removed -->
                     <!-- Synchronize with santuario version (1/2) -->
                     <exclusion>
                         <groupId>commons-codec</groupId>
@@ -1044,74 +1038,6 @@
             </dependency>
             <!-- End commons-ip2 -->
 
-            <!-- DSS dependencies -->
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-document</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-tsl-validation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-utils-apache-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-policy-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-model</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>validation-policy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-xades</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-simple-report-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-detailed-report-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-enumerations</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <!--UUMDS extension -->
-
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
@@ -1595,17 +1521,6 @@
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS</module>
                 <module>Plugin-FS</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>dss-extension</id>
-            <activation>
-                <property>
-                    <name>default</name>
-                </property>
-            </activation>
-            <modules>
-                <module>Domibus-DSS</module>
             </modules>
         </profile>
         <profile>
