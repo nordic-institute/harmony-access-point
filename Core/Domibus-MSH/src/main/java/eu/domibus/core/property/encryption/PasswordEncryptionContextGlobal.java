@@ -11,16 +11,16 @@ import eu.domibus.core.property.GlobalPropertyMetadataManager;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
+public class PasswordEncryptionContextGlobal extends PasswordEncryptionContextAbstract {
 
     private final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
-                                            DomibusRawPropertyProvider domibusRawPropertyProvider,
-                                            DomibusConfigurationService domibusConfigurationService,
-                                            GlobalPropertyMetadataManager globalPropertyMetadataManager) {
+    public PasswordEncryptionContextGlobal(PasswordEncryptionService passwordEncryptionService,
+                                           DomibusRawPropertyProvider domibusRawPropertyProvider,
+                                           DomibusConfigurationService domibusConfigurationService,
+                                           GlobalPropertyMetadataManager globalPropertyMetadataManager) {
         super(passwordEncryptionService, domibusConfigurationService);
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
@@ -34,7 +34,9 @@ public class PasswordEncryptionContextDefault extends PasswordEncryptionContextA
     @Override
     protected Boolean handlesProperty(String propertyName) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        return propertyMetadata.isEncrypted() && (!propertyMetadata.isDomain() || propertyMetadata.isWithFallback());
+
+        return propertyMetadata.isEncrypted()
+                && (propertyMetadata.isGlobal() || domibusConfigurationService.isSingleTenantAware());
     }
 
     @Override

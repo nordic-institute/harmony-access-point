@@ -16,11 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -28,7 +25,7 @@ import static org.junit.Assert.assertEquals;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class PasswordEncryptionContextDefaultTest {
+public class PasswordEncryptionContextGlobalTest {
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -46,7 +43,7 @@ public class PasswordEncryptionContextDefaultTest {
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Tested
-    private PasswordEncryptionContextDefault passwordEncryptionContextDefault;
+    private PasswordEncryptionContextGlobal passwordEncryptionContextGlobal;
 
     @Test
     public void isPasswordEncryptionActive() {
@@ -55,13 +52,13 @@ public class PasswordEncryptionContextDefaultTest {
             result = true;
         }};
 
-        Assert.assertTrue(passwordEncryptionContextDefault.isPasswordEncryptionActive());
+        Assert.assertTrue(passwordEncryptionContextGlobal.isPasswordEncryptionActive());
     }
 
     @Test
     public void getProperty() {
         String myProperty = "myProperty";
-        passwordEncryptionContextDefault.getProperty(myProperty);
+        passwordEncryptionContextGlobal.getProperty(myProperty);
 
         new Verifications() {{
             domibusRawPropertyProvider.getRawPropertyValue(myProperty);
@@ -77,19 +74,19 @@ public class PasswordEncryptionContextDefaultTest {
             result = myConfFile;
         }};
 
-        Assert.assertEquals(myConfFile, passwordEncryptionContextDefault.getConfigurationFileName());
+        Assert.assertEquals(myConfFile, passwordEncryptionContextGlobal.getConfigurationFileName());
     }
 
     @Test
     public void getEncryptedKeyFile() {
         String encryptionKeyLocation = "home" + File.separator + "location";
 
-        new Expectations(passwordEncryptionContextDefault) {{
-            passwordEncryptionContextDefault.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
+        new Expectations(passwordEncryptionContextGlobal) {{
+            passwordEncryptionContextGlobal.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
             result = encryptionKeyLocation;
         }};
 
-        final File encryptedKeyFile = passwordEncryptionContextDefault.getEncryptedKeyFile();
+        final File encryptedKeyFile = passwordEncryptionContextGlobal.getEncryptedKeyFile();
         assertEquals(PasswordEncryptionContextAbstract.ENCRYPTED_KEY, encryptedKeyFile.getName());
     }
     

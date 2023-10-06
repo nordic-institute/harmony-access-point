@@ -43,7 +43,7 @@ public class PasswordEncryptionContextFactory {
             result = new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager, domain);
             LOG.trace("Using PasswordEncryptionContextDomain with domain [{}]", domain);
         } else {
-            result = new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
+            result = new PasswordEncryptionContextGlobal(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
             LOG.trace("Using PasswordEncryptionContextDefault");
         }
         return result;
