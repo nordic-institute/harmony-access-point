@@ -381,16 +381,26 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private Merlin getMerlinForAlias(String alias) {
-        return securityProfileAliasConfigurations.stream()
+        Merlin merlin = securityProfileAliasConfigurations.stream()
                 .filter(profileConfiguration -> profileConfiguration.getAlias().equalsIgnoreCase(alias))
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
+        if (LOG.isTraceEnabled() && merlin != null) {
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+        }
+        return merlin;
     }
 
     private Merlin getMerlinForSingleLegacyAlias() {
-        return securityProfileAliasConfigurations.stream()
+        Merlin merlin = securityProfileAliasConfigurations.stream()
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
+        if (LOG.isTraceEnabled() && merlin != null) {
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+        }
+        return merlin;
     }
 
     @Override
