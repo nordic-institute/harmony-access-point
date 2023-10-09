@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -21,6 +22,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
@@ -84,6 +86,9 @@ public class RetryDefaultEbms3ServiceTest {
     PModeProvider pModeProvider;
 
     @Injectable
+    MessageStatusDao messageStatusDao;
+
+    @Injectable
     UpdateRetryLoggingService updateRetryLoggingService;
 
     private List<JmsMessage> getQueuedMessages() {
@@ -101,7 +106,7 @@ public class RetryDefaultEbms3ServiceTest {
         List<Long> retryMessageIds = Arrays.asList(123L, 456L, 789L);
 
         new Expectations(retryService) {{
-            userMessageLogDao.findRetryMessages(anyLong, anyLong);
+            userMessageLogDao.findRetryMessages(anyLong, anyLong, anyLong);
             result = new ArrayList<>(retryMessageIds);
         }};
 

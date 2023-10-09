@@ -6,6 +6,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -55,6 +56,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
+
+    @Autowired
+    MessageStatusDao messageStatusDao;
 
     private Date before;
     private Date timeT;
@@ -443,7 +447,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findRetryMessages() {
-        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L);
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L, statusEntity.getEntityId());
 
         assertEquals(2, retryMessages.size());
     }

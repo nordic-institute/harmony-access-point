@@ -18,7 +18,7 @@ import java.util.Date;
                         "from UserMessageLog userMessageLog " +
                         "where userMessageLog.entityId >= :MIN_ENTITY_ID " +
                         "and userMessageLog.entityId < :MAX_ENTITY_ID " +
-                        "and userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                        "and userMessageLog.messageStatus.entityId = :WAITING_FOR_RETRY_ID " +
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
