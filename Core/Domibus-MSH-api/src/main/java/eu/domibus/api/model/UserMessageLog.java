@@ -85,7 +85,7 @@ import java.util.Date;
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
-                        "WHERE uml.messageStatus.messageStatus = :MESSAGE_STATUS                                      " +
+                        "WHERE uml.messageStatus.entityId = :MESSAGE_STATUS_ID                                      " +
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (                                                                                        " +
                         "       (:FINAL_RECIPIENT is null and :ORIGINAL_USER is null)                                 " +

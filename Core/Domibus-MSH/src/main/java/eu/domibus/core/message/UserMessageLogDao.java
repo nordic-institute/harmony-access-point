@@ -76,11 +76,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.reprogrammableService = reprogrammableService;
     }
 
-    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId, final long waitingForRetryId) {
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+
         TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
         query.setParameter("MIN_ENTITY_ID", minEntityId);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
-        query.setParameter("WAITING_FOR_RETRY_ID", waitingForRetryId);
+        query.setParameter("WAITING_FOR_RETRY_ID", statusEntity.getEntityId());
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
@@ -119,9 +121,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
-
+        MessageStatusEntity messageStatusEntity = messageStatusDao.findByValue(MessageStatus.SEND_FAILURE);
         Query query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod");
-        query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
+        query.setParameter("MESSAGE_STATUS_ID", messageStatusEntity.getEntityId());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", failedStartDate);

@@ -447,8 +447,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findRetryMessages() {
-        MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
-        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L, statusEntity.getEntityId());
+        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L);
 
         assertEquals(2, retryMessages.size());
     }

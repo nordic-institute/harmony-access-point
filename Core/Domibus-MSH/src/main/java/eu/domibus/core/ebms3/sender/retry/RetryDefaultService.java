@@ -64,9 +64,6 @@ public class RetryDefaultService implements RetryService {
     @Autowired
     UpdateRetryLoggingService updateRetryLoggingService;
 
-    @Autowired
-    MessageStatusDao messageStatusDao;
-
     /**
      * Tries to enqueue a message to be retried.
      *
@@ -127,8 +124,7 @@ public class RetryDefaultService implements RetryService {
 
 
         LOG.trace("minEntityId [{}] maxEntityId [{}]", minEntityId, maxEntityId);
-        MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
-        final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId, statusEntity.getEntityId());
+        final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId);
         if (messageEntityIdsToSend.isEmpty()) {
             LOG.trace("No message found to be resend");
             return result;
