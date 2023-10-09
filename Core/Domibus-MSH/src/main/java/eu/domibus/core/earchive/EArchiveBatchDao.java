@@ -3,8 +3,10 @@ package eu.domibus.core.earchive;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.util.QueryUtil;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -28,9 +31,12 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
     private final QueryUtil queryUtil;
 
-    public EArchiveBatchDao(QueryUtil queryUtil) {
+    private final MessageStatusDao messageStatusDao;
+
+    public EArchiveBatchDao(QueryUtil queryUtil, MessageStatusDao messageStatusDao) {
         super(EArchiveBatchEntity.class);
         this.queryUtil = queryUtil;
+        this.messageStatusDao = messageStatusDao;
     }
 
     public EArchiveBatchEntity findEArchiveBatchByBatchEntityId(long entityId) {
@@ -117,7 +123,13 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+
+        List<Long> statusIds = MessageStatus.getSuccessfulStates().stream()
+                .map(messageStatusDao::findByValue)
+                .map(AbstractBaseEntity::getEntityId)
+                .collect(Collectors.toList());
+        query.setParameter("STATUS_IDS", statusIds);
+
         return query.getSingleResult();
     }
 

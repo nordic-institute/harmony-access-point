@@ -163,7 +163,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private List<UserMessageLogDto> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
         TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery(queryName, UserMessageLogDto.class);
-        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
+
+        List<Long> statusIds = MessageStatus.getSuccessfulStates().stream()
+                .map(messageStatusDao::findByValue)
+                .map(AbstractBaseEntity::getEntityId)
+                .collect(Collectors.toList());
+        query.setParameter("MESSAGE_STATUS_IDS", statusIds);
+
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
@@ -316,6 +322,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setMaxResults(expiredMessagesLimit);
         return query.getResultList();
     }
+
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
             return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan", eArchiveIsActive);
@@ -387,9 +394,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
                 "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
                 "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
                 "             and TB_D_MPC.VALUE=:MPC";
-        if(startDate != null) {
+        if (startDate != null) {
             sqlString += "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
-                         "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
+                    "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
             sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
             LOG.debug("counting messages newer than: [{}]", startDate);
         }
@@ -399,7 +406,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
         countQuery.setParameter("MESSAGESTATUS", messageStatus.name());
-        if(startDate != null) {
+        if (startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
         int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
@@ -479,7 +486,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public int countMessagesNotArchivedOnPartition(String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                            "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
+                "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
                 "INNER JOIN TB_USER_MESSAGE PARTITION ($PARTITION) ON TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
                 "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND TB_USER_MESSAGE.TEST_MESSAGE=0 AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
