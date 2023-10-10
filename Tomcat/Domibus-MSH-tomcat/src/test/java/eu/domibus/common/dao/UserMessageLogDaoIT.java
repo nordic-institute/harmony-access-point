@@ -49,16 +49,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
     UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    UserMessageDao userMessageDao;
-
-    @Autowired
     DateUtil dateUtil;
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
-
-    @Autowired
-    MessageStatusDao messageStatusDao;
 
     private Date before;
     private Date timeT;
