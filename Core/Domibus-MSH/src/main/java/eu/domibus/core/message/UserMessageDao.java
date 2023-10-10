@@ -3,14 +3,12 @@ package eu.domibus.core.message;
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -38,11 +36,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public static final String SENDER_PARTY_ID = "SENDER_PARTY_ID";
     public static final String ACTION_ID = "ACTION_ID";
 
-    @Autowired
-    private ActionDictionaryService actionDictionaryService;
+    private final MessageStatusDao messageStatusDao;
 
-    public UserMessageDao() {
+    public UserMessageDao(MessageStatusDao messageStatusDao) {
         super(UserMessage.class);
+        this.messageStatusDao = messageStatusDao;
     }
 
     @Transactional(readOnly = true)
@@ -198,7 +196,10 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
         query.setParameter("MSH_ROLE", MSHRole.SENDING);
-        query.setParameter("STATUS", messageStatus);
+
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
+        query.setParameter("STATUS_ID", statusEntity.getEntityId());
+
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

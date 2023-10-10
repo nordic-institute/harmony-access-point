@@ -34,7 +34,7 @@ import java.util.Set;
         @NamedQuery(name = "UserMessage.findSentTestMessageWithStatusDesc",
                 query = "select uml.userMessage from UserMessageLog uml " +
                         "where uml.userMessage.testMessage=true and uml.userMessage.mshRole.role=:MSH_ROLE " +
-                        "and uml.userMessage.partyInfo.to.toPartyId.value=:PARTY_ID and uml.messageStatus.messageStatus=:STATUS " +
+                        "and uml.userMessage.partyInfo.to.toPartyId.value=:PARTY_ID and uml.messageStatus.entityId=:STATUS_ID " +
                         "order by uml.userMessage.entityId desc"),
         @NamedQuery(name = "UserMessage.findTestMessageFromPartyDesc",
                 query = "select um from UserMessage um " +
