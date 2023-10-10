@@ -164,10 +164,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private List<UserMessageLogDto> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
         TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery(queryName, UserMessageLogDto.class);
 
-        List<Long> statusIds = MessageStatus.getSuccessfulStates().stream()
-                .map(messageStatusDao::findByValue)
-                .map(AbstractBaseEntity::getEntityId)
-                .collect(Collectors.toList());
+        List<Long> statusIds = messageStatusDao.getEntityIdsOf(MessageStatus.getSuccessfulStates());
         query.setParameter("MESSAGE_STATUS_IDS", statusIds);
 
         query.setParameter("ORIGINAL_USER", originalUser);

@@ -1,23 +1,24 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.dao.SingleValueDictionaryDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.TypedQuery;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
  * @author Federico Martini
  * @author Cosmin Baciu
- * @since 3.2
- *
  * @implNote This DAO class works with {@link MessageStatusEntity}, which is a static dictionary
  * based on the {@link MessageStatus} enum: no new values are expected to be added at runtime;
  * therefore, {@code MessageStatusDao} can be used directly, without subclassing {@code AbstractDictionaryService}.
+ * @since 3.2
  */
 @Service
 public class MessageStatusDao extends SingleValueDictionaryDao<MessageStatusEntity> {
@@ -44,6 +45,13 @@ public class MessageStatusDao extends SingleValueDictionaryDao<MessageStatusEnti
     @Override
     public MessageStatusEntity findByValue(final Object messageStatus) {
         return getEntity(messageStatus);
+    }
+
+    public List<Long> getEntityIdsOf(List<MessageStatus> statuses) {
+        return statuses.stream()
+                .map(this::findByValue)
+                .map(AbstractBaseEntity::getEntityId)
+                .collect(Collectors.toList());
     }
 
     private MessageStatusEntity getEntity(Object messageStatus) {
