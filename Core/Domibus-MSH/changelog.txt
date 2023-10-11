@@ -1,8 +1,15 @@
 Domibus 5.1.1
 - Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
+- Removed property domibus.fourcornermodel.enabled and add properties domibus.ui.pages.messageLogs.landingPage.enabled
+- Updated all the domibus.UI.title.name domain property names to domibus.ui.title.name
+- Updated all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
 - Fixed the dynamic discovery mechanism for a high concurrency scenario
 - Dynamically discovered certificates are deleted after their retention period expire
 - Possibility to change the second level cache provider, choosing between Infinispan (default) and Ehcache
+- Maximum number of upload file size is global
+- Improve performance of the Messages page
+- eArchiving batches are deleted immediately after being archived
+- Fix OWASP vulnerabilities
 Domibus 5.1
 - Add property for disabling the use of system default certificates (cacerts) on https exchanges.
 - Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
