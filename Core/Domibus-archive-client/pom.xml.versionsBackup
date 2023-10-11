@@ -1,0 +1,98 @@
+<project>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>eu.domibus</groupId>
+        <version>5.1.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>Domibus-archive-client</artifactId>
+    <packaging>jar</packaging>
+    <name>Domibus eArchive client</name>
+
+    <build>
+        <plugins>
+        <!-- Generation of the OpenApi client -->
+        <plugin>
+            <groupId>io.swagger.codegen.v3</groupId>
+            <artifactId>swagger-codegen-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>archive-client-api</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                    <configuration>
+                        <inputSpec>${project.basedir}/../Domibus-archive-webhook-swagger/src/main/resources/domibus-archive-webhook-openapi.json</inputSpec>
+                        <language>java</language>
+                        <modelPackage>eu.domibus.archive.client.model</modelPackage>
+                        <apiPackage>eu.domibus.archive.client.api</apiPackage>
+                        <invokerPackage>eu.domibus.archive.client.invoker</invokerPackage>
+                        <generateApiTests>false</generateApiTests>
+                        <generateApiDocumentation>false</generateApiDocumentation>
+                        <output>${project.build.directory}/generated-sources</output>
+                        <configOptions>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <artifactVersion>${project.version}</artifactVersion>
+                            <library>resttemplate</library>
+                            <java8>true</java8>
+                            <dateLibrary>java8</dateLibrary>
+                            <licenseName>EUPL 1.2</licenseName>
+                            <licenseUrl>https://www.eupl.eu/</licenseUrl>
+                        </configOptions>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+    </build>
+
+    <dependencies>
+        <!--Domibus dependencies-->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--Spring dependencies-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!--Jackson dependencies-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!--Swagger dependencies-->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+
+        <!--Test dependencies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+        </dependency>
+    </dependencies>
+</project>
