@@ -135,12 +135,17 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
-        Connection connection;
+        Connection connection = null;
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
         } catch (SQLException e) {
             LOG.warn("Could not create a connection for domain [{}].", domain);
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                LOG.warn("Could not close a connection for domain [{}].", domain);
+            }
             return false;
         }
 
@@ -150,6 +155,11 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             setSchema(connection, databaseSchema);
         } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
             LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                LOG.warn("Could not close a connection for domain [{}].", domain);
+            }
             return false;
         }
 
@@ -160,6 +170,12 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         } catch (final Exception e) {
             LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
             return false;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                LOG.warn("Could not close a connection for domain [{}].", domain);
+            }
         }
     }
 
