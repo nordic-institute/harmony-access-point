@@ -19,8 +19,8 @@
     <dependencies>
         <!-- these dependencies are not included in jdk11 -->
         <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
