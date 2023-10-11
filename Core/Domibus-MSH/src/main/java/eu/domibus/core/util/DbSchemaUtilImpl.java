@@ -135,47 +135,27 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     }
 
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
+            String databaseSchema = getDatabaseSchema(domain);
+            try {
+                setSchema(connection, databaseSchema);
+            } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
+                LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
+                return false;
+            }
+
+            try {
+                checkTableExists(databaseSchema, connection);
+                LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
+                return true;
+            } catch (final Exception e) {
+                LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
+                return false;
+            }
         } catch (SQLException e) {
             LOG.warn("Could not create a connection for domain [{}].", domain);
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                LOG.warn("Could not close a connection for domain [{}].", domain);
-            }
             return false;
-        }
-
-        String databaseSchema = getDatabaseSchema(domain);
-
-        try {
-            setSchema(connection, databaseSchema);
-        } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
-            LOG.warn("Could not set database schema [{}] for domain [{}], so it is not a proper schema.", databaseSchema, domain.getCode());
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                LOG.warn("Could not close a connection for domain [{}].", domain);
-            }
-            return false;
-        }
-
-        try {
-            checkTableExists(databaseSchema, connection);
-            LOG.trace("Found table TB_USER_MESSAGE for domain [{}], so it is a proper schema.", domain.getCode());
-            return true;
-        } catch (final Exception e) {
-            LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
-            return false;
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                LOG.warn("Could not close a connection for domain [{}].", domain);
-            }
         }
     }
 
