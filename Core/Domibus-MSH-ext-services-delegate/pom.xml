@@ -210,5 +210,12 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <!--End Swagger-->
+
+        <!-- Dropwizard -->
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <!-- End Dropwizard -->
     </dependencies>
 </project>

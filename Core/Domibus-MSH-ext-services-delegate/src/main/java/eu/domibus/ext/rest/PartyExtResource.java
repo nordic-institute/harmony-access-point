@@ -80,7 +80,7 @@ public class PartyExtResource {
              description="Get Certificate for a Party based on party name",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = "/{partyName}/certificate")
-    public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
+    public ResponseEntity<TrustStoreDTO> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
         TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
         if (cert == null) {
             return ResponseEntity.notFound().build();
