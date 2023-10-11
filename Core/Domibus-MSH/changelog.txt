@@ -3,6 +3,10 @@ Domibus 5.1.1
 - Fixed the dynamic discovery mechanism for a high concurrency scenario
 - Dynamically discovered certificates are deleted after their retention period expire
 - Possibility to change the second level cache provider, choosing between Infinispan (default) and Ehcache
+- Maximum number of upload file size is global
+- Improve performance of the Messages page
+- eArchiving batches are deleted immediately after being archived
+- Fix OWASP vulnerabilities
 Domibus 5.1
 - Add property for disabling the use of system default certificates (cacerts) on https exchanges.
 - Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
