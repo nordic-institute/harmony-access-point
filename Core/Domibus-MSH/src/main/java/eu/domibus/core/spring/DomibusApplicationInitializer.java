@@ -30,12 +30,21 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.*;
+import javax.servlet.FilterRegistration;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.SessionTrackingMode;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZER_ORDER;
@@ -43,7 +52,8 @@ import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZ
 /**
  * @author Cosmin Baciu
  * @since 4.2
- * The priority should be lower (i.e. the order number higher) than that of DomibusSessionInitializer so that the Spring session filter is added to the chain first
+ * The priority should be lower (i.e. the order number higher) than that of DomibusSessionInitializer so that the Spring
+ * session filter is added to the chain first
  */
 @Order(SESSION_INITIALIZER_ORDER + 1)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
@@ -57,11 +67,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     public void onStartup(ServletContext servletContext) throws ServletException {
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
         String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
-        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, normalizedDomibusConfigLocation);
-
-        BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
-        bouncyCastleInitializer.registerBouncyCastle();
-        bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
+        LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION,
+                normalizedDomibusConfigLocation);
 
         configureLogging(normalizedDomibusConfigLocation);
 
@@ -78,12 +85,19 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
             throw new ServletException("Error configuring property sources", e);
         }
 
+        String pos = rootContext.getEnvironment()
+                .getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_BC_PROVIDER_ORDER);
+        BouncyCastleInitializer bouncyCastleInitializer = new BouncyCastleInitializer();
+        bouncyCastleInitializer.registerBouncyCastle((pos == null || pos.isEmpty()) ? null : Integer.valueOf(pos, 10));
+        bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
+
         servletContext.addListener(new DomibusContextLoaderListener(rootContext, pluginClassLoader));
         servletContext.addListener(new RequestContextListener());
 
         AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
         dispatcherContext.register(DomibusWebConfiguration.class);
-        ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
+        ServletRegistration.Dynamic dispatcher =
+                servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
         dispatcherContext.setClassLoader(pluginClassLoader);
@@ -92,7 +106,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         sessionTrackingModes.add(SessionTrackingMode.COOKIE);
         servletContext.setSessionTrackingModes(sessionTrackingModes);
 
-        FilterRegistration.Dynamic springSecurityFilterChain = servletContext.addFilter("springSecurityFilterChain", DelegatingFilterProxy.class);
+        FilterRegistration.Dynamic springSecurityFilterChain =
+                servletContext.addFilter("springSecurityFilterChain", DelegatingFilterProxy.class);
         springSecurityFilterChain.addMappingForUrlPatterns(null, false, "/*");
 
         ServletRegistration.Dynamic cxfServlet = servletContext.addServlet("CXF", CXFServlet.class);
@@ -129,7 +144,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         PluginClassLoader pluginClassLoader = null;
         try {
-            pluginClassLoader = new PluginClassLoader(pluginsDirectories, Thread.currentThread().getContextClassLoader());
+            pluginClassLoader =
+                    new PluginClassLoader(pluginsDirectories, Thread.currentThread().getContextClassLoader());
         } catch (MalformedURLException e) {
             throw new PluginException(DomibusCoreErrorCode.DOM_001, "Malformed URL Exception", e);
         }
@@ -139,7 +155,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     protected void configureLogging(String domibusConfigLocation) {
         try {
             //we need to initialize the logging before Spring is being initialized
-            LogbackLoggingConfigurator logbackLoggingConfigurator = new LogbackLoggingConfigurator(domibusConfigLocation);
+            LogbackLoggingConfigurator logbackLoggingConfigurator =
+                    new LogbackLoggingConfigurator(domibusConfigLocation);
             logbackLoggingConfigurator.configureLogging();
         } catch (RuntimeException e) {
             //logging configuration problems should not prevent the application to startup
@@ -147,7 +164,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         }
     }
 
-    protected void configurePropertySources(AnnotationConfigWebApplicationContext rootContext, String domibusConfigLocation) throws IOException {
+    protected void configurePropertySources(AnnotationConfigWebApplicationContext rootContext,
+            String domibusConfigLocation) throws IOException {
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
 
@@ -157,7 +175,8 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         MapPropertySource domibusConfigLocationSource = createDomibusConfigLocationSource(domibusConfigLocation);
         propertySources.addAfter(updatedDomibusProperties.getName(), domibusConfigLocationSource);
 
-        DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource =
+                createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
 
         Set<PropertySource> toRemove = propertySources.stream()
@@ -169,8 +188,10 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         });
     }
 
-    public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
-        PropertiesFactoryBean propertiesFactoryBean = new DomibusPropertyConfiguration().domibusProperties(domibusConfigLocation);
+    public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation)
+            throws IOException {
+        PropertiesFactoryBean propertiesFactoryBean =
+                new DomibusPropertyConfiguration().domibusProperties(domibusConfigLocation);
         propertiesFactoryBean.setSingleton(false);
         Properties properties = propertiesFactoryBean.getObject();
         return new DomibusPropertiesPropertySource(DomibusPropertiesPropertySource.NAME, properties);
