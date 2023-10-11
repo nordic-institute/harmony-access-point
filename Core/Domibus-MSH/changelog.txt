@@ -1,6 +1,7 @@
 Domibus 5.1.1
 - Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
-- Removed property domibus.fourcornermodel.enabled and add properties domibus.ui.pages.messageLogs.landingPage.enabled
+- Removed property domibus.fourcornermodel.enabled
+- Added properties domibus.ui.pages.messageLogs.landingPage.enabled and domibus.ui.pages.messageLogs.search.advanced.enabled to control the message log admin page in regards with high performance requirements
 - Updated all the domibus.UI.title.name domain property names to domibus.ui.title.name
 - Updated all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
 - Fixed the dynamic discovery mechanism for a high concurrency scenario
