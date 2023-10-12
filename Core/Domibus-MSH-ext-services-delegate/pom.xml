@@ -201,7 +201,6 @@
             <artifactId>spring-security-config</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- End Test dependencies -->
 
         <!--Swagger-->
@@ -211,11 +210,5 @@
         </dependency>
         <!--End Swagger-->
 
-        <!-- Dropwizard -->
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <!-- End Dropwizard -->
     </dependencies>
 </project>

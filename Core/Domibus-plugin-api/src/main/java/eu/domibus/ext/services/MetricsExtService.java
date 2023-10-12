@@ -1,6 +1,6 @@
 package eu.domibus.ext.services;
 
-import com.codahale.metrics.MetricRegistry;
+import eu.domibus.ext.domain.metrics.MetricRegistryDTO;
 
 /**
  * Metrics service
@@ -11,6 +11,6 @@ public interface MetricsExtService {
      *
      * @return {@link com.codahale.metrics.MetricRegistry}
      */
-    MetricRegistry getMetricRegistry();
+    MetricRegistryDTO getMetricRegistry();
 
 }

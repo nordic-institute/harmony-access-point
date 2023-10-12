@@ -133,10 +133,6 @@
             <scope>test</scope>
         </dependency>
         <!-- End Test -->
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
