@@ -18,12 +18,11 @@ import java.util.Date;
                         "from UserMessageLog userMessageLog " +
                         "where userMessageLog.entityId >= :MIN_ENTITY_ID " +
                         "and userMessageLog.entityId < :MAX_ENTITY_ID " +
-                        "and userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                        "and userMessageLog.messageStatus.entityId = :WAITING_FOR_RETRY_ID " +
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
                         "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
-        @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT um.messageId, um.timestamp FROM UserMessageLog as ml join ml.userMessage um where ml.messageStatus.messageStatus=eu.domibus.api.model.MessageStatus.READY_TO_PULL order by um.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.getMessageStatusById", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.getMessageStatusByIdAndRole", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.getMessageStatusByEntityId", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.entityId=:MESSAGE_ENTITY_ID"),
@@ -49,7 +48,7 @@ import java.util.Date;
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
-                        "WHERE uml.messageStatus.messageStatus NOT IN :MESSAGE_STATUSES                               " +
+                        "WHERE uml.messageStatus.entityId NOT IN :MESSAGE_STATUS_IDS                               " +
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (                                                                                        " +
                         "    (:ORIGINAL_USER is null)                                                                 " +
@@ -65,7 +64,7 @@ import java.util.Date;
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
-                        "WHERE uml.messageStatus.messageStatus IN :MESSAGE_STATUSES                                   " +
+                        "WHERE uml.messageStatus.entityId IN :MESSAGE_STATUS_IDS                                   " +
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (                                                                                        " +
                         "    (:ORIGINAL_USER is null)                                                                 " +
@@ -85,7 +84,7 @@ import java.util.Date;
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
-                        "WHERE uml.messageStatus.messageStatus = :MESSAGE_STATUS                                      " +
+                        "WHERE uml.messageStatus.entityId = :MESSAGE_STATUS_ID                                      " +
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (                                                                                        " +
                         "       (:FINAL_RECIPIENT is null and :ORIGINAL_USER is null)                                 " +
@@ -173,7 +172,7 @@ import java.util.Date;
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.entityId < :MAX_ENTITY_ID " +
-                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.messageStatus.entityId in :STATUS_IDS " +
                         "  and uml.userMessage.testMessage IS FALSE " +
                         "  and uml.deleted IS NULL " +
                         "  and uml.exported IS NULL "),

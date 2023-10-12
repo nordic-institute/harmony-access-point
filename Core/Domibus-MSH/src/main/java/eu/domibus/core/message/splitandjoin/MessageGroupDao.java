@@ -2,10 +2,11 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
@@ -25,8 +26,11 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageGroupDao.class);
 
-    public MessageGroupDao() {
+    private final MessageStatusDao messageStatusDao;
+
+    public MessageGroupDao(MessageStatusDao messageStatusDao) {
         super(MessageGroupEntity.class);
+        this.messageStatusDao = messageStatusDao;
     }
 
     public MessageGroupEntity findByUserMessageEntityIdWithMessageHeader(Long userMessageEntityId) {
@@ -63,7 +67,10 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
     public List<MessageGroupEntity> findOngoingSendNonExpiredOrRejected() {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findSendNonExpiredOrRejected", MessageGroupEntity.class);
         query.setParameter("MSH_ROLE", MSHRole.SENDING);
-        query.setParameter("SOURCE_MSG_STATUS", MessageStatus.SEND_ENQUEUED);
+
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
+        query.setParameter("SOURCE_MSG_STATUS_ID", statusEntity.getEntityId());
+
         return query.getResultList();
     }
 
