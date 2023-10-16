@@ -295,10 +295,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private void checkIntegerProperty(String propertyName) {
+        // check too broad but cannot narrow it now because of ambigous NUMERIC property type; EDELIVERY-12257
         checkNumericProperty("getIntegerProperty", propertyName);
     }
 
     private void checkLongProperty(String propertyName) {
+        // check too broad but cannot narrow it now because of ambigous NUMERIC property type; EDELIVERY-12257
         checkNumericProperty("getLongProperty", propertyName);
     }
 
