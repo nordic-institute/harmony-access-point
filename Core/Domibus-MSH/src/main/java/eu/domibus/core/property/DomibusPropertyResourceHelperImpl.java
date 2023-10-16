@@ -302,8 +302,11 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         String propertyName = propMeta.getName();
         DomibusPropertyMetadata.Type propertyType = propMeta.getTypeAsEnum();
         try {
-            if (propertyType.isNumeric()) {
+            if (propertyType.isIntegerNumber()) {
                 return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
+            }
+            if (propertyType.isNumeric()) {
+                return String.valueOf(domibusPropertyProvider.getDecimalProperty(propertyName));
             }
             if (propertyType.isBoolean()) {
                 return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));

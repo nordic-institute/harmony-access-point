@@ -413,6 +413,14 @@ public class DomibusPropertyMetadata {
             return getNumericTypes().contains(this);
         }
 
+        public boolean isIntegerNumber() {
+            return this == POSITIVE_INTEGER;
+        }
+
+        public boolean isDecimalNumber() {
+            return this == POSITIVE_DECIMAL;
+        }
+
         public boolean isBoolean() {
             return this == BOOLEAN;
         }
