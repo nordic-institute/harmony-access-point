@@ -2853,8 +2853,12 @@
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UK_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <createTable tableName="TB_USER_ROLES">
-            <column name="USER_ID" type="BIGINT"/>
-            <column name="ROLE_ID" type="BIGINT"/>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ROLE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
