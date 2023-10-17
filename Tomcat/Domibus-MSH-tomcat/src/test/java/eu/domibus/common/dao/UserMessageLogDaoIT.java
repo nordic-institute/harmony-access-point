@@ -6,6 +6,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -46,9 +47,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    UserMessageDao userMessageDao;
 
     @Autowired
     DateUtil dateUtil;

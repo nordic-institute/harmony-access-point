@@ -27,7 +27,7 @@ import java.math.BigInteger;
         @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole.role = :MSH_ROLE " +
                 "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )"),
         @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c, UserMessageLog msg join msg.userMessage um where c.mshRole.role = :MSH_ROLE " +
-                " and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) ) and c.sourceMessage.entityId = um.entityId and msg.messageStatus.messageStatus = :SOURCE_MSG_STATUS")
+                " and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) ) and c.sourceMessage.entityId = um.entityId and msg.messageStatus.entityId = :SOURCE_MSG_STATUS_ID")
 })
 public class MessageGroupEntity extends AbstractBaseEntity {
 

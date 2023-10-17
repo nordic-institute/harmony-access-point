@@ -213,6 +213,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="Gabriel Maier" id="EDELIVERY-10284" > <!--this is added by 5.1 data migration when migrating from 5.0-->
+        <addNotNullConstraint tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" columnName="MESSAGE_ENTITY_ID" columnDataType="BIGINT" />
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
