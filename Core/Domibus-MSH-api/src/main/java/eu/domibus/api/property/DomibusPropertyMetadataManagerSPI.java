@@ -443,8 +443,8 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
-    String DOMIBUS_MESSAGES_UNSENT_CRON = "domibus.messages.unsent.cron";
-    String DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES = "domibus.messages.unsent.ignore.recent.minutes";
+    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
+    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
 
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";

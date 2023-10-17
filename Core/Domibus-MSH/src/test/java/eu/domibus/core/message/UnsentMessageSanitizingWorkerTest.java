@@ -18,12 +18,11 @@ import org.junit.runner.RunWith;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(JMockit.class)
@@ -67,7 +66,7 @@ public class UnsentMessageSanitizingWorkerTest {
         final List<String> unsentMessageIds = Arrays.asList("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
             result = 360;
 
             pModeProvider.getMaxRetryTimeout();
@@ -93,7 +92,7 @@ public class UnsentMessageSanitizingWorkerTest {
     @Test
     public void testSanitize_DateTimeException() {
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
 
             pModeProvider.getMaxRetryTimeout();
 

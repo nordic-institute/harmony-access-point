@@ -614,7 +614,7 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     @Bean
-    public JobDetailFactoryBean unsentMessagesJob() {
+    public JobDetailFactoryBean stuckMessagesJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
         obj.setJobClass(UnsentMessageSanitizingWorker.class);
         obj.setDurability(true);
@@ -623,14 +623,14 @@ public class DomainSchedulerFactoryConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean unsentMessagesTrigger() {
+    public CronTriggerFactoryBean stuckMessagesTrigger() {
         if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
-        obj.setJobDetail(unsentMessagesJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MESSAGES_UNSENT_CRON));
+        obj.setJobDetail(stuckMessagesJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MESSAGES_STUCK_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

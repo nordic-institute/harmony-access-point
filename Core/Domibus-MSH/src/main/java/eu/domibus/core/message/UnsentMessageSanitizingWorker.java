@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -58,7 +58,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
     }
 
     protected void sanitize() {
-        int ignoreMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES);
+        int ignoreMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
         LOG.debug("Checking for scheduled messages that have been stuck for more than [{}] minutes", ignoreMinutes);
 
         int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
@@ -69,7 +69,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
         try {
             minutesAgo = dateUtil.getDateMinutesAgo(ignoreMinutes);
         } catch (DomibusDateTimeException e) {
-            LOG.error("Please use only positive values greater than 0 for the [{}] property", DOMIBUS_MESSAGES_UNSENT_IGNORE_RECENT_MINUTES, e);
+            LOG.error("Please use only positive values greater than 0 for the [{}] property", DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES, e);
             return;
         }
 
