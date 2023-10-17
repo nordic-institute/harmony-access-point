@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
 
 /**
  * @author Ion Perpegel
@@ -425,9 +425,8 @@ public class DomibusPropertyMetadata {
             return this == BOOLEAN;
         }
 
-        private List<Type> getNumericTypes() {
-            return Arrays.asList(POSITIVE_INTEGER, POSITIVE_DECIMAL, NUMERIC);
+        private EnumSet<Type> getNumericTypes() {
+            return EnumSet.of(POSITIVE_INTEGER, POSITIVE_DECIMAL, NUMERIC);
         }
     }
-
 }

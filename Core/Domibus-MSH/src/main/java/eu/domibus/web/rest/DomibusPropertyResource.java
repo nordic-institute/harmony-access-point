@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 public class DomibusPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
 
-    private DomibusPropertyResourceHelper domibusPropertyResourceHelper;
+    private final DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
-    private DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
+    private final DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
-    private ErrorHandlerService errorHandlerService;
+    private final ErrorHandlerService errorHandlerService;
 
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
                                    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
