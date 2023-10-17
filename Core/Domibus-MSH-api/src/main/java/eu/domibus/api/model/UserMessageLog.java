@@ -190,7 +190,16 @@ import java.util.Date;
                 "UPDATE UserMessageLog uml                                          " +
                         "SET uml.deleted = :CURRENT_TIMESTAMP,                      " +
                         "   uml.messageStatus = :DELETED_STATUS                    " +
-                        "WHERE uml.entityId IN( :ENTITY_IDS )                       ")
+                        "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
+        @NamedQuery(name = "UserMessageLog.findUnsentAndWaitingForRetryMessages",
+                query = "select um.messageId " +
+                        "FROM UserMessageLog uml " +
+                        "INNER JOIN uml.userMessage um " +
+                        "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
+                        "and (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_ENQUEUED " +
+                        "       or (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                        "               and uml.entityId < :MAX_ENTITY_ID))"),
+
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

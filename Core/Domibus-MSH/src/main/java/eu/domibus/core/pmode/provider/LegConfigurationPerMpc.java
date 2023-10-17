@@ -25,4 +25,8 @@ public class LegConfigurationPerMpc {
     public Set<Map.Entry<String, List<LegConfiguration>>> entrySet() {
         return map.entrySet();
     }
+
+    public java.util.Collection<List<LegConfiguration>> values() {
+        return map.values();
+    }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.dictionary.*;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -47,6 +48,9 @@ public class UserMessageLogInfoFilterTest {
 
     @Injectable
     private ActionDao actionDao;
+
+    @Injectable
+    private DateUtil dateUtil;
 
     @Tested
     UserMessageLogInfoFilter userMessageLogInfoFilter;

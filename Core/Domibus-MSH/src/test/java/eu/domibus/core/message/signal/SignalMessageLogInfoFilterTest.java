@@ -1,6 +1,7 @@
 package eu.domibus.core.message.signal;
 
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.MessageLogInfoFilterTest;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.dictionary.*;
@@ -41,6 +42,9 @@ public class SignalMessageLogInfoFilterTest {
 
     @Injectable
     private ActionDao actionDao;
+
+    @Injectable
+    private DateUtil dateUtil;
 
     public static final String QUERY = "select new eu.domibus.core.message.MessageLogInfo(log, partyFrom.value, partyTo.value, propsFrom.value, propsTo.value, info.refToMessageId) from SignalMessageLog log, " +
             "SignalMessage message " +
