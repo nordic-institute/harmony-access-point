@@ -1,7 +1,6 @@
 package eu.domibus.ext.delegate.services.metrics;
 
 import eu.domibus.api.metrics.MetricsService;
-import eu.domibus.ext.domain.metrics.MetricRegistryDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.services.MetricsExtService;
 import org.springframework.stereotype.Service;
@@ -23,10 +22,8 @@ public class MetricsServiceDelegate implements MetricsExtService {
      * {@inheritDoc}
      */
     @Override
-    public MetricRegistryDTO getMetricRegistry() throws DomibusMonitoringExtException {
-        MetricRegistryDTO metricRegistryDTO = new MetricRegistryDTO();
-        metricRegistryDTO.setMetricRegistry(metricsService.getMetricRegistry());
-        return metricRegistryDTO;
+    public Object getMetricRegistry() throws DomibusMonitoringExtException {
+        return metricsService.getMetricRegistry();
     }
 
 }

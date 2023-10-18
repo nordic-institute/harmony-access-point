@@ -201,6 +201,7 @@
             <artifactId>spring-security-config</artifactId>
             <scope>test</scope>
         </dependency>
+
         <!-- End Test dependencies -->
 
         <!--Swagger-->
@@ -209,6 +210,5 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <!--End Swagger-->
-
     </dependencies>
 </project>

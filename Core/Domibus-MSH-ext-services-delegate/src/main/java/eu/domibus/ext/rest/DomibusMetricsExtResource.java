@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.ErrorDTO;
-import eu.domibus.ext.domain.metrics.MetricRegistryDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.MetricsExtService;
@@ -53,7 +52,7 @@ public class DomibusMetricsExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "metrics")
-    public ResponseEntity<MetricRegistryDTO> getDomibusMetrics() {
+    public ResponseEntity<Object> getDomibusMetrics() {
         LOG.debug("Getting Domibus metrics");
         return ResponseEntity.ok(metricsExtService.getMetricRegistry());
     }
