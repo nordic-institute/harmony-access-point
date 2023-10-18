@@ -8,7 +8,10 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-    <changeSet id="EDELIVERY-12048" author="Gabriel Maier">
+    <changeSet id="EDELIVERY-12048-mysql" author="Gabriel Maier" dbms="mysql">
+        <dropIndex tableName="TB_SIGNAL_MESSAGE" indexName="IDX_SIG_MESS_SIGNAL_MESS_ID"/>
+    </changeSet>
+    <changeSet id="EDELIVERY-12048-oracle" author="Gabriel Maier" dbms="oracle">
         <dropUniqueConstraint tableName="TB_SIGNAL_MESSAGE" constraintName="UK_SIGNAL_MSG_MESSAGE_ID"/><!--only way to drop IDX_SIG_MESS_SIGNAL_MESS_ID that is associated to this unique qey (workaround ORA-02429)-->
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
     </changeSet>
