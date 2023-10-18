@@ -9,6 +9,6 @@ public interface MetricsExtService {
      *
      * @return {@link com.codahale.metrics.MetricRegistry}
      */
-    Object  getMetricRegistry();
+    Object getMetricRegistry();
 
 }
