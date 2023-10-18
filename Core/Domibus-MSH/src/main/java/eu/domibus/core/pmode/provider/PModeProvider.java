@@ -557,4 +557,6 @@ public abstract class PModeProvider {
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
 
+    public abstract int getMaxRetryTimeout();
+
 }

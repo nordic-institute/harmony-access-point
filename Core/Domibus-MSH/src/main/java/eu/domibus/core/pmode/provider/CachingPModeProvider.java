@@ -1287,6 +1287,21 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getMaxRetryTimeout() {
+        final LegConfigurationPerMpc legConfigurationPerMpc = getAllLegConfigurations();
+        List<LegConfiguration> legConfigurations = new ArrayList<>();
+        legConfigurationPerMpc.values().stream().forEach(legConfigurations::addAll);
+
+        int maxRetry = legConfigurations.stream()
+                .map(legConfiguration -> legConfiguration.getReceptionAwareness().getRetryTimeout())
+                .max(Comparator.naturalOrder())
+                .orElse(-1);
+
+        LOG.debug("Got max retryTimeout [{}]", maxRetry);
+        return maxRetry;
+    }
+
+    @Override
     public String findMpcUri(final String mpcName) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
             if (equalsIgnoreCase(mpc.getName(), mpcName)) {

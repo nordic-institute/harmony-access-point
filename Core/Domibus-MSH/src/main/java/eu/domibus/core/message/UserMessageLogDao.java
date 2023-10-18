@@ -662,4 +662,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.trace("UserMessageLogs [{}] updated to deleted(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
+
+    public List<String> findUnsentMessageIds(Date minutesAgo, long maxEntityId) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", String.class);
+        query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
+        return query.getResultList();
+    }
+
 }

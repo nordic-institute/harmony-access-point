@@ -271,6 +271,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getMaxRetryTimeout() {
+        return getCurrentPModeProvider().getMaxRetryTimeout();
+    }
+
+    @Override
     public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, String service, String action, List<MessageExchangePattern> meps) {
         return getCurrentPModeProvider().findPartiesByResponderServiceAndAction(responderPartyId, service, action, meps);
     }

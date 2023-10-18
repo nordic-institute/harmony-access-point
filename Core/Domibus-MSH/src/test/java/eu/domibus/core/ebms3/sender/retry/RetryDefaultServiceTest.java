@@ -6,6 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageDao;
@@ -85,6 +86,9 @@ public class RetryDefaultServiceTest {
 
     @Injectable
     UpdateRetryLoggingService updateRetryLoggingService;
+
+    @Injectable
+    DateUtil dateUtil;
 
     private List<JmsMessage> getQueuedMessages() {
         List<JmsMessage> jmsMessages = new ArrayList<>();

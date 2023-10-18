@@ -2,6 +2,8 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
+import mockit.Mock;
+import mockit.MockUp;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
@@ -13,8 +15,10 @@ import org.junit.runner.RunWith;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -228,4 +232,52 @@ public class DateUtilImplTest {
         ZonedDateTime dateHour = dateUtilImpl.getDateHour("23091820" + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
         Assert.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
     }
+
+    @Test
+    public void getDateMinutesAgo() {
+        // Ensure we return the same "now" both in this test ("current") and in the dateUtilImpl#getMinutesAgo(int) ("minutesAgo")
+        new MockUp<ZonedDateTime>() {
+            @Mock
+            ZonedDateTime now(ZoneId zone) {
+                return ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, zone);
+            }
+        };
+
+        ZonedDateTime current = ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(10);
+
+        Date pastInstant = dateUtilImpl.getDateMinutesAgo(10);
+        ZonedDateTime minutesAgo = ZonedDateTime.ofInstant(pastInstant.toInstant(), ZoneOffset.UTC);
+
+        Assert.assertTrue("The resulting date should be 10 minutes ago when deducting 10 minutes from the current date",
+                current.truncatedTo(ChronoUnit.MINUTES).isEqual(minutesAgo.truncatedTo(ChronoUnit.MINUTES)));
+    }
+
+    @Test
+    public void getDateMinutesAgo_DateTimeException() {
+        try {
+            dateUtilImpl.getDateMinutesAgo(-1);
+            Assert.fail();
+        } catch (DomibusDateTimeException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void getMinEntityId() {
+        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, ZoneOffset.UTC);
+
+        long minEntityId = dateUtilImpl.getMinEntityId(currentDateTime, TimeUnit.HOURS.toSeconds(1));
+
+        Assert.assertEquals(231201190000000000l, minEntityId);
+    }
+
+    @Test
+    public void getMaxEntityId() {
+        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, ZoneOffset.UTC);
+
+        long minEntityId = dateUtilImpl.getMaxEntityId(currentDateTime, TimeUnit.HOURS.toSeconds(1));
+
+        Assert.assertEquals(231201199999999999l, minEntityId);
+    }
+
 }
