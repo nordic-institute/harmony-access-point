@@ -10,7 +10,6 @@
 
     <changeSet id="EDELIVERY-12048" author="Gabriel Maier">
         <dropUniqueConstraint tableName="TB_SIGNAL_MESSAGE" constraintName="UK_SIGNAL_MSG_MESSAGE_ID"/>
-<!--        <dropIndex tableName="TB_SIGNAL_MESSAGE" indexName="IDX_SIG_MESS_SIGNAL_MESS_ID"/>-->
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
     </changeSet>
 
