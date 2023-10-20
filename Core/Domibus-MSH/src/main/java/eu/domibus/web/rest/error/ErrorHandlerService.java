@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.error;
 
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -80,7 +81,7 @@ public class ErrorHandlerService {
         logException(ex, status);
 
         //unwrap the domain task exception for the root error
-        if (ex instanceof DomainTaskException) {
+        if (ex instanceof DomainTaskException || ex instanceof CryptoException) {
             Throwable rootCause = ExceptionUtils.getRootCause(ex);
             ex = rootCause == null ? ex : rootCause;
         }

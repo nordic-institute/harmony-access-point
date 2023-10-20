@@ -682,7 +682,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(storeInfo, persistenceInfo);
+        certificateService.replaceStore(storeInfo, persistenceInfo, true);
 
         new Verifications() {{
             auditService.addStoreReplacedAudit(anyString);
@@ -782,7 +782,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(storeInfo, persistenceInfo);
+        certificateService.replaceStore(storeInfo, persistenceInfo, true);
 
         new Verifications() {{
             auditService.addStoreReplacedAudit(storeInfo.getName());
@@ -805,7 +805,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(storeInfo, persistenceInfo);
+        certificateService.replaceStore(storeInfo, persistenceInfo, true);
 
         new Verifications() {{
             auditService.addStoreReplacedAudit(storeInfo.getName());
