@@ -31,7 +31,21 @@
     </changeSet>
 
     <changeSet author="Cosmin Baciu" id="EDELIVERY-12066">
-        <dropTable tableName="TB_FINAL_RECIPIENT_URL" cascadeConstraints="true" />
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+                table_exists INT;
+            BEGIN
+                SELECT count(*) INTO table_exists
+                FROM user_tables
+                WHERE table_name = 'TB_FINAL_RECIPIENT_URL';
+                IF table_exists = 1 THEN
+                    EXECUTE IMMEDIATE 'drop table TB_FINAL_RECIPIENT_URL  CASCADE CONSTRAINTS';
+                END IF;
+            END;
+        </sql>
+        <sql dbms="mysql">
+            DROP TABLE TB_FINAL_RECIPIENT_URL;
+        </sql>
 
         <createTable tableName="TB_DDC_LOOKUP">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
