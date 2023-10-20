@@ -1,3 +1,5 @@
+Domibus 5.1.2
+- External API to get certificate of the party returns a ResponseEntity of TrustStoreDTO as per the OAS specification.
 Domibus 5.1.1
 - Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
 - Fixed the dynamic discovery mechanism for a high concurrency scenario
