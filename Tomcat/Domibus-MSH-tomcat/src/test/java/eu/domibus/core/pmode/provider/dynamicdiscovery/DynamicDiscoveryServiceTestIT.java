@@ -17,9 +17,11 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.jms.JMSManagerImpl;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.jms.Topic;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -50,6 +53,8 @@ import static org.junit.Assert.*;
 public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceTestIT.class);
+    public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION = "dataset/pmode/PModeDynamicDiscovery.xml";
+    public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_ONLY = "dataset/pmode/PModeDynamicDiscoverySignOnly.xml";
 
     @Autowired
     MultiDomainPModeProvider multiDomainPModeProvider;
@@ -85,8 +90,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        uploadPmode(SERVICE_PORT, "dataset/pmode/PModeDynamicDiscovery.xml", null);
+        
+    }
 
+    private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
+        uploadPmode(SERVICE_PORT, pmodeFilePath, null);
+        
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 
@@ -103,7 +112,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     //start tests
 
     @Test
-    public void lookupAndUpdateConfigurationForPartyToId() throws EbMS3Exception, SQLException {
+    public void lookupAndUpdateConfigurationForPartyToId() throws EbMS3Exception, SQLException, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -158,7 +169,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void lookupAndUpdateConfigurationForToPartyIdWithMultipleThreads() throws EbMS3Exception {
+    public void lookupAndUpdateConfigurationForToPartyIdWithMultipleThreads() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -234,7 +247,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void dynamicDiscoveryInSMPTriggeredOnce_secondTimeConfigurationIsLoadedFromCache() throws EbMS3Exception {
+    public void dynamicDiscoveryInSMPTriggeredOnce_secondTimeConfigurationIsLoadedFromCache() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -268,7 +283,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void dynamicDiscoveryInSMPTriggeredOnce_clearPmode_secondTimeDynamicDiscoveryIsTriggeredAgain() throws EbMS3Exception {
+    public void dynamicDiscoveryInSMPTriggeredOnce_clearPmode_secondTimeDynamicDiscoveryIsTriggeredAgain() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -303,7 +320,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void dynamicDiscoveryInSMPTriggeredOnce_clearTruststore_secondTimeDynamicDiscoveryIsTriggeredAgain() throws EbMS3Exception {
+    public void dynamicDiscoveryInSMPTriggeredOnce_clearTruststore_secondTimeDynamicDiscoveryIsTriggeredAgain() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -338,7 +357,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void c1SubmitsMessageOnServer1_messageSendingFromC2ToC3IsDoneOnServer2() throws EbMS3Exception {
+    public void c1SubmitsMessageOnServer1_messageSendingFromC2ToC3IsDoneOnServer2() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -357,8 +378,36 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertNotNull(multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
     }
 
+    @Test
+    public void c1SubmitsMessageWithPartyConfiguredInPmodeAndSignOnlyPolicy() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_ONLY);
+
+        //clean up
+        cleanBeforeLookup();
+
+        final UserMessage userMessage = buildUserMessage(FINAL_RECIPIENT1);
+        //we change the action to match the process tc2Process
+        userMessage.getAction().setValue("TC1Leg2");
+
+        //we set the party identifier for the party already configured in the Pmode
+        final To toParty = userMessage.getPartyInfo().getTo();
+        final PartyId fromPartyId = new PartyId();
+        fromPartyId.setValue(PARTY_NAME5);
+        fromPartyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        final PartyRole partyRole = new PartyRole();
+        partyRole.setValue("urn:fdc:peppol.eu:2017:roles:ap:as4");
+        toParty.setToRole(partyRole);
+        toParty.setToPartyId(fromPartyId);
+
+        //no dynamic discovery should be triggered and no check of the public certificate is done; exception is not raised
+        final MessageExchangeConfiguration userMessageExchangeContext = multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
+        assertNotNull(userMessageExchangeContext);
+    }
+
     @Test(expected = AuthenticationException.class)
-    public void c1SubmitsMessageToPartyWithExpiredCertificate() throws EbMS3Exception {
+    public void c1SubmitsMessageToPartyWithExpiredCertificate() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
@@ -369,7 +418,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void deleteDDCCertificatesNotDiscoveredInTheLastPeriod() throws EbMS3Exception, KeyStoreException, SQLException {
+    public void deleteDDCCertificatesNotDiscoveredInTheLastPeriod() throws EbMS3Exception, KeyStoreException, SQLException, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //uncomment to access the H2 console in the browser; JDBC URL is jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
         //Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
 
@@ -466,12 +517,16 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     @Test
-    public void testSignalForPartyAndFinalRecipientDeletion() throws EbMS3Exception {
+    public void testSignalForPartyAndFinalRecipientDeletion() throws EbMS3Exception, XmlProcessingException, IOException {
+        initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
         //clean up
         cleanBeforeLookup();
 
         final String finalRecipient1 = FINAL_RECIPIENT1;//party1
         String partyName1 = PARTY_NAME1;
+
+        verifyListOfPartiesFromPmodeSize(1);
 
         //---finalRecipient1, party1, certificate1
         //we expect the party and the certificate are added in the PMode and truststore
@@ -603,10 +658,10 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertNotNull(party1FromPmode);
     }
 
-    private List<Party> verifyListOfPartiesFromPmodeSize(int expectedPmodePartiesAfterLookup) {
+    public List<Party> verifyListOfPartiesFromPmodeSize(int expectedPmodePartiesList) {
         final eu.domibus.common.model.configuration.Configuration configuration = ((DynamicDiscoveryPModeProvider) multiDomainPModeProvider.getCurrentPModeProvider()).getConfiguration();
         final List<Party> pmodePartiesList = configuration.getBusinessProcesses().getParties();
-        assertEquals(expectedPmodePartiesAfterLookup, pmodePartiesList.size());
+        assertEquals(expectedPmodePartiesList, pmodePartiesList.size());
         return pmodePartiesList;
     }
 

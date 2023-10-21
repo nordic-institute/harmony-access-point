@@ -50,6 +50,8 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
 
     public static final String PARTY_NAME4 = "party4";
 
+    public static final String PARTY_NAME5 = "partyConfiguredInPmode";
+
     public static final String PARTY_NAME_MULTIPLE_THREADS_FORMAT = "threadParty%s";
     public static final Long PARTY_NAME2_CERTIFICATE_SERIAL_NUMBER = 200L;
 
