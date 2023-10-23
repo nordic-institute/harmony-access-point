@@ -214,5 +214,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             return params.map(KeyStoreType::getPassword).orElse(null);
         }
 
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
+        }
+
     }
 }

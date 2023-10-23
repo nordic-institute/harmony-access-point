@@ -24,9 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -235,6 +233,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         public String getPassword() {
             return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
         }
+
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
+        }
     }
 
     class KeyStorePersistenceInfoImpl implements KeystorePersistenceInfo {
@@ -262,6 +265,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         @Override
         public String getPassword() {
             return domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        }
+
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
         }
     }
 }
