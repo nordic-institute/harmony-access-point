@@ -44,7 +44,7 @@
             END;
         </sql>
         <sql dbms="mysql">
-            DROP TABLE TB_FINAL_RECIPIENT_URL;
+            DROP TABLE IF EXISTS TB_FINAL_RECIPIENT_URL;
         </sql>
 
         <createTable tableName="TB_DDC_LOOKUP">
