@@ -11,20 +11,19 @@
         <version>2.2.0</version>
     </parent>
     <artifactId>harmony-msh-soapui-tests</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>Harmony MSH SoapUI</name>
 
     <properties>
         <!-- the soap ui specific dependencies -->
-        <com.smartbear.soapui.version>5.1.3</com.smartbear.soapui.version>
-        <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
-        <org.codehaus.groovy.backports.compat.version>2.4.5</org.codehaus.groovy.backports.compat.version>
-        <org.codehaus.groovy.eclipse-batch.version>2.5.13-01</org.codehaus.groovy.eclipse-batch.version>
-        <org.apache.activemq.version>5.16.6</org.apache.activemq.version>
+        <com.smartbear.soapui.version>5.5.0</com.smartbear.soapui.version>
+        <org.codehaus.groovy.version>2.4.4</org.codehaus.groovy.version>
+        <org.codehaus.groovy.backports.compat.version>2.4.4</org.codehaus.groovy.backports.compat.version>
+        <org.codehaus.groovy.eclipse-batch.version>2.4.21-01</org.codehaus.groovy.eclipse-batch.version>
 
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
         <soapui.scripting.library>${soapui.root.folder}/scripting</soapui.scripting.library>
-        <soapui.ext.libraries>${soapui.root.folder}/lib</soapui.ext.libraries>
+        <soapui.ext.libraries>${project.build.directory}/soapui/ext</soapui.ext.libraries>
 
         <sonar.jacoco.reportPath>../target/jacoco-ut.exec</sonar.jacoco.reportPath>
         <!-- jacoco agent remote addresses and ports -->
@@ -33,8 +32,8 @@
         <sonar.jacoco.remotePort.red>${jacocoRemotePortRed}</sonar.jacoco.remotePort.red>
         <sonar.jacoco.remoteAddress.red>${jacocoRemoteAddressRed}</sonar.jacoco.remoteAddress.red>
 
-	<!-- Added default dummy value for allJMSDomainsProperties -->
-	<allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
+        <!-- Added default dummy value for allJMSDomainsProperties -->
+        <allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
     </properties>
 
     <dependencies>
@@ -46,24 +45,19 @@
             <version>${com.smartbear.soapui.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- JMS Libraries -->
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
-            <version>${org.apache.activemq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-broker</artifactId>
-            <version>${org.apache.activemq.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-backports-compat23</artifactId>
             <version>${org.codehaus.groovy.backports.compat.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,8 +72,7 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>${org.codehaus.groovy.version}</version>
-
+                        <version>3.6.0-03</version>
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
@@ -91,17 +84,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>src/main/soapui/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -114,10 +96,8 @@
                         </goals>
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
                             <finalName>${project.artifactId}-${project.version}-external-dependencies</finalName>
-                            <outputName>${project.artifactId}-${project.version}-external-dependencies.jar</outputName>
-                            <outputDirectory>src/main/soapui/lib</outputDirectory>
+                            <outputDirectory>${project.basedir}/target/soapui/ext</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -125,7 +105,7 @@
             <plugin>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-eclipse-compiler</artifactId>
-                <version>${org.codehaus.groovy.version}</version>
+                <version>3.6.0-03</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -134,15 +114,8 @@
     <profiles>
         <!-- defined as separate profile in order to be triggered on demand -->
         <profile>
-          <id>soapui</id>
-          <dependencies>
-            <dependency>
-              <groupId>com.mysql</groupId>
-              <artifactId>mysql-connector-j</artifactId>
-              <version>${mysql.connector.java.version}</version>
-            </dependency>
-          </dependencies>
-          <build>
+            <id>soapui</id>
+            <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -167,12 +140,12 @@
                             <testSuite>WS-Auto-for-Bamboo</testSuite>
                             <projectFile>${soapui.root.folder}/AS4-domibus-WS-soapui-project.xml</projectFile>
                             <projectProperties>
-                                <value>${localUrl}</value>
-                                <value>${remoteUrl}</value>
-                                <value>${allDomainsProperties}</value>
-                                <value>${allJMSDomainsProperties}</value>
-								<value>${logsPathBlue}</value>
-								<value>${logsPathRed}</value>
+                                <value>localUrl=${localUrl}</value>
+                                <value>remoteUrl=${remoteUrl}</value>
+                                <value>allDomainsProperties=${allDomainsProperties}</value>
+                                <value>allJMSDomainsProperties=${allJMSDomainsProperties}</value>
+                                <value>logsPathBlue=${logsPathBlue}</value>
+                                <value>logsPathRed=${logsPathRed}</value>
                                 <value>multitenancyModeC2=0</value>
                                 <value>multitenancyModeC3=0</value>
                                 <value>updateReport=false</value>
@@ -199,7 +172,7 @@
                                 </property>
                                 <property>
                                     <name>soapui.ext.libraries</name>
-                                    <value>${soapui.ext.libraries}</value>
+                                    <value>${project.build.directory}/soapui/ext</value>
                                 </property>
                             </soapuiProperties>
                             <testFailIgnore>true</testFailIgnore>
@@ -292,9 +265,6 @@
 
                 </plugins>
             </build>
-
-
         </profile>
     </profiles>
-
 </project>
