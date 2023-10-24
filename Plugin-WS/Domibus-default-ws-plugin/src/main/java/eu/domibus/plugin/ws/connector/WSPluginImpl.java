@@ -27,6 +27,8 @@ import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -155,6 +157,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
         checkEnabled();
         List<String> messageIds = event.getMessageDeletedEvents().stream().map(MessageDeletedEvent::getMessageId).collect(Collectors.toList());
@@ -164,6 +167,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void messageDeletedEvent(final MessageDeletedEvent event) {
         checkEnabled();
         LOG.info("Message delete event [{}]", event.getMessageId());

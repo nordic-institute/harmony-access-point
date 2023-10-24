@@ -14,6 +14,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -25,6 +26,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -93,6 +95,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected PolicyService policyService;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -182,17 +187,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             final MessageExchangeConfiguration userMessageExchangeContext = super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, true);
 
             if (useDynamicDiscovery()) {
-                final String partyToValue = userMessageServiceHelper.getPartyToValue(userMessage);
-                LOG.debug("Checking if public certificate for receiver party [{}] in the truststore", partyToValue);
-                final X509Certificate receiverCertificateFromTruststore = getCertificateFromTruststore(partyToValue, userMessage.getMessageId());
-                if (receiverCertificateFromTruststore == null) {
-                    LOG.info("Could not find public certificate for receiver party [{}] in the truststore. Triggering dynamic discovery", partyToValue);
-                    throw EbMS3ExceptionBuilder.getInstance()
-                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                            .message("Could not find public certificate for receiver party [" + partyToValue + "] in the truststore. Triggering dynamic discovery")
-                            .refToMessageId(userMessage.getMessageId())
-                            .build();
-                }
+                //the party was discovered a while ago and is still cached in the PMode memory and found above; we verify if the receiver's certificate is still in the truststore(someone could have overridden the truststore)
+                verifyIfReceiverPublicCertificateIsInTheTruststore(userMessage, userMessageExchangeContext);
             }
             return userMessageExchangeContext;
         } catch (final EbMS3Exception e) {
@@ -206,6 +202,34 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
         LOG.debug("Recalling findUserMessageExchangeContext after the dynamic discovery");
         return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, false);
+    }
+
+    protected void verifyIfReceiverPublicCertificateIsInTheTruststore(final UserMessage userMessage, final MessageExchangeConfiguration userMessageExchangeContext) throws EbMS3Exception {
+        //get the party name eg blue_gw
+        final String partyToNameValue = userMessageExchangeContext.getReceiverParty();
+
+        String pModeKey = userMessageExchangeContext.getPmodeKey();
+        LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
+        //use parsePolicy method to use caching
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+
+        //if no encryption is used, we don't need to check the receiver certificate in the truststore
+        if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
+            LOG.debug("Validation if public certificate of the receiver [{}] is present in the truststore: sign only/no security policy is used", partyToNameValue);
+            return;
+        }
+
+        LOG.debug("Checking if public certificate for receiver party [{}] in the truststore", partyToNameValue);
+
+        final X509Certificate receiverCertificateFromTruststore = getCertificateFromTruststore(partyToNameValue, userMessage.getMessageId());
+        if (receiverCertificateFromTruststore == null) {
+            LOG.info("Could not find public certificate for receiver party [{}] in the truststore. Triggering dynamic discovery", partyToNameValue);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Could not find public certificate for receiver party [" + partyToNameValue + "] in the truststore. Triggering dynamic discovery")
+                    .refToMessageId(userMessage.getMessageId())
+                    .build();
+        }
     }
 
     protected void doDynamicDiscovery(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
