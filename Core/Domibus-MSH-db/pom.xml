@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>core</artifactId>
-        <version>5.1.1</version>
+        <version>5.1.1.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-msh-db</artifactId>
@@ -483,44 +483,83 @@
                     <!-- delta 5.0.4 to 5.0.5 ends here -->
 
 
-                    <!-- delta 5.1 to 5.1.1 starts here -->
+                    <!-- delta 5.1 to 5.1.1.1 starts here -->
                     <execution>
-                        <id>generate-mysql-script-delta-5.1.1</id>
+                        <id>generate-mysql-script-delta-5.1-to-5.1.1.1</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-5.1.1-delta.xml
+                                src/main/resources/db/changelog-5.1-to-5.1.1.1-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.1.1-delta.mysql
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.1-to-5.1.1.1-delta.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-5.1-to-5.1.1-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.1-to-5.1.1.1-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>generate-oracle-script-delta-5.1.1</id>
+                        <id>generate-oracle-script-delta-5.1-to-5.1.1.1</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-5.1.1-delta.xml
+                                src/main/resources/db/changelog-5.1-to-5.1.1.1-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.1.1-delta.oracle
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.1-to-5.1.1.1-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.1-to-5.1.1-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.1-to-5.1.1.1-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- delta 5.1 to 5.1.1 ends here -->
+                    <!-- delta 5.1 to 5.1.1.1 ends here -->
+
+                    <!-- delta 5.1.1 to 5.1.1.1 starts here -->
+                    <execution>
+                        <id>generate-mysql-script-delta-5.1.1.1</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.1.1.1-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.1.1-to-5.1.1.1-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.1.1-to-5.1.1.1-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.1.1.1</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.1.1.1-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.1.1-to-5.1.1.1-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.1.1-to-5.1.1.1-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.1.1 to 5.1.1.1 ends here -->
 
                     <!-- delta 5.0.2 to 5.1 starts here -->
                     <execution>
