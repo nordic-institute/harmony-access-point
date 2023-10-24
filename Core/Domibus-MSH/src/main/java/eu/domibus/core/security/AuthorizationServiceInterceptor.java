@@ -56,6 +56,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                                 .message(a.getMessage())
                                 .refToMessageId(a.getMessageId())
                                 .build();
+                    case AUTHORIZATION_TOKEN_ERROR:
                     case AUTHORIZATION_REJECTED:
                         LOG.error("Authorization for incoming message was not granted:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
