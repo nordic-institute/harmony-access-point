@@ -1,5 +1,9 @@
 # Domibus upgrade information
 
+## Domibus 5.1.1.1 (from 5.1.1)
+                - Run the appropriate DB migration script (mysql-5.1.1-to-5.1.1.1-migration.ddl for MySQL or oracle-5.1.1-to-5.1.1.1-migration.ddl for Oracle)
+## Domibus 5.1.1.1 (from 5.1)
+                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1.1-migration.ddl for Oracle)
 ## Domibus 5.1.1 (from 5.1)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
