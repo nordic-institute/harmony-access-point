@@ -359,23 +359,31 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(alias, cert);
     }
 
-    @Override
-    public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+    public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
-        KeyStore store = getStore(persistenceInfo);
+        KeyStore diskStore = getStore(persistenceInfo);
 
-        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(store));
+        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
         try {
-            KeyStore newStore = loadStore(storeInfo);
-            if (securityUtil.areKeystoresIdentical(newStore, store)) {
+            KeyStore uploadedStore = loadStore(storeInfo);
+            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
                 LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
                 return false;
             }
-            keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
-            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(store));
+
+            if (sameProperties(storeInfo, persistenceInfo)) {
+                // same props, so just save the store on disk
+                keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
+            } else {
+                // we need to copy the certificates to a store with the same props as the ones on disk store
+                KeyStore destStore = getNewKeystore(persistenceInfo.getType());
+                copyStoreCertificates(uploadedStore, destStore);
+                keystorePersistenceService.saveStore(destStore, persistenceInfo);
+            }
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
@@ -494,10 +502,45 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
-        return KeyStore.getInstance(storeType);
+    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+        if (storeInfo == null) {
+            throw new NoKeyStoreContentInformationException("Could not load a null store");
+        }
+
+        try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
+            KeyStore keystore = getNewKeystore(storeInfo.getType());
+            LOG.debug("Creating a new store [{}] to load content", storeInfo);
+            keystore.load(contentStream, storeInfo.getPassword().toCharArray());
+            return keystore;
+        } catch (Exception ex) {
+            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
+        }
     }
 
+    private boolean sameProperties(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+        return StringUtils.equalsIgnoreCase(storeInfo.getType(), persistenceInfo.getType())
+                && StringUtils.equalsIgnoreCase(storeInfo.getPassword(), persistenceInfo.getPassword());
+    }
+
+    public KeyStore getNewKeystore(String storeType) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
+        KeyStore instance = KeyStore.getInstance(storeType);
+        instance.load(null, null);
+        return instance;
+    }
+
+    protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
+        try {
+            final Enumeration<String> aliases = srcStore.aliases();
+            while (aliases.hasMoreElements()) {
+                final String alias = aliases.nextElement();
+                final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
+                destStore.setCertificateEntry(alias, certificate);
+                LOG.debug("Copy certificate [{}] named [{}]", certificate, alias);
+            }
+        } catch (Exception e) {
+            throw new DomibusCertificateException("Error while copying certificates from source store", e);
+        }
+    }
 
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         LOG.info("Adding certificates [{}] to [{}]", certificates.stream().map(certificateEntry -> certificateEntry.getAlias()).collect(Collectors.toList()), persistenceInfo.getFileLocation());
@@ -586,19 +629,6 @@ public class CertificateServiceImpl implements CertificateService {
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
-        }
-    }
-
-    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
-        if (storeInfo == null) {
-            throw new NoKeyStoreContentInformationException("Could not load a null store");
-        }
-        try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
-            KeyStore keystore = getNewKeystore(storeInfo.getType());
-            keystore.load(contentStream, storeInfo.getPassword().toCharArray());
-            return keystore;
-        } catch (Exception ex) {
-            throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
         }
     }
 

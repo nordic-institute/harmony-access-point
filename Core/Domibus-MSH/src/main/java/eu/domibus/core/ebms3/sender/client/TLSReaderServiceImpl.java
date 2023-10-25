@@ -108,29 +108,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
     }
 
-    @Override
-    public void updateTlsTrustStoreConfiguration(String domainCode, String type, String fileLocation) {
-        Optional<TLSClientParametersType> tlsParams = getTlsTrustStoreConfiguration(domainCode);
-        if (!tlsParams.isPresent()) {
-            LOG.info("Could not get TlsTrustStoreConfiguration; exiting");
-            return;
-        }
-        Optional<Path> path = getClientAuthenticationPath(domainCode);
-        if (!path.isPresent()) {
-            LOG.info("Could not get ClientAuthenticationPath; exiting");
-            return;
-        }
-
-        KeyStoreType store = tlsParams.get().getTrustManagers().getKeyStore();
-        store.setType(type);
-        store.setFile(fileLocation);
-        try {
-            persistTLSParameters(tlsParams.get(), path.get());
-        } catch (JAXBException | FileNotFoundException e) {
-            throw new DomibusCertificateException("Could not update location in client authentication file for domain [" + domainCode + "]", e);
-        }
-    }
-
     private String getFileContent(Optional<Path> path) throws IOException {
         byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);
