@@ -175,7 +175,7 @@
                                     <value>${project.build.directory}/soapui/ext</value>
                                 </property>
                             </soapuiProperties>
-                            <testFailIgnore>true</testFailIgnore>
+                            <testFailIgnore>false</testFailIgnore>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -262,7 +262,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
