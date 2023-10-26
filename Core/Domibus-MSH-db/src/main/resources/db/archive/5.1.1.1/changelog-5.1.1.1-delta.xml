@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet id="EDELIVERY-12048-oracle" author="Gabriel Maier" dbms="oracle">
         <dropUniqueConstraint tableName="TB_SIGNAL_MESSAGE" constraintName="UK_SIGNAL_MSG_MESSAGE_ID"/><!--only way to drop IDX_SIG_MESS_SIGNAL_MESS_ID that is associated to this unique qey (workaround ORA-02429)-->
@@ -47,6 +47,6 @@
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
