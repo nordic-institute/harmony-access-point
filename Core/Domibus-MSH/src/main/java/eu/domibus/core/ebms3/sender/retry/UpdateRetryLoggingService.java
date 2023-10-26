@@ -220,6 +220,7 @@ public class UpdateRetryLoggingService {
         messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
     }
 
+    @Transactional
     public void setSourceMessageAsFailed(UserMessage userMessage) {
         final long userMessageEntityId = userMessage.getEntityId();
         LOG.debug("Setting the SourceMessage [{}] as failed", userMessageEntityId);

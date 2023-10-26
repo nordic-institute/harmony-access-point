@@ -77,8 +77,13 @@ export class PropertiesService {
   }
 
   async useMessageLogLandingPage(): Promise<boolean> {
-    const prop = await this.getProperty('domibus.ui.pages.messageLogs.landingPage.enabled');
-    return prop && prop.value && prop.value.toLowerCase() == 'true';
+    try {
+      const prop = await this.getProperty('domibus.ui.pages.messageLogs.landingPage.enabled');
+      return prop && prop.value && prop.value.toLowerCase() == 'true';
+    } catch (ex) {
+      console.log('Error reading domibus.ui.pages.messageLogs.landingPage.enabled property', ex);
+      return true;
+    }
   }
 
   async getMessageLogPageAdvancedSearchEnabledProperty() {

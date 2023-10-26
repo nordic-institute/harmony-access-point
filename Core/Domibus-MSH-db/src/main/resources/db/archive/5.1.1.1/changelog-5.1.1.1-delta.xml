@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="EDELIVERY-12048-oracle" author="Gabriel Maier" dbms="oracle">
+        <dropUniqueConstraint tableName="TB_SIGNAL_MESSAGE" constraintName="UK_SIGNAL_MSG_MESSAGE_ID"/><!--only way to drop IDX_SIG_MESS_SIGNAL_MESS_ID that is associated to this unique qey (workaround ORA-02429)-->
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
+    </changeSet>
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-12066">
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+                table_exists INT;
+            BEGIN
+                SELECT count(*) INTO table_exists
+                FROM user_tables
+                WHERE table_name = 'TB_FINAL_RECIPIENT_URL';
+                IF table_exists = 1 THEN
+                    EXECUTE IMMEDIATE 'drop table TB_FINAL_RECIPIENT_URL  CASCADE CONSTRAINTS';
+                END IF;
+            END;
+        </sql>
+        <sql dbms="mysql">
+            DROP TABLE IF EXISTS TB_FINAL_RECIPIENT_URL;
+        </sql>
+    </changeSet>
+
+    <changeSet author="Gabriel Maier" id="EDELIVERY-10284_oracle" dbms="oracle" >
+        <sql endDelimiter="\n/">
+            DECLARE
+                constraint_already_exists EXCEPTION;
+            PRAGMA EXCEPTION_INIT (constraint_already_exists, -01442);
+            BEGIN
+            EXECUTE IMMEDIATE 'ALTER TABLE WS_PLUGIN_TB_BACKEND_MSG_LOG MODIFY MESSAGE_ENTITY_ID NOT NULL';
+            EXCEPTION
+                WHEN constraint_already_exists
+                THEN
+                NULL;
+            END;
+        </sql>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
+    <include file="../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
