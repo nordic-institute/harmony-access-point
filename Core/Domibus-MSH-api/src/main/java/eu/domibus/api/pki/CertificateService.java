@@ -4,8 +4,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -116,7 +118,7 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
+    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 
@@ -205,5 +207,5 @@ public interface CertificateService {
      */
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
 
-    KeyStore getNewKeystore(String storeType) throws KeyStoreException;
+    KeyStore getNewKeystore(String storeType) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException;
 }
