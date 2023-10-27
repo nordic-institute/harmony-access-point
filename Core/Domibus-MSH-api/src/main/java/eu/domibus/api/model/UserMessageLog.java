@@ -196,8 +196,8 @@ import java.util.Date;
                         "FROM UserMessageLog uml " +
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
-                        "and (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_ENQUEUED " +
-                        "       or (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                        "and (uml.messageStatus.entityId = :SEND_ENQUEUED_ID " +
+                        "       or (uml.messageStatus.entityId = :WAITING_FOR_RETRY_ID " +
                         "               and uml.entityId < :MAX_ENTITY_ID))"),
 
 })

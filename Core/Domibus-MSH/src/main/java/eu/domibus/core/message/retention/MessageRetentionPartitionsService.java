@@ -214,7 +214,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected boolean verifyIfAllMessagesAreExpired(String partitionName) {
 
         LOG.debug("Verify if all messages expired on partition [{}]", partitionName);
-        List<String> messageStatuses = MessageStatus.getFinalStatesForDroppingPartitionAsString();
+        List<MessageStatus> messageStatuses = MessageStatus.getFinalStatesForDroppingPartition();
 
         LOG.debug("Counting ongoing messages for partition [{}]", partitionName);
         // check for messages that are not in final status
