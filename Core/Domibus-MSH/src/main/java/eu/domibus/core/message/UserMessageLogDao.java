@@ -387,13 +387,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         String sqlString = "select count(*) from " +
                 "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
                 "             inner join  TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
-                "             inner join  TB_D_MESSAGE_STATUS on TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK" +
                 "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
-                "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
+                "             where TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=:MESSAGESTATUS_ID" +
                 "             and TB_D_MPC.VALUE=:MPC";
         if (startDate != null) {
-            sqlString += "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
-                    "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
+            sqlString += "    and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
+                    "         and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
             sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
             LOG.debug("counting messages newer than: [{}]", startDate);
         }
@@ -402,7 +401,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
-        countQuery.setParameter("MESSAGESTATUS", messageStatus.name());
+
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
+        countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
         if (startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
@@ -483,13 +484,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public int countMessagesNotArchivedOnPartition(String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
                 "INNER JOIN TB_USER_MESSAGE PARTITION ($PARTITION) ON TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
-                "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND TB_USER_MESSAGE.TEST_MESSAGE=0 AND archived IS NULL";
+                "WHERE TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK NOT IN :MESSAGE_STATUS_IDS " +
+                "AND TB_USER_MESSAGE.TEST_MESSAGE=0 " +
+                "AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         final Query countQuery = em.createNativeQuery(sqlString);
         try {
-            countQuery.setParameter("MESSAGE_STATUSES", MessageStatus.getNonArchivableStatesAsString());
+            List<Long> statusIds = messageStatusDao.getEntityIdsOf(MessageStatus.getNonArchivableStates());
+            countQuery.setParameter("MESSAGE_STATUS_IDS", statusIds);
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
             return result;
@@ -501,12 +504,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
 
     @Transactional
-    public int countMessagesOnPartitionWithStatusNotInList(List<String> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+    public int countMessagesOnPartitionWithStatusNotInList(List<MessageStatus> messageStatuses, String partitionName) {
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                "WHERE MESSAGE_STATUS_ID_FK NOT IN :MESSAGE_STATUS_IDS";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
-            countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
+            List<Long> statusIds = messageStatusDao.getEntityIdsOf(messageStatuses);
+            countQuery.setParameter("MESSAGE_STATUS_IDS", statusIds);
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count by message status result [{}]", result);
             return result;
@@ -667,6 +672,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", String.class);
         query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
+
+        MessageStatusEntity sendEnqueuedEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
+        query.setParameter("SEND_ENQUEUED_ID", sendEnqueuedEntity.getEntityId());
+        MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+        query.setParameter("WAITING_FOR_RETRY_ID", retryEntity.getEntityId());
+
         return query.getResultList();
     }
 
