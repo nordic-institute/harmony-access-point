@@ -558,6 +558,16 @@
             <testResource>
                 <directory>src/main/conf/domibus</directory>
                 <filtering>true</filtering>
+                <excludes>
+                  <exclude>**/*.jks</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>src/main/conf/domibus</directory>
+                <filtering>false</filtering>
+                <includes>
+                  <include>**/*.jks</include>
+                </includes>
             </testResource>
         </testResources>
         <plugins>
