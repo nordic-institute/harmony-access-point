@@ -2,6 +2,8 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.dictionary.MessagePropertyDao;
+import eu.domibus.core.message.dictionary.MpcDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,10 @@ public class MessageConfig {
                                                UserMessageLogInfoFilter userMessageLogInfoFilter,
                                                MessageStatusDao messageStatusDao,
                                                NotificationStatusDao notificationStatusDao,
-                                               ReprogrammableService reprogrammableService) {
-        return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, messageStatusDao, notificationStatusDao, reprogrammableService);
+                                               ReprogrammableService reprogrammableService,
+                                               MshRoleDao mshRoleDao,
+                                               MpcDao mpcDao) {
+        return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, messageStatusDao, notificationStatusDao, reprogrammableService, mshRoleDao, mpcDao);
     }
 
     @Bean

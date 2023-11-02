@@ -4,6 +4,8 @@ import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.message.dictionary.MpcDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -26,10 +28,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -61,19 +60,27 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private final ReprogrammableService reprogrammableService;
 
+    private final MshRoleDao mshRoleDao;
+
+    private final MpcDao mpcDao;
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
     public UserMessageLogDao(DateUtil dateUtil,
                              UserMessageLogInfoFilter userMessageLogInfoFilter,
                              MessageStatusDao messageStatusDao,
                              NotificationStatusDao notificationStatusDao,
-                             ReprogrammableService reprogrammableService) {
+                             ReprogrammableService reprogrammableService,
+                             MshRoleDao mshRoleDao,
+                             MpcDao mpcDao) {
         super(UserMessageLog.class);
         this.dateUtil = dateUtil;
         this.userMessageLogInfoFilter = userMessageLogInfoFilter;
         this.messageStatusDao = messageStatusDao;
         this.notificationStatusDao = notificationStatusDao;
         this.reprogrammableService = reprogrammableService;
+        this.mshRoleDao = mshRoleDao;
+        this.mpcDao = mpcDao;
     }
 
     public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
@@ -290,7 +297,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter(MSH_ROLE, mshRole);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(mshRole);
+        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
 
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
         if (userMessageLog == null) {
@@ -300,29 +309,44 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan", eArchiveIsActive);
+        List<Long> msgStatusIDs = messageStatusDao.getEntityIdsOf(Arrays.asList(MessageStatus.DELETED));
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        return getMessagesOlderThan(date, mpcEntity.getEntityId(), expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan",
+                eArchiveIsActive, msgStatusIDs);
     }
 
     public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan", eArchiveIsActive);
+        List<Long> msgStatusIDs = messageStatusDao.getEntityIdsOf(Arrays.asList(MessageStatus.RECEIVED, MessageStatus.RECEIVED_WITH_WARNINGS));
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        return getMessagesOlderThan(date, mpcEntity.getEntityId(), expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan",
+                eArchiveIsActive, msgStatusIDs);
     }
 
     public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan", eArchiveIsActive);
+        List<Long> msgStatusIDs = messageStatusDao.getEntityIdsOf(Arrays.asList(MessageStatus.DOWNLOADED));
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        return getMessagesOlderThan(date, mpcEntity.getEntityId(), expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan",
+                eArchiveIsActive, msgStatusIDs);
     }
 
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName, boolean eArchiveIsActive) {
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, long mpcId, Integer expiredMessagesLimit, String queryName, boolean eArchiveIsActive,
+                                                         List<Long> msgStatusIds) {
         Query query = em.createNamedQuery(queryName);
         query.setParameter("DATE", startDate);
-        query.setParameter("MPC", mpc);
+        query.setParameter("MPC_ID", mpcId);
         query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
+        query.setParameter("MSG_STATUS_IDs", msgStatusIds);
+
         query.setMaxResults(expiredMessagesLimit);
         return query.getResultList();
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan", eArchiveIsActive);
+            List<Long> msgStatusIDs = messageStatusDao.getEntityIdsOf(Arrays.asList(MessageStatus.ACKNOWLEDGED, MessageStatus.SEND_FAILURE));
+            MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+            return getMessagesOlderThan(date, mpcEntity.getEntityId(), expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan",
+                    eArchiveIsActive, msgStatusIDs);
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
@@ -374,7 +398,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
+        List<Long> msgStatusIDs = messageStatusDao.getEntityIdsOf(Arrays.asList(MessageStatus.ACKNOWLEDGED, MessageStatus.SEND_FAILURE));
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        return getMessagesOlderThan(date, mpcEntity.getEntityId(), expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
+                eArchiveIsActive, msgStatusIDs);
     }
 
     @Transactional(readOnly = true)

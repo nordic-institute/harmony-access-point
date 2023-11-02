@@ -24,7 +24,7 @@ import java.util.Set;
         @NamedQuery(name = "UserMessage.findTestMessageFromPartyToPartyDesc",
                 query = "select um from UserMessage um " +
                         "where um.testMessage=true and um.mshRole.role=:MSH_ROLE " +
-                        "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "and um.partyInfo.from.fromPartyId.entityId IN :SENDER_PARTY_IDS and um.partyInfo.to.toPartyId.entityId IN :PARTY_IDS " +
                         "order by um.entityId desc"),
         @NamedQuery(name = "UserMessage.findTestMessageToPartyDesc",
                 query = "select um from UserMessage um " +

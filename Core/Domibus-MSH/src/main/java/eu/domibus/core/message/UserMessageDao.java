@@ -176,10 +176,10 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
 
-    public UserMessage findLastTestMessageFromPartyToParty(String senderPartyId, String partyId) {
+    public UserMessage findLastTestMessageFromPartyToParty(List<Long> fromPartyIds, List<Long> toPartyIds) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyToPartyDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter(SENDER_PARTY_ID, senderPartyId);
+        query.setParameter("SENDER_PARTY_IDS", fromPartyIds);
+        query.setParameter("PARTY_IDS", toPartyIds);
         query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());

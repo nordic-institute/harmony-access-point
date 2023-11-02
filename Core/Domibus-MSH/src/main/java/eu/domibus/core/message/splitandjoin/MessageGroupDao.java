@@ -1,12 +1,10 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
@@ -23,14 +21,16 @@ import java.util.List;
 @Repository
 public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageGroupDao.class);
 
     private final MessageStatusDao messageStatusDao;
 
-    public MessageGroupDao(MessageStatusDao messageStatusDao) {
+    private final MshRoleDao mshRoleDao;
+
+    public MessageGroupDao(MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao) {
         super(MessageGroupEntity.class);
         this.messageStatusDao = messageStatusDao;
+        this.mshRoleDao = mshRoleDao;
     }
 
     public MessageGroupEntity findByUserMessageEntityIdWithMessageHeader(Long userMessageEntityId) {
@@ -60,13 +60,18 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
     public List<MessageGroupEntity> findOngoingReceivedNonExpiredOrRejected() {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findReceivedNonExpiredOrRejected", MessageGroupEntity.class);
-        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.RECEIVING);
+        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
+
         return query.getResultList();
     }
 
     public List<MessageGroupEntity> findOngoingSendNonExpiredOrRejected() {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findSendNonExpiredOrRejected", MessageGroupEntity.class);
-        query.setParameter("MSH_ROLE", MSHRole.SENDING);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.RECEIVING);
+        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
 
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
         query.setParameter("SOURCE_MSG_STATUS_ID", statusEntity.getEntityId());
@@ -76,7 +81,7 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
     @Override
     public void create(MessageGroupEntity messageGroupEntity) {
-        if(messageGroupEntity.getSourceMessage() == null) {
+        if (messageGroupEntity.getSourceMessage() == null) {
             UserMessage um = new UserMessage();
             um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
             messageGroupEntity.setSourceMessage(um);

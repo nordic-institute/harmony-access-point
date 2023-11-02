@@ -24,9 +24,9 @@ import java.math.BigInteger;
         @NamedQuery(name = "MessageGroupEntity.findByUserMessageEntityIdWithMessageHeader", query = "SELECT gr FROM MessageFragmentEntity frag join frag.group gr join fetch gr.messageHeaderEntity where frag.entityId= :USER_MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "MessageGroupEntity.findByGroupId", query = "SELECT c FROM MessageGroupEntity c where c.groupId=:GROUP_ID"),
         @NamedQuery(name = "MessageGroupEntity.findByGroupIdWithMessageHeader", query = "SELECT c FROM MessageGroupEntity c left join fetch c.messageHeaderEntity where c.groupId=:GROUP_ID"),
-        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole.role = :MSH_ROLE " +
+        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole.entityId = :MSH_ROLE_ID " +
                 "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )"),
-        @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c, UserMessageLog msg join msg.userMessage um where c.mshRole.role = :MSH_ROLE " +
+        @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c, UserMessageLog msg join msg.userMessage um where c.mshRole.entityId = :MSH_ROLE_ID " +
                 " and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) ) and c.sourceMessage.entityId = um.entityId and msg.messageStatus.entityId = :SOURCE_MSG_STATUS_ID")
 })
 public class MessageGroupEntity extends AbstractBaseEntity {
