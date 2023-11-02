@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -117,13 +119,14 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         String senderPartyId = "domibus-blue";
-        ActionEntity actionEntity = actionDao.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        List<Long> fromPartyIds = partyIdDao.searchByValue(senderPartyId).stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
+        List<Long> toPartyIds = partyIdDao.searchByValue(testParty).stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, testParty);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(fromPartyIds, toPartyIds);
         assertNotNull(userMessage);
         assertEquals(msgId, userMessage.getMessageId());
 
-        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, testParty);
+        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(fromPartyIds, toPartyIds);
         assertNotNull(signalMessage);
         assertEquals(msgId, signalMessage.getRefToMessageId());
         assertEquals(msgId, signalMessage.getUserMessage().getMessageId());

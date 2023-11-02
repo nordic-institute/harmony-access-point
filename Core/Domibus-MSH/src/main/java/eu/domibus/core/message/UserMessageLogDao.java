@@ -48,7 +48,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
-    public static final String MSH_ROLE = "MSH_ROLE";
+    public static final String MSH_ROLE_ID = "MSH_ROLE_ID";
 
     private final DateUtil dateUtil;
 
@@ -223,7 +223,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         try {
             TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByIdAndRole", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
-            query.setParameter(MSH_ROLE, mshRole);
+
+            MSHRoleEntity roleEntity = mshRoleDao.findByValue(mshRole);
+            query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
+
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
@@ -413,10 +416,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
         String sqlString = "select count(*) from " +
                 "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                "             inner join  TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
-                "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
+                "             inner join TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
                 "             where TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=:MESSAGESTATUS_ID" +
-                "             and TB_D_MPC.VALUE=:MPC";
+                "             and TB_USER_MESSAGE.MPC_ID_FK=:MPC_ID";
         if (startDate != null) {
             sqlString += "    and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
                     "         and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
@@ -427,7 +429,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
-        countQuery.setParameter("MPC", mpc);
+
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        countQuery.setParameter("MPC_ID", mpcEntity.getEntityId());
 
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
         countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
@@ -456,7 +460,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public String findBackendForMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter(MSH_ROLE, mshRole);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(mshRole);
+        query.setParameter(MSH_ROLE_ID, roleEntity.getEntityId());
+
         return query.getSingleResult();
     }
 

@@ -38,7 +38,7 @@ public class MessageConfig {
 
     @Bean
     public UserMessageDao userMessageDao(MessageStatusDao messageStatusDao) {
-        return new UserMessageDao(messageStatusDao);
+        return new UserMessageDao(messageStatusDao, mshRoleDao, partyIdDao);
     }
 
     @Bean
