@@ -5,6 +5,7 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.util.QueryUtil;
@@ -114,7 +115,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates()));
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
     }
@@ -124,8 +125,8 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
 
-        List<Long> statusIds = messageStatusDao.getEntityIdsOf(MessageStatus.getSuccessfulStates());
-        query.setParameter("STATUS_IDS", statusIds);
+        List<MessageStatusEntity> statuses = messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUS_IDS", statuses);
 
         return query.getSingleResult();
     }

@@ -163,8 +163,8 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        List<Long> fromPartyIds = getPartyIds(senderPartyId);
-        List<Long> toPartyIds = getPartyIds(partyId);
+        List<PartyId> fromPartyIds = partyIdDao.searchByValue(senderPartyId);
+        List<PartyId> toPartyIds = partyIdDao.searchByValue(partyId);
         UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(fromPartyIds, toPartyIds);
         if (userMessage == null) {
             LOG.debug("Could not find last test user message sent for party [{}]", partyId);
@@ -217,8 +217,8 @@ public class TestService {
                 return null;
             }
         } else {
-            List<Long> fromPartyIds = getPartyIds(senderPartyId);
-            List<Long> toPartyIds = getPartyIds(partyId);
+            List<PartyId> fromPartyIds = partyIdDao.searchByValue(senderPartyId);
+            List<PartyId> toPartyIds = partyIdDao.searchByValue(partyId);
             signalMessage = signalMessageDao.findLastTestMessage(fromPartyIds, toPartyIds);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
@@ -250,10 +250,6 @@ public class TestService {
             result = errorDetails;
         }
         return result;
-    }
-
-    private List<Long> getPartyIds(String senderPartyId) {
-        return partyIdDao.searchByValue(senderPartyId).stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
     }
 
     protected Submission createSubmission(String sender) throws IOException {

@@ -54,6 +54,12 @@ public class MessageStatusDao extends SingleValueDictionaryDao<MessageStatusEnti
                 .collect(Collectors.toList());
     }
 
+    public List<MessageStatusEntity> getEntitiesOf(List<MessageStatus> statuses) {
+        return statuses.stream()
+                .map(this::findByValue)
+                .collect(Collectors.toList());
+    }
+
     private MessageStatusEntity getEntity(Object messageStatus) {
         TypedQuery<MessageStatusEntity> query = em.createNamedQuery("MessageStatusEntity.findByStatus", MessageStatusEntity.class);
         query.setParameter("MESSAGE_STATUS", messageStatus);

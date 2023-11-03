@@ -29,8 +29,8 @@ import java.util.Date;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId IN :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.findTestMessageDesc",
                 query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage um " +
-                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID " +
-                        "and um.partyInfo.from.fromPartyId.entityId IN :SENDER_PARTY_IDS and um.partyInfo.to.toPartyId.entityId IN :PARTY_IDS " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action = :ACTION " +
+                        "and um.partyInfo.from.fromPartyId IN :SENDER_PARTIES and um.partyInfo.to.toPartyId IN :PARTIES " +
                         "order by um.entityId desc"),
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {
