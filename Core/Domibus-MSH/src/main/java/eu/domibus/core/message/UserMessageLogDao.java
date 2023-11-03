@@ -103,7 +103,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates()));
         query.setMaxResults(batchMaxSize);
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
