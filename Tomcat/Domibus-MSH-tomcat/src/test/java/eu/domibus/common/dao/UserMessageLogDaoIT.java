@@ -31,8 +31,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -452,6 +452,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<EArchiveBatchUserMessage> retryMessages = userMessageLogDao.findMessagesNotFinalAsc(0, 999999999999999999L);
 
         assertEquals(1, retryMessages.size());
+        assertNotNull(retryMessages.get(0).getMessageStatus());
     }
 
     @Test

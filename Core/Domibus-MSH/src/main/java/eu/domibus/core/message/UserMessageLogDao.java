@@ -106,7 +106,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         query.setMaxResults(batchMaxSize);
 
-        return query.getResultList();
+        List<EArchiveBatchUserMessage> res = query.getResultList();
+        addStatus(res);
+        return res;
     }
 
     public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
@@ -117,9 +119,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getNotFinalStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getNotFinalStates()));
 
-        return query.getResultList();
+        List<EArchiveBatchUserMessage> res = query.getResultList();
+        addStatus(res);
+        return res;
     }
 
     public List<String> findFailedMessages(String finalRecipient, String originalUser) {
@@ -142,6 +146,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
                 .collect(Collectors.toList());
     }
 
+    private void addStatus(List<EArchiveBatchUserMessage> list) {
+        list.forEach(eArchiveBatchUserMessage -> {
+            MessageStatusEntity entity = messageStatusDao.read(eArchiveBatchUserMessage.getMessageStatusId());
+            if (entity != null) {
+                eArchiveBatchUserMessage.setMessageStatus(entity.getMessageStatus());
+            }
+        });
+    }
 
     private boolean isAMatch(UserMessageLogDto userMessageLogDto, String finalRecipient, String originalUser) {
         if (StringUtils.isBlank(finalRecipient) && StringUtils.isBlank(originalUser)) {
