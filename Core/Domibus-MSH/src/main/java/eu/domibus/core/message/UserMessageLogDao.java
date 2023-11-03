@@ -129,13 +129,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findByValue(MessageStatus.SEND_FAILURE);
         Query query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod");
-        query.setParameter("MESSAGE_STATUSES", messageStatusEntity.getEntityId());
+        query.setParameter("MESSAGE_STATUS", messageStatusEntity);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", failedStartDate);
         query.setParameter("END_DATE", failedEndDate);
         query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
-        return ((List<UserMessageLogDto>) query.getResultList()).stream()
+        List<UserMessageLogDto> resultList = query.getResultList();
+        return resultList.stream()
                 .filter(userMessageLogDto -> isAMatch(userMessageLogDto, finalRecipient, originalUser))
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
@@ -174,7 +175,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
-        return query.getResultList();
+
+        List<UserMessageLogDto> res = query.getResultList();
+        addRole(res);
+        return res;
     }
 
     /**
@@ -347,7 +351,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public List<UserMessageLogDto> getAllMessages() {
         Query query = em.createNamedQuery("UserMessageLog.findAllMessages");
         query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
-        return query.getResultList();
+        List<UserMessageLogDto> res = query.getResultList();
+        addRole(res);
+        return res;
+    }
+
+    private void addRole(List<UserMessageLogDto> list) {
+        list.forEach(userMessageLogDto -> {
+            MSHRoleEntity roleEntity = mshRoleDao.read(userMessageLogDto.getMshRoleId());
+            if (roleEntity != null) {
+                userMessageLogDto.setMshRole(roleEntity.getRole());
+            }
+        });
     }
 
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
@@ -694,9 +709,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
 
         MessageStatusEntity sendEnqueuedEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
-        query.setParameter("SEND_ENQUEUED_ID", sendEnqueuedEntity.getEntityId());
+        query.setParameter("SEND_ENQUEUED", sendEnqueuedEntity);
         MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
-        query.setParameter("WAITING_FOR_RETRY_ID", retryEntity.getEntityId());
+        query.setParameter("WAITING_FOR_RETRY", retryEntity);
 
         return query.getResultList();
     }

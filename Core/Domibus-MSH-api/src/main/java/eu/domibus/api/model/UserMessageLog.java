@@ -45,7 +45,7 @@ import java.util.Date;
                         "and uml.deleted < :DATE                                                                        " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findMessagesWithSenderAndRecipientAndWithoutStatusDuringPeriod",
-                query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
+                query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.entityId)" +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
@@ -61,7 +61,7 @@ import java.util.Date;
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
         @NamedQuery(name = "UserMessageLog.findMessagesWithSenderAndRecipientAndStatusDuringPeriod",
-                query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
+                query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.entityId)" +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
@@ -79,13 +79,13 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findFailedMessagesDuringPeriod",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
+                        "       um.mshRole.entityId         as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
-                        "WHERE uml.messageStatus = :MESSAGE_STATUSES                                      " +
+                        "WHERE uml.messageStatus = :MESSAGE_STATUS                                                    " +
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (                                                                                        " +
                         "       (:FINAL_RECIPIENT is null and :ORIGINAL_USER is null)                                 " +
@@ -138,7 +138,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findAllMessages",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
+                        "       um.mshRole.entityId         as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "          ,     " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "       ,     " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "            ,     " +
@@ -189,8 +189,8 @@ import java.util.Date;
                         "FROM UserMessageLog uml " +
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
-                        "and (uml.messageStatus.entityId = :SEND_ENQUEUED_ID " +
-                        "       or (uml.messageStatus.entityId = :WAITING_FOR_RETRY_ID " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED " +
+                        "       or (uml.messageStatus = :WAITING_FOR_RETRY " +
                         "               and uml.entityId < :MAX_ENTITY_ID))"),
 
 })
