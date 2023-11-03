@@ -41,7 +41,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         query.setParameter("MESSAGE_ID", messageId);
 
         MSHRoleEntity roleEntity = mshRoleDao.findByRole(mshRole);
-        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
+        query.setParameter("MSH_ROLE", roleEntity);
 
         try {
             return query.getSingleResult();

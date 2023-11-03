@@ -62,7 +62,7 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findReceivedNonExpiredOrRejected", MessageGroupEntity.class);
 
         MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.RECEIVING);
-        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
+        query.setParameter("MSH_ROLE", roleEntity);
 
         return query.getResultList();
     }
@@ -71,10 +71,10 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         TypedQuery<MessageGroupEntity> query = this.em.createNamedQuery("MessageGroupEntity.findSendNonExpiredOrRejected", MessageGroupEntity.class);
 
         MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.RECEIVING);
-        query.setParameter("MSH_ROLE_ID", roleEntity.getEntityId());
+        query.setParameter("MSH_ROLE", roleEntity);
 
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
-        query.setParameter("SOURCE_MSG_STATUS_ID", statusEntity.getEntityId());
+        query.setParameter("SOURCE_MSG_STATUS", statusEntity);
 
         return query.getResultList();
     }

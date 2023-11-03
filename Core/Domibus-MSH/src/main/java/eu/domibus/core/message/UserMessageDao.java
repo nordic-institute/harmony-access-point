@@ -88,7 +88,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageIdAndRole", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRoleDao.findByValue(mshRole));
         final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
         if (userMessage != null) {
             initializeChildren(userMessage);
