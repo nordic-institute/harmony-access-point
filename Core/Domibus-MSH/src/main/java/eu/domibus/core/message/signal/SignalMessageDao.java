@@ -3,6 +3,7 @@ package eu.domibus.core.message.signal;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
@@ -59,12 +60,12 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return result;
     }
 
-    public SignalMessage findLastTestMessage(String senderPartyId, String partyId) {
+    public SignalMessage findLastTestMessage(PartyId fromParty, PartyId toParty) {
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
-        query.setParameter("SENDER_PARTY_ID", senderPartyId);
-        query.setParameter("PARTY_ID", partyId);
-        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setParameter("SENDER_PARTY", fromParty);
+        query.setParameter("PARTY", toParty);
+        query.setParameter("ACTION", actionEntity);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

@@ -23,7 +23,7 @@ public class UserMessageLogDaoTest {
     public void updateByBatch() {
         List<Pair<Long, Long>> result = new ArrayList<>();
 
-        new UserMessageLogDao(null, null, null, null, null)
+        new UserMessageLogDao(null, null, null, null, null, null, null)
                 .update(getResultList(),
                         longs -> {
                             result.add(Pair.of(longs.get(0), longs.get(longs.size() - 1)));
