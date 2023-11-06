@@ -29,7 +29,7 @@ public class PartyIdDao extends BasicDao<PartyId> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public PartyId findByValue(final String value) {
+    protected PartyId findByValue(final String value) {
         final TypedQuery<PartyId> query = this.em.createNamedQuery("PartyId.findByValue", PartyId.class);
         query.setParameter("VALUE", value);
         return DataAccessUtils.singleResult(query.getResultList());
