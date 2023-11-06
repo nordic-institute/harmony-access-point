@@ -119,14 +119,13 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         String senderPartyId = "domibus-blue";
-        List<PartyId> fromParties = partyIdDao.searchByValue(senderPartyId);
-        List<PartyId> toParties = partyIdDao.searchByValue(testParty);
-
-        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(fromParties, toParties);
+        PartyId fromPartyId = partyIdDao.findByValue(senderPartyId);
+        PartyId toPartyId = partyIdDao.findByValue(testParty);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(fromPartyId, toPartyId);
         assertNotNull(userMessage);
         assertEquals(msgId, userMessage.getMessageId());
 
-        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(fromParties, toParties);
+        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(fromPartyId, toPartyId);
         assertNotNull(signalMessage);
         assertEquals(msgId, signalMessage.getRefToMessageId());
         assertEquals(msgId, signalMessage.getUserMessage().getMessageId());

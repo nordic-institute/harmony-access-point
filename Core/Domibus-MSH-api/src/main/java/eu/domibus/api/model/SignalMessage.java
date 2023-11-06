@@ -30,7 +30,7 @@ import java.util.Date;
         @NamedQuery(name = "SignalMessage.findTestMessageDesc",
                 query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage um " +
                         "where um.testMessage=true and um.sourceMessage=false and um.action = :ACTION " +
-                        "and um.partyInfo.from.fromPartyId IN :SENDER_PARTIES and um.partyInfo.to.toPartyId IN :PARTIES " +
+                        "and um.partyInfo.from.fromPartyId = :SENDER_PARTY and um.partyInfo.to.toPartyId = :PARTY " +
                         "order by um.entityId desc"),
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {

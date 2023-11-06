@@ -60,11 +60,11 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return result;
     }
 
-    public SignalMessage findLastTestMessage(List<PartyId> fromParties, List<PartyId> toParties) {
+    public SignalMessage findLastTestMessage(PartyId fromParty, PartyId toParty) {
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
-        query.setParameter("SENDER_PARTIES", fromParties);
-        query.setParameter("PARTIES", toParties);
+        query.setParameter("SENDER_PARTY", fromParty);
+        query.setParameter("PARTY", toParty);
         query.setParameter("ACTION", actionEntity);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
