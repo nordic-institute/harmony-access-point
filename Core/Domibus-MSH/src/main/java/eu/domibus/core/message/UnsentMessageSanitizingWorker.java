@@ -53,7 +53,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        LOG.debug("SendEnqueuedMessageSanitizingWorker to be executed");
+        LOG.debug("UnsentMessageSanitizingWorker to be executed");
         authUtils.runWithSecurityContext(this::sanitize, "unsent_user", "unsent_password");
     }
 

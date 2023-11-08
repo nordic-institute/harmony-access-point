@@ -17,6 +17,7 @@ import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.earchive.job.EArchivingCleanupJob;
 import eu.domibus.core.earchive.job.EArchivingContinuousJob;
 import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
+import eu.domibus.core.earchive.job.EArchivingStuckBatchesJob;
 import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
 import eu.domibus.core.message.UnsentMessageSanitizingWorker;
@@ -609,6 +610,27 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(eArchivingCleanupJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_RETENTION_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean eArchivingStuckJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(EArchivingStuckBatchesJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean eArchivingStuckTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(eArchivingStuckJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STUCK_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
