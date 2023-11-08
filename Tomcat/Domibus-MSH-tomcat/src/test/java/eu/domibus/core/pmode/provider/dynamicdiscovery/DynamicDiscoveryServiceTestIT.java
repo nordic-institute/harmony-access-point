@@ -14,6 +14,7 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.certificate.CertificateTestUtils;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.jms.JMSManagerImpl;
@@ -85,6 +86,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     DynamicDiscoveryAssertionUtil dynamicDiscoveryAssertionUtil;
 
+    @Autowired
+    CertificateTestUtils certificateTestUtils;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -115,6 +119,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Test
     public void lookupAndUpdateConfigurationForPartyToId() throws EbMS3Exception, SQLException, XmlProcessingException, IOException {
         initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
+        certificateTestUtils.resetTruststore("keystores/gateway_truststore_dyn_disc.jks", "test123");
 
         //clean up
         cleanBeforeLookup();
@@ -700,7 +706,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         From from = new From();
         final PartyId fromPartyId = new PartyId();
         fromPartyId.setValue("domibus-blue");
-        fromPartyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        fromPartyId.setType("urn:fdc:peppol.eu:2017:identifiers:ap");
         final PartyRole partyRole = new PartyRole();
         partyRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
         from.setFromRole(partyRole);

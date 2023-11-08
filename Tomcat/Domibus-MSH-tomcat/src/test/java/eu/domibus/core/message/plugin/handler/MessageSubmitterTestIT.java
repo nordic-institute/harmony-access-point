@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageEvent;
 import eu.domibus.common.MessageSendSuccessEvent;
@@ -27,6 +28,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryAssertionUtil;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryClientSpecification;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -170,17 +172,28 @@ public class MessageSubmitterTestIT extends AbstractIT {
         uploadPmode();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
+        assertUserMessageAndUserMessageLogAfterSubmission(messageId, submission, "domibus-red");
+
+        //put the real manager back
+        ReflectionTestUtils.setField(userMessageDefaultService, "jmsManager", saveField);
+
+        //reset the mocks so that they don't interfere with other tests
+        Mockito.reset(mshDispatcher);
+        Mockito.reset(reliabilityChecker);
+    }
+
+    private void assertUserMessageAndUserMessageLogAfterSubmission(String messageId, Submission submission, String expectedPartyTo) {
         //check that PayloadSubmittedEvent was called
         ArgumentCaptor<PayloadSubmittedEvent> payloadSubmittedEventCaptor = ArgumentCaptor.forClass(PayloadSubmittedEvent.class);
         Mockito.verify(backendConnector, Mockito.times(1)).payloadSubmittedEvent(payloadSubmittedEventCaptor.capture());
         final PayloadSubmittedEvent submittedEvent = payloadSubmittedEventCaptor.getValue();
-        assertSubmittedEvent(submittedEvent, messageId, "domibus-red");
+        assertSubmittedEvent(submittedEvent, messageId, expectedPartyTo);
 
         //check that MessageSendSuccessEvent was called
         ArgumentCaptor<MessageSendSuccessEvent> messageSendSuccessEventCaptor = ArgumentCaptor.forClass(MessageSendSuccessEvent.class);
         Mockito.verify(backendConnector, Mockito.times(1)).messageSendSuccess(messageSendSuccessEventCaptor.capture());
         final MessageSendSuccessEvent sendSuccessEvent = messageSendSuccessEventCaptor.getValue();
-        assertSubmittedEvent(sendSuccessEvent, messageId, "domibus-red");
+        assertSubmittedEvent(sendSuccessEvent, messageId, expectedPartyTo);
         assertNotNull(sendSuccessEvent.getMessageEntityId());
 
         //check the UserMessageLog
@@ -201,13 +214,6 @@ public class MessageSubmitterTestIT extends AbstractIT {
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
         messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters, Collections.emptyList());
-
-        //put the real manager back
-        ReflectionTestUtils.setField(userMessageDefaultService, "jmsManager", saveField);
-
-        //reset the mocks so that they don't interfere with other tests
-        Mockito.reset(mshDispatcher);
-        Mockito.reset(reliabilityChecker);
     }
 
     protected void assertSubmittedEvent(MessageEvent messageEvent, String expectedMessageId, String expectedPartyTo) {
@@ -231,77 +237,56 @@ public class MessageSubmitterTestIT extends AbstractIT {
         });
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
+        //we create the SoapResponse following the dispatch to C3
         final SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage("validAS4Response.xml", "123");
         Mockito.when(mshDispatcher.dispatch(any(SOAPMessage.class), anyString(), any(Policy.class), any(LegConfiguration.class), anyString())).thenReturn(soapMessage);
 
         //reliability is OK
         Mockito.when(reliabilityChecker.check(any(SOAPMessage.class), any(SOAPMessage.class), any(ResponseResult.class), any(LegConfiguration.class))).thenReturn(ReliabilityChecker.CheckResult.OK);
 
+        //upload the Pmode for dynamic discovery
         uploadPmode(null, "dataset/pmode/PModeDynamicDiscovery.xml", null);
+
+        //activate dynamic discovery
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED, "false");
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.PEPPOL.getName());
+
+        //create keystore and truststore
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
 
+        //prepare the submission
         Submission submission = submissionUtil.createSubmission();
         final Submission.TypedProperty finalRecipientProperty = submission.getMessageProperties().stream().filter(typedProperty -> typedProperty.getKey().equals("finalRecipient")).findFirst().orElseThrow(() -> new RuntimeException("Could not find final recipient"));
 
         final String expectedDiscoveredPartyName = "party1";
 
-        //we set the correct party type
+        //we set the correct party type according to the Pmode
         submission.getFromParties().clear();
         submission.getFromParties().add(new Submission.Party("domibus-blue", "urn:fdc:peppol.eu:2017:identifiers:ap"));
         final String finalRecipient = "0208:1111";
         finalRecipientProperty.setValue(finalRecipient);
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
-        //we check that the discovered certificate was added to the truststore
+        //we check that the discovered certificate was added to the truststore by the dynamic discovery mechanism
         final X509Certificate certificateFromTruststore = multiDomainCryptoService.getCertificateFromTruststore(currentDomain, expectedDiscoveredPartyName);
         assertNotNull(certificateFromTruststore);
 
-        //check that the party was added in the Pmode
+        //check that the party was added in the Pmode by the dynamic discovery mechanism
         dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(2, expectedDiscoveredPartyName);
         dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(2, expectedDiscoveredPartyName);
 
-        //check an entry was added in the lookup table
+        //check an entry was added in the lookup table by the dynamic discovery mechanism
         dynamicDiscoveryAssertionUtil.verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(1, finalRecipient, expectedDiscoveredPartyName);
 
-        //check that PayloadSubmittedEvent was called
-        ArgumentCaptor<PayloadSubmittedEvent> payloadSubmittedEventCaptor = ArgumentCaptor.forClass(PayloadSubmittedEvent.class);
-        Mockito.verify(backendConnector, Mockito.times(1)).payloadSubmittedEvent(payloadSubmittedEventCaptor.capture());
-        final PayloadSubmittedEvent submittedEvent = payloadSubmittedEventCaptor.getValue();
-        assertSubmittedEvent(submittedEvent, messageId, expectedDiscoveredPartyName);
-
-        //check that MessageSendSuccessEvent was called
-        ArgumentCaptor<MessageSendSuccessEvent> messageSendSuccessEventCaptor = ArgumentCaptor.forClass(MessageSendSuccessEvent.class);
-        Mockito.verify(backendConnector, Mockito.times(1)).messageSendSuccess(messageSendSuccessEventCaptor.capture());
-        final MessageSendSuccessEvent sendSuccessEvent = messageSendSuccessEventCaptor.getValue();
-        assertSubmittedEvent(sendSuccessEvent, messageId, expectedDiscoveredPartyName);
-        assertNotNull(sendSuccessEvent.getMessageEntityId());
-
-        //check the UserMessageLog
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-        assertNotNull(userMessageLog);
-        assertEquals(MessageStatus.ACKNOWLEDGED, userMessageLog.getMessageStatus());
-        assertEquals(MSHRole.SENDING, userMessageLog.getMshRole().getRole());
-        assertNotNull(userMessageLog.getAcknowledged());
-
-        //check the UserMessage
-        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
-        assertNotNull(userMessage);
-        assertEquals(submission.getRefToMessageId(), userMessage.getRefToMessageId());
-        assertEquals(submission.getAction(), userMessage.getActionValue());
-        assertEquals(submission.getService(), userMessage.getServiceValue());
-
-        //check that we can retrieve the message by simulating the UI
-        final HashMap<String, Object> filters = new HashMap<>();
-        filters.put("receivedTo", new Date());
-        messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters, Collections.emptyList());
+        assertUserMessageAndUserMessageLogAfterSubmission(messageId, submission, expectedDiscoveredPartyName);
 
         //put the real manager back
         ReflectionTestUtils.setField(userMessageDefaultService, "jmsManager", saveField);
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
 
         multiDomainCryptoService.removeCertificate(currentDomain, expectedDiscoveredPartyName);
         //reset the mocks so that they don't interfere with other tests
