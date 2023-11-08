@@ -400,7 +400,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final To toParty = userMessage.getPartyInfo().getTo();
         final PartyId fromPartyId = new PartyId();
         fromPartyId.setValue(PARTY_NAME5);
-        fromPartyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        fromPartyId.setType("urn:fdc:peppol.eu:2017:identifiers:ap");
         final PartyRole partyRole = new PartyRole();
         partyRole.setValue("urn:fdc:peppol.eu:2017:roles:ap:as4");
         toParty.setToRole(partyRole);
