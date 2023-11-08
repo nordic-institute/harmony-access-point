@@ -24,7 +24,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -83,6 +82,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     DynamicDiscoveryDeletePmodePartiesCommandTask dynamicDiscoveryDeletePmodePartiesCommandTask;
 
+    @Autowired
+    DynamicDiscoveryAssertionUtil dynamicDiscoveryAssertionUtil;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -90,7 +92,6 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        
     }
 
     private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
@@ -177,9 +178,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
         //before starting the test we verify the initial setup
         //we have the blue_gw and red_gw already present in the truststore
-        verifyNumberOfEntriesInTheTruststore(2);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(2);
         //the blue_gw party is present already in the Pmode
-        verifyIfPartyIsPresentInTheListOfPartiesFromPmode(1, "blue_gw");
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(1, "blue_gw");
 
         int numberOfThreads = 20;
 
@@ -231,18 +232,18 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         }
 
         //we expect 22 certificates in the truststore: we have 2 initial certificates in the truststore(blue_gw and red_gw) + we do 20 unique lookups
-        verifyNumberOfEntriesInTheTruststore(22);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(22);
 
         for (int index = 0; index < numberOfThreads; index++) {
             final String finalRecipient = String.format(FINAL_RECIPIENT_MULTIPLE_THREADS_FORMAT, index);
             final String partyName = String.format(PARTY_NAME_MULTIPLE_THREADS_FORMAT, index);
 
             //we expect 21 parties in the Pmode list(equal to the number of unique lookups + 1(the initial blue_gw party)) and 20 in the responder parties for the unique lookups
-            verifyIfPartyIsPresentInTheListOfPartiesFromPmode(numberOfThreads + 1, partyName);
-            verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(numberOfThreads, partyName);
+            dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(numberOfThreads + 1, partyName);
+            dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(numberOfThreads, partyName);
 
             //we verify if the final recipient was added in the database
-            verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(numberOfThreads, finalRecipient, partyName);
+            dynamicDiscoveryAssertionUtil.verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(numberOfThreads, finalRecipient, partyName);
         }
     }
 
@@ -428,10 +429,10 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         cleanBeforeLookup();
 
         //we check the number of parties in the Pmode before running the test
-        verifyListOfPartiesFromPmodeSize(1);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(1);
 
         //we check the number of parties in the truststore before running the test
-        verifyNumberOfEntriesInTheTruststore(2);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(2);
 
         final String finalRecipient1 = FINAL_RECIPIENT1;//party1
         final String finalRecipient2 = FINAL_RECIPIENT2;//party1
@@ -471,8 +472,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //we keep the final recipient5 discovery time to the current time
 
         //we expect 5 entries in the truststore and 4 entries the Pmode
-        verifyListOfPartiesFromPmodeSize(4);
-        verifyNumberOfEntriesInTheTruststore(5);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(4);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(5);
 
         //we set the retention to 3h and start clean up
         dynamicDiscoveryLookupService.deleteDDCLookupEntriesNotDiscoveredInTheLastPeriod(3);
@@ -480,8 +481,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //start assertions
 
         //we expect 4 entries in the truststore and 3 entries the Pmode: party 2 was deleted from the Pmode and certificate 2 deleted from the truststore
-        verifyListOfPartiesFromPmodeSize(3);
-        verifyNumberOfEntriesInTheTruststore(4);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(3);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(4);
 
         //we expect that the entry for finalRecipient1 was deleted from the database; DDC time is old
         DynamicDiscoveryLookupEntity lookupEntryFinalRecipient1AfterJobRan = dynamicDiscoveryLookupDao.findByFinalRecipient(finalRecipient1);
@@ -526,7 +527,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final String finalRecipient1 = FINAL_RECIPIENT1;//party1
         String partyName1 = PARTY_NAME1;
 
-        verifyListOfPartiesFromPmodeSize(1);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(1);
 
         //---finalRecipient1, party1, certificate1
         //we expect the party and the certificate are added in the PMode and truststore
@@ -633,56 +634,19 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertEquals(partyNameAccessPointForFinalRecipient, toParty);
 
         //verify that the party certificate was added in the truststore
-        verifyNumberOfEntriesInTheTruststore(expectedTruststoreEntriesAfterLookup);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(expectedTruststoreEntriesAfterLookup);
 
         //verify that the party was added in the list of available parties in the Pmode
-        verifyIfPartyIsPresentInTheListOfPartiesFromPmode(expectedPmodePartiesAfterLookup, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(expectedPmodePartiesAfterLookup, partyNameAccessPointForFinalRecipient);
 
         //verify that the party was added in the responder parties for all process
-        verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(expectedResponderPartiesAfterLookup, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(expectedResponderPartiesAfterLookup, partyNameAccessPointForFinalRecipient);
 
         //verify that the final recipient was added in the database
-        verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(expectedDDCLookupEntriesInDatabase, finalRecipient, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(expectedDDCLookupEntriesInDatabase, finalRecipient, partyNameAccessPointForFinalRecipient);
     }
 
-    private void verifyNumberOfEntriesInTheTruststore(int expectedTruststoreEntriesAfterLookup) {
-        List<TrustStoreEntry> trustStoreEntries = multiDomainCertificateProvider.getTrustStoreEntries(DOMAIN);
-        assertEquals(expectedTruststoreEntriesAfterLookup, trustStoreEntries.size());
-    }
 
-    //verify that the party is present in the list of available parties in the Pmode
-    private void verifyIfPartyIsPresentInTheListOfPartiesFromPmode(int expectedPmodePartiesAfterLookup, String partyName) {
-        final List<Party> pmodePartiesList = verifyListOfPartiesFromPmodeSize(expectedPmodePartiesAfterLookup);
-        final Party party1FromPmode = pmodePartiesList.stream().filter(party -> StringUtils.equals(partyName, party.getName())).findFirst().orElse(null);
-
-        assertNotNull(party1FromPmode);
-    }
-
-    public List<Party> verifyListOfPartiesFromPmodeSize(int expectedPmodePartiesList) {
-        final eu.domibus.common.model.configuration.Configuration configuration = ((DynamicDiscoveryPModeProvider) multiDomainPModeProvider.getCurrentPModeProvider()).getConfiguration();
-        final List<Party> pmodePartiesList = configuration.getBusinessProcesses().getParties();
-        assertEquals(expectedPmodePartiesList, pmodePartiesList.size());
-        return pmodePartiesList;
-    }
-
-    //verify that the party is present in the responder parties for all process
-    private void verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(int expectedResponderParties, String partyName) {
-        final eu.domibus.common.model.configuration.Configuration configuration = ((DynamicDiscoveryPModeProvider) multiDomainPModeProvider.getCurrentPModeProvider()).getConfiguration();
-        configuration.getBusinessProcesses().getProcesses().forEach(process -> assertTrue(processContainsResponseParty(process, partyName, expectedResponderParties)));
-    }
-
-    //verify that the final recipient was added in the database
-    private void verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(int expectedFinalRecipientUrlsInDatabase, String finalRecipient, String partyNameAccessPointForFinalRecipient) {
-        final List<DynamicDiscoveryLookupEntity> allDBfinalRecipientEntities = dynamicDiscoveryLookupDao.findAll();
-        assertEquals(expectedFinalRecipientUrlsInDatabase, allDBfinalRecipientEntities.size());
-
-        final List<DynamicDiscoveryLookupEntity> lookupEntities = allDBfinalRecipientEntities.stream().filter(finalRecipientEntity -> StringUtils.equals(finalRecipientEntity.getFinalRecipientValue(), finalRecipient)).collect(Collectors.toList());
-        //we expect only 1 final recipient entry in the DB for the final recipient
-        assertEquals(1, lookupEntities.size());
-        final DynamicDiscoveryLookupEntity lookupEntity = lookupEntities.get(0);
-        assertEquals(finalRecipient, lookupEntity.getFinalRecipientValue());
-        assertEquals("http://localhost:9090/" + partyNameAccessPointForFinalRecipient + "/msh", lookupEntity.getFinalRecipientUrl());
-    }
 
     private void deleteAllFinalRecipients() {
         //we delete the final recipient entries from the database and we clear the memory cache
@@ -704,11 +668,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         return trustStoreEntries;
     }
 
-    protected boolean processContainsResponseParty(Process process, String partyName, int expectedResponderPartiesAfterLookup) {
-        final Set<Party> responderParties = process.getResponderParties();
-        assertEquals(expectedResponderPartiesAfterLookup, responderParties.size());
-        return responderParties.stream().filter(party -> party.getName().equals(partyName)).findAny().isPresent();
-    }
+
 
     protected String getFinalRecipientCacheKey(String finalRecipient) {
         return finalRecipient + "cacheKey";
