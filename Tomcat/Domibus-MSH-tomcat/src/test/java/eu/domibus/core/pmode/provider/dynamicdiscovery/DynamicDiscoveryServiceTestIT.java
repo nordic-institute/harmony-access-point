@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryLookupEntity;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
@@ -850,7 +851,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertFalse(result);
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test(expected = DomibusCoreException.class)
     public void testSmlZoneEmpty() throws EbMS3Exception {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 

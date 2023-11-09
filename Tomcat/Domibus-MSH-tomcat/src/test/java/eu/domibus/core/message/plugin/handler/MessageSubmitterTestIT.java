@@ -251,6 +251,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED, "false");
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.PEPPOL.getName());
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "peppol-transport-as4-v2_0");
 
         //create keystore and truststore
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
@@ -287,6 +288,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "bdxr-transport-ebms3-as4-v1p0");
 
         multiDomainCryptoService.removeCertificate(currentDomain, expectedDiscoveredPartyName);
         //reset the mocks so that they don't interfere with other tests
