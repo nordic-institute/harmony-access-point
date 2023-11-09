@@ -6,6 +6,8 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryLookupEntity;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -20,11 +22,14 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
+import eu.europa.ec.dynamicdiscovery.model.identifiers.SMPProcessIdentifier;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +44,11 @@ import java.math.BigInteger;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
 import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOLConfigurationMockup.*;
 import static org.junit.Assert.*;
@@ -55,6 +62,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceTestIT.class);
     public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION = "dataset/pmode/PModeDynamicDiscovery.xml";
     public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_ONLY = "dataset/pmode/PModeDynamicDiscoverySignOnly.xml";
+
+    public static final String CERTIFICATE_POLICY_ANY = "2.5.29.32.0";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL = "0.4.0.194112.1.0";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL = "0.4.0.194112.1.1";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL_QSCD = "0.4.0.194112.1.2";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL_QSCD = "0.4.0.194112.1.3";
 
     @Autowired
     MultiDomainPModeProvider multiDomainPModeProvider;
@@ -89,6 +102,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     CertificateTestUtils certificateTestUtils;
 
+    @Autowired
+    DynamicDiscoveryServicePEPPOL dynamicDiscoveryService;
+
+    @Autowired
+    DomainContextProvider domainContextProvider;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -100,11 +119,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
         uploadPmode(SERVICE_PORT, pmodeFilePath, null);
-        
+
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.PEPPOL.getName());
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "peppol-transport-as4-v2_0");
     }
 
     @After
@@ -112,6 +132,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "false");
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "bdxr-transport-ebms3-as4-v1p0");
     }
 
     //start tests
@@ -201,7 +222,13 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
             final X509Certificate partyCertificate = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(certificateSerialNumber), "CN=" + partyName + ",OU=Domibus,O=eDelivery,C=EU");
 
             //we add the configuration so that the final recipient can be lookup up and Endpoint is returned(simulating the lookup in SMP)
-            DynamicDiscoveryServicePEPPOLConfigurationMockup.addParticipantConfiguration(finalRecipient, partyName, partyCertificate);
+            DynamicDiscoveryServicePEPPOLConfigurationMockup.addParticipantConfiguration(
+                    finalRecipient,
+                    partyName,
+                    "peppol-transport-as4-v2_0",
+                    new SMPProcessIdentifier("bdx:noprocess", "tc1"),
+                    partyCertificate
+            );
         }
 
         LOG.info("Starting [{}] threads", numberOfThreads);
@@ -653,7 +680,6 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
 
-
     private void deleteAllFinalRecipients() {
         //we delete the final recipient entries from the database and we clear the memory cache
         final List<DynamicDiscoveryLookupEntity> allLookupEntities = dynamicDiscoveryLookupDao.findAll();
@@ -673,7 +699,6 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
         return trustStoreEntries;
     }
-
 
 
     protected String getFinalRecipientCacheKey(String finalRecipient) {
@@ -720,5 +745,108 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         return userMessage;
     }
 
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                "");
+
+        assertTrue(CollectionUtils.isEmpty(dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs()));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithOne() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                CERTIFICATE_POLICY_QCP_NATURAL);
+
+        final List<String> allowedSMPCertificatePolicyOIDs = dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs();
+        assertEquals(1, allowedSMPCertificatePolicyOIDs.size());
+        assertTrue(allowedSMPCertificatePolicyOIDs.contains(CERTIFICATE_POLICY_QCP_NATURAL));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithMultipleAndSpaces() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        String newValue = CERTIFICATE_POLICY_QCP_NATURAL
+                + "," + CERTIFICATE_POLICY_QCP_LEGAL
+                + ", " + CERTIFICATE_POLICY_QCP_NATURAL_QSCD
+                + " ,     " + CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                newValue);
+
+        final List<String> allowedSMPCertificatePolicyOIDs = dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs();
+        assertEquals(4, allowedSMPCertificatePolicyOIDs.size());
+        assertEquals(CERTIFICATE_POLICY_QCP_NATURAL, allowedSMPCertificatePolicyOIDs.get(0));
+        assertEquals(CERTIFICATE_POLICY_QCP_LEGAL, allowedSMPCertificatePolicyOIDs.get(1));
+        assertEquals(CERTIFICATE_POLICY_QCP_NATURAL_QSCD, allowedSMPCertificatePolicyOIDs.get(2));
+        assertEquals(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, allowedSMPCertificatePolicyOIDs.get(3));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+    @Test
+    public void testIsValidEndpointForNullPeriod() {
+        boolean result = dynamicDiscoveryService.isValidEndpoint(null, null);
+
+        assertTrue("If period is not given the endpoint must be considered as valid!", result);
+    }
+
+    @Test
+    public void testIsValidEndpointForValidPeriod() {
+        Date currentDate = Calendar.getInstance().getTime();
+
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+
+        final OffsetDateTime startDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -1));
+        final OffsetDateTime endDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, +1));
+        boolean result = dynamicDiscoveryService.isValidEndpoint(startDate, endDate);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsValidEndpointForNotYetValid() {
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+        Date currentDate = Calendar.getInstance().getTime();
+        OffsetDateTime fromDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, 1));
+        OffsetDateTime toDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, 2));
+
+        boolean result = dynamicDiscoveryService.isValidEndpoint(fromDate, toDate);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testIsValidEndpointForExpired() {
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+        Date currentDate = Calendar.getInstance().getTime();
+        OffsetDateTime fromDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -2));
+        OffsetDateTime toDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -1));
+
+        boolean result = dynamicDiscoveryService.isValidEndpoint(fromDate, toDate);
+        assertFalse(result);
+    }
 }

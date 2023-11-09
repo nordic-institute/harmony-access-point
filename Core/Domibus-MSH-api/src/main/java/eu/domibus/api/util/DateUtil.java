@@ -2,6 +2,7 @@ package eu.domibus.api.util;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -98,4 +99,7 @@ public interface DateUtil {
 
     long getMinEntityId(long delayInSeconds);
 
+    Date convertOffsetDateTimeToDate(OffsetDateTime offsetDateTime);
+
+    OffsetDateTime convertDateToOffsetDateTime(Date date);
 }
