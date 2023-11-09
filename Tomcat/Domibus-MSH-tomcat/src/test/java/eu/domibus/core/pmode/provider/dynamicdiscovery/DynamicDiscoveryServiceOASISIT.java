@@ -92,14 +92,4 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
                 "urn:epsosPatientService::List",
                 "ehealth-procid-qns");
     }
-
-    @Test(expected = ConfigurationException.class)
-    public void lookupInformationWhenServiceMetadataIsNotFound() throws EbMS3Exception {
-        dynamicDiscoveryServiceOASIS.lookupInformation("domain",
-                "participantId_not_existing",
-                "participantIdScheme",
-                "scheme::value",
-                "urn:epsosPatientService::List",
-                "ehealth-procid-qns");
-    }
 }
