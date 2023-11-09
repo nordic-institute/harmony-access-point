@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Sebastian-Ion TINCU
  */
@@ -46,7 +48,7 @@ public class DateUtilImplTest {
         // Then
         LocalDateTime expected = LocalDateTime.of(2020, Month.AUGUST, 29, 11, 53, 37);
 
-        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
+        assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
                 expected.toInstant(ZoneOffset.UTC).atZone(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
     }
 
@@ -61,7 +63,7 @@ public class DateUtilImplTest {
         // Then
         LocalDateTime expected = LocalDateTime.of(2020, Month.FEBRUARY, 29, 11, 53, 37);
 
-        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
+        assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
                 expected.toInstant(ZoneOffset.UTC).atZone(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
     }
 
@@ -75,7 +77,7 @@ public class DateUtilImplTest {
 
         // Then
         Instant expected = LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0, 0).atOffset(ZoneOffset.UTC).toInstant();
-        Assert.assertEquals("Should have converted correctly the epoch ISO 8601 value to a timestamp", expected, actual.toInstant());
+        assertEquals("Should have converted correctly the epoch ISO 8601 value to a timestamp", expected, actual.toInstant());
     }
 
     @Test
@@ -88,7 +90,7 @@ public class DateUtilImplTest {
 
         // Then
         OffsetDateTime expected = OffsetDateTime.of(2020, 2, 29, 11, 53, 37, 0, ZoneOffset.of("+02:00"));
-        Assert.assertEquals("Should have converted correctly the offset ISO 8601 value to a timestamp",
+        assertEquals("Should have converted correctly the offset ISO 8601 value to a timestamp",
                 expected.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
     }
 
@@ -101,7 +103,7 @@ public class DateUtilImplTest {
         Timestamp actual = dateUtilImpl.fromNumber(value);
 
         // Then
-        Assert.assertEquals("Should have converted correctly the number value to a timestamp", new Timestamp(912740921), actual);
+        assertEquals("Should have converted correctly the number value to a timestamp", new Timestamp(912740921), actual);
     }
 
     @Test
@@ -113,7 +115,7 @@ public class DateUtilImplTest {
         Date actual = dateUtilImpl.fromString(value);
 
         // Then
-        Assert.assertEquals("Should have converted correctly the string number value to a timestamp", new Timestamp(13231), actual);
+        assertEquals("Should have converted correctly the string number value to a timestamp", new Timestamp(13231), actual);
     }
 
     @Test
@@ -126,7 +128,7 @@ public class DateUtilImplTest {
 
         // Then
         long expected = LocalDateTime.of(1989, Month.DECEMBER, 24, 12, 59, 59).atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
-        Assert.assertEquals("Should have converted correctly the string ISO 8601 value to a timestamp", expected, actual.getTime());
+        assertEquals("Should have converted correctly the string ISO 8601 value to a timestamp", expected, actual.getTime());
     }
 
     @Test
@@ -144,7 +146,7 @@ public class DateUtilImplTest {
         Date actual = dateUtilImpl.getStartOfDay();
 
         // Then
-        Assert.assertEquals("Should have returned the correct start of day as a date",
+        assertEquals("Should have returned the correct start of day as a date",
                 LocalDateTime.now(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant(), actual.toInstant());
     }
 
@@ -153,7 +155,7 @@ public class DateUtilImplTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
 
-        Assert.assertEquals(220101090000000000L, idPkDateHour);
+        assertEquals(220101090000000000L, idPkDateHour);
     }
 
     @Test
@@ -161,7 +163,7 @@ public class DateUtilImplTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
 
-        Assert.assertEquals(220101100000000000L, idPkDateHour);
+        assertEquals(220101100000000000L, idPkDateHour);
     }
 
     @Test
@@ -179,7 +181,7 @@ public class DateUtilImplTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
 
-        Assert.assertEquals(220101000000000000L, idPkDateHour);
+        assertEquals(220101000000000000L, idPkDateHour);
     }
 
 
@@ -188,7 +190,7 @@ public class DateUtilImplTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
         long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
 
-        Assert.assertEquals(211231230000000000L, idPkDateHour);
+        assertEquals(211231230000000000L, idPkDateHour);
     }
 
     @Test
@@ -230,7 +232,7 @@ public class DateUtilImplTest {
     @Test
     public void getDateHour() {
         ZonedDateTime dateHour = dateUtilImpl.getDateHour("23091820" + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
-        Assert.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
+        assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
     }
 
     @Test
@@ -239,7 +241,7 @@ public class DateUtilImplTest {
         new MockUp<ZonedDateTime>() {
             @Mock
             ZonedDateTime now(ZoneId zone) {
-                return ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, zone);
+                return ZonedDateTime.of(2023, 12, 1, 20, 1, 0, 0, zone);
             }
         };
 
@@ -264,20 +266,34 @@ public class DateUtilImplTest {
 
     @Test
     public void getMinEntityId() {
-        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, ZoneOffset.UTC);
+        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1, 0, 0, ZoneOffset.UTC);
 
         long minEntityId = dateUtilImpl.getMinEntityId(currentDateTime, TimeUnit.HOURS.toSeconds(1));
 
-        Assert.assertEquals(231201190000000000l, minEntityId);
+        assertEquals(231201190000000000l, minEntityId);
     }
 
     @Test
     public void getMaxEntityId() {
-        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, ZoneOffset.UTC);
+        ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1, 0, 0, ZoneOffset.UTC);
 
         long minEntityId = dateUtilImpl.getMaxEntityId(currentDateTime, TimeUnit.HOURS.toSeconds(1));
 
-        Assert.assertEquals(231201199999999999l, minEntityId);
+        assertEquals(231201199999999999l, minEntityId);
+    }
+
+    @Test
+    public void testConversionFromDateToOffsetDateTime() {
+        final Date date = new Date();
+        final OffsetDateTime offsetDateTime = dateUtilImpl.convertDateToOffsetDateTime(date);
+        assertEquals(offsetDateTime.toInstant().toEpochMilli(), date.getTime());
+    }
+
+    @Test
+    public void testConversionFromOffsetDateTimeToDate() {
+        final OffsetDateTime offsetDateTime = new Date().toInstant().atOffset(ZoneOffset.UTC);
+        final Date date = dateUtilImpl.convertOffsetDateTimeToDate(offsetDateTime);
+        assertEquals(date.getTime(), offsetDateTime.toInstant().toEpochMilli());
     }
 
 }
