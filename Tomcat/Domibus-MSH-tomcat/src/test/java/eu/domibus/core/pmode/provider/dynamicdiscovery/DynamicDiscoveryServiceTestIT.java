@@ -19,6 +19,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.certificate.CertificateTestUtils;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
@@ -48,8 +49,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOLConfigurationMockup.*;
 import static org.junit.Assert.*;
 
@@ -848,5 +848,22 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
         boolean result = dynamicDiscoveryService.isValidEndpoint(fromDate, toDate);
         assertFalse(result);
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void testSmlZoneEmpty() throws EbMS3Exception {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_SMLZONE);
+
+        domibusPropertyProvider.setProperty(currentDomain, DOMIBUS_SMLZONE, "");
+        dynamicDiscoveryService.lookupInformation("domain",
+                "participantId_expired",
+                "participantIdScheme",
+                "scheme::value",
+                "urn:epsosPatientService::List",
+                "ehealth-procid-qns");
+
+        domibusPropertyProvider.setProperty(currentDomain, DOMIBUS_SMLZONE, initialValue);
     }
 }

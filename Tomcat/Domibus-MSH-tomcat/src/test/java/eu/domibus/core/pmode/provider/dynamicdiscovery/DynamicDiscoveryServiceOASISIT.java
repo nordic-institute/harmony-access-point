@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.test.common.PKIUtil;
 import eu.europa.ec.dynamicdiscovery.exception.TechnicalException;
 import eu.europa.ec.dynamicdiscovery.model.SMPServiceMetadata;
@@ -11,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Primary;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
-import java.util.Date;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
@@ -88,6 +87,16 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     public void lookupInformation_expired() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId_expired",
+                "participantIdScheme",
+                "scheme::value",
+                "urn:epsosPatientService::List",
+                "ehealth-procid-qns");
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void lookupInformationWhenServiceMetadataIsNotFound() throws EbMS3Exception {
+        dynamicDiscoveryServiceOASIS.lookupInformation("domain",
+                "participantId_not_existing",
                 "participantIdScheme",
                 "scheme::value",
                 "urn:epsosPatientService::List",
