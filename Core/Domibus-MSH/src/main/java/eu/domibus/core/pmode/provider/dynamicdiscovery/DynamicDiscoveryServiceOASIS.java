@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.core.extension.IExtension;
 import eu.europa.ec.dynamicdiscovery.core.extension.impl.oasis10.OasisSMP10Extension;
+import eu.europa.ec.dynamicdiscovery.core.extension.impl.oasis20.OasisSMP20Extension;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
-    private static final List<IExtension> DOCUMENT_EXTENSIONS = Arrays.asList(new OasisSMP10Extension());
+    private static final List<IExtension> DOCUMENT_EXTENSIONS = Arrays.asList(new OasisSMP10Extension(), new OasisSMP20Extension());
 
     @Override
     protected String getPartyIdTypePropertyName() {
