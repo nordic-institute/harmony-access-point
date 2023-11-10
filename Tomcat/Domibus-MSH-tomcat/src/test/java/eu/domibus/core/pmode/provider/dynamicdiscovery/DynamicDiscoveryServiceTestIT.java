@@ -4,8 +4,11 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryLookupEntity;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -14,17 +17,21 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.certificate.CertificateTestUtils;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
-import org.apache.commons.lang3.StringUtils;
+import eu.europa.ec.dynamicdiscovery.model.identifiers.SMPProcessIdentifier;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -39,10 +46,11 @@ import java.math.BigInteger;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOLConfigurationMockup.*;
 import static org.junit.Assert.*;
 
@@ -55,6 +63,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceTestIT.class);
     public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION = "dataset/pmode/PModeDynamicDiscovery.xml";
     public static final String DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_ONLY = "dataset/pmode/PModeDynamicDiscoverySignOnly.xml";
+
+    public static final String CERTIFICATE_POLICY_ANY = "2.5.29.32.0";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL = "0.4.0.194112.1.0";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL = "0.4.0.194112.1.1";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL_QSCD = "0.4.0.194112.1.2";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL_QSCD = "0.4.0.194112.1.3";
 
     @Autowired
     MultiDomainPModeProvider multiDomainPModeProvider;
@@ -83,6 +97,18 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     DynamicDiscoveryDeletePmodePartiesCommandTask dynamicDiscoveryDeletePmodePartiesCommandTask;
 
+    @Autowired
+    DynamicDiscoveryAssertionUtil dynamicDiscoveryAssertionUtil;
+
+    @Autowired
+    CertificateTestUtils certificateTestUtils;
+
+    @Autowired
+    DynamicDiscoveryServicePEPPOL dynamicDiscoveryService;
+
+    @Autowired
+    DomainContextProvider domainContextProvider;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -90,16 +116,16 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        
     }
 
     private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
         uploadPmode(SERVICE_PORT, pmodeFilePath, null);
-        
+
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.PEPPOL.getName());
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "peppol-transport-as4-v2_0");
     }
 
     @After
@@ -107,6 +133,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "false");
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, "bdxr-transport-ebms3-as4-v1p0");
     }
 
     //start tests
@@ -114,6 +141,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Test
     public void lookupAndUpdateConfigurationForPartyToId() throws EbMS3Exception, SQLException, XmlProcessingException, IOException {
         initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
+
+        certificateTestUtils.resetTruststore("keystores/gateway_truststore_dyn_disc.jks", "test123");
 
         //clean up
         cleanBeforeLookup();
@@ -177,9 +206,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
         //before starting the test we verify the initial setup
         //we have the blue_gw and red_gw already present in the truststore
-        verifyNumberOfEntriesInTheTruststore(2);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(2);
         //the blue_gw party is present already in the Pmode
-        verifyIfPartyIsPresentInTheListOfPartiesFromPmode(1, "blue_gw");
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(1, "blue_gw");
 
         int numberOfThreads = 20;
 
@@ -194,7 +223,13 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
             final X509Certificate partyCertificate = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(certificateSerialNumber), "CN=" + partyName + ",OU=Domibus,O=eDelivery,C=EU");
 
             //we add the configuration so that the final recipient can be lookup up and Endpoint is returned(simulating the lookup in SMP)
-            DynamicDiscoveryServicePEPPOLConfigurationMockup.addParticipantConfiguration(finalRecipient, partyName, partyCertificate);
+            DynamicDiscoveryServicePEPPOLConfigurationMockup.addParticipantConfiguration(
+                    finalRecipient,
+                    partyName,
+                    "peppol-transport-as4-v2_0",
+                    new SMPProcessIdentifier("bdx:noprocess", "tc1"),
+                    partyCertificate
+            );
         }
 
         LOG.info("Starting [{}] threads", numberOfThreads);
@@ -231,18 +266,18 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         }
 
         //we expect 22 certificates in the truststore: we have 2 initial certificates in the truststore(blue_gw and red_gw) + we do 20 unique lookups
-        verifyNumberOfEntriesInTheTruststore(22);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(22);
 
         for (int index = 0; index < numberOfThreads; index++) {
             final String finalRecipient = String.format(FINAL_RECIPIENT_MULTIPLE_THREADS_FORMAT, index);
             final String partyName = String.format(PARTY_NAME_MULTIPLE_THREADS_FORMAT, index);
 
             //we expect 21 parties in the Pmode list(equal to the number of unique lookups + 1(the initial blue_gw party)) and 20 in the responder parties for the unique lookups
-            verifyIfPartyIsPresentInTheListOfPartiesFromPmode(numberOfThreads + 1, partyName);
-            verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(numberOfThreads, partyName);
+            dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(numberOfThreads + 1, partyName);
+            dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(numberOfThreads, partyName);
 
             //we verify if the final recipient was added in the database
-            verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(numberOfThreads, finalRecipient, partyName);
+            dynamicDiscoveryAssertionUtil.verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(numberOfThreads, finalRecipient, partyName);
         }
     }
 
@@ -393,7 +428,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final To toParty = userMessage.getPartyInfo().getTo();
         final PartyId fromPartyId = new PartyId();
         fromPartyId.setValue(PARTY_NAME5);
-        fromPartyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        fromPartyId.setType("urn:fdc:peppol.eu:2017:identifiers:ap");
         final PartyRole partyRole = new PartyRole();
         partyRole.setValue("urn:fdc:peppol.eu:2017:roles:ap:as4");
         toParty.setToRole(partyRole);
@@ -428,10 +463,10 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         cleanBeforeLookup();
 
         //we check the number of parties in the Pmode before running the test
-        verifyListOfPartiesFromPmodeSize(1);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(1);
 
         //we check the number of parties in the truststore before running the test
-        verifyNumberOfEntriesInTheTruststore(2);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(2);
 
         final String finalRecipient1 = FINAL_RECIPIENT1;//party1
         final String finalRecipient2 = FINAL_RECIPIENT2;//party1
@@ -471,8 +506,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //we keep the final recipient5 discovery time to the current time
 
         //we expect 5 entries in the truststore and 4 entries the Pmode
-        verifyListOfPartiesFromPmodeSize(4);
-        verifyNumberOfEntriesInTheTruststore(5);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(4);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(5);
 
         //we set the retention to 3h and start clean up
         dynamicDiscoveryLookupService.deleteDDCLookupEntriesNotDiscoveredInTheLastPeriod(3);
@@ -480,8 +515,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         //start assertions
 
         //we expect 4 entries in the truststore and 3 entries the Pmode: party 2 was deleted from the Pmode and certificate 2 deleted from the truststore
-        verifyListOfPartiesFromPmodeSize(3);
-        verifyNumberOfEntriesInTheTruststore(4);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(3);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(4);
 
         //we expect that the entry for finalRecipient1 was deleted from the database; DDC time is old
         DynamicDiscoveryLookupEntity lookupEntryFinalRecipient1AfterJobRan = dynamicDiscoveryLookupDao.findByFinalRecipient(finalRecipient1);
@@ -526,7 +561,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final String finalRecipient1 = FINAL_RECIPIENT1;//party1
         String partyName1 = PARTY_NAME1;
 
-        verifyListOfPartiesFromPmodeSize(1);
+        dynamicDiscoveryAssertionUtil.verifyListOfPartiesFromPmodeSize(1);
 
         //---finalRecipient1, party1, certificate1
         //we expect the party and the certificate are added in the PMode and truststore
@@ -633,56 +668,18 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertEquals(partyNameAccessPointForFinalRecipient, toParty);
 
         //verify that the party certificate was added in the truststore
-        verifyNumberOfEntriesInTheTruststore(expectedTruststoreEntriesAfterLookup);
+        dynamicDiscoveryAssertionUtil.verifyNumberOfEntriesInTheTruststore(expectedTruststoreEntriesAfterLookup);
 
         //verify that the party was added in the list of available parties in the Pmode
-        verifyIfPartyIsPresentInTheListOfPartiesFromPmode(expectedPmodePartiesAfterLookup, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheListOfPartiesFromPmode(expectedPmodePartiesAfterLookup, partyNameAccessPointForFinalRecipient);
 
         //verify that the party was added in the responder parties for all process
-        verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(expectedResponderPartiesAfterLookup, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(expectedResponderPartiesAfterLookup, partyNameAccessPointForFinalRecipient);
 
         //verify that the final recipient was added in the database
-        verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(expectedDDCLookupEntriesInDatabase, finalRecipient, partyNameAccessPointForFinalRecipient);
+        dynamicDiscoveryAssertionUtil.verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(expectedDDCLookupEntriesInDatabase, finalRecipient, partyNameAccessPointForFinalRecipient);
     }
 
-    private void verifyNumberOfEntriesInTheTruststore(int expectedTruststoreEntriesAfterLookup) {
-        List<TrustStoreEntry> trustStoreEntries = multiDomainCertificateProvider.getTrustStoreEntries(DOMAIN);
-        assertEquals(expectedTruststoreEntriesAfterLookup, trustStoreEntries.size());
-    }
-
-    //verify that the party is present in the list of available parties in the Pmode
-    private void verifyIfPartyIsPresentInTheListOfPartiesFromPmode(int expectedPmodePartiesAfterLookup, String partyName) {
-        final List<Party> pmodePartiesList = verifyListOfPartiesFromPmodeSize(expectedPmodePartiesAfterLookup);
-        final Party party1FromPmode = pmodePartiesList.stream().filter(party -> StringUtils.equals(partyName, party.getName())).findFirst().orElse(null);
-
-        assertNotNull(party1FromPmode);
-    }
-
-    public List<Party> verifyListOfPartiesFromPmodeSize(int expectedPmodePartiesList) {
-        final eu.domibus.common.model.configuration.Configuration configuration = ((DynamicDiscoveryPModeProvider) multiDomainPModeProvider.getCurrentPModeProvider()).getConfiguration();
-        final List<Party> pmodePartiesList = configuration.getBusinessProcesses().getParties();
-        assertEquals(expectedPmodePartiesList, pmodePartiesList.size());
-        return pmodePartiesList;
-    }
-
-    //verify that the party is present in the responder parties for all process
-    private void verifyIfPartyIsPresentInTheResponderPartiesForAllProcesses(int expectedResponderParties, String partyName) {
-        final eu.domibus.common.model.configuration.Configuration configuration = ((DynamicDiscoveryPModeProvider) multiDomainPModeProvider.getCurrentPModeProvider()).getConfiguration();
-        configuration.getBusinessProcesses().getProcesses().forEach(process -> assertTrue(processContainsResponseParty(process, partyName, expectedResponderParties)));
-    }
-
-    //verify that the final recipient was added in the database
-    private void verifyThatDynamicDiscoveryLookupWasAddedInTheDatabase(int expectedFinalRecipientUrlsInDatabase, String finalRecipient, String partyNameAccessPointForFinalRecipient) {
-        final List<DynamicDiscoveryLookupEntity> allDBfinalRecipientEntities = dynamicDiscoveryLookupDao.findAll();
-        assertEquals(expectedFinalRecipientUrlsInDatabase, allDBfinalRecipientEntities.size());
-
-        final List<DynamicDiscoveryLookupEntity> lookupEntities = allDBfinalRecipientEntities.stream().filter(finalRecipientEntity -> StringUtils.equals(finalRecipientEntity.getFinalRecipientValue(), finalRecipient)).collect(Collectors.toList());
-        //we expect only 1 final recipient entry in the DB for the final recipient
-        assertEquals(1, lookupEntities.size());
-        final DynamicDiscoveryLookupEntity lookupEntity = lookupEntities.get(0);
-        assertEquals(finalRecipient, lookupEntity.getFinalRecipientValue());
-        assertEquals("http://localhost:9090/" + partyNameAccessPointForFinalRecipient + "/msh", lookupEntity.getFinalRecipientUrl());
-    }
 
     private void deleteAllFinalRecipients() {
         //we delete the final recipient entries from the database and we clear the memory cache
@@ -704,11 +701,6 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         return trustStoreEntries;
     }
 
-    protected boolean processContainsResponseParty(Process process, String partyName, int expectedResponderPartiesAfterLookup) {
-        final Set<Party> responderParties = process.getResponderParties();
-        assertEquals(expectedResponderPartiesAfterLookup, responderParties.size());
-        return responderParties.stream().filter(party -> party.getName().equals(partyName)).findAny().isPresent();
-    }
 
     protected String getFinalRecipientCacheKey(String finalRecipient) {
         return finalRecipient + "cacheKey";
@@ -740,7 +732,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         From from = new From();
         final PartyId fromPartyId = new PartyId();
         fromPartyId.setValue("domibus-blue");
-        fromPartyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+        fromPartyId.setType("urn:fdc:peppol.eu:2017:identifiers:ap");
         final PartyRole partyRole = new PartyRole();
         partyRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
         from.setFromRole(partyRole);
@@ -754,5 +746,125 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         return userMessage;
     }
 
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                "");
+
+        assertTrue(CollectionUtils.isEmpty(dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs()));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithOne() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                CERTIFICATE_POLICY_QCP_NATURAL);
+
+        final List<String> allowedSMPCertificatePolicyOIDs = dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs();
+        assertEquals(1, allowedSMPCertificatePolicyOIDs.size());
+        assertTrue(allowedSMPCertificatePolicyOIDs.contains(CERTIFICATE_POLICY_QCP_NATURAL));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+
+    @Test
+    public void testGetAllowedSMPCertificatePolicyOIDsPropertyWithMultipleAndSpaces() {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION);
+
+        String newValue = CERTIFICATE_POLICY_QCP_NATURAL
+                + "," + CERTIFICATE_POLICY_QCP_LEGAL
+                + ", " + CERTIFICATE_POLICY_QCP_NATURAL_QSCD
+                + " ,     " + CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                newValue);
+
+        final List<String> allowedSMPCertificatePolicyOIDs = dynamicDiscoveryService.getAllowedSMPCertificatePolicyOIDs();
+        assertEquals(4, allowedSMPCertificatePolicyOIDs.size());
+        assertEquals(CERTIFICATE_POLICY_QCP_NATURAL, allowedSMPCertificatePolicyOIDs.get(0));
+        assertEquals(CERTIFICATE_POLICY_QCP_LEGAL, allowedSMPCertificatePolicyOIDs.get(1));
+        assertEquals(CERTIFICATE_POLICY_QCP_NATURAL_QSCD, allowedSMPCertificatePolicyOIDs.get(2));
+        assertEquals(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, allowedSMPCertificatePolicyOIDs.get(3));
+
+        domibusPropertyProvider.setProperty(currentDomain,
+                DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION,
+                initialValue);
+    }
+
+    @Test
+    public void testIsValidEndpointForNullPeriod() {
+        boolean result = dynamicDiscoveryService.isValidEndpoint(null, null);
+
+        assertTrue("If period is not given the endpoint must be considered as valid!", result);
+    }
+
+    @Test
+    public void testIsValidEndpointForValidPeriod() {
+        Date currentDate = Calendar.getInstance().getTime();
+
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+
+        final OffsetDateTime startDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -1));
+        final OffsetDateTime endDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, +1));
+        boolean result = dynamicDiscoveryService.isValidEndpoint(startDate, endDate);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsValidEndpointForNotYetValid() {
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+        Date currentDate = Calendar.getInstance().getTime();
+        OffsetDateTime fromDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, 1));
+        OffsetDateTime toDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, 2));
+
+        boolean result = dynamicDiscoveryService.isValidEndpoint(fromDate, toDate);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testIsValidEndpointForExpired() {
+        final DateUtilImpl dateUtil = new DateUtilImpl();
+        Date currentDate = Calendar.getInstance().getTime();
+        OffsetDateTime fromDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -2));
+        OffsetDateTime toDate = dateUtil.convertDateToOffsetDateTime(DateUtils.addDays(currentDate, -1));
+
+        boolean result = dynamicDiscoveryService.isValidEndpoint(fromDate, toDate);
+        assertFalse(result);
+    }
+
+    @Test(expected = DomibusCoreException.class)
+    public void testSmlZoneEmpty() throws EbMS3Exception {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        final String initialValue = domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_SMLZONE);
+
+        domibusPropertyProvider.setProperty(currentDomain, DOMIBUS_SMLZONE, "");
+        dynamicDiscoveryService.lookupInformation("domain",
+                "participantId_expired",
+                "participantIdScheme",
+                "scheme::value",
+                "urn:epsosPatientService::List",
+                "ehealth-procid-qns");
+
+        domibusPropertyProvider.setProperty(currentDomain, DOMIBUS_SMLZONE, initialValue);
+    }
 }

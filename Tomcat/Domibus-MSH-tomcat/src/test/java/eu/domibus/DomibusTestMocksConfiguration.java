@@ -62,12 +62,6 @@ public class DomibusTestMocksConfiguration {
 
     @Primary
     @Bean
-    ResponseHandler responseHandler() {
-        return Mockito.mock(ResponseHandler.class);
-    }
-
-    @Primary
-    @Bean
     ReliabilityChecker reliabilityChecker() {
         return Mockito.mock(ReliabilityChecker.class);
     }

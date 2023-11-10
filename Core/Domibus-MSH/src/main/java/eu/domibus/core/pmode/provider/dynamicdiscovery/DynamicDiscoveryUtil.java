@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
+import eu.europa.ec.dynamicdiscovery.model.SMPEndpoint;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class DynamicDiscoveryUtil {
      * The Security Profiles priority list is defined in the properties file.
      * If the priority list is not defined the transport profile value defined in the property file will be read.
      *
-     * @param transportProfiles list of available transport profiles that are received from the SMP endpoint
+     * @param transportProfiles                  list of available transport profiles that are received from the SMP endpoint
      * @param securityProfileTransportProfileMap mapping between Security Profiles and Transport Profiles
      * @return the available Transport Profile matching the highest ranking priority Security Profile
      */
@@ -90,10 +90,9 @@ public class DynamicDiscoveryUtil {
      * Returns the Transport Profile matching a specific Security Profile according to the SECURITY_PROFILE_TRANSPORT_PROFILE_MAP
      * If no match is found it returns null.
      *
-     * @param securityProfile the Security Profile for which the matching Transport Profile is retrieved
-     * @param transportProfiles list of available transport profiles returned by SMP
+     * @param securityProfile                    the Security Profile for which the matching Transport Profile is retrieved
+     * @param transportProfiles                  list of available transport profiles returned by SMP
      * @param securityProfileTransportProfileMap mapping between Security Profiles and Transport Profiles
-     *
      * @return the matching Security Profile
      */
     public String getTransportProfileMatchingSecurityProfile(SecurityProfile securityProfile,
@@ -110,10 +109,11 @@ public class DynamicDiscoveryUtil {
      *
      * @return a list of available Transport Profiles
      */
-    public List<String> retrieveTransportProfilesFromProcesses(List<ProcessType> processes) {
+    public List<String> retrieveTransportProfilesFromProcesses(List<SMPEndpoint> processes) {
         List<String> transportProfiles = new ArrayList<>();
         processes.stream().forEach(
-                p -> p.getServiceEndpointList().getEndpoint().stream().forEach(e -> transportProfiles.add(e.getTransportProfile())));
+                process -> transportProfiles.add(process.getTransportProfile().getIdentifier())
+        );
 
         return transportProfiles;
     }

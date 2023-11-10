@@ -24,7 +24,6 @@ public class DynamicDiscoveryEndpointChangeListener implements DomibusPropertyCh
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsAnyIgnoreCase(propertyName,
                 DOMIBUS_SMLZONE,
-                DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE,
                 DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION,
                 DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION,
                 DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);

@@ -4,8 +4,6 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.test.common.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import network.oxalis.vefa.peppol.common.code.Service;
-import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Rule;
@@ -70,7 +68,7 @@ public class DomibusCertificateValidatorIT {
 
 
     @Test
-    public void testValidateIsPassingValidation() throws PeppolSecurityException, CertificateException, NoSuchProviderException {
+    public void testValidateIsPassingValidation() throws CertificateException, NoSuchProviderException {
         new MockUp<DomibusCertificateValidator>() {
             @Mock
             private void validateSMPCertificate(X509Certificate cert) {
@@ -80,7 +78,7 @@ public class DomibusCertificateValidatorIT {
 
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
-        domibusCertificateValidator.validate(Service.SMP, certificate);
+        domibusCertificateValidator.validateSMPCertificate(certificate);
 
         new Verifications() {{
             domibusCertificateValidator.validateSMPCertificate(certificate);

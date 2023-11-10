@@ -170,4 +170,20 @@ public class DateUtilImpl implements DateUtil {
     public long getMinEntityId(long delayInSeconds) {
         return getMinEntityId(ZonedDateTime.now(ZoneOffset.UTC), delayInSeconds);
     }
+
+    @Override
+    public Date convertOffsetDateTimeToDate(OffsetDateTime offsetDateTime) {
+        if(offsetDateTime == null) {
+            return null;
+        }
+        return new Date(offsetDateTime.toInstant().toEpochMilli());
+    }
+
+    @Override
+    public OffsetDateTime convertDateToOffsetDateTime(Date date) {
+        if(date == null) {
+            return null;
+        }
+        return date.toInstant().atOffset(ZoneOffset.UTC);
+    }
 }
