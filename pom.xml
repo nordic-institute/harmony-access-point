@@ -21,7 +21,7 @@
         <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
         gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
         and keeps the customizations needed by Domibus -->
-        <xmlsec.version>2.3.0</xmlsec.version>
+        <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.29</spring.version>
         <spring.security.version>5.8.7</spring.security.version>
