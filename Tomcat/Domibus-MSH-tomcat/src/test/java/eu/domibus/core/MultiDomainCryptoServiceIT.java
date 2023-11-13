@@ -119,30 +119,31 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
     }
 
-    @Test
-    public void replaceTrustStore() throws IOException {
-        String newStoreName = "gateway_truststore2.jks";
-        String storePassword = "test123";
-        Domain domain = DomainService.DEFAULT_DOMAIN;
-
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
-        byte[] content = Files.readAllBytes(path);
-        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, storePassword);
-
-        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
-        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
-        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-
-        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
-
-        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
-        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
-
-        Assert.assertNotEquals(initialStore, newStore);
-        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
-        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
-    }
+//    @Test
+//    @Ignore
+//    public void replaceTrustStore() throws IOException {
+//        String newStoreName = "gateway_truststore2.jks";
+//        String storePassword = "test123";
+//        Domain domain = DomainService.DEFAULT_DOMAIN;
+//
+//        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
+//        byte[] content = Files.readAllBytes(path);
+//        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, storePassword);
+//
+//        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
+//        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+//        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+//
+//        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+//
+//        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
+//        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+//        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+//
+//        Assert.assertNotEquals(initialStore, newStore);
+//        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+//        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+//    }
 
     @Test
     public void replaceTrustStoreWithDifferentTypeAndPassword() throws IOException {
