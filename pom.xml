@@ -6,7 +6,7 @@
 
     <groupId>org.niis</groupId>
     <artifactId>harmony</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <packaging>pom</packaging>
     <name>Harmony MSH</name>
     <modules>
@@ -17,22 +17,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
         <cxf.version>3.5.7</cxf.version>
-        <wss4j-ws-security.version>2.4.2</wss4j-ws-security.version>
+        <wss4j-ws-security.version>2.4.3</wss4j-ws-security.version>
         <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
         gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
         and keeps the customizations needed by Domibus -->
-        <xmlsec.version>2.3.3</xmlsec.version>
+        <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.30</spring.version>
         <!-- When upgrading the version, please check the usages, to decide if the exclusion of artifactId spring-expression is still needed -->
-        <spring.security.version>5.8.7</spring.security.version>
-        <spring.session.core.version>2.7.3</spring.session.core.version>
-        <spring.session.jdbc.version>2.7.3</spring.session.jdbc.version>
+        <spring.security.version>5.8.8</spring.security.version>
+        <spring.session.core.version>2.7.4</spring.session.core.version>
+        <spring.session.jdbc.version>2.7.4</spring.session.jdbc.version>
         <springdoc.version>1.6.15</springdoc.version>
         <io.swagger.core.v3.version>2.2.16</io.swagger.core.v3.version>
         <swagger-ui.version>4.15.5</swagger-ui.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
-        <activemq.version>5.16.6</activemq.version>
+        <activemq.version>5.16.7</activemq.version>
         <aspectj.version>1.9.20.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
         <logback.version>1.2.12</logback.version>
@@ -54,7 +54,7 @@
         <freemarker.version>2.3.32</freemarker.version>
         <mail.version>1.6.7</mail.version>
         <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
-        <jaxb-impl.version>2.3.8</jaxb-impl.version>
+        <jaxb-impl.version>2.3.9</jaxb-impl.version>
         <dom4j.version>2.1.4</dom4j.version>
         <tika.version>2.7.0</tika.version>
         <peppol.version>2.4.0</peppol.version>
@@ -66,7 +66,7 @@
         <mockito.version>1.10.19</mockito.version>
         <h2.version>2.1.214</h2.version>
         <liquibase.version>4.17.2</liquibase.version>
-        <mysql.connector.java.version>8.0.32</mysql.connector.java.version>
+        <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.20</dropwizard.metrics.version>
@@ -76,7 +76,7 @@
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.80</tomcat-embed.version>
+        <tomcat-embed.version>9.0.82</tomcat-embed.version>
         <json-smart.version>2.4.11</json-smart.version>
         <xbean-spring.version>4.23</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
