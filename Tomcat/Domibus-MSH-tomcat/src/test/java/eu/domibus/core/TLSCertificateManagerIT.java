@@ -12,6 +12,7 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,11 +50,21 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Autowired
     CertificateHelper certificateHelper;
 
-    @Before
+
     public void clean() {
         resetInitialTruststore();
     }
 
+    @Before
+    public void before() {
+        clean();
+    }
+
+    @After
+    public void after(){
+        clean();
+    }
+    
     @Autowired
     DomainTaskExecutor domainTaskExecutor;
 

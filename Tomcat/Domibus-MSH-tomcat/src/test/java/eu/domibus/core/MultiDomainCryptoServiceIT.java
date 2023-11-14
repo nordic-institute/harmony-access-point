@@ -19,15 +19,10 @@ import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.constraints.AssertFalse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,6 +79,15 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
+    public void before() {
+        clean();
+    }
+
+    @After
+    public void after() {
+        clean();
+    }
+
     public void clean() {
         final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
         final LocalDateTime offset = localDateTime.minusDays(15);
@@ -182,6 +186,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
         Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
     }
+
     @Test
     public void getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(DomainService.DEFAULT_DOMAIN);
@@ -196,7 +201,6 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    @Ignore //EDELIVERY-12384 addCertificate:212 expected:<3> but was:<10>
     public void addCertificate() throws IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
