@@ -571,6 +571,8 @@
    file name: hazelcast-5.3.6.jar (shaded: org.json:json:20231013)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10, json-java -->
+        <cve>CVE-2022-45688</cve>
         <!--Domibus receives json strings only from controlled environment -->
         <cve>CVE-2023-5072</cve>
     </suppress>
