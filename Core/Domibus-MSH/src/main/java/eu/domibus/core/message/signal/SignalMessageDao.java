@@ -7,6 +7,7 @@ import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -32,6 +33,9 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     @Autowired
     private ActionDictionaryService actionDictionaryService;
 
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
     public SignalMessageDao() {
         super(SignalMessage.class);
     }
@@ -45,7 +49,7 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     public SignalMessage findByUserMessageIdWithUserMessage(String messageId, MSHRole mshRole) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageIdAndRole", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
