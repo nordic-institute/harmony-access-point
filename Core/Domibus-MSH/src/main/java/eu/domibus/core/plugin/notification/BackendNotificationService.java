@@ -478,6 +478,10 @@ public class BackendNotificationService {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         target.putAll(props);
 
+        final long messageEntityId = userMessage.getEntityId();
+        if (messageEntityId > 0) {
+            target.put(MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
+        }
         target.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
         target.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         target.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());
