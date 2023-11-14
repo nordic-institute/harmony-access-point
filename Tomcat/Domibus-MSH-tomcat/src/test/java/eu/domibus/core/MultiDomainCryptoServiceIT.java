@@ -201,7 +201,6 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-//    @Ignore //EDELIVERY-12384 addCertificate:212 expected:<3> but was:<10>
     public void addCertificate() throws IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
