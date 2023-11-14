@@ -273,6 +273,8 @@
         <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -525,6 +527,8 @@
         <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
 
     <suppress>
@@ -543,6 +547,8 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -560,16 +566,22 @@
         <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
         <cve>CVE-2023-34411</cve>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
-   file name: hazelcast-5.3.1.jar (shaded: org.json:json:20230227)
+   file name: hazelcast-5.3.6.jar (shaded: org.json:json:20231013)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
-        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
-        <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: dom4j-2.1.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
+        <!-- This vulnerability was withdrawn: https://github.com/advisories/GHSA-fgq9-fc3q-vqmw -->
+        <cve>CVE-2023-45960</cve>
+    </suppress>
 
     <!-- Use in test -->
     <suppress>
