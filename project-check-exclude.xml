@@ -99,7 +99,6 @@
         <cve>CVE-2022-34305</cve>
         <cve>CVE-2022-45143</cve>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
    file name: jetty-xxx-yyy.jar
@@ -116,6 +115,28 @@
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
     <suppress>
+        <!--Only used in testing environment-->
+        <notes><![CDATA[
+   file name: tomcat-embed-core-9.0.80.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
+        <cve>CVE-2023-42794</cve>
+        <cve>CVE-2023-44487</cve>
+        <cve>CVE-2023-42795</cve>
+        <cve>CVE-2023-45648</cve>
+    </suppress>
+    <suppress>
+        <!--Only used in testing environment-->
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-9.0.80.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
+        <cve>CVE-2023-42794</cve>
+        <cve>CVE-2023-44487</cve>
+        <cve>CVE-2023-42795</cve>
+        <cve>CVE-2023-45648</cve>
+    </suppress>
+    <suppress>
         <!-- jetty-server is not used in production - used in tests -->
         <notes><![CDATA[
    file name: jetty-server-9.2.28.v20190418.jar
@@ -125,6 +146,7 @@
         <cve>CVE-2023-26049</cve>
         <cve>CVE-2023-40167</cve>
         <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-44487</cve>
     </suppress>
 
     <suppress>
@@ -251,6 +273,8 @@
         <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -503,6 +527,8 @@
         <packageUrl regex="true">^pkg:maven/io\.dropwizard\.metrics/metrics\-json@.*$</packageUrl>
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
 
     <suppress>
@@ -521,6 +547,8 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -538,16 +566,24 @@
         <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
         <cve>CVE-2023-34411</cve>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
-   file name: hazelcast-5.3.1.jar (shaded: org.json:json:20230227)
+   file name: hazelcast-5.3.6.jar (shaded: org.json:json:20231013)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
-        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10, json-java -->
         <cve>CVE-2022-45688</cve>
+        <!--Domibus receives json strings only from controlled environment -->
+        <cve>CVE-2023-5072</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: dom4j-2.1.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
+        <!-- This vulnerability was withdrawn: https://github.com/advisories/GHSA-fgq9-fc3q-vqmw -->
+        <cve>CVE-2023-45960</cve>
+    </suppress>
 
     <!-- Use in test -->
     <suppress>

@@ -11,17 +11,13 @@
     <name>Domibus MSH</name>
     <modules>
         <module>Core</module>
-        <module>Core/Domibus-MSH-customizations</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
         <cxf.version>3.5.5</cxf.version>
         <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
-        <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
-        gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
-        and keeps the customizations needed by Domibus -->
-        <xmlsec.version>2.3.0</xmlsec.version>
+        <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.29</spring.version>
         <spring.security.version>5.8.7</spring.security.version>
@@ -166,7 +162,7 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast.version>5.3.1</hazelcast.version>
+        <hazelcast.version>5.3.6</hazelcast.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
