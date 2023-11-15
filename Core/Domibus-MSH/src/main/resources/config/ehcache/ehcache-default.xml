@@ -35,12 +35,6 @@
         </expiry>
         <heap>5000</heap>
     </cache>
-    <cache alias="dss-cache">
-        <expiry>
-            <ttl>600</ttl>
-        </expiry>
-        <heap unit="entries">5000</heap>
-    </cache>
     <cache alias="jmsDestinations">
         <expiry>
             <ttl>300</ttl>

@@ -4,6 +4,7 @@
 ## Domibus 5.1.2 (from 5.1)
                 - Run the appropriate DB migration script (mysql-5.1-to-5.1.2-migration.ddl for MySQL or oracle-5.1-to-5.1.2-migration.ddl for Oracle)
                 - Remove property domibus.dynamicdiscovery.peppolclient.mode
+                - Any custom dss-cache settings should be moved from /conf/domibus/internal/ehcache.xml to /conf/domibus/extensions/config/dss-extension-ehcache.xml
 ## Domibus 5.1.1 (from 5.1)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
