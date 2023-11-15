@@ -441,32 +441,5 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>database</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>make-assembly-sqlscripts</id>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/sqlscripts/sql-scripts.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                                <!-- bound to verify because we need to execute cargo-package first
-                                    which is in pre-integration-test -->
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 </project>
