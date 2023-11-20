@@ -6,6 +6,7 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -22,6 +23,7 @@ import javax.persistence.PersistenceContext;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
@@ -64,6 +66,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Autowired
     protected PlatformTransactionManager transactionManager;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
@@ -313,5 +317,51 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
         Assert.assertEquals(message, batchUpdated.getMessage());
+    }
+
+    @Test
+    public void reexportBatch() {
+        // GIVEN
+        Date currentDate = new Date();
+        uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
+        uml2 = messageDaoTestUtil.createUserMessageLog("uml2-" + UUID.randomUUID(), currentDate);
+        uml3 = messageDaoTestUtil.createUserMessageLog("uml3-" + UUID.randomUUID(), currentDate);
+
+        batch1 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(UUID.randomUUID().toString(),
+                EArchiveRequestType.CONTINUOUS,
+                EArchiveBatchStatus.STARTED,
+                DateUtils.addDays(currentDate, -10),
+                uml1.getEntityId(),
+                uml3.getEntityId(),
+                3,
+                "/tmp/batch"));
+
+        eArchiveBatchUserMessageDao.create(batch1, Arrays.asList(
+                new EArchiveBatchUserMessage(uml1.getEntityId(), uml1.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml2.getEntityId(), uml2.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml3.getEntityId(), uml3.getUserMessage().getMessageId())));
+
+        // WHEN
+        EArchiveBatchRequestDTO result = eArchivingService.reExportBatch(batch1.getBatchId());
+
+        // THEN
+        EArchiveBatchEntity persistedResult = eArchiveBatchDao.findEArchiveBatchByBatchId(result.getBatchId());
+        Set<String> persistedMessageIds = eArchiveBatchUserMessageDao.getBatchMessageList(persistedResult.getEntityId(), null, null).stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toSet());
+
+        Assert.assertTrue("The exported batch should contain all of the initial messages",
+                persistedMessageIds.size() == 3
+                        && persistedMessageIds.containsAll(Arrays.asList(uml1.getUserMessage().getMessageId(),
+                                                            uml2.getUserMessage().getMessageId(),
+                                                            uml3.getUserMessage().getMessageId())));
+        Assert.assertEquals("The exported batch should have its request type set to manual",
+                    EArchiveRequestType.MANUAL.name(), result.getRequestType());
+        Assert.assertEquals("The exported batch should have the original ID set to the initial batch ID",
+                batch1.getBatchId(), persistedResult.getOriginalBatchId());
+
+        Assert.assertEquals("The original batch should have been marked as failed",
+                EArchiveBatchStatus.FAILED, batch1.getEArchiveBatchStatus());
+
+        Assert.assertEquals("The start IDs should match", batch1.getFirstPkUserMessage(), result.getMessageStartId());
+        Assert.assertEquals("The end IDs should match", batch1.getLastPkUserMessage(), result.getMessageEndId());
     }
 }

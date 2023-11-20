@@ -119,7 +119,6 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .authorizeRequests()
                 .antMatchers("/", "/index.html", "/login",
                         "/rest/security/authentication",
-                        "/rest/application/info",
                         "/rest/application/name",
                         "/rest/application/fourcornerenabled",
                         "/rest/application/extauthproviderenabled",
@@ -127,6 +126,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                         "/rest/application/supportteam",
                         "/rest/security/user").permitAll()
                 .antMatchers("/rest/userdomains/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers("/rest/application/info").authenticated()
                 .antMatchers("/rest/domains/**").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers(HttpMethod.PUT, "/rest/security/user/password").authenticated()
                 .antMatchers("/rest/pmode/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())

@@ -40,6 +40,7 @@ export class PageHelperComponent implements OnInit {
   }
 
   private async setHelpPages() {
+    console.log('call getDomibusInfo')
     const domibusInfo = await this.domibusInfoService.getDomibusInfo();
     const MAIN_HELP_PAGE = `https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
 
