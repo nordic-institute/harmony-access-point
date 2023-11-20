@@ -1,8 +1,10 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.common.model.configuration.Action;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
@@ -151,18 +153,37 @@ public class LegConfigurationValidator implements PModeValidator {
     }
 
     protected ValidationIssue validateLegAction(LegConfiguration leg) {
-        if (leg.getAction() == null) {
+        Action action = leg.getAction();
+        if (action == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "actionXml", String.class);
             return createIssue(leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
         }
+
+        if (action.getValue() != null && action.getValue().contains("=")) {
+            String name = action.getName();
+            return createIssue(leg, name, "The value of action [%s] of leg configuration [%s] contains forbidden '=' character.");
+        }
+
         return null;
     }
 
     protected ValidationIssue validateLegService(LegConfiguration leg) {
-        if (leg.getService() == null) {
+        Service service = leg.getService();
+        if (service == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "serviceXml", String.class);
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
         }
+
+        if (service.getServiceType() != null && service.getServiceType().contains("=")) {
+            String name = service.getName();
+            return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] contains forbidden '=' character.");
+        }
+
+        if (service.getValue() != null && service.getValue().contains("=")) {
+            String name = service.getName();
+            return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] contains forbidden '=' character.");
+        }
+
         return null;
     }
 
