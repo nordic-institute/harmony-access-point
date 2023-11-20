@@ -146,6 +146,8 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_SEARCH_ADVANCED_ENABLED).authenticated()
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers("/rest/message/restore/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers("/rest/message/failed/restore/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
                 .and()
                 .exceptionHandling().and()
