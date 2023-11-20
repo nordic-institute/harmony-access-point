@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Action;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -9,14 +10,16 @@ import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN;
 
 /**
  * @author Ion Perpegel
@@ -28,8 +31,26 @@ import java.util.stream.Collectors;
 @Order(3)
 public class LegConfigurationValidator implements PModeValidator {
 
-    @Autowired
-    PModeValidationHelper pModeValidationHelper;
+    private final PModeValidationHelper pModeValidationHelper;
+
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    Pattern actionPattern, servicePattern;
+
+    public LegConfigurationValidator(PModeValidationHelper pModeValidationHelper, DomibusPropertyProvider domibusPropertyProvider) {
+        this.pModeValidationHelper = pModeValidationHelper;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+
+        String actionPatternString = this.domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        if (StringUtils.isNotBlank(actionPatternString)) {
+            actionPattern = Pattern.compile(actionPatternString);
+        }
+
+        String servicePatternString = this.domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        if (StringUtils.isNotBlank(servicePatternString)) {
+            servicePattern = Pattern.compile(servicePatternString);
+        }
+    }
 
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
@@ -113,7 +134,7 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
         }
-        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0 && leg.getReceptionAwareness().getStrategy()!= RetryStrategy.PROGRESSIVE) {
+        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <= 0 && leg.getReceptionAwareness().getStrategy() != RetryStrategy.PROGRESSIVE) {
             String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
             return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
         }
@@ -159,9 +180,11 @@ public class LegConfigurationValidator implements PModeValidator {
             return createIssue(leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
         }
 
-        if (action.getValue() != null && action.getValue().contains("=")) {
+        if (action.getValue() != null
+                && actionPattern != null
+                && !actionPattern.matcher(action.getValue()).matches()) {
             String name = action.getName();
-            return createIssue(leg, name, "The value of action [%s] of leg configuration [%s] contains forbidden '=' character.");
+            return createIssue(leg, name, "The value of action [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
         return null;
@@ -174,14 +197,18 @@ public class LegConfigurationValidator implements PModeValidator {
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
         }
 
-        if (service.getServiceType() != null && service.getServiceType().contains("=")) {
+        if (service.getServiceType() != null
+                && servicePattern != null
+                && !servicePattern.matcher(service.getServiceType()).matches()) {
             String name = service.getName();
-            return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] contains forbidden '=' character.");
+            return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
-        if (service.getValue() != null && service.getValue().contains("=")) {
+        if (service.getValue() != null
+                && servicePattern != null
+                && !servicePattern.matcher(service.getValue()).matches()) {
             String name = service.getName();
-            return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] contains forbidden '=' character.");
+            return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
         return null;
