@@ -1,6 +1,7 @@
 Domibus 5.1.2
 - External API to get certificate of the party returns a ResponseEntity of TrustStoreDTO as per the OAS specification.
 - New worker which reschedules unsent messages stuck in SEND_ENQUEUED and WAITING_FOR_RETRY statuses
+- New worker which reschedules eArchive batches stuck in STARTED statuses
 - Added support for dynamic discovery wildcard search
 - Cache configuration for extensions can be done using default ehcache file *-extension-default-ehcache.xml. The expected location (in a Java project) is: /src/main/resources/config/ehcache/*-extension-default-ehcache.xml which will go to .jar file of the extension into e.g. /config/ehcache/ext1-extension-default-ehcache.xml location
 - Cache configuration for extensions can be overridden by a configuration file named *-extension-ehcache.xml (e.g ext1-extension-ehcache.xml) added to /conf/domibus/extensions/config/
