@@ -171,6 +171,11 @@
               <span>Change Password</span>
             </button>
 
+            <div mat-menu-item (click)="showVersionInfo($event)" id="version_id">
+              <mat-icon>info</mat-icon>
+              <span>Version Info</span>
+            </div>
+
             <button mat-menu-item (click)="logout($event)" id="logout_id">
               <mat-icon>power_settings_new</mat-icon>
               <span>Logout</span>
@@ -193,6 +198,7 @@
     <div id="routerHolder" style="height: calc(100% - 40px);">
       <div style="margin:15px;height: 100%;">
         <router-outlet class="full-height"></router-outlet>
+<!--        <footer></footer>-->
       </div>
     </div>
   </div>
