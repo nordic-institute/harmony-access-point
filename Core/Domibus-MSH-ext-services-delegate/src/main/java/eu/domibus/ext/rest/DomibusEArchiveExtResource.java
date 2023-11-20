@@ -234,12 +234,13 @@ public class DomibusEArchiveExtResource {
     }
 
     /**
-     * Request to export a batch based on batch id
+     * Marks a batch based on batch id as failed and exports it again as a new batch
      * <p>
      * This REST endpoint will export a new batch with a new batch id containing the same messages that
      * were already exported in a batch identified by the batch id provided as a parameter. The batch id
      * identifying the previously exported batch will not be automatically deleted or modified in the
-     * database or on the disk storage. The retention mechanism can potentially delete it later
+     * database or on the disk storage. The retention mechanism can potentially delete it later. The
+     * original batch is marked as failed
      * <p>
      * This endpoint can be used in cases where the export or archival of a batch has failed or it expired as
      * well as for other unexpected situations.
