@@ -134,7 +134,6 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     @Override
     @Transactional
     public List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter) {
-
         Boolean returnMessages = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES);
         List<EArchiveBatchEntity> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter);
         if (BooleanUtils.isTrue(returnMessages)) {
@@ -191,7 +190,14 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public EArchiveBatchRequestDTO reExportBatch(String batchId) {
-        // create a copy of the  batch and submit it to JMS
+        LOG.info("Mark the original eArchive batch [{}] as failed", batchId);
+        EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+        if (originEntity == null) {
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]");
+        }
+        setStatus(originEntity, EArchiveBatchStatus.FAILED);
+
+        // create a copy of the batch and submit it to JMS
         EArchiveBatchEntity copyBatch = eArchiveBatchDispatcherService.reExportBatchAndEnqueue(batchId, domainContextProvider.getCurrentDomain());
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(copyBatch);
     }

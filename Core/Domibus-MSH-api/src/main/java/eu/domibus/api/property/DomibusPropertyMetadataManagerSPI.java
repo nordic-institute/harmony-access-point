@@ -426,6 +426,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_DB = "domibus.earchive.retention.delete.db";
     String DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS = "domibus.earchive.start_date.stopped.allowed_hours";
+    String DOMIBUS_EARCHIVE_STUCK_CRON = "domibus.earchive.stuck.cron";
+    String DOMIBUS_EARCHIVE_STUCK_IGNORE_RECENT_MINUTES = "domibus.earchive.stuck.ignore.recent.minutes";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
