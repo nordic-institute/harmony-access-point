@@ -144,12 +144,12 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()">
-      </domain-selector>
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
 
-      <div class="helpMenu">
+      <div *ngIf="currentUser" class="helpMenu">
         <page-helper></page-helper>
       </div>
+
       <div id="sandwichMenu">
         <button mat-icon-button [mat-menu-trigger-for]="settingsMenu" id="settingsmenu_id" mat-tooltip="Menu">
           <mat-icon>menu</mat-icon>
@@ -183,8 +183,7 @@
 
           </div>
 
-          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;"
-               id="settingsmenu_expanded_id">
+          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;">
             <button mat-menu-item disabled="true">
               <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
