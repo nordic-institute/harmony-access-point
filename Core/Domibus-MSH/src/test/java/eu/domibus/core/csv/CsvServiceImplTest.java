@@ -377,7 +377,7 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageFilterROList, MessageFilterCSV.class, null, null);
 
         // Then
-        Assert.assertThat(exportToCSV, CoreMatchers.containsString("'backendName','from:from',,,,'true'"));
+        Assert.assertThat(exportToCSV, CoreMatchers.containsString("'backendName','from:from','','','','true'"));
     }
 
     private List<ErrorLogRO> getErrorLogList(Date date) {
