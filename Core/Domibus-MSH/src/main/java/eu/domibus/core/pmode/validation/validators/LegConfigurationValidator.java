@@ -33,20 +33,17 @@ public class LegConfigurationValidator implements PModeValidator {
 
     private final PModeValidationHelper pModeValidationHelper;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     Pattern actionPattern, servicePattern;
 
     public LegConfigurationValidator(PModeValidationHelper pModeValidationHelper, DomibusPropertyProvider domibusPropertyProvider) {
         this.pModeValidationHelper = pModeValidationHelper;
-        this.domibusPropertyProvider = domibusPropertyProvider;
 
-        String actionPatternString = this.domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        String actionPatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
         if (StringUtils.isNotBlank(actionPatternString)) {
             actionPattern = Pattern.compile(actionPatternString);
         }
 
-        String servicePatternString = this.domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        String servicePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
         if (StringUtils.isNotBlank(servicePatternString)) {
             servicePattern = Pattern.compile(servicePatternString);
         }
@@ -180,9 +177,7 @@ public class LegConfigurationValidator implements PModeValidator {
             return createIssue(leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
         }
 
-        if (action.getValue() != null
-                && actionPattern != null
-                && !actionPattern.matcher(action.getValue()).matches()) {
+        if (!matchesPattern(action.getValue(), actionPattern)) {
             String name = action.getName();
             return createIssue(leg, name, "The value of action [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
@@ -197,21 +192,24 @@ public class LegConfigurationValidator implements PModeValidator {
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
         }
 
-        if (service.getServiceType() != null
-                && servicePattern != null
-                && !servicePattern.matcher(service.getServiceType()).matches()) {
+        if (!matchesPattern(service.getServiceType(), servicePattern)) {
             String name = service.getName();
             return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
-        if (service.getValue() != null
-                && servicePattern != null
-                && !servicePattern.matcher(service.getValue()).matches()) {
+        if (!matchesPattern(service.getValue(), servicePattern))  {
             String name = service.getName();
             return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
         return null;
+    }
+
+    private boolean matchesPattern(String value, Pattern pattern) {
+        if (value == null || pattern == null) {
+            return true;
+        }
+        return pattern.matcher(value).matches();
     }
 
     protected ValidationIssue createIssue(LegConfiguration leg, String name, String message) {
