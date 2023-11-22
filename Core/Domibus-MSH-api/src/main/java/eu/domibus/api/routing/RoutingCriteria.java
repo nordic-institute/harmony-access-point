@@ -15,7 +15,7 @@ public class RoutingCriteria implements Serializable {
 
     private String name;
 
-    @CustomWhiteListed(permitted = "./")
+    @CustomWhiteListed(permitted = ":/?&-+%")
     private String expression;
 
     public String getEntityId() {
