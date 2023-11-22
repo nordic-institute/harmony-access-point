@@ -2,6 +2,7 @@
 
 
 ## Domibus 5.1.2 (from 5.1)
+                - Update the properties domibus.pmode.validation.action.pattern and domibus.pmode.validation.service.pattern in case of backward compatibility issues regarding the action and service values
                 - Run the appropriate DB migration script (mysql-5.1-to-5.1.2-migration.ddl for MySQL or oracle-5.1-to-5.1.2-migration.ddl for Oracle)
                 - Remove property domibus.dynamicdiscovery.peppolclient.mode
                 - Any custom dss-cache settings should be moved from /conf/domibus/internal/ehcache.xml to /conf/domibus/extensions/config/dss-extension-ehcache.xml
