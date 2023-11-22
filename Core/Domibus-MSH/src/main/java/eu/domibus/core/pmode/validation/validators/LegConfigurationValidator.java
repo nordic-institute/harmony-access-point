@@ -19,8 +19,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -34,7 +33,7 @@ public class LegConfigurationValidator implements PModeValidator {
 
     private final PModeValidationHelper pModeValidationHelper;
 
-    Pattern actionPattern, servicePattern;
+    Pattern actionPattern, serviceValuePattern, serviceTypePattern;
 
     public LegConfigurationValidator(PModeValidationHelper pModeValidationHelper, DomibusPropertyProvider domibusPropertyProvider) {
         this.pModeValidationHelper = pModeValidationHelper;
@@ -44,9 +43,14 @@ public class LegConfigurationValidator implements PModeValidator {
             actionPattern = Pattern.compile(actionPatternString);
         }
 
-        String servicePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN);
-        if (StringUtils.isNotBlank(servicePatternString)) {
-            servicePattern = Pattern.compile(servicePatternString);
+        String serviceValuePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN);
+        if (StringUtils.isNotBlank(serviceValuePatternString)) {
+            serviceValuePattern = Pattern.compile(serviceValuePatternString);
+        }
+
+        String serviceTypePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_TYPE_PATTERN);
+        if (StringUtils.isNotBlank(serviceTypePatternString)) {
+            serviceTypePattern = Pattern.compile(serviceTypePatternString);
         }
     }
 
@@ -193,12 +197,12 @@ public class LegConfigurationValidator implements PModeValidator {
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
         }
 
-        if (!matchesPattern(service.getServiceType(), servicePattern)) {
+        if (!matchesPattern(service.getServiceType(), serviceTypePattern)) {
             String name = service.getName();
             return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
 
-        if (!matchesPattern(service.getValue(), servicePattern))  {
+        if (!matchesPattern(service.getValue(), serviceValuePattern))  {
             String name = service.getName();
             return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
         }
