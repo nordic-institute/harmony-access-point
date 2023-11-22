@@ -1,20 +1,25 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.model.configuration.Action;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -26,8 +31,28 @@ import java.util.stream.Collectors;
 @Order(3)
 public class LegConfigurationValidator implements PModeValidator {
 
-    @Autowired
-    PModeValidationHelper pModeValidationHelper;
+    private final PModeValidationHelper pModeValidationHelper;
+
+    Pattern actionPattern, serviceValuePattern, serviceTypePattern;
+
+    public LegConfigurationValidator(PModeValidationHelper pModeValidationHelper, DomibusPropertyProvider domibusPropertyProvider) {
+        this.pModeValidationHelper = pModeValidationHelper;
+
+        String actionPatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        if (StringUtils.isNotBlank(actionPatternString)) {
+            actionPattern = Pattern.compile(actionPatternString);
+        }
+
+        String serviceValuePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN);
+        if (StringUtils.isNotBlank(serviceValuePatternString)) {
+            serviceValuePattern = Pattern.compile(serviceValuePatternString);
+        }
+
+        String serviceTypePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_TYPE_PATTERN);
+        if (StringUtils.isNotBlank(serviceTypePatternString)) {
+            serviceTypePattern = Pattern.compile(serviceTypePatternString);
+        }
+    }
 
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
@@ -111,7 +136,7 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
         }
-        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0 && leg.getReceptionAwareness().getStrategy()!= RetryStrategy.PROGRESSIVE) {
+        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <= 0 && leg.getReceptionAwareness().getStrategy() != RetryStrategy.PROGRESSIVE) {
             String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
             return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
         }
@@ -151,19 +176,45 @@ public class LegConfigurationValidator implements PModeValidator {
     }
 
     protected ValidationIssue validateLegAction(LegConfiguration leg) {
-        if (leg.getAction() == null) {
+        Action action = leg.getAction();
+        if (action == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "actionXml", String.class);
             return createIssue(leg, name, "Action [%s] of leg configuration [%s] not found in business process actions.");
         }
+
+        if (!matchesPattern(action.getValue(), actionPattern)) {
+            String name = action.getName();
+            return createIssue(leg, name, "The value of action [%s] of leg configuration [%s] does not conform to the required action pattern.");
+        }
+
         return null;
     }
 
     protected ValidationIssue validateLegService(LegConfiguration leg) {
-        if (leg.getService() == null) {
+        Service service = leg.getService();
+        if (service == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "serviceXml", String.class);
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
         }
+
+        if (!matchesPattern(service.getServiceType(), serviceTypePattern)) {
+            String name = service.getName();
+            return createIssue(leg, name, "The type of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
+        }
+
+        if (!matchesPattern(service.getValue(), serviceValuePattern))  {
+            String name = service.getName();
+            return createIssue(leg, name, "The value of service [%s] of leg configuration [%s] does not conform to the required action pattern.");
+        }
+
         return null;
+    }
+
+    private boolean matchesPattern(String value, Pattern pattern) {
+        if (value == null || pattern == null) {
+            return true;
+        }
+        return pattern.matcher(value).matches();
     }
 
     protected ValidationIssue createIssue(LegConfiguration leg, String name, String message) {
