@@ -1,5 +1,5 @@
 Domibus 5.1.2
-- Added properties domibus.pmode.validation.action.pattern and domibus.pmode.validation.service.pattern to validate action and service when updating a pMode
+- Added properties domibus.pmode.validation.action.pattern and domibus.pmode.validation.service.value.pattern to validate action and service when updating a pMode
 - External API to get certificate of the party returns a ResponseEntity of TrustStoreDTO as per the OAS specification.
 - New worker which reschedules unsent messages stuck in SEND_ENQUEUED and WAITING_FOR_RETRY statuses
 - New worker which reschedules eArchive batches stuck in STARTED statuses

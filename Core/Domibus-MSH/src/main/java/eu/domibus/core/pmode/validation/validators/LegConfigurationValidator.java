@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN;
 
 /**
  * @author Ion Perpegel
@@ -43,7 +44,7 @@ public class LegConfigurationValidator implements PModeValidator {
             actionPattern = Pattern.compile(actionPatternString);
         }
 
-        String servicePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN);
+        String servicePatternString = domibusPropertyProvider.getProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN);
         if (StringUtils.isNotBlank(servicePatternString)) {
             servicePattern = Pattern.compile(servicePatternString);
         }
