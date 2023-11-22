@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -27,6 +28,9 @@ public class LegConfigurationValidatorTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void test_validate(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses) {

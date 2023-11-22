@@ -197,7 +197,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
+        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:EArchive batch not found batchId: [unknown]"));
     }
 
     @Test

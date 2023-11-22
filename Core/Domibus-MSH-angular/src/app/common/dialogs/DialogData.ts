@@ -6,3 +6,10 @@ export interface YesNoDialogData {
   noText?: string,
   noIcon?: string,
 }
+
+export interface OKDialogData {
+  message?: any;
+  title: string,
+  okText: string,
+  okIcon: string,
+}

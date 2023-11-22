@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {YesNoDialogData} from '../DialogData';
+import {OKDialogData, YesNoDialogData} from '../DialogData';
 
 @Component({
   selector: 'app-ok-dialog',
@@ -9,7 +9,7 @@ import {YesNoDialogData} from '../DialogData';
 })
 export class OkDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: YesNoDialogData,
+  constructor(@Inject(MAT_DIALOG_DATA) public data: OKDialogData,
               public dialogRef: MatDialogRef<OkDialogComponent>) {
   }
 
