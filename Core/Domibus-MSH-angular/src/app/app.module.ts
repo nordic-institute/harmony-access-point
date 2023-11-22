@@ -118,8 +118,8 @@ import {DomainsComponent} from './domains/domains.component';
 import {DataTablePagerComponent} from './common/page-grid/datatable-pager.comonent';
 import {ManageBackendsComponent} from './messagefilter/manageBackends-form/manageBackends-form.component';
 import {LandingPageGuard} from './common/guards/landing-page.guard';
-import {YesNoDialogComponent} from './common/dialogs/ok-dialog/yes-no-dialog.component';
-import {OkDialogComponent} from './common/dialogs/yes-no-dialog/ok-dialog.component';
+import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
+import {OkDialogComponent} from './common/dialogs/ok-dialog/ok-dialog.component';
 
 @NgModule({
   declarations: [
