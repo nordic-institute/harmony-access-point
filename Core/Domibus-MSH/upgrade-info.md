@@ -3,13 +3,13 @@
 
 ## Domibus 5.1.2 (from 5.1)
                 - Update the properties domibus.pmode.validation.action.pattern and domibus.pmode.validation.service.value.pattern in case of backward compatibility issues regarding the action and service values
-                - Run the appropriate DB migration script (mysql-5.1-to-5.1.2-migration.ddl for MySQL or oracle-5.1-to-5.1.2-migration.ddl for Oracle)
+                - Run the appropriate DB migration script (mysql-5.1-to-5.1.2-upgrade.ddl for MySQL or oracle-5.1-to-5.1.2-upgrade.ddl for Oracle)
                 - Remove property domibus.dynamicdiscovery.peppolclient.mode
                 - Any custom dss-cache settings should be moved from /conf/domibus/internal/ehcache.xml to /conf/domibus/extensions/config/dss-extension-ehcache.xml
 ## Domibus 5.1.1 (from 5.1)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
-                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1-migration.ddl for Oracle)
+                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-upgrade.ddl for MySQL or oracle-5.1-to-5.1.1-upgrade.ddl for Oracle)
                 - Remove property domibus.fourcornermodel.enabled if configured
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
@@ -46,49 +46,49 @@
 
                 - Run the appropriate DB migration script:
                     o [Oracle only]
-                        - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
+                        - single tenancy: oracle-5.0.6-to-5.1-upgrade.ddl, oracle-5.0.6-to-5.1-data-upgrade.ddl
                         - multitenancy:
-                            - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
-                            - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
+                            - general schema: oracle-5.0.6-to-5.1-multi-tenancy-upgrade.ddl
+                            - domain schemas: oracle-5.0.6-to-5.1-upgrade.ddl, oracle-5.1-data-upgrade.ddl
                         - partitioning the database:
-                            - if your database is not partitioned then run @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
+                            - if your database is not partitioned then run @oracle-5.0.5-to-5.0.6-partitioning-upgrade.ddl
                   o [MySQL only]
                       The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                           - the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                                  mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                  mysql -u root -p domibus < mysql-5.1-data-migration.ddl
+                                  mysql -u root -p domibus < mysql-5.0.6-to-5.1-upgrade.ddl
+                                  mysql -u root -p domibus < mysql-5.0.6-to-5.1-data-upgrade.ddl
                               or, for multitenancy:
-                                  mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                  mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
-                                  mysql -u root -p domibus_domain_1 < mysql-5.1-data-migration.ddl
+                                  mysql -u root -p domibus_general < mysql-5.0.6-to-5.1-multi-tenancy-upgrade.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.0.6-to-5.1-upgrade.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.1-data-upgrade.ddl
                           - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
                                   GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                             and then specifying the target databases as part of the command. For example, for single tenancy:
-                                   mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                   mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
+                                   mysql -u edelivery -p domibus < mysql-5.0.6-to-5.1-upgrade.ddl
+                                   mysql -u edelivery -p domibus < mysql-5.1-data-upgrade.ddl
                                or, for multitenancy:
-                                   mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
-                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-migration.ddl.
+                                   mysql -u edelivery -p domibus_general < mysql-5.0.6-to-5.1-multi-tenancy-upgrade.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0.6-to-5.1-upgrade.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-upgrade.ddl.
 ## Domibus 5.0.6 (from 5.0.5):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
 ### Partitioning (only oracle)
 #### If the database was not partitioned
-               - Run as edelivery_user: @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
+               - Run as edelivery_user: @oracle-5.0.5-to-5.0.6-partitioning-upgrade.ddl
 ## Domibus 5.0.5 (from 5.0.4):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
-                - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-migration.ddl for MySQL or oracle-5.0.4-to-5.0.5-migration-fix.ddl for Oracle)
+                - Run the appropriate DB migration script (mysql-5.0.4-to-5.0.5-upgrade.ddl for MySQL or oracle-5.0.4-to-5.0.5-upgrade-fix.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.4 database, that contains user messages and was partitioned
                     - Run as edelivery_user:
-    @oracle-5.0-partition-migration-procedures.sql
+    @oracle-5.0-partition-upgrade-procedures.sql
     EXECUTE MIGRATE_5_0_4_PARTITIONED_TO_5_0_5;
 
 #### Situation B: upgrading an existing 5.0.4 database, that contains user messages and was not partitioned
                - Run as edelivery_user:
-    @oracle-5.0.4-to-5.0.5-migration-fix.ddl
+    @oracle-5.0.4-to-5.0.5-upgrade-fix.ddl
     @oracle-5.0.5-partitioning-fix.ddl
 ## Domibus 5.0.4 (from 5.0.3):
                 - Replace the Domibus war
@@ -101,7 +101,7 @@
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
 
                 - Run as edelivery_user:
-    @oracle-5.0-partition-migration-procedures.sql
+    @oracle-5.0-partition-upgrade-procedures.sql
     EXECUTE MIGRATE_5_0_3_UNPARTITIONED_TO_5_0_4;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
@@ -110,20 +110,20 @@
 ### Partitioning (only oracle)
 #### Situation A: upgrading an existing 5.0.2 database, that contains user messages and was partitioned
                     - Run as edelivery_user:
-    @oracle-5.0-partition-migration-procedures.sql
+    @oracle-5.0-partition-upgrade-procedures.sql
     EXECUTE MIGRATE_5_0_2_PARTITIONED_TO_5_0_3;
 #### Situation B: upgrading an existing 5.0.2 database, that contains user messages and was not partitioned
                     - Run as sys:
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
 
                 - Run as edelivery_user:
-    @oracle-5.0-partition-migration-procedures.sql
+    @oracle-5.0-partition-upgrade-procedures.sql
     EXECUTE MIGRATE_5_0_2_UNPARTITIONED_TO_5_0_3;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
-                - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
+                - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-upgrade.ddl for MySQL or oracle-5.0.1-to-5.0.2-upgrade.ddl for Oracle)
 ### Partitioning (only oracle)
 #### Situation A: partitioning an existing 5.0.2 database, that contains user messages and was not partitioned
 
@@ -131,7 +131,7 @@
     GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
 
                 - Run as edelivery_user:
-    @oracle-5.0-partition-migration-procedures.sql
+    @oracle-5.0-partition-upgrade-procedures.sql
     EXECUTE MIGRATE_5_0_1_PARTITIONED_TO_5_0_2;
     @oracle-5.0-partition-detail-tables.sql
     @oracle-5.0-create-partitions-job.sql
@@ -141,7 +141,7 @@
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war
-                - Run the appropriate DB migration script(mysql-5.0-to-5.0.1-migration.ddl for MySQL or oracle-5.0-to-5.0.1-migration.ddl for Oracle)
+                - Run the appropriate DB migration script(mysql-5.0-to-5.0.1-upgrade.ddl for MySQL or oracle-5.0-to-5.0.1-upgrade.ddl for Oracle)
 
 ## Domibus 5.0 (from 4.2.9)
 
@@ -261,56 +261,56 @@
   ### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
-                        - single tenancy: oracle-4.2.9-to-5.0-migration.ddl
+                        - single tenancy: oracle-4.2.9-to-5.0-upgrade.ddl
                         - multitenancy:
-                            - general schema: oracle-4.2.9-to-5.0-multi-tenancy-migration.ddl
-                            - domain schemas: oracle-4.2.9-to-5.0-migration.ddl
+                            - general schema: oracle-4.2.9-to-5.0-multi-tenancy-upgrade.ddl
+                            - domain schemas: oracle-4.2.9-to-5.0-upgrade.ddl
                     o [MySQL only]
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                             - the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                                    mysql -u root -p domibus < mysql-4.2.9-to-5.0-migration.ddl
+                                    mysql -u root -p domibus < mysql-4.2.9-to-5.0-upgrade.ddl
                                 or, for multitenancy:
-                                    mysql -u root -p domibus_general < mysql-4.2.9-to-5.0-multi-tenancy-migration.ddl
-                                    mysql -u root -p domibus_domain_1 < mysql-4.2.9-to-5.0-migration.ddl
+                                    mysql -u root -p domibus_general < mysql-4.2.9-to-5.0-multi-tenancy-upgrade.ddl
+                                    mysql -u root -p domibus_domain_1 < mysql-4.2.9-to-5.0-upgrade.ddl
                             - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
                                     GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                               and then specifying the target databases as part of the command. For example, for single tenancy:
-                                     mysql -u edelivery -p domibus < mysql-4.2.9-to-5.0-migration.ddl
+                                     mysql -u edelivery -p domibus < mysql-4.2.9-to-5.0-upgrade.ddl
                                  or, for multitenancy:
-                                     mysql -u edelivery -p domibus_general < mysql-4.2.9-to-5.0-multi-tenancy-migration.ddl
-                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.9-to-5.0-migration.ddl.
+                                     mysql -u edelivery -p domibus_general < mysql-4.2.9-to-5.0-multi-tenancy-upgrade.ddl
+                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.9-to-5.0-upgrade.ddl.
   ### Data migration
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
    #### Oracle only
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
-                                - step 1: oracle-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                - step 1: oracle-4.2.9-to-5.0-data-upgrade-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                 - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                - step 2: oracle-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                - step 2: oracle-4.2.9-to-5.0-data-upgrade-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                - step 3: oracle-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                - step 3: oracle-4.2.9-to-5.0-data-upgrade-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                - (Optional) step 4: oracle-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                - (Optional) step 4: oracle-4.2.9-to-5.0-data-upgrade-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - (Optional) partitioning: oracle-5.0-partitioning.ddl (if you further plan on using Oracle partitions in an Enterprise Editions database)
                             - multitenancy:
                                 - general schema:
-                                    - step 1: oracle-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 1: oracle-4.2.9-to-5.0-data-upgrade-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                     - UTC date migration step: execute the migrate_multitenancy procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 2: oracle-4.2.9-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 2: oracle-4.2.9-to-5.0-data-upgrade-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: oracle-4.2.9-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: oracle-4.2.9-to-5.0-data-upgrade-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - (Optional) step 4: oracle-4.2.9-to-5.0-data-migration-multi-tenancy-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                    - (Optional) step 4: oracle-4.2.9-to-5.0-data-upgrade-multi-tenancy-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain schemas:
-                                    - step 1: oracle-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 1: oracle-4.2.9-to-5.0-data-upgrade-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                     - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 2: oracle-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 2: oracle-4.2.9-to-5.0-data-upgrade-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: oracle-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: oracle-4.2.9-to-5.0-data-upgrade-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - (Optional) step 4: oracle-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                    - (Optional) step 4: oracle-4.2.9-to-5.0-data-upgrade-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - (Optional) partitioning: oracle-5.0-partitioning.ddl (if you further plan on using Oracle partitions in an Enterprise Editions database)
                                     - grant privileges to the general schema using oracle-5.0-multi-tenancy-rights.sql, updating the schema names before execution
@@ -318,55 +318,55 @@
 #### MySQL only
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                     	    - the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                                    mysql -u root -p domibus < mysql-4.2.9-to-5.0-data-migration-step1.ddl
+                                    mysql -u root -p domibus < mysql-4.2.9-to-5.0-data-upgrade-step1.ddl
                                 or, for multitenancy:
-                                    mysql -u root -p domibus_general < mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl
-                                    mysql -u root -p domibus_domain_1 < mysql-4.2.9-to-5.0-data-migration-step1.ddl
+                                    mysql -u root -p domibus_general < mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step1.ddl
+                                    mysql -u root -p domibus_domain_1 < mysql-4.2.9-to-5.0-data-upgrade-step1.ddl
                             - or the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
                                     GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
                               and then specifying the target databases as part of the command. For example, for single tenancy:
-                                     mysql -u edelivery -p domibus < mysql-4.2.9-to-5.0-data-migration-step1.ddl
+                                     mysql -u edelivery -p domibus < mysql-4.2.9-to-5.0-data-upgrade-step1.ddl
                                  or, for multitenancy:
-                                     mysql -u edelivery -p domibus_general < mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl
-                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.9-to-5.0-data-migration-step1.ddl.
+                                     mysql -u edelivery -p domibus_general < mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step1.ddl
+                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.9-to-5.0-data-upgrade-step1.ddl.
 
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
-                                - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                - step 1: mysql-4.2.9-to-5.0-data-upgrade-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                 - UTC date migration step
                                     1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
                                     2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
                                     3. call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
-                                - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                - step 2: mysql-4.2.9-to-5.0-data-upgrade-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                - step 3: mysql-4.2.9-to-5.0-data-upgrade-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                - (Optional) step 4: mysql-4.2.9-to-5.0-data-upgrade-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
                                 - general database:
-                                    - step 1: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 1: mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                     - UTC date migration step
                                         1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
                                         2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
                                         3. call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
-                                    - step 2: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 2: mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                    - (Optional) step 4: mysql-4.2.9-to-5.0-data-upgrade-multi-tenancy-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
-                                    - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 1: mysql-4.2.9-to-5.0-data-upgrade-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                                     - UTC date migration step
                                         1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
                                         2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
                                         3. call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
-                                    - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 2: mysql-4.2.9-to-5.0-data-upgrade-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: mysql-4.2.9-to-5.0-data-upgrade-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
+                                    - (Optional) step 4: mysql-4.2.9-to-5.0-data-upgrade-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
   ### Cache
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file:
@@ -497,7 +497,7 @@
  ## Domibus 4.2.4 (from 4.2.3):
                 - Replace the Domibus war
  ## Domibus 4.2.3 (from 4.2.2):
-                - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-migration.ddl for MySQL or oracle-4.2.2-to-4.2.3-migration.ddl for Oracle)
+                - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-upgrade.ddl for MySQL or oracle-4.2.2-to-4.2.3-upgrade.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
@@ -512,7 +512,7 @@
                         When we grant some privileges for a user, running this command will reloads the grant tables in the mysql database enabling the changes to take effect without reloading or restarting mysql service.
                             - FLUSH PRIVILEGES;
 
-                - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
+                - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-upgrade.ddl for MySQL or oracle-4.2.1-to-4.2.2-upgrade.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Change the name of 'domibus.ui.resend.action.enabled.received.minutes' property to 'domibus.action.resend.wait.minutes' in domibus.properties file.
@@ -523,7 +523,7 @@
                             $ sqlplus sys as sysdba
                         Once logged in Oracle execute:
                             GRANT CREATE PROCEDURE TO <edelivery_user>
-                - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
+                - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-upgrade.ddl for MySQL or oracle-4.2-to-4.2.1-upgrade.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extention jar into  "/conf/domibus/extensions/lib"
