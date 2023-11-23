@@ -87,7 +87,6 @@ public class BackendNotificationService {
 
     protected final BackendConnectorService backendConnectorService;
 
-    @Qualifier(JSON_MAPPER_BEAN)
     protected final ObjectMapper objectMapper;
 
     public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
@@ -95,7 +94,7 @@ public class BackendNotificationService {
                                       DomibusPropertyProvider domibusPropertyProvider, EventService eventService,
                                       UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
                                       BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
-                                      BackendConnectorService backendConnectorService, ObjectMapper objectMapper) {
+                                      BackendConnectorService backendConnectorService, @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.jmsManager = jmsManager;
         this.routingService = routingService;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
