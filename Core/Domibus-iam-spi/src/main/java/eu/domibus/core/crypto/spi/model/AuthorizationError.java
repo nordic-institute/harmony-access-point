@@ -29,9 +29,13 @@ public enum AuthorizationError {
      */
     AUTHORIZATION_MODULE_CONFIGURATION_ISSUE,
     /**
-     * Auhthorization token signature is wrong.
+     * Authorization token signature is wrong.
      */
     AUTHORIZATION_TOKEN_ERROR,
+    /**
+     * Authorization module does not function properly
+     */
+    TECHNICAL_ISSUE,
     /**
      * Other unforeseen error during the authorization process.
      */
