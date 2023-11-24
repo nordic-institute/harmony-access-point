@@ -41,15 +41,6 @@ public class UserMessageLogDto {
         this.mshRoleId = mshRoleId;
     }
 
-//    public UserMessageLogDto(Long entityId, String messageId, String backend, MessageProperty prop) {
-//        this.entityId = entityId;
-//        this.messageId = messageId;
-//        this.backend = backend;
-//        if (prop != null) {
-//            properties.put(prop.getName(), prop.getValue());
-//        }
-//    }
-
     public UserMessageLogDto(Long entityId, String messageId, String backend) {
         this.entityId = entityId;
         this.messageId = messageId;
