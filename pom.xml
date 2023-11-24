@@ -54,7 +54,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <tika.version>2.7.0</tika.version>
         <peppol.version>2.4.0</peppol.version>
-        <dynamic.discovery.client.version>2.1-SNAPSHOT</dynamic.discovery.client.version>
+        <dynamic.discovery.client.version>2.1</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <jaxws-rt.version>2.3.6</jaxws-rt.version>
