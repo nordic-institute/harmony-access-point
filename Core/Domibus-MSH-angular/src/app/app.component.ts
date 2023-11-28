@@ -125,6 +125,7 @@ export class AppComponent implements OnInit {
 
   private onHttpEventService(error) {
     // TODO(18/09/20, Ion Perpegel): review the possible status values and their meaning
+    console.log('Caught onHttpEventService event with error=', error);
     if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
       // did we have previously a valid session?
       if (this.securityService.isClientConnected()) {
