@@ -52,7 +52,7 @@ export let ServerSortableListMixin = (superclass: Constructable) => class extend
     let previousAsc = this.asc;
 
     this.orderBy = event.column.prop;
-    this.asc = (event.newValue === 'desc') ? false : true;
+    this.asc = (event.newValue !== 'desc');
 
     const success = await this.reload();
 

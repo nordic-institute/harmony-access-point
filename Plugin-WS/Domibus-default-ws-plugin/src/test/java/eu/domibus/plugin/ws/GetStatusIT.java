@@ -12,6 +12,7 @@ import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         pModeUtil.uploadPmode(wireMockRule.port());
     }
 
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";

@@ -9,7 +9,11 @@ import eu.domibus.api.multitenancy.DomainsAware;
  */
 public interface EArchiveFileStorageProvider extends DomainsAware {
 
+    void initialize();
+
     EArchiveFileStorage forDomain(Domain domain);
 
     EArchiveFileStorage getCurrentStorage();
+
+    void reset(Domain domain);
 }

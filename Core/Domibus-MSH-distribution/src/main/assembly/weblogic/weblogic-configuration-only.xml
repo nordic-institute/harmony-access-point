@@ -28,8 +28,8 @@
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-common/src/main/conf/scripts</directory>
-            <outputDirectory>/scripts</outputDirectory>
+            <directory>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-common/src/main/conf/scripts/upgrades</directory>
+            <outputDirectory>/scripts/upgrades</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <filtered>false</filtered>
         </fileSet>
@@ -47,6 +47,16 @@
     </fileSets>
 
     <files>
+        <file>
+            <source>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-common/src/main/conf/scripts/WeblogicCluster.properties</source>
+            <outputDirectory>scripts</outputDirectory>
+            <filtered>false</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-common/src/main/conf/scripts/WeblogicSingleServer.properties</source>
+            <outputDirectory>scripts</outputDirectory>
+            <filtered>false</filtered>
+        </file>
         <file>
             <source>
                 ${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/domain_name/domain_name-domibus.properties

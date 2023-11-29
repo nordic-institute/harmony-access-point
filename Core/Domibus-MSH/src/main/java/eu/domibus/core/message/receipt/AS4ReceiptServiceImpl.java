@@ -172,12 +172,11 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 transformer.setParameter("messageid", messageId);
                 transformer.setParameter("timestamp", timestamp);
                 transformer.setParameter("nonRepudiation", Boolean.toString(nonRepudiation));
+                transformer.setParameter("wsuId", "_1" + DigestUtils.sha256Hex(userMessage.getMessageId()));
 
                 final DOMResult domResult = new DOMResult();
                 transformer.transform(requestMessage, domResult);
                 responseMessage.getSOAPPart().setContent(new DOMSource(domResult.getNode()));
-
-                setMessagingId(responseMessage, userMessage);
 
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
             } catch (TransformerConfigurationException | SOAPException | IOException e) {

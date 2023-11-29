@@ -102,7 +102,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     }
 
     /**
-     * tests adding a nested property: checking that is is added with the correct name
+     * tests adding a nested property: checking that it is added with the correct name
      */
     @Test
     public void setProperty_nested() {

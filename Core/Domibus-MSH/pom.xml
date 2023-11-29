@@ -67,7 +67,11 @@
 
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
         </dependency>
 
         <dependency>
@@ -520,6 +524,10 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-hibernate-cache-v53</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>

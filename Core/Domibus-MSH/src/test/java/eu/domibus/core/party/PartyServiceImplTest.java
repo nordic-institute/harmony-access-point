@@ -142,7 +142,9 @@ public class PartyServiceImplTest {
         partyEntity.setName(name);
 
         List<eu.domibus.common.model.configuration.Party> partyEntities = Lists.newArrayList(partyEntity);
-        List<eu.domibus.common.model.configuration.Process> processEntities = Lists.newArrayList(new eu.domibus.common.model.configuration.Process());
+        eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
+        process.setName("processName");
+        List<eu.domibus.common.model.configuration.Process> processEntities = Lists.newArrayList(process);
 
         Party party = new Party();
         party.setName(name);

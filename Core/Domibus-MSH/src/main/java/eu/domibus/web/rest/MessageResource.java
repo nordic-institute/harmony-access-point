@@ -25,6 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,7 +101,7 @@ public class MessageResource {
 
         int messageCount = (int) messagesLogService.countMessages(request.getMessageType(),filters );
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
-                messageCount, request.getOrderBy(), request.getAsc(), filters);
+                messageCount, request.getOrderBy(), request.getAsc(), filters, Collections.emptyList());
 
 
         List<String> messageIds = result.getMessageLogEntries().stream()

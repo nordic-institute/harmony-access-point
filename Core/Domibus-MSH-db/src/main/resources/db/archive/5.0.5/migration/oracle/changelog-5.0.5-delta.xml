@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="Francois Gautier" id="EDELIVERY-10913">
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_CODE" newColumnName="DOMIBUS_CODE" columnDataType="VARCHAR(255)"/>
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_DETAIL" newColumnName="MESSAGE" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-10991">
+        <dropForeignKeyConstraint baseTableName="TB_EARCHIVEBATCH_UM" constraintName="FK_EARCHIVE_BATCH_ID_FTR"/>
+        <addForeignKeyConstraint baseColumnNames="FK_EARCHIVE_BATCH_ID" baseTableName="TB_EARCHIVEBATCH_UM"
+                                 constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
+    </changeSet>
+    <changeSet dbms = "oracle" author="idragusa" id="EDELIVERY-10924">
+        <sql>
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
+    </changeSet>
+
+    <changeSet author="idragusa" id="EDELIVERY-10998">
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+               index_not_exists EXCEPTION;
+               PRAGMA EXCEPTION_INIT (index_not_exists, -1418);
+            BEGIN
+               EXECUTE IMMEDIATE 'drop index IDX_SIG_MESS_SIGNAL_MESS_ID';
+            EXCEPTION
+               WHEN index_not_exists
+               THEN
+                  NULL;
+            END;
+        </sql>
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
+    </changeSet>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-10627">
+        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="MESSAGE_IDS" type="CLOB"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
+    <include file="../../../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

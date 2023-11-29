@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.DomibusBaseEntity;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.JPAConstants;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,7 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_EARCHIVEBATCH_UM")
-@NamedQuery(name = "EArchiveBatchUserMessage.findByArchiveBatchId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.batchId = :batchId ORDER BY batchUms.userMessageEntityId asc")
+@NamedQuery(name = "EArchiveBatchUserMessage.findByArchiveBatchEntityId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.entityId = :batchEntityId")
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Id
@@ -33,12 +34,20 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
     @Column(name = "MESSAGE_ID")
     private String messageId;
 
+    private transient MessageStatus messageStatus;
+
     public EArchiveBatchUserMessage() {
     }
 
     public EArchiveBatchUserMessage(Long userMessageEntityId, String messageId) {
         this.userMessageEntityId = userMessageEntityId;
         this.messageId = messageId;
+    }
+
+    public EArchiveBatchUserMessage(Long userMessageEntityId, String messageId, MessageStatus messageStatus) {
+        this.userMessageEntityId = userMessageEntityId;
+        this.messageId = messageId;
+        this.messageStatus = messageStatus;
     }
 
     public long getEntityId() {
@@ -71,6 +80,10 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     public void setMessageId(String userMessageId) {
         this.messageId = userMessageId;
+    }
+
+    public MessageStatus getMessageStatus() {
+        return messageStatus;
     }
 
     @Override

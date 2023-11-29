@@ -13,7 +13,7 @@
     <artifactId>harmony-msh-jms-activemq</artifactId>
     <packaging>jar</packaging>
 	<name>Harmony MSH JMS ActiveMQ</name>
- 
+
 
     <build>
         <plugins>

@@ -129,7 +129,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        return executeOnNewThread(() -> {
+        return excuteOnNewThread(() -> {
             return doIsDatabaseSchemaForDomainValid(domain);
         }, domain);
     }
@@ -137,9 +137,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-
             String databaseSchema = getDatabaseSchema(domain);
-
             try {
                 setSchema(connection, databaseSchema);
             } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
@@ -155,7 +153,6 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
                 LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
                 return false;
             }
-
         } catch (SQLException e) {
             LOG.warn("Could not create a connection for domain [{}].", domain);
             return false;
@@ -281,7 +278,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         }
     }
 
-    protected <T extends Object> T executeOnNewThread(Callable<T> task, Domain domain) {
+    protected <T extends Object> T excuteOnNewThread(Callable<T> task, Domain domain) {
         DomainCallable<T> domainCallable = new DomainCallable<>(task, domain);
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
         try {

@@ -35,9 +35,6 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
         // Verifies the response
         Assert.assertNotNull(response);
-        if(response.getMessageID() != null) {
-            LOG.info("~~~~~~~~~~~~~~~~got messageId ...[{}]...", response.getMessageID());
-        }
         Assert.assertTrue(response.getMessageID().isEmpty());
     }
 

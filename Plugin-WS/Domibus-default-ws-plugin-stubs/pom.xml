@@ -15,7 +15,6 @@
 
   <name>Harmony MSH Default WS Plugin Stubs V2</name>
 
-
   <dependencies>
       <!-- these dependencies are not included in jdk11 -->
       <dependency>

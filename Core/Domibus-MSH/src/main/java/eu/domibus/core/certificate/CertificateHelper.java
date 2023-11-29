@@ -38,7 +38,16 @@ public class CertificateHelper {
      * @param storeFileName the name of the truststore file
      */
     public void validateStoreType(String storeType, String storeFileName) {
+        if (StringUtils.isBlank(storeFileName)) {
+            throw new DomibusCertificateException("Store file name is empty");
+        }
+
+        LOG.debug("Checking file extension for file named [{}]", storeFileName);
         String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        if (StringUtils.isBlank(fileType)) {
+            throw new DomibusCertificateException("Store file extension is empty for the file named [" + storeFileName + "]");
+        }
+
         switch (storeType.toLowerCase()) {
             case PKCS_12:
                 if (Arrays.asList(P_12, PFX).contains(fileType)) {
@@ -49,7 +58,7 @@ public class CertificateHelper {
                     return;
                 }
         }
-        throw new DomibusCertificateException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
+        throw new DomibusCertificateException("Store file extension [" + fileType + "] should match the configured truststore type [" + storeType + "].");
     }
 
     public void validateStoreFileName(String storeFileName) {

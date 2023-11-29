@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,98 +36,28 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
-        doCheckMessageAuthorization(userMessage);
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
+        try {
+            validateUserAccess(userMessage);
+        } catch (AccessDeniedException e) {
+            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
+        }
     }
 
     /**
      * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
-     * @throws AuthenticationException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
+     * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
      */
-    @Override
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AccessDeniedException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
             return;
         }
-
-        doCheckMessageAuthorization(userMessage);
+        validateUserAccess(userMessage);
     }
 
-    @Override
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage, String propertyName) {
-        /* unsecured login allowed */
-        if (authUtils.isUnsecureLoginAllowed()) {
-            LOG.debug("Unsecured login is allowed");
-            return;
-        }
-
-        String authOriginalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        LOG.debug("Check authorization as [{}]", authOriginalUser == null ? "super user" : authOriginalUser);
-
-        if (StringUtils.isBlank(authOriginalUser)) {
-            LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
-            return;
-        }
-
-        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
-        /* check the message belongs to the authenticated user */
-        String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
-        if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-            LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
-            throw new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
-        }
-    }
-
-    @Override
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
-        UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(messageEntityId);
-        }
-        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
-    }
-
-    @Override
-    public void checkMessageAuthorization(String messageId, MSHRole mshRole) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(messageId, mshRole);
-        }
-        doCheckMessageAuthorization(userMessage);
-    }
-
-    // we keep this for back-ward compatibility for ext services
-    @Override
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(messageId);
-        }
-        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
-    }
-
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(messageId, mshRole);
-        }
-        checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
-    }
-
-    // we keep this for back-ward compatibility for ext services
-    @Override
-    public void checkMessageAuthorization(String messageId) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(messageId);
-        }
-
-        doCheckMessageAuthorization(userMessage);
-    }
-
-    protected void doCheckMessageAuthorization(UserMessage userMessage) {
+    public void validateUserAccess(UserMessage userMessage) {
         String authOriginalUser = authUtils.getOriginalUserOrNullIfAdmin();
         List<String> propertyNames = new ArrayList<>();
         propertyNames.add(MessageConstants.ORIGINAL_SENDER);
@@ -142,7 +73,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         /* check the message belongs to the authenticated user */
         boolean found = false;
         for (String propertyName : propertyNames) {
-            String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+            String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
             if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
                 found = true;
                 break;
@@ -150,8 +81,70 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         }
         if (!found) {
             LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-            throw new AuthenticationException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
+            throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
         }
         LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
     }
+
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
+        if (StringUtils.isBlank(authOriginalUser)) {
+            LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
+            return;
+        }
+        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
+        /* check the message belongs to the authenticated user */
+        String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
+        if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+            LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
+            throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+        }
+    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
+        UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageEntityId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    @Override
+    public void checkMessageAuthorization(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    // we keep this for back-ward compatibility
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId){
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    // we keep this for now
+    public void checkMessageAuthorization(String messageId) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        try {
+            validateUserAccess(userMessage);
+        } catch (AccessDeniedException e) {
+            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
+        }
+    }
+
 }

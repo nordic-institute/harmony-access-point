@@ -232,9 +232,10 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             String fileName = getFileName(contentId, fsPayload, incomingFolderByMessageId);
 
             try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName);
-                 FileContent fileContent = fileObject.getContent()) {
-                dataHandler.writeTo(fileContent.getOutputStream());
-                LOG.info("Message payload with cid [{}] received: [{}]", contentId, fileObject.getName());
+                 FileContent fileContent = fileObject.getContent();
+                 OutputStream outputStream = fileContent.getOutputStream()) {
+                    dataHandler.writeTo(outputStream);
+                    LOG.info("Message payload with cid [{}] received: [{}]", contentId, fileObject.getName());
             } catch (IOException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, e);
                 throw new FSPluginException("An error occurred persisting downloaded message " + messageId, e);
@@ -424,14 +425,15 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                     // Archive
                     String targetFileMessageURI = targetFileMessage.getParent().getName().getPath();
                     String sentDirectoryLocation = fsFileNameHelper.deriveSentDirectoryLocation(targetFileMessageURI);
-                    FileObject sentDirectory = fsFilesManager.getEnsureChildFolder(rootDir, sentDirectoryLocation);
-
                     String baseName = targetFileMessage.getName().getBaseName();
                     String newName = fsFileNameHelper.stripStatusSuffix(baseName);
-                    FileObject archivedFile = sentDirectory.resolveFile(newName);
-                    fsFilesManager.moveFile(targetFileMessage, archivedFile);
+                    try (FileObject sentDirectory = fsFilesManager.getEnsureChildFolder(rootDir, sentDirectoryLocation);
+                         FileObject archivedFile = sentDirectory.resolveFile(newName)) {
 
-                    LOG.debug("Successfully sent message file [{}] was archived into [{}]", messageId, archivedFile.getName().getURI());
+                        fsFilesManager.moveFile(targetFileMessage, archivedFile);
+
+                        LOG.debug("Successfully sent message file [{}] was archived into [{}]", messageId, archivedFile.getName().getURI());
+                    }
                 }
             } else {
                 LOG.error("The successfully sent message file [{}] was not found in domain [{}]", messageId, domain);

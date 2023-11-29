@@ -89,25 +89,22 @@ public class PartyIdentifierValidatorTest {
         allParties.add(party1);
         allParties.add(party2);
 
+        final String partyId = "domibus-blue";
         new Expectations(partyIdentifierValidator) {{
-            party1.getName();
-            result = "blue_gw";
             identifier.getPartyId();
-            result = "domibus-blue";
+            result = partyId;
             party1.getIdentifiers();
             result = identifiers;
-            party2.getName();
-            result = "red_gw";
             identifier.getPartyId();
-            result = "domibus-blue";
+            result = partyId;
             party2.getIdentifiers();
             result = identifiers;
         }};
         //tested method
-        partyIdentifierValidator.validateDuplicateIdentifiersInAllParties(party1, allParties);
+        partyIdentifierValidator.validateDuplicateIdentifiersInAllParties(allParties);
 
         new FullVerifications(partyIdentifierValidator) {{
-            partyIdentifierValidator.createIssue(identifier.getPartyId(), party1.getName(), anyString);
+            partyIdentifierValidator.createIssue(partyId, partyId, anyString);
         }};
     }
 

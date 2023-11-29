@@ -1,6 +1,9 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.util.FileServiceUtil;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -18,11 +21,11 @@ import org.roda_project.commons_ip2.model.impl.eark.EARKMETSUtils;
 import org.roda_project.commons_ip2.model.impl.eark.EARKSIP;
 import org.roda_project.commons_ip2.utils.METSUtils;
 import org.roda_project.commons_ip2.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.Optional;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author François Gautier
@@ -46,6 +51,21 @@ public class EARKSIPFileService {
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
+
+    @Autowired
+    protected FileServiceUtil fileServiceUtil;
+
+    public void setMetricRegistry(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+    }
+
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     public MetsWrapper getMetsWrapper(String artifactName, String displayVersion, String batchId) throws IPException {
         EARKSIP sip = new EARKSIP();
         sip.addCreatorSoftwareAgent(artifactName, displayVersion);
@@ -68,12 +88,14 @@ public class EARKSIPFileService {
     @Counter(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
     public void createDataFile(Path path, InputStream value) {
         try {
-            FileUtils.copyToFile(value, path.toFile());
+            fileServiceUtil.copyToFile(value, path.toFile());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not create file [" + path.toFile().getAbsolutePath() + "]", e);
         }
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
     public String getChecksum(Path path) {
         try {
             return SHA_256 + getChecksumSHA256(path);
@@ -88,6 +110,8 @@ public class EARKSIPFileService {
         mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
     protected Path addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
             return METSUtils.marshallMETS(mainMETSWrapper.getMets(), Paths.get(destinationDirectory.toFile().getAbsolutePath(), IPConstants.METS_FILE), true);
@@ -102,17 +126,24 @@ public class EARKSIPFileService {
 
     public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, ArchivingFileDTO archivingFileDTO) {
         FileType file = new FileType();
-        file.setID(Utils.generateRandomAndPrefixedUUID());
+        metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time(
+                () -> file.setID(Utils.generateRandomAndPrefixedUUID())
+        );
 
-        // set mimetype, date creation, etc.
-        setFileBasicInformation(archivingFileDTO, file);
+        metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time(
+                () -> setFileBasicInformation(archivingFileDTO, file)
+        );
 
-        // add to file section
-        FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
-        file.getFLocat().add(fileLocation);
-        representationMETS.getDataFileGroup().getFile().add(file);
+        metricRegistry.timer(name("addDataFileInfoToMETS", "fileLocation", "timer")).time(
+                () -> addToFileSection(representationMETS, pathFromData, file)
+        );
 
-        // add to struct map
+        metricRegistry.timer(name("addDataFileInfoToMETS", "structMap", "timer")).time(
+                () -> addToStructMap(representationMETS)
+        );
+    }
+
+    private void addToStructMap(MetsWrapper representationMETS) {
         if (representationMETS.getDataDiv().getFptr().isEmpty()) {
             DivType.Fptr fptr = new DivType.Fptr();
             fptr.setFILEID(representationMETS.getDataFileGroup());
@@ -120,9 +151,20 @@ public class EARKSIPFileService {
         }
     }
 
+    private void addToFileSection(MetsWrapper representationMETS, String pathFromData, FileType file) {
+        FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
+        file.getFLocat().add(fileLocation);
+        representationMETS.getDataFileGroup().getFile().add(file);
+    }
+
+    /**
+     * set mimetype, date creation, etc.
+     * @param archivingFileDTO
+     * @param fileType
+     */
     public void setFileBasicInformation(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         initMimeTypeInfo(archivingFileDTO, fileType);
-        initDateCreation(fileType, getFileName(archivingFileDTO));
+        initDateCreation(fileType);
         if (archivingFileDTO != null) {
             initSizeInfo(archivingFileDTO, fileType);
             initChecksum(archivingFileDTO, fileType);
@@ -141,12 +183,9 @@ public class EARKSIPFileService {
 
     }
 
-    private void initDateCreation(FileType fileType, String name) {
-        try {
-            fileType.setCREATED(getDatatypeFactory().newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
-        } catch (DatatypeConfigurationException e) {
-            throw new DomibusEArchiveException("Error getting curent calendar [" + name + "]", e);
-        }
+    private void initDateCreation(FileType fileType) {
+        final DatatypeFactory datatypeFactory = xmlUtil.getDatatypeFactory();
+        fileType.setCREATED(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
     }
 
     private void initMimeTypeInfo(ArchivingFileDTO archivingFileDTO, FileType fileType) {
@@ -161,26 +200,25 @@ public class EARKSIPFileService {
 
     private void initChecksum(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         // checksum
-        String checksumSHA256;
-        try {
-            checksumSHA256 = getChecksumSHA256(archivingFileDTO.getPath());
-            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, archivingFileDTO.getPath().toFile().getName());
-            fileType.setCHECKSUM(checksumSHA256);
-            fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
-        } catch (IOException e) {
-            fileType.setCHECKSUM("ERROR");
-            LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
-        }
+        LOG.debug("checksumSHA256 [{}] for file [{}]", archivingFileDTO.getCheckSum(), archivingFileDTO.getPath().toFile().getName());
+        fileType.setCHECKSUM(archivingFileDTO.getCheckSum());
+        fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
-        try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
-            return DigestUtils.sha256Hex(inputStream);
+        try {
+            return metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time(
+                    () -> {
+                        try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
+                            return DigestUtils.sha256Hex(inputStream);
+                        }
+                    }
+            );
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DomibusEArchiveException("Unexpected error", e);  //should never happen
         }
-    }
-
-    private DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {
-        return DatatypeFactory.newInstance();
     }
 
     private String getFileMimetype(@Nullable ArchivingFileDTO archivingFileDTO) throws IOException {

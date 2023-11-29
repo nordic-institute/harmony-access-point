@@ -47,7 +47,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 @Qualifier("dynamicDiscoveryServicePEPPOL")
-public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
+public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
 
@@ -74,7 +74,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
     private X509CertificateService x509CertificateService;
     private final ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
 
-    private final ObjectProvider<BusdoxLocator> busdoxLocators;
+    private final ObjectProvider<DomibusBusdoxLocator> busdoxLocators;
 
     private final ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
 
@@ -90,7 +90,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
                                          DomibusHttpRoutePlanner domibusHttpRoutePlanner,
                                          X509CertificateService x509CertificateService,
                                          ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
-                                         ObjectProvider<BusdoxLocator> busdoxLocators,
+                                         ObjectProvider<DomibusBusdoxLocator> busdoxLocators,
                                          ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
                                          ObjectProvider<EndpointInfo> endpointInfos,
                                          DynamicDiscoveryUtil dynamicDiscoveryUtil) {
@@ -126,10 +126,10 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         return DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
-    public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#lookupKey")
+    public EndpointInfo lookupInformation(final String lookupKey, final String finalRecipientValue, final String finalRecipientType, final String documentId, final String processId, final String processIdScheme) {
 
-        LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
+        LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", finalRecipientValue, finalRecipientType, documentId, processId, processIdScheme);
         final String smlInfo = domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
         if (StringUtils.isBlank(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Configure property [" + DOMIBUS_SMLZONE + "] in domibus configuration!");
@@ -141,7 +141,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
 
         final String certRegex = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.warn("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
+            LOG.info("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         }
 
         List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
@@ -154,7 +154,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
             DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex, allowedCertificatePolicyIDs);
 
             LOG.debug("Getting the ServiceMetadata");
-            final ServiceMetadata sm = getServiceMetadata(participantId, participantIdScheme, documentId, smlInfo, mode, domibusSMPCertificateValidator);
+            final ServiceMetadata sm = getServiceMetadata(finalRecipientValue, finalRecipientType, documentId, smlInfo, mode, domibusSMPCertificateValidator);
 
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             LOG.debug("Get the Endpoint from ServiceMetadata with transport profile [{}]", transportProfileAS4);

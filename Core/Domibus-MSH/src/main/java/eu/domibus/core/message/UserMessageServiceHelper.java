@@ -13,7 +13,9 @@ public interface UserMessageServiceHelper {
 
     String getOriginalSender(UserMessage userMessage);
 
-    String getFinalRecipient(UserMessage userMessage);
+    String getFinalRecipientValue(UserMessage userMessage);
+
+    String getFinalRecipientType(UserMessage userMessage);
 
     PartyId getPartyTo(UserMessage userMessage);
 
@@ -27,7 +29,8 @@ public interface UserMessageServiceHelper {
 
     String getPartyFromRole(UserMessage userMessage);
 
-    String getProperty(UserMessage userMessage, String type);
+    String getPropertyValue(UserMessage userMessage, String propertyName);
+    String getPropertyType(UserMessage userMessage, String propertyName);
 
     String getService(UserMessage userMessage);
 

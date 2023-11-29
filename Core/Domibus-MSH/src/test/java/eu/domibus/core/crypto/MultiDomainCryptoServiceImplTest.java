@@ -1,8 +1,8 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
+import eu.domibus.api.crypto.DomibusCryptoType;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
@@ -10,10 +10,10 @@ import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
@@ -29,30 +29,32 @@ import static org.junit.Assert.assertEquals;
 public class MultiDomainCryptoServiceImplTest {
 
     @Tested
-    MultiDomainCryptoServiceImpl mdCryptoService;
+    private MultiDomainCryptoServiceImpl mdCryptoService;
 
     @Injectable
-    DomainCryptoServiceFactory domainCryptoServiceFactory;
+    private DomainCryptoServiceFactory domainCryptoServiceFactory;
 
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
-    CertificateService certificateService;
+    private CertificateService certificateService;
 
     @Injectable
-    CertificateHelper certificateHelper;
+    private CertificateHelper certificateHelper;
 
     @Injectable
-    DomainService domainService;
+    private DomainService domainService;
 
     @Injectable
-    KeystorePersistenceService keystorePersistenceService;
+    private KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    private ObjectProvider<DomibusCryptoType> domibusCryptoTypes;
 
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-        X509Certificate[] certs = null;
 
         new Expectations() {{
             domainCryptoServiceFactory.domainCryptoService(domain);
@@ -65,8 +67,7 @@ public class MultiDomainCryptoServiceImplTest {
         DomainCryptoService res2 = mdCryptoService.getDomainCertificateProvider(domain);
         assertEquals(cryptoService, res2);
 
-        new Verifications() {{
-        }};
+        new Verifications() {};
     }
 
     @Test

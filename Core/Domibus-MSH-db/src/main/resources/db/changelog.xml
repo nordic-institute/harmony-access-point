@@ -79,7 +79,7 @@
                 <constraints nullable="true"/>
             </column>
             <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
@@ -889,6 +889,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -900,9 +901,7 @@
         <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
-        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="SIGNAL_MESSAGE_ID"/>
-        </createIndex>
+
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
@@ -1024,6 +1023,13 @@
         </createIndex>
     </changeSet>
     <!--End UserMessage Tables -->
+
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-10924">
+        <sql>
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
+    </changeSet>
 
     <!-- Start Miscellaneous Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Miscellaneous Tables">
@@ -1235,28 +1241,6 @@
             </column>
         </createTable>
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
-    </changeSet>
-
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-10221">
-        <createTable tableName="TB_FINAL_RECIPIENT_URL">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_FINAL_RECIPIENT_URL"/>
-            </column>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
-            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
-
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-        <createIndex indexName="TB_FINAL_RECIPIENT_URL_IDX" tableName="TB_FINAL_RECIPIENT_URL">
-            <column name="FINAL_RECIPIENT"/>
-        </createIndex>
     </changeSet>
 
     <!-- Start PMode Tables -->
@@ -2519,7 +2503,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_EARCHIVE_BATCH_ID" baseTableName="TB_EARCHIVEBATCH_UM"
                                  constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
         <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_ID" tableName="TB_EARCHIVEBATCH_UM">
             <column name="FK_USER_MESSAGE_ID"/>
@@ -2870,10 +2854,10 @@
 
         <createTable tableName="TB_USER_ROLES">
             <column name="USER_ID" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+                <constraints nullable="false"/>
             </column>
             <column name="ROLE_ID" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+                <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -2884,6 +2868,15 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
+            <column name="ROLE_ID"/>
+        </createIndex>
+
+        <createIndex tableName="TB_USER_ROLES" indexName="IDX_TB_USER_ROLES_USER_ROLE_UK" unique="true">
+            <column name="USER_ID"/>
+            <column name="ROLE_ID"/>
+        </createIndex>
+
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
                                  constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
@@ -2893,9 +2886,6 @@
                                  constraintName="FK_USER_ROLES_USER" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_ROLE"/>
-        <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
-            <column name="ROLE_ID"/>
-        </createIndex>
 
         <createTable tableName="TB_USER_ROLES_AUD">
             <column name="REV" type="BIGINT"/>
@@ -3038,11 +3028,174 @@
         </createTable>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
     </changeSet>
-    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-10924">
-        <sql>
-            DROP INDEX IDX_USER_LOG_RECEIVED;
-            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+
+    <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> <!-- oracle creates index for the unique constraint -->
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-12066">
+        <createTable tableName="TB_DDC_LOOKUP">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_DDC_CERTIFICATE"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
+            <column name="PARTY_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_PROCESSES" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_ISSUER_SUBJECT" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_CN" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_SUBJECT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_SERIAL" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_FINGERPRINT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- The last time when the certificate was discovered from SMP -->
+            <column name="DDC_LOOKUP_TIME" type="TIMESTAMP"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <!-- only one entry allowed per final recipient -->
+        <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP"/>
+
+        <!-- we add an index for columns used for filtering entries in the table -->
+        <createIndex indexName="IDX_DDC_PARTY_NAME" tableName="TB_DDC_LOOKUP">
+            <column name="PARTY_NAME"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_CERT_CN" tableName="TB_DDC_LOOKUP">
+            <column name="CERT_CN"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_DDC_LOOKUP_TIME" tableName="TB_DDC_LOOKUP">
+            <column name="DDC_LOOKUP_TIME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet dbms="mysql" author="Cosmin Baciu" id="12066-1"> <!-- oracle creates index for the unique constraint -->
+        <createIndex indexName="IDX_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP">
+            <column name="FINAL_RECIPIENT"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet dbms="oracle" author="Gabriel Maier" id="EDELIVERY-11796-add-pks-oracle">
+        <sql endDelimiter="\n/">
+            ALTER TABLE TB_COMMAND_PROPERTY
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_COMMAND_PROPERTY
+                ADD CONSTRAINT PK_TB_COMMAND_PROPERTY PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_PM_JOIN_PAYLOAD_PROFILE
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_PM_JOIN_PAYLOAD_PROFILE
+                ADD CONSTRAINT PK_TB_PM_JOIN_PAYLOAD_PROFILE PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_INIT_PARTY
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_INIT_PARTY
+                ADD CONSTRAINT PK_TB_PM_JOIN_PROCESS_INIT_PARTY PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_LEG
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_LEG
+                ADD CONSTRAINT PK_TB_PM_JOIN_PROCESS_LEG PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_RESP_PARTY
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_PM_JOIN_PROCESS_RESP_PARTY
+                ADD CONSTRAINT PK_TB_PM_JOIN_PROCESS_RESP_PARTY PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_PM_JOIN_PROPERTY_SET
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_PM_JOIN_PROPERTY_SET
+                ADD CONSTRAINT PK_TB_PM_JOIN_PROPERTY_SET PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_USER_ROLES
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_USER_ROLES
+                ADD CONSTRAINT PK_TB_USER_ROLES PRIMARY KEY (ID_PK)
+            /
+            ALTER TABLE TB_VERSION
+                ADD ID_PK NUMBER(38, 0) GENERATED BY DEFAULT ON NULL AS IDENTITY
+            /
+            ALTER TABLE TB_VERSION
+                ADD CONSTRAINT PK_TB_VERSION PRIMARY KEY (ID_PK)
         </sql>
     </changeSet>
 
+    <changeSet dbms="mysql" author="Gabriel Maier" id="EDELIVERY-11796-add-pks-mysql">
+        <addColumn tableName="TB_COMMAND_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_COMMAND_PROPERTY"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_PM_JOIN_PAYLOAD_PROFILE"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_PM_JOIN_PROCESS_INIT_PARTY"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_PM_JOIN_PROCESS_LEG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_PM_JOIN_PROCESS_LEG"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_PM_JOIN_PROCESS_RESP_PARTY"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_PM_JOIN_PROPERTY_SET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="PK_TB_PM_JOIN_PROPERTY_SET"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_USER_ROLES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_ROLES"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_VERSION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_VERSION"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

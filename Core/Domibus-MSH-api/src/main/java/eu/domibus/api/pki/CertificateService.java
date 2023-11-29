@@ -1,6 +1,5 @@
 package eu.domibus.api.pki;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -175,9 +174,19 @@ public interface CertificateService {
 
     KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 
+    KeyStore loadStore(KeyStoreContentInfo storeInfo);
+
     KeyStoreContentInfo getStoreContent(KeyStore store, String storeName, String password);
 
     void saveStoresFromDBToDisk(KeystorePersistenceInfo keystorePersistenceInfo, List<Domain> domains);
+
+    /**
+     * Generates and returns a SHA-256 fingerprint hash from the provided certificate.
+     *
+     * @param certificate the certificate for which to extract the fingerprint
+     * @return the fingerprint of the certificate.
+     */
+    String extractFingerprints(X509Certificate certificate);
 
     /**
      * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.

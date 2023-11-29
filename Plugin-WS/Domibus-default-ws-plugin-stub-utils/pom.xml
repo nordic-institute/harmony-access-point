@@ -11,7 +11,6 @@
     </parent>
 
     <artifactId>harmony-default-ws-plugin-stub-utils</artifactId>
-    <version>2.2.1</version>
     <name>Harmony MSH Default WS Plugin Stub Utils</name>
 
     <dependencies>

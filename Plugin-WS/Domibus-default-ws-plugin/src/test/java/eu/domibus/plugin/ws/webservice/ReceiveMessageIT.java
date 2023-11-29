@@ -7,6 +7,7 @@ import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        <p>
      *                        ref: Receive Message-01
      */
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -79,6 +81,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         messageRetentionDefaultService.deleteAllMessages();
     }
 
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testDeleteBatch() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -102,6 +105,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
     }
 
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";

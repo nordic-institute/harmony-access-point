@@ -9,7 +9,7 @@ import {
   TemplateRef,
   ViewChild
 } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {MatDialog, MatSelectChange} from '@angular/material';
@@ -26,6 +26,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
+import 'moment-precise-range-plugin';
 import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MessageLogEntry} from './support/messagelogentry';
@@ -65,8 +66,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   msgStatuses: Array<String>;
   notifStatus: Array<String>;
 
-  fourCornerEnabled: boolean;
-
   messageResent: EventEmitter<boolean>;
 
   searchUserMessages: boolean;
@@ -97,6 +96,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   MS_PER_MINUTE = 60000;
   _messageInterval: DateInterval;
+  detailedSearch: boolean;
+  detailedSearchFields = ['originalSender', 'finalRecipient', 'action', 'serviceType', 'serviceValue'];
+  sortedColumns: [{ prop: string; dir: string }];
+
   get messageInterval(): DateInterval {
     return this._messageInterval;
   }
@@ -132,12 +135,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
+    this.detailedSearch = await this.isMessageLogPageAdvancedSearchEnabled();
+    console.log('detailedSearch=', this.detailedSearch)
+
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
-
-    super.orderBy = 'received';
-    super.asc = false;
 
     this.additionalPages = 0;
     this.totalRowsMessage = '$1 total';
@@ -147,14 +150,14 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     this.searchUserMessages = true;
 
-    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
-
     if (this.isCurrentUserAdmin()) {
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
 
     super.filter = {testMessage: false};
     this.messageInterval = await this.getMessageLogInitialInterval();
+    this.applyDetailSearchLogic();
+
     this.filterData();
   }
 
@@ -162,14 +165,30 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const res = await this.propertiesService.getMessageLogInitialIntervalProperty();
     const val = +res.value;
     let interval = this.messageIntervals.find(el => el.value == val * 60);
-    if (!interval) {
-      interval = this.messageIntervals[0];
+    if (interval) {
+      return interval;
     }
-    return interval;
+
+    const newValue = this.addInterval(val);
+    return newValue;
+  }
+
+  private addInterval(val: number) {
+    const starts = moment().subtract(val, 'hours');
+    const ends = moment();
+    // @ts-ignore
+    const diffHuman = moment.preciseDiff(starts, ends);
+    const newValue = {value: val * 60, text: 'Last ' + diffHuman};
+
+    let index = this.messageIntervals.findIndex(el => el.value > val * 60);
+    if (index < 0) {
+      index = this.messageIntervals.length - 1;
+    }
+    this.messageIntervals.splice(index, 0, newValue);
+    return newValue;
   }
 
   async ngAfterViewInit() {
-    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
     this.configureColumnPicker();
   }
 
@@ -233,31 +252,38 @@ export class MessageLogComponent extends mix(BaseListComponent)
         name: 'Deleted',
         width: 155
       },
+    ];
+
+    this.columnPicker.allColumns.push(
       {
         name: 'Action',
-        prop: 'action'
+        prop: 'action',
+        disabled: () => !this.detailedSearch
       },
       {
         name: 'Service Type',
-        prop: 'serviceType'
+        prop: 'serviceType',
+        disabled: () => !this.detailedSearch
       },
       {
         name: 'Service Value',
-        prop: 'serviceValue'
-      }
-    ];
+        prop: 'serviceValue',
+        disabled: () => !this.detailedSearch
+      });
 
-    if (this.fourCornerEnabled) {
-      this.columnPicker.allColumns.push(
-        {
-          name: 'Original Sender',
-          cellTemplate: this.rawTextTpl
-        },
-        {
-          name: 'Final Recipient',
-          cellTemplate: this.rawTextTpl
-        });
-    }
+    this.columnPicker.allColumns.push(
+      {
+        name: 'Original Sender',
+        prop: 'originalSender',
+        cellTemplate: this.rawTextTpl,
+        disabled: () => !this.detailedSearch
+      },
+      {
+        name: 'Final Recipient',
+        prop: 'finalRecipient',
+        cellTemplate: this.rawTextTpl,
+        disabled: () => !this.detailedSearch
+      });
 
     this.columnPicker.allColumns.push(
       {
@@ -300,6 +326,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   protected get GETUrl(): string {
     return MessageLogComponent.MESSAGE_LOG_URL;
+  }
+
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
+    this.columnPicker.allColumns
+      .filter(col => col.isSelected)
+      .forEach(col => filterParams = filterParams.append('fields', col.prop));
+
+    console.log('filterParams==', filterParams);
+    return filterParams;
   }
 
   public setServerResults(result: MessageLogResult) {
@@ -412,7 +448,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   resendAll() {
     const filters = this.getFiltersAsObject();
     let url = MessageLogComponent.RESEND_ALL_URL;
-    this.http.put(url,  filters).subscribe(res => {
+    this.http.put(url, filters).subscribe(res => {
       this.alertService.success('The operation resend messages scheduled successfully. Please refresh the page after sometime.');
       setTimeout(() => {
         this.messageResent.emit();
@@ -451,11 +487,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   isResendAllButtonEnabled() {
     return this.rows.length > 1 && this.isMoreRowsWithSendFailure()
-      && this.rows.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+      && this.rows.filter(row => this.isRowResendButtonEnabled(row)).length > 1;
   }
 
   isResendSelectedButtonEnabled() {
-    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row => this.isRowResendButtonEnabled(row)).length > 1;
   }
 
 
@@ -488,11 +524,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private isMoreSelectedWithSendFailure() {
-      return this.selected.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+    return this.selected.filter(row => row.messageStatus === 'SEND_FAILURE').length > 1;
   }
 
   private isMoreRowsWithSendFailure() {
-    return this.rows.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+    return this.rows.filter(row => row.messageStatus === 'SEND_FAILURE').length > 1;
   }
 
   private async downloadMessage(row) {
@@ -556,7 +592,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   showDetails(selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
-      data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
+      data: {message: selectedRow}
     });
   }
 
@@ -612,6 +648,40 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   protected onAfterResetFilters() {
+  }
+
+  async detailedSearchChanged() {
+    this.applyDetailSearchLogic();
+
+    const prop = await this.propertiesService.getMessageLogPageAdvancedSearchEnabledProperty();
+    prop.value = String(this.detailedSearch);
+    this.propertiesService.updateProperty(prop);
+  }
+
+  private applyDetailSearchLogic() {
+    if (!this.detailedSearch) {
+      this.detailedSearchFields.forEach(field => {
+        this.filter[field] = null;
+
+        let selectedColumns = this.columnPicker.selectedColumns;
+        const col = selectedColumns.find(el => el.prop == field);
+        if (col) {
+          col.isSelected = false;
+        }
+      });
+    }
+
+    let detailedDefaultSortColumn = 'received';
+    super.orderBy = this.detailedSearch ? detailedDefaultSortColumn : 'entityId';
+    super.asc = false;
+    this.sortedColumns = this.detailedSearch ? this.sortedColumns = [{prop: detailedDefaultSortColumn, dir: 'desc'}] : null;
+    console.log('this.sortedColumns =', this.sortedColumns)
+    this.columnPicker.allColumns.forEach(col => col.sortable = this.detailedSearch);
+  }
+
+  private async isMessageLogPageAdvancedSearchEnabled(): Promise<boolean> {
+    const prop = await this.propertiesService.getMessageLogPageAdvancedSearchEnabledProperty();
+    return prop && prop.value && prop.value.toLowerCase() == 'true';
   }
 }
 

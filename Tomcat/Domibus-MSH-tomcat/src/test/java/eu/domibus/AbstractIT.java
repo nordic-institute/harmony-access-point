@@ -16,7 +16,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.spring.DomibusContextRefreshedListener;
+import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.util.WarningUtil;
@@ -86,7 +86,7 @@ public abstract class AbstractIT {
     public static final String TEST_PLUGIN_PASSWORD = "123456";
 
     @Autowired
-    protected DomibusContextRefreshedListener domibusContextRefreshedListener;
+    protected DomibusApplicationContextListener domibusApplicationContextListener;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;

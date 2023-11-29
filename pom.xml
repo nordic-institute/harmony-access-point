@@ -24,7 +24,6 @@
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.30</spring.version>
-        <!-- When upgrading the version, please check the usages, to decide if the exclusion of artifactId spring-expression is still needed -->
         <spring.security.version>5.8.8</spring.security.version>
         <spring.session.core.version>2.7.4</spring.session.core.version>
         <spring.session.jdbc.version>2.7.4</spring.session.jdbc.version>
@@ -61,6 +60,7 @@
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+        <jaxws-rt.version>2.3.6</jaxws-rt.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
@@ -138,6 +138,7 @@
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <httpcore.version>4.4.16</httpcore.version>
+        <infinispan.version>13.0.18.Final</infinispan.version>
         <ehcache.version>3.10.8</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -164,17 +165,18 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast-all.version>4.2.8</hazelcast-all.version>
-
-        <project.scm.id>edelivery-scm</project.scm.id>
-        <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+        <hazelcast.version>5.3.1</hazelcast.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
+        <enforcer-api.version>3.3.0</enforcer-api.version>
+        <maven-core.version>3.1.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
+        <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+
     </properties>
 
     <!-- Where are we looking for JARs -->
@@ -270,8 +272,13 @@
             <!-- Hazelcast  -->
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-all</artifactId>
-                <version>${hazelcast-all.version}</version>
+                <artifactId>hazelcast</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-spring</artifactId>
+                <version>${hazelcast.version}</version>
             </dependency>
 
             <!-- MapStruct  -->
@@ -495,37 +502,16 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${spring.security.version}</version>
-                <!-- Exclude spring-expression as a newer version is added via spring-core -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring.security.version}</version>
-                <!-- Exclude spring-expression as a newer version is added via spring-core -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${spring.security.version}</version>
-                <!-- Exclude spring-expression as a newer version is added via spring-core -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- End Spring Security -->
 
@@ -573,6 +559,11 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-jcache</artifactId>
                 <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-hibernate-cache-v53</artifactId>
+                <version>${infinispan.version}</version>
             </dependency>
             <!-- End Hibernate -->
 
@@ -1161,6 +1152,20 @@
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>${javax.ws.rs-api.version}</version>
             </dependency>
+
+            <!-- Maven Enforcer -->
+            <dependency>
+                <groupId>org.apache.maven.enforcer</groupId>
+                <artifactId>enforcer-api</artifactId>
+                <version>${enforcer-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven-core.version}</version>
+            </dependency>
+            <!-- Maven Enforcer -->
+
             <!-- Test dependencies -->
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -1178,13 +1183,6 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring.security.version}</version>
-                <!-- Exclude spring-expression as a newer version is added via spring-core -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1488,6 +1486,15 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -36,6 +37,8 @@ public interface DateUtil {
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
             .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
             .toFormatter(Locale.ENGLISH);
+
+    ZonedDateTime getDateHour(String idPk);
 
     Date fromString(String value);
 

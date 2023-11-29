@@ -50,7 +50,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties, boolean markAsAcknowledged) throws MessageAcknowledgeException {
         final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
-        final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
+        final String finalRecipient = userMessageServiceHelper.getFinalRecipientValue(userMessage);
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties, markAsAcknowledged);
     }
 
@@ -73,7 +73,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     public MessageAcknowledgement acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
         final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
-        final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
+        final String finalRecipient = userMessageServiceHelper.getFinalRecipientValue(userMessage);
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties, true);
     }
 

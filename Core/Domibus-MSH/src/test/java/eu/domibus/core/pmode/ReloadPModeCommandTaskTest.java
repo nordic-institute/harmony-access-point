@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -36,6 +37,9 @@ public class ReloadPModeCommandTaskTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected DomibusLocalCacheService domibusCacheService;
 
     @Test
     public void canHandle() {

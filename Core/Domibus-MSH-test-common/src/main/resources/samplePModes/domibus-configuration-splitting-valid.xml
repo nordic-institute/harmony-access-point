@@ -167,20 +167,10 @@
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
-                <initiatorParty name="domibus_de"/>
-                <initiatorParty name="ibmgw"/>
-                <initiatorParty name="flame"/>
-                <initiatorParty name="holodeck"/>
-                <initiatorParty name="axway"/>
                 <initiatorParty name="blue_gw"/>
                 <initiatorParty name="red_gw"/>
             </initiatorParties>
             <responderParties>
-                <responderParty name="domibus_de"/>
-                <responderParty name="ibmgw"/>
-                <responderParty name="flame"/>
-                <responderParty name="holodeck"/>
-                <responderParty name="axway"/>
                 <responderParty name="blue_gw"/>
                 <responderParty name="red_gw"/>
             </responderParties>
@@ -195,20 +185,10 @@
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
-                <initiatorParty name="domibus_de"/>
-                <initiatorParty name="ibmgw"/>
-                <initiatorParty name="flame"/>
-                <initiatorParty name="holodeck"/>
-                <initiatorParty name="axway"/>
                 <initiatorParty name="blue_gw"/>
                 <initiatorParty name="red_gw"/>
             </initiatorParties>
             <responderParties>
-                <responderParty name="domibus_de"/>
-                <responderParty name="ibmgw"/>
-                <responderParty name="flame"/>
-                <responderParty name="holodeck"/>
-                <responderParty name="axway"/>
                 <responderParty name="blue_gw"/>
                 <responderParty name="red_gw"/>
             </responderParties>
@@ -218,25 +198,15 @@
         </process>
         <process name="tc3Process"
                  agreement="agreement1110"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
-                <initiatorParty name="domibus_de"/>
-                <initiatorParty name="ibmgw"/>
-                <initiatorParty name="flame"/>
-                <initiatorParty name="holodeck"/>
-                <initiatorParty name="axway"/>
                 <initiatorParty name="blue_gw"/>
                 <initiatorParty name="red_gw"/>
             </initiatorParties>
             <responderParties>
-                <responderParty name="domibus_de"/>
-                <responderParty name="ibmgw"/>
-                <responderParty name="flame"/>
-                <responderParty name="holodeck"/>
-                <responderParty name="axway"/>
                 <responderParty name="blue_gw"/>
                 <responderParty name="red_gw"/>
             </responderParties>

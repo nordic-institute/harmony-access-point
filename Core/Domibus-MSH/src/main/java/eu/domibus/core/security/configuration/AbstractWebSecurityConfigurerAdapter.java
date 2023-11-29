@@ -1,5 +1,6 @@
 package eu.domibus.core.security.configuration;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
@@ -11,13 +12,12 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.ws.rs.HttpMethod;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Abstract class for Domibus security configuration
@@ -34,9 +34,6 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
     public static final String PLUGIN_API_PREFIX = "/api";
 
     @Autowired
-    CsrfTokenRepository tokenRepository;
-
-    @Autowired
     RequestMatcher csrfURLMatcher;
 
     @Autowired
@@ -50,6 +47,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     @Autowired
     ServerHeaderWriter serverHeaderWriter;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -114,7 +114,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
      */
     private void configureHttpSecurityCommon(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf().csrfTokenRepository(tokenRepository).requireCsrfProtectionMatcher(csrfURLMatcher)
+                .csrf().csrfTokenRepository(csrfTokenRepository()).requireCsrfProtectionMatcher(csrfURLMatcher)
                 .and()
                 .authorizeRequests()
                 .antMatchers("/", "/index.html", "/login",
@@ -142,6 +142,8 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/logging/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_CSV_MAX_ROWS).authenticated()
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL).authenticated()
+                .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_LANDING_PAGE).authenticated()
+                .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_SEARCH_ADVANCED_ENABLED).authenticated()
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
@@ -156,4 +158,15 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(cookieFilter, SetDomainFilter.class);
     }
+
+    private CookieCsrfTokenRepository csrfTokenRepository() {
+        final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+
+        // the XSRF-TOKEN cookie needs to be read by the Angular code in our domibus admin console, so we cannot mark it as 'httpOnly'
+        Boolean secure = domibusPropertyProvider.getBooleanProperty(DOMIBUS_UI_SESSION_SECURE);
+        repository.setSecure(secure);
+
+        return repository;
+    }
+
 }

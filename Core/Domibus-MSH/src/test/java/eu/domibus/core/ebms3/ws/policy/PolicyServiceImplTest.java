@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.cxf.DomibusBus;
@@ -72,7 +73,7 @@ public class PolicyServiceImplTest {
     public void testParsePolicyException() {
 
         try {
-            policyService.parsePolicy("NonExistentFileLocation");
+            policyService.parsePolicy("NonExistentFileLocation", SecurityProfile.RSA);
             fail();
         } catch (Exception e) {
             assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
@@ -89,11 +90,11 @@ public class PolicyServiceImplTest {
             result = ".";
         }};
 
-        Policy policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_signOnly.xml");
+        Policy policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_signOnly.xml", SecurityProfile.RSA);
         assertTrue(policyService.isNoEncryptionPolicy(policy));
-        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test.xml");
+        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test.xml", SecurityProfile.RSA);
         assertFalse(policyService.isNoEncryptionPolicy(policy));
-        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_donothing.xml");
+        policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_donothing.xml", SecurityProfile.RSA);
         assertTrue(policyService.isNoEncryptionPolicy(policy));
     }
 

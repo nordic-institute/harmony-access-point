@@ -8,7 +8,7 @@
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <Target>System.out</Target>
         <encoder>
-            <pattern>${encoderPatternColor}</pattern>
+            <pattern>${encoder}</pattern>
         </encoder>
     </appender>
     <logger name="eu.domibus" level="DEBUG"/>

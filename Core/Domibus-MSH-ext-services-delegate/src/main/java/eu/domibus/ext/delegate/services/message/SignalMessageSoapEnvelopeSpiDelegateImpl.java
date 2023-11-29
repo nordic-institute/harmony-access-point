@@ -39,6 +39,20 @@ public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSo
         return resultSoapMessage;
     }
 
+    @Override
+    public SOAPMessage afterReceiving(SOAPMessage responseMessage) {
+        if (!isSoapEnvelopeSpiActive()) {
+            LOG.debug("afterReceiving hook skipped: SPI is not active");
+            return responseMessage;
+        }
+
+        LOG.debug("Executing afterReceiving hook");
+        final SOAPMessage resultSoapMessage = soapEnvelopeSpi.afterReceiving(responseMessage);
+        LOG.debug("Finished executing afterReceiving hook");
+
+        return resultSoapMessage;
+    }
+
     protected boolean isSoapEnvelopeSpiActive() {
         return soapEnvelopeSpi != null;
     }

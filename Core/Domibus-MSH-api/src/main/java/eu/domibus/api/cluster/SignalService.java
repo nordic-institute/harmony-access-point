@@ -2,6 +2,7 @@ package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +23,16 @@ public interface SignalService {
      * signals PMode update to other servers in the cluster
      */
     void signalPModeUpdate();
+
+    /**
+     * Signals deleting of the specified parties from the Pmode parties list and from the responder parties of each process
+     */
+    void signalDeletePmodeParties(List<String> partyNames);
+
+    /**
+     * Signals deleting the specified final recipients from the cache
+     */
+    void signalDeleteFinalRecipientCache(List<String> finalRecipients);
 
     /**
      * signals Logging set level to other servers in the cluster

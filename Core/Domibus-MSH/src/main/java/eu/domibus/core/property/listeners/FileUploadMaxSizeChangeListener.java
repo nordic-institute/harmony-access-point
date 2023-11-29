@@ -4,7 +4,6 @@ import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
@@ -34,8 +33,10 @@ public class FileUploadMaxSizeChangeListener implements DomibusPropertyChangeLis
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        int size = Integer.parseInt(propertyValue);
-        LOG.trace("Setting max upload size to [{}]", size);
-        multipartResolver.setMaxUploadSize(size);
+        if (domainCode == null) {
+            int size = Integer.parseInt(propertyValue);
+            LOG.trace("Setting global max upload size to [{}]", size);
+            multipartResolver.setMaxUploadSize(size);
+        }
     }
 }

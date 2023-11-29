@@ -18,6 +18,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -71,6 +72,9 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     @Autowired
     private BackendConnectorProvider backendConnectorProvider;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -89,6 +93,8 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
+        payloadFileStorageProvider.initialize();
+
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         domain = new Domain("default", "default");
@@ -124,7 +130,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         //Only 1 new batch created because START_DATE of continuous forbid the sanitizer to pick up the last message
         List<EArchiveBatchEntity> batchesByStatus = userMessageDao.findBatchesByStatus(Arrays.asList(EArchiveBatchStatus.values()), 10000);
         for (EArchiveBatchEntity byStatus : batchesByStatus) {
-            List<EArchiveBatchUserMessage> batchMessageList = eArchiveBatchUserMessageDao.getBatchMessageList(byStatus.getBatchId(), 0, 1000);
+            List<EArchiveBatchUserMessage> batchMessageList = eArchiveBatchUserMessageDao.getBatchMessageList(byStatus.getEntityId(), 0, 1000);
             for (EArchiveBatchUserMessage eArchiveBatchUserMessage : batchMessageList) {
                 if (StringUtils.equals(eArchiveBatchUserMessage.getMessageId(), messageId1)) {
                     LOG.info(eArchiveBatchUserMessage.toString());

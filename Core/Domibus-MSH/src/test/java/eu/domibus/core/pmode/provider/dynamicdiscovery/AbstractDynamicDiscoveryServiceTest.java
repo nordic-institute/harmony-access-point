@@ -1,5 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.logging.DomibusLogger;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -16,7 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.core.pki.PKIUtil.*;
+import static eu.domibus.test.common.PKIUtil.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 
@@ -28,6 +30,12 @@ public class AbstractDynamicDiscoveryServiceTest {
 
     @Injectable
     DomibusLogger logger;
+
+    @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {

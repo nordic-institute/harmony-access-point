@@ -61,7 +61,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 @Qualifier("dynamicDiscoveryServiceOASIS")
-public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
+public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
@@ -165,22 +165,22 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
-    public EndpointInfo lookupInformation(final String domain,
-                                          final String participantId,
-                                          final String participantIdScheme,
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#lookupKey")
+    public EndpointInfo lookupInformation(final String lookupKey,
+                                          final String finalRecipientValue,
+                                          final String finalRecipientType,
                                           final String documentId,
                                           final String processId,
                                           final String processIdScheme) throws EbMS3Exception {
 
-        LOG.info("[OASIS SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId,
-                participantIdScheme,
+        LOG.info("[OASIS SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", finalRecipientValue,
+                finalRecipientType,
                 documentId,
                 processId,
                 processIdScheme);
 
         try {
-            ServiceMetadata serviceMetadata = getServiceMetadata(participantId, participantIdScheme, documentId, processId, processIdScheme);
+            ServiceMetadata serviceMetadata = getServiceMetadata(finalRecipientValue, finalRecipientType, documentId, processId, processIdScheme);
 
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
 
@@ -195,7 +195,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProfile);
             LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProfile, endpoint);
             if (endpoint == null || endpoint.getEndpointURI() == null) {
-                throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
+                throw new ConfigurationException("Could not fetch metadata for: " + finalRecipientValue + " " + finalRecipientType + " " + documentId +
                         " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfile);
             }
 
@@ -395,4 +395,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
         }
         return isValidTransport;
     }
+
+
 }

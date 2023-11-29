@@ -45,6 +45,7 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -158,8 +159,12 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
+            authUtils.hasUserOrAdminRole();
         }
+
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
+        String displayUser = (originalUser == null) ? "super user" : originalUser;
+        LOG.debug("Authorized as [{}]", displayUser);
 
         String messageId = null;
         try {
@@ -180,7 +185,8 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
@@ -378,6 +384,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message(e.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        } catch (DataIntegrityViolationException e) {
+            LOG.error("Could not persist message [{}]", messageId, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message("Could not persist message [" + messageId + "]. It could be that you are submitting a message with an id which already exists.")
                     .refToMessageId(messageId)
                     .cause(e)
                     .mshRole(MSHRole.SENDING)

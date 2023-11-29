@@ -7,6 +7,8 @@ import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.validators.CustomWhiteListed;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -57,6 +59,9 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     @CustomWhiteListed(permitted = ":/-.")
     private String serviceValue;
+
+    @CustomWhiteListed(permitted = ":/-.,")
+    private List<String> fields;
 
     public int getPage() {
         return page;
@@ -224,5 +229,16 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     public void setServiceValue(String serviceValue) {
         this.serviceValue = serviceValue;
+    }
+
+    public List<String> getFields() {
+        if (fields == null) {
+            fields = new ArrayList<>();
+        }
+        return fields;
+    }
+
+    public void setFields(List<String> fields) {
+        this.fields = fields;
     }
 }

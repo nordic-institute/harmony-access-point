@@ -6,7 +6,6 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -101,6 +100,8 @@ public abstract class PModeProvider {
 
     public abstract boolean isConfigurationLoaded();
 
+    public abstract boolean hasLegWithSplittingConfiguration();
+
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         if (rawConfiguration == null) {
@@ -143,17 +144,15 @@ public abstract class PModeProvider {
     }
 
     public UnmarshallerResult parsePMode(byte[] bytes) throws XmlProcessingException {
-        //unmarshall the PMode with whitespaces ignored
-        UnmarshallerResult unmarshalledConfigurationWithWhiteSpacesIgnored = unmarshall(bytes, true);
+        UnmarshallerResult result = unmarshall(bytes, true);
 
-        if (!unmarshalledConfigurationWithWhiteSpacesIgnored.isValid()) {
-            String errorMessage = "The PMode file is not XSD compliant(whitespaces are ignored). Please correct the issues: [" + unmarshalledConfigurationWithWhiteSpacesIgnored.getErrorMessage() + "]";
+        if (!result.isValid()) {
+            String errorMessage = "The PMode file is not XSD compliant. Please correct the issues: [" + result.getErrorMessage() + "]";
             XmlProcessingException xmlProcessingException = new XmlProcessingException(errorMessage);
-            xmlProcessingException.addErrors(unmarshalledConfigurationWithWhiteSpacesIgnored.getErrors());
+            xmlProcessingException.addErrors(result.getErrors());
             throw xmlProcessingException;
         }
 
-        //unmarshall the PMode taking into account the whitespaces
         return unmarshall(bytes, false);
     }
 
@@ -171,9 +170,6 @@ public abstract class PModeProvider {
         final UnmarshallerResult unmarshalledConfiguration = parsePMode(bytes);
 
         List<ValidationIssue> issues = new ArrayList<>();
-        if (!unmarshalledConfiguration.isValid()) {
-            issues.add(createParseWarning(unmarshalledConfiguration));
-        }
 
         Configuration configuration = unmarshalledConfiguration.getResult();
 
@@ -198,17 +194,6 @@ public abstract class PModeProvider {
         signalService.signalPModeUpdate();
 
         return issues;
-    }
-
-    private ValidationIssue createParseWarning(UnmarshallerResult unmarshalledConfiguration) {
-        List<String> resultMessage = new ArrayList<>();
-        resultMessage.add("The PMode file is not XSD compliant. It is recommended to correct the issues:");
-        resultMessage.addAll(unmarshalledConfiguration.getErrors());
-        final String message = StringUtils.join(resultMessage, " ");
-
-        LOG.warn(message);
-
-        return new ValidationIssue(message, ValidationIssue.Level.WARNING);
     }
 
     private String validateDescriptionSize(final String description) {
@@ -484,7 +469,17 @@ public abstract class PModeProvider {
 
     public abstract Party getReceiverParty(String pModeKey);
 
-    public abstract String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient);
+    /**
+     * Removes party from the list of responderParties from all processes->responderParties
+     */
+    public abstract void removeReceiverParty(String partyName);
+
+    public abstract Party getPartyByName(String partyName);
+
+    /**
+     * Removes party from the list of available parties businessProcesses->parties
+     */
+    public abstract Party removeParty(String partyName);
 
     public abstract Service getService(String pModeKey);
 
@@ -562,10 +557,4 @@ public abstract class PModeProvider {
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
 
-    /**
-     * Delete FinalRecipientEntity that were modified more than numberOfDays ago; update the FinalRecipient cache
-     * @param numberOfDays
-     * @return the list of final recipients that were deleted
-     */
-    public abstract List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays);
 }

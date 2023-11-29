@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.error.ErrorMessages;
 import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
+import static eu.domibus.web.rest.error.ErrorMessages.DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -97,8 +100,8 @@ public class AuthenticationResource {
             domainContextProvider.clearCurrentDomain();
             domainCode = userDomainService.getPreferredDomainForUser(loginRO.getUsername());
             if (StringUtils.isBlank(domainCode)) {
-                LOG.securityInfo(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
-                throw new BadCredentialsException("The username/password combination you provided are not valid. Please try again or contact your administrator.");
+                LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, loginRO.getUsername());
+                throw new BadCredentialsException(DEFAULT_MESSAGE_FOR_AUTHENTICATION_ERRORS);
             }
 
             LOG.debug("Determined preferred domain [{}] for user [{}]", domainCode, loginRO.getUsername());

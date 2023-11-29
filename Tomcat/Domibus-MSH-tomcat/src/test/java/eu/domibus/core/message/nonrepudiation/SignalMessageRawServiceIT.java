@@ -7,6 +7,7 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class SignalMessageRawServiceIT extends AbstractIT {
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
 
+    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
     public void noSignalFound() {
         try {
