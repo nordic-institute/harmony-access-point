@@ -680,8 +680,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Agreement agreement : this.getConfiguration().getBusinessProcesses().getAgreements()) {
-            if ((StringUtils.isEmpty(agreementRef.getType()) || equalsIgnoreCase(agreement.getType(), agreementRef.getType()))
-                    && equalsIgnoreCase(agreementRef.getValue(), agreement.getValue())) {
+            if (agreementsMatch(agreementRef, agreement)) {
                 return agreement.getName();
             }
         }
@@ -691,6 +690,12 @@ public class CachingPModeProvider extends PModeProvider {
                 .build();
     }
 
+    private boolean agreementsMatch(AgreementRefEntity agreementRef, Agreement agreement) {
+        return (StringUtils.isEmpty(agreementRef.getType()) && StringUtils.isEmpty(agreement.getType())
+                || equalsIgnoreCase(agreement.getType(), agreementRef.getType()))
+                && equalsIgnoreCase(agreementRef.getValue(), agreement.getValue());
+    }
+    
     @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
