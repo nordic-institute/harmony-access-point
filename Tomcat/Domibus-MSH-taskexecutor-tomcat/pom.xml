@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
     </parent>
     <artifactId>harmony-msh-taskexecutor-tomcat</artifactId>
     <packaging>jar</packaging>
