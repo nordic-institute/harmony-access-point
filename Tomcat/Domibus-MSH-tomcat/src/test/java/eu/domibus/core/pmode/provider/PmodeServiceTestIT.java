@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertTrue;
  * @since 5.1.1
  */
 @Transactional
+@DirtiesContext
 public class PmodeServiceTestIT extends AbstractIT {
 
 

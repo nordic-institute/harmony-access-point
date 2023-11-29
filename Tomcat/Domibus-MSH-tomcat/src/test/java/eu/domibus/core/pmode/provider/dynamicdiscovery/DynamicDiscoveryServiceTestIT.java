@@ -6,6 +6,9 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryLookupEntity;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -14,6 +17,7 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.jms.JMSManagerImpl;
@@ -31,11 +35,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.jms.Topic;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
@@ -43,6 +51,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOLConfigurationMockup.*;
 import static org.junit.Assert.*;
 
@@ -50,6 +59,7 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 5.1.1
  */
+@DirtiesContext
 public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceTestIT.class);
@@ -83,6 +93,12 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     DynamicDiscoveryDeletePmodePartiesCommandTask dynamicDiscoveryDeletePmodePartiesCommandTask;
 
+    @Autowired
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    CertificateHelper certificateHelper;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -90,12 +106,27 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        
+        resetInitialTruststore();
     }
+
+    private void resetInitialTruststore() {
+        try {
+            Domain domain = DomainService.DEFAULT_DOMAIN;
+            multiDomainCryptoService.resetTrustStore(domain);
+            String storePassword = "test123";
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "gateway_truststore_original.jks");
+            byte[] content = Files.readAllBytes(path);
+            KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);
+            multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+        } catch (Exception e) {
+            LOG.info("Error restoring initial keystore", e);
+        }
+    }
+
 
     private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
         uploadPmode(SERVICE_PORT, pmodeFilePath, null);
-        
+
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 

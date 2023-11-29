@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
@@ -27,6 +28,7 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 5.1.1
  */
+@DirtiesContext
 public class DynamicDiscoveryLookupServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryLookupServiceTestIT.class);
