@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -130,7 +131,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         SignalMessageLog signalMessageLog = smlBuilder.build();
         signalMessageLogDao.create(signalMessageLog);
 
-        List<MessageLogInfo> allInfoPaged = signalMessageLogDao.findAllInfoPaged(1, 100, null, false, new HashMap<>());
+        List<MessageLogInfo> allInfoPaged = signalMessageLogDao.findAllInfoPaged(1, 100, null, false, new HashMap<>(), Collections.emptyList());
         System.out.println("results:" + allInfoPaged);
     }
 

@@ -30,7 +30,7 @@
                             [max]="timestampToMaxDate"
                             (change)='onTimestampToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="totimestamp_id"></md2-datepicker>
+                            id="totimestamp_id"></md2-datepicker>
 
             <mat-form-field *ngIf="advancedSearch">
               <input matInput placeholder="Error Detail" name="errorDetail" [(ngModel)]="filter.errorDetail"
@@ -61,7 +61,7 @@
                             [type]="'datetime'"
                             [max]="notifiedFromMaxDate"
                             (change)='onNotifiedFromChange($event)'
-                            #timestampControl="ngModel" id="notifiedfrom_id"
+                            id="notifiedfrom_id"
                             *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <md2-datepicker placeholder="Notified To:" appClearInvalid
@@ -71,7 +71,7 @@
                             [min]="notifiedToMinDate"
                             [max]="notifiedToMaxDate"
                             (change)='onNotifiedToChange($event)'
-                            #timestampControl="ngModel" id="notifiedto_id"
+                            id="notifiedto_id"
                             *ngIf="advancedSearch" advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
 

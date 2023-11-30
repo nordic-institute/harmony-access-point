@@ -95,7 +95,7 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         String storeType = persistenceInfo.getType();
 
         String storeName = persistenceInfo.getName();
-        if (storePath == null) {
+        if (StringUtils.isBlank(storePath)) {
             if (persistenceInfo.isOptional()) {
                 LOG.debug("The store location of [{}] is missing (and optional) so exiting.", storeName);
                 return null;

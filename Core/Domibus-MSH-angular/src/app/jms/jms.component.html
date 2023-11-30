@@ -25,7 +25,7 @@
                             [type]="'datetime'"
                             [max]="timestampFromMaxDate"
                             (change)='onTimestampFromChange($event)'
-                            #timestampControl="ngModel">
+                            >
             </md2-datepicker>
 
             <md2-datepicker id="jmsToDatePicker" appClearInvalid
@@ -36,7 +36,7 @@
                             [max]="timestampToMaxDate"
                             (change)='onTimestampToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel">
+                            >
             </md2-datepicker>
 
             <mat-form-field *ngIf="isDLQQueue()" class="domibus" style="width:40%">

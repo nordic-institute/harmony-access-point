@@ -225,12 +225,12 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected UserLoginErrorReason getLoginFailureReason(String userName, U user) {
         if (user == null) {
-            LOG.securityInfo(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, userName);
+            LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, userName);
             return UserLoginErrorReason.UNKNOWN;
         }
         if (!user.isActive()) {
             if (user.getSuspensionDate() == null) {
-                LOG.securityInfo(DomibusMessageCode.SEC_CONSOLE_LOGIN_INACTIVE_USER, userName);
+                LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_INACTIVE_USER, userName);
                 return UserLoginErrorReason.INACTIVE;
             } else {
                 LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_SUSPENDED_USER, userName);

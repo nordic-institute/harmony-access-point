@@ -53,7 +53,7 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
         String pModeKeyContextProperty = (String) message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
         if (StringUtils.isBlank(pModeKeyContextProperty)) {
-            LOG.warn("PMode key context property is empty");
+            throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode key context property is empty");
         }
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKeyContextProperty);
 

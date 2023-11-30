@@ -10,6 +10,8 @@ public enum MessageEvent {
     NEW_STATUS,
     FROM_PARTY,
     TO_PARTY,
+    USER_MESSAGE_FROM_PARTY,
+    USER_MESSAGE_TO_PARTY,
     ROLE,
     DESCRIPTION
 }

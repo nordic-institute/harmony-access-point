@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 
-import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
+import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.assertNotNull;
 
 /**

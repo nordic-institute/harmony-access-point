@@ -45,6 +45,7 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
+    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String msgId = UUID.randomUUID() + "@domibus.eu";

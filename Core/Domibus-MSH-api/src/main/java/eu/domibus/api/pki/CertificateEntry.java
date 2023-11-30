@@ -1,5 +1,7 @@
 package eu.domibus.api.pki;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.security.cert.X509Certificate;
 
 /**
@@ -32,5 +34,13 @@ public class CertificateEntry {
 
     public void setCertificate(X509Certificate certificate) {
         this.certificate = certificate;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("alias", alias)
+                .append("certificate", certificate)
+                .toString();
     }
 }

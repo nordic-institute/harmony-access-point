@@ -87,26 +87,32 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
             LOG.debug("Create custom class [{}] configuration manager for alert [{}] ", configurationManagerClass, alertType);
             return (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, alertType);
         }
-        if (StringUtils.isNotBlank(configurationProperty)) {
-            AlertCategory alertCategory = alertType.getCategory();
-            if (alertCategory == null) {
-                LOG.info("Could not create a configuration manager for alert [{}] because the category is not specified.", alertType);
-                return null;
-            }
-            if (alertCategory == AlertCategory.DEFAULT) {
-                LOG.debug("Create default configuration manager for alert [{}] ", alertType);
-                return applicationContext.getBean(DefaultConfigurationManager.class, alertType);
-            }
-            if (alertCategory == AlertCategory.REPETITIVE) {
-                LOG.debug("Create repetitive configuration manager for alert [{}] ", alertType);
-                return applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
-            }
-            if (alertCategory == AlertCategory.WITH_FREQUENCY) {
-                LOG.debug("Create frequency configuration manager for alert [{}] ", alertType);
-                return applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
-            }
+        if (StringUtils.isBlank(configurationProperty)) {
+            LOG.info("Could not create a configuration manager for alert [{}]: no configurationManagerClass or configurationProperty is specified.", alertType);
+            return null;
         }
-        throw new ConfigurationException(String.format("Could not create a configuration manager for alert [%s]: no configurationManagerClass or configurationProperty is specified.", alertType));
+
+        AlertCategory alertCategory = alertType.getCategory();
+        if (alertCategory == null) {
+            LOG.info("Could not create a configuration manager for alert [{}] because the category is not specified.", alertType);
+            return null;
+        }
+
+        if (alertCategory == AlertCategory.DEFAULT) {
+            LOG.debug("Create default configuration manager for alert [{}] ", alertType);
+            return applicationContext.getBean(DefaultConfigurationManager.class, alertType);
+        }
+        if (alertCategory == AlertCategory.REPETITIVE) {
+            LOG.debug("Create repetitive configuration manager for alert [{}] ", alertType);
+            return applicationContext.getBean(DefaultRepetitiveAlertConfigurationManager.class, alertType);
+        }
+        if (alertCategory == AlertCategory.WITH_FREQUENCY) {
+            LOG.debug("Create frequency configuration manager for alert [{}] ", alertType);
+            return applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
+        }
+
+        LOG.info("Could not create a configuration manager for alert [{}] because the category [{}] doesn't have a configuration manager.", alertType, alertCategory);
+        return null;
     }
 
 }

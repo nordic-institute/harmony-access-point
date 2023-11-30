@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +34,9 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
 
     protected Map<Domain, PayloadFileStorage> instances = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
+
+    @Override
+    public void initialize() {
         final List<Domain> domains = domainService.getDomains();
         createStorage(domains);
     }

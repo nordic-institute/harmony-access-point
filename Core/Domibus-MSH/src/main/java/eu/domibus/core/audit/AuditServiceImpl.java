@@ -2,7 +2,6 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.audit.envers.RevisionLogicalName;
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;

@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin;
 
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.plugin.BackendConnector;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -20,9 +21,12 @@ import static org.junit.Assert.assertNull;
 @RunWith(JMockit.class)
 public class BackendConnectorServiceTest {
 
+    @Injectable
+    DomainService domainService;
+
     @Test
     public void getBackendConnector_empty() {
-        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(new ArrayList<>());
+        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(new ArrayList<>(), domainService);
 
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector("mybackend");
 
@@ -33,7 +37,7 @@ public class BackendConnectorServiceTest {
     public void getBackendConnector(@Injectable BackendConnector<?, ?> b1,
                                     @Injectable BackendConnector<?, ?> b2,
                                     @Injectable BackendConnector<?, ?> b3) {
-        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(asList(b1, b2, b3));
+        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(asList(b1, b2, b3), domainService);
         String backendName = "mybackend";
 
         new Expectations() {{

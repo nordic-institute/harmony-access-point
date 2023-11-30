@@ -13,7 +13,7 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
-import java.io.File;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -42,12 +42,12 @@ class WebserviceHelper {
 
     }
 
-    public static <E> E parseSendRequestXML(final String uriSendRequestXML, Class<E> requestType) throws Exception {
-        return (E) jaxbWebserviceContext.createUnmarshaller().unmarshal(new File(uriSendRequestXML));
+    public static <E> E parseSendRequestXML(final InputStream uriSendRequestXML) throws Exception {
+        return (E) jaxbWebserviceContext.createUnmarshaller().unmarshal(uriSendRequestXML);
     }
 
-    public static Messaging parseMessagingXML(String uriMessagingXML) throws Exception {
-        return ((JAXBElement<Messaging>) jaxbMessagingContext.createUnmarshaller().unmarshal(new File(uriMessagingXML))).getValue();
+    public static Messaging parseMessagingXML(InputStream uriMessagingXML) throws Exception {
+        return ((JAXBElement<Messaging>) jaxbMessagingContext.createUnmarshaller().unmarshal(uriMessagingXML)).getValue();
     }
 
     private static SOAPMessage dispatchMessage(Messaging messaging) throws Exception {
@@ -82,7 +82,7 @@ class WebserviceHelper {
             uriMessagingXML = WebserviceClientTest.SAMPLE_MSH_MESSAGE;
         }
 
-        Messaging messaging = WebserviceHelper.parseMessagingXML(uriMessagingXML);
+        Messaging messaging = WebserviceHelper.parseMessagingXML(WebserviceHelper.class.getClassLoader().getResourceAsStream(uriMessagingXML));
         //set messageId
         messaging.getUserMessage().getMessageInfo().setMessageId(messageId);
         //set timestamp

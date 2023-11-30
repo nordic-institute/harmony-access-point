@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>harmony</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -60,24 +60,6 @@
             <id>swagger</id>
             <modules>
                 <module>Domibus-MSH-swagger</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>bamboo-rest</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>bamboo-remote</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>selenium_local</id>
-            <modules>
-                <module>Domibus-MSH-selenium-ui-tests</module>
             </modules>
         </profile>
     </profiles>

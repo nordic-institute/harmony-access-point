@@ -1,8 +1,8 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.DatabasePartition;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -19,13 +19,14 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
@@ -104,14 +105,13 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     @Override
     @Timer(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
-    @Transactional(readOnly = true)
     public void deleteExpiredMessages() {
         LOG.debug("Using MessageRetentionPartitionsService to deleteExpiredMessages");
         // A partition may have messages with all statuses, received/sent on any MPC
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         LOG.debug("Max retention time configured in pMode is [{}] minutes", maxRetention);
-        List<String> partitionNames = getExpiredPartitions(maxRetention);
+        List<String> partitionNames = getExpiredPartitionNames(maxRetention);
         LOG.debug("Verify if all messages expired for partitions older than [{}] days", maxRetention/60/24);
         for (String partitionName : partitionNames) {
             LOG.debug("Verify partition [{}]", partitionName);
@@ -147,7 +147,11 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
     }
 
-    protected List<String> getExpiredPartitions(int maxRetention) {
+    /**
+     * @param maxRetention the maximum of all retention values, apart from -1
+     * @return the names of the partitions older than this retention, except the DEFAULT_PARTITION and the oldest non default partition
+     */
+    protected List<String> getExpiredPartitionNames(int maxRetention) {
         List<DatabasePartition> partitions;
         if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
@@ -159,11 +163,17 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
         LOG.debug("Date to check partitions expiration: [{}]", newestPartitionToCheckDate);
-        Long maxHighValue = partitionService.getExpiredPartitionsHighValue(partitions, newestPartitionToCheckDate);
+        Long expiredHighValue = partitionService.getPartitionHighValueFromDate(newestPartitionToCheckDate);
+
+        //we have to keep the newest non default partition, otherwise the hourly interval partitioning will generate more
+        //than the maximum nr of partitions allowed by Oracle (ORA-14300) when we would insert a new message
+        DatabasePartition newestNonDefaultPartition = getNewestNonDefaultPartition(partitions);
+
         List<String> partitionNames =
                 partitions.stream()
-                        .filter(p -> !StringUtils.equalsIgnoreCase(p.getPartitionName(), DEFAULT_PARTITION))
-                        .filter(p -> p.getHighValue() < maxHighValue)
+                        .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
+                        .filter(p -> p.getHighValue() < expiredHighValue )
+                        .filter(p -> !p.equals(newestNonDefaultPartition))
                         .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
         LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
@@ -173,6 +183,13 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         }
 
         return partitionNames;
+    }
+
+    protected static DatabasePartition getNewestNonDefaultPartition(List<DatabasePartition> partitions) {
+        return partitions.stream()
+                .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
+                .max(Comparator.comparing(DatabasePartition::getHighValue))
+                .orElseThrow(NoSuchElementException::new);
     }
 
     protected boolean verifyIfAllMessagesAreArchived(String partitionName) {
@@ -201,7 +218,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         LOG.debug("Counting ongoing messages for partition [{}]", partitionName);
         // check for messages that are not in final status
-        int count = userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, partitionName);
+        int count = userMessageLogDao.countMessagesOnPartitionWithStatusNotInList(messageStatuses, partitionName);
         if (count != 0) {
             LOG.warn("There are still [{}] ongoing messages on partition [{}]", count, partitionName);
             return false;
@@ -230,8 +247,16 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected boolean checkByMessageStatusAndMpcOnPartition(String mpc, MessageStatus messageStatus, String partitionName) {
         int retention = getRetention(mpc, messageStatus);
-        int count = userMessageLogDao.getMessagesNewerThan(
-                DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);
+        int count;
+        if(retention == -1){
+            LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
+            count = userMessageLogDao.getAllMessagesWithStatus(mpc, messageStatus, partitionName);
+        }
+        else {
+            LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
+            count = userMessageLogDao.getMessagesNewerThan(
+                    DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);
+        }
         if (count != 0) {
             LOG.warn("[{}] [{}] messages newer than retention [{}] on partition [{}]", messageStatus, count, retention, partitionName);
             return false;
@@ -241,7 +266,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected int getRetention(String mpc, MessageStatus messageStatus) {
-        int retention = -1;
+        int retention;
         switch (messageStatus) {
             case DOWNLOADED:
                 retention = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
@@ -253,11 +278,16 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             case SEND_FAILURE:
                 retention = pModeProvider.getRetentionSentByMpcURI(mpc);
                 break;
+            default:
+                retention = -1;
         }
         LOG.debug("Retention value for MPC [{}] and messageStatus [{}] is [{}]", mpc, messageStatus, retention);
         return retention;
     }
 
+    /**
+     * @return maximum retention value configured or -1 if no custom retention is set; retention values set to -1 are ignored
+     */
     protected int getMaxRetention() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         int maxRetention = -1;

@@ -18,6 +18,7 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -25,7 +26,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
@@ -135,6 +136,19 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         return messageStatusDao.findOrCreate(messageStatus);
     }
 
+    @Override
+    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
+        MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
+        List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
+        if (!processes.isEmpty()) {
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(processes));
+            messageStatus = MessageStatus.READY_TO_PULL;
+        } else {
+            LOG.debug("No pull process found for message configuration");
+        }
+        return messageStatusDao.findOrCreate(messageStatus);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -150,10 +164,15 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Transactional(readOnly = true)
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId, MSHRole role) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
-        if (forcePullOnMpc(userMessage)) {
-            return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
+        try {
+            if (forcePullOnMpc(userMessage)) {
+                return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
+            }
+            MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            return getMessageStatus(userMessageExchangeContext);
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }
-        return getMessageStatusForPush();
     }
 
 
@@ -357,7 +376,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
             LOG.debug("Validation of the receiver certificate is skipped.");
             return;
@@ -401,7 +420,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         if (policyService.isNoSecurityPolicy(policy)) {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;

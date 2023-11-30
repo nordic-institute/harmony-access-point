@@ -14,8 +14,8 @@ import java.util.Map;
 public interface MessagesLogService {
     long countMessages(MessageType messageType, Map<String, Object> filters);
 
-    MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String orderByColumn, boolean asc, Map<String, Object> filters);
+    MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String orderByColumn, boolean asc, Map<String, Object> filters, List<String> fields);
 
-    List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters);
+    List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters, List<String> fields);
 
 }

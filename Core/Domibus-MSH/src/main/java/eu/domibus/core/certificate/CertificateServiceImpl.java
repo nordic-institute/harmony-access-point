@@ -58,6 +58,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 
@@ -497,8 +498,9 @@ public class CertificateServiceImpl implements CertificateService {
         return KeyStore.getInstance(storeType);
     }
 
-    
+
     protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+        LOG.info("Adding certificates [{}] to [{}]", certificates.stream().map(certificateEntry -> certificateEntry.getAlias()).collect(Collectors.toList()), persistenceInfo.getFileLocation());
         KeyStore store = getStore(persistenceInfo);
 
         int addedNr = 0;
@@ -519,6 +521,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected boolean doRemoveCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
+        LOG.info("Removing certificates with aliases [{}] from [{}]", aliases, persistenceInfo.getFileLocation());
         KeyStore store = getStore(persistenceInfo);
 
         int removedNr = 0;
@@ -546,7 +549,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (containsAlias && !overwrite) {
-            LOG.debug("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
+            LOG.info("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
             return false;
         }
         if (certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
@@ -556,8 +559,10 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             if (containsAlias) {
                 keystore.deleteEntry(alias);
+                LOG.info("Deleted certificate with alias [{}]", alias);
             }
             keystore.setCertificateEntry(alias, certificate);
+            LOG.info("Added certificate with alias [{}]: [{}]", alias, certificate);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
@@ -572,18 +577,19 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (!containsAlias) {
-            LOG.debug("The store does not contain alias [{}] so no removing.", alias);
+            LOG.info("The store does not contain alias [{}] so no removing.", alias);
             return false;
         }
         try {
             keystore.deleteEntry(alias);
+            LOG.info("Removed certificate with alias [{}]", alias);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
         }
     }
 
-    protected KeyStore loadStore(KeyStoreContentInfo storeInfo) {
+    public KeyStore loadStore(KeyStoreContentInfo storeInfo) {
         if (storeInfo == null) {
             throw new NoKeyStoreContentInformationException("Could not load a null store");
         }
@@ -737,6 +743,9 @@ public class CertificateServiceImpl implements CertificateService {
         return result;
     }
 
+    /**
+     * Send alerts for certificate imminent expiration. It does not take into account certificates which were dynamically discovered. The dynamically discovered certificates are updated periodically from SMP and it doesn't make sense to send alerts for them
+     */
     protected void sendCertificateImminentExpirationAlerts() {
         RepetitiveAlertConfiguration configuration = (RepetitiveAlertConfiguration) alertConfigurationService.getConfiguration(AlertType.CERT_IMMINENT_EXPIRATION);
         final Boolean activeModule = configuration.isActive();
@@ -752,7 +761,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());
         final Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant());
 
-        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]. Dynamically discovered certificates are not taken into account",
                 notificationDate, imminentExpirationDelay, maxDate);
         certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
             certificate.setAlertImminentNotificationDate(today);
@@ -791,9 +800,12 @@ public class CertificateServiceImpl implements CertificateService {
         return entry;
     }
 
-    private String extractFingerprints(final X509Certificate certificate) {
-        if (certificate == null)
+    @Override
+    public String extractFingerprints(final X509Certificate certificate) {
+        if (certificate == null) {
+            LOG.debug("No fingerprint to extract because no certificate provided");
             return null;
+        }
 
         MessageDigest md;
         try {

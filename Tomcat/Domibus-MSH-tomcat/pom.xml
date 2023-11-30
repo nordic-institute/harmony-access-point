@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
     </parent>
 
     <artifactId>harmony-MSH-tomcat</artifactId>
@@ -437,20 +437,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                      <exclude>**/MessageSubmitterTestIT.java</exclude>
-                      <exclude>**/DeleteSentSuccessMessageIT.java</exclude>
-                      <exclude>**/DeleteSentFailedMessageIT.java</exclude>
-                      <exclude>**/BackendNotificationServiceIT.java</exclude>
-                      <exclude>**/UserMessageLogDaoIT.java</exclude>
-                      <exclude>**/MessageRetentionDefaultServiceIT.java</exclude>
-                      <exclude>**/AlertEventsTestIT.java</exclude>
-                      <exclude>**/DynamicDiscoveryServicePEPPOLIT.java</exclude>
-                      <exclude>**/DomibusPropertyResourceHelperIT.java</exclude>
-                      <exclude>**/LoggingResourceIT.java</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

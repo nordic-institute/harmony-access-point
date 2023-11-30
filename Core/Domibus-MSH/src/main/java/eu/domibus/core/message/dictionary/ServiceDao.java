@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -56,5 +57,17 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
         final TypedQuery<ServiceEntity> query = this.em.createNamedQuery("Service.findByValue", ServiceEntity.class);
         query.setParameter("VALUE", value);
         return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<ServiceEntity> searchByType(Object value) {
+        final TypedQuery<ServiceEntity> query = this.em.createNamedQuery("Service.searchByType", ServiceEntity.class);
+        query.setParameter("TYPE", value);
+        return query.getResultList();
+    }
+
+    public List<ServiceEntity> searchByValue(Object value) {
+        final TypedQuery<ServiceEntity> query = this.em.createNamedQuery("Service.searchByValue", ServiceEntity.class);
+        query.setParameter("VALUE", value);
+        return query.getResultList();
     }
 }

@@ -25,6 +25,8 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 
+import static eu.domibus.core.message.MessageLogInfoFilter.*;
+
 /**
  * @author Tiago Miguel, Catalin Enache
  * @since 3.3
@@ -33,41 +35,45 @@ import java.util.List;
 @RequestMapping(value = "/rest/messagelog")
 @Validated
 public class MessageLogResource extends BaseResource {
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
+
+    public static final int DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES = 60;
 
     private static final String MODULE_NAME_MESSAGES = "messages";
 
-    private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
-    private static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
+    static final String PROPERTY_CONVERSATION_ID = "conversationId";
+    static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    public static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
+    public static final String PROPERTY_TO_PARTY_ID = "toPartyId";
+    public static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
+    static final String PROPERTY_MESSAGE_ID = "messageId";
+    public static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
+    static final String PROPERTY_TEST_MESSAGE = "testMessage";
     private static final String PROPERTY_MESSAGE_TYPE = "messageType";
-    private static final String PROPERTY_MSH_ROLE = "mshRole";
-    private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
-    private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
-    private static final String PROPERTY_RECEIVED_TO = "receivedTo";
-    private static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
-    private static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
+    public static final String PROPERTY_MSH_ROLE = "mshRole";
+    public static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
+    static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
+    static final String PROPERTY_RECEIVED_TO = "receivedTo";
+    static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
+    static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
+    static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
-    private static final String PROPERTY_NEXTATTEMPT_TIMEZONEID = "nextAttemptTimezoneId";
-    private static final String PROPERTY_NEXTATTEMPT_OFFSET = "nextAttemptOffsetSeconds";
+    public static final String PROPERTY_NEXT_ATTEMPT_TIMEZONEID = "nextAttemptTimezoneId";
+    public static final String PROPERTY_NEXT_ATTEMPT_OFFSET = "nextAttemptOffsetSeconds";
 
     public static final String COLUMN_NAME_AP_ROLE = "AP Role";
-
     private final TestService testService;
 
     private final DateUtil dateUtil;
-
-    private final DomibusConfigurationService domibusConfigurationService;
 
     private final RequestFilterUtils requestFilterUtils;
 
     private final MessagesLogService messagesLogService;
 
-    public MessageLogResource(TestService testService, DateUtil dateUtil, DomibusConfigurationService domibusConfigurationService,
-                              RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
+    public MessageLogResource(TestService testService, DateUtil dateUtil, RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
-        this.domibusConfigurationService = domibusConfigurationService;
         this.requestFilterUtils = requestFilterUtils;
         this.messagesLogService = messagesLogService;
     }
@@ -82,7 +88,7 @@ public class MessageLogResource extends BaseResource {
         requestFilterUtils.setDefaultFilters(request, filters);
 
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
-                request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
+                request.getPageSize(), request.getOrderBy(), request.getAsc(), filters, request.getFields());
 
         // return also the current messageType to be shown in GUI
         filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
@@ -114,13 +120,13 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
 
         int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
-        List<MessageLogInfo> resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+        List<MessageLogInfo> resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters, request.getFields());
         getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,
                 ImmutableMap.of(PROPERTY_MSH_ROLE.toUpperCase(), COLUMN_NAME_AP_ROLE),
-                getExcludedProperties(),
+                getExcludedProperties(request.getFields()),
                 MODULE_NAME_MESSAGES);
     }
 
@@ -151,12 +157,19 @@ public class MessageLogResource extends BaseResource {
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
-    private List<String> getExcludedProperties() {
-        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT, PROPERTY_NEXTATTEMPT_TIMEZONEID, PROPERTY_NEXTATTEMPT_OFFSET, "testMessage", "pluginType", "partLength");
-        if (!domibusConfigurationService.isFourCornerEnabled()) {
-            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
-            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
-        }
+    private List<String> getExcludedProperties(List<String> displayedFields) {
+        final List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT,
+                PROPERTY_NEXT_ATTEMPT_TIMEZONEID, PROPERTY_NEXT_ATTEMPT_OFFSET, "testMessage", "pluginType", "partLength",
+                "messageStatusId","notificationStatusId", "mshRoleId", "nextAttemptTimezonePk", "fromPartyIdPk", "toPartyIdPk",
+                "actionId", "serviceId");
+        List<String> optionalFields = Lists.newArrayList(PROPERTY_ORIGINAL_SENDER, PROPERTY_FINAL_RECIPIENT, MESSAGE_ACTION,
+                MESSAGE_SERVICE_TYPE, MESSAGE_SERVICE_VALUE, PROPERTY_MESSAGE_STATUS, PROPERTY_MSH_ROLE, PROPERTY_NOTIFICATION_STATUS,
+                PROPERTY_NEXT_ATTEMPT_TIMEZONEID, PROPERTY_FROM_PARTY_ID, PROPERTY_TO_PARTY_ID);
+        optionalFields.forEach(field -> {
+            if (!displayedFields.contains(field)) {
+                excludedProperties.add(field);
+            }
+        });
         LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
         return excludedProperties;
     }

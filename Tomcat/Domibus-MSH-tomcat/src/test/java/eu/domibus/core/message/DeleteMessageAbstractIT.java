@@ -4,11 +4,15 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.MessageDBUtil;
 import eu.domibus.test.common.SoapSampleUtil;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +46,9 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
 
     protected static List<String> tablesToExclude;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @BeforeClass
     public static void initTablesToExclude() {
         tablesToExclude = new ArrayList<>(Arrays.asList(
@@ -50,6 +57,12 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
                 "TB_EVENT_PROPERTY",
                 "TB_ALERT"
         ));
+    }
+
+    @Transactional
+    @Before
+    public void before() throws XmlProcessingException, IOException {
+        payloadFileStorageProvider.initialize();
     }
 
     protected String receiveMessageToDelete() throws SOAPException, IOException, ParserConfigurationException, SAXException {

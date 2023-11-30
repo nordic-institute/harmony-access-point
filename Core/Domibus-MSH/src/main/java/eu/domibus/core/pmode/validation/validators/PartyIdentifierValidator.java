@@ -48,10 +48,8 @@ public class PartyIdentifierValidator implements PModeValidator {
             validateForbiddenCharactersInParty(issues, party);
         });
 
-        allParties.forEach(party -> {
-            issues.addAll(validateDuplicatePartyNameInAllParties(party, allParties));
-            issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
-        });
+        issues.addAll(validateDuplicateIdentifiersInAllParties(allParties));
+
         return issues;
     }
 
@@ -95,18 +93,21 @@ public class PartyIdentifierValidator implements PModeValidator {
      * @param allParties list of all parties
      * @return list of ValidationIssue
      */
-    protected List<ValidationIssue> validateDuplicateIdentifiersInAllParties(Party party, List<Party> allParties) {
+    protected List<ValidationIssue> validateDuplicateIdentifiersInAllParties(List<Party> allParties) {
         List<ValidationIssue> issues = new ArrayList<>();
-        Set<Identifier> identifierSet = new HashSet<>(party.getIdentifiers());
 
-        allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party1 -> {
-            List<Identifier> duplicateIdentifiers = getDuplicateIdentifiers(identifierSet, party1);
-
-            duplicateIdentifiers.forEach(identifier -> {
-                issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party1.getName() + "]"));
-            });
-
+        List<String> allIds = allParties.stream()
+                .flatMap(party -> party.getIdentifiers().stream())
+                .map(id -> id.getPartyId())
+                .collect(Collectors.toList());
+        Set<String> uniques = new HashSet<>();
+        Set<String> duplicateIds = allIds.stream()
+                .filter(e -> !uniques.add(e))
+                .collect(Collectors.toSet());
+        duplicateIds.forEach(id -> {
+            issues.add(createIssue(id, id, "Duplicate party identifier [%s] found."));
         });
+
         return issues;
     }
 

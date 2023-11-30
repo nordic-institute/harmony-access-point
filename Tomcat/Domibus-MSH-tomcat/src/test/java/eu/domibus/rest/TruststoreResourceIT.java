@@ -2,6 +2,7 @@ package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.crypto.SameResourceCryptoException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -31,6 +32,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -208,6 +210,41 @@ public class TruststoreResourceIT extends AbstractIT {
             multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
         } catch (Exception e) {
             LOG.info("Error restoring initial keystore", e);
+        }
+    }
+
+    @Test
+    public void replaceStoreWithEmptyPassword() throws IOException {
+        String fileName = "gateway_truststore2.jks";
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
+        byte[] content = Files.readAllBytes(path);
+        MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
+
+        try {
+            truststoreResource.uploadTruststoreFile(multiPartFile, "");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Failed to upload the truststoreFile file since its password was empty."));
+        }
+    }
+
+    @Test
+    public void testUploadWithMaxSize() throws IOException {
+        Domain defaultDomain = new Domain("default", "default");
+        String previousFileUploadMaxSize = domibusPropertyProvider.getProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE);
+
+        try {
+            domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "100", false);
+            String fileName = "gateway_keystore2.jks";
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
+            byte[] content = Files.readAllBytes(path);
+            MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
+
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+            Assert.fail("Expected exception was not raised!");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
+        } finally {
+            domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, previousFileUploadMaxSize, false);
         }
     }
 }

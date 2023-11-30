@@ -15,6 +15,8 @@ public class ArchivingFileDTO {
 
     private String mimeType;
 
+    private String checkSum;
+
     private Path path;
 
     public ArchivingFileDTO(InputStream inputStream, Long size, String mimeType) {
@@ -43,6 +45,14 @@ public class ArchivingFileDTO {
         this.path = path;
     }
 
+    public String getCheckSum() {
+        return checkSum;
+    }
+
+    public void setCheckSum(String checkSum) {
+        this.checkSum = checkSum;
+    }
+
     @Override
     public String toString() {
         return "ArchivingFileDTO{" +
@@ -50,6 +60,7 @@ public class ArchivingFileDTO {
                 ", size=" + size +
                 ", mimeType='" + mimeType + '\'' +
                 ", path=" + path +
+                ", checkSum=" + checkSum +
                 '}';
     }
 }

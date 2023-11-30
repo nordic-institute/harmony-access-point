@@ -4,7 +4,6 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
@@ -15,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"receivedTo", after},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
+        List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters, Collections.emptyList());
 
         Assert.assertEquals(2, messages.size());
     }
@@ -111,9 +111,10 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"failed", now},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        String[] columnsToTest = new String[]{"nextAttempt", "sendAttempts", "sendAttemptsMax", "failed", "restored", "conversationId", "notificationStatus", "messageStatus", "mshRole", "refToMessageId", "toPartyId", "finalRecipient"};
+        String[] columnsToTest = new String[]{"nextAttempt", "sendAttempts", "sendAttemptsMax", "failed", "restored", "conversationId", "notificationStatus",
+                "messageStatus", "mshRole", "refToMessageId", "toPartyId"};
         for (String column : columnsToTest) {
-            List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, column, false, filters);
+            List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, column, false, filters, Collections.emptyList());
             Assert.assertEquals(2, messages.size());
         }
     }

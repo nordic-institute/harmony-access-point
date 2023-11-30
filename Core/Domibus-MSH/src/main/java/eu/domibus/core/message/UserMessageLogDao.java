@@ -370,26 +370,35 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public int getAllMessagesWithStatus(String mpc, MessageStatus messageStatus, String partitionName) {
+        return getMessagesNewerThan(null, mpc, messageStatus, partitionName);
+    }
+
+    @Transactional(readOnly = true)
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
         String sqlString = "select count(*) from " +
                 "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                "             inner join  TB_USER_MESSAGE   on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
+                "             inner join  TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
                 "             inner join  TB_D_MESSAGE_STATUS on TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK" +
                 "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
                 "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
-                "             and TB_D_MPC.VALUE=:MPC" +
-                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
-                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
-
+                "             and TB_D_MPC.VALUE=:MPC";
+        if(startDate != null) {
+            sqlString += "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
+                         "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
+            sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
+            LOG.debug("counting messages newer than: [{}]", startDate);
+        }
         sqlString = sqlString.replace("$PARTITION", partitionName);
-        sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
 
         LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
-        countQuery.setParameter("STARTDATE", startDate);
-        countQuery.setParameter("MESSAGESTATUS", messageStatus);
+        countQuery.setParameter("MESSAGESTATUS", messageStatus.name());
+        if(startDate != null) {
+            countQuery.setParameter("STARTDATE", startDate);
+        }
         int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
         LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
         return result;
@@ -428,7 +437,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     @Override
-    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);
             for (Map.Entry<String, Object> stringObjectEntry : filters.entrySet()) {
@@ -444,7 +453,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             startTime = System.currentTimeMillis();
         }
 
-        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters);
+        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters, fields);
 
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
@@ -468,8 +477,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int countMessagesNotArchivedOnPartition(String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
                             "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
-                            "INNER JOIN TB_USER_MESSAGE um ON TB_USER_MESSAGE_LOG.ID_PK=um.ID_PK " +
-                            "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND um.TEST_MESSAGE=0 AND archived IS NULL";
+                "INNER JOIN TB_USER_MESSAGE PARTITION ($PARTITION) ON TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
+                "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND TB_USER_MESSAGE.TEST_MESSAGE=0 AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         final Query countQuery = em.createNativeQuery(sqlString);
         try {
@@ -485,7 +494,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
 
     @Transactional
-    public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
+    public int countMessagesOnPartitionWithStatusNotInList(List<String> messageStatuses, String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         try {

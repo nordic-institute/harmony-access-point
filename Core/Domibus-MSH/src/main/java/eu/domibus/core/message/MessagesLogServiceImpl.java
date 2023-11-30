@@ -11,11 +11,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Federico Martini
@@ -42,14 +41,17 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     private final MessagesLogServiceHelper messagesLogServiceHelper;
 
+    private final MessageLogDictionaryDataService messageLogDictionaryDataService;
+
     public MessagesLogServiceImpl(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
                                   MessageCoreMapper messageCoreConverter, MessagesLogServiceHelper messagesLogServiceHelper,
-                                  DomibusPropertyProvider domibusPropertyProvider, NonRepudiationService nonRepudiationService) {
+                                  MessageLogDictionaryDataService messageLogDictionaryDataService) {
         this.userMessageLogDao = userMessageLogDao;
         this.signalMessageLogDao = signalMessageLogDao;
         this.messageCoreConverter = messageCoreConverter;
 
         this.messagesLogServiceHelper = messagesLogServiceHelper;
+        this.messageLogDictionaryDataService = messageLogDictionaryDataService;
     }
 
     @Override
@@ -62,11 +64,12 @@ public class MessagesLogServiceImpl implements MessagesLogService {
      * {@inheritDoc}
      */
     @Override
-    public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    @Transactional(readOnly = true)
+    public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogResultRO result = new MessageLogResultRO();
 
         MessageLogDao dao = getMessageLogDao(messageType);
-        List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
+        List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, fields, result);
 
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
@@ -79,16 +82,26 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     }
 
     @Override
-    public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters) {
+    @Transactional
+    public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogDao dao = getMessageLogDao(messageType);
-        return dao.findAllInfoPaged(0, max, orderByColumn, asc, filters);
+        List<MessageLogInfo> resultList = dao.findAllInfoPaged(0, max, orderByColumn, asc, filters, fields);
+        resultList.forEach(msgInfo -> {
+            messageLogDictionaryDataService.addDictionaryData(fields, msgInfo);
+        });
+        return resultList;
     }
 
-    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
+    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters,
+                                                  List<String> fields, MessageLogResultRO result) {
         List<MessageLogInfo> resultList = new ArrayList<>();
         long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
         if (number > 0) {
-            resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+            resultList = dao.findAllInfoPaged(from, max, column, asc, filters, fields);
+
+            resultList.forEach(msgInfo -> {
+                messageLogDictionaryDataService.addDictionaryData(fields, msgInfo);
+            });
         }
 
         return resultList;

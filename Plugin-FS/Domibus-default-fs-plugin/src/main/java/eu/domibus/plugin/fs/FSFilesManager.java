@@ -136,11 +136,12 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public boolean hasLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
-        LOG.debug("Checking if lock file exists [{}]", file.getName().getURI());
-        final boolean exists = lockFile.exists();
-        LOG.debug("Lock file [{}] exists? [{}]", file.getName().getURI(), exists);
-        return exists;
+        try (final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file))) {
+            LOG.debug("Checking if lock file exists [{}]", file.getName().getURI());
+            final boolean exists = lockFile.exists();
+            LOG.debug("Lock file [{}] exists? [{}]", file.getName().getURI(), exists);
+            return exists;
+        }
     }
 
     /**
@@ -151,10 +152,11 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public FileObject createLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
-        LOG.debug("Creating lock file for [{}]", file.getName().getBaseName());
-        lockFile.createFile();
-        return lockFile;
+        try (final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file))) {
+            LOG.debug("Creating lock file for [{}]", file.getName().getBaseName());
+            lockFile.createFile();
+            return lockFile;
+        }
     }
 
     /**
@@ -165,13 +167,14 @@ public class FSFilesManager {
      * @throws FileSystemException On error parsing the path, or on error finding the file.
      */
     public boolean deleteLockFile(FileObject file) throws FileSystemException {
-        final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
-        if (lockFile.exists()) {
-            lockFile.close();
-            LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
-            return lockFile.delete();
-        } else {
-            LOG.debug("Lock file for [{}] not found", file.getName().getBaseName());
+        try (final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file))) {
+            if (lockFile.exists()) {
+                lockFile.close();
+                LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
+                return lockFile.delete();
+            } else {
+                LOG.debug("Lock file for [{}] not found", file.getName().getBaseName());
+            }
         }
         return false;
     }
@@ -180,14 +183,15 @@ public class FSFilesManager {
     public FileObject renameFile(FileObject file, String newFileName) throws FileSystemException {
         LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
 
-        FileObject newFile = resolveSibling(file, newFileName);
-        //Close open handles on the file before rename.
-        file.close();
-        file.moveTo(newFile);
+        try (FileObject newFile = resolveSibling(file, newFileName)) {
+            //Close open handles on the file before rename.
+            file.close();
+            file.moveTo(newFile);
 
-        forceLastModifiedTimeIfSupported(newFile);
+            forceLastModifiedTimeIfSupported(newFile);
 
-        return newFile;
+            return newFile;
+        }
     }
 
     public void moveFile(FileObject file, FileObject targetFile) throws FileSystemException {
@@ -265,8 +269,9 @@ public class FSFilesManager {
 
     public boolean fileExists(FileObject rootDir, String fileName) throws FileSystemException {
         //the data files can be located in folders along with their metadata so we search deep
-        FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT);
-        return file.exists();
+        try (FileObject file = rootDir.resolveFile(fileName, NameScope.DESCENDENT)) {
+            return file.exists();
+        }
     }
 
     public boolean isFileOlderThan(FileObject file, Integer ageInSeconds) {

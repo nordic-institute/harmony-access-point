@@ -269,6 +269,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             populatePartyInfo(target, messageIn);
             populateCollaborationInfo(target, messageIn);
             populateMessageProperties(target, messageIn);
+
             populatePayloadInfo(target, messageIn);
         } catch (final JMSException ex) {
             LOG.error("Error while getting properties from MapMessage", ex);

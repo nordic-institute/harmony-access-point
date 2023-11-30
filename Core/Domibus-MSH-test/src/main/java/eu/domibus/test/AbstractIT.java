@@ -8,7 +8,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.proxy.DomibusProxyService;
-import eu.domibus.core.spring.DomibusContextRefreshedListener;
+import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -61,7 +61,7 @@ public abstract class AbstractIT {
     protected DomibusProxyService domibusProxyService;
 
     @Autowired
-    DomibusContextRefreshedListener domibusContextRefreshedListener;
+    DomibusApplicationContextListener domibusApplicationContextListener;
 
     @Autowired
     protected DomibusConditionUtil domibusConditionUtil;
@@ -112,7 +112,10 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
 
-        domibusContextRefreshedListener.doInitialize();
+        if(!springContextInitialized) {
+            LOG.info("Executing the ApplicationContextListener initialization");
+            domibusApplicationContextListener.doInitialize();
+        }
     }
 
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {

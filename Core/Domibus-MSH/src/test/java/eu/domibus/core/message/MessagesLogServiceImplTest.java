@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -17,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,10 +39,10 @@ public class MessagesLogServiceImplTest {
     MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    NonRepudiationService nonRepudiationService;
 
     @Injectable
-    NonRepudiationService nonRepudiationService;
+    MessageLogDictionaryDataService messageLogDictionaryDataService;
 
     @Test
     public void countAndFilter1() {
@@ -56,16 +56,16 @@ public class MessagesLogServiceImplTest {
         MessageLogResultRO resultRo = new MessageLogResultRO();
 
         new Expectations() {{
-            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
+            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase) any, filters, (MessageLogResultRO) any);
             result = numberOfUserMessageLogs;
-            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters, Collections.emptyList());
             result = resultList;
         }};
 
-        List<MessageLogInfo> res = messagesLogServiceImpl.countAndFilter(userMessageLogDao, from, max, column, asc, filters, resultRo);
+        List<MessageLogInfo> res = messagesLogServiceImpl.countAndFilter(userMessageLogDao, from, max, column, asc, filters, Collections.emptyList(), resultRo);
 
         new Verifications() {{
-            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters, Collections.emptyList());
             times = 1;
         }};
 
@@ -83,11 +83,11 @@ public class MessagesLogServiceImplTest {
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
         new Expectations(messagesLogServiceImpl) {{
-            messagesLogServiceImpl.countAndFilter((MessageLogDao)any, from, max, column, asc, filters, (MessageLogResultRO)any);
+            messagesLogServiceImpl.countAndFilter((MessageLogDao) any, from, max, column, asc, filters, null, (MessageLogResultRO) any);
             result = resultList;
         }};
 
-        MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters);
+        MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters, Collections.emptyList());
 
         new Verifications() {{
             messagesLogServiceImpl.getMessageLogDao(messageType);

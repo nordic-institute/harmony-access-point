@@ -1,9 +1,11 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -68,6 +70,9 @@ public class MessageFragmentSenderTest {
     protected PolicyService policyService;
 
     @Injectable
+    PModeService pModeService;
+
+    @Injectable
     protected ReliabilityService reliabilityService;
 
     @Injectable
@@ -105,6 +110,9 @@ public class MessageFragmentSenderTest {
 
     @Injectable
     MessageSenderService messageSenderService;
+
+    @Injectable
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
 
     @Test
     public void validateBeforeSendingSuccessful() {

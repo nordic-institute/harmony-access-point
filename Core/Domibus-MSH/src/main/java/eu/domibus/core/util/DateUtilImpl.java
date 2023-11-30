@@ -39,6 +39,13 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
+    public ZonedDateTime getDateHour(String idPk) {
+        DateTimeFormatter formatter = ofPattern(DATETIME_FORMAT_DEFAULT).withZone(ZoneOffset.UTC);
+        String dateHour = StringUtils.substring(idPk, 0, DATETIME_FORMAT_DEFAULT.length());
+        return ZonedDateTime.parse(dateHour, formatter);
+    }
+
+    @Override
     public Date fromString(String value) {
         Date result = null;
 
@@ -119,8 +126,8 @@ public class DateUtilImpl implements DateUtil {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
         try {
-            ZonedDateTime parse = LocalDateTime.parse(date, REST_FORMATTER).atZone(ZoneOffset.UTC);
-            String format = parse.format(ofPattern(DATETIME_FORMAT_DEFAULT));
+            LocalDateTime localDateTime = LocalDateTime.parse(date, REST_FORMATTER);
+            String format = getUtcLocalDateTime(localDateTime).format(ofPattern(DATETIME_FORMAT_DEFAULT));
             return Long.parseLong(format + MIN);
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);

@@ -3,9 +3,6 @@ package eu.domibus.core.payload.persistence.filesystem;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageFactory;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProviderImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -57,7 +54,7 @@ public class StorageProviderImplTest {
             result = storage;
         }};
 
-        storageProvider.init();
+        storageProvider.initialize();
 
         new Verifications() {{
             storageFactory.create(domain);

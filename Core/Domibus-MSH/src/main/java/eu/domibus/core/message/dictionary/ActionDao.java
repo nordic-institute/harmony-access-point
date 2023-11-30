@@ -2,7 +2,7 @@ package eu.domibus.core.message.dictionary;
 
 
 import eu.domibus.api.model.ActionEntity;
-import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.dao.SingleValueDictionaryDao;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -17,7 +17,7 @@ import javax.persistence.TypedQuery;
  * @since 5.0
  */
 @Repository
-public class ActionDao extends BasicDao<ActionEntity> {
+public class ActionDao extends SingleValueDictionaryDao<ActionEntity> {
 
     public ActionDao() {
         super(ActionEntity.class);
@@ -39,7 +39,7 @@ public class ActionDao extends BasicDao<ActionEntity> {
         return newMpc;
     }
 
-    public ActionEntity findByValue(final String value) {
+    public ActionEntity findByValue(final Object value) {
         final TypedQuery<ActionEntity> query = this.em.createNamedQuery("Action.findByValue", ActionEntity.class);
         query.setParameter("VALUE", value);
         return DataAccessUtils.singleResult(query.getResultList());

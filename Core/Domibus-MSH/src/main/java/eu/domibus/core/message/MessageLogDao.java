@@ -88,14 +88,15 @@ public abstract class MessageLogDao<F extends DomibusBaseEntity> extends ListDao
         return results.size() > 0;
     }
 
-    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogInfoFilter filterService = getMessageLogInfoFilter();
-        String filteredMessageLogQuery = filterService.filterMessageLogQuery(column, asc, filters);
+        String filteredMessageLogQuery = filterService.getFilterMessageLogQuery(column, asc, filters, fields);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = filterService.applyParameters(typedQuery, filters);
         queryParameterized.setFirstResult(from);
         queryParameterized.setMaxResults(max);
-        return queryParameterized.getResultList();
+        List<MessageLogInfo> result = queryParameterized.getResultList();
+        return result;
     }
 
 }

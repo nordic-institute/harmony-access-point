@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -67,6 +68,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
@@ -88,7 +92,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
 
     @Injectable
-    private ObjectProvider<BusdoxLocator> busdoxLocators;
+    private ObjectProvider<DomibusBusdoxLocator> busdoxLocators;
 
     @Injectable
     private ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
@@ -100,7 +104,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private DomibusCertificateValidator domibusCertificateValidator;
 
     @Injectable
-    private BusdoxLocator busdoxLocator;
+    private DomibusBusdoxLocator busdoxLocator;
 
     @Injectable
     private DomibusApacheFetcher domibusApacheFetcher;

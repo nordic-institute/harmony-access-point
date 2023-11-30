@@ -1,6 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.MultiDomainCryptoService;
@@ -46,6 +47,9 @@ public class GatewayConfigurationValidator implements DomainsAware {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
     public void validateConfiguration() {
         LOG.info("Checking gateway configuration ...");
         validateCertificates();
@@ -73,14 +77,19 @@ public class GatewayConfigurationValidator implements DomainsAware {
     public void onDomainRemoved(Domain domain) {
     }
 
-    public   void validateCertificates() {
+    public void validateCertificates() {
         final List<Domain> domains = domainService.getDomains();
         validateCertificates(domains);
     }
 
     private void validateCertificates(List<Domain> domains) {
         for (Domain domain : domains) {
-            validateCerts(domain);
+            domainContextProvider.setCurrentDomain(domain);
+            try {
+                validateCerts(domain);
+            } finally {
+                domainContextProvider.clearCurrentDomain();
+            }
         }
     }
 

@@ -7,7 +7,7 @@
 
 <div *ngIf="columnSelection" style="margin-bottom: 10px;">
   <div *ngFor='let col of allColumns' style="display: inline-block;margin:5px;" class="column-checkbox">
-    <mat-checkbox [id]="col.name" (click)='toggle(col)' [(ngModel)]="col.isSelected">{{col.name}}</mat-checkbox>
+    <mat-checkbox [disabled]="col.disabled && col.disabled()" [id]="col.name" (click)='toggle(col)' [(ngModel)]="col.isSelected">{{col.name}}</mat-checkbox>
   </div>
   <div class="all-none-selection">
     <a href="#" class="domibusLink" id="all_id" (click)="selectAllColumns()" click-stop-propagation>All</a>

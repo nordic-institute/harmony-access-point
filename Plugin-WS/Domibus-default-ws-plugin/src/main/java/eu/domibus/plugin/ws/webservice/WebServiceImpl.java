@@ -9,9 +9,9 @@ import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -24,7 +24,6 @@ import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
+import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
@@ -75,6 +75,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
     public static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
+    public static final String ERROR_MESSAGE_ID = "Error message, id [";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
@@ -371,7 +372,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
-        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
+        ListPushFailedMessagesRequest validListPushFailedMessagesRequest = getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
 
         final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
@@ -482,12 +483,12 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     /**
-     * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     * The message status is updated to downloaded (the message is also removed from the plugin table ws_plugin_tb_message_log containing the pending messages)
      *
      * @param markMessageAsDownloadedRequest
      * @param markMessageAsDownloadedResponse
      * @param ebMSHeaderInfo
-     * @throws eu.domibus.plugin.webService.generated.MarkMessageAsDownloadedFault
+     * @throws eu.domibus.plugin.ws.generated.MarkMessageAsDownloadedFault
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
@@ -512,6 +513,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         markMessageAsDownloadedResponse.value = WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
         markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
+
+        wsMessageLogService.delete(wsMessageLogEntity);
     }
 
     /**
@@ -698,11 +701,15 @@ public class WebServiceImpl implements WebServicePluginInterface {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
         } catch (MessageNotFoundException exception) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            LOG.debug(MESSAGE_NOT_FOUND_ID + messageId + "]", exception);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         } catch (DuplicateMessageException e) {
+            LOG.businessError(DUPLICATE_MESSAGEID, messageId);
+            LOG.debug(DUPLICATE_MESSAGE_ID + messageId + "]", e);
             throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            LOG.debug(ERROR_MESSAGE_ID + messageId + "]", e);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         }
         return transformFromErrorResults(errorsForMessage);

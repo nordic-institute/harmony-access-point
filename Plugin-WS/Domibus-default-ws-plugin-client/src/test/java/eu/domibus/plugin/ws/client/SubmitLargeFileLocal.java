@@ -28,7 +28,7 @@ public class SubmitLargeFileLocal {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmitLargeFileLocal.class);
 
-    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_messaging.xml";
+    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "submitMessage_messaging.xml";
 
     private static final String CONFIG_PROPERTIES = "config.properties";
     public static final String PORT = "9080";
@@ -118,7 +118,7 @@ public class SubmitLargeFileLocal {
         largepayload.setValue(dataHandler);
         submitRequest.getPayload().add(largepayload);
 
-        Messaging messaging = WebserviceHelper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
+        Messaging messaging = WebserviceHelper.parseMessagingXML(getClass().getClassLoader().getResourceAsStream(TEST_SUBMIT_MESSAGE_MESSAGING));
 
         SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);
