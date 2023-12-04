@@ -35,7 +35,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findBackendForMessageEntityId", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " + // need this property in WSPlugin
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um                                                                  " +
                         "left join um.messageProperties p on p.name = 'finalRecipient'                                  " +
@@ -96,7 +96,7 @@ import java.util.Date;
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 
         @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " + // need this property in WSPlugin
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um                                                                  " +
                         "left join um.messageProperties p on p.name = 'finalRecipient'                                  " +
@@ -106,7 +106,7 @@ import java.util.Date;
                         "and uml.received < :DATE                                                                       " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " + // need this property in WSPlugin
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um                                                                  " +
                         "left join um.messageProperties p on p.name = 'finalRecipient'                                  " +
@@ -115,7 +115,7 @@ import java.util.Date;
                         "and uml.downloaded is not null and uml.downloaded < :DATE                                      " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " + // need this property in WSPlugin
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um                                                                  " +
                         "left join um.messageProperties p on p.name = 'finalRecipient'                                  " +
@@ -126,7 +126,7 @@ import java.util.Date;
                         "and uml.modificationTime < :DATE                                                               " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
-                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)        " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend,p)      " + // need this property in WSPlugin
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um                                                                  " +
                         "left join um.messageProperties p on p.name = 'finalRecipient'                                  " +
