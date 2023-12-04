@@ -58,15 +58,6 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
 
-//    @Autowired
-//    AsyncNotificationConfigurationService asyncNotificationConfigurationService;
-//
-//    @Autowired
-//    AsyncNotificationConfiguration asyncNotificationConfiguration;
-//
-//    @Autowired
-//    Queue notifyBackendWebServiceQueue;
-
     @PostConstruct
     public void setupInfrastructure() {
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
@@ -90,12 +81,6 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     public void deleteExpiredNotDownloaded_deletesOnlyPayload_ifIsDeleteMessageMetadataAndNotZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
-        //given
-//        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(backendConnector)).thenReturn(NotificationType.DEFAULT_PUSH_NOTIFICATIONS);
-//        Mockito.when(asyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
-//        Mockito.when(backendConnector.getName()).thenReturn("wsPlugin");
-//        Mockito.when(asyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
-
         uploadPmodeWithCustomMpc(true, MAX_VALUE, 2, MAX_VALUE, MAX_VALUE);
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         String messageId = receiveMessageToDelete();
