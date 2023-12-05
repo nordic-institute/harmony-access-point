@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
@@ -13,13 +13,11 @@ import mockit.integration.junit4.JMockit;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -133,7 +131,6 @@ public class JMSManagerActiveMQTest {
         assertEquals(internalJmsDestination.getNumberOfMessages(), queueMbean.getQueueSize());
     }
 
-    @Ignore
     @Test
     public void testBrowseMessages(final @Injectable InternalJMSDestination selectedDestination,
                                    final @Injectable Map<String, InternalJMSDestination> destinationsMap,
@@ -281,7 +278,6 @@ public class JMSManagerActiveMQTest {
         assertEquals(internalJmsMessages.iterator().next(), internalJmsMessage1);
     }
 
-    @Ignore
     @Test
     public void testConvertCompositeDataArrayWhenAMessageCannotBeConverted(final @Injectable CompositeData data1,
                                                                            final @Injectable CompositeData data2,
