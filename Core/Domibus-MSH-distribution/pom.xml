@@ -82,7 +82,7 @@
         <profile>
             <id>tomcat</id>
             <properties>
-                <tomcat.version>9.0.59</tomcat.version>
+                <tomcat.version>9.0.83</tomcat.version>
             </properties>
             <build>
                 <plugins>

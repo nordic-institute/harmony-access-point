@@ -29,8 +29,8 @@
         <hibernate.version>5.6.15.Final</hibernate.version>
         <activemq.version>5.16.7</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
-        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
-        <logback.version>1.2.11</logback.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <logback.version>1.3.12</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <commons-configuration.version>1.10</commons-configuration.version>
@@ -40,7 +40,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.72</bouncycastle.version>
+        <bouncycastle.version>1.73</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
         <jackson.version>2.14.2</jackson.version>
@@ -72,7 +72,7 @@
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <tomcat-embed.version>9.0.80</tomcat-embed.version>
+        <tomcat-embed.version>9.0.83</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
         <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
@@ -120,7 +120,7 @@
         <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <opencsv.version>5.7.1</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
