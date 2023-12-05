@@ -10,8 +10,10 @@ import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
+import javax.jms.Queue;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import java.io.IOException;
@@ -50,7 +53,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     BackendConnectorHelper backendConnectorHelper;
-    
+
     ArgumentCaptor<MessageStatusChangeEvent> argCaptor = ArgumentCaptor.forClass(MessageStatusChangeEvent.class);
 
     BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -78,7 +81,6 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     public void deleteExpiredNotDownloaded_deletesOnlyPayload_ifIsDeleteMessageMetadataAndNotZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
-        //given
         uploadPmodeWithCustomMpc(true, MAX_VALUE, 2, MAX_VALUE, MAX_VALUE);
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         String messageId = receiveMessageToDelete();
