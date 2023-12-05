@@ -230,15 +230,6 @@ public class BackendNotificationService {
             createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
     }
-    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
-        List<MessageDeletedEvent> messageIds = userMessageLogs
-                .stream()
-                .filter(userMessageLog -> StringUtils.equals(userMessageLog.getBackend(), backend))
-                .map(this::getMessageDeletedEvent)
-                .collect(toList());
-        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
-        return messageIds;
-    }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
         String backend = userMessageLog.getBackend();
@@ -437,7 +428,9 @@ public class BackendNotificationService {
         messageDeletedEvent.setMessageEntityId(userMessageLogDto.getEntityId());
         messageDeletedEvent.addProperty(FINAL_RECIPIENT, userMessageLogDto.getProperties().get(FINAL_RECIPIENT));
         messageDeletedEvent.addProperty(ORIGINAL_SENDER, userMessageLogDto.getProperties().get(ORIGINAL_SENDER));
-        messageDeletedEvent.addProperty(MSH_ROLE, userMessageLogDto.getProperties().get(MSH_ROLE));
+        if(userMessageLogDto.getMshRole() != null) {
+            messageDeletedEvent.addProperty(MSH_ROLE, userMessageLogDto.getMshRole().name());
+        }
         return messageDeletedEvent;
     }
 
