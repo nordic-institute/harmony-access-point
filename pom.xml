@@ -29,7 +29,7 @@
         <hibernate.version>5.6.15.Final</hibernate.version>
         <activemq.version>5.16.7</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
-        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
+        <slf4j.version>2.0.9</slf4j.version>
         <logback.version>1.3.12</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpclient5.version>5.2.1</httpclient5.version>
@@ -125,7 +125,7 @@
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <jmockit.version>1.22</jmockit.version>
+        <jmockit.version>1.24</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <javax.annotation.version>1.3.2</javax.annotation.version>
