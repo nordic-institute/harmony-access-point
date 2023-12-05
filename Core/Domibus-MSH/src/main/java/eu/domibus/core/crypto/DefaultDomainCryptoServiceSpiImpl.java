@@ -6,9 +6,9 @@ import eu.domibus.api.crypto.DomibusCryptoType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.party.PartyService;
 import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
@@ -394,8 +394,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
         if (LOG.isTraceEnabled() && merlin != null) {
-            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
-            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null : merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null : merlin.getTrustStore().getProvider());
         }
         return merlin;
     }
@@ -405,8 +405,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
         if (LOG.isTraceEnabled() && merlin != null) {
-            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
-            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null : merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null : merlin.getTrustStore().getProvider());
         }
         return merlin;
     }
@@ -414,17 +414,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public KeyStore getKeyStore() {
         return securityProfileAliasConfigurations.stream()
-                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getKeyStore())
                 .findFirst()
-                .orElse(null);
+                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getKeyStore())
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any key-store in the security profile configuration."));
     }
 
     @Override
     public KeyStore getTrustStore() {
         return securityProfileAliasConfigurations.stream()
-                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getTrustStore())
                 .findFirst()
-                .orElse(null);
+                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getTrustStore())
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any trust-store in the security profile configuration."));
     }
 
     @Override
@@ -432,7 +432,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return securityProfileAliasConfigurations.stream()
                 .filter(profileConfiguration -> profileConfiguration.getAlias().equalsIgnoreCase(alias))
                 .map(SecurityProfileAliasConfiguration::getPassword)
-                .findAny().orElse(null);
+                .findAny()
+                .orElseThrow(() -> new DomibusCertificateException("Could not find private key password."));
     }
 
     @Override
