@@ -72,7 +72,7 @@
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <tomcat-embed.version>9.0.80</tomcat-embed.version>
+        <tomcat-embed.version>9.0.83</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
         <xbean-spring.version>4.22</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
