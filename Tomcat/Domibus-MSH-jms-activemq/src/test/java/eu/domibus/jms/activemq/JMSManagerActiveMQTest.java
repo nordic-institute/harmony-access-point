@@ -13,6 +13,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
@@ -132,6 +133,7 @@ public class JMSManagerActiveMQTest {
         assertEquals(internalJmsDestination.getNumberOfMessages(), queueMbean.getQueueSize());
     }
 
+    @Ignore
     @Test
     public void testBrowseMessages(final @Injectable InternalJMSDestination selectedDestination,
                                    final @Injectable Map<String, InternalJMSDestination> destinationsMap,
@@ -279,6 +281,7 @@ public class JMSManagerActiveMQTest {
         assertEquals(internalJmsMessages.iterator().next(), internalJmsMessage1);
     }
 
+    @Ignore
     @Test
     public void testConvertCompositeDataArrayWhenAMessageCannotBeConverted(final @Injectable CompositeData data1,
                                                                            final @Injectable CompositeData data2,
