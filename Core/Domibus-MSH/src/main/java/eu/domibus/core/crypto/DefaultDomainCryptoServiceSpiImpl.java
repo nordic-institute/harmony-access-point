@@ -416,7 +416,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return securityProfileAliasConfigurations.stream()
                 .findFirst()
                 .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getKeyStore())
-                .orElseThrow(() -> new DomibusCertificateException("Could not find any key-store in the security profile configuration."));
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any keystore in the security profile configuration."));
     }
 
     @Override
@@ -424,7 +424,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return securityProfileAliasConfigurations.stream()
                 .findFirst()
                 .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getTrustStore())
-                .orElseThrow(() -> new DomibusCertificateException("Could not find any trust-store in the security profile configuration."));
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any truststore in the security profile configuration."));
     }
 
     @Override
