@@ -591,11 +591,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 throw new SameResourceCryptoSpiException(storeName, storeFileName,
                         String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
             }
-            LOG.debug("Preparing to replace the current store [{}] having entries [{}] with entries [{}].",
+            LOG.info("Preparing to replace the current store [{}] having entries [{}] with entries [{}].",
                     storeName, certificateService.getStoreEntries(currentStore), certificateService.getStoreEntries(newStore));
         } catch (Exception ex) {
             LOG.warn("Could not retrieve the disk store, so no comparing them.", ex);
-            LOG.debug("Setting the store [{}] with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
+            LOG.info("Setting the store [{}] with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         }
 
         try {
@@ -837,7 +837,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 LOG.info("Replacing the current [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
                         storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
             } catch (Exception ex) {
-                LOG.warn("Could not retrieve the current store named [{}].", storeName);
+                LOG.warn("Could not retrieve the current store named [{}].", storeName, ex);
                 LOG.info("Replacing the [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
                         storeName, storeLocation, certificateService.getStoreEntries(newStore), domain);
             }
