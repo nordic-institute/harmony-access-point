@@ -361,7 +361,6 @@ public class CertificateServiceImpl implements CertificateService {
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
 
-//        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
@@ -379,7 +378,7 @@ public class CertificateServiceImpl implements CertificateService {
                 copyStoreCertificates(uploadedStore, destStore);
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
-//            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(uploadedStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
