@@ -391,7 +391,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             KeyStore diskStore = getStore(persistenceInfo);
             if (securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
-                LOG.info("Current store [{}] with entries [{}] is identical with the new one, so no replacing.", storeName, getStoreEntries(diskStore));
+                LOG.debug("Current store [{}] with entries [{}] is identical with the new one, so no replacing.", storeName, getStoreEntries(diskStore));
                 return true;
             }
             LOG.info("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));

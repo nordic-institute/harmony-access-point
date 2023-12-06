@@ -3,10 +3,7 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.KeystorePersistenceInfo;
-import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -193,6 +190,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         String initialLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String initialType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
         String initialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        //change the password domibus property to incur error when trying to get it
+        domibusPropertyProvider.setProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD,"test111");
+        String modifiedInitialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
 
         String newStoreName = "gateway_truststore_diffPass.p12";
         String newStorePassword = "test1234";
@@ -201,10 +201,10 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
 
-        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
-        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
-        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        // error trying to get the store since it was not properly initialized due to password not being correct
+//        Assert.assertThrows(DomibusCertificateException.class, () -> multiDomainCryptoService.getTrustStore(domain));
 
+        // still can replace it
         multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
 
         String newLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
@@ -214,16 +214,12 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         // initial properties didn't change
         Assert.assertEquals(initialLocation, newLocation);
         Assert.assertEquals(initialType, newType);
-        Assert.assertEquals(initialPassword, newPassword);
+        Assert.assertEquals(modifiedInitialPassword, newPassword);
 
         // can still open the store
-        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
         List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
 
-        Assert.assertNotEquals(initialStore, newStore);
-        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
-        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+        Assert.assertEquals(1, newStoreEntries.size());
     }
 
     @Test
@@ -422,6 +418,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         try {
             String storePassword = "test123";
             Domain domain = DomainService.DEFAULT_DOMAIN;
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, storePassword);
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);

@@ -574,7 +574,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 resetTrustStore();
             }
             return removed;
-
         });
     }
 
@@ -593,6 +592,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             }
             LOG.info("Preparing to replace the current store [{}] having entries [{}] with entries [{}].",
                     storeName, certificateService.getStoreEntries(currentStore), certificateService.getStoreEntries(newStore));
+        } catch (SameResourceCryptoSpiException sre) {
+            throw sre;
         } catch (Exception ex) {
             LOG.warn("Could not retrieve the disk store, so no comparing them.", ex);
             LOG.info("Setting the store [{}] with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
