@@ -58,7 +58,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 
@@ -361,19 +360,16 @@ public class CertificateServiceImpl implements CertificateService {
 
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
-        KeyStore diskStore = getStore(persistenceInfo);
 
-        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
+//        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
         try {
             KeyStore uploadedStore = loadStore(storeInfo);
-            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
-                LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
+            if (checkEqual && storesAreEqual(persistenceInfo, storeName, uploadedStore)) {
                 return false;
             }
-
             if (sameProperties(storeInfo, persistenceInfo)) {
                 // same props, so just save the store on disk
                 keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
@@ -383,12 +379,27 @@ public class CertificateServiceImpl implements CertificateService {
                 copyStoreCertificates(uploadedStore, destStore);
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
-            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
+//            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
         } catch (Exception exc) {
             throw new CryptoException("Could not replace store " + storeName, exc);
+        }
+    }
+
+    private boolean storesAreEqual(KeystorePersistenceInfo persistenceInfo, String storeName, KeyStore uploadedStore) {
+        try {
+            KeyStore diskStore = getStore(persistenceInfo);
+            if (securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
+                LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
+                return true;
+            }
+            LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
+            return false;
+        } catch (Exception ex) {
+            LOG.warn("Could not check if store [{}] on disk is identical to the uploaded one; replacing anyway.", storeName);
+            return false;
         }
     }
 

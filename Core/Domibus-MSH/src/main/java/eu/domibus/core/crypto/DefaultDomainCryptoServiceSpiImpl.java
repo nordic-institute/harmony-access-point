@@ -585,9 +585,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
         KeyStore newStore = certificateService.loadStore(storeContentInfo);
-        if (securityUtil.areKeystoresIdentical(newStore, storeGetter.get())) {
-            throw new SameResourceCryptoSpiException(storeName, storeFileName,
-                    String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
+        try {
+            KeyStore currentStore = storeGetter.get();
+            if (securityUtil.areKeystoresIdentical(newStore, currentStore)) {
+                throw new SameResourceCryptoSpiException(storeName, storeFileName,
+                        String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
+            }
+            LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, certificateService.getStoreEntries(currentStore));
+        } catch (Exception ex) {
+            LOG.info("Could not retrieve the disk store, so no comparing them.", ex);
         }
 
         try {
@@ -599,7 +605,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
 
-
+        LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         storeReloader.run();
     }
 
@@ -815,17 +821,24 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
-            KeyStore currentStore = storeGetter.get();
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
             certificateTypeValidator.accept(newStore);
-            if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
-                LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
-                return;
-            }
 
-            LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
-                    storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+            try {
+                KeyStore currentStore = storeGetter.get();
+                if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
+                    LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
+                    return;
+                }
+
+                LOG.info("Replacing the current [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+                        storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+            } catch (Exception ex) {
+                LOG.warn("Could not retrieve the current store named [{}].", storeName);
+                LOG.info("Replacing the [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+                        storeName, storeLocation, certificateService.getStoreEntries(newStore), domain);
+            }
             storePropertiesLoader.run();
             securityProfileAliasConfigurations.forEach(securityProfileConfiguration -> {
                 storeSetter.accept(newStore, securityProfileConfiguration);
