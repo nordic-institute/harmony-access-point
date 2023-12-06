@@ -1,6 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.*;
@@ -14,6 +15,7 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -201,8 +203,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
 
-        // error trying to get the store since it was not properly initialized due to password not being correct
-//        Assert.assertThrows(DomibusCertificateException.class, () -> multiDomainCryptoService.getTrustStore(domain));
+        // error trying to check that the store is changed on disk and reload since the password is not correct
+        Assert.assertThrows(CryptoException.class, () -> multiDomainCryptoService.isTrustStoreChangedOnDisk(domain));
+        Assert.assertThrows(CryptoSpiException.class, () -> multiDomainCryptoService.resetTrustStore(domain));
 
         // still can replace it
         multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
