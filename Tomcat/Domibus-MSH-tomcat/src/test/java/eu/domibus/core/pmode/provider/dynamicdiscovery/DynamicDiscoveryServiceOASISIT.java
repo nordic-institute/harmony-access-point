@@ -35,6 +35,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
 
     private static SMPServiceMetadata serviceMetadata;
     private static SMPServiceMetadata expired_serviceMetadata;
+    private static SMPServiceMetadata emptyCertificate_serviceMetadata;
 
     @Configuration
     static class ContextConfiguration {
@@ -51,6 +52,9 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
                         String processIdScheme) throws TechnicalException {
                     if (StringUtils.contains(participantId, "expired")) {
                         return expired_serviceMetadata;
+                    }
+                    if (StringUtils.contains(participantId, "empty_cert")) {
+                        return emptyCertificate_serviceMetadata;
                     }
                     return serviceMetadata;
                 }
@@ -74,6 +78,13 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
                 "http://localhost",
                 expiredCertificate,
                 "participantId_expired");
+
+        emptyCertificate_serviceMetadata = DynamicDiscoveryFactoryTest.buildServiceMetadata(
+                new SMPProcessIdentifier("urn:epsosPatientService::List", "ehealth-procid-qns"),
+                "bdxr-transport-ebms3-as4-v1p0",
+                "http://localhost",
+                null,
+                "participantId_empty_cert");
     }
 
     @Before
@@ -87,6 +98,16 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     public void lookupInformation_expired() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId_expired",
+                "participantIdScheme",
+                "scheme::value",
+                "urn:epsosPatientService::List",
+                "ehealth-procid-qns");
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void lookupInformation_emptyCert() throws EbMS3Exception {
+        dynamicDiscoveryServiceOASIS.lookupInformation("domain",
+                "participantId_empty_cert",
                 "participantIdScheme",
                 "scheme::value",
                 "urn:epsosPatientService::List",
