@@ -591,9 +591,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 throw new SameResourceCryptoSpiException(storeName, storeFileName,
                         String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
             }
-            LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, certificateService.getStoreEntries(currentStore));
+            LOG.debug("Preparing to replace the current store [{}] having entries [{}] with entries [{}].",
+                    storeName, certificateService.getStoreEntries(currentStore), certificateService.getStoreEntries(newStore));
         } catch (Exception ex) {
-            LOG.info("Could not retrieve the disk store, so no comparing them.", ex);
+            LOG.warn("Could not retrieve the disk store, so no comparing them.", ex);
+            LOG.debug("Setting the store [{}] with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         }
 
         try {
@@ -605,7 +607,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
 
-        LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
+        LOG.debug("Store [{}] successfully replaced with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         storeReloader.run();
     }
 
