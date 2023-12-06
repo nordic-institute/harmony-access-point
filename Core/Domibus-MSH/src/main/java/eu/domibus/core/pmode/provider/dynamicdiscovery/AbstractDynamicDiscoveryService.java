@@ -187,6 +187,10 @@ public abstract class AbstractDynamicDiscoveryService implements DynamicDiscover
             }
 
             X509Certificate certificate = endpoint.getCertificate();
+            if (certificate == null) {
+                throw new ConfigurationException("Could not validate certificate: certificate is empty for participant identifier [" + finalRecipientValue + "] and scheme [" + finalRecipientType + "]");
+            }
+
             x509CertificateService.validateClientX509Certificates(certificate);
             return endpointInfos.getObject(endpoint.getAddress(), certificate);
 
