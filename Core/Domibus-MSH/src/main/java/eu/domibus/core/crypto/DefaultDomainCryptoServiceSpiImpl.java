@@ -6,9 +6,9 @@ import eu.domibus.api.crypto.DomibusCryptoType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.party.PartyService;
 import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
@@ -394,8 +394,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
         if (LOG.isTraceEnabled() && merlin != null) {
-            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
-            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null : merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null : merlin.getTrustStore().getProvider());
         }
         return merlin;
     }
@@ -405,8 +405,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
         if (LOG.isTraceEnabled() && merlin != null) {
-            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null: merlin.getKeyStore().getProvider());
-            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null: merlin.getTrustStore().getProvider());
+            LOG.trace("Security provider for merlin keystore: [{}]", merlin.getKeyStore() == null ? null : merlin.getKeyStore().getProvider());
+            LOG.trace("Security provider for merlin truststore: [{}]", merlin.getTrustStore() == null ? null : merlin.getTrustStore().getProvider());
         }
         return merlin;
     }
@@ -414,17 +414,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public KeyStore getKeyStore() {
         return securityProfileAliasConfigurations.stream()
-                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getKeyStore())
                 .findFirst()
-                .orElse(null);
+                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getKeyStore())
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any keystore in the security profile configuration."));
     }
 
     @Override
     public KeyStore getTrustStore() {
         return securityProfileAliasConfigurations.stream()
-                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getTrustStore())
                 .findFirst()
-                .orElse(null);
+                .map(securityProfileConfiguration -> securityProfileConfiguration.getMerlin().getTrustStore())
+                .orElseThrow(() -> new DomibusCertificateException("Could not find any truststore in the security profile configuration."));
     }
 
     @Override
@@ -432,7 +432,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return securityProfileAliasConfigurations.stream()
                 .filter(profileConfiguration -> profileConfiguration.getAlias().equalsIgnoreCase(alias))
                 .map(SecurityProfileAliasConfiguration::getPassword)
-                .findAny().orElse(null);
+                .findAny()
+                .orElseThrow(() -> new DomibusCertificateException("Could not find private key password."));
     }
 
     @Override
@@ -573,7 +574,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 resetTrustStore();
             }
             return removed;
-
         });
     }
 
@@ -584,9 +584,19 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
         KeyStore newStore = certificateService.loadStore(storeContentInfo);
-        if (securityUtil.areKeystoresIdentical(newStore, storeGetter.get())) {
-            throw new SameResourceCryptoSpiException(storeName, storeFileName,
-                    String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
+        try {
+            KeyStore currentStore = storeGetter.get();
+            if (securityUtil.areKeystoresIdentical(newStore, currentStore)) {
+                throw new SameResourceCryptoSpiException(storeName, storeFileName,
+                        String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
+            }
+            LOG.info("Preparing to replace the current store [{}] having entries [{}] with entries [{}].",
+                    storeName, certificateService.getStoreEntries(currentStore), certificateService.getStoreEntries(newStore));
+        } catch (SameResourceCryptoSpiException sre) {
+            throw sre;
+        } catch (Exception ex) {
+            LOG.warn("Could not retrieve the disk store, so no comparing them.", ex);
+            LOG.info("Setting the store [{}] with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         }
 
         try {
@@ -598,7 +608,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
 
-
+        LOG.debug("Store [{}] successfully replaced with entries [{}].", storeName, certificateService.getStoreEntries(newStore));
         storeReloader.run();
     }
 
@@ -814,17 +824,24 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
-            KeyStore currentStore = storeGetter.get();
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
             certificateTypeValidator.accept(newStore);
-            if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
-                LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
-                return;
-            }
 
-            LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
-                    storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+            try {
+                KeyStore currentStore = storeGetter.get();
+                if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
+                    LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
+                    return;
+                }
+
+                LOG.info("Replacing the current [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+                        storeName, certificateService.getStoreEntries(currentStore), storeLocation, certificateService.getStoreEntries(newStore), domain);
+            } catch (Exception ex) {
+                LOG.warn("Could not retrieve the current store named [{}].", storeName, ex);
+                LOG.info("Replacing the [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
+                        storeName, storeLocation, certificateService.getStoreEntries(newStore), domain);
+            }
             storePropertiesLoader.run();
             securityProfileAliasConfigurations.forEach(securityProfileConfiguration -> {
                 storeSetter.accept(newStore, securityProfileConfiguration);
