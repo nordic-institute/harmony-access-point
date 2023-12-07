@@ -359,11 +359,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
-        String storeName = persistenceInfo.getName();
-
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
+        String storeName = persistenceInfo.getName();
         try {
             KeyStore uploadedStore = loadStore(storeInfo);
             if (checkEqual && storesAreEqual(persistenceInfo, storeName, uploadedStore)) {
@@ -378,27 +377,12 @@ public class CertificateServiceImpl implements CertificateService {
                 copyStoreCertificates(uploadedStore, destStore);
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
-            LOG.debug("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(uploadedStore));
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(uploadedStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
         } catch (Exception exc) {
             throw new CryptoException("Could not replace store " + storeName, exc);
-        }
-    }
-
-    private boolean storesAreEqual(KeystorePersistenceInfo persistenceInfo, String storeName, KeyStore uploadedStore) {
-        try {
-            KeyStore diskStore = getStore(persistenceInfo);
-            if (securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
-                LOG.debug("Current store [{}] with entries [{}] is identical with the new one, so no replacing.", storeName, getStoreEntries(diskStore));
-                return true;
-            }
-            LOG.info("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
-            return false;
-        } catch (Exception ex) {
-            LOG.warn("Could not check if store [{}] on disk is identical to the uploaded one; replacing anyway.", storeName, ex);
-            return false;
         }
     }
 
@@ -524,6 +508,21 @@ public class CertificateServiceImpl implements CertificateService {
             return keystore;
         } catch (Exception ex) {
             throw new CryptoException("Could not load store named " + storeInfo.getName(), ex);
+        }
+    }
+
+    private boolean storesAreEqual(KeystorePersistenceInfo persistenceInfo, String storeName, KeyStore uploadedStore) {
+        try {
+            KeyStore diskStore = getStore(persistenceInfo);
+            if (securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
+                LOG.debug("Current store [{}] with entries [{}] is identical with the new one, so no replacing.", storeName, getStoreEntries(diskStore));
+                return true;
+            }
+            LOG.info("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
+            return false;
+        } catch (Exception ex) {
+            LOG.warn("Could not check if store [{}] on disk is identical to the uploaded one; replacing anyway.", storeName, ex);
+            return false;
         }
     }
 
