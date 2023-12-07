@@ -23,18 +23,18 @@
         and keeps the customizations needed by Domibus -->
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
-        <spring.version>5.3.30</spring.version>
+        <spring.version>5.3.31</spring.version>
         <spring.security.version>5.8.8</spring.security.version>
         <spring.session.core.version>2.7.4</spring.session.core.version>
         <spring.session.jdbc.version>2.7.4</spring.session.jdbc.version>
         <springdoc.version>1.6.15</springdoc.version>
-        <io.swagger.core.v3.version>2.2.16</io.swagger.core.v3.version>
+        <io.swagger.core.v3.version>2.2.19</io.swagger.core.v3.version>
         <swagger-ui.version>4.15.5</swagger-ui.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
         <activemq.version>5.16.7</activemq.version>
         <aspectj.version>1.9.20.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
-        <logback.version>1.2.12</logback.version>
+        <logback.version>1.2.13</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
@@ -69,7 +69,7 @@
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
-        <dropwizard.metrics.version>4.2.20</dropwizard.metrics.version>
+        <dropwizard.metrics.version>4.2.23</dropwizard.metrics.version>
         <owasp.dependency.check.version>8.4.0</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.6.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
@@ -165,7 +165,7 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast.version>5.3.1</hazelcast.version>
+        <hazelcast.version>5.3.6</hazelcast.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
