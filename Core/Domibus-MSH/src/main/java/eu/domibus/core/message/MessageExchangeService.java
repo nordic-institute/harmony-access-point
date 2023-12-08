@@ -29,6 +29,15 @@ public interface MessageExchangeService {
     MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration, ProcessingType processingType);
 
     /**
+     * This method with analyse the messageExchange in order to find if the message should be pushed of pulled.
+     * The status will be set in messageExchangeContext.
+     *
+     * @param messageExchangeConfiguration the message configuration used to retrieve the associated process.
+     * @return the status of the message.
+     */
+    MessageStatusEntity getMessageStatus(MessageExchangeConfiguration messageExchangeConfiguration);
+
+    /**
      * @return SEND_ENQUEUED.
      */
     MessageStatusEntity getMessageStatusForPush();

@@ -61,8 +61,7 @@ public class RoutingService {
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
+    public void initialize() {
         criteriaMap = new HashMap<>();
         for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
             criteriaMap.put(routingCriteriaFactory.getName(), routingCriteriaFactory.getInstance());

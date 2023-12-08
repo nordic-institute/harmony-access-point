@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.plugin.notification.BackendPlugin.*;
 import static eu.domibus.core.plugin.notification.BackendPlugin.Name.*;
@@ -543,10 +544,9 @@ public class RoutingServiceTest {
 
         List<BackendFilterEntity> backendFilterEntities = routingService.buildBackendFilterEntities(notificationListenerPluginsList, 1);
         assertEquals(2, backendFilterEntities.size());
-
-        new FullVerifications() {{
-            routingCriteriaFactories.iterator();
-        }};
+        List<String> backendNames = backendFilterEntities.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList());
+        assertTrue(backendNames.contains(WS));
+        assertTrue(backendNames.contains(JMS));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package eu.domibus.core.user.multitenancy;
 
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
@@ -31,9 +32,12 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
 
     private final UserDomainDao userDomainDao;
 
-    public SuperUserManagementServiceImpl(DomainTaskExecutor domainTaskExecutor, UserDomainDao userDomainDao) {
+    private final DomainService domainService;
+
+    public SuperUserManagementServiceImpl(DomainTaskExecutor domainTaskExecutor, UserDomainDao userDomainDao, DomainService domainService) {
         this.domainTaskExecutor = domainTaskExecutor;
         this.userDomainDao = userDomainDao;
+        this.domainService = domainService;
     }
 
     /**
@@ -97,7 +101,20 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         return domainCode;
     }
 
+    @Override
     protected AuthRole getAdminRole() {
         return AuthRole.ROLE_AP_ADMIN;
+    }
+
+    @Override
+    protected String getDefaultUserName() {
+        return "super";
+    }
+
+    @Override
+    protected eu.domibus.api.user.User createDefaultUser(String userName) {
+        eu.domibus.api.user.User user = super.createDefaultUser(userName);
+        user.setDomain(domainService.DEFAULT_DOMAIN.getCode());
+        return user;
     }
 }

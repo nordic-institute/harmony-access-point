@@ -115,20 +115,6 @@ public class ApplicationResourceTest {
     }
 
     @Test
-    public void testGetFourCornerEnabled() {
-
-        new Expectations() {{
-            domibusConfigurationService.isFourCornerEnabled();
-            result = false;
-        }};
-
-        //tested method
-        boolean isFourCornerEnabled = applicationResource.getFourCornerModelEnabled();
-
-        Assert.assertFalse(isFourCornerEnabled);
-    }
-
-    @Test
     public void testGetSupportTeamInfo() {
         final String supportTeamName = "The Avengers";
         final String supportTeamEmail = "ironman@avengers.com";

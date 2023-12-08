@@ -80,15 +80,16 @@ public class TruststoreExtResource {
 
     @Operation(summary = "Download truststore", description = "Upload the truststore file",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @GetMapping(value = "/download", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
         KeyStoreContentInfoDTO info;
         byte[] content;
         try {
             info = truststoreExtService.downloadTruststoreContent();
             content = info.getContent();
-        } catch (Exception exception) {
-            throw new CryptoExtException("Could not download truststore.", exception);
+        } catch (Exception e) {
+            LOG.error("Could not find truststore.", e);
+            return ResponseEntity.notFound().build();
         }
 
         HttpStatus status = HttpStatus.OK;
@@ -115,11 +116,11 @@ public class TruststoreExtResource {
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
 
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
+
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(DOMIBUS_TRUSTSTORE, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         truststoreExtService.uploadTruststoreFile(contentInfo);

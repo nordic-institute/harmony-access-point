@@ -9,11 +9,9 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 export class MessagelogDetailsComponent {
 
   message;
-  fourCornerEnabled;
 
   constructor(public dialogRef: MatDialogRef<MessagelogDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.message = data.message;
-    this.fourCornerEnabled = data.fourCornerEnabled;
   }
 
 }

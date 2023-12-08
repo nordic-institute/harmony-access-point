@@ -39,10 +39,10 @@ public class PasswordEncryptionContextFactoryTest {
     @Test
     public void getPasswordEncryptionContextNoDomain() {
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(null);
-        Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
+        Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextGlobal);
 
         new Verifications() {{
-            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
+            new PasswordEncryptionContextGlobal(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
         }};
     }
 

@@ -1,8 +1,12 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.logging.DomibusLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -14,7 +18,13 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Joze Rihtarsic
  * @since 5.0
  */
-public abstract class AbstractDynamicDiscoveryService {
+public abstract class AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
+
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
 
     /**
      * Return implementations class logger
@@ -93,5 +103,27 @@ public abstract class AbstractDynamicDiscoveryService {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Method returns cache key for dynamic discovery lookup.
+     *
+     * @param userMessage
+     * @return cache key string with format: #domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
+     */
+    @Override
+    public String getFinalRecipientCacheKeyForDynamicDiscovery(UserMessage userMessage) {
+        final String finalRecipientValue = userMessageServiceHelper.getFinalRecipientValue(userMessage);
+        final String finalRecipientType = userMessageServiceHelper.getFinalRecipientType(userMessage);
+
+        // create key
+        //"#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
+        String cacheKey = domainProvider.getCurrentDomain().getCode() +
+                finalRecipientValue +
+                finalRecipientType +
+                userMessage.getActionValue() +
+                userMessage.getService().getValue() +
+                userMessage.getService().getType();
+        return cacheKey;
     }
 }

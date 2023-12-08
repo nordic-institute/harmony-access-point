@@ -41,10 +41,8 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
@@ -224,7 +222,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING);
 
         new Verifications() {{
-            userMessageServiceHelper.getFinalRecipient(userMessage);
+            userMessageServiceHelper.getFinalRecipientValue(userMessage);
         }};
     }
 

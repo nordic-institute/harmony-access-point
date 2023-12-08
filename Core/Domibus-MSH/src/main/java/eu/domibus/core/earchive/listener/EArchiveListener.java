@@ -111,14 +111,15 @@ public class EArchiveListener implements MessageListener {
 
     protected void onMessageArchiveBatch(EArchiveBatchEntity eArchiveBatch, List<EArchiveBatchUserMessage> userMessageDtos) {
         if (userMessageDtos.size() > 0) {
-            LOG.debug("Set batchId [{}] archived starting userMessageLog from [{}] to [{}]",
+            LOG.debug("BatchId was archived [{}], starting userMessageLog from [{}] to [{}]",
                     eArchiveBatch.getBatchId(),
                     userMessageDtos.get(userMessageDtos.size() - 1),
                     userMessageDtos.get(0));
         } else {
-            LOG.debug("Set empty batchId [{}] archived.", eArchiveBatch.getBatchId());
+            LOG.debug("Empty batchId [{}] was archived.", eArchiveBatch.getBatchId());
         }
 
+        eArchivingDefaultService.executeDeleteBatch(eArchiveBatch);
         eArchivingDefaultService.executeBatchIsArchived(eArchiveBatch, userMessageDtos);
     }
 

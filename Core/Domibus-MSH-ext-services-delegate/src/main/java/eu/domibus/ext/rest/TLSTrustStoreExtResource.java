@@ -87,20 +87,22 @@ public class TLSTrustStoreExtResource {
 
     @Operation(summary = "Download TLS truststore", description = "Upload the TLS truststore file",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @GetMapping(value = "/download", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
         KeyStoreContentInfoDTO contentInfoDTO;
         byte[] content;
         try {
             contentInfoDTO = tlsTruststoreExtService.downloadTruststoreContent();
             content = contentInfoDTO.getContent();
-        } catch (Exception exception) {
-            throw new CryptoExtException("Could not download TLS truststore.", exception);
+        } catch (Exception e) {
+            LOG.error("Could not download TLS truststore.", e);
+            return ResponseEntity.notFound().build();
         }
         HttpStatus status = HttpStatus.OK;
         if (content.length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
+
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header("content-disposition", "attachment; filename=" + getFileName())
@@ -114,11 +116,11 @@ public class TLSTrustStoreExtResource {
             @RequestPart("file") MultipartFile truststoreFile,
             @SkipWhiteListed @RequestParam("password") String password) {
 
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
-
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
+
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         KeyStoreContentInfoDTO contentInfo = new KeyStoreContentInfoDTO(TLS_TRUSTSTORE_NAME, truststoreFileContent, truststoreFile.getOriginalFilename(), password);
         tlsTruststoreExtService.uploadTruststoreFile(contentInfo);

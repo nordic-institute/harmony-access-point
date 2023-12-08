@@ -6,7 +6,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.util.TimerTask;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_METRICS_MONITOR_JMS_QUEUES;
@@ -63,8 +62,7 @@ public class JmsQueueCountSetScheduler {
         return metricRegistry.getMetrics().keySet().stream().anyMatch(keyName -> keyName.startsWith(JMS_QUEUES));
     }
 
-    @PostConstruct
-    public void init() {
+    public void initialize() {
         Boolean monitorJMSQueues = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
         if(BooleanUtils.isFalse(monitorJMSQueues)){
             LOG.info("Metrics monitoring on queue is disabled.");

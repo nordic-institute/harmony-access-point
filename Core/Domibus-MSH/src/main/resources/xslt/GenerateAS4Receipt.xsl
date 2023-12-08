@@ -41,6 +41,7 @@
     <xsl:param name="messageid" select="'not-set'"/>
     <xsl:param name="timestamp" select="'not-set'"/>
     <xsl:param name="nonRepudiation" select="'not-set'"/>
+    <xsl:param name="wsuId" select="'not-set'"/>
 
     <xsl:template match="S12:Envelope">
         <S12:Envelope>
@@ -144,7 +145,7 @@
     <xsl:template
             match="eb3:Messaging[not(
         @S12:role='http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh')]">
-        <eb3:Messaging S12:mustUnderstand="true" id="{concat('_ebmessaging_',generate-id())}">
+        <eb3:Messaging S12:mustUnderstand="true" id="{concat('_ebmessaging_',generate-id())}" wsu:Id="{$wsuId}">
             <xsl:apply-templates select="descendant-or-self::eb3:UserMessage"/>
         </eb3:Messaging>
     </xsl:template>

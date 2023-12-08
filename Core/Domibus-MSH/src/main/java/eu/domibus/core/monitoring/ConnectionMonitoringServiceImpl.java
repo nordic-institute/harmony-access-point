@@ -159,21 +159,28 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         for (String partyPair : monitoredParties) {
-            com.codahale.metrics.Timer.Context testMessageTimer=null;
-            com.codahale.metrics.Counter testMessageCounter=null;
             String senderParty = connectionMonitoringHelper.getSourceParty(partyPair);
             String receiverParty = connectionMonitoringHelper.getDestinationParty(partyPair);
             try {
-                testMessageTimer = metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time();
-                testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
-                testMessageCounter.inc();
-                String testMessageId = testService.submitTest(senderParty, receiverParty);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
+                metricRegistry.timer(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "timer")).time(
+                    () -> {
+                        com.codahale.metrics.Counter testMessageCounter=null;
+                        try {
+                            testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, OUTGOING_TEST_MESSAGE, "counter"));
+                            testMessageCounter.inc();
+                            String testMessageId = testService.submitTest(senderParty, receiverParty);
+                            LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
+                        } finally {
+                            Optional.ofNullable(testMessageCounter).ifPresent(Counter::dec);
+                        }
+                        return null;
+                    });
             } catch (IOException | MessagingProcessingException e) {
                 LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty);
-            } finally {
-                Optional.ofNullable(testMessageTimer).ifPresent(com.codahale.metrics.Timer.Context::stop);
-                Optional.ofNullable(testMessageCounter).ifPresent(Counter::dec);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e){
+                LOG.warn(String.format("Could not send test message from [%s] to [%s] - unexpected exception", senderParty, receiverParty), e);       //should never happen
             }
         }
     }

@@ -2,7 +2,7 @@ package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
-import eu.domibus.core.pki.PKIUtil;
+import eu.domibus.test.common.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -29,19 +29,19 @@ import static org.junit.Assert.assertTrue;
 public class CRLServiceImplTest {
 
     @Tested
-    CRLServiceImpl crlService;
+    private CRLServiceImpl crlService;
 
     @Injectable
-    CRLUtil crlUtil;
+    private CRLUtil crlUtil;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    X509CRL x509CRL;
+    private X509CRL x509CRL;
 
     @Injectable
-    DomibusLocalCacheService domibusLocalCacheService;
+    private DomibusLocalCacheService domibusLocalCacheService;
 
     PKIUtil pkiUtil = new PKIUtil();
 
@@ -151,7 +151,7 @@ public class CRLServiceImplTest {
             crlUtil.getCrlDistributionPoints(certificate);
             result = crlUrlList;
 
-            crlUtil.downloadCRL(crlUrl1);
+            crlUtil.downloadCRL(crlUrl1, false);
             result = new DomibusCRLException();
         }};
         crlService.isCertificateRevoked(certificate);
@@ -199,7 +199,7 @@ public class CRLServiceImplTest {
         final String crlUrlString = "file://test";
         final X509CRL x509CRL = pkiUtil.createCRL(Arrays.asList(new BigInteger[]{new BigInteger("0400000000011E44A5E405", 16), new BigInteger("0400000000011E44A5E404", 16)}));
         new Expectations() {{
-            crlUtil.downloadCRL(crlUrlString);
+            crlUtil.downloadCRL(crlUrlString, false);
             result = x509CRL;
         }};
         X509Certificate certificate = pkiUtil.createCertificate(new BigInteger("0400000000011E44A5E405", 16), null);

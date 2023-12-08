@@ -129,12 +129,6 @@ public class BackendMessageValidator {
         }
 
         validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
-
-        // handle if the messageId is unique. This should only fail if the ID is set from the outside
-        if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId, mshRole))) {
-            LOG.businessError(DUPLICATE_MESSAGEID, messageId);
-            throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique.");
-        }
     }
 
 

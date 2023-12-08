@@ -1,6 +1,6 @@
 package eu.domibus.ext.rest.error;
 
-import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
@@ -58,17 +58,16 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return extExceptionHelper.handleExtException(e);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorDTO> handleAuthenticationException(AuthenticationException e) {
+    @ExceptionHandler(RequestValidationException.class)
+    public ResponseEntity<ErrorDTO> handleAccessDeniedException(RequestValidationException e) {
         return extExceptionHelper.handleExtException(e);
     }
-
     /**
      * Handles the exception behavior for @Valid annotated input methods
      *
-     * @param ex      MethodArgumentNotValidException
+     * @param ex MethodArgumentNotValidException
      * @param headers HttpHeaders
-     * @param status  HttpStatus
+     * @param status HttpStatus
      * @param request WebRequest
      * @return errors list
      */

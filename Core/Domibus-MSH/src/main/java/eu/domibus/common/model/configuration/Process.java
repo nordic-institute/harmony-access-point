@@ -1,10 +1,15 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static eu.domibus.common.model.configuration.Process.*;
@@ -29,6 +34,8 @@ import static eu.domibus.common.model.configuration.Process.*;
         @NamedQuery(name = FIND_ALL_PROCESSES, query = "SELECT p FROM Process p"),
 })
 public class Process extends AbstractBaseEntity {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Process.class);
     @Transient
     @XmlTransient
     public static final String RETRIEVE_PULL_PROCESS_FROM_MESSAGE_CONTEXT = "Process.retrievePullProcessFromMessageContext";
@@ -73,7 +80,6 @@ public class Process extends AbstractBaseEntity {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_PM_JOIN_PROCESS_RESP_PARTY", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "PARTY_FK"))
     private Set<Party> responderParties;
-
     @XmlTransient
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_PM_JOIN_PROCESS_LEG", joinColumns = @JoinColumn(name = "PROCESS_FK"), inverseJoinColumns = @JoinColumn(name = "LEG_FK"))
@@ -191,13 +197,17 @@ public class Process extends AbstractBaseEntity {
         return this.responderParties;
     }
 
+    public void setResponderParties(Set<Party> responderParties) {
+        this.responderParties = responderParties;
+    }
+
     /**
      * Method changes Set from internal hibernate PersistentSet to HashSet. Due to
      * hibernate session state, the PersistentSet.contain function return false even-thought the object is in a list
      * and values which contributes to hash have the same value. This issue will be tackled in Domibus 5.0
      * in a general manner
      */
-    public void detachParties(){
+    public void detachParties() {
 
         Set<Party> initiatorPartiesNew = new HashSet<>();
         initiatorPartiesNew.addAll(initiatorParties);
@@ -274,6 +284,22 @@ public class Process extends AbstractBaseEntity {
         }
     }
 
+    public Party removeResponder(String partyName) {
+        if (CollectionUtils.isEmpty(responderParties)) {
+            return null;
+        }
+        final Iterator<Party> iterator = responderParties.iterator();
+        while (iterator.hasNext()) {
+            Party party = iterator.next();
+            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
+                LOG.debug("Removing responder [{}] from process [{}]", partyName, name);
+                iterator.remove();
+                return party;
+            }
+        }
+        return null;
+    }
+
     public InitiatorParties getInitiatorPartiesXml() {
         return this.initiatorPartiesXml;
     }
@@ -288,5 +314,9 @@ public class Process extends AbstractBaseEntity {
 
     public void setResponderPartiesXml(ResponderParties responderPartiesXml) {
         this.responderPartiesXml = responderPartiesXml;
+    }
+
+    public void setLegs(Set<LegConfiguration> legs) {
+        this.legs = legs;
     }
 }

@@ -108,6 +108,11 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public MetricsExtService beanMetricsExtService() {
+        return Mockito.mock(MetricsExtService.class);
+    }
+
+    @Bean
     public PartyExtService beanPartyExtService() {
         return Mockito.mock(PartyExtService.class);
     }

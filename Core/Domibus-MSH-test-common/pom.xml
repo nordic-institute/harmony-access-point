@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>core</artifactId>
-        <version>2.2.1</version>
+        <version>2.2.2</version>
     </parent>
     <artifactId>harmony-msh-test-common</artifactId>
     <packaging>jar</packaging>
@@ -60,6 +60,33 @@
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->
+
+        <!-- BouncyCastle -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <!-- End BouncyCastle -->
+
+
+        <!-- maven enforcer -->
+        <dependency>
+            <groupId>org.apache.maven.enforcer</groupId>
+            <artifactId>enforcer-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- maven enforcer -->
 
         <!-- Spring -->
         <dependency>

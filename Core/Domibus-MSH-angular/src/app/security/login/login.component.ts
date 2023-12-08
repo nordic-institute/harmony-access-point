@@ -57,21 +57,7 @@ export class LoginComponent implements OnInit {
     switch (error.status) {
       case Server.HTTP_UNAUTHORIZED:
       case Server.HTTP_FORBIDDEN:
-        const forbiddenCode = error.error.message;
-        switch (forbiddenCode) {
-          case Server.USER_INACTIVE:
-            message = 'The user is inactive. Please contact your administrator.';
-            break;
-          case Server.USER_SUSPENDED:
-            message = 'The user is suspended. Please try again later or contact your administrator.';
-            break;
-          case Server.PASSWORD_EXPIRED:
-            message = 'The user password has expired. Please contact your administrator.';
-            break;
-          default:
-            message = 'The username/password combination you provided is not valid. Please try again or contact your administrator.';
-            break;
-        }
+        message = 'The username/password combination you provided is not valid. Please try again or contact your administrator.';
         break;
       case Server.HTTP_GATEWAY_TIMEOUT:
       case Server.HTTP_NOTFOUND:

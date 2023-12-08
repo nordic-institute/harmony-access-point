@@ -1,8 +1,8 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
 
     @Autowired
-    SynchronizedRunnableFactory synchronizedRunnableFactory;
+    DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     @Override
     public <T extends Object> T submit(Callable<T> task) {
@@ -85,9 +85,9 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
 
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
+        DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
 
-        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(DBClusterSynchronizedRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
 
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);

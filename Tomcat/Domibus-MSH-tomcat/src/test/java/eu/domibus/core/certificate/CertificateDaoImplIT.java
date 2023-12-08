@@ -2,28 +2,27 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.util.DateUtilImpl;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.PKIUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.math.BigInteger;
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Dussart
@@ -34,31 +33,14 @@ public class CertificateDaoImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
 
-    //needed because CertificateDaoImpl implements an interface, so spring tries to convert it to interface based
-    //proxy. But one of the method tested is not declared in the interface.
-    @EnableAspectJAutoProxy(proxyTargetClass = true)
-    @Configuration
-    static public class CertificateDaoConfig {
-
-        @Bean
-        public CertificateDaoImpl certificateDao() {
-            return new CertificateDaoImpl();
-        }
-
-        @Bean
-        public DateUtil dateUtil() {
-            return new DateUtilImpl();
-        }
-    }
-
-    @PersistenceContext
-    private javax.persistence.EntityManager em;
-
     @Autowired
     private CertificateDaoImpl certificateDao;
 
     @Autowired
     private DateUtil dateUtil;
+
+    @Autowired
+    protected DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
 
     @Before
     public void setup() {
@@ -86,7 +68,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateStatus(CertificateStatus.SOON_REVOKED);
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(new Date());
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         List<Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedSoonRevoked();
         assertEquals(1, unNotifiedRevoked.size());
         Certificate certificate1 = unNotifiedRevoked.get(0);
@@ -143,7 +125,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         secondCertificate.setAlertImminentNotificationDate(notBefore);
         secondCertificate.setAlertExpiredNotificationDate(notBefore);
 
-        em.persist(secondCertificate);
+        certificateDao.saveOrUpdate(secondCertificate);
 
         secondCertificate = new Certificate();
         secondCertificate.setAlias(secondCertificateName);
@@ -187,8 +169,8 @@ public class CertificateDaoImplIT extends AbstractIT {
         secondCertificate.setCertificateType(CertificateType.PUBLIC);
         secondCertificate.setCertificateStatus(CertificateStatus.SOON_REVOKED);
 
-        em.persist(firstCertificate);
-        em.persist(secondCertificate);
+        certificateDao.saveOrUpdate(firstCertificate);
+        certificateDao.saveOrUpdate(secondCertificate);
 
         assertEquals(firstCertificate, certificateDao.getByAliasAndType(firstCertificateName, CertificateType.PUBLIC));
         assertEquals(secondCertificate, certificateDao.getByAliasAndType(secondCertificateName, CertificateType.PUBLIC));
@@ -210,12 +192,12 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateStatus(CertificateStatus.SOON_REVOKED);
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(new Date());
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         List<Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedSoonRevoked();
         assertEquals(1, unNotifiedRevoked.size());
 
         certificate.setLastNotification(dateUtil.getStartOfDay());
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         unNotifiedRevoked = certificateDao.getUnNotifiedSoonRevoked();
         assertEquals(0, unNotifiedRevoked.size());
     }
@@ -235,12 +217,12 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateStatus(CertificateStatus.REVOKED);
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(new Date());
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         List<Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
         assertEquals(1, unNotifiedRevoked.size());
 
         certificate.setLastNotification(dateUtil.getStartOfDay());
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
         assertEquals(0, unNotifiedRevoked.size());
     }
@@ -258,9 +240,58 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateStatus(CertificateStatus.SOON_REVOKED);
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(offset.minusDays(1)));
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findImminentExpirationToNotifyAsAlert(getDate(notification), getDate(localDateTime), getDate(offset));
         assertEquals(1, imminentExpirationToNotify.size());
+    }
+
+    @Test
+    @Transactional
+    public void findImminentExpirationToNotifyForDynamicallyDiscoveredCertificates() {
+        //we make sure there are no leftovers from other tests
+        certificateDao.deleteAll(certificateDao.findAll());
+        assertEquals(0, certificateDao.findAll().size());
+
+        final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
+        final LocalDateTime offset = localDateTime.plusDays(15);
+        final LocalDateTime notification = localDateTime.plusDays(7);
+
+        final String certificateAlias1 = "certificate1";
+        final Certificate publicCertificate1 = persistSoonRevokedCertificate(offset, certificateAlias1, CertificateType.PUBLIC);
+        //we save the dynamically discovered certificate
+        final PKIUtil pkiUtil = new PKIUtil();
+        final X509Certificate certificateParty1 = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(111), "CN=" + certificateAlias1 + ",OU=Domibus,O=eDelivery,C=EU");
+        dynamicDiscoveryLookupService.saveDynamicDiscoveryLookupTime("finalRecipient1", "endpointUrl1", certificateAlias1, "partyType", Arrays.asList("processes"), certificateAlias1, certificateParty1);
+
+        final String certificateAlias2 = "certificate2";
+        final Certificate publicCertificate2 = persistSoonRevokedCertificate(offset, certificateAlias2, CertificateType.PUBLIC);
+        final String privateCertificateAlias1 = "privateCertificate1";
+        final Certificate privateCertificate1 = persistSoonRevokedCertificate(offset, privateCertificateAlias1, CertificateType.PRIVATE);
+
+        //we make sure all 3 certificates are saved
+        assertEquals(3, certificateDao.findAll().size());
+
+        //the certificate1 should not be retrieved because it was dynamically discovered
+        final List<Certificate> imminentExpirationCertificates = certificateDao.findImminentExpirationToNotifyAsAlert(getDate(notification), getDate(localDateTime), getDate(offset));
+        assertEquals(2, imminentExpirationCertificates.size());
+
+        assertTrue(containsCertificateWithAlias(imminentExpirationCertificates, certificateAlias2));
+        assertTrue(containsCertificateWithAlias(imminentExpirationCertificates, privateCertificateAlias1));
+    }
+
+    private boolean containsCertificateWithAlias(List<Certificate> imminentExpirationCertificates, String myAlias) {
+        return imminentExpirationCertificates.stream().filter(certificate -> certificate.getAlias().equals(myAlias)).count() > 0;
+    }
+
+    private Certificate persistSoonRevokedCertificate(LocalDateTime offset, String alias, CertificateType certificateType) {
+        Certificate certificate = new Certificate();
+        certificate.setAlias(alias);
+        certificate.setNotBefore(new Date());
+        certificate.setNotAfter(getDate(offset.minusDays(1)));
+        certificate.setCertificateStatus(CertificateStatus.SOON_REVOKED);
+        certificate.setCertificateType(certificateType);
+        certificateDao.saveOrUpdate(certificate);
+        return certificate;
     }
 
     private Date getDate(LocalDateTime localDateTime1) {
@@ -281,7 +312,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(offset.minusDays(1)));
         certificate.setAlertImminentNotificationDate(getDate(notification.plusDays(1)));
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findImminentExpirationToNotifyAsAlert(getDate(notification), getDate(localDateTime), getDate(offset));
         assertEquals(0, imminentExpirationToNotify.size());
     }
@@ -300,7 +331,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(offset.minusDays(1)));
         certificate.setAlertImminentNotificationDate(getDate(notification.minusDays(1)));
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findImminentExpirationToNotifyAsAlert(getDate(notification), getDate(localDateTime), getDate(offset));
         assertEquals(1, imminentExpirationToNotify.size());
     }
@@ -319,7 +350,8 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(localDateTime.minusDays(2))); // expired 2 days ago
         certificate.setAlertImminentNotificationDate(getDate(notification.minusDays(1)));
-        em.persist(certificate);
+
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findImminentExpirationToNotifyAsAlert(getDate(notification), getDate(localDateTime), getDate(offset));
         assertEquals(0, imminentExpirationToNotify.size());
     }
@@ -338,7 +370,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(localDateTime.minusDays(1)));
         certificate.setAlertImminentNotificationDate(getDate(notification.minusDays(1)));
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
         assertEquals(1, imminentExpirationToNotify.size());
 
@@ -358,7 +390,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         certificate.setCertificateType(CertificateType.PRIVATE);
         certificate.setNotAfter(getDate(localDateTime.plusDays(1)));
         certificate.setAlertExpiredNotificationDate(getDate(notification.plusDays(1)));
-        em.persist(certificate);
+        certificateDao.saveOrUpdate(certificate);
         final List<Certificate> imminentExpirationToNotify = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
         assertEquals(0, imminentExpirationToNotify.size());
 
@@ -373,7 +405,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         firstCertificate.setNotAfter(new Date());
         firstCertificate.setCertificateType(CertificateType.PUBLIC);
         firstCertificate.setCertificateStatus(CertificateStatus.OK);
-        em.persist(firstCertificate);
+        certificateDao.saveOrUpdate(firstCertificate);
 
         Certificate secondCertificate = new Certificate();
         secondCertificate.setAlias("secondCertificateName");
@@ -381,7 +413,7 @@ public class CertificateDaoImplIT extends AbstractIT {
         secondCertificate.setNotAfter(new Date());
         secondCertificate.setCertificateType(CertificateType.PUBLIC);
         secondCertificate.setCertificateStatus(CertificateStatus.OK);
-        em.persist(secondCertificate);
+        certificateDao.saveOrUpdate(secondCertificate);
 
         Certificate storeCertificate = new Certificate();
         storeCertificate.setAlias("firstCertificateName");

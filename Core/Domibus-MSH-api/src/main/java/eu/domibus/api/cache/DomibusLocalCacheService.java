@@ -19,6 +19,7 @@ public interface DomibusLocalCacheService {
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
     String DISPATCH_CLIENT = "dispatchClient";
     String CRL_BY_CERT = "crlByCert";
+    String CRL_BY_URL = "crlByUrl";
     String DOMIBUS_PROPERTY_CACHE = "domibusProperties";
     String DOMIBUS_PROPERTY_METADATA_CACHE = "domibusPropertyMetadata";
 

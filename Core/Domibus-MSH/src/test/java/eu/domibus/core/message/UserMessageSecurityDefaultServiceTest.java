@@ -4,7 +4,6 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
@@ -13,6 +12,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * @author Cosmin Baciu
@@ -55,7 +55,7 @@ public class UserMessageSecurityDefaultServiceTest {
             userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
-            userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+            userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
             times = 1;
         }};
 
@@ -75,14 +75,14 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = other;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.FINAL_RECIPIENT);
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -97,11 +97,11 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -115,10 +115,10 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
-    @Test(expected = AuthenticationException.class)
+    @Test(expected = AccessDeniedException.class)
     public void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
         String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
@@ -130,14 +130,14 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = other;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.FINAL_RECIPIENT);
             result = other;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
 }

@@ -204,7 +204,7 @@ public class FSSendMessagesService {
         } catch (MessagingProcessingException | XMLStreamException ex) {
             errorMessage = buildErrorMessage("Error occurred submitting message to Domibus: " + ex.getMessage()).toString();
             LOG.error(errorMessage, ex);
-        } catch (RuntimeException | FileSystemException ex) {
+        } catch (RuntimeException | IOException ex) {
             errorMessage = buildErrorMessage("Error processing file. Skipped it. Error message is: " + ex.getMessage()).toString();
             LOG.error(errorMessage, ex);
         } finally {
@@ -231,23 +231,24 @@ public class FSSendMessagesService {
 
             String processableFileMessageURI = processableFile.getParent().getName().getPath();
             String failedDirectoryLocation = fsFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
-            FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
-
-            try {
-                if (fsPluginProperties.isFailedActionDelete(domain)) {
-                    // Delete
-                    fsFilesManager.deleteFile(processableFile);
-                    LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
-                } else if (fsPluginProperties.isFailedActionArchive(domain)) {
-                    // Archive
-                    String archivedFileName = fsFileNameHelper.stripStatusSuffix(baseName);
-                    FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
-                    fsFilesManager.moveFile(processableFile, archivedFile);
-                    LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
+            try (FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation)) {
+                try {
+                    if (fsPluginProperties.isFailedActionDelete(domain)) {
+                        // Delete
+                        fsFilesManager.deleteFile(processableFile);
+                        LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
+                    } else if (fsPluginProperties.isFailedActionArchive(domain)) {
+                        // Archive
+                        String archivedFileName = fsFileNameHelper.stripStatusSuffix(baseName);
+                        try (FileObject archivedFile = failedDirectory.resolveFile(archivedFileName)) {
+                            fsFilesManager.moveFile(processableFile, archivedFile);
+                            LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
+                        }
+                    }
+                } finally {
+                    // Create error file
+                    fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
                 }
-            } finally {
-                // Create error file
-                fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
             }
         } catch (IOException e) {
             throw new FSPluginException("Error handling the send failed message file " + processableFile, e);

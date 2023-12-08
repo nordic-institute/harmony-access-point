@@ -58,4 +58,5 @@ public class AlertEvent {
     void addProperty(String key, String value) {
         this.properties.put(key, value);
     }
+
 }

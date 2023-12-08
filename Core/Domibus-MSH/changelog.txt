@@ -1,26 +1,50 @@
+Domibus 5.1.1
+- Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
+- Removed property domibus.fourcornermodel.enabled
+- Added properties domibus.ui.pages.messageLogs.landingPage.enabled and domibus.ui.pages.messageLogs.search.advanced.enabled to control the message log admin page in regards with high performance requirements
+- Updated all the domibus.UI.title.name domain property names to domibus.ui.title.name
+- Updated all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
+- Fixed the dynamic discovery mechanism for a high concurrency scenario
+- Dynamically discovered certificates are deleted after their retention period expire
+- Possibility to change the second level cache provider, choosing between Infinispan (default) and Ehcache
+- Maximum number of upload file size is global
+- Improve performance of the Messages page
+- eArchiving batches are deleted immediately after being archived
+- Fix OWASP vulnerabilities
 Domibus 5.1
-- Files can be sent to WS Plugin as references to the filesystem
-- Improved the self sending mechanism
-- New retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
-- Progressive retry feature introduced (in addition to constant). Retry attempts can now be scheduled with gradually increasing intervals
-- Smart retry introduced for failed messages retrials (now taking advantage of the monitoring and attempting retry only after remote party is reachable)
-- New Keystore page in the Domibus Admin Console
-- Added property domibus.earchive.batch.size.payload to specify a total payload size limit of all archived messages in a batch
-- Added interval partitioning over the existing range partition by reference
-- Added two internal API to resend selected failed messages and resend all failed messages as batches from the admin console.
-- Replaced old Backend interface from the WS plugin distribution with the new wsplugin interface (wsdl and xsds)
+- Add property for disabling the use of system default certificates (cacerts) on https exchanges.
 - Added 2 methods to the EnableAware interface: shouldCoreManageResources, to know if domibus manages plugins resources and getMessageListenerContainerFactory to obtain the factory from here
 - Added a new method to the WS plugin interface to getStatus based on the messageId and the role of the access Point. The old method to getStatus based on messageId is marked as deprecated.
 - Removed domainValidity cache since the call to validate domains is done once now.
+- Replaced old Backend interface from the WS plugin distribution with the new wsplugin interface (wsdl and xsds)
 - Simplified the creation of alerts: no need for custom property change listener, event queue listener, enqueue method or module configuration class
+- Added two internal API to resend selected failed messages and resend all failed messages as batches from the admin console.
+- Added property domibus.earchive.batch.size.payload to specify a total payload size limit of all archived messages in a batch
 - Added properties for the party ID type and responder role that are specific to Oasis and Peppol
-- Updated the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
+- Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
 - Split DatabaseMessageHandler bean in 3 beans (MessageSubmitter, MessageRetriever, MessagePuller), each implementing just one interface
+- New Keystore page in the Domibus Admin Console
+- Smart retry introduced for failed messages retrials (now taking advantage of the monitoring and attempting retry only after remote party is reachable)
+- Progressive retry feature introduced (in addition to constant). Retry attempts can now be scheduled with gradually increasing intervals
+- Files can be sent to WS Plugin as references to the filesystem
+- Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
+- Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
+- Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
+Domibus 5.0.6
+- Add validation to check there is no duplicate dependencies in the distributions (tomcat, weblogic and wildfly)
+- [WSPLUGIN] Distribution files have a wsdl folder with wsdl for the the wsPlugin client and the backend client for the push functionality.
+- Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
+- Improve error details for following errors: Unable to retrieve OCSP, Path does not chain with any of the trust anchors, The signature or decryption was invalid and WstxUnexpectedCharException
+- Expose the metrics API on the /ext services with basic authentication
+- Clean Domibus property names and their comments
+Domibus 5.0.5
+- Added domain properties domibus.ongoingMessagesSanitizing.* to configure the job searching for messages stuck in ongoing statuses and the resulting email alert
+- Improved upload time for large (MB) pMode files
 - Disabled metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
-- Added property for disabling the use of system default certificates (cacerts) on https downloads (CRLs).
-- Added support for special characters in message ids
-- Improved the handling/persistence of digital certificates
-- Handle receipts with the same message id
+- Added domain properties domibus.logging.remote.certificates.print and domibus.logging.local.certificates.print to enable printing of the remote and local certificates used to encrypt, decrypt, sign or verify trust for outgoing and incoming messages. Default to false.
+- Add reverse index to improve the performance of the Admin Console
+- Implement interval partitioning
+- Fix duplicate signal message id error
 Domibus 5.0.4
 - Fixed OWASP vulnerabilities
 Domibus 5.0.3
@@ -30,7 +54,7 @@ Domibus 5.0.3
 - Fixed issue when fsplugin.messages.location to point another disk (Windows) files are not picked up
 - Fixed issue causing that after DB migration from 4.2.11 to 5.0.1, Domibus fails to start at first two attempts
 - Fixed OWASP vulnerabilities
-- Fix for show domain checkbox is not present in property page
+- Fixed for show domain checkbox is not present in property page
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 - Possibility to have a separate log containing all errors
@@ -38,8 +62,9 @@ Domibus 5.0.2
 - Default value of domibus.metrics.monitor.jms.queues.refresh.period changed to 10
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
-- Filter out TEST messages from earchived messages
-- Updated two earchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
+- Filter out TEST messages from eArchived messages
+- Updated two eArchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
+- Updated http timeouts for MSH communication
 - Fixed the properties issue for ext/messages/acknowledgments/delivered API"
 - Added possibility to throw a specific exception while receiving a message in the plugin
 - Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup

@@ -43,11 +43,8 @@ public class PluginEventServiceImplTest {
     private Queue alertMessageQueue;
 
     @Test
-    public void enqueueMessageEvent_empty(@Injectable AlertEvent alertEvent) {
-        new Expectations() {{
-            alertEvent.getAlertLevel();
-            result = null;
-        }};
+    public void enqueueMessageEvent_empty() {
+        AlertEvent alertEvent = new AlertEvent();
 
         eventService.enqueueMessageEvent(alertEvent);
 
@@ -60,25 +57,15 @@ public class PluginEventServiceImplTest {
     }
 
     @Test
-    public void enqueueMessageEvent_full(@Injectable AlertEvent alertEvent) {
+    public void enqueueMessageEvent_full() {
         Map<String, String> props = new HashMap<>();
         props.put("Test", "Test");
-        new Expectations() {{
-            alertEvent.getProperties();
-            result = props;
-
-            alertEvent.getAlertLevel();
-            result = AlertLevel.MEDIUM;
-
-            alertEvent.getEmailBody();
-            result = EMAIL_BODY_300_LONG;
-
-            alertEvent.getName();
-            result = "AlertName";
-
-            alertEvent.getEmailSubject();
-            result = "EmailSubject";
-        }};
+        AlertEvent alertEvent = new AlertEvent();
+        alertEvent.setProperties(props);
+        alertEvent.setAlertLevel(AlertLevel.MEDIUM);
+        alertEvent.setEmailBody(EMAIL_BODY_300_LONG);
+        alertEvent.setName("AlertName");
+        alertEvent.setEmailSubject("EmailSubject");
 
         eventService.enqueueMessageEvent(alertEvent);
 

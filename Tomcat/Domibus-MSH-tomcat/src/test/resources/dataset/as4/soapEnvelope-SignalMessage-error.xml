@@ -1,0 +1,36 @@
+<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope">
+    <env:Header>
+        <eb:Messaging xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
+                      env:mustUnderstand="true">
+            <eb:SignalMessage>
+                <eb:MessageInfo>
+                    <eb:Timestamp>2023-08-09T13:07:05.148Z</eb:Timestamp>
+                    <eb:MessageId>a34877e0-36b5-11ee-b6a3-0050568b132a@domibus.eu</eb:MessageId>
+                    <eb:RefToMessageId>a31f939d-36b5-11ee-a721-0a181599d931@domibus.eu</eb:RefToMessageId>
+                </eb:MessageInfo>
+                <eb:Error category="CONTENT" errorCode="EBMS:0001" origin="ebMS"
+                          refToMessageInError="a31f939d-36b5-11ee-a721-0a181599d931@domibus.eu"
+                          severity="failure" shortDescription="ValueNotRecognized">
+                    <eb:Description xml:lang="">Although the message document is well formed and schema valid, some
+                        element/attribute contains a value that could not be recognized and therefore could not be used
+                        by the MSH.
+                    </eb:Description>
+                    <eb:ErrorDetail>some details of the error
+                    </eb:ErrorDetail>
+                </eb:Error>
+            </eb:SignalMessage>
+        </eb:Messaging>
+    </env:Header>
+    <env:Body>
+        <env:Fault>
+            <env:Code>
+                <env:Value>env:Receiver</env:Value>
+            </env:Code>
+            <env:Reason>
+                <env:Text xml:lang="en">An error occurred while processing your request. Please check the message header
+                    for more details.
+                </env:Text>
+            </env:Reason>
+        </env:Fault>
+    </env:Body>
+</env:Envelope>

@@ -5,8 +5,8 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.ErrorCode;
@@ -56,14 +56,14 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     private PullProcessValidator pullProcessValidator;
 
-    @Autowired
-    FinalRecipientService finalRecipientService;
-
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
+
+    @Autowired
+    protected List<PModeEventListener> pModeEventListeners;
 
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
@@ -98,6 +98,10 @@ public class CachingPModeProvider extends PModeProvider {
         if (!this.configurationDAO.configurationExists()) {
             throw new IllegalStateException("No processing modes found. To exchange messages, upload configuration file through the web gui.");
         }
+        load();
+    }
+
+    protected void load() {
         LOG.debug("Initialising the configuration");
         this.configuration = this.configurationDAO.readEager();
         LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
@@ -227,17 +231,23 @@ public class CachingPModeProvider extends PModeProvider {
      * @param receiverParty the receiverParty
      */
     protected boolean matchResponder(final Process process, final String receiverParty) {
-        //Responder is always required for this method to return true
-        if (CollectionUtils.isEmpty(process.getResponderParties())) {
-            return false;
-        }
-
-        for (final Party party : process.getResponderParties()) {
-            if (equalsIgnoreCase(party.getName(), receiverParty)) {
-                return true;
-            }
+        final Party responderParty = getResponderParty(process, receiverParty);
+        if (responderParty != null) {
+            return true;
         }
         return false;
+    }
+
+    protected Party getResponderParty(final Process process, final String receiverParty) {
+        if (CollectionUtils.isEmpty(process.getResponderParties())) {
+            return null;
+        }
+        for (final Party party : process.getResponderParties()) {
+            if (equalsIgnoreCase(party.getName(), receiverParty)) {
+                return party;
+            }
+        }
+        return null;
     }
 
     protected void checkResponderMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
@@ -428,13 +438,22 @@ public class CachingPModeProvider extends PModeProvider {
      * @param legFilterCriteria
      * @return Set of {@link LegConfiguration} having no mismatch errors.
      */
-    private Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
+    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
+        Set<String> mismatchedMpcs = new HashSet<>();
+        boolean foundMatchedMpc = false;
         matchingProcessesList.forEach(process -> candidateLegs.addAll(process.getLegs()));
         for (LegConfiguration candidateLeg : candidateLegs) {
             checkServiceMismatch(candidateLeg, legFilterCriteria);
             checkActionMismatch(candidateLeg, legFilterCriteria);
-            checkMpcMismatch(candidateLeg, legFilterCriteria);
+            boolean matchedMpc = checkMpcMismatch(candidateLeg, legFilterCriteria, mismatchedMpcs);
+            if (matchedMpc == true) {
+                foundMatchedMpc = true;
+            }
+        }
+        if (foundMatchedMpc == false && !mismatchedMpcs.isEmpty()) {
+            String joinedMismatchedMPcs = String.join(", ", mismatchedMpcs);
+            LOG.warn("The PMode Mpc value [{}] doesn't match with the Mpc value [{}] in the message.", joinedMismatchedMPcs, legFilterCriteria.getMpc());
         }
         candidateLegs.removeAll(legFilterCriteria.listLegConfigurationsWitMismatchErrors());
         if (LOG.isDebugEnabled()) {
@@ -463,22 +482,27 @@ public class CachingPModeProvider extends PModeProvider {
         legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Action:[" + legFilterCriteria.getAction() + DOES_NOT_MATCH_END_STRING);
     }
 
-    protected void checkMpcMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
-        boolean mpcEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED);
-        if (!mpcEnabled) {
+    protected boolean checkMpcMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria, Set<String> mismatchedMPcs) {
+        boolean mpcValidationEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED);
+        if (!mpcValidationEnabled) {
             LOG.debug("Mpc validation disabled");
-            if (!equalsIgnoreCase(candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc())) {
-                LOG.warn("For legConfiguration [{}], the PMode Mpc value [{}] doesn't match with the Mpc value [{}] in the message.", candidateLeg.getName(), candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc());
+            if (equalsIgnoreCase(candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc())) {
+                LOG.debug("Mpc:[{}] matched for Leg:[{}]", legFilterCriteria.getMpc(), candidateLeg.getName());
+                return true;
+            } else {
+                mismatchedMPcs.add(candidateLeg.getDefaultMpc().getQualifiedName());
+                LOG.debug("Mpc:[{}] does not match for Leg:[{}]", legFilterCriteria.getMpc(), candidateLeg.getName());
+                return false;
             }
-            return;
         }
 
         if (equalsIgnoreCase(candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc())) {
             LOG.debug("Mpc:[{}] matched for Leg:[{}]", legFilterCriteria.getMpc(), candidateLeg.getName());
-            return;
+            return true;
         }
-
+        LOG.debug("Mpc:[{}] does not match for Leg:[{}]", legFilterCriteria.getMpc(), candidateLeg.getName());
         legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Mpc:[" + legFilterCriteria.getMpc() + DOES_NOT_MATCH_END_STRING);
+        return false;
     }
 
 
@@ -688,38 +712,60 @@ public class CachingPModeProvider extends PModeProvider {
                 return party;
             }
         }
-        throw new ConfigurationException("no matching sender party found with name: " + partyKey);
+        throw new ConfigurationException("No matching sender party found with name: " + partyKey);
     }
 
     @Override
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
-        for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            if (equalsIgnoreCase(party.getName(), partyKey)) {
-                return party;
-            }
+        final Party receiverPartyByPartyName = getPartyByName(partyKey);
+        if (receiverPartyByPartyName != null) {
+            return receiverPartyByPartyName;
         }
-        throw new ConfigurationException("no matching receiver party found with name: " + partyKey);
+        throw new ConfigurationException("No matching receiver party found with name: " + partyKey);
     }
 
     @Override
-    public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
-        if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
-            return finalRecipientAPUrl;
+    public synchronized void removeReceiverParty(String partyName) {
+        final List<Process> allProcesses = findAllProcesses();
+        for (Process process : allProcesses) {
+            final Party removedParty = process.removeResponder(partyName);
+            if (removedParty != null) {
+                LOG.info("Removed party [{}] from process [{}] ->responderParties [{}]", partyName, process.getName());
+            }
         }
-
-        final String receiverPartyEndpoint = receiverParty.getEndpoint();
-        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
-        return receiverPartyEndpoint;
     }
 
-    public void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
-        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-        synchronized (configurationLock) {
-            finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl, domain);
+    @Override
+    public synchronized Party removeParty(String partyName) {
+        //remove from businessProcesses->parties
+        final List<Party> partyList = this.getConfiguration().getBusinessProcesses().getParties();
+        final Iterator<Party> partyIterator = partyList.iterator();
+        while (partyIterator.hasNext()) {
+            Party party = partyIterator.next();
+            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
+                partyIterator.remove();
+                LOG.info("Removed party [{}] from the party list: businessProcesses->parties", partyName);
+                return party;
+            }
         }
+        return null;
+    }
+
+    /**
+     * Search for the party in the Pmode parties list
+     */
+    @Override
+    public Party getPartyByName(final String partyName) {
+        LOG.debug("Finding party by name [{}]", partyName);
+        for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
+            if (equalsIgnoreCase(party.getName(), partyName)) {
+                LOG.debug("Found party by name [{}]", partyName);
+                return party;
+            }
+        }
+        LOG.debug("Could not find party by name [{}]", partyName);
+        return null;
     }
 
     @Override
@@ -792,7 +838,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionDownloaded();
         }
 
@@ -817,7 +863,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionUndownloaded();
         }
 
@@ -829,7 +875,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionSentByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionSent();
         }
 
@@ -838,9 +884,9 @@ public class CachingPModeProvider extends PModeProvider {
         return -1;
     }
 
-    public int getMetadataRetentionOffsetByMpcURI(String mpcURI){
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getMetadataRetentionOffset();
         }
 
@@ -851,7 +897,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Optional<Mpc> findMpcByQualifiedName(String mpcURI) {
         Set<Mpc> mpcSet = getConfiguration().getMpcs();
-        if(CollectionUtils.isNotEmpty(mpcSet)){
+        if (CollectionUtils.isNotEmpty(mpcSet)) {
             return mpcSet.stream()
                     .filter(mpc -> equalsIgnoreCase(mpc.getQualifiedName(), mpcURI))
                     .findFirst();
@@ -916,13 +962,15 @@ public class CachingPModeProvider extends PModeProvider {
                 return role;
             }
         }
-        LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if (rolesEnabled) {
+            LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("No matching role found with value: " + roleValue)
                     .build();
+        } else {
+            LOG.debug("No Role with value [{}] has been found", roleValue);
         }
 
         return null;
@@ -935,9 +983,35 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            finalRecipientService.clearFinalRecipientAccessPointUrls(domain);
+
+            if (CollectionUtils.isNotEmpty(pModeEventListeners)) {
+                //we call the pmode event listeners
+                pModeEventListeners.stream().forEach(pModeEventListener -> {
+                    try {
+                        pModeEventListener.onRefreshPMode();
+                    } catch (Exception e) {
+                        LOG.error("Error in PMode event listener [{}]: onRefreshPMode", pModeEventListener.getName(), e);
+                    }
+                });
+            }
+
+            //add here a listener when clearing the pmode cache
             this.init(); //reloads the config
         }
+    }
+
+    @Override
+    public boolean hasLegWithSplittingConfiguration() {
+        final BusinessProcesses businessProcesses = getConfiguration().getBusinessProcesses();
+        final Set<eu.domibus.common.model.configuration.LegConfiguration> legConfigurations = businessProcesses.getLegConfigurations();
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(legConfigurations)) {
+            LOG.debug("No splitting configuration found: no legs found");
+            return false;
+        }
+        final long legsCountHavingSplittingConfiguration = legConfigurations.stream()
+                .filter(legConfiguration -> legConfiguration.getSplitting() != null)
+                .count();
+        return legsCountHavingSplittingConfiguration > 0;
     }
 
     @Override
@@ -1060,7 +1134,7 @@ public class CachingPModeProvider extends PModeProvider {
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                if (legConfiguration.getService()!= null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                if (legConfiguration.getService() != null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                         && legConfiguration.getAction() != null && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
                     result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }
@@ -1235,12 +1309,5 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         return null;
-    }
-
-    @Override
-    public List<FinalRecipientEntity> deleteFinalRecipientsOlderThan(int numberOfDays){
-        List<FinalRecipientEntity> oldFinalRecipients = finalRecipientService.getFinalRecipientsOlderThan(numberOfDays);
-        finalRecipientService.deleteFinalRecipients(oldFinalRecipients, domain);
-        return oldFinalRecipients;
     }
 }

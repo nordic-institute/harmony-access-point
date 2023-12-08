@@ -19,7 +19,6 @@ import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,9 +114,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                     default:
                         assert false;
                 }
-                if (!isTestMessage) {
-                    backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
-                }
+
+                backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
+
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
                 userMessageLogDao.update(userMessageLog);
@@ -129,7 +128,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, attempt);
                 break;
             case ABORT:
-                updateRetryLoggingService.messageFailedInANewTransaction(userMessage, userMessageLog, attempt);
+                updateRetryLoggingService.messageFailedAndDeleteRawEnvelope(userMessage, userMessageLog);
 
                 if (userMessage.isMessageFragment()) {
                     MessageGroupEntity messageGroupEntity = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());

@@ -89,32 +89,43 @@
                      [(ngModel)]="filter.refToMessageId"
                      #refToMessageId="ngModel" id="referencemessageid_id" advanced-filter-behaviour [parent]="this">
             </mat-form-field>
-            <mat-form-field *ngIf="advancedSearch && fourCornerEnabled">
-              <input matInput placeholder="Original Sender" name="originalSender" [(ngModel)]="filter.originalSender"
-                     #originalSender="ngModel" id="originalsender_id" advanced-filter-behaviour [parent]="this">
-            </mat-form-field>
-            <mat-form-field *ngIf="advancedSearch && fourCornerEnabled">
-              <input matInput placeholder="Final Recipient" name="finalRecipient" [(ngModel)]="filter.finalRecipient"
-                     #finalRecipient="ngModel" id="finalrecipient_id" advanced-filter-behaviour [parent]="this">
-            </mat-form-field>
 
+            <br/>
+            <mat-checkbox *ngIf="advancedSearch" name="detailedSearch" id="detailedSearch_id"
+                          [(ngModel)]="detailedSearch" (change)="detailedSearchChanged()"
+                          advanced-filter-behaviour [parent]="this" style="margin-right: 20px;">
+              Detailed Search
+            </mat-checkbox>
             <ng-container *ngIf="advancedSearch">
+
+              <mat-form-field *ngIf="advancedSearch">
+                <input matInput [disabled]="!detailedSearch" placeholder="Original Sender" name="originalSender" [(ngModel)]="filter.originalSender"
+                       #originalSender="ngModel" id="originalsender_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field *ngIf="advancedSearch">
+                <input matInput [disabled]="!detailedSearch" placeholder="Final Recipient" name="finalRecipient" [(ngModel)]="filter.finalRecipient"
+                       #finalRecipient="ngModel" id="finalrecipient_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+
               <mat-form-field>
-                <input matInput placeholder="Action" name="action" [(ngModel)]="filter.action"
+                <input matInput [disabled]="!detailedSearch" placeholder="Action" name="action" [(ngModel)]="filter.action"
                        #action="ngModel" id="action_id" advanced-filter-behaviour [parent]="this">
               </mat-form-field>
               <mat-form-field>
-                <input matInput placeholder="Service Type" name="serviceType" [(ngModel)]="filter.serviceType"
+                <input matInput [disabled]="!detailedSearch" placeholder="Service Type" name="serviceType" [(ngModel)]="filter.serviceType"
                        #serviceType="ngModel" id="serviceType_id" advanced-filter-behaviour [parent]="this">
               </mat-form-field>
               <mat-form-field>
-                <input matInput placeholder="Service Value" name="serviceValue" [(ngModel)]="filter.serviceValue"
+                <input matInput [disabled]="!detailedSearch" placeholder="Service Value" name="serviceValue" [(ngModel)]="filter.serviceValue"
                        #serviceValue="ngModel" id="serviceValue_id" advanced-filter-behaviour [parent]="this">
               </mat-form-field>
+
+              <br/>
               <mat-checkbox name="testMessage" id="showTestMessages_id" [(ngModel)]="filter.testMessage"
                             advanced-filter-behaviour [parent]="this">
                 Show Only Test Messages
               </mat-checkbox>
+
             </ng-container>
 
             <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
@@ -129,7 +140,7 @@
 
   <div class="domibus-grid-container">
     <page-grid [parent]="this" [selectionType]="'multi'" [totalMessage]="totalRowsMessage"
-               [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
+               [sortedColumns]="sortedColumns"></page-grid>
   </div>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>

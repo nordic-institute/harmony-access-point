@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.core.pki.PKIUtil;
+import eu.domibus.test.common.PKIUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.CacheManager;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -30,12 +31,15 @@ import static org.junit.Assert.assertNotNull;
 public class CRLUtilTest {
 
     @Tested
-    CRLUtil crlUtil;
+    private CRLUtil crlUtil;
 
     @Injectable
-    HttpUtil httpUtil;
+    private HttpUtil httpUtil;
 
-    PKIUtil pkiUtil = new PKIUtil();
+    @Injectable
+    private CacheManager cacheManager;
+
+    private PKIUtil pkiUtil = new PKIUtil();
 
     @Before
     public void init() {
@@ -50,7 +54,7 @@ public class CRLUtilTest {
             result = null;
         }};
 
-        crlUtil.downloadCRL(crlUrlString);
+        crlUtil.downloadCRL(crlUrlString, false);
     }
 
     @Test
@@ -68,7 +72,7 @@ public class CRLUtilTest {
             result = crlUrl;
         }};
 
-        X509CRL x509CRL = crlUtil.downloadCRL(crlUrlString);
+        X509CRL x509CRL = crlUtil.downloadCRL(crlUrlString, false);
         assertNotNull(x509CRL);
         assertEquals(crl, x509CRL);
     }

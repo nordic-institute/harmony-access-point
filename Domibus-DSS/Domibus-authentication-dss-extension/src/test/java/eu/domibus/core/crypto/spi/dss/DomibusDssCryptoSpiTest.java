@@ -4,6 +4,7 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.ext.services.PkiExtService;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.validation.CertificateValidator;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
@@ -153,11 +154,47 @@ public class DomibusDssCryptoSpiTest {
             assertEquals(AuthenticationError.EBMS_0101, e.getAuthenticationError());
         }
     }
+    @Test
+    public void verifyCertificateValidator_DSSError(
+            @Mocked ValidationConstraintPropertyMapper constraintMapper,
+            @Mocked X509Certificate invalidCertificate,
+            @Mocked X509Certificate chainCertificate,
+            @Mocked CertificateValidator certificateValidator,
+            @Mocked PkiExtService pkiExtService,
+            @Mocked DssCache dssCache,
+            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+        final X509Certificate[] x509Certificates = {invalidCertificate, chainCertificate};
+        org.apache.xml.security.Init.init();
+
+        ValidationReport validationReport = new ValidationReport();
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+
+        new Expectations(domibusDssCryptoProvider, validationReport) {{
+
+            invalidCertificate.getSigAlgOID();
+            result = "1.2.840.10040.4.3";
+
+            pkiExtService.extractLeafCertificateFromChain(withAny(new ArrayList<>()));
+            result = invalidCertificate;
+
+            CertificateToken certificateToken = null;
+            CertificateValidator.fromCertificate(withAny(certificateToken));
+            result = certificateValidator;
+
+            certificateValidator.validate();
+            result = new DSSException("Test");
+
+        }};
+        try {
+            domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
+            fail("AuthenticationException expected");
+        } catch (AuthenticationException e) {
+            assertEquals(AuthenticationError.EBMS_0101, e.getAuthenticationError());
+        }
+    }
 
     @Test
     public void verifyTrustValid(
-
-
             @Mocked ValidationConstraintPropertyMapper constraintMapper,
             @Mocked X509Certificate validLeafhCertificate,
             @Mocked X509Certificate chainCertificate,

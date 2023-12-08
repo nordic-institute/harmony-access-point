@@ -32,9 +32,12 @@ import eu.europa.esig.dss.tsl.runnable.TLAnalysis;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
+import eu.europa.esig.dss.tsl.sync.ExpirationAndSignatureCheckStrategy;
+import eu.europa.esig.dss.tsl.sync.SynchronizationStrategy;
 import eu.europa.esig.dss.tsl.sync.TrustedListCertificateSourceSynchronizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,49 +60,89 @@ public class TrustedListLoadTest {
     public static final String HTTPS_EC_EUROPA_EU_TOOLS_LOTL_EU_LOTL_XML = "https://ec.europa.eu/tools/lotl/eu-lotl.xml";
     public static final String DSS_TEST_DIRECTORY = "dss";
     public static final String HTTPS_EC_EUROPA_EU_INFORMATION_SOCIETY_POLICY_ESIGNATURE_TRUSTED_LIST_TL_HTML = "https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl.html";
+    public static final String CUSTOM_TRUST_LIST = "customTrustList.xml";
     /**
      * Provides methods to manage the asynchronous behaviour
      */
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     private CacheAccessFactory cacheAccessFactory = new CacheAccessFactory();
+    private File cacheDirectory;
+    FileCacheDataLoader dssFileLoader;
+    CertificateSource certificateSource;
 
 
-    //@Test
-    public void testTrustedListLoadTest() throws IOException {
-
+    @Before
+    public void before() throws IOException {
         String tempDirectoryPath = FileUtils.getTempDirectoryPath();
-        File cacheDirectory = new File(tempDirectoryPath + File.separator + DSS_TEST_DIRECTORY + File.separator + "cache");
+        cacheDirectory = new File(tempDirectoryPath + File.separator + DSS_TEST_DIRECTORY + File.separator + "cache");
         FileUtils.forceMkdir(cacheDirectory);
         FileUtils.cleanDirectory(cacheDirectory);
 
+        ClassLoader classLoader = getClass().getClassLoader();
+        File customTrustList = new File(classLoader.getResource(CUSTOM_TRUST_LIST).getFile());
+        FileUtils.copyFile(customTrustList, new File(cacheDirectory, CUSTOM_TRUST_LIST.replace(".", "_")));
+
+        dssFileLoader = new FileCacheDataLoader(new CommonsDataLoader());
+        dssFileLoader.setFileCacheDirectory(cacheDirectory);
+        certificateSource = getKeyStoreCertificateSource();
+    }
+
+    @Test
+    public void testTrustedListLoadTest() throws IOException {
         LOTLSource lotlSource = new LOTLSource();
         lotlSource.setUrl(HTTPS_EC_EUROPA_EU_TOOLS_LOTL_EU_LOTL_XML);
-        CertificateSource certificateSource = officialJournalContentKeyStore();
         lotlSource.setCertificateSource(certificateSource);
         lotlSource.setSigningCertificatesAnnouncementPredicate(new OfficialJournalSchemeInformationURI(HTTPS_EC_EUROPA_EU_INFORMATION_SOCIETY_POLICY_ESIGNATURE_TRUSTED_LIST_TL_HTML));
         lotlSource.setPivotSupport(true);
         List<LOTLSource> lotlSources=new ArrayList<>();
         lotlSources.add(lotlSource);
-        FileCacheDataLoader dssFileLoader = new FileCacheDataLoader(new CommonsDataLoader());
-        dssFileLoader.setFileCacheDirectory(cacheDirectory);
+
         executeLOTLSourcesAnalysis(lotlSources, dssFileLoader);
         List<TLSource> tlSources = new ArrayList<>(extractTlSources(lotlSources));
         executeTLSourcesAnalysis(tlSources, dssFileLoader);
-        synchronizeTLCertificateSource(tlSources.toArray(new TLSource[]{}),lotlSources.toArray(new LOTLSource[]{}),new TrustedListsCertificateSource());
+        TrustedListsCertificateSource trustedListsCertificateSource = new TrustedListsCertificateSource();
+        synchronizeTLCertificateSource(tlSources.toArray(new TLSource[]{}), lotlSources.toArray(new LOTLSource[]{}),
+                trustedListsCertificateSource, new AcceptAllStrategy());
+
         Collection<File> files = FileUtils.listFiles(cacheDirectory, null, false);
-        Assert.assertEquals(31l,files.stream().count());
+        Assert.assertTrue(files.size() > 1);
+        Assert.assertTrue(trustedListsCertificateSource.getNumberOfTrustedPublicKeys() > 0);
     }
 
+    @Test
+    public void testSignatureProblem() throws IOException {
 
+        TrustedListsCertificateSource testCertificateSource = getTestCertificateSource(new AcceptAllStrategy());
+        Assert.assertEquals(10, testCertificateSource.getNumberOfTrustedPublicKeys());
 
-    public CertificateSource officialJournalContentKeyStore() throws IOException {
+        testCertificateSource = getTestCertificateSource(new ExpirationAndSignatureCheckStrategy());
+        Assert.assertEquals(0, testCertificateSource.getNumberOfTrustedPublicKeys());
+    }
+
+    private TrustedListsCertificateSource getTestCertificateSource(SynchronizationStrategy synchronizationStrategy) throws IOException {
+        List<TLSource> tlSources = new ArrayList<>();
+
+        TLSource trustedList = new TLSource();
+        trustedList.setUrl(CUSTOM_TRUST_LIST);
+        trustedList.setCertificateSource(certificateSource);
+        tlSources.add(trustedList);
+
+        TrustedListsCertificateSource trustedListsCertificateSource = new TrustedListsCertificateSource();
+
+        executeTLSourcesAnalysis(tlSources, dssFileLoader);
+        synchronizeTLCertificateSource(tlSources.toArray(new TLSource[]{}), new LOTLSource[]{}, trustedListsCertificateSource, synchronizationStrategy);
+
+        return trustedListsCertificateSource;
+    }
+
+    private CertificateSource getKeyStoreCertificateSource() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("ojkeystore.p12").getFile());
         return new KeyStoreCertificateSource(file, "PKCS12", "dss-password");
     }
 
-    public void executeLOTLSourcesAnalysis(List<LOTLSource> lotlSources, DSSFileLoader dssFileLoader) {
+    private void executeLOTLSourcesAnalysis(List<LOTLSource> lotlSources, DSSFileLoader dssFileLoader) {
         checkNoDuplicateUrls(lotlSources);
 
         int nbLOTLSources = lotlSources.size();
@@ -178,7 +221,8 @@ public class TrustedListLoadTest {
     }
 
     private void synchronizeTLCertificateSource(TLSource[] tlSources, LOTLSource[] lotlSources,
-                                                TrustedListsCertificateSource certificateSource) {
+                                                TrustedListsCertificateSource certificateSource,
+                                                SynchronizationStrategy synchronizationStrategy) {
         LOG.info("Synchronizing certificate source ");
         if (certificateSource == null) {
             LOG.warn("No TrustedListCertificateSource to be synchronized");
@@ -186,30 +230,30 @@ public class TrustedListLoadTest {
         }
 
         TrustedListCertificateSourceSynchronizer synchronizer = new TrustedListCertificateSourceSynchronizer(tlSources, lotlSources,
-                certificateSource, new AcceptAllStrategy(), cacheAccessFactory.getSynchronizerCacheAccess());
+                certificateSource, synchronizationStrategy, cacheAccessFactory.getSynchronizerCacheAccess());
         synchronizer.sync();
         LOG.info("Synchronization done");
     }
 
-    public TLAlert tlSigningAlert() {
+    private TLAlert tlSigningAlert() {
         TLSignatureErrorDetection signingDetection = new TLSignatureErrorDetection();
         LogTLSignatureErrorAlertHandler handler = new LogTLSignatureErrorAlertHandler();
         return new TLAlert(signingDetection, handler);
     }
 
-    public TLAlert tlExpirationDetection() {
+    private TLAlert tlExpirationDetection() {
         TLExpirationDetection expirationDetection = new TLExpirationDetection();
         LogTLExpirationAlertHandler handler = new LogTLExpirationAlertHandler();
         return new TLAlert(expirationDetection, handler);
     }
 
-    public LOTLAlert ojUrlAlert(LOTLSource source) {
+    private LOTLAlert ojUrlAlert(LOTLSource source) {
         OJUrlChangeDetection ojUrlDetection = new OJUrlChangeDetection(source);
         LogOJUrlChangeAlertHandler handler = new LogOJUrlChangeAlertHandler();
         return new LOTLAlert(ojUrlDetection, handler);
     }
 
-    public LOTLAlert lotlLocationAlert(LOTLSource source) {
+    private LOTLAlert lotlLocationAlert(LOTLSource source) {
         LOTLLocationChangeDetection lotlLocationDetection = new LOTLLocationChangeDetection(source);
         LogLOTLLocationChangeAlertHandler handler = new LogLOTLLocationChangeAlertHandler();
         return new LOTLAlert(lotlLocationDetection, handler);

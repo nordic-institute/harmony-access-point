@@ -110,12 +110,6 @@ public class ApplicationResource {
         return domibusConfigurationService.isMultiTenantAware();
     }
 
-    @RequestMapping(value = "fourcornerenabled", method = RequestMethod.GET)
-    public boolean getFourCornerModelEnabled() {
-        LOG.debug("Getting four corner enabled");
-        return domibusConfigurationService.isFourCornerEnabled();
-    }
-
     /**
      * Returns true is an external Authentication Provider (e.g. ECAS) is enabled
      *

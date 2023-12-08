@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -52,5 +53,11 @@ public class PartyIdDao extends BasicDao<PartyId> {
         newParty.setType(StringUtils.isNotBlank(type) ? type : null);
         create(newParty);
         return newParty;
+    }
+
+    public List<PartyId> searchByValue(final String value) {
+        final TypedQuery<PartyId> query = this.em.createNamedQuery("PartyId.searchByValue", PartyId.class);
+        query.setParameter("VALUE", value);
+        return query.getResultList();
     }
 }

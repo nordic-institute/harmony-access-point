@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="idragusa" id="Interval partitions" dbms="oracle">
+        <sqlFile path="src/main/resources/db/archive/5.0.5/migration/oracle/partitions-procedures-5.0.5-delta.sql" endDelimiter="\n/"/>
+
+        <sql>
+            ALTER TABLE TB_USER_MESSAGE SET INTERVAL (10000000000);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

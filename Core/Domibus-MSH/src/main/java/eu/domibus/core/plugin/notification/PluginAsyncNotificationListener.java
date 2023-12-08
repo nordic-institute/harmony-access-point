@@ -53,7 +53,6 @@ public class PluginAsyncNotificationListener implements MessageListener {
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
-    @Transactional
     @Timer(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     public void onMessage(final Message message) {
