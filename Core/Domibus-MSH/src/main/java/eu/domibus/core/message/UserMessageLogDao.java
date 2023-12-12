@@ -438,41 +438,37 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             sqlString += "    and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
                     "         and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
             sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
-            LOG.debug("counting messages newer than: [{}]", startDate);
+            LOG.debug("Counting messages newer than: [{}]", startDate);
         }
         sqlString = sqlString.replace("$PARTITION", partitionName);
 
-        LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
+        LOG.trace("SqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         int result = 0;
-        //verify the count query
-        if (countQuery == null) {
-            LOG.warn("Couldn't create query from sql string for message status [{}] and mpc [{}] on partition [{}]", messageStatus, mpc, partitionName);
-            return result;
-        }
         MpcEntity mpcEntity = mpcDao.findMpc(mpc);
         //Check for empty mpc entity
         if (mpcEntity == null) {
-            LOG.debug("couldn't find the mpc [{}]", mpc);
+            LOG.warn("Couldn't find the mpc [{}]", mpc);
             return result;
         }
         countQuery.setParameter("MPC_ID", mpcEntity.getEntityId());
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
         //check for empty status entity
         if (statusEntity == null) {
-            LOG.debug("couldn't find the messages with status [{}]", messageStatus);
+            LOG.warn("Couldn't find the messages with status [{}]", messageStatus);
             return result;
         }
         countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
         if (startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
+        Object singleResult = countQuery.getSingleResult();
         //check countQuery.getSingleResult() is not null
-        if (countQuery.getSingleResult() != null) {
-            result = ((BigDecimal) countQuery.getSingleResult()).intValue();
+        if (singleResult != null) {
+            result = ((BigDecimal) singleResult).intValue();
         }
 
-        LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
+        LOG.debug("Count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
         return result;
     }
 
