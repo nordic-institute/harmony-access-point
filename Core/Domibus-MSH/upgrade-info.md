@@ -450,3 +450,81 @@
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
+## Domibus 4.2.12 (from 4.2.11):
+                - Replace the Domibus war
+                - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
+## Domibus 4.2.11 (from 4.2.10):
+                - Replace the Domibus war
+## Domibus 4.2.10 (from 4.2.9):
+                - Replace the Domibus war
+## Domibus 4.2.9 (from 4.2.8):
+                - Replace the Domibus war
+ ## Domibus 4.2.8 (from 4.2.7):
+                - Replace the Domibus war
+ ## Domibus 4.2.7 (from 4.2.6):
+                - Replace the Domibus war
+ ## Domibus 4.2.6 (from 4.2.5):
+                - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
+                        - domibus.authentication.dss.custom.trusted.lists.list1.code
+                        - domibus.authentication.dss.lotl.country.code=EU
+                        - domibus.dss.data.loader.connection.request.timeout
+                - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
+                    - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
+                        Replace:     <cache name="policyCache"
+                                            maxBytesLocalHeap="5m"
+                                            timeToLiveSeconds="3600"
+                                            overflowToDisk="false" >
+                                     </cache>
+                        With:
+                                     <cache alias="policyCache">
+                                        <expiry>
+                                            <ttl>3600</ttl>
+                                        </expiry>
+                                        <heap unit="MB">5</heap>
+                                     </cache>
+                        Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
+                        Replace:
+                                Configured dss-cache
+                        with:
+                                <cache alias="dss-cache"><expiry><ttl>3600</ttl></expiry><heap unit="MB">50</heap></cache>
+
+                    - If you don't use custom caches just replace the old file with the new file version
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+ ## Domibus 4.2.5 (from 4.2.4):
+                - Replace the Domibus war
+                - Replace the default dss extension jar into "/conf/domibus/extensions/lib"
+                - Remove all revoked certificates from /conf/domibus/keystores/dss-tls-truststore.p12
+ ## Domibus 4.2.4 (from 4.2.3):
+                - Replace the Domibus war
+ ## Domibus 4.2.3 (from 4.2.2):
+                - Run the appropriate DB upgrade script(mysql-4.2.2-to-4.2.3-upgrade.ddl for MySQL or oracle-4.2.2-to-4.2.3-upgrade.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
+ ## Domibus 4.2.2 (from 4.2.1):
+
+                - [MySQL8 only]
+                   - Grant XA_RECOVER_ADMIN privilege to the user:
+                        In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.
+                        This privilege requirement prevents users from discovering the XID values for outstanding prepared XA transactions other than their own.
+                            - GRANT XA_RECOVER_ADMIN ON *.* TO 'edelivery_user'@'localhost';
+                    - Execute below command to flush privileges:
+                        When we grant some privileges for a user, running this command will reloads the grant tables in the mysql database enabling the changes to take effect without reloading or restarting mysql service.
+                            - FLUSH PRIVILEGES;
+
+                - Run the appropriate DB upgrade script(mysql-4.2.1-to-4.2.2-upgrade.ddl for MySQL or oracle-4.2.1-to-4.2.2-upgrade.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Change the name of 'domibus.ui.resend.action.enabled.received.minutes' property to 'domibus.action.resend.wait.minutes' in domibus.properties file.
+ ## Domibus 4.2.1 (from 4.2):
+                - [Oracle only]
+                   - Grant access to your user to create stored procedures:
+                        Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
+                            $ sqlplus sys as sysdba
+                        Once logged in Oracle execute:
+                            GRANT CREATE PROCEDURE TO <edelivery_user>
+                - Run the appropriate DB upgrade script(mysql-4.2-to-4.2.1-upgrade.ddl for MySQL or oracle-4.2-to-4.2.1-upgrade.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Replace the default dss extention jar into  "/conf/domibus/extensions/lib"
+ 
