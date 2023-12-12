@@ -63,9 +63,15 @@ public class CRLUtil {
     public Object getCachedOrEvaluate(String cacheName, Object cacheKey, Callable<Object> valueProvider) {
         Cache cache = cacheManager.getCache(cacheName);
         if(cache != null) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug(String.format("Searching cache [{%s}] for key [{%s}]... [{%s}]", cacheName, cacheKey, cache.get(cacheKey) == null ? "not found" : "found"));
+            }
             return cache.get(cacheKey, valueProvider);
         }
         try {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug(String.format("No cache [{%s}] found", cacheName));
+            }
             return valueProvider.call();
         } catch (Exception e) {
             throw new DomibusCRLException(e);
