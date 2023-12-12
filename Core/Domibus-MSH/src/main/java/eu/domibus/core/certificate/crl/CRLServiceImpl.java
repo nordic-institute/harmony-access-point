@@ -50,7 +50,7 @@ public class CRLServiceImpl implements CRLService {
         return isCertificateRevokedInternal(cert);
     }
 
-    private boolean isCertificateRevokedInternal(X509Certificate cert) {
+    boolean isCertificateRevokedInternal(X509Certificate cert) {
         List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
         LOG.debug("CRL check for certificate: [{}]", getSubjectDN(cert));
         if (crlDistributionPoints == null || crlDistributionPoints.isEmpty()) {

@@ -53,12 +53,14 @@ public class CRLUtil {
      */
     private static final String LDAP_CRL_ATTRIBUTE = "certificateRevocationList;binary";
 
-    @Autowired
-    private HttpUtil httpUtil;
+    private final HttpUtil httpUtil;
 
-    @Autowired
-    @Qualifier(DomibusCacheConstants.CACHE_MANAGER)
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
+
+    public CRLUtil(HttpUtil httpUtil, @Qualifier(DomibusCacheConstants.CACHE_MANAGER) CacheManager cacheManager) {
+        this.httpUtil = httpUtil;
+        this.cacheManager = cacheManager;
+    }
 
     public Object getCachedOrEvaluate(String cacheName, Object cacheKey, Callable<Object> valueProvider) {
         Cache cache = cacheManager.getCache(cacheName);
