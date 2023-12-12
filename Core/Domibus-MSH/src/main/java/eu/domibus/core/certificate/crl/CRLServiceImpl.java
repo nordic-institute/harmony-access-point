@@ -1,14 +1,12 @@
 package eu.domibus.core.certificate.crl;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
-import eu.domibus.common.DomibusCacheConstants;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.X509CRL;
@@ -42,8 +40,6 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}",
-            condition = "'${domibus.certificate.crlByCert.cache.enabled}'==true")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
         boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED));
         LOG.debug("CRL by certificate cache is [{}]", useCache ? "enabled" : "disabled");
