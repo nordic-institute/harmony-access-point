@@ -58,6 +58,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_BY_CERT_CACHE_ENABLED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_DOMIBUS_CERTIFICATE_REVOKED;
 
@@ -168,7 +169,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         try {
             if(LOG.isDebugEnabled()) {
-                Boolean useCrlByCertCache = domibusPropertyProvider.getBooleanProperty("domibus.certificate.crlByCert.cache.enabled");
+                Boolean useCrlByCertCache = domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED);
                 LOG.debug("CRL by certificate cache is [{}]", useCrlByCertCache ? "enabled" : "disabled");
             }
             return !crlService.isCertificateRevoked(cert);
