@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CRL_BY_URL_CACHE_ENABLED;
+import static eu.domibus.api.cache.DomibusLocalCacheService.CRL_BY_CERT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @Service
 public class CRLServiceImpl implements CRLService {
@@ -42,11 +42,20 @@ public class CRLServiceImpl implements CRLService {
     private Object supportedCrlProtocolsLock = new Object();
 
     @Override
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}",
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = CRL_BY_CERT, key = "{#cert.issuerX500Principal.getName(), #cert.serialNumber}",
             condition = "'${domibus.certificate.crlByCert.cache.enabled}'==true")
     public boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException {
-        List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
+        boolean useCache = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED));
+        LOG.debug("CRL by certificate cache is [{}]", useCache ? "enabled" : "disabled");
+        if(useCache){
+            return (Boolean) crlUtil.getCachedOrEvaluate(CRL_BY_CERT, getCertificateKey(cert), () -> isCertificateRevokedInternal(cert));
+        }
 
+        return isCertificateRevokedInternal(cert);
+    }
+
+    private boolean isCertificateRevokedInternal(X509Certificate cert) {
+        List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(cert);
         LOG.debug("CRL check for certificate: [{}]", getSubjectDN(cert));
         if (crlDistributionPoints == null || crlDistributionPoints.isEmpty()) {
             LOG.debug("No CRL distribution points found for certificate: [{}]", getSubjectDN(cert));
@@ -70,6 +79,13 @@ public class CRLServiceImpl implements CRLService {
         }
 
         throw new DomibusCRLException("Could not check certificate " + getSubjectDN(cert) + " against any CRL distribution point");
+    }
+
+    private String getCertificateKey(X509Certificate cert) {
+        if(cert == null){
+            return "";
+        }
+        return String.format("[%s][%s]", cert.getIssuerX500Principal().getName(), cert.getSerialNumber());
     }
 
     protected String getSubjectDN(X509Certificate cert) {
@@ -140,7 +156,7 @@ public class CRLServiceImpl implements CRLService {
     public void resetCacheCrlProtocols() {
         LOG.debug("Clearing supported Crl protocols and cache.");
         this.supportedCrlProtocols = null;
-        this.domibusLocalCacheService.clearCache(DomibusLocalCacheService.CRL_BY_CERT);
+        this.domibusLocalCacheService.clearCache(CRL_BY_CERT);
     }
 
 }

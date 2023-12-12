@@ -167,6 +167,10 @@ public class CertificateServiceImpl implements CertificateService {
             return false;
         }
         try {
+            if(LOG.isDebugEnabled()) {
+                Boolean useCrlByCertCache = domibusPropertyProvider.getBooleanProperty("domibus.certificate.crlByCert.cache.enabled");
+                LOG.debug("CRL by certificate cache is [{}]", useCrlByCertCache ? "enabled" : "disabled");
+            }
             return !crlService.isCertificateRevoked(cert);
         } catch (Exception e) {
             throw new DomibusCertificateException(e);
