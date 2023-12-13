@@ -438,23 +438,37 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             sqlString += "    and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
                     "         and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
             sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
-            LOG.debug("counting messages newer than: [{}]", startDate);
+            LOG.debug("Counting messages newer than: [{}]", startDate);
         }
         sqlString = sqlString.replace("$PARTITION", partitionName);
 
-        LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
+        LOG.trace("SqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
-
+        int result = 0;
         MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        //Check for empty mpc entity
+        if (mpcEntity == null) {
+            LOG.debug("Couldn't find the mpc [{}]", mpc);
+            return result;
+        }
         countQuery.setParameter("MPC_ID", mpcEntity.getEntityId());
-
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
+        //check for empty status entity
+        if (statusEntity == null) {
+            LOG.debug("Couldn't find the entity of the messages status [{}]", messageStatus);
+            return result;
+        }
         countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
         if (startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
-        int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
-        LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
+        Object singleResult = countQuery.getSingleResult();
+        //check countQuery.getSingleResult() is not null
+        if (singleResult != null) {
+            result = ((BigDecimal) singleResult).intValue();
+        }
+
+        LOG.debug("Count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
         return result;
     }
 
