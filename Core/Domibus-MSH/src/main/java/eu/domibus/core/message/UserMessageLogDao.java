@@ -448,14 +448,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         MpcEntity mpcEntity = mpcDao.findMpc(mpc);
         //Check for empty mpc entity
         if (mpcEntity == null) {
-            LOG.warn("Couldn't find the mpc [{}]", mpc);
+            LOG.debug("Couldn't find the mpc [{}]", mpc);
             return result;
         }
         countQuery.setParameter("MPC_ID", mpcEntity.getEntityId());
         MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
         //check for empty status entity
         if (statusEntity == null) {
-            LOG.warn("Couldn't find the messages with status [{}]", messageStatus);
+            LOG.debug("Couldn't find the entity of the messages status [{}]", messageStatus);
             return result;
         }
         countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
