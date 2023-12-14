@@ -190,9 +190,6 @@ public class IncomingPullReceiptHandlerTest {
             responseResult.getResponseStatus();
             result = ResponseHandler.ResponseStatus.WARNING;
 
-            reliabilityChecker.check(withAny(soapMessage), request, responseResult, legConfiguration, pullReceiptMatcher);
-            result = ReliabilityChecker.CheckResult.OK;
-
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, responseResult, request, userMessageLog, legConfiguration, userMessage);
             result = pullRequestResult;
         }};
