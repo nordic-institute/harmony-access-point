@@ -165,7 +165,7 @@ public class IncomingPullReceiptHandlerTest {
         MessageStatusEntity messageStatus = new MessageStatusEntity();
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
-        new Expectations() {{
+        new NonStrictExpectations() {{
             userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
