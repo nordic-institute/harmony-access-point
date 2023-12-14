@@ -5,7 +5,10 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+
+import javax.xml.soap.SOAPMessage;
 
 public interface PullMessageService {
 
@@ -71,6 +74,8 @@ public interface PullMessageService {
     PullRequestResult updatePullMessageAfterReceipt(
             ReliabilityChecker.CheckResult reliabilityCheckSuccessful,
             ResponseHandler.ResponseStatus isOk,
+            ResponseResult responseResult,
+            SOAPMessage responseSoapMessage,
             UserMessageLog userMessageLog,
             LegConfiguration legConfiguration,
             UserMessage userMessage);

@@ -193,7 +193,7 @@ public class IncomingPullReceiptHandlerTest {
             reliabilityChecker.check(withAny(soapMessage), request, responseResult, legConfiguration, pullReceiptMatcher);
             result = ReliabilityChecker.CheckResult.OK;
 
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, responseResult, request, userMessageLog, legConfiguration, userMessage);
             result = pullRequestResult;
         }};
 
@@ -206,7 +206,7 @@ public class IncomingPullReceiptHandlerTest {
             times = 1;
             responseHandler.verifyResponse(request, messageId);
             times = 1;
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK, ResponseHandler.ResponseStatus.WARNING, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK,  ResponseHandler.ResponseStatus.WARNING, null, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }};
 
@@ -249,7 +249,7 @@ public class IncomingPullReceiptHandlerTest {
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
 
         new Verifications() {{
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, null, request, userMessageLog, legConfiguration, userMessage);
             times = 1;
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
             times = 1;
@@ -291,7 +291,7 @@ public class IncomingPullReceiptHandlerTest {
         Assert.assertNotNull(response);
 
         new Verifications() {{
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, null, request, userMessageLog, legConfiguration, userMessage);
             times = 1;
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
             times = 1;
