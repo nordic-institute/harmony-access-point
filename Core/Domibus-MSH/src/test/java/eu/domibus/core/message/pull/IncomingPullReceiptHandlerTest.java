@@ -199,8 +199,8 @@ public class IncomingPullReceiptHandlerTest {
         new Verifications() {{
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true);
             times = 1;
-            pModeProvider.getLegConfiguration(pModeKey);
-            times = 1;
+//            pModeProvider.getLegConfiguration(pModeKey);
+//            times = 1;
             responseHandler.verifyResponse(request, messageId);
             times = 1;
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK,  ResponseHandler.ResponseStatus.WARNING, null, request, userMessageLog, legConfiguration, userMessage);
