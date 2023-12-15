@@ -203,7 +203,7 @@ public class IncomingPullReceiptHandlerTest {
 //            times = 1;
             responseHandler.verifyResponse(request, messageId);
             times = 1;
-            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK,  ResponseHandler.ResponseStatus.WARNING, null, request, userMessageLog, legConfiguration, userMessage);
+            pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.OK,  ResponseHandler.ResponseStatus.WARNING, responseResult, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }};
 
