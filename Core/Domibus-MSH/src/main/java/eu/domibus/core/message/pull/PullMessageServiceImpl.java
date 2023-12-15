@@ -150,8 +150,12 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         switch (reliabilityCheckSuccessful) {
             case OK:
-                responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
-
+                if (responseResult != null) {
+                    LOG.warn("Saving signal message to the database");
+                    responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
+                } else {
+                    LOG.warn("Could not save signal message in the database, invalid response result");
+                }
                 switch (isOk) {
                     case OK:
                         userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
