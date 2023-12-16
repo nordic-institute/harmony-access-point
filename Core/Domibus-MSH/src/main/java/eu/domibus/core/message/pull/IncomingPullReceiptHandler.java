@@ -126,14 +126,14 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
                     .refToMessageId(messageId)
                     .build());
         }
-
+        ResponseResult responseResult = null;
         try {
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
             SOAPMessage soapMessage = getSoapMessage(messageId, legConfiguration, userMessage);
-            final ResponseResult responseResult = responseHandler.verifyResponse(request, messageId);
+            responseResult = responseHandler.verifyResponse(request, messageId);
             isOk = responseResult.getResponseStatus();
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, legConfiguration, pullReceiptMatcher);
@@ -148,7 +148,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         } catch (ReliabilityException r) {
             LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
         } finally {
-            final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
+            final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, responseResult, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
         if ((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
