@@ -65,14 +65,17 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
+
+        final DomibusConfigLocationProvider domibusConfigLocationProvider = new DomibusConfigLocationProvider();
+        String domibusConfigLocation = domibusConfigLocationProvider.getDomibusConfigLocation(servletContext);
         String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
         LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION,
                 normalizedDomibusConfigLocation);
 
         configureLogging(normalizedDomibusConfigLocation);
 
-        PluginClassLoader pluginClassLoader = createPluginClassLoader(normalizedDomibusConfigLocation);
+        PluginClassLoader pluginClassLoader =
+                createPluginClassLoader(domibusConfigLocationProvider.getDomibusExtensionsLocation(servletContext));
         Thread.currentThread().setContextClassLoader(pluginClassLoader);
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
@@ -129,10 +132,10 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         servlet.addMapping("/metrics/*");
     }
 
-    protected PluginClassLoader createPluginClassLoader(String domibusConfigLocation) {
-        String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
-        String pluginsLocation = normalizedDomibusConfigLocation + PLUGINS_LOCATION;
-        String extensionsLocation = normalizedDomibusConfigLocation + EXTENSIONS_LOCATION;
+    protected PluginClassLoader createPluginClassLoader(String domibusExtensionsLocation) {
+        String normalizedLocation = Paths.get(domibusExtensionsLocation).normalize().toString();
+        String pluginsLocation = normalizedLocation + PLUGINS_LOCATION;
+        String extensionsLocation = normalizedLocation + EXTENSIONS_LOCATION;
 
         LOG.info("Using plugins location [{}]", pluginsLocation);
 

@@ -1,5 +1,6 @@
 package eu.domibus.core.util.backup;
 
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,6 +32,9 @@ public class BackupServiceImpl implements BackupService {
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
     protected static final String BACKUP_FOLDER_NAME = "backups";
+
+    private final boolean preserveFileDate = Boolean.parseBoolean(
+            System.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_BACKUP_PRESERVE_FILE_DATE, "true"));
 
     @Autowired
     protected DateUtil dateUtil;
@@ -134,7 +138,7 @@ public class BackupServiceImpl implements BackupService {
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {
-            FileUtils.copyFile(originalFile, backupFile);
+            FileUtils.copyFile(originalFile, backupFile, preserveFileDate);
         } catch (IOException e) {
             throw new IOException(String.format("Could not back up file [%s] to [%s]", originalFile, backupFile), e);
         }

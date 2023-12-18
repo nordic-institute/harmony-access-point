@@ -471,4 +471,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_BC_PROVIDER_ORDER="domibus.security.bc.provider.order";
 
     String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
+
+    String DOMIBUS_EXTENSIONS_LOCATION = "domibus.extensions.location";
+
+    /**
+     *  Controls whether backup tries to preserve file modification data. Some filesystems
+     *  (notably Azure Files SMB shares) do not allow this. Default is true.
+     */
+    String DOMIBUS_BACKUP_PRESERVE_FILE_DATE="domibus.backup.preserveFileDate";
 }

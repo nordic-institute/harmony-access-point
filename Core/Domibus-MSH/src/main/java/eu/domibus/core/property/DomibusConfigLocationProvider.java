@@ -29,4 +29,22 @@ public class DomibusConfigLocationProvider {
         }
         return null;
     }
+
+    public String getDomibusExtensionsLocation(ServletContext servletContext) {
+        String location = servletContext
+                .getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSIONS_LOCATION);
+
+        if ( location == null ) {
+            location = System.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSIONS_LOCATION);
+        }
+
+        if ( location == null ) {
+            location = getDomibusConfigLocation(servletContext);
+        }
+
+        LOG.info("Property [{}] is configured as [{}]",
+                DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSIONS_LOCATION, location);
+
+        return location;
+    }
 }
