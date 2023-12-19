@@ -102,10 +102,14 @@ public class CachingPModeProvider extends PModeProvider {
 
     protected void load() {
         LOG.debug("Initialising the configuration");
-        this.configuration = this.configurationDAO.readEager();
-        LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
+        try {
+            this.configuration = this.configurationDAO.readEager();
+            LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
 
-        initPullProcessesCache();
+            initPullProcessesCache();
+        } catch (Exception ex) {
+            throw new ConfigurationException("Could not load the pMode. Please ensure there is a pMode uploaded.", ex);
+        }
     }
 
     private void initPullProcessesCache() {
