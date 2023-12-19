@@ -165,11 +165,13 @@ public class TestService {
 
         PartyId senderParty = partyIdDao.findFirstByValue(senderPartyId);
         if (senderParty == null) {
-            throw new TestServiceException(String.format("No Party found with id value [%s]", senderPartyId));
+            LOG.debug("No Party found with id value [{}]", senderPartyId);
+            return null;
         }
         PartyId party = partyIdDao.findFirstByValue(partyId);
         if (party == null) {
-            throw new TestServiceException(String.format("No Party found with id value [%s]", partyId));
+            LOG.debug("No Party found with id value [{}]", partyId);
+            return null;
         }
         UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderParty, party);
         if (userMessage == null) {
@@ -225,11 +227,13 @@ public class TestService {
         } else {
             PartyId senderParty = partyIdDao.findFirstByValue(senderPartyId);
             if (senderParty == null) {
-                throw new TestServiceException(String.format("No Party found with id value [%s]", senderPartyId));
+                LOG.debug("No Party found with id value [{}]", senderPartyId);
+                return null;
             }
             PartyId party = partyIdDao.findFirstByValue(partyId);
             if (party == null) {
-                throw new TestServiceException(String.format("No Party found with id value [%s]", partyId));
+                LOG.debug("No Party found with id value [{}]", partyId);
+                return null;
             }
             signalMessage = signalMessageDao.findLastTestMessage(senderParty, party);
             if (signalMessage == null) {
