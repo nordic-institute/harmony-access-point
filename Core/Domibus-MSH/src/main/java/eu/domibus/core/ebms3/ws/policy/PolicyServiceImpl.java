@@ -87,8 +87,8 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     private String replaceAlgoPlaceholderIfPresent(String line, String algoName, SecurityProfile securityProfile) {
-        if (securityProfile == null && line.contains(ALGORITHM_SUITE_PLACEHOLDER)) {
-           return line.replace(ALGORITHM_SUITE_PLACEHOLDER, algoName);
+        if (securityProfile == null) {
+           return line.contains(ALGORITHM_SUITE_PLACEHOLDER) ? line.replace(ALGORITHM_SUITE_PLACEHOLDER, algoName) : line;
         }
         String message = "Setting the hardcoded algorithm in the security policy file, instead of using the algorithm placeholder: " +
                 "${algorithmSuitePlaceholder} is only possible when no security profile is configured!";
