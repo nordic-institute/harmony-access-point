@@ -438,22 +438,26 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void refreshTrustStore() {
-        executeWithLock(this::reloadTrustStore);
+        executeWithLock(this::doResetTrustStore);
     }
 
     @Override
     public void refreshKeyStore() {
-        executeWithLock(this::reloadKeyStore);
+        executeWithLock(this::doReloadKeyStore);
     }
 
     @Override
     public void resetKeyStore() {
-        executeWithLock(this::reloadKeyStore);
+        executeWithLock(this::doReloadKeyStore);
     }
 
     @Override
     public void resetTrustStore() {
-        executeWithLock(this::reloadTrustStore);
+        executeWithLock(this::doResetTrustStore);
+    }
+
+    protected void doResetTrustStore() {
+        doReloadTrustStore();
     }
 
     @Override
@@ -465,17 +469,25 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         executeWithLock(() ->
-                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
-                        keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::getTrustStore, this::validateTrustStoreCertificateTypes)
+                doReplaceTrustStore(storeContent, storeFileName, storePassword)
         );
+    }
+
+    private void doReplaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) {
+        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
+                keystorePersistenceService::getTrustStorePersistenceInfo, this::doReloadTrustStore, this::getTrustStore, this::validateTrustStoreCertificateTypes);
     }
 
     @Override
     public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         executeWithLock(() ->
-                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
-                        keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::getKeyStore, this::validateKeyStoreCertificateTypes)
+                doReplaceKeyStore(storeContent, storeFileName, storePassword)
         );
+    }
+
+    private void doReplaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) {
+        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
+                keystorePersistenceService::getKeyStorePersistenceInfo, this::doReloadKeyStore, this::getKeyStore, this::validateKeyStoreCertificateTypes);
     }
 
     @Override
@@ -484,7 +496,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             Path path = Paths.get(storeFileLocation);
             String storeName = path.getFileName().toString();
             byte[] storeContent = getContentFromFile(storeFileLocation);
-            replaceTrustStore(storeContent, storeName, storePassword);
+            doReplaceTrustStore(storeContent, storeName, storePassword);
         });
     }
 
@@ -494,7 +506,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             Path path = Paths.get(storeFileLocation);
             String storeName = path.getFileName().toString();
             byte[] storeContent = getContentFromFile(storeFileLocation);
-            replaceKeyStore(storeContent, storeName, storePassword);
+            doReplaceKeyStore(storeContent, storeName, storePassword);
         });
     }
 
@@ -553,7 +565,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return executeWithLock(() -> {
             boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates, overwrite);
             if (added) {
-                resetTrustStore();
+                doResetTrustStore();
             }
             return added;
         });
@@ -571,7 +583,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return executeWithLock(() -> {
             boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
             if (removed) {
-                resetTrustStore();
+                doResetTrustStore();
             }
             return removed;
         });
@@ -803,13 +815,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return result;
     }
 
-    private void reloadKeyStore() throws CryptoSpiException {
+    private void doReloadKeyStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
                 signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
-    private void reloadTrustStore() throws CryptoSpiException {
+    private void doReloadTrustStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
                 signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
