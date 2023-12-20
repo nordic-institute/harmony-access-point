@@ -7,7 +7,7 @@
                 - Remove property domibus.dynamicdiscovery.peppolclient.mode
                 - Any custom dss-cache settings should be moved from /conf/domibus/internal/ehcache.xml to /conf/domibus/extensions/config/dss-extension-ehcache.xml
                 - It is now possible to specify also the hardcoded algorithm suite name (e.g Basic128GCMSha256) instead of the placeholder: ${algorithmSuitePlaceholder} in order to keep backward compatibility.
-                In case this approach is used, no security profiles definitions can be used, in domibus.properties as well as in the pmode process definition from the eDeliveryAS4policy xml files(located under {project_path}/domibus/conf/domibus/policies).
+                The use of the placeholder is required for the new security profiles configuration.
 ## Domibus 5.1.1 (from 5.1)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
