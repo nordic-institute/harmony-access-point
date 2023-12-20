@@ -168,11 +168,11 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
-        <enforcer-api.version>3.3.0</enforcer-api.version>
         <maven-core.version>3.1.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
     </properties>
 
     <scm>
@@ -1056,7 +1056,7 @@
             <dependency>
                 <groupId>org.apache.maven.enforcer</groupId>
                 <artifactId>enforcer-api</artifactId>
-                <version>${enforcer-api.version}</version>
+                <version>${maven-enforcer-plugin.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -1258,7 +1258,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>${maven-enforcer-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
