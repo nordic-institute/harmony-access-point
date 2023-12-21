@@ -2,6 +2,8 @@
 
 
 ## Domibus 5.1.2 (from 5.1.1)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
                 - Update the properties domibus.pmode.validation.action.pattern and domibus.pmode.validation.service.value.pattern in case of backward compatibility issues regarding the action and service values
                 - Run the appropriate DB upgrade script (mysql-5.1.1-to-5.1.2-upgrade.ddl for MySQL or oracle-5.1.1-to-5.1.2-upgrade.ddl for Oracle)
                 - Remove property domibus.dynamicdiscovery.peppolclient.mode
