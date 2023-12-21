@@ -43,6 +43,8 @@ public class PolicyServiceImpl implements PolicyService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImpl.class);
     public static final String POLICIES = "policies";
     public static final String ENCRYPTEDPARTS = "EncryptedParts";
+    public static final String ALGORITHM_SUITE_PLACEHOLDER = "${algorithmSuitePlaceholder}";
+    public static final String CXF_POLICY_TAG = "<sp-cxf:";
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
@@ -75,12 +77,24 @@ public class PolicyServiceImpl implements PolicyService {
         String algoName = getAlgorithmName(securityProfile);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             modifiedPolicyString = reader.lines()
-                    .map(line -> line.replace("${algorithmSuitePlaceholder}", algoName))
+                    //if the placeholder is not present in the policy file, the algorithm defined in the policy file will be used, in order to ensure backward compatibility for Basic128GCMSha256
+                    .map(line -> line.contains(CXF_POLICY_TAG) ? replaceAlgoPlaceholderIfPresent(line, algoName, securityProfile) : line)
                     .collect(Collectors.joining());
         } catch (IOException e) {
             throw new ConfigurationException(e);
         }
         return IOUtils.toInputStream(modifiedPolicyString, Charset.defaultCharset());
+    }
+
+    private String replaceAlgoPlaceholderIfPresent(String line, String algoName, SecurityProfile securityProfile) {
+        if (!line.contains(ALGORITHM_SUITE_PLACEHOLDER) && securityProfile != null) {
+            String message = "Setting the hardcoded algorithm in the security policy file, instead of using the algorithm placeholder: " +
+                    "${algorithmSuitePlaceholder} is only possible when no security profile is configured!";
+            LOG.error(message);
+            throw new ConfigurationException(message);
+        }
+
+        return line.contains(ALGORITHM_SUITE_PLACEHOLDER) ? line.replace(ALGORITHM_SUITE_PLACEHOLDER, algoName) : line;
     }
 
     private String getAlgorithmName(final SecurityProfile securityProfile) {
