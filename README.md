@@ -20,7 +20,7 @@ Harmony Access Point is based on upon the [Domibus](https://ec.europa.eu/digital
 
 The official Harmony documentation is available in a separate repository that can be found [here](https://github.com/nordic-institute/harmony-common/).
 
-In addition, the following documents that are available on the [Domibus release page](https://ec.europa.eu/digital-building-blocks/wikis/display/DIGITAL/Domibus) are applicable for the Harmony Access Point too:
+In addition, the following documents that are available on the [Domibus release page](https://ec.europa.eu/digital-building-blocks/sites/display/DIGITAL/Domibus) are applicable for the Harmony Access Point too:
 
  * Administration Guide 
  * Testing guide
