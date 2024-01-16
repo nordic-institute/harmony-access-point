@@ -4,10 +4,12 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +26,9 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReceiptDao.class);
 
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
     public ReceiptDao() {
         super(ReceiptEntity.class);
     }
@@ -31,7 +36,7 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
     public ReceiptEntity findBySignalRefToMessageIdAndRole(String refToMessageId, MSHRole mshRole) {
         final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageIdAndRole", ReceiptEntity.class);
         query.setParameter("REF_TO_MESSAGE_ID", refToMessageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
         return DataAccessUtils.singleResult(query.getResultList());
     }
 

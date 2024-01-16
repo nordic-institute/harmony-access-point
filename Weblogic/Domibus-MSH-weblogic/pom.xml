@@ -6,7 +6,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>weblogic</artifactId>
-        <version>5.1.1</version>
+        <version>5.1.2</version>
     </parent>
 
     <artifactId>domibus-MSH-weblogic</artifactId>
@@ -144,6 +144,44 @@
                                     <type>jar</type>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>eu.domibus</groupId>
+                        <artifactId>domibus-msh-test-common</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>eu.domibus</groupId>
+                        <artifactId>domibus-logging</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>enforce-no-duplicate-dependencies</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <duplicateDependenciesRule>
+                                    <equivalentDuplicateDependencies>
+                                        <item>bcpkix-jdk15on,bcpkix-jdk18on,bcpkix-jdk15to18</item>
+                                        <item>bcutil-jdk15on,bcutil-jdk18on,bcutil-jdk15to18</item>
+                                        <item>bcprov-jdk15on,bcprov-jdk18on,bcprov-jdk15to18</item>
+                                    </equivalentDuplicateDependencies>
+                                </duplicateDependenciesRule>
+                            </rules>
+                            <fail>true</fail>
                         </configuration>
                     </execution>
                 </executions>

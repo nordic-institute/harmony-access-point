@@ -70,7 +70,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
         userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
         if (markAsDownloaded) {
-            markMessageAsDownloaded(userMessage.getMessageId());
+            markMessageAsDownloaded(userMessage);
         }
         return messagingService.getSubmission(userMessage);
     }
@@ -87,7 +87,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        markMessageAsDownloaded(userMessage.getMessageId());
+        markMessageAsDownloaded(userMessage);
         return messagingService.getSubmission(userMessage);
     }
 
@@ -182,8 +182,12 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public void markMessageAsDownloaded(String messageId) {
-        LOG.info("Setting the status of the message with id [{}] to downloaded", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
+        markMessageAsDownloaded(userMessage);
+    }
+
+    protected void markMessageAsDownloaded(final UserMessage userMessage) {
+        LOG.info("Setting the status of the message with id [{}] to downloaded", userMessage.getMessageId());
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());

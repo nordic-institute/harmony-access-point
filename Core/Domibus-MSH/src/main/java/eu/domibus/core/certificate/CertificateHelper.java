@@ -53,10 +53,14 @@ public class CertificateHelper {
                 if (Arrays.asList(P_12, PFX).contains(fileType)) {
                     return;
                 }
+                break;
             case JKS:
                 if (Arrays.asList(JKS).contains(fileType)) {
                     return;
                 }
+                break;
+            default:
+                LOG.warn("Unknown store type: [{}].  Supported store types are: [{}]", storeType, Arrays.asList(PKCS_12, JKS));
         }
         throw new DomibusCertificateException("Store file extension [" + fileType + "] should match the configured truststore type [" + storeType + "].");
     }

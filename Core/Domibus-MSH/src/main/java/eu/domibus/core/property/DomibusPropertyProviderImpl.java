@@ -108,6 +108,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
+    public double getDecimalProperty(String propertyName) {
+        checkDecimalProperty(propertyName);
+        String value = getProperty(propertyName);
+        return primitivePropertyTypesManager.getDecimalInternal(propertyName, value);
+    }
+
+    @Override
     public Boolean getBooleanProperty(String propertyName) {
         checkBooleanProperty(propertyName);
         String value = getProperty(propertyName);
@@ -288,16 +295,23 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     private void checkIntegerProperty(String propertyName) {
-        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (!propMeta.getTypeAsEnum().isNumeric()) {
-            throw new DomibusPropertyException(String.format("Cannot call getIntegerProperty because property [%s] has [%s] type.", propertyName, propMeta.getType()));
-        }
+        // check too broad but cannot narrow it now because of ambigous NUMERIC property type; EDELIVERY-12257
+        checkNumericProperty("getIntegerProperty", propertyName);
     }
 
     private void checkLongProperty(String propertyName) {
+        // check too broad but cannot narrow it now because of ambigous NUMERIC property type; EDELIVERY-12257
+        checkNumericProperty("getLongProperty", propertyName);
+    }
+
+    private void checkDecimalProperty(String propertyName) {
+        checkNumericProperty("getDecimalProperty", propertyName);
+    }
+
+    private void checkNumericProperty(String methodName, String propertyName) {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (!propMeta.getTypeAsEnum().isNumeric()) {
-            throw new DomibusPropertyException(String.format("Cannot call getLongProperty because property [%s] has [%s] type.", propertyName, propMeta.getType()));
+            throw new DomibusPropertyException(String.format("Cannot call [%s] because property [%s] has [%s] type.", methodName, propertyName, propMeta.getType()));
         }
     }
 

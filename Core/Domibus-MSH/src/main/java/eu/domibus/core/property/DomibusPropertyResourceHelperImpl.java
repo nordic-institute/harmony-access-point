@@ -35,19 +35,19 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
 
-    private DomibusConfigurationService domibusConfigurationService;
+    private final DomibusConfigurationService domibusConfigurationService;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private AuthUtils authUtils;
+    private final AuthUtils authUtils;
 
-    private DomainTaskExecutor domainTaskExecutor;
+    private final DomainTaskExecutor domainTaskExecutor;
 
-    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private DomibusPropertyValueValidator domibusPropertyValueValidator;
+    private final DomibusPropertyValueValidator domibusPropertyValueValidator;
 
-    private FieldBlacklistValidator propertyNameBlacklistValidator;
+    private final FieldBlacklistValidator propertyNameBlacklistValidator;
 
     protected Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
 
@@ -302,8 +302,11 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         String propertyName = propMeta.getName();
         DomibusPropertyMetadata.Type propertyType = propMeta.getTypeAsEnum();
         try {
-            if (propertyType.isNumeric()) {
+            if (propertyType.isIntegerNumber()) {
                 return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
+            }
+            if (propertyType.isNumeric()) {
+                return String.valueOf(domibusPropertyProvider.getDecimalProperty(propertyName));
             }
             if (propertyType.isBoolean()) {
                 return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));

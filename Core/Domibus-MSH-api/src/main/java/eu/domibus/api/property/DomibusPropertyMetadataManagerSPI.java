@@ -110,10 +110,11 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY = "domibus.dynamicdiscovery.useDynamicDiscovery";
     String DOMIBUS_SMLZONE = "domibus.smlzone";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";
-    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE = "domibus.dynamicdiscovery.peppolclient.mode";
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.peppolclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION = "domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs";
+    String DOMIBUS_DYNAMICDISCOVERY_CLIENT_WILDCARD_DOCUMENT_SCHEMES = "domibus.dynamicdiscovery.client.wildcardDocumentSchemes";
+    String DOMIBUS_DYNAMICDISCOVERY_CLIENT_DNS_LOOKUP_TYPES = "domibus.dynamicdiscovery.client.dns.lookup.types";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.peppolclient.partyid.responder.role";
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.oasisclient.partyid.responder.role";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.peppolclient.partyid.type";
@@ -139,6 +140,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN = "domibus.sendMessage.messageIdPattern";
     String DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED = "domibus.partyinfo.roles.validation.enabled";
     String DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED = "domibus.pmode.legconfiguration.mpc.validation.enabled";
+    String DOMIBUS_PMODE_VALIDATION_ACTION_PATTERN = "domibus.pmode.validation.action.pattern";
+    String DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN = "domibus.pmode.validation.service.value.pattern";
+    String DOMIBUS_PMODE_VALIDATION_SERVICE_TYPE_PATTERN = "domibus.pmode.validation.service.type.pattern";
     String DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING = "domibus.datetime.pattern.onreceiving";
     String DOMIBUS_DATE_TIME_PATTERN_ON_SENDING = "domibus.datetime.pattern.onsending";
     String DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT = "domibus.dispatcher.connectionTimeout";
@@ -376,6 +380,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
     String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
+    String DOMIBUS_SECURITY_PROVIDER_BOUNCY_CASTLE_POSITION = "domibus.security.provider.bouncyCastle.position";
     String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR
     String DOMIBUS_JMX_USER = "domibus.jmx.user";
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
@@ -400,7 +405,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
     String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
-    String DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL ="domibus.dynamicdiscovery.lookup.cache.ttl";
+    String DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL = "domibus.dynamicdiscovery.lookup.cache.ttl";
     String DOMIBUS_DYNAMICDISCOVERY_CLEAN_RETENTION_CRON = "domibus.dynamicdiscovery.lookup.clean.retention.cron";
     String DOMIBUS_DYNAMICDISCOVERY_CLEAN_RETENTION_HOURS = "domibus.dynamicdiscovery.lookup.clean.retention.hours";
 
@@ -426,6 +431,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_DB = "domibus.earchive.retention.delete.db";
     String DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS = "domibus.earchive.start_date.stopped.allowed_hours";
+    String DOMIBUS_EARCHIVE_STUCK_CRON = "domibus.earchive.stuck.cron";
+    String DOMIBUS_EARCHIVE_STUCK_IGNORE_RECENT_MINUTES = "domibus.earchive.stuck.ignore.recent.minutes";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
@@ -444,6 +451,8 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
+    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
+    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
 
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";

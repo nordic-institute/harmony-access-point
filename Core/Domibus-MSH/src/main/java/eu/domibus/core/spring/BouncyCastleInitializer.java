@@ -47,8 +47,8 @@ public class BouncyCastleInitializer {
                 maxKeyLen == LIMITED_STRENGTH_MAX_KEY_LENGTH
                         ? "Limited"
                         : maxKeyLen == UNLIMITED_STRENGTH_MAX_KEY_LENGTH
-                                ? "Unlimited"
-                                : "Unknown",
+                        ? "Unlimited"
+                        : "Unknown",
                 maxKeyLen);
     }
 

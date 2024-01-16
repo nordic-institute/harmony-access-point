@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.dictionary.*;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -46,6 +47,9 @@ public class MessageLogInfoFilterTest {
 
     @Injectable
     private ActionDao actionDao;
+
+    @Injectable
+    private DateUtil dateUtil;
 
     public static HashMap<String, Object> returnFilters() {
         HashMap<String, Object> filters = new HashMap<>();

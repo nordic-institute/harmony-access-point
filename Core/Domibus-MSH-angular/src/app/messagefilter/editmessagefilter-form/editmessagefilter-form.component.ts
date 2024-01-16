@@ -32,10 +32,10 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent implement
   partyPattern = '[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+';
   partyPatternMessage = 'You should follow the rule: ' + this.partyPattern;
 
-  actionPattern = '[a-zA-Z0-9_:-]+';
+  actionPattern = '^[^=]*$';
   actionPatternMessage = 'You should follow the rule: ' + this.actionPattern;
 
-  servicePattern = '[a-zA-Z0-9_:\\\\./-]+:[a-zA-Z0-9_:-]+';
+  servicePattern = '^[^=]*$';
   servicePatternMessage = 'You should follow the rule: ' + this.servicePattern;
 
   constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,

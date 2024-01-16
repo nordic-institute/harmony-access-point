@@ -1,13 +1,12 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.KeyStoreContentInfo;
-import eu.domibus.api.pki.KeystorePersistenceInfo;
-import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.Certificate;
@@ -16,13 +15,11 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -40,6 +37,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
@@ -76,7 +74,19 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Autowired
     FileServiceUtil fileServiceUtil;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Before
+    public void before() {
+        clean();
+    }
+
+    @After
+    public void after() {
+        clean();
+    }
+
     public void clean() {
         final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
         final LocalDateTime offset = localDateTime.minusDays(15);
@@ -135,6 +145,84 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertNotEquals(initialStore, newStore);
         Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
         Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+    }
+
+    @Test
+    public void replaceTrustStoreWithDifferentTypeAndPassword() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        String initialLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String initialType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String initialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        String newStoreName = "gateway_truststore_diffPass.p12";
+        String newStorePassword = "test1234";
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
+        byte[] content = Files.readAllBytes(path);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
+
+        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
+        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+
+        String newLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String newType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String newPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        // initial properties didn't change
+        Assert.assertEquals(initialLocation, newLocation);
+        Assert.assertEquals(initialType, newType);
+        Assert.assertEquals(initialPassword, newPassword);
+
+        // can still open the store
+        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
+        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+
+        Assert.assertNotEquals(initialStore, newStore);
+        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+    }
+
+    @Test
+    public void replaceTrustStoreWithDifferentTypeAndPasswordWhenCurrentStoreIsBroken() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        String initialLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String initialType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String initialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+        //change the password domibus property to incur error when trying to get it
+        domibusPropertyProvider.setProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD,"test111");
+        String modifiedInitialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        String newStoreName = "gateway_truststore_diffPass.p12";
+        String newStorePassword = "test1234";
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
+        byte[] content = Files.readAllBytes(path);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
+
+        // error trying to check that the store is changed on disk and reload since the password is not correct
+        Assert.assertThrows(CryptoException.class, () -> multiDomainCryptoService.isTrustStoreChangedOnDisk(domain));
+        Assert.assertThrows(CryptoSpiException.class, () -> multiDomainCryptoService.resetTrustStore(domain));
+
+        // still can replace it
+        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+
+        String newLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String newType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String newPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        // initial properties didn't change
+        Assert.assertEquals(initialLocation, newLocation);
+        Assert.assertEquals(initialType, newType);
+        Assert.assertEquals(modifiedInitialPassword, newPassword);
+
+        // can still open the store
+        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        Assert.assertEquals(1, newStoreEntries.size());
     }
 
     @Test
@@ -334,6 +422,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
             Domain domain = DomainService.DEFAULT_DOMAIN;
             multiDomainCryptoService.resetTrustStore(domain);
             String storePassword = "test123";
+            domibusPropertyProvider.setProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, storePassword);
             Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_truststore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_truststore.jks", content, storePassword);

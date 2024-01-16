@@ -39,8 +39,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.ebms3.MessageExchangePattern.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
@@ -103,10 +102,14 @@ public class CachingPModeProvider extends PModeProvider {
 
     protected void load() {
         LOG.debug("Initialising the configuration");
-        this.configuration = this.configurationDAO.readEager();
-        LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
+        try {
+            this.configuration = this.configurationDAO.readEager();
+            LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
 
-        initPullProcessesCache();
+            initPullProcessesCache();
+        } catch (Exception ex) {
+            throw new ConfigurationException("Could not load the pMode. Please ensure there is a pMode uploaded.", ex);
+        }
     }
 
     private void initPullProcessesCache() {
@@ -599,10 +602,10 @@ public class CachingPModeProvider extends PModeProvider {
                 .build();
     }
 
-    private boolean serviceMatching(String service, String serviceType, Service pmodeService) {
-        return (equalsIgnoreCase(pmodeService.getServiceType(), serviceType) ||
-                (!StringUtils.isNotEmpty(pmodeService.getServiceType()) && !StringUtils.isNotEmpty(serviceType))) &&
-                equalsIgnoreCase(pmodeService.getValue(), service);
+    private boolean serviceMatching(String serviceValue, String serviceType, Service pmodeService) {
+        return equalsIgnoreCase(serviceValue, pmodeService.getValue())
+                &&
+                equalsIgnoreCase(trimToEmpty(serviceType), trimToEmpty(pmodeService.getServiceType()));
     }
 
     @Override
@@ -680,8 +683,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Agreement agreement : this.getConfiguration().getBusinessProcesses().getAgreements()) {
-            if ((StringUtils.isEmpty(agreementRef.getType()) || equalsIgnoreCase(agreement.getType(), agreementRef.getType()))
-                    && equalsIgnoreCase(agreementRef.getValue(), agreement.getValue())) {
+            if (agreementsMatch(agreementRef, agreement)) {
                 return agreement.getName();
             }
         }
@@ -689,6 +691,12 @@ public class CachingPModeProvider extends PModeProvider {
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                 .message("No matching agreement found for type [" + agreementRef.getType() + "] and value [" + agreementRef.getValue() + "]")
                 .build();
+    }
+
+    private boolean agreementsMatch(AgreementRefEntity agreementRef, Agreement agreement) {
+        return equalsIgnoreCase(agreement.getValue(), agreementRef.getValue())
+                &&
+                equalsIgnoreCase(trimToEmpty(agreement.getType()), trimToEmpty(agreementRef.getType()));
     }
 
     @Override
@@ -1284,6 +1292,21 @@ public class CachingPModeProvider extends PModeProvider {
             legs.add(legConfiguration);
         }
         return new LegConfigurationPerMpc(result);
+    }
+
+    @Override
+    public int getMaxRetryTimeout() {
+        final LegConfigurationPerMpc legConfigurationPerMpc = getAllLegConfigurations();
+        List<LegConfiguration> legConfigurations = new ArrayList<>();
+        legConfigurationPerMpc.values().stream().forEach(legConfigurations::addAll);
+
+        int maxRetry = legConfigurations.stream()
+                .map(legConfiguration -> legConfiguration.getReceptionAwareness().getRetryTimeout())
+                .max(Comparator.naturalOrder())
+                .orElse(-1);
+
+        LOG.debug("Got max retryTimeout [{}]", maxRetry);
+        return maxRetry;
     }
 
     @Override

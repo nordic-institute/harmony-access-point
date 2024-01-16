@@ -36,6 +36,20 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
 
     static {
         ALGORITHM_SUITE_TYPES.put(
+                BASIC_128_GCM_SHA_256_RSA,
+                new AlgorithmSuiteType(
+                        BASIC_128_GCM_SHA_256_RSA,
+                        SPConstants.SHA256,
+                        AES128_GCM_ALGORITHM,
+                        SPConstants.KW_AES128,
+                        SPConstants.KW_RSA_OAEP,
+                        SPConstants.P_SHA1_L128,
+                        SPConstants.P_SHA1_L128,
+                        128, 128, 128, 256, 1024, 4096
+                )
+        );
+
+        ALGORITHM_SUITE_TYPES.put(
                 RSA.getProfile(),
                 new AlgorithmSuiteType(
                         BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA,
@@ -90,7 +104,10 @@ public class DomibusAlgorithmSuite extends AlgorithmSuite {
             return;
         }
 
-        if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
+        if (BASIC_128_GCM_SHA_256_RSA.equals(assertionName)) {
+            setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_RSA));
+            getAlgorithmSuiteType().setNamespace(assertionNamespace);
+        } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_RSA.equals(assertionName)) {
             setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(RSA.getProfile()));
             getAlgorithmSuiteType().setNamespace(assertionNamespace);
         } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256_ECC.equals(assertionName)) {

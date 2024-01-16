@@ -26,12 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -166,14 +164,9 @@ public class EArchivingJobService {
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             ZonedDateTime dateHour = dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
-            return Long.parseLong(dateHour
-                    .minusHours(getSanitizerDelay())
-                    .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+            return dateUtil.getMaxEntityId(dateHour, TimeUnit.HOURS.toSeconds(getSanitizerDelay()));
         }
-        return Long.parseLong(ZonedDateTime
-                .now(ZoneOffset.UTC)
-                .minusMinutes(rounding60min(getRetryTimeOut()))
-                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        return dateUtil.getMaxEntityId(MINUTES.toSeconds(rounding60min(getRetryTimeOut())));
     }
 
     /**

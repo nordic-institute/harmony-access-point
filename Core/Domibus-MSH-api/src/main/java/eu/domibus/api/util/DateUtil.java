@@ -1,5 +1,8 @@
 package eu.domibus.api.util;
 
+import eu.domibus.api.exceptions.DomibusDateTimeException;
+
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,7 +49,17 @@ public interface DateUtil {
 
     String getCurrentTime(DateTimeFormatter dateTimeFormatter);
 
-    String getCurrentTime();
+    /**
+     * Returns a past {@code Date} that reflects an instant of time that is minutes ago from the current system {@code Date}.
+     * The exact number of minutes into the past is passed in as a parameter and must be a positive non-zero value;  a
+     * {@code DomibusDateTimeException} exception is thrown otherwise. The resulting {@Date} is reflected in
+     * coordinated universal time (UTC).
+     *
+     * @param minutesIntoThePast how many minutes ago should the resulting date be
+     * @return a UTC date that is taken from an instant that happened exactly the number of minutes ago
+     * @throws eu.domibus.api.exceptions.DomibusDateTimeException if the minutes has a negative value or is equal to {@code 0}.
+     */
+    Date getDateMinutesAgo(int minutesIntoThePast) throws DomibusDateTimeException;
 
     /**
      * Returns the current system {@code Date}, reflected in coordinated universal time (UTC).
@@ -77,4 +90,16 @@ public interface DateUtil {
      * @return string of format YYMMDDHH
      */
     String getIdPkDateHourPrefix(Date value);
+
+    long getMaxEntityId(ZonedDateTime instant, long delayInSeconds);
+
+    long getMinEntityId(ZonedDateTime instant, long delayInSeconds);
+
+    long getMaxEntityId(long delayInSeconds);
+
+    long getMinEntityId(long delayInSeconds);
+
+    Date convertOffsetDateTimeToDate(OffsetDateTime offsetDateTime);
+
+    OffsetDateTime convertDateToOffsetDateTime(Date date);
 }

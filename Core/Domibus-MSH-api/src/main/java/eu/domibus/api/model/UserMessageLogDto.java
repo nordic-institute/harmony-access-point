@@ -23,6 +23,8 @@ public class UserMessageLogDto {
     protected String messageId;
     protected Boolean testMessage;
     protected String backend;
+
+    protected Long mshRoleId;
     protected MSHRole mshRole;
 
     private Map<String, String> properties = new HashMap<>();
@@ -31,6 +33,18 @@ public class UserMessageLogDto {
         this.entityId = entityId;
         this.messageId = messageId;
         this.mshRole = mshRole;
+    }
+
+    public UserMessageLogDto(Long entityId, String messageId, Long mshRoleId) {
+        this.entityId = entityId;
+        this.messageId = messageId;
+        this.mshRoleId = mshRoleId;
+    }
+
+    public UserMessageLogDto(Long entityId, String messageId, String backend) {
+        this.entityId = entityId;
+        this.messageId = messageId;
+        this.backend = backend;
     }
 
     public UserMessageLogDto(Long entityId, String messageId, String backend, MessageProperty prop) {
@@ -42,16 +56,10 @@ public class UserMessageLogDto {
         }
     }
 
-    public UserMessageLogDto(Long entityId, String messageId, String backend) {
-        this.entityId = entityId;
-        this.messageId = messageId;
-        this.backend = backend;
-    }
-
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
         this.entityId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, ENTITY_ID);
         this.messageId = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ID);
-        this.mshRole = (MSHRole) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ROLE);
+        this.mshRoleId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ROLE);
         Object subtype = getObjectNullSafe(tuple, aliasToIndexMap, TEST_MESSAGE);
         if(subtype != null) {
             this.testMessage = (Boolean) subtype;
@@ -101,6 +109,10 @@ public class UserMessageLogDto {
 
     public void setEntityId(Long entityId) {
         this.entityId = entityId;
+    }
+
+    public Long getMshRoleId() {
+        return mshRoleId;
     }
 
     public MSHRole getMshRole() {

@@ -62,7 +62,7 @@ public class TLSCertificateManagerImplTest {
     public void replaceTrustStore(@Injectable KeystorePersistenceInfo persistenceInfo,
                                   @Injectable KeyStoreContentInfo contentInfo) {
         new Expectations() {{
-            certificateService.replaceStore(contentInfo, (KeystorePersistenceInfo) any);
+            certificateService.replaceStore(contentInfo, (KeystorePersistenceInfo) any, true);
             result = true;
         }};
 

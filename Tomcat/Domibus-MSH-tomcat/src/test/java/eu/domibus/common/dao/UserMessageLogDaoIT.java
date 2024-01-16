@@ -6,6 +6,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -30,8 +31,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -46,9 +47,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
-
-    @Autowired
-    UserMessageDao userMessageDao;
 
     @Autowired
     DateUtil dateUtil;
@@ -127,7 +125,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false, false);
-        assertEquals(3, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
@@ -152,7 +150,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getSentUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true, false);
-        assertEquals(3, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
@@ -170,7 +168,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getDownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10, false);
-        assertEquals(3, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
@@ -195,7 +193,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getUndownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10, false);
-        assertEquals(3, undownloadedUserMessagesOlderThan.size());
+        assertEquals(2, undownloadedUserMessagesOlderThan.size());
         assertThat(undownloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
@@ -220,7 +218,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getDeletedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10, false);
-        assertEquals(3, deletedUserMessagesOlderThan.size());
+        assertEquals(2, deletedUserMessagesOlderThan.size());
         assertThat(deletedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
@@ -454,6 +452,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<EArchiveBatchUserMessage> retryMessages = userMessageLogDao.findMessagesNotFinalAsc(0, 999999999999999999L);
 
         assertEquals(1, retryMessages.size());
+        assertNotNull(retryMessages.get(0).getMessageStatus());
     }
 
     @Test

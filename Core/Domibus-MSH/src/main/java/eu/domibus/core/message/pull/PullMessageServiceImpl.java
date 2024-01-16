@@ -9,6 +9,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
@@ -23,11 +24,13 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.soap.SOAPMessage;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -52,6 +55,9 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     @Autowired
     private PullMessageStateService pullMessageStateService;
+
+    @Autowired
+    private ResponseHandler responseHandler;
 
     @Autowired
     private UpdateRetryLoggingService updateRetryLoggingService;
@@ -134,6 +140,8 @@ public class PullMessageServiceImpl implements PullMessageService {
     public PullRequestResult updatePullMessageAfterReceipt(
             ReliabilityChecker.CheckResult reliabilityCheckSuccessful,
             ResponseHandler.ResponseStatus isOk,
+            ResponseResult responseResult,
+            SOAPMessage responseSoapMessage,
             UserMessageLog userMessageLog,
             LegConfiguration legConfiguration,
             UserMessage userMessage) {
@@ -142,6 +150,12 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         switch (reliabilityCheckSuccessful) {
             case OK:
+                if (responseResult != null) {
+                    LOG.warn("Saving signal message to the database");
+                    responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
+                } else {
+                    LOG.warn("Could not save signal message in the database, invalid response result");
+                }
                 switch (isOk) {
                     case OK:
                         userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);

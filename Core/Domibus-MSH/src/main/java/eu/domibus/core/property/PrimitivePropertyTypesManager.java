@@ -48,6 +48,19 @@ public class PrimitivePropertyTypesManager {
         return getDefaultLongValue(propertyName);
     }
 
+    public double getDecimalInternal(String propertyName, String propertyValue) {
+        if (propertyValue == null) {
+            return getDefaultDoubleValue(propertyName);
+        }
+
+        try {
+            return Double.valueOf(propertyValue);
+        } catch (final NumberFormatException e) {
+            LOG.warn("Could not parse the property [" + propertyName + "] value [" + propertyValue + "] to a Double value", e);
+            return getDefaultDoubleValue(propertyName);
+        }
+    }
+
     protected Integer getDefaultIntegerValue(String propertyName) {
         Integer defaultValue = MapUtils.getInteger(domibusDefaultProperties, propertyName);
         return checkDefaultValue(propertyName, defaultValue);
@@ -55,6 +68,11 @@ public class PrimitivePropertyTypesManager {
 
     protected Long getDefaultLongValue(String propertyName) {
         Long defaultValue = MapUtils.getLong(domibusDefaultProperties, propertyName);
+        return checkDefaultValue(propertyName, defaultValue);
+    }
+
+    protected Double getDefaultDoubleValue(String propertyName) {
+        Double defaultValue = MapUtils.getDouble(domibusDefaultProperties, propertyName);
         return checkDefaultValue(propertyName, defaultValue);
     }
 
@@ -84,4 +102,5 @@ public class PrimitivePropertyTypesManager {
         LOG.debug("Found the property [{}] default value [{}]", propertyName, defaultValue);
         return defaultValue;
     }
+
 }

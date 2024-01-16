@@ -4,6 +4,8 @@ import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.message.dictionary.MpcDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -26,10 +28,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -49,7 +48,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
-    public static final String MSH_ROLE = "MSH_ROLE";
+    public static final String MSH_ROLE_ID = "MSH_ROLE_ID";
 
     private final DateUtil dateUtil;
 
@@ -61,25 +60,35 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private final ReprogrammableService reprogrammableService;
 
+    private final MshRoleDao mshRoleDao;
+
+    private final MpcDao mpcDao;
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
     public UserMessageLogDao(DateUtil dateUtil,
                              UserMessageLogInfoFilter userMessageLogInfoFilter,
                              MessageStatusDao messageStatusDao,
                              NotificationStatusDao notificationStatusDao,
-                             ReprogrammableService reprogrammableService) {
+                             ReprogrammableService reprogrammableService,
+                             MshRoleDao mshRoleDao,
+                             MpcDao mpcDao) {
         super(UserMessageLog.class);
         this.dateUtil = dateUtil;
         this.userMessageLogInfoFilter = userMessageLogInfoFilter;
         this.messageStatusDao = messageStatusDao;
         this.notificationStatusDao = notificationStatusDao;
         this.reprogrammableService = reprogrammableService;
+        this.mshRoleDao = mshRoleDao;
+        this.mpcDao = mpcDao;
     }
 
     public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
         TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
+
         query.setParameter("MIN_ENTITY_ID", minEntityId);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
+        query.setParameter("WAITING_FOR_RETRY", messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY));
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
@@ -94,10 +103,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates()));
         query.setMaxResults(batchMaxSize);
 
-        return query.getResultList();
+        List<EArchiveBatchUserMessage> res = query.getResultList();
+        addStatus(res);
+        return res;
     }
 
     public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
@@ -108,9 +119,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getNotFinalStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getNotFinalStates()));
 
-        return query.getResultList();
+        List<EArchiveBatchUserMessage> res = query.getResultList();
+        addStatus(res);
+        return res;
     }
 
     public List<String> findFailedMessages(String finalRecipient, String originalUser) {
@@ -118,20 +131,29 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
-
+        MessageStatusEntity messageStatusEntity = messageStatusDao.findByValue(MessageStatus.SEND_FAILURE);
         Query query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod");
-        query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
+        query.setParameter("MESSAGE_STATUS", messageStatusEntity);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", failedStartDate);
         query.setParameter("END_DATE", failedEndDate);
         query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
-        return ((List<UserMessageLogDto>) query.getResultList()).stream()
+        List<UserMessageLogDto> resultList = query.getResultList();
+        return resultList.stream()
                 .filter(userMessageLogDto -> isAMatch(userMessageLogDto, finalRecipient, originalUser))
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
     }
 
+    private void addStatus(List<EArchiveBatchUserMessage> list) {
+        list.forEach(eArchiveBatchUserMessage -> {
+            MessageStatusEntity entity = messageStatusDao.read(eArchiveBatchUserMessage.getMessageStatusId());
+            if (entity != null) {
+                eArchiveBatchUserMessage.setMessageStatus(entity.getMessageStatus());
+            }
+        });
+    }
 
     private boolean isAMatch(UserMessageLogDto userMessageLogDto, String finalRecipient, String originalUser) {
         if (StringUtils.isBlank(finalRecipient) && StringUtils.isBlank(originalUser)) {
@@ -160,11 +182,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private List<UserMessageLogDto> findMessagesWithUserDuringPeriod(String queryName, String originalUser, Long startDate, Long endDate) {
         TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery(queryName, UserMessageLogDto.class);
-        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
+
+        query.setParameter("MESSAGE_STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates()));
         query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", startDate);
         query.setParameter("END_DATE", endDate);
-        return query.getResultList();
+
+        List<UserMessageLogDto> res = query.getResultList();
+        addRole(res);
+        return res;
     }
 
     /**
@@ -209,8 +235,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         try {
             TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByIdAndRole", MessageStatusEntity.class);
+
             query.setParameter(STR_MESSAGE_ID, messageId);
-            query.setParameter(MSH_ROLE, mshRole);
+            query.setParameter("MSH_ROLE", mshRoleDao.findByValue(mshRole));
+
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
@@ -284,7 +312,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter(MSH_ROLE, mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByValue(mshRole));
 
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
         if (userMessageLog == null) {
@@ -294,28 +322,39 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan", eArchiveIsActive);
+        return getMessagesOlderThan(date, mpcDao.findMpc(mpc), expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan",
+                eArchiveIsActive, messageStatusDao.getEntitiesOf(Arrays.asList(MessageStatus.DELETED)));
     }
 
     public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan", eArchiveIsActive);
+        List<MessageStatusEntity> msgStatuses = messageStatusDao.getEntitiesOf(Arrays.asList(MessageStatus.RECEIVED, MessageStatus.RECEIVED_WITH_WARNINGS));
+        return getMessagesOlderThan(date, mpcDao.findMpc(mpc), expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan",
+                eArchiveIsActive, msgStatuses);
     }
 
     public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan", eArchiveIsActive);
+        List<MessageStatusEntity> msgStatuses = messageStatusDao.getEntitiesOf(Arrays.asList(MessageStatus.DOWNLOADED));
+        return getMessagesOlderThan(date, mpcDao.findMpc(mpc), expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan",
+                eArchiveIsActive, msgStatuses);
     }
 
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName, boolean eArchiveIsActive) {
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, MpcEntity mpc, Integer expiredMessagesLimit, String queryName, boolean eArchiveIsActive,
+                                                         List<MessageStatusEntity> msgStatuses) {
         Query query = em.createNamedQuery(queryName);
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
+        query.setParameter("MSG_STATUSES", msgStatuses);
+
         query.setMaxResults(expiredMessagesLimit);
         return query.getResultList();
     }
+
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan", eArchiveIsActive);
+            List<MessageStatusEntity> msgStatuses = messageStatusDao.getEntitiesOf(Arrays.asList(MessageStatus.ACKNOWLEDGED, MessageStatus.SEND_FAILURE));
+            return getMessagesOlderThan(date, mpcDao.findMpc(mpc), expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan",
+                    eArchiveIsActive, msgStatuses);
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
@@ -324,7 +363,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public List<UserMessageLogDto> getAllMessages() {
         Query query = em.createNamedQuery("UserMessageLog.findAllMessages");
         query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
-        return query.getResultList();
+        List<UserMessageLogDto> res = query.getResultList();
+        addRole(res);
+        return res;
+    }
+
+    private void addRole(List<UserMessageLogDto> list) {
+        list.forEach(userMessageLogDto -> {
+            MSHRoleEntity roleEntity = mshRoleDao.read(userMessageLogDto.getMshRoleId());
+            if (roleEntity != null) {
+                userMessageLogDto.setMshRole(roleEntity.getRole());
+            }
+        });
     }
 
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
@@ -367,7 +417,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
+        List<MessageStatusEntity> msgStatuses = messageStatusDao.getEntitiesOf(Arrays.asList(MessageStatus.ACKNOWLEDGED, MessageStatus.SEND_FAILURE));
+        return getMessagesOlderThan(date, mpcDao.findMpc(mpc), expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
+                eArchiveIsActive, msgStatuses);
     }
 
     @Transactional(readOnly = true)
@@ -379,28 +431,44 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
         String sqlString = "select count(*) from " +
                 "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                "             inner join  TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
-                "             inner join  TB_D_MESSAGE_STATUS on TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK" +
-                "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
-                "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
-                "             and TB_D_MPC.VALUE=:MPC";
-        if(startDate != null) {
-            sqlString += "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
-                         "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
+                "             inner join TB_USER_MESSAGE PARTITION ($PARTITION) on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
+                "             where TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=:MESSAGESTATUS_ID" +
+                "             and TB_USER_MESSAGE.MPC_ID_FK=:MPC_ID";
+        if (startDate != null) {
+            sqlString += "    and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
+                    "         and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
             sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
-            LOG.debug("counting messages newer than: [{}]", startDate);
+            LOG.debug("Counting messages newer than: [{}]", startDate);
         }
         sqlString = sqlString.replace("$PARTITION", partitionName);
 
-        LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
+        LOG.trace("SqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
-        countQuery.setParameter("MPC", mpc);
-        countQuery.setParameter("MESSAGESTATUS", messageStatus.name());
-        if(startDate != null) {
+        int result = 0;
+        MpcEntity mpcEntity = mpcDao.findMpc(mpc);
+        //Check for empty mpc entity
+        if (mpcEntity == null) {
+            LOG.debug("Couldn't find the mpc [{}]", mpc);
+            return result;
+        }
+        countQuery.setParameter("MPC_ID", mpcEntity.getEntityId());
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
+        //check for empty status entity
+        if (statusEntity == null) {
+            LOG.debug("Couldn't find the entity of the messages status [{}]", messageStatus);
+            return result;
+        }
+        countQuery.setParameter("MESSAGESTATUS_ID", statusEntity.getEntityId());
+        if (startDate != null) {
             countQuery.setParameter("STARTDATE", startDate);
         }
-        int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
-        LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
+        Object singleResult = countQuery.getSingleResult();
+        //check countQuery.getSingleResult() is not null
+        if (singleResult != null) {
+            result = ((BigDecimal) singleResult).intValue();
+        }
+
+        LOG.debug("Count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
         return result;
     }
 
@@ -421,7 +489,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public String findBackendForMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter(MSH_ROLE, mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByValue(mshRole));
+
         return query.getSingleResult();
     }
 
@@ -476,13 +545,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public int countMessagesNotArchivedOnPartition(String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                            "INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK " +
                 "INNER JOIN TB_USER_MESSAGE PARTITION ($PARTITION) ON TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
-                "WHERE dms.STATUS NOT IN :MESSAGE_STATUSES AND TB_USER_MESSAGE.TEST_MESSAGE=0 AND archived IS NULL";
+                "WHERE TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK NOT IN :MESSAGE_STATUS_IDS " +
+                "AND TB_USER_MESSAGE.TEST_MESSAGE=0 " +
+                "AND archived IS NULL";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         final Query countQuery = em.createNativeQuery(sqlString);
         try {
-            countQuery.setParameter("MESSAGE_STATUSES", MessageStatus.getNonArchivableStatesAsString());
+            List<Long> statusIds = messageStatusDao.getEntityIdsOf(MessageStatus.getNonArchivableStates());
+            countQuery.setParameter("MESSAGE_STATUS_IDS", statusIds);
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
             return result;
@@ -494,12 +565,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
 
     @Transactional
-    public int countMessagesOnPartitionWithStatusNotInList(List<String> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+    public int countMessagesOnPartitionWithStatusNotInList(List<MessageStatus> messageStatuses, String partitionName) {
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                "WHERE MESSAGE_STATUS_ID_FK NOT IN :MESSAGE_STATUS_IDS";
         sqlString = sqlString.replace("$PARTITION", partitionName);
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
-            countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
+            List<Long> statusIds = messageStatusDao.getEntityIdsOf(messageStatuses);
+            countQuery.setParameter("MESSAGE_STATUS_IDS", statusIds);
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count by message status result [{}]", result);
             return result;
@@ -655,4 +728,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.trace("UserMessageLogs [{}] updated to deleted(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
+
+    public List<String> findUnsentMessageIds(Date minutesAgo, long maxEntityId) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", String.class);
+        query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
+
+        MessageStatusEntity sendEnqueuedEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
+        query.setParameter("SEND_ENQUEUED", sendEnqueuedEntity);
+        MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+        query.setParameter("WAITING_FOR_RETRY", retryEntity);
+
+        return query.getResultList();
+    }
+
 }

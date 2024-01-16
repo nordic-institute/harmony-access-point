@@ -208,7 +208,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Attempting to delete the payloads of [{}] messages", deleted);
         List<Long> entityIds = messagesToClean.stream()
                 .map(UserMessageLogDto::getEntityId)
-                .distinct()
                 .collect(Collectors.toList());
         userMessageDefaultService.clearPayloadData(entityIds);
         backendNotificationService.notifyMessageDeleted(messagesToClean);

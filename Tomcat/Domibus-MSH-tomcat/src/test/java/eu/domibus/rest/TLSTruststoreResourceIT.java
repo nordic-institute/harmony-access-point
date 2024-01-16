@@ -9,7 +9,6 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.MultiPartFileUtil;
-import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -36,7 +35,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
-import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Soumya
@@ -63,9 +61,19 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     @Autowired
     TLSCertificateManagerImpl tlsCertificateManager;
 
+
+    public void clean() {
+        resetInitalTruststore();
+    }
+
     @Before
     public void before() {
-        resetInitalTruststore();
+        clean();
+    }
+
+    @After
+    public void after() {
+        clean();
     }
 
     @Test

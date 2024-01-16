@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.messaging.XmlProcessingException;
+import org.junit.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,9 +55,8 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
 
     @Test
     public void testX() throws XmlProcessingException, IOException {
-        String selfParty = "domibus-blue";
         uploadPmode();
-        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+        pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         List<String> list = pModeProvider.findPartiesByInitiatorServiceAndAction("domibus-blue", Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, getPushMeps());
         assertTrue(list.size() == 1);
@@ -146,5 +146,48 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
 
         assertEquals(1, legConfigurationList.size());
         assertEquals("tc1Action", legConfigurationList.iterator().next().getAction().getName());
+    }
+
+    @Test
+    public void getMaxRetryTimeout_defaultRetryAwareness() throws Exception {
+        // GIVEN
+        uploadPmode();
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assert.assertEquals("Should have returned the default maximum retry timeout in minutes", 12, maxRetryTimeout);
+    }
+
+    @Test
+    public void getMaxRetryTimeout_customRetryAwareness() throws Exception {
+        // GIVEN
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("retry=\".*\"", "retry=\"2;4;CONSTANT\"");
+        uploadPmode(null, replacements);
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assert.assertEquals("Should have returned the correct maximum retry timeout in minutes when custom retry awareness set up", 2, maxRetryTimeout);
+    }
+
+    @Test
+    public void getMaxRetryTimeout_noRetryAwareness() throws Exception {
+        // GIVEN
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("retry=\".*\"", "");
+        uploadPmode(null, replacements);
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assert.assertEquals("Should have returned the default maximum retry timeout in minutes when no custom retry awareness set up", 0, maxRetryTimeout);
     }
 }

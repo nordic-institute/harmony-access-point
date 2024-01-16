@@ -87,7 +87,6 @@ public class BackendNotificationService {
 
     protected final BackendConnectorService backendConnectorService;
 
-    @Qualifier(JSON_MAPPER_BEAN)
     protected final ObjectMapper objectMapper;
 
     public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
@@ -95,7 +94,7 @@ public class BackendNotificationService {
                                       DomibusPropertyProvider domibusPropertyProvider, EventService eventService,
                                       UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
                                       BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
-                                      BackendConnectorService backendConnectorService, ObjectMapper objectMapper) {
+                                      BackendConnectorService backendConnectorService, @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.jmsManager = jmsManager;
         this.routingService = routingService;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
@@ -230,15 +229,6 @@ public class BackendNotificationService {
                     getMessageDeletedEventsForBackend(backend, userMessageLogsToNotify);
             createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
-    }
-    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
-        List<MessageDeletedEvent> messageIds = userMessageLogs
-                .stream()
-                .filter(userMessageLog -> StringUtils.equals(userMessageLog.getBackend(), backend))
-                .map(this::getMessageDeletedEvent)
-                .collect(toList());
-        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
-        return messageIds;
     }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -438,7 +428,9 @@ public class BackendNotificationService {
         messageDeletedEvent.setMessageEntityId(userMessageLogDto.getEntityId());
         messageDeletedEvent.addProperty(FINAL_RECIPIENT, userMessageLogDto.getProperties().get(FINAL_RECIPIENT));
         messageDeletedEvent.addProperty(ORIGINAL_SENDER, userMessageLogDto.getProperties().get(ORIGINAL_SENDER));
-        messageDeletedEvent.addProperty(MSH_ROLE, userMessageLogDto.getProperties().get(MSH_ROLE));
+        if(userMessageLogDto.getMshRole() != null) {
+            messageDeletedEvent.addProperty(MSH_ROLE, userMessageLogDto.getMshRole().name());
+        }
         return messageDeletedEvent;
     }
 
@@ -478,6 +470,10 @@ public class BackendNotificationService {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         target.putAll(props);
 
+        final long messageEntityId = userMessage.getEntityId();
+        if (messageEntityId > 0) {
+            target.put(MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
+        }
         target.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
         target.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         target.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());

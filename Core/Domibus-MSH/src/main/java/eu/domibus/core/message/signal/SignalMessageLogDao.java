@@ -1,10 +1,11 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
-import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Federico Martini
@@ -29,15 +28,20 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
     private final SignalMessageLogInfoFilter signalMessageLogInfoFilter;
 
-    public SignalMessageLogDao(SignalMessageLogInfoFilter signalMessageLogInfoFilter) {
+    private final MshRoleDao mshRoleDao;
+
+    public SignalMessageLogDao(SignalMessageLogInfoFilter signalMessageLogInfoFilter, MshRoleDao mshRoleDao) {
         super(SignalMessageLog.class);
         this.signalMessageLogInfoFilter = signalMessageLogInfoFilter;
+        this.mshRoleDao = mshRoleDao;
     }
 
     public SignalMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<SignalMessageLog> query = em.createNamedQuery("SignalMessageLog.findByMessageIdAndRole", SignalMessageLog.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByRole(mshRole);
+        query.setParameter("MSH_ROLE", roleEntity);
 
         try {
             return query.getSingleResult();

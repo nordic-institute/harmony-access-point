@@ -34,6 +34,7 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
     @Column(name = "MESSAGE_ID")
     private String messageId;
 
+    private transient Long messageStatusId;
     private transient MessageStatus messageStatus;
 
     public EArchiveBatchUserMessage() {
@@ -48,6 +49,12 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
         this.userMessageEntityId = userMessageEntityId;
         this.messageId = messageId;
         this.messageStatus = messageStatus;
+    }
+
+    public EArchiveBatchUserMessage(Long userMessageEntityId, String messageId, Long messageStatusId) {
+        this.userMessageEntityId = userMessageEntityId;
+        this.messageId = messageId;
+        this.messageStatusId = messageStatusId;
     }
 
     public long getEntityId() {
@@ -84,6 +91,14 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     public MessageStatus getMessageStatus() {
         return messageStatus;
+    }
+
+    public void setMessageStatus(MessageStatus messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public Long getMessageStatusId() {
+        return messageStatusId;
     }
 
     @Override

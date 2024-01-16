@@ -16,6 +16,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,9 +58,18 @@ public class TruststoreResourceIT extends AbstractIT {
     @Autowired
     CertificateHelper certificateHelper;
 
+    public void clean() {
+        resetInitialTruststore();
+    }
+
     @Before
     public void before() {
-        resetInitialTruststore();
+        clean();
+    }
+
+    @After
+    public void after() {
+        clean();
     }
 
     @Test

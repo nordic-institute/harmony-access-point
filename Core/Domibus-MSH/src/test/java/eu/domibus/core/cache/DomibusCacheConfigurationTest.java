@@ -107,6 +107,7 @@ public class DomibusCacheConfigurationTest {
                                                   @Mocked Resource pluginFile,
                                                   @Mocked CachingProvider cachingProvider) {
         final String pluginsConfigLocation = "/data/tomcat/domibus/conf/plugins/config";
+        final String extensionsConfigLocation = "/data/tomcat/domibus/conf/extensions/config";
 
         new Expectations(domibusCacheConfiguration) {{
             domibusCacheConfiguration.readPluginEhcacheFiles(anyString);
@@ -123,16 +124,16 @@ public class DomibusCacheConfigurationTest {
 
         }};
 
-        domibusCacheConfiguration.addPluginsCacheConfiguration(cachingProvider, cacheManager, pluginsConfigLocation);
+        domibusCacheConfiguration.addPluginsCacheConfiguration(cachingProvider, cacheManager, pluginsConfigLocation, extensionsConfigLocation);
 
         new FullVerifications(domibusCacheConfiguration) {{
             List<Resource> resourceParams = new ArrayList<>();
-            domibusCacheConfiguration.readPluginCacheConfig(cachingProvider, cacheManagerPlugins, withCapture(resourceParams));
-            Assert.assertTrue(resourceParams.size() == 2);
+            domibusCacheConfiguration.applyPluginCacheConfig(cachingProvider, cacheManagerPlugins, withCapture(resourceParams));
+            Assert.assertEquals(4, resourceParams.size());
 
             List<String> cacheNamesActual =  new ArrayList<>();
             cacheManager.createCache(withCapture(cacheNamesActual), (Configuration)any);
-            Assert.assertTrue(cacheNamesActual.size() == 3);
+            Assert.assertEquals(3, cacheNamesActual.size());
         }};
     }
 

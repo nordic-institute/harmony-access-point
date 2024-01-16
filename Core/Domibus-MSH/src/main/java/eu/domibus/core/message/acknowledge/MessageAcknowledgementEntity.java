@@ -17,7 +17,8 @@ import java.sql.Timestamp;
 @Table(name = "TB_MESSAGE_ACKNW")
 @NamedQueries({
         @NamedQuery(name = "MessageAcknowledgement.findMessageAcknowledgementByMessageIdAndRole",
-                query = "select messageAcknowledge from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId = :MESSAGE_ID and messageAcknowledge.userMessage.mshRole.role=:MSH_ROLE"),
+                query = "select messageAcknowledge from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId = :MESSAGE_ID " +
+                        "and messageAcknowledge.userMessage.mshRole=:MSH_ROLE"),
         @NamedQuery(name = "MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds",
                 query = "delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.entityId IN :IDS")
 

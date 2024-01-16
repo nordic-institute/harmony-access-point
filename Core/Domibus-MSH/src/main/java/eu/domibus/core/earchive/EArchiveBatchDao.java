@@ -3,8 +3,11 @@ package eu.domibus.core.earchive;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.util.QueryUtil;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -28,9 +32,12 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
     private final QueryUtil queryUtil;
 
-    public EArchiveBatchDao(QueryUtil queryUtil) {
+    private final MessageStatusDao messageStatusDao;
+
+    public EArchiveBatchDao(QueryUtil queryUtil, MessageStatusDao messageStatusDao) {
         super(EArchiveBatchEntity.class);
         this.queryUtil = queryUtil;
+        this.messageStatusDao = messageStatusDao;
     }
 
     public EArchiveBatchEntity findEArchiveBatchByBatchEntityId(long entityId) {
@@ -108,16 +115,26 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates()));
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
-        return query.getResultList();
+        List<EArchiveBatchUserMessage> res =  query.getResultList();
+        res.forEach(eArchiveBatchUserMessage -> {
+            MessageStatusEntity entity = messageStatusDao.read(eArchiveBatchUserMessage.getMessageStatusId());
+            if (entity != null) {
+                eArchiveBatchUserMessage.setMessageStatus(entity.getMessageStatus());
+            }
+        });
+        return res;
     }
 
     public Long getNotArchivedMessageCountForPeriod(Long startMessageId, Long endMessageId) {
         TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+
+        List<MessageStatusEntity> statuses = messageStatusDao.getEntitiesOf(MessageStatus.getSuccessfulStates());
+        query.setParameter("STATUS_IDS", statuses);
+
         return query.getSingleResult();
     }
 

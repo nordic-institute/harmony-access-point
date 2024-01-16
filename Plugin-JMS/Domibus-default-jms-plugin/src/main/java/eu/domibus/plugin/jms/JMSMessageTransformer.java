@@ -176,10 +176,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final JMSPluginAttachmentReferenceType attachmentReferenceType = getAttachmentReferenceType();
         LOG.debug("The attachment reference type is [{}]", attachmentReferenceType);
 
-        if (JMSPluginAttachmentReferenceType.FILE == attachmentReferenceType) {
-            setPayloadInJMSMessageUsingFileReference(messageOut, counter, p);
-            return;
-        }
+        setPayloadFileName(messageOut, counter, p);
+
         if (JMSPluginAttachmentReferenceType.URL == attachmentReferenceType) {
             setPayloadInJMSMessageUsingURLReference(messageOut, counter, userMessageEntityId, p);
             return;
@@ -217,9 +215,12 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         return cid;
     }
 
-    private void setPayloadInJMSMessageUsingFileReference(MapMessage messageOut, int counter, Submission.Payload p) throws JMSException {
+    private void setPayloadFileName(MapMessage messageOut, int counter, Submission.Payload p) throws JMSException {
         final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, counter);
-        messageOut.setStringProperty(payFileNameProp, findFilename(p.getPayloadProperties()));
+        final String filename = findFilename(p.getPayloadProperties());
+        if (StringUtils.isNotBlank(filename)) {
+            messageOut.setStringProperty(payFileNameProp, filename);
+        }
     }
 
     private String findElement(String element, Collection<Submission.TypedProperty> props) {

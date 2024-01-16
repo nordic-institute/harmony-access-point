@@ -32,6 +32,7 @@ import java.util.stream.StreamSupport;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_LOCATION;
 import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.EXTENSIONS_CONFIG_HOME;
 
 
 /**
@@ -53,6 +54,9 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/" + PLUGINS_CONFIG_HOME)
     protected String pluginsConfigLocation;
 
+    @Value("${domibus.config.location}/" + EXTENSIONS_CONFIG_HOME)
+    protected String extensionsConfigLocation;
+
     @Value("${" + DOMIBUS_CACHE_LOCATION + "}")
     private String cacheLocation;
 
@@ -63,25 +67,25 @@ public class DomibusCacheConfiguration {
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         System.setProperty(DOMIBUS_CACHE_LOCATION, cacheLocation);
         EhcacheCachingProvider provider = new EhcacheCachingProvider(); //NOSONAR : if this would be closed here (with try-with-resources or in a finally block), it would crash with IllegalStateException everywhere it'll be used further
-            ClassLoader classLoader = getClass().getClassLoader();
-            DomibusCacheRegionFactory.setBeanClassLoader(classLoader); // this is needed when using Ehcache caching provider for second level cache
+        ClassLoader classLoader = getClass().getClassLoader();
+        DomibusCacheRegionFactory.setBeanClassLoader(classLoader); // this is needed when using Ehcache caching provider for second level cache
 
-            //default cache
-            final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
+        //default cache
+        final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
 
-            CacheManager cacheManager = provider.getCacheManager(
-                    classPathResource.getURL().toURI(),
-                    classLoader);
+        CacheManager cacheManager = provider.getCacheManager(
+                classPathResource.getURL().toURI(),
+                classLoader);
 
-            //external cache file
-            if (externalCacheFileExists()) {
-                mergeExternalCacheConfiguration(provider, cacheManager);
-            }
+        //external cache file
+        if (externalCacheFileExists()) {
+            mergeExternalCacheConfiguration(provider, cacheManager);
+        }
 
-            //plugins
-            addPluginsCacheConfiguration(provider, cacheManager, pluginsConfigLocation);
+        //plugins
+        addPluginsCacheConfiguration(provider, cacheManager, pluginsConfigLocation, extensionsConfigLocation);
 
-            return new JCacheCacheManager(cacheManager);
+        return new JCacheCacheManager(cacheManager);
     }
 
     protected boolean externalCacheFileExists() {
@@ -103,6 +107,7 @@ public class DomibusCacheConfiguration {
                 getClass().getClassLoader());
 
         overridesDefaultCache(cacheManager, cacheManagerExternal);
+        cacheManagerExternal.close();
     }
 
     /**
@@ -111,9 +116,16 @@ public class DomibusCacheConfiguration {
      * @param cacheManager Domibus core cache Manager
      * @param pluginsConfigLocation plugins config location
      */
-    protected void addPluginsCacheConfiguration(CachingProvider cachingProvider, CacheManager cacheManager, final String pluginsConfigLocation) {
-        List<Resource> pluginDefaultEhcacheList = readPluginEhcacheFiles("classpath*:config/ehcache/*-plugin-default-ehcache.xml");
-        List<Resource> pluginEhcacheList = readPluginEhcacheFiles("file:///" + pluginsConfigLocation + "/*-plugin-ehcache.xml");
+    protected void addPluginsCacheConfiguration(CachingProvider cachingProvider, CacheManager cacheManager,
+                                                final String pluginsConfigLocation, final String extensionsConfigLocation) {
+        List<Resource> pluginDefaultEhcacheList = new ArrayList<>();
+        pluginDefaultEhcacheList.addAll(readPluginEhcacheFiles("classpath*:config/ehcache/*-plugin-default-ehcache.xml"));
+        pluginDefaultEhcacheList.addAll(readPluginEhcacheFiles("classpath*:config/ehcache/*-extension-default-ehcache.xml"));
+
+        List<Resource> pluginEhcacheList = new ArrayList<>();
+        pluginEhcacheList.addAll(readPluginEhcacheFiles("file:///" + pluginsConfigLocation + "/*-plugin-ehcache.xml"));
+        pluginEhcacheList.addAll(readPluginEhcacheFiles("file:///" + extensionsConfigLocation + "/*-extension-ehcache.xml"));
+
         if (CollectionUtils.isEmpty(pluginDefaultEhcacheList) && CollectionUtils.isEmpty(pluginEhcacheList)) {
             LOG.debug("no ehcache config files found for plugins");
             return;
@@ -123,10 +135,10 @@ public class DomibusCacheConfiguration {
         CacheManager cacheManagerPlugins = cachingProvider.getCacheManager();
 
         //default ehcache files
-        pluginDefaultEhcacheList.forEach(resource -> readPluginCacheConfig(cachingProvider, cacheManagerPlugins, resource));
+        pluginDefaultEhcacheList.forEach(resource -> applyPluginCacheConfig(cachingProvider, cacheManagerPlugins, resource));
 
         //ehcache files
-        pluginEhcacheList.forEach(resource -> readPluginCacheConfig(cachingProvider, cacheManagerPlugins, resource));
+        pluginEhcacheList.forEach(resource -> applyPluginCacheConfig(cachingProvider, cacheManagerPlugins, resource));
 
         //add to Domibus cache
         List<String> cacheNames =
@@ -167,12 +179,12 @@ public class DomibusCacheConfiguration {
     }
 
     /**
-     * Reads the plugin caches defined in either *plugin-default-ehcache.xml either *plugin-ehcache.xml file
+     * Applies the plugin caches defined in either *plugin-default-ehcache.xml either *plugin-ehcache.xml file
      *
      * @param cacheManager Domibus core cacheManager
      * @param resource     new Resource file
      */
-    protected void readPluginCacheConfig(CachingProvider cachingProvider , @NotNull CacheManager cacheManager, @NotNull Resource resource) {
+    protected void applyPluginCacheConfig(CachingProvider cachingProvider , @NotNull CacheManager cacheManager, @NotNull Resource resource) {
         final String configurationFileName = resource.getFilename();
         if (configurationFileName == null) {
             LOG.info("unable to add plugin ehcache config from [{}]", resource);
@@ -184,6 +196,7 @@ public class DomibusCacheConfiguration {
                     resource.getURL().toURI(),
                     getClass().getClassLoader());
             overridesDefaultCache(cacheManager, pluginCacheManager);
+            pluginCacheManager.close();
         } catch (IOException | URISyntaxException e) {
             LOG.error("Error while loading cache from [{}]", configurationFileName, e);
         }
@@ -196,19 +209,19 @@ public class DomibusCacheConfiguration {
      * @param cacheManager
      */
     protected void overridesDefaultCache(@NotNull CacheManager defaultCacheManager, @NotNull CacheManager cacheManager) {
-
         for (String cacheName : cacheManager.getCacheNames()) {
             if (cacheExists(defaultCacheManager, cacheName)) {
-                LOG.debug("Overriding the default cache [{}]", cacheName);
+                LOG.debug("Overriding cache [{}] in default cache manager", cacheName);
                 defaultCacheManager.destroyCache(cacheName);
             }
 
             Cache cache = cacheManager.getCache(cacheName);
             javax.cache.configuration.Configuration config = cache.getConfiguration(javax.cache.configuration.Configuration.class);
             defaultCacheManager.createCache(cacheName, config);
-            LOG.debug("Adding [{}] into the default cache", cacheName);
+            LOG.debug("Added [{}] into the default cache manager", cacheName);
         }
     }
+
 
     protected boolean cacheExists(CacheManager cacheManager, String cacheName) {
         List<String> cacheNames =

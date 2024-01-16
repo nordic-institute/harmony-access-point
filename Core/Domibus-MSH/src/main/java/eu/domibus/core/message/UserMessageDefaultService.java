@@ -244,8 +244,9 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
-        if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
+        if (!EnumSet.of(MessageStatus.SEND_ENQUEUED, MessageStatus.WAITING_FOR_RETRY).contains(userMessageLog.getMessageStatus())) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not ["
+                    + MessageStatus.SEND_ENQUEUED + "] nor [" + MessageStatus.WAITING_FOR_RETRY + "]");
         }
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);

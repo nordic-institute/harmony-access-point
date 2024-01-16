@@ -43,6 +43,9 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "development": {
+              "optimization": false
             }
           }
         },

@@ -2,6 +2,8 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.model.PartyId;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -17,6 +19,8 @@ import java.util.List;
  */
 @Repository
 public class PartyIdDao extends BasicDao<PartyId> {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyIdDao.class);
 
     public PartyIdDao() {
         super(PartyId.class);
@@ -59,5 +63,14 @@ public class PartyIdDao extends BasicDao<PartyId> {
         final TypedQuery<PartyId> query = this.em.createNamedQuery("PartyId.searchByValue", PartyId.class);
         query.setParameter("VALUE", value);
         return query.getResultList();
+    }
+
+    public PartyId findFirstByValue(final String value) {
+        List<PartyId> res = searchByValue(value);
+        if (res.size() == 0) {
+            LOG.debug("No Party Id found with value [{}]", value);
+            return null;
+        }
+        return res.get(0);
     }
 }

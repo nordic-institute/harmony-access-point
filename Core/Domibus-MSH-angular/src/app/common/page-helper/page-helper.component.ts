@@ -40,6 +40,7 @@ export class PageHelperComponent implements OnInit {
   }
 
   private async setHelpPages() {
+    console.log('call getDomibusInfo')
     const domibusInfo = await this.domibusInfoService.getDomibusInfo();
     const MAIN_HELP_PAGE = 'https://edelivery.digital/';
 

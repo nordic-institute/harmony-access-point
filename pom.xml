@@ -11,16 +11,12 @@
     <name>Harmony MSH</name>
     <modules>
         <module>Core</module>
-        <module>Core/Domibus-MSH-customizations</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
         <cxf.version>3.5.7</cxf.version>
         <wss4j-ws-security.version>2.4.3</wss4j-ws-security.version>
-        <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
-        gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
-        and keeps the customizations needed by Domibus -->
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.31</spring.version>
@@ -36,6 +32,7 @@
         <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
         <logback.version>1.2.13</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
+        <httpclient5.version>5.2.1</httpclient5.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <commons-io.version>2.14.0</commons-io.version>
@@ -57,7 +54,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <tika.version>2.7.0</tika.version>
         <peppol.version>2.4.0</peppol.version>
-        <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
+        <dynamic.discovery.client.version>2.1</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <jaxws-rt.version>2.3.6</jaxws-rt.version>
@@ -75,8 +72,7 @@
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.82</tomcat-embed.version>
+        <tomcat-embed.version>9.0.83</tomcat-embed.version>
         <json-smart.version>2.4.11</json-smart.version>
         <xbean-spring.version>4.23</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
 
@@ -171,12 +167,11 @@
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
-        <enforcer-api.version>3.3.0</enforcer-api.version>
         <maven-core.version>3.1.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
-
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
     </properties>
 
     <!-- Where are we looking for JARs -->
@@ -229,14 +224,6 @@
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
             </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>cefdigital-dss</id>
-            <name>CEF Digital</name>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/esignaturedss/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -357,6 +344,11 @@
             </dependency>
             <!-- End SLF4J + Logback -->
 
+
+            <!-- remove httpclient4 library when the following support httpclient5
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(client);
+            RestTemplate restTemplate = new RestTemplate(requestFactory);
+             -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -366,7 +358,7 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
-                    <!-- Removed as in DSS -->
+                    <!-- Removed -->
                     <!-- Synchronize with santuario version (1/2) -->
                     <exclusion>
                         <groupId>commons-codec</groupId>
@@ -374,6 +366,25 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <!-- Removed -->
+                    <!-- Synchronize with santuario version (1/2) -->
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
@@ -887,30 +898,6 @@
             </dependency>
             <!-- end of JAXB -->
 
-            <!-- Difi libraries -->
-            <dependency>
-                <groupId>network.oxalis.vefa</groupId>
-                <artifactId>peppol-lookup</artifactId>
-                <version>${peppol.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>network.oxalis.vefa</groupId>
-                <artifactId>peppol-security</artifactId>
-                <version>${peppol.version}</version>
-                <exclusions>
-                    <!-- we are excluding these in order to pickup bcprov-jdk18on and bcpkix-jdk18on
-                    latest version instead -->
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- End Difi libraries -->
 
             <!-- eDelivery SMP profile  -->
             <dependency>
@@ -1068,74 +1055,6 @@
             </dependency>
             <!-- End commons-ip2 -->
 
-            <!-- DSS dependencies -->
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-document</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-tsl-validation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-utils-apache-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-policy-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-model</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>validation-policy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-xades</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-simple-report-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-detailed-report-jaxb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-enumerations</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>dss-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <!--UUMDS extension -->
-
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
@@ -1157,7 +1076,7 @@
             <dependency>
                 <groupId>org.apache.maven.enforcer</groupId>
                 <artifactId>enforcer-api</artifactId>
-                <version>${enforcer-api.version}</version>
+                <version>${maven-enforcer-plugin.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -1359,7 +1278,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <version>${maven-enforcer-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1619,17 +1538,6 @@
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS</module>
                 <module>Plugin-FS</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>dss-extension</id>
-            <activation>
-                <property>
-                    <name>default</name>
-                </property>
-            </activation>
-            <modules>
-                <module>Domibus-DSS</module>
             </modules>
         </profile>
         <profile>
