@@ -306,7 +306,16 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                 return String.valueOf(domibusPropertyProvider.getLongProperty(propertyName));
             }
             if (propertyType.isNumeric()) {
-                return String.valueOf(domibusPropertyProvider.getDecimalProperty(propertyName));
+                double value = domibusPropertyProvider.getDecimalProperty(propertyName);
+                // NEDS-174: Most "numeric" properties should probably be integers.
+                // As a workaround and for backwards compatibility, report the used value as integer
+                // unless the value really is decimal or not exactly representable as integer
+                if ( !Double.isNaN(value) && !Double.isInfinite(value)
+                        && Math.rint(value) == value && Math.abs(value) < (double)(1L << 53)) {
+                    return String.valueOf((long)value);
+                } else {
+                    return String.valueOf(value);
+                }
             }
             if (propertyType.isBoolean()) {
                 return String.valueOf(domibusPropertyProvider.getBooleanProperty(propertyName));
