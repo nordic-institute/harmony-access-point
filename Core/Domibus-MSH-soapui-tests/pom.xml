@@ -15,7 +15,8 @@
     <name>Harmony MSH SoapUI</name>
 
     <properties>
-        <!-- the soap ui specific dependencies -->
+        <!-- The SoapUI specific dependencies
+             Note. 5.5.0 is the last one that supports JDK 8 -->
         <com.smartbear.soapui.version>5.5.0</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.4.4</org.codehaus.groovy.version>
         <org.codehaus.groovy.backports.compat.version>2.4.4</org.codehaus.groovy.backports.compat.version>
@@ -37,8 +38,7 @@
     </properties>
 
     <dependencies>
-        <!-- for development purposes only. The soapui
-        has its own groovy library -->
+        <!-- for development purposes only. The soapui has its own groovy library -->
         <dependency>
             <groupId>com.smartbear.soapui</groupId>
             <artifactId>soapui</artifactId>
