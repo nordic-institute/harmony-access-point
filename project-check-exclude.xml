@@ -673,5 +673,12 @@
         <!-- params are received only from the admin user, no unchecked params are passed in-->
         <cve>CVE-2023-39017</cve>
     </suppress>
-
+    <suppress>
+      <notes><![CDATA[
+        file name: groovy-backports-compat23-2.4.4.jar
+        Only used in soapui-tests
+        ]]></notes>
+      <packageUrl regex="true">^pkg:maven/org\.codehaus\.groovy/groovy\-backports\-compat23@.*$</packageUrl>
+      <cve>CVE-2016-6814</cve>
+    </suppress>
 </suppressions>
