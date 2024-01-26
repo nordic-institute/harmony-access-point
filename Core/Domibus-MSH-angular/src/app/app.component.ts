@@ -141,6 +141,6 @@ export class AppComponent implements OnInit {
 
   async showVersionInfo($event: MouseEvent) {
     const domibusInfo: DomibusInfo = await this.domibusInfoService.getDomibusInfo();
-    this.dialogsService.openOkDialog('Domibus Version Info', domibusInfo.version);
+    this.dialogsService.openOkDialog('Harmony Access Point Version Info', domibusInfo.version);
   }
 }
