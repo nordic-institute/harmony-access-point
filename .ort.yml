@@ -1,0 +1,79 @@
+---
+excludes:
+  paths:
+  - pattern: "Plugin-FS/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."
+
+  - pattern: "Plugin-JMS/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."
+
+  - pattern: "Weblogic/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."
+
+  - pattern: "Wildfly/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."
+
+  - pattern: "Core/Domibus-MSH-swagger/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."
+
+  - pattern: "Core/Domibus-MSH-distribution/**"
+    reason: "OPTIONAL_COMPONENT_OF"
+    comment: "Not included in distributed build artifacts."    
+
+  - pattern: "Domibus-DSS/domibus-dss-test/**"
+    reason: "TEST_OF"
+    comment: "This directory contains tests."
+
+  - pattern: "Core/Domibus-MSH-selenium-ui-tests/**"
+    reason: "TEST_OF"
+    comment: "This directory contains tests."
+
+  - pattern: "Core/Domibus-MSH-soapui-tests/**"
+    reason: "TEST_OF"
+    comment: "This directory contains tests."
+
+  - pattern: "Core/Domibus-MSH-test/**"
+    reason: "TEST_OF"
+    comment: "This directory contains tests."
+
+  - pattern: "Plugin-WS/Domibus-default-ws-plugin-backend-ws-test/**"
+    reason: "TEST_OF"
+    comment: "This directory contains tests."
+
+  scopes:
+  - pattern: "checkstyle"
+    reason: "BUILD_DEPENDENCY_OF"
+    comment: "Packages for code styling checks (testing) only."
+
+  - pattern: "devDependencies"
+    reason: "DEV_DEPENDENCY_OF"
+    comment: "Packages for development only."
+
+  - pattern: "jacocoAgent"
+    reason: "TEST_DEPENDENCY_OF"
+    comment: "Packages for code coverage (testing) only."
+
+  - pattern: "jacocoAnt"
+    reason: "TEST_DEPENDENCY_OF"
+    comment: "Packages for code coverage (testing) only."
+
+  - pattern: "test.*"
+    reason: "TEST_DEPENDENCY_OF"
+    comment: "Packages for testing only."
+
+  - pattern: "annotationProcessor"
+    reason: "DEV_DEPENDENCY_OF"
+    comment: "Packages for development only."
+
+  - pattern: "compileClasspath"
+    reason: "DEV_DEPENDENCY_OF"
+    comment: "Packages for development only."
+
+  - pattern: "compileOnly"
+    reason: "DEV_DEPENDENCY_OF"
+    comment: "Packages for development only."
