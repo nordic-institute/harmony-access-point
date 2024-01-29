@@ -1,0 +1,20 @@
+<div style="width: 500px;text-align: center">
+  <h1 mat-dialog-title>{{data.title}}</h1>
+
+  <div class="divTable">
+    <div class="divTableBody">
+
+      <h4>{{data.message}}</h4>
+
+      <div class="divTableRow">
+        <div class="divTableCell">
+          <button mat-raised-button color="primary" (click)="dialogRef.close(true)" id="okbuttondialog_id">
+            <mat-icon>{{data.okIcon}}</mat-icon>
+            <span>{{data.okText}}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

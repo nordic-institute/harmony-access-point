@@ -3,12 +3,12 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 import eu.domibus.core.ssl.offload.SslOffloadService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.conn.DefaultRoutePlanner;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.HttpRoute;
+import org.apache.hc.client5.http.impl.routing.DefaultRoutePlanner;
+import org.apache.hc.client5.http.routing.HttpRoutePlanner;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -20,24 +20,25 @@ import java.net.URL;
  * @since 5.0
  */
 @Service
-public class DomibusHttpRoutePlanner extends DefaultRoutePlanner {
+public class DomibusHttpRoutePlanner implements HttpRoutePlanner {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpRoutePlanner.class);
 
     private final SslOffloadService sslOffloadService;
+    private DefaultRoutePlanner routePlanner;
 
     public DomibusHttpRoutePlanner(SslOffloadService sslOffloadService) {
-        super(null);
         this.sslOffloadService = sslOffloadService;
+        routePlanner = new DefaultRoutePlanner(null);
     }
 
     @Override
-    public HttpRoute determineRoute(HttpHost host, HttpRequest request, HttpContext context) throws HttpException {
-        HttpRoute route = super.determineRoute(host, request, context);
+    public HttpRoute determineRoute(HttpHost host, HttpContext context) throws HttpException {
+        HttpRoute route = routePlanner.determineRoute(host, context);
 
         URL url = getUrl(host);
 
-        if(sslOffloadService.isSslOffloadEnabled(url)) {
+        if (sslOffloadService.isSslOffloadEnabled(url)) {
             LOG.info("Switch [{}] to an HTTP connection for SSL offloading", host);
             route = route.getProxyHost() == null
                     ? new HttpRoute(route.getTargetHost(), route.getLocalAddress(), false)

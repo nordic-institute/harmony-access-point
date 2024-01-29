@@ -11,6 +11,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.PartyIdDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -25,6 +26,7 @@ import eu.domibus.web.rest.ro.TestMessageErrorRo;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -70,6 +72,9 @@ public class TestService {
     private final UserMessageService userMessageService;
 
     private final ConnectionMonitoringHelper connectionMonitoringHelper;
+
+    @Autowired
+    private PartyIdDao partyIdDao;
 
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
                        SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
@@ -158,7 +163,17 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderPartyId, partyId);
+        PartyId senderParty = partyIdDao.findFirstByValue(senderPartyId);
+        if (senderParty == null) {
+            LOG.debug("No Party found with id value [{}]", senderPartyId);
+            return null;
+        }
+        PartyId party = partyIdDao.findFirstByValue(partyId);
+        if (party == null) {
+            LOG.debug("No Party found with id value [{}]", partyId);
+            return null;
+        }
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromPartyToParty(senderParty, party);
         if (userMessage == null) {
             LOG.debug("Could not find last test user message sent for party [{}]", partyId);
             return null;
@@ -210,7 +225,17 @@ public class TestService {
                 return null;
             }
         } else {
-            signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, partyId);
+            PartyId senderParty = partyIdDao.findFirstByValue(senderPartyId);
+            if (senderParty == null) {
+                LOG.debug("No Party found with id value [{}]", senderPartyId);
+                return null;
+            }
+            PartyId party = partyIdDao.findFirstByValue(partyId);
+            if (party == null) {
+                LOG.debug("No Party found with id value [{}]", partyId);
+                return null;
+            }
+            signalMessage = signalMessageDao.findLastTestMessage(senderParty, party);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;

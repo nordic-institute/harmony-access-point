@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @Table(name = "TB_SEND_ATTEMPT")
 @NamedQueries({
         @NamedQuery(name = "MessageAttemptEntity.findAttemptsByMessageIdAndRole",
-                query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID and attempt.userMessage.mshRole.role=:MSH_ROLE"),
+                query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID and attempt.userMessage.mshRole = :MSH_ROLE"),
         @NamedQuery(name = "MessageAttemptEntity.deleteAttemptsByMessageIds",
                 query = "delete from MessageAttemptEntity attempt where attempt.userMessage.entityId IN :IDS"),
 })

@@ -177,7 +177,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
+    return this.storeExists && !this.isBusy();
   }
 
   canRemoveCertificate() {
@@ -240,13 +240,17 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   protected async checkModifiedOnDisk() {
-    const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
-    if (isChanged) {
-      const refresh = await this.dialogsService.openYesNoDialog('The store file on the disk has different content than the one loaded and used in Domibus. ' +
-        'Would you like to refresh?');
-      if (refresh) {
-        this.reloadStore();
+    try {
+      const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
+      if (isChanged) {
+        const refresh = await this.dialogsService.openYesNoDialog('The store file on the disk has different content than the one loaded and used in Harmony AP. ' +
+          'Would you like to refresh?');
+        if (refresh) {
+          this.reloadStore();
+        }
       }
+    } catch (ex) {
+      this.alertService.exception('Error checking if the store has changed on disk:', ex);
     }
   }
 

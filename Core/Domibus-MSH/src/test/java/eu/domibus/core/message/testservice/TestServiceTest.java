@@ -12,6 +12,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
+import eu.domibus.core.message.dictionary.PartyIdDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.monitoring.ConnectionMonitoringHelper;
@@ -77,6 +78,9 @@ public class TestServiceTest {
 
     @Injectable
     ConnectionMonitoringHelper connectionMonitoringHelper;
+
+    @Injectable
+    private PartyIdDao partyIdDao;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

@@ -3,14 +3,14 @@ package eu.domibus.core.message;
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.message.dictionary.ActionDictionaryService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.PartyIdDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -20,7 +20,6 @@ import javax.persistence.ParameterMode;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -34,15 +33,21 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 
     private static final String GROUP_ID = "GROUP_ID";
-    public static final String PARTY_ID = "PARTY_ID";
-    public static final String SENDER_PARTY_ID = "SENDER_PARTY_ID";
-    public static final String ACTION_ID = "ACTION_ID";
 
-    @Autowired
-    private ActionDictionaryService actionDictionaryService;
+    public static final String MSH_ROLE = "MSH_ROLE";
+    public static final String PARTY = "PARTY";
 
-    public UserMessageDao() {
+    private final MessageStatusDao messageStatusDao;
+
+    private final MshRoleDao mshRoleDao;
+
+    private final PartyIdDao partyIdDao;
+
+    public UserMessageDao(MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao, PartyIdDao partyIdDao) {
         super(UserMessage.class);
+        this.messageStatusDao = messageStatusDao;
+        this.mshRoleDao = mshRoleDao;
+        this.partyIdDao = partyIdDao;
     }
 
     @Transactional(readOnly = true)
@@ -82,7 +87,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageIdAndRole", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRoleDao.findByValue(mshRole));
         final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
         if (userMessage != null) {
             initializeChildren(userMessage);
@@ -178,62 +183,68 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
 
-    public UserMessage findLastTestMessageFromPartyToParty(String senderPartyId, String partyId) {
+    public UserMessage findLastTestMessageFromPartyToParty(PartyId fromParty, PartyId toParty) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyToPartyDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter(SENDER_PARTY_ID, senderPartyId);
-        query.setParameter("MSH_ROLE", MSHRole.SENDING);
+
+        query.setParameter("SENDER_PARTY", fromParty);
+        query.setParameter(PARTY, toParty);
+        query.setParameter(MSH_ROLE, mshRoleDao.findByValue(MSHRole.SENDING));
+
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<UserMessage> findTestMessagesToParty(String partyId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter("MSH_ROLE", MSHRole.SENDING);
+
+        List<PartyId> partyEntities = partyIdDao.searchByValue(partyId);
+        query.setParameter(PARTY, partyEntities);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.SENDING);
+        query.setParameter(MSH_ROLE, roleEntity);
+
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageToPartyWithStatus(String partyId, MessageStatus messageStatus) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter("MSH_ROLE", MSHRole.SENDING);
-        query.setParameter("STATUS", messageStatus);
+
+        List<PartyId> partyEntities = partyIdDao.searchByValue(partyId);
+        query.setParameter(PARTY, partyEntities);
+
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.SENDING);
+        query.setParameter(MSH_ROLE, roleEntity);
+
+        MessageStatusEntity statusEntity = messageStatusDao.findByValue(messageStatus);
+        query.setParameter("STATUS", statusEntity);
+
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<UserMessage> findTestMessagesFromParty(String partyId) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
+        final TypedQuery<UserMessage> query = createTestMessagesFromPartyQuery(partyId);
+
         return query.getResultList();
     }
 
     public UserMessage findLastTestMessageFromParty(String partyId) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
-        query.setParameter(PARTY_ID, partyId);
-        query.setParameter("MSH_ROLE", MSHRole.RECEIVING);
+        final TypedQuery<UserMessage> query = createTestMessagesFromPartyQuery(partyId);
+
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public Boolean checkPartitionExists(String partitionName) {
-        Query q = em.createNamedQuery("UserMessage.verifyPartitionExistsByName");
-        q.setParameter("PNAME", partitionName);
-        LOG.debug("Find partition [{}]", partitionName);
+    private TypedQuery<UserMessage> createTestMessagesFromPartyQuery(String partyId) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
 
-        try {
-            Integer result = ((BigDecimal) DataAccessUtils.singleResult(q.getResultList())).intValue();
-            if (result > 0) {
-                LOG.debug("Partition exists [{}]", partitionName);
-                return true;
-            }
-        } catch (Exception exp) {
-            LOG.warn("Could not verify partition exists [{}]", partitionName, exp);
-        }
+        List<PartyId> partyEntities = partyIdDao.searchByValue(partyId);
+        query.setParameter(PARTY, partyEntities);
 
-        return false;
+        MSHRoleEntity roleEntity = mshRoleDao.findByValue(MSHRole.RECEIVING);
+        query.setParameter(MSH_ROLE, roleEntity);
+
+        return query;
     }
 
 }

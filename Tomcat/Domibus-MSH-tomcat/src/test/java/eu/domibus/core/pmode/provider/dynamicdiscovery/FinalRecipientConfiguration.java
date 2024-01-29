@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 
-import network.oxalis.vefa.peppol.common.model.ServiceMetadata;
+import eu.europa.ec.dynamicdiscovery.model.SMPServiceMetadata;
 
 import java.security.cert.X509Certificate;
 
@@ -11,11 +11,11 @@ import java.security.cert.X509Certificate;
  */
 public class FinalRecipientConfiguration {
         protected X509Certificate certificate;
-        protected ServiceMetadata serviceMetadata;
+        protected SMPServiceMetadata serviceMetadata;
 
         protected String partyName;
 
-        public FinalRecipientConfiguration(X509Certificate certificate, ServiceMetadata serviceMetadata, String partyName) {
+        public FinalRecipientConfiguration(X509Certificate certificate, SMPServiceMetadata serviceMetadata, String partyName) {
             this.certificate = certificate;
             this.serviceMetadata = serviceMetadata;
             this.partyName = partyName;
@@ -29,11 +29,11 @@ public class FinalRecipientConfiguration {
             this.certificate = certificate;
         }
 
-        public ServiceMetadata getServiceMetadata() {
+        public SMPServiceMetadata getServiceMetadata() {
             return serviceMetadata;
         }
 
-        public void setServiceMetadata(ServiceMetadata serviceMetadata) {
+        public void setServiceMetadata(SMPServiceMetadata serviceMetadata) {
             this.serviceMetadata = serviceMetadata;
         }
 

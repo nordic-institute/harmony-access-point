@@ -67,7 +67,7 @@
       <span [class.wrong-value]="row.value != null && row.originalValue != row.usedValue">{{row.value}}</span>
 
       <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
-        <mat-icon matTooltip="This is the value actually used in Domibus."
+        <mat-icon matTooltip="This is the value actually used in Harmony AP."
                   style="vertical-align: bottom;color: red;">error</mat-icon>
         <div style="display: inline-block;"> Actual value: {{row.usedValue}}</div>
       </div>
@@ -92,7 +92,7 @@
         </span>
 
       <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
-        <mat-icon (click)="syncValues(row)" matTooltip="This is the value actually used in Domibus. Click to fix in file."
+        <mat-icon (click)="syncValues(row)" matTooltip="This is the value actually used in Harmony AP. Click to fix in file."
                   style="vertical-align: bottom;color: red; cursor: pointer;">error</mat-icon>
         <div style="display: inline-block;"> Actual value: {{row.usedValue}}</div>
       </div>

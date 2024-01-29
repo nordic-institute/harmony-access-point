@@ -13,7 +13,7 @@
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>5.1.1</version>
+        <version>5.1.2</version>
     </parent>
     <packaging>pom</packaging>
     <artifactId>domibus-msh-distribution</artifactId>
@@ -80,43 +80,9 @@
             </build>
         </profile>
         <profile>
-            <id>dss-extension</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>domibus-authentication-dss-extension</artifactId>
-                                <version>${project.version}</version>
-                            </dependency>
-                        </dependencies>
-                        <executions>
-                            <execution>
-                                <id>make-assembly-authentication-dss-extension</id>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>
-                                            src/main/assembly/authentication-dss-extension/authentication-dss-extension.xml
-                                        </descriptor>
-                                    </descriptors>
-                                </configuration>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>tomcat</id>
             <properties>
-                <tomcat.version>9.0.59</tomcat.version>
+                <tomcat.version>9.0.83</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -343,7 +309,7 @@
         <profile>
             <id>wildfly</id>
             <properties>
-                <wildfly.version>26.1.0.Final</wildfly.version>
+                <wildfly.version>26.1.3.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
@@ -414,11 +380,6 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <dependencies>
                             <dependency>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>domibus-authentication-dss-extension</artifactId>
-                                <version>${project.version}</version>
-                            </dependency>
-                            <dependency>
                                 <!-- needed by wildfly-full.xml assembly -->
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>domibus-default-ws-plugin</artifactId>
@@ -466,33 +427,6 @@
                                 <configuration>
                                     <descriptors>
                                         <descriptor>src/main/assembly/sampleconfiguration/sample-configuration-and-testing.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                                <!-- bound to verify because we need to execute cargo-package first
-                                    which is in pre-integration-test -->
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>database</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>make-assembly-sqlscripts</id>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/sqlscripts/sql-scripts.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                                 <!-- bound to verify because we need to execute cargo-package first

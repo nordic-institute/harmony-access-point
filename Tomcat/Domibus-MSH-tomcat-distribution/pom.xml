@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.2.2</version>
+        <version>2.3.0</version>
     </parent>
 
     <artifactId>harmony-MSH-tomcat-distribution</artifactId>
@@ -18,7 +18,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-        <customizations.dir>${project.basedir}/../../Core/Domibus-MSH-customizations/target/classes</customizations.dir>
     </properties>
 
     <dependencies>
@@ -64,27 +63,47 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>${project.groupId}</groupId>
-                        <artifactId>Domibus-MSH-customizations</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <webResources>
-                        <resource>
-                            <!--Tomcat class loader loads classes from WEB-INF/classes before loading the jars under WEB-INF/lib.
-                            This way the classes in the jar files can be shadowed by classes with the same name placed in WEB-INF/classes-->
-                            <directory>${customizations.dir}</directory>
-                            <targetPath>WEB-INF/classes</targetPath>
-                        </resource>
-                    </webResources>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.niis</groupId>
+                        <artifactId>harmony-msh-test-common</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.niis</groupId>
+                        <artifactId>harmony-logging</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>enforce-no-duplicate-dependencies</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <duplicateDependenciesRule>
+                                    <equivalentDuplicateDependencies>
+                                        <item>bcpkix-jdk15on,bcpkix-jdk18on,bcpkix-jdk15to18</item>
+                                        <item>bcutil-jdk15on,bcutil-jdk18on,bcutil-jdk15to18</item>
+                                        <item>bcprov-jdk15on,bcprov-jdk18on,bcprov-jdk15to18</item>
+                                    </equivalentDuplicateDependencies>
+                                </duplicateDependenciesRule>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

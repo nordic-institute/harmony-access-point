@@ -101,7 +101,7 @@
       <span *ngIf="fullMenu">Logging</span>
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
-      <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
+      <mat-icon mat-tooltip="View or Set Harmony AP Properties">settings</mat-icon>
       <span>Properties</span>
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/domains']" *ngIf="isSuperAdmin()" id="domains_id">
@@ -131,12 +131,12 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()">
-      </domain-selector>
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
 
-      <div class="helpMenu">
+      <div *ngIf="currentUser" class="helpMenu">
         <page-helper></page-helper>
       </div>
+
       <div id="sandwichMenu">
         <button mat-icon-button [mat-menu-trigger-for]="settingsMenu" id="settingsmenu_id" mat-tooltip="Menu">
           <mat-icon>menu</mat-icon>
@@ -158,6 +158,11 @@
               <span>Change Password</span>
             </button>
 
+            <div mat-menu-item (click)="showVersionInfo($event)" id="version_id">
+              <mat-icon>info</mat-icon>
+              <span>Version Info</span>
+            </div>
+
             <button mat-menu-item (click)="logout($event)" id="logout_id">
               <mat-icon>power_settings_new</mat-icon>
               <span>Logout</span>
@@ -165,8 +170,7 @@
 
           </div>
 
-          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;"
-               id="settingsmenu_expanded_id">
+          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;">
             <button mat-menu-item disabled="true">
               <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
@@ -180,6 +184,7 @@
     <div id="routerHolder" style="height: calc(100% - 40px);">
       <div style="margin:15px;height: 100%;">
         <router-outlet class="full-height"></router-outlet>
+<!--        <footer></footer>-->
       </div>
     </div>
   </div>

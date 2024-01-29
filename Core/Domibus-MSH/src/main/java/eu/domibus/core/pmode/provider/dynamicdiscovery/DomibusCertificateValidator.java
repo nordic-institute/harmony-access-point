@@ -4,9 +4,6 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.core.security.ISMPCertificateValidator;
-import network.oxalis.vefa.peppol.common.code.Service;
-import network.oxalis.vefa.peppol.security.api.CertificateValidator;
-import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -25,7 +22,7 @@ import java.util.regex.Pattern;
  * Provide our own certificate validator to be used by difi client for SMP certificate validation.
  * Default difi certificate validator does not have a way to configure proxy for CRL verification
  */
-public class DomibusCertificateValidator extends Merlin implements CertificateValidator, ISMPCertificateValidator {
+public class DomibusCertificateValidator extends Merlin implements ISMPCertificateValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCertificateValidator.class);
     protected CertificateService certificateService;
@@ -46,22 +43,6 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         setTrustStore(trustStore);
     }
 
-    /**
-     * Method used by Peppol Dynamic discovery client for certificate verification.
-     *
-     * @param certificate
-     * @throws CertificateException
-     */
-
-    // validate the SMP certificate
-    public void validate(Service service, X509Certificate certificate) throws PeppolSecurityException {
-        LOG.debug("Certificate validator for certificate: [{}]", getSubjectDN(certificate));
-        try {
-            validateSMPCertificate(certificate);
-        } catch (CertificateException e) {
-            throw new PeppolSecurityException("Lookup certificate validator failed for " + getSubjectDN(certificate), e);
-        }
-    }
 
     /**
      * Method used by OASIS Dynamic discovery client for certificate verification

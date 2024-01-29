@@ -2,11 +2,13 @@ package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
@@ -22,6 +24,9 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDao.class);
 
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
     public MessageAttemptDao() {
         super(MessageAttemptEntity.class);
     }
@@ -29,7 +34,7 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
     public List<MessageAttemptEntity> findByMessageId(String messageId, MSHRole mshRole) {
         final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageIdAndRole", MessageAttemptEntity.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
         return query.getResultList();
     }
 

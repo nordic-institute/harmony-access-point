@@ -18,8 +18,9 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author Cosmin Baciu
@@ -97,8 +98,15 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public String getCurrentTime() {
-        return getCurrentTime(DEFAULT_FORMATTER);
+    public Date getDateMinutesAgo(int minutesIntoThePast) throws DomibusDateTimeException {
+        if (minutesIntoThePast <= 0) {
+            throw new DomibusDateTimeException("Please provide a positive values that's greater than 0 for specifying the number of minutes into the past: minutesIntoThePast=" + minutesIntoThePast);
+        }
+
+        return Date.from(ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .minusMinutes(minutesIntoThePast)
+                .toInstant());
     }
 
     /**
@@ -132,5 +140,50 @@ public class DateUtilImpl implements DateUtil {
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);
         }
+    }
+
+    @Override
+    public long getMaxEntityId(ZonedDateTime instant, long delayInSeconds) {
+        long entityId = Long.parseLong(instant
+                .minusSeconds(delayInSeconds)
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+
+        LOG.trace("Turned date [{}] delayed by [{}] seconds into MAX entity ID [{}]", instant, delayInSeconds, entityId);
+        return entityId;
+    }
+
+    @Override
+    public long getMinEntityId(ZonedDateTime instant, long delayInSeconds) {
+        long entityId = Long.parseLong(instant
+                .minusSeconds(delayInSeconds)
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
+
+        LOG.trace("Turned date [{}] delayed by [{}] seconds into MIN entity ID [{}]", instant, delayInSeconds, entityId);
+        return entityId;
+    }
+    @Override
+    public long getMaxEntityId(long delayInSeconds) {
+        return getMaxEntityId(ZonedDateTime.now(ZoneOffset.UTC), delayInSeconds);
+    }
+
+    @Override
+    public long getMinEntityId(long delayInSeconds) {
+        return getMinEntityId(ZonedDateTime.now(ZoneOffset.UTC), delayInSeconds);
+    }
+
+    @Override
+    public Date convertOffsetDateTimeToDate(OffsetDateTime offsetDateTime) {
+        if(offsetDateTime == null) {
+            return null;
+        }
+        return new Date(offsetDateTime.toInstant().toEpochMilli());
+    }
+
+    @Override
+    public OffsetDateTime convertDateToOffsetDateTime(Date date) {
+        if(date == null) {
+            return null;
+        }
+        return date.toInstant().atOffset(ZoneOffset.UTC);
     }
 }

@@ -1,4 +1,4 @@
-﻿import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SecurityService} from '../security.service';
 import {AlertService} from '../../common/alert/alert.service';
@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
         break;
       case Server.HTTP_GATEWAY_TIMEOUT:
       case Server.HTTP_NOTFOUND:
-        message = 'Unable to login. Domibus is not running.';
+        message = 'Unable to login. Harmony Access Point is not running.';
         break;
       default:
         this.alertService.exception('Error authenticating:', error);

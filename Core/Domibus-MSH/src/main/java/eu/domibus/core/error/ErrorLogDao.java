@@ -3,10 +3,12 @@ package eu.domibus.core.error;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,9 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
-    public static final String MSH_ROLE = "MSH_ROLE";
+
+    @Autowired
+    private MshRoleDao mshRoleDao;
 
     public ErrorLogDao() {
         super(ErrorLogEntry.class);
@@ -41,7 +45,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole mshRole) {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageIdAndRole", ErrorLogEntry.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter(MSH_ROLE, mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
 
         return initializeChildren(query.getResultList());
     }

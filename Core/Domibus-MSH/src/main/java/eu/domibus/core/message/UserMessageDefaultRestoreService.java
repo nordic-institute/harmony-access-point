@@ -46,41 +46,37 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     protected static int MAX_RESEND_MESSAGE_COUNT = 10;
 
-    private MessageExchangeService messageExchangeService;
+    private final MessageExchangeService messageExchangeService;
 
-    private BackendNotificationService backendNotificationService;
+    private final BackendNotificationService backendNotificationService;
 
-    private UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    private PullMessageService pullMessageService;
+    private final PullMessageService pullMessageService;
 
-    private PModeService pModeService;
+    private final PModeService pModeService;
 
-    private PModeServiceHelper pModeServiceHelper;
+    private final PModeServiceHelper pModeServiceHelper;
 
-    private UserMessageDefaultService userMessageService;
+    private final UserMessageDefaultService userMessageService;
 
-    private UserMessageDao userMessageDao;
+    private final UserMessageDao userMessageDao;
 
-    private AuditService auditService;
+    private final AuditService auditService;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final UserMessageRestoreDao userMessageRestoreDao;
 
-    private UserMessageRestoreDao userMessageRestoreDao;
+    private final DomibusQuartzStarter domibusQuartzStarter;
 
-    private DomibusQuartzStarter domibusQuartzStarter;
-
-    private PlatformTransactionManager transactionManager;
-
+    private final PlatformTransactionManager transactionManager;
 
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService,
                                             UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
                                             PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService,
-                                            UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
-                                            UserMessageRestoreDao userMessageRestoreDao, DomibusQuartzStarter domibusQuartzStarter, PlatformTransactionManager transactionManager
-    ) {
+                                            UserMessageDao userMessageDao, AuditService auditService, UserMessageRestoreDao userMessageRestoreDao,
+                                            DomibusQuartzStarter domibusQuartzStarter, PlatformTransactionManager transactionManager) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -91,7 +87,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.userMessageService = userMessageService;
         this.userMessageDao = userMessageDao;
         this.auditService = auditService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.userMessageRestoreDao = userMessageRestoreDao;
         this.domibusQuartzStarter = domibusQuartzStarter;
         this.transactionManager = transactionManager;
@@ -175,6 +170,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
+
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
         if (CollectionUtils.isEmpty(failedMessages)) {
             return null;

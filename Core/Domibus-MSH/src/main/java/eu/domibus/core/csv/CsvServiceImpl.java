@@ -49,7 +49,7 @@ public class CsvServiceImpl implements CsvService {
     public String exportToCSV(List<?> list, Class<?> theClass,
                               Map<String, String> customColumnNames, List<String> excludedColumns) {
         StringWriter result = new StringWriter();
-        CSVWriter csvBuilder = new CSVWriter(result);
+        CSVWriter csvBuilder = new CSVWriter(result, ',', '\'', '"', "\n");
 
         List<Field> activeFields = getExportedFields(list, theClass, excludedColumns);
 
@@ -125,7 +125,7 @@ public class CsvServiceImpl implements CsvService {
     }
 
     protected void writeCSVRow(CSVWriter csvBuilder, List<String> values) {
-        csvBuilder.writeNext(values.toArray(new String[0]), false);
+        csvBuilder.writeNext(values.toArray(new String[0]), true);
     }
 
     protected void createCSVColumnHeader(CSVWriter csvBuilder, List<Field> fields,

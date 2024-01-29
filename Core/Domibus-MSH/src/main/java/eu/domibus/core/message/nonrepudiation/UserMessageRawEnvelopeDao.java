@@ -4,11 +4,13 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +32,9 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
     public UserMessageRawEnvelopeDao() {
         super(UserMessageRaw.class);
     }
@@ -37,7 +42,7 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
     public RawEnvelopeDto findRawXmlByMessageIdAndRole(final String messageId, MSHRole mshRole) {
         TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByMessageIdAndRole", RawEnvelopeDto.class);
         namedQuery.setParameter("MESSAGE_ID", messageId);
-        namedQuery.setParameter("MSH_ROLE", mshRole);
+        namedQuery.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
         try {
             LOG.debug("[findRawXmlByMessageIdMessage][Message]:[{}]", messageId);
             return namedQuery.getSingleResult();

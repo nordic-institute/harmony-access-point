@@ -46,18 +46,19 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
     public Exception convertCoreException(Exception e) {
         if (e instanceof AuthorizationException) {
             AuthorizationException a = (AuthorizationException) e;
-            LOG.trace("Converting Authorization exception:[{}] into EBMSException", a.getClass(), e);
+            LOG.trace("Converting Authorization exception: [{}] into EBMSException", a.getClass(), e);
             if (a.getAuthorizationError() != null) {
                 switch (a.getAuthorizationError()) {
                     case INVALID_FORMAT:
-                        LOG.error("Invalid incoming message format during authorization:[{}]", a.getMessage(), e);
+                        LOG.error("Invalid incoming message format during authorization: [{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                                 .message(a.getMessage())
                                 .refToMessageId(a.getMessageId())
                                 .build();
+                    case AUTHORIZATION_TOKEN_ERROR:
                     case AUTHORIZATION_REJECTED:
-                        LOG.error("Authorization for incoming message was not granted:[{}]", a.getMessage(), e);
+                        LOG.error("Authorization for incoming message was not granted: [{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                                 .message(A0001.toString())
@@ -65,17 +66,24 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                                 .build();
                     case AUTHORIZATION_MODULE_CONFIGURATION_ISSUE:
                     case AUTHORIZATION_SYSTEM_DOWN:
-                        LOG.error("System down in the authorization module:[{}]", a.getMessage(), e);
+                        LOG.error("System down in the authorization module: [{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                                 .message(A0004.toString())
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     case AUTHORIZATION_CONNECTION_REJECTED:
-                        LOG.error("Connection credential to Authorization was rejected:[{}]", a.getMessage(), e);
+                        LOG.error("Connection credential to Authorization was rejected: [{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                                 .message(A0002.toString())
+                                .refToMessageId(a.getMessageId())
+                                .build();
+                    case TECHNICAL_ISSUE:
+                        LOG.error("The authorization module has technical problems: [{}]", a.getMessage(), e);
+                        return EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message(A0003.toString())
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     default:
@@ -83,7 +91,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                 }
             }
         }
-        LOG.error("Authorization module unforeseen error:[{}]", e.getMessage(), e);
+        LOG.error("Authorization module unforeseen error: [{}]", e.getMessage(), e);
         return EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                 .message(A0003.toString())

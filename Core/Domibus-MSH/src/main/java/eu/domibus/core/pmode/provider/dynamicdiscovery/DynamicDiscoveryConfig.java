@@ -1,19 +1,21 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.core.proxy.ProxyUtil;
+import eu.europa.ec.dynamicdiscovery.core.extension.IExtension;
+import eu.europa.ec.dynamicdiscovery.core.fetcher.IMetadataFetcher;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.impl.DefaultURLFetcher;
 import eu.europa.ec.dynamicdiscovery.core.locator.impl.DefaultBDXRLocator;
+import eu.europa.ec.dynamicdiscovery.core.provider.impl.DefaultProvider;
+import eu.europa.ec.dynamicdiscovery.core.reader.IMetadataReader;
 import eu.europa.ec.dynamicdiscovery.core.reader.impl.DefaultBDXRReader;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultProxy;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultSignatureValidator;
+import eu.europa.ec.dynamicdiscovery.enums.DNSLookupType;
 import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
-import eu.europa.ec.dynamicdiscovery.model.DocumentIdentifier;
-import eu.europa.ec.dynamicdiscovery.model.ParticipantIdentifier;
-import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;
-import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
-import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
-import network.oxalis.vefa.peppol.mode.Mode;
+import eu.europa.ec.dynamicdiscovery.model.SMPTransportProfile;
+import eu.europa.ec.dynamicdiscovery.model.identifiers.SMPDocumentIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.identifiers.SMPParticipantIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.identifiers.SMPProcessIdentifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,26 +36,27 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusApacheFetcher domibusApacheFetcher(Mode mode, ProxyUtil proxyUtil, DomibusHttpRoutePlanner domibusHttpRoutePlanner) {
-        return new DomibusApacheFetcher(mode, proxyUtil, domibusHttpRoutePlanner);
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusBusdoxLocator busdoxLocator(String smlInfo) {
-        return new DomibusBusdoxLocator(smlInfo);
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex, List<String> allowedCertificatePolicyOIDs) {
         return new DomibusCertificateValidator(certificateService, trustStore, certRegex, allowedCertificatePolicyOIDs);
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultBDXRLocator bdxrLocator(String smlInfo) {
-        return new DefaultBDXRLocator(smlInfo);
+    public DefaultBDXRLocator bdxrLocator(String smlInfo, List<DNSLookupType> dnsLookupTypes) {
+        return new DefaultBDXRLocator.Builder()
+                .addDnsLookupTypes(dnsLookupTypes)
+                .addTopDnsDomain(smlInfo)
+                .build();
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultProvider defaultProvider(IMetadataFetcher metadataFetcher, IMetadataReader metadataReader, List<String> wildcardSchemes) {
+        return new DefaultProvider.Builder()
+                .metadataFetcher(metadataFetcher)
+                .metadataReader(metadataReader)
+                .wildcardSchemes(wildcardSchemes)
+                .build();
     }
 
     @Bean
@@ -64,8 +67,11 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultBDXRReader bdxrReader(DefaultSignatureValidator defaultSignatureValidator) {
-        return new DefaultBDXRReader(defaultSignatureValidator);
+    public DefaultBDXRReader bdxrReader(DefaultSignatureValidator defaultSignatureValidator, List<IExtension> extensions) {
+        return new DefaultBDXRReader.Builder()
+                .addExtensions(extensions)
+                .signatureValidator(defaultSignatureValidator)
+                .build();
     }
 
     @Bean
@@ -76,26 +82,26 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DocumentIdentifier documentIdentifier(String identifier, String scheme) {
-        return new DocumentIdentifier(identifier, scheme);
+    public SMPDocumentIdentifier documentIdentifier(String identifier, String scheme) {
+        return new SMPDocumentIdentifier(identifier, scheme);
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public ParticipantIdentifier participantIdentifier(String identifier, String scheme) {
-        return new ParticipantIdentifier(identifier, scheme);
+    public SMPParticipantIdentifier participantIdentifier(String identifier, String scheme) {
+        return new SMPParticipantIdentifier(identifier, scheme);
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public ProcessIdentifier processIdentifier(String identifier, String scheme) {
-        return new ProcessIdentifier(identifier, scheme);
+    public SMPProcessIdentifier processIdentifier(String identifier, String scheme) {
+        return new SMPProcessIdentifier(identifier, scheme);
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public TransportProfile transportProfile(String identifier) {
-        return new TransportProfile(identifier);
+    public SMPTransportProfile transportProfile(String identifier) {
+        return new SMPTransportProfile(identifier);
     }
 
     @Bean

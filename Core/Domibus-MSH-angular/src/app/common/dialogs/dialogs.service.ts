@@ -1,6 +1,7 @@
 ﻿import {Injectable, TemplateRef} from '@angular/core';
 import {ComponentType} from '@angular/cdk/overlay';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
+import {OkDialogComponent} from './ok-dialog/ok-dialog.component';
 import {YesNoDialogComponent} from './yes-no-dialog/yes-no-dialog.component';
 
 @Injectable()
@@ -93,5 +94,25 @@ export class DialogsService {
     };
     Object.assign(defaultConfig.data, config.data);
     return this.openAndThen(YesNoDialogComponent, defaultConfig);
+  }
+
+  public openOkDialog(title: string, message: string): Promise<boolean> {
+    return this.openOkDialogDialog({
+      data: {
+        title: title,
+        message: message
+      }
+    });
+  }
+
+  public openOkDialogDialog(config: MatDialogConfig): Promise<boolean> {
+    const defaultConfig = {
+      data: {
+        okText: 'OK',
+        okIcon: 'check_circle',
+      }
+    };
+    Object.assign(defaultConfig.data, config.data);
+    return this.openAndThen(OkDialogComponent, defaultConfig);
   }
 }

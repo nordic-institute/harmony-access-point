@@ -40,7 +40,6 @@ import {DomainService} from './security/domain.service';
 import {AlertComponent} from './common/alert/alert.component';
 import {AlertService} from './common/alert/alert.service';
 import {ErrorLogComponent} from './errorlog/errorlog.component';
-import {FooterComponent} from './common/footer/footer.component';
 import {DomibusInfoService} from './common/appinfo/domibusinfo.service';
 import {MessageFilterComponent} from './messagefilter/messagefilter.component';
 import {MessageLogComponent} from './messagelog/messagelog.component';
@@ -58,7 +57,6 @@ import {DefaultPasswordDialogComponent} from './security/default-password-dialog
 import {MessagelogDetailsComponent} from './messagelog/messagelog-details/messagelog-details.component';
 import {ErrorlogDetailsComponent} from './errorlog/errorlog-details/errorlog-details.component';
 import {EditMessageFilterComponent} from './messagefilter/editmessagefilter-form/editmessagefilter-form.component';
-import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
 import {TruststoreDialogComponent} from './truststore/truststore-dialog/truststore-dialog.component';
@@ -120,6 +118,8 @@ import {DomainsComponent} from './domains/domains.component';
 import {DataTablePagerComponent} from './common/page-grid/datatable-pager.comonent';
 import {ManageBackendsComponent} from './messagefilter/manageBackends-form/manageBackends-form.component';
 import {LandingPageGuard} from './common/guards/landing-page.guard';
+import {YesNoDialogComponent} from './common/dialogs/yes-no-dialog/yes-no-dialog.component';
+import {OkDialogComponent} from './common/dialogs/ok-dialog/ok-dialog.component';
 
 @NgModule({
   declarations: [
@@ -130,7 +130,6 @@ import {LandingPageGuard} from './common/guards/landing-page.guard';
     UserComponent,
     ErrorLogComponent,
     AlertComponent,
-    FooterComponent,
     CurrentPModeComponent,
     PModeArchiveComponent,
     BaseTruststoreComponent,
@@ -140,6 +139,7 @@ import {LandingPageGuard} from './common/guards/landing-page.guard';
     PmodeUploadComponent,
     PmodeViewComponent,
     YesNoDialogComponent,
+    OkDialogComponent,
     JmsComponent,
     RowLimiterComponent,
     MoveDialogComponent,
@@ -199,6 +199,7 @@ import {LandingPageGuard} from './common/guards/landing-page.guard';
     MessageDialogComponent,
     MessagelogDetailsComponent,
     YesNoDialogComponent,
+    OkDialogComponent,
     DefaultPasswordDialogComponent,
     EditMessageFilterComponent,
     ManageBackendsComponent,

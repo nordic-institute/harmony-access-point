@@ -1,8 +1,8 @@
 package eu.domibus.logging;
 
 import ch.qos.logback.classic.pattern.LineOfCallerConverter;
-import ch.qos.logback.classic.spi.CallerData;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.CoreConstants;
 
 /**
  * Resolves the line number where the logging method is called when using DomibusLogger proxies
@@ -16,7 +16,7 @@ public class DomibusLineOfCallerConverter extends LineOfCallerConverter {
     @Override
     public String convert(ILoggingEvent event) {
         String lineNumber = super.convert(event);
-        if (CallerData.NA.equals(lineNumber) || !lineNumber.startsWith("-")) {
+        if (CoreConstants.NA.equals(lineNumber) || !lineNumber.startsWith("-")) {
             return lineNumber;
         }
 
@@ -24,7 +24,7 @@ public class DomibusLineOfCallerConverter extends LineOfCallerConverter {
         //we need to exclude the first few levels of the caller stack to get to the actual invocation of the logger method
         StackTraceElement[] callerStack = event.getCallerData();
         if (callerStack == null) {
-            return CallerData.NA;
+            return CoreConstants.NA;
         }
         for (int i = 0; i < callerStack.length; i++) {
             int indexOfMethodCallingTheProxy = i + 2;
@@ -33,6 +33,6 @@ public class DomibusLineOfCallerConverter extends LineOfCallerConverter {
                 return String.valueOf(callerStack[indexOfMethodCallingTheProxy].getLineNumber());
             }
         }
-        return CallerData.NA;
+        return CoreConstants.NA;
     }
 }

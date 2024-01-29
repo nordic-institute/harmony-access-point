@@ -36,6 +36,7 @@ import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static eu.domibus.api.cache.DomibusLocalCacheService.CRL_BY_URL;
 
@@ -52,12 +53,32 @@ public class CRLUtil {
      */
     private static final String LDAP_CRL_ATTRIBUTE = "certificateRevocationList;binary";
 
-    @Autowired
-    private HttpUtil httpUtil;
+    private final HttpUtil httpUtil;
 
-    @Autowired
-    @Qualifier(DomibusCacheConstants.CACHE_MANAGER)
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
+
+    public CRLUtil(HttpUtil httpUtil, @Qualifier(DomibusCacheConstants.CACHE_MANAGER) CacheManager cacheManager) {
+        this.httpUtil = httpUtil;
+        this.cacheManager = cacheManager;
+    }
+
+    public Object getCachedOrEvaluate(String cacheName, Object cacheKey, Callable<Object> valueProvider) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if(cache != null) {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug(String.format("Searching cache [{%s}] for key [{%s}]... [{%s}]", cacheName, cacheKey, cache.get(cacheKey) == null ? "not found" : "found"));
+            }
+            return cache.get(cacheKey, valueProvider);
+        }
+        try {
+            if(LOG.isDebugEnabled()) {
+                LOG.debug(String.format("No cache [{%s}] found", cacheName));
+            }
+            return valueProvider.call();
+        } catch (Exception e) {
+            throw new DomibusCRLException(e);
+        }
+    }
 
     /**
      * Entry point for downloading certificates from either http(s), classpath source or LDAP
@@ -70,9 +91,8 @@ public class CRLUtil {
      * @see CRLUtil#downloadCRLfromLDAP(String)
      */
     public X509CRL downloadCRL(String crlURL, boolean useCache) throws DomibusCRLException {
-        Cache cache = cacheManager.getCache(CRL_BY_URL);
-        if(useCache && cache != null){
-            return cache.get(crlURL, () -> downloadCRL(crlURL));
+        if(useCache){
+            return (X509CRL) getCachedOrEvaluate(CRL_BY_URL, crlURL, () -> downloadCRL(crlURL));
         }
         return downloadCRL(crlURL);
     }

@@ -3,9 +3,11 @@ package eu.domibus.core.message.signal;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -31,6 +33,9 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     @Autowired
     private ActionDictionaryService actionDictionaryService;
 
+    @Autowired
+    private MshRoleDao mshRoleDao;
+
     public SignalMessageDao() {
         super(SignalMessage.class);
     }
@@ -44,7 +49,7 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     public SignalMessage findByUserMessageIdWithUserMessage(String messageId, MSHRole mshRole) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageIdAndRole", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter("MSH_ROLE", mshRoleDao.findByRole(mshRole));
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
@@ -59,12 +64,12 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return result;
     }
 
-    public SignalMessage findLastTestMessage(String senderPartyId, String partyId) {
+    public SignalMessage findLastTestMessage(PartyId fromParty, PartyId toParty) {
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
-        query.setParameter("SENDER_PARTY_ID", senderPartyId);
-        query.setParameter("PARTY_ID", partyId);
-        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setParameter("SENDER_PARTY", fromParty);
+        query.setParameter("PARTY", toParty);
+        query.setParameter("ACTION", actionEntity);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

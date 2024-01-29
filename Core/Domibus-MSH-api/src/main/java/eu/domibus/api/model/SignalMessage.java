@@ -16,7 +16,8 @@ import java.util.Date;
         @NamedQuery(name = "SignalMessage.findSignalMessageByUserMessageEntityId",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityId = :ENTITY_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageWithUserMessageByUserMessageIdAndRole",
-                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID and signalMessage.userMessage.mshRole.role = :MSH_ROLE"),
+                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID " +
+                        "and signalMessage.userMessage.mshRole = :MSH_ROLE"),
         @NamedQuery(name = "SignalMessage.findSignalMessageIdByRefMessageId",
                 query = "select signalMessage.signalMessageId from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findMessageIdsWithRefToMessageIds", query = "select mi.signalMessageId from SignalMessage mi where mi.refToMessageId in :MESSAGEIDS"),
@@ -29,8 +30,8 @@ import java.util.Date;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId IN :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.findTestMessageDesc",
                 query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage um " +
-                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID " +
-                        "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action = :ACTION " +
+                        "and um.partyInfo.from.fromPartyId = :SENDER_PARTY and um.partyInfo.to.toPartyId = :PARTY " +
                         "order by um.entityId desc"),
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {

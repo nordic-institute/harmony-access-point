@@ -85,6 +85,8 @@ public interface DomibusPropertyProvider {
      */
     Long getLongProperty(String propertyName);
 
+    double getDecimalProperty(String propertyName);
+
     /**
      * <p>Reads a property value and parses it safely as a {@code Boolean} before returning it.</p><br />
      *

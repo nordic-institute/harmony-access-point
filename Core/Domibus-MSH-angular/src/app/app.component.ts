@@ -11,6 +11,7 @@ import {Server} from './security/Server';
 import {SessionState} from './security/SessionState';
 import {SessionService} from './security/session.service';
 import BaseListComponent from './common/mixins/base-list.component';
+import {DomibusInfo} from './common/appinfo/domibusinfo';
 
 @Component({
   selector: 'app-root',
@@ -124,6 +125,7 @@ export class AppComponent implements OnInit {
 
   private onHttpEventService(error) {
     // TODO(18/09/20, Ion Perpegel): review the possible status values and their meaning
+    console.log('Caught onHttpEventService event with error=', error);
     if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
       // did we have previously a valid session?
       if (this.securityService.isClientConnected()) {
@@ -135,5 +137,10 @@ export class AppComponent implements OnInit {
 
   isSuperAdmin() {
     return (this.isMultiDomain && this.securityService.isCurrentUserSuperAdmin());
+  }
+
+  async showVersionInfo($event: MouseEvent) {
+    const domibusInfo: DomibusInfo = await this.domibusInfoService.getDomibusInfo();
+    this.dialogsService.openOkDialog('Harmony Access Point Version Info', domibusInfo.version);
   }
 }

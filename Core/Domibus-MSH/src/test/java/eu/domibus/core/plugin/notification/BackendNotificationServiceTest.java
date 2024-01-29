@@ -595,6 +595,9 @@ public class BackendNotificationServiceTest {
 
             uml1.getEntityId();
             uml2.getEntityId();
+
+            uml1.getMshRole();
+            uml2.getMshRole();
         }};
 
         List<MessageDeletedEvent> result =
@@ -622,7 +625,7 @@ public class BackendNotificationServiceTest {
             result = props1;
 
             uml1.getEntityId();
-
+            uml1.getMshRole();
         }};
 
         MessageDeletedEvent result =
