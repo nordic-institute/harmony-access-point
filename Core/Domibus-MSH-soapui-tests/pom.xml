@@ -19,7 +19,7 @@
              Note. 5.5.0 is the last one that supports JDK 8 -->
         <com.smartbear.soapui.version>5.5.0</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.4.4</org.codehaus.groovy.version>
-        <org.codehaus.groovy.backports.compat.version>2.4.21</org.codehaus.groovy.backports.compat.version>
+        <org.codehaus.groovy.backports.compat.version>2.4.4</org.codehaus.groovy.backports.compat.version>
         <org.codehaus.groovy.eclipse-batch.version>2.4.21-01</org.codehaus.groovy.eclipse-batch.version>
 
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
