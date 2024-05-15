@@ -682,5 +682,12 @@
         <!-- Brought as a dependency by commons-test, used in testing environment -->
         <cve>CVE-2014-9515</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: xmlunit-core-2.7.0.jar
+   ]]></notes>
+        <!--This is a dependency brought by wiremock and is used only in testing environment-->
+        <packageUrl regex="true">^pkg:maven/org\.xmlunit/xmlunit\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-31573</vulnerabilityName>
+    </suppress>
 </suppressions>
