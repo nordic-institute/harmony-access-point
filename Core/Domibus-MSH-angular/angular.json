@@ -30,7 +30,9 @@
             "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "namedChunks": true,
+            "baseHref": "/domibus/",
+            "deployUrl": "/domibus/"
           },
           "configurations": {
             "production": {
@@ -48,6 +50,8 @@
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
+              "baseHref": "./",
+              "deployUrl": "",
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
