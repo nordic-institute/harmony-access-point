@@ -13,7 +13,6 @@
           "options": {
             "outputPath": "dist",
             "index": "src/index.html",
-            "baseHref": "/domibus/",
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
