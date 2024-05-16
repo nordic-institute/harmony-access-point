@@ -50,7 +50,6 @@
               "sourceMap": false,
               "namedChunks": false,
               "baseHref": "./",
-              "deployUrl": "",
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
