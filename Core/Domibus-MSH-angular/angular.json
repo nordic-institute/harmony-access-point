@@ -31,8 +31,7 @@
             "sourceMap": true,
             "optimization": false,
             "namedChunks": true,
-            "baseHref": "/domibus/",
-            "deployUrl": "/domibus/"
+            "baseHref": "/domibus/"
           },
           "configurations": {
             "production": {
