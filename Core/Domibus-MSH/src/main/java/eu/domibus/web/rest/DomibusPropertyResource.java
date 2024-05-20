@@ -1,5 +1,11 @@
 package eu.domibus.web.rest;
 
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import javax.crypto.Cipher;
+import java.util.Base64;
+
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -21,8 +27,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -71,6 +82,8 @@ public class DomibusPropertyResource extends BaseResource {
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
 
+        items.stream().filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
+                .forEach(item -> item.setValue(""));
         List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         response.setItems(convertedItems);
@@ -146,5 +159,37 @@ public class DomibusPropertyResource extends BaseResource {
         DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
         DomibusPropertyRO convertedProp = domibusPropertyMetadataMapper.propertyApiToPropertyRO(prop);
         return convertedProp;
+    }
+
+
+    @PostMapping(path = "/{propertyName:.+}/password")
+    public ResponseEntity<String> getEncryptedPropertyValue(@Valid @PathVariable String propertyName,
+                                                            @SkipWhiteListed @RequestBody Map<String, String> payload) {
+        try {
+            String propName = payload.get("propName");
+            String publicKeyPem = payload.get("publicKeyPem");
+
+            PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+            PublicKey publicKey = converter.getPublicKey((SubjectPublicKeyInfo) pemParser.readObject());
+
+            DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
+            String value = prop.getValue();
+ 
+            // Initialize the Cipher with the public key for encryption
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+            // Encrypt the value
+            byte[] encryptedBytes = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+
+            // Convert the encrypted bytes to Base64 to get a string
+            String encryptedValue = Base64.getEncoder().encodeToString(encryptedBytes);
+
+            return ResponseEntity.ok(encryptedValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error processing request");
+        }
     }
 }

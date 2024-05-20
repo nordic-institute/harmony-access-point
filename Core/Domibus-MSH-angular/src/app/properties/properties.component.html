@@ -84,6 +84,11 @@
       >
 
       <span class="property-edit-buttons input-group-addon">
+
+          <button mat-icon-button (click)="retrievePassword(row)" *ngIf="row.type == 'PASSWORD'  " button-click-behaviour>
+            <mat-icon matTooltip="See password" matTooltipPosition="above">visibility</mat-icon>
+          </button>
+
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
             <mat-icon matTooltip="Save" matTooltipPosition="above">save</mat-icon>
           </button>
