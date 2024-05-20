@@ -1,17 +1,10 @@
 package eu.domibus.web.rest;
 
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import javax.crypto.Cipher;
-import java.util.Base64;
-
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
@@ -20,20 +13,23 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.Cipher;
 import javax.validation.Valid;
-
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -82,8 +78,12 @@ public class DomibusPropertyResource extends BaseResource {
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
 
-        items.stream().filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
-                .forEach(item -> item.setValue(""));
+        items.stream()
+                .filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
+                .forEach(item -> {
+                    item.setValue("");
+                    item.setUsedValue("");
+                });
         List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         response.setItems(convertedItems);
@@ -162,20 +162,16 @@ public class DomibusPropertyResource extends BaseResource {
     }
 
 
-    @PostMapping(path = "/{propertyName:.+}/password")
-    public ResponseEntity<String> getEncryptedPropertyValue(@Valid @PathVariable String propertyName,
-                                                            @SkipWhiteListed @RequestBody Map<String, String> payload) {
+    @PostMapping(path = "/{propertyName:.+}/encrypted")
+    public ResponseEntity<String> getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestBody String publicKeyPem) {
         try {
-            String propName = payload.get("propName");
-            String publicKeyPem = payload.get("publicKeyPem");
-
             PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             PublicKey publicKey = converter.getPublicKey((SubjectPublicKeyInfo) pemParser.readObject());
 
             DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
             String value = prop.getValue();
- 
+
             // Initialize the Cipher with the public key for encryption
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);

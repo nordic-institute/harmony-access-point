@@ -132,8 +132,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
         name: 'Property Value',
         prop: 'value',
         showInitially: true,
-        width: 350,
-        minWidth: 340,
+        width: 370,
+        minWidth: 370,
         sortable: false
       },
 
@@ -263,12 +263,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
     const publicKeyPem = arrayBufferToPem(spkiArrayBuffer);
     console.log('Public key PEM:', publicKeyPem);
 
-
     const propName = row.name;
-    const response = await this.http.post<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName + '/password', {
-      propName,
-      publicKeyPem
-    }).toPromise();
+    const response = await this.http.post<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName + '/encrypted', publicKeyPem).toPromise();
 
     console.log('Encrypted property value:', response);
 
@@ -292,9 +288,23 @@ export class PropertiesComponent extends mix(BaseListComponent)
     // Convert the decrypted ArrayBuffer to a string
     const decryptedValue = new TextDecoder().decode(decryptedValueArrayBuffer);
     console.log('Decrypted property value:', decryptedValue);
-
+    row.value = decryptedValue;
   }
 
+  timeoutHandler: number;
+  viewPassMouseDown(row) {
+    this.timeoutHandler = setTimeout(() => {
+      this.retrievePassword(row);
+    }, 500);
+  }
+
+  viewPassMouseUp(row) {
+    if (this.timeoutHandler) {
+      clearTimeout(this.timeoutHandler);
+      row.value = "*****"
+      this.timeoutHandler = null;
+    }
+  }
 }
 
 function arrayBufferToBase64(buffer) {
