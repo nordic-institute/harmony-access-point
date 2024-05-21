@@ -89,10 +89,10 @@
              (keydown.escape)="revertProperty(row)"
       >
 
-      <span class="property-edit-buttons">
+      <div class="property-edit-buttons">
           <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
-                  (click)="toggleViewPassword(row)" style="">
-            <mat-icon matTooltipPosition="above">{{row.value==passwordMask? 'visibility': 'visibility_off'}}</mat-icon>
+                  (click)="toggleViewPassword(row)">
+            <mat-icon matTooltipPosition="above" >{{row.value==passwordMask? 'visibility': 'visibility_off'}}</mat-icon>
           </button>
 
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Save" button-click-behaviour>
@@ -102,7 +102,7 @@
           <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Undo" button-click-behaviour>
             <mat-icon matTooltipPosition="above">undo</mat-icon>
           </button>
-        </span>
+        </div>
 
       <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
         <mat-icon (click)="syncValues(row)" matTooltip="This is the value actually used in Domibus. Click to fix in file."
