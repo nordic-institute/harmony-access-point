@@ -24,7 +24,7 @@
 
 .property-edit-buttons {
   position: absolute;
-  top: -6px;
+  top: 1px;
   right: 0;
 }
 
@@ -50,6 +50,8 @@
 }
 
 ::ng-deep .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-mdc-icon-button {
-  height: inherit !important;
-  margin-top: -8px !important;
+  /*height: inherit !important;*/
+  margin-top: -3px !important;
+  padding-bottom: 0;
+  padding-top: 0px;
 }

@@ -90,10 +90,10 @@
       >
 
       <span class="property-edit-buttons">
-        <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
-                      (click)="viewPassword(row)" style="">
-        <mat-icon matTooltipPosition="above">visibility</mat-icon>
-      </button>
+          <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
+                        (click)="viewPassword(row)" style="">
+            <mat-icon matTooltipPosition="above">visibility</mat-icon>
+          </button>
 
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Save" button-click-behaviour>
             <mat-icon matTooltipPosition="above">save</mat-icon>
