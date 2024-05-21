@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 @Validated
 public class DomibusPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
+    public static final String PASSWORD_MASK = "*****";
 
     private final DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
@@ -81,8 +82,8 @@ public class DomibusPropertyResource extends BaseResource {
         items.stream()
                 .filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
                 .forEach(item -> {
-                    item.setValue("");
-                    item.setUsedValue("");
+                    item.setValue(PASSWORD_MASK);
+                    item.setUsedValue(PASSWORD_MASK);
                 });
         List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
@@ -162,8 +163,14 @@ public class DomibusPropertyResource extends BaseResource {
     }
 
 
+    /**
+     * Returns the property metadata and the current value for a property
+     *
+     * @param propertyName the name of the property
+     * @return object containing both metadata and value
+     */
     @PostMapping(path = "/{propertyName:.+}/encrypted")
-    public ResponseEntity<String> getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestBody String publicKeyPem) {
+    public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestBody String publicKeyPem) {
         try {
             PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
@@ -182,10 +189,9 @@ public class DomibusPropertyResource extends BaseResource {
             // Convert the encrypted bytes to Base64 to get a string
             String encryptedValue = Base64.getEncoder().encodeToString(encryptedBytes);
 
-            return ResponseEntity.ok(encryptedValue);
+            return encryptedValue;
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error processing request");
+            throw new DomibusPropertyException("Error trying to encrypt password", e);
         }
     }
 }

@@ -1,6 +1,7 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
+import {HelperService} from '../../common/helper.service';
 
 @Injectable()
 export class PropertiesService {
@@ -8,7 +9,7 @@ export class PropertiesService {
 
   regularExpressions: Map<string, RegExp> = new Map<string, RegExp>();
 
-  constructor(private http: HttpClient, private alertService: AlertService) {
+  constructor(private http: HttpClient, private alertService: AlertService, private helperService: HelperService) {
   }
 
   async loadPropertyTypes(): Promise<any> {
@@ -93,6 +94,50 @@ export class PropertiesService {
 
   async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
     return this.getProperty('domibus.ui.resend.action.enabled.received.minutes');
+  }
+
+  async decryptProperty(propertyName) {
+    const keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 2048, // can be 1024, 2048, or 4096
+        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+        hash: 'SHA-256', // can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+      },
+      true, // whether the key is extractable (i.e. can be used in exportKey)
+      ['encrypt', 'decrypt'] // can be any combination of "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+    )
+
+    const spkiArrayBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+    const publicKeyPem = this.helperService.arrayBufferToPem(spkiArrayBuffer);
+    console.log('Public key PEM:', publicKeyPem);
+
+    const propName = propertyName;
+    const response = await this.http.post<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName + '/encrypted', publicKeyPem).toPromise();
+
+    console.log('Encrypted property value:', response);
+
+    // Convert the encrypted property value from Base64 to an ArrayBuffer
+    const encryptedValueArrayBuffer = this.helperService.base64ToArrayBuffer(response);
+    console.log('Encrypted property value ArrayBuffer:', encryptedValueArrayBuffer);
+
+    console.log('Private key:', keyPair.privateKey);
+
+    // Decrypt the encrypted property value
+    const decryptedValueArrayBuffer = await window.crypto.subtle.decrypt(
+      {
+        name: 'RSA-OAEP'
+      },
+      keyPair.privateKey, // use the private key for decryption
+      encryptedValueArrayBuffer
+    );
+
+    console.log('Decrypted property value ArrayBuffer:', decryptedValueArrayBuffer);
+
+    // Convert the decrypted ArrayBuffer to a string
+    const decryptedValue = new TextDecoder().decode(decryptedValueArrayBuffer);
+    console.log('Decrypted property value:', decryptedValue);
+    return decryptedValue;
   }
 
   private async isPropertyValidationEnabled(): Promise<boolean> {

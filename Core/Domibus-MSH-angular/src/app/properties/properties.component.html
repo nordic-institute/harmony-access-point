@@ -83,18 +83,18 @@
              (keydown.escape)="revertProperty(row)"
       >
 
-      <span class="property-edit-buttons input-group-addon">
-          <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour
-                  (mousedown)="viewPassMouseDown(row)" (mouseup)="viewPassMouseUp(row)" (mouseleave)="viewPassMouseUp(row)">
-            <mat-icon matTooltip="See password" matTooltipPosition="above">visibility</mat-icon>
+      <span class="property-edit-buttons">
+          <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
+                  (click)="viewPassword(row)">
+            <mat-icon matTooltipPosition="above">visibility</mat-icon>
           </button>
 
-          <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon matTooltip="Save" matTooltipPosition="above">save</mat-icon>
+          <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Save" button-click-behaviour>
+            <mat-icon matTooltipPosition="above">save</mat-icon>
           </button>
 
-          <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
-            <mat-icon matTooltip="Undo" matTooltipPosition="above">undo</mat-icon>
+          <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Undo" button-click-behaviour>
+            <mat-icon matTooltipPosition="above">undo</mat-icon>
           </button>
         </span>
 
