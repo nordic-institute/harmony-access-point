@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @Validated
 public class DomibusPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
-    public static final String PASSWORD_MASK = "*****";
+    public static final String PASSWORD_MASK = "";
 
     private final DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 

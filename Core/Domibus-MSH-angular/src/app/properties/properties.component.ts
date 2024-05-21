@@ -148,10 +148,18 @@ export class PropertiesComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
+  private passwordMask = '*****';
+
   public setServerResults(result: PropertyListModel) {
     super.count = result.count;
     let rows = result.items;
-    rows.forEach(row => row.originalValue = row.value);
+    rows.forEach(row => {
+      row.originalValue = row.value;
+      if (row.type == 'PASSWORD') {
+        row.value = this.passwordMask;
+        row.currentValue = this.passwordMask;
+      }
+    });
     super.rows = rows;
   }
 
@@ -250,14 +258,15 @@ export class PropertiesComponent extends mix(BaseListComponent)
   async retrievePassword(row) {
     let propertyName = row.name;
     console.log('Retrieving password for property:', propertyName, row);
-
-    const decryptedValue = await this.propertiesService.decryptProperty(propertyName);
-
-    row.value = decryptedValue;
+    row.value = await this.propertiesService.decryptProperty(propertyName);
   }
 
-  viewPassword(row) {
-    this.retrievePassword(row);
+  toggleViewPassword(row) {
+    if(row.value == this.passwordMask) {
+      this.retrievePassword(row);
+    } else {
+      row.value = this.passwordMask;
+    }
   }
 
 }
