@@ -67,6 +67,11 @@
     <div class="input-group property-view" *ngIf="!row.writable">
       <span [class.wrong-value]="row.value != null && row.originalValue != row.usedValue">{{row.value}}</span>
 
+      <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
+              (click)="viewPassword(row)" style="display: inline-block; float: right;">
+        <mat-icon matTooltipPosition="above">visibility</mat-icon>
+      </button>
+
       <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
         <mat-icon matTooltip="This is the value actually used in Domibus."
                   style="vertical-align: bottom;color: red;">error</mat-icon>
@@ -74,6 +79,7 @@
       </div>
 
     </div>
+
     <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
       <input matInput type="text" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
              [(ngModel)]="row.value"
@@ -84,10 +90,10 @@
       >
 
       <span class="property-edit-buttons">
-          <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
-                  (click)="viewPassword(row)">
-            <mat-icon matTooltipPosition="above">visibility</mat-icon>
-          </button>
+        <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
+                      (click)="viewPassword(row)" style="">
+        <mat-icon matTooltipPosition="above">visibility</mat-icon>
+      </button>
 
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Save" button-click-behaviour>
             <mat-icon matTooltipPosition="above">save</mat-icon>
