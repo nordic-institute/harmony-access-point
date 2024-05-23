@@ -112,8 +112,10 @@ export class PropertiesService {
     const publicKeyPem = this.helperService.arrayBufferToPem(spkiArrayBuffer);
     console.log('Public key PEM:', publicKeyPem);
 
-    const propName = propertyName;
-    const response = await this.http.post<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName + '/encrypted', publicKeyPem).toPromise();
+    let param = new HttpParams();
+    param = param.append('publicKeyPem', publicKeyPem);
+    const response = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propertyName + '/encrypted',
+      {params: param}).toPromise();
 
     console.log('Encrypted property value:', response);
 

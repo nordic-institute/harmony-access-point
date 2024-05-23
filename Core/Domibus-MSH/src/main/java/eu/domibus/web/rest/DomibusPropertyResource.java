@@ -62,7 +62,7 @@ public class DomibusPropertyResource extends BaseResource {
     @ExceptionHandler({DomibusPropertyException.class})
     public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
         Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        String message = rootCause == null ? ex.getMessage() : rootCause.getMessage();
+        String message = (rootCause == null || rootCause.getMessage() == null) ? ex.getMessage() : rootCause.getMessage();
         return errorHandlerService.createResponse(message, HttpStatus.BAD_REQUEST);
     }
 
@@ -169,8 +169,8 @@ public class DomibusPropertyResource extends BaseResource {
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */
-    @PostMapping(path = "/{propertyName:.+}/encrypted")
-    public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestBody String publicKeyPem) {
+    @GetMapping(path = "/{propertyName:.+}/encrypted")
+    public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
         try {
             PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
@@ -187,9 +187,7 @@ public class DomibusPropertyResource extends BaseResource {
             byte[] encryptedBytes = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
 
             // Convert the encrypted bytes to Base64 to get a string
-            String encryptedValue = Base64.getEncoder().encodeToString(encryptedBytes);
-
-            return encryptedValue;
+            return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
             throw new DomibusPropertyException("Error trying to encrypt password", e);
         }
