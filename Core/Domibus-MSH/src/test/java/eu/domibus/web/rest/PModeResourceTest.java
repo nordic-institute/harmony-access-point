@@ -242,6 +242,23 @@ public class PModeResourceTest {
     }
 
     @Test
+    public void testDeletePmodes_CannotDeleteCurrent() {
+        // Given
+        List<String> stringList = new ArrayList<>();
+        stringList.add("0");
+        stringList.add("1");
+        stringList.add("2");
+
+        // When
+        final ResponseEntity<String> response = pModeResource.deletePModes(stringList);
+
+        // Then
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assert.assertEquals("Could not delete current PMode [0]", response.getBody());
+    }
+
+    @Test
     public void testDeletePmodesException() {
         // Given
         final Exception exception = new Exception("Mocked exception");

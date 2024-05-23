@@ -129,6 +129,12 @@ public class PModeResource extends BaseResource {
             return ResponseEntity.badRequest().body("Failed to delete PModes since the list of ids was empty.");
         }
         try {
+            long currentPmodeId = pModeProvider.getCurrentPmode().getId();
+            if (pModeIds.stream().anyMatch(pModeId -> Long.parseLong(pModeId) == currentPmodeId)) {
+                LOG.error("Could not delete current PMode [{}]", currentPmodeId);
+                return ResponseEntity.badRequest().body("Could not delete current PMode [" + currentPmodeId + "]");
+            }
+
             for (String pModeId : pModeIds) {
                 pModeProvider.removePMode(Long.parseLong(pModeId));
             }
