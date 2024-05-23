@@ -3,22 +3,22 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.domibus.test.AbstractIT;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
+import eu.domibus.test.AbstractIT;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
+import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -30,8 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author François Gautier
@@ -84,9 +88,36 @@ public class LoggingResourceIT extends AbstractIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
-    @Ignore
+    public void setLogLevel_ok() throws Exception {
+        LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
+        loggingLevelRO.setLevel("DEBUG");
+        loggingLevelRO.setName("eu.domibus");
+
+        mockMvc.perform(post("/rest/logging/loglevel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(loggingLevelRO)))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+    }
+
+    @Test
+    public void setLogLevel_nok_ALL() throws Exception {
+        LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
+        loggingLevelRO.setLevel("ALL");
+        loggingLevelRO.setName("eu.domibus");
+
+        mockMvc.perform(post("/rest/logging/loglevel")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(loggingLevelRO)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void getLogLevel_ok() throws Exception {
-        authUtils.setAuthenticationToSecurityContext("", "", AuthRole.ROLE_AP_ADMIN);
 
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
         LoggingEntry loggingLevelRO1 = new LoggingEntry();
