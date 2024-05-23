@@ -161,10 +161,11 @@ public class DomibusPropertyResource extends BaseResource {
 
 
     /**
-     * Returns the property metadata and the current value for a property
+     * Returns the encrypted value of the specified property with the specified public key
      *
      * @param propertyName the name of the property
-     * @return object containing both metadata and value
+     * @param publicKeyPem the public encryption key pem
+     * @return the encrypted property value
      */
     @GetMapping(path = "/{propertyName:.+}/encrypted")
     public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
