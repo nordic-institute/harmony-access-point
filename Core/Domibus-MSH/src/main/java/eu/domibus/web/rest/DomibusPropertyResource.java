@@ -8,27 +8,20 @@ import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.Cipher;
 import javax.validation.Valid;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,12 +44,15 @@ public class DomibusPropertyResource extends BaseResource {
 
     private final ErrorHandlerService errorHandlerService;
 
+    private final SecurityUtilImpl securityUtil;
+
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
                                    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
-                                   ErrorHandlerService errorHandlerService) {
+                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil) {
         this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
         this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.errorHandlerService = errorHandlerService;
+        this.securityUtil = securityUtil;
     }
 
     @ExceptionHandler({DomibusPropertyException.class})
@@ -172,24 +168,13 @@ public class DomibusPropertyResource extends BaseResource {
     @GetMapping(path = "/{propertyName:.+}/encrypted")
     public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
         try {
-            PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
-            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-            PublicKey publicKey = converter.getPublicKey((SubjectPublicKeyInfo) pemParser.readObject());
-
             DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
             String value = prop.getValue();
 
-            // Initialize the Cipher with the public key for encryption
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-
-            // Encrypt the value
-            byte[] encryptedBytes = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
-
-            // Convert the encrypted bytes to Base64 to get a string
-            return Base64.getEncoder().encodeToString(encryptedBytes);
+            return securityUtil.encryptValue(publicKeyPem, value);
         } catch (Exception e) {
             throw new DomibusPropertyException("Error trying to encrypt password", e);
         }
     }
+
 }
