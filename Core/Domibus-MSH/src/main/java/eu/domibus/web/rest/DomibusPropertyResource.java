@@ -12,6 +12,7 @@ import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -171,7 +172,8 @@ public class DomibusPropertyResource extends BaseResource {
             DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
             String value = prop.getValue();
 
-            return securityUtil.encryptValue(publicKeyPem, value);
+            byte[] decodedKeyPem = Base64.decodeBase64(publicKeyPem);
+            return securityUtil.encryptValue(new String(decodedKeyPem), value);
         } catch (Exception e) {
             throw new DomibusPropertyException("Error trying to encrypt password", e);
         }

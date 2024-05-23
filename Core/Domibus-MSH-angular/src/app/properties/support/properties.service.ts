@@ -110,20 +110,20 @@ export class PropertiesService {
 
     const spkiArrayBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
     const publicKeyPem = this.helperService.arrayBufferToPem(spkiArrayBuffer);
-    console.log('Public key PEM:', publicKeyPem);
+    // console.log('Public key PEM:', publicKeyPem);
 
     let param = new HttpParams();
-    param = param.append('publicKeyPem', publicKeyPem);
+    param = param.append('publicKeyPem', btoa(publicKeyPem));
     const response = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propertyName + '/encrypted',
       {params: param}).toPromise();
 
-    console.log('Encrypted property value:', response);
+    // console.log('Encrypted property value:', response);
 
     // Convert the encrypted property value from Base64 to an ArrayBuffer
     const encryptedValueArrayBuffer = this.helperService.base64ToArrayBuffer(response);
-    console.log('Encrypted property value ArrayBuffer:', encryptedValueArrayBuffer);
+    // console.log('Encrypted property value ArrayBuffer:', encryptedValueArrayBuffer);
 
-    console.log('Private key:', keyPair.privateKey);
+    // console.log('Private key:', keyPair.privateKey);
 
     // Decrypt the encrypted property value
     const decryptedValueArrayBuffer = await window.crypto.subtle.decrypt(
@@ -134,11 +134,11 @@ export class PropertiesService {
       encryptedValueArrayBuffer
     );
 
-    console.log('Decrypted property value ArrayBuffer:', decryptedValueArrayBuffer);
+    // console.log('Decrypted property value ArrayBuffer:', decryptedValueArrayBuffer);
 
     // Convert the decrypted ArrayBuffer to a string
     const decryptedValue = new TextDecoder().decode(decryptedValueArrayBuffer);
-    console.log('Decrypted property value:', decryptedValue);
+    // console.log('Decrypted property value:', decryptedValue);
     return decryptedValue;
   }
 
