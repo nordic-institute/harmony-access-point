@@ -23,14 +23,12 @@ public class LoggingLevelResultRO implements Serializable {
 
     private Map<String, Object> filter; //NOSONAR
 
-    private String[] levels = {
+    public static String[] levels = {
             Level.TRACE.toString(),
             Level.DEBUG.toString(),
             Level.INFO.toString(),
             Level.WARN.toString(),
-            Level.ERROR.toString(),
-            Level.OFF.toString(),
-            Level.ALL.toString()
+            Level.ERROR.toString()
     };
 
     public List<LoggingLevelRO> getLoggingEntries() {
