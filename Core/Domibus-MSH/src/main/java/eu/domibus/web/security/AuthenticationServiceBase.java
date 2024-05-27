@@ -55,6 +55,10 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         }
 
         DomibusUserDetails loggedUser = getLoggedUser();
+        if (loggedUser == null) {
+            throw new DomainTaskException("Could not set current domain: logged user is null!");
+        }
+
         if (loggedUser.getAvailableDomainCodes().stream().noneMatch(domainCode::equalsIgnoreCase)) {
             throw new DomainTaskException("Could not set current domain: user is not a member of domain (" + domainCode + ")");
         }
