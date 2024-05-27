@@ -129,7 +129,7 @@ public class DomibusPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.validateProperty(name, value);
+            configurationPropertyResourceHelper.validatePropertyWrite(name, value);
         }};
 
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
@@ -146,7 +146,7 @@ public class DomibusPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.validateProperty(name, value);
+            configurationPropertyResourceHelper.validatePropertyWrite(name, value);
             authUtils.isSuperAdmin();
             result = false;
         }};
@@ -166,7 +166,7 @@ public class DomibusPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.validateProperty(name, value);
+            configurationPropertyResourceHelper.validatePropertyWrite(name, value);
             authUtils.isSuperAdmin();
             result = true;
         }};
@@ -457,7 +457,7 @@ public class DomibusPropertyResourceHelperImplTest {
             configurationPropertyResourceHelper.validatePropertyValue(propertyValue, propMeta);
         }};
 
-        configurationPropertyResourceHelper.validateProperty(propertyName, propertyValue);
+        configurationPropertyResourceHelper.validatePropertyWrite(propertyName, propertyValue);
 
         new Verifications() {{
             configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, propMeta);
