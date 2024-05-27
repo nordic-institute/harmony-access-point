@@ -60,7 +60,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
             throw new DomainTaskException("Could not set current domain: logged user is null!");
         }
         // the domain can be set as current if it is among the available domains of the current user
-        //in ECAS implementation, this means those domains the current user is a member of
+        //in EuLogin implementation, this means those domains the current user is a member of
         if (loggedUser.getAvailableDomainCodes().stream().noneMatch(domainCode::equalsIgnoreCase)) {
             throw new DomainTaskException("Could not set current domain: user is not a member of domain (" + domainCode + ")");
         }

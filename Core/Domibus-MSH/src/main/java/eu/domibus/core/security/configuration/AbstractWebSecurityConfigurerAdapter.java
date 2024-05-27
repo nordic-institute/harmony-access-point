@@ -125,7 +125,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                         "/rest/application/multitenancy",
                         "/rest/application/supportteam",
                         "/rest/security/user").permitAll()
-                // in non-ecas version, only super-admin can change the current domain
+                // in non-EuLogin version, only super-admin can change the current domain
                 .antMatchers(HttpMethod.PUT, "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/userdomains/**").authenticated()
                 .antMatchers("/rest/application/info").authenticated()
