@@ -50,6 +50,7 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomainTaskException("Could not set current domain: domain is empty");
         }
+
         if (domainService.getDomains().stream().noneMatch(d -> domainCode.equalsIgnoreCase(d.getCode()))) {
             throw new DomainTaskException("Could not set current domain: unknown domain (" + domainCode + ")");
         }
@@ -58,7 +59,8 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         if (loggedUser == null) {
             throw new DomainTaskException("Could not set current domain: logged user is null!");
         }
-
+        // the domain can be set as current if it is among the available domains of the current user
+        //in ECAS implementation, this means those domains the current user is a member of
         if (loggedUser.getAvailableDomainCodes().stream().noneMatch(domainCode::equalsIgnoreCase)) {
             throw new DomainTaskException("Could not set current domain: user is not a member of domain (" + domainCode + ")");
         }
