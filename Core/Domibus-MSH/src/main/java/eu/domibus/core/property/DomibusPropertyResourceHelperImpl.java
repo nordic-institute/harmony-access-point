@@ -121,7 +121,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         }
 
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if(!authUtils.isSuperAdmin() && propertyMetadata.isOnlyGlobal()) {
+        if(!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
         }
 
@@ -164,7 +164,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
-        if(!authUtils.isSuperAdmin() && propMeta.isOnlyGlobal()) {
+        if(!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
         }
 
