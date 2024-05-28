@@ -168,8 +168,6 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void testGetPropertyWithValidValue() {
-        authWithSuper();
-
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL);
         Assert.assertEquals(result.getUsedValue(), result.getValue());
     }
@@ -182,8 +180,6 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void testGetPropertyDefaultInvalidValue() {
-        authWithSuper();
-
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_PROXY_HTTP_PORT);
         Assert.assertEquals(StringUtils.EMPTY, result.getValue());
         Assert.assertEquals(StringUtils.EMPTY, result.getUsedValue());
