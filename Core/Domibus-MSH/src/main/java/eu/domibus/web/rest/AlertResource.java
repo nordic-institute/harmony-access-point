@@ -124,7 +124,7 @@ public class AlertResource extends BaseResource {
         final List<Alert> superAlerts = filterSuperAlerts(alertRos);
         final List<Alert> deletedSuperAlerts = filterDeletedSuperAlerts(alertRos);
         if (!authUtils.isSuperAdmin() && (CollectionUtils.isNotEmpty(superAlerts) || CollectionUtils.isNotEmpty(deletedSuperAlerts))) {
-            throw new UnsupportedOperationException("Only super admin can update or delete alerts pertaining to super admins!");
+            throw new AccessDeniedException("Only super admin can update or delete alerts pertaining to super admins!");
         }
 
         final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
