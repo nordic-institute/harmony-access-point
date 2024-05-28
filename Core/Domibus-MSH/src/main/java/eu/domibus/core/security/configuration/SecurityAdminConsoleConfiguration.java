@@ -1,7 +1,6 @@
 package eu.domibus.core.security.configuration;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +65,8 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
+                // testing EuLogin case
+//                .antMatchers(HttpMethod.PUT, "/rest/security/user/domain").authenticated()
                 .and()
                 .sessionManagement()
                 .maximumSessions(10)
