@@ -70,14 +70,12 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles={"AP_ADMIN"})
     public void setProperty_composable() {
-        authWithSuper();
-
         String propertyName = "composable_property_name";
         boolean isDomain = false;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(propertyName);
+        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getOnTheFlyProperty(propertyName);
         propertyMetadata.setComposable(true);
+        propertyMetadata.setWritable(true);
         String propertyValue = "100";
         globalPropertyMetadataManager.getAllProperties().put(propertyName, propertyMetadata);
 
