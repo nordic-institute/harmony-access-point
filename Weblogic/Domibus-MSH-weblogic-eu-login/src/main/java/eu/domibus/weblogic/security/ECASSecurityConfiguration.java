@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,7 +54,7 @@ public class ECASSecurityConfiguration extends AbstractWebSecurityConfigurerAdap
                 .sessionManagement().sessionFixation().none()
                 .and()
                 // in EuLogin version, any user can change the current domain
-                .authorizeRequests().antMatchers( "/rest/security/user/domain").authenticated();
+                .authorizeRequests().antMatchers(HttpMethod.PUT, "/rest/security/user/domain").authenticated();
 
     }
 
