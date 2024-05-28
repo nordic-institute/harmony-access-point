@@ -65,8 +65,6 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
-                // testing EuLogin case
-//                .antMatchers(HttpMethod.PUT, "/rest/security/user/domain").authenticated()
                 .and()
                 .sessionManagement()
                 .maximumSessions(10)
