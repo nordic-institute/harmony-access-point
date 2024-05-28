@@ -3,7 +3,6 @@ package eu.domibus.web.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserService;
@@ -15,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.function.Consumer;
@@ -52,8 +50,19 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomainTaskException("Could not set current domain: domain is empty");
         }
-        if (!domainService.getDomains().stream().anyMatch(d -> domainCode.equalsIgnoreCase(d.getCode()))) {
+
+        if (domainService.getDomains().stream().noneMatch(d -> domainCode.equalsIgnoreCase(d.getCode()))) {
             throw new DomainTaskException("Could not set current domain: unknown domain (" + domainCode + ")");
+        }
+
+        DomibusUserDetails loggedUser = getLoggedUser();
+        if (loggedUser == null) {
+            throw new DomainTaskException("Could not set current domain: logged user is null!");
+        }
+        // the domain can be set as current if it is among the available domains of the current user
+        //in EuLogin implementation, this means those domains the current user is a member of
+        if (loggedUser.getAvailableDomainCodes().stream().noneMatch(domainCode::equalsIgnoreCase)) {
+            throw new DomainTaskException("Could not set current domain: user is not a member of domain (" + domainCode + ")");
         }
 
         authUtils.executeOnLoggedUser(userDetails -> userDetails.setDomain(domainCode));

@@ -52,8 +52,8 @@ public class ECASSecurityConfiguration extends AbstractWebSecurityConfigurerAdap
                 .and()
                 .sessionManagement().sessionFixation().none()
                 .and()
-                .authorizeRequests()
-                .antMatchers( "/rest/security/user/domain").authenticated();
+                // in EuLogin version, any user can change the current domain
+                .authorizeRequests().antMatchers( "/rest/security/user/domain").authenticated();
 
     }
 
