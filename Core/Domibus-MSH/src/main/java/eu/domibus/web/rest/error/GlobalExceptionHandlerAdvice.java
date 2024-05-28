@@ -46,6 +46,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
         this.errorHandlerService = errorHandlerService;
     }
 
+    @ExceptionHandler({UnsupportedOperationException.class})
+    public ResponseEntity<ErrorRO> handleUnsupportedOperationException(UnsupportedOperationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler({DomainTaskException.class})
     public ResponseEntity<ErrorRO> handleDomainException(DomainTaskException ex) {
         return handleWrappedException(ex);

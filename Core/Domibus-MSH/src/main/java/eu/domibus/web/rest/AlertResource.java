@@ -17,9 +17,11 @@ import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +38,6 @@ import java.util.stream.IntStream;
 public class AlertResource extends BaseResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertResource.class);
-
 
     private AlertService alertService;
 
@@ -120,10 +121,14 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
         final List<Alert> superAlerts = filterSuperAlerts(alertRos);
-        final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);
         final List<Alert> deletedSuperAlerts = filterDeletedSuperAlerts(alertRos);
+        if (!authUtils.isSuperAdmin() && (CollectionUtils.isNotEmpty(superAlerts) || CollectionUtils.isNotEmpty(deletedSuperAlerts))) {
+            throw new UnsupportedOperationException("Only super admin can update or delete alerts pertaining to super admins!");
+        }
+
+        final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
+        final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);
 
         alertService.updateAlertProcessed(domainAlerts);
         domainTaskExecutor.submit(() -> alertService.updateAlertProcessed(superAlerts));
