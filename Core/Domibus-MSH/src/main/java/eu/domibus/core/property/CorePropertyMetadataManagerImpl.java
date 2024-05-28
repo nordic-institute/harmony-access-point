@@ -430,7 +430,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_CRL_BY_URL_CACHE_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_CRL_BY_CERT_CACHE_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
+            new DomibusPropertyMetadata(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN, true),
 

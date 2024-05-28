@@ -304,6 +304,13 @@ public abstract class AbstractIT {
                         Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
     }
 
+    protected void authWithSuper() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "super",
+                        "123456",
+                        Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()))));
+    }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
         uploadPmode(redHttpPort, null);

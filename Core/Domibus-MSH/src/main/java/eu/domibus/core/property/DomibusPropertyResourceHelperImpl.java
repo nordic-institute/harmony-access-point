@@ -92,7 +92,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
-        validateProperty(propertyName, propertyValue);
+        validatePropertyWrite(propertyName, propertyValue);
 
         DomibusPropertyMetadata.Type propertyType = domibusPropertyProvider.getPropertyType(propertyName);
         if (isDomain) {
@@ -121,6 +121,10 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         }
 
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if(!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
+            throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
+        }
+
         return getValueAndCreateProperty(propertyMetadata);
     }
 
@@ -157,8 +161,12 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         return result;
     }
 
-    protected void validateProperty(String propertyName, String propertyValue) {
+    protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
+
+        if(!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
+            throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
+        }
 
         validatePropertyMetadata(propertyName, propMeta);
 
