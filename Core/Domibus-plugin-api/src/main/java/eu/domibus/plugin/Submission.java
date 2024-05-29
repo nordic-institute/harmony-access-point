@@ -397,6 +397,16 @@ public class Submission {
     }
 
     /**
+     * Returns the partyId for the first From party, or null if there is no From party
+     */
+    public String getFirstFromPartyId() {
+        if (this.fromParties == null || this.fromParties.isEmpty()) {
+            return null;
+        }
+        return this.fromParties.iterator().next().getPartyId();
+    }
+
+    /**
      * This method adds one message property to the plugin. The optional type attribute is not set.
      * <p>
      * "Its actual semantics is beyond the scope of this specification. The element is intended to be consumed outside
@@ -459,6 +469,16 @@ public class Submission {
      */
     public Set<Submission.Party> getToParties() {
         return this.toParties;
+    }
+
+    /**
+     * Returns the partyId for the first To party, or null if there is no To party
+     */
+    public String getFirstToPartyId() {
+        if (this.toParties == null || this.toParties.isEmpty()) {
+            return null;
+        }
+        return this.toParties.iterator().next().getPartyId();
     }
 
     /**
