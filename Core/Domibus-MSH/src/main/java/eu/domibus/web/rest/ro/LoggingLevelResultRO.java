@@ -28,7 +28,9 @@ public class LoggingLevelResultRO implements Serializable {
             Level.DEBUG.toString(),
             Level.INFO.toString(),
             Level.WARN.toString(),
-            Level.ERROR.toString()
+            Level.ERROR.toString(),
+            Level.ALL.toString(),
+            Level.OFF.toString()
     };
 
     public List<LoggingLevelRO> getLoggingEntries() {
