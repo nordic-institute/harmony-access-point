@@ -92,7 +92,7 @@ public class LoggingResourceIT extends AbstractIT {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
         loggingLevelRO.setName("eu.domibus");
-
+        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(true);
         mockMvc.perform(post("/rest/logging/loglevel")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -101,9 +101,25 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
+    public void setLogLevel_nok_custom_name() throws Exception {
+        LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
+        loggingLevelRO.setLevel("DEBUG");
+        loggingLevelRO.setName("custom.package");
+
+        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(false);
+
+        mockMvc.perform(post("/rest/logging/loglevel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(loggingLevelRO)))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+    }
+
+    @Test
     public void setLogLevel_nok_ALL() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
-        loggingLevelRO.setLevel("ALL");
+        loggingLevelRO.setLevel("CUSTOM_LEVEL");
         loggingLevelRO.setName("eu.domibus");
 
         mockMvc.perform(post("/rest/logging/loglevel")

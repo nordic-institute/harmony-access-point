@@ -70,6 +70,10 @@ public class LoggingResource {
         final String name = request.getName();
         final String level = request.getLevel();
 
+        if (!loggingService.exists(name)) {
+            LOG.error("[{}] is not a known logger", name);
+            return ResponseEntity.badRequest().body("[" + request.getName() + "] is not a known logger ");
+        }
         if (!contains(Arrays.stream(LoggingLevelResultRO.levels).iterator(), request.getLevel())) {
             LOG.error("Could not set log level [{}]", request.getLevel());
             return ResponseEntity.badRequest().body("Could not set log level [" + request.getLevel() + "]");
