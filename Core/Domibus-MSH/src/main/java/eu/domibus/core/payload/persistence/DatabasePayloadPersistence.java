@@ -9,6 +9,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         partInfo.setLength(partInfoLength);
         partInfo.setFileName(null);
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
-
+        LOG.businessInfo(DomibusMessageCode.BUS_PAYLOAD_PERSISTED_IN_DB, partInfo.getHref());
 
         //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
         partInfo.loadBinary();

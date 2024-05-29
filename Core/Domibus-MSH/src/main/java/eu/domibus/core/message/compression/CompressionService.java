@@ -156,6 +156,7 @@ public class CompressionService {
         }
 
         if (!payloadCompressed) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_NOT_ENABLED, partInfo.getHref());
             LOG.debug("Decompression is not needed: payload is not compressed");
             return;
         }
