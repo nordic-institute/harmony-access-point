@@ -113,7 +113,6 @@ public class LoggingServiceImpl implements LoggingService {
         if (StringUtils.isBlank(loggerName)) {
             return false;
         }
-        LOG.info("Trying to find the logger [{}]", loggerName);
         return ((LoggerContext) LoggerFactory.getILoggerFactory())
                 .getLoggerList()
                 .stream()
