@@ -155,6 +155,10 @@ public class DomibusPropertyResource extends BaseResource {
     @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
         DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
+        if (prop.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD) {
+            prop.setValue(PASSWORD_MASK);
+            prop.setUsedValue(PASSWORD_MASK);
+        }
         DomibusPropertyRO convertedProp = domibusPropertyMetadataMapper.propertyApiToPropertyRO(prop);
         return convertedProp;
     }
