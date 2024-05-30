@@ -171,10 +171,13 @@ public class DomibusPropertyResource extends BaseResource {
     public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
         try {
             DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
-            String value = prop.getValue();
+            String propValue = prop.getValue();
+            if (StringUtils.isBlank(propValue)) {
+                return StringUtils.EMPTY;
+            }
 
             byte[] decodedKeyPem = Base64.decodeBase64(publicKeyPem);
-            return securityUtil.encryptValue(new String(decodedKeyPem), value);
+            return securityUtil.encryptValue(new String(decodedKeyPem), propValue);
         } catch (Exception e) {
             throw new DomibusPropertyException("Error trying to encrypt password", e);
         }
