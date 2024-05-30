@@ -259,7 +259,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
     let propertyName = row.name;
     console.log('Retrieving password for property:', propertyName, row);
     let value = await this.propertiesService.decryptProperty(propertyName);
-    console.log(' password value is :', value);
+    // console.log(' password value is :', value);
     row.value = value;
   }
 
