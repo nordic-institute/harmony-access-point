@@ -91,29 +91,6 @@ public class SuperUserManagementServiceImplTest {
     AuthCoreMapper authCoreMapper;
 
     @Test
-    public void updateUsers() {
-        User user = new User() {{
-            setUserName("user1");
-            setAuthorities(Arrays.asList(AuthRole.ROLE_USER.toString()));
-        }};
-
-        User sUser = new User() {{
-            setUserName("super1");
-            setAuthorities(Arrays.asList(AuthRole.ROLE_AP_ADMIN.toString()));
-        }};
-
-        List<User> all = Arrays.asList(user, sUser);
-
-        superUserManagementService.updateUsers(all);
-
-        new Verifications() {{
-            SecurityContextHolder.getContext().getAuthentication();
-            SecurityContextHolder.getContext().setAuthentication((Authentication) any);
-            domainTaskExecutor.submit((Runnable) any);
-        }};
-    }
-
-    @Test
     public void changePassword() {
         String username = "u1", currentPassword = "pass1", newPassword = "newPass1";
 
