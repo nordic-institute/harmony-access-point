@@ -8,8 +8,6 @@ import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,9 +73,8 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         // we need the security context restored on this thread because we try to get the logged user down the way
-        domainTaskExecutor.submitWithSecurityContext(() -> {
-            super.updateUsers(users);
-        });
+        domainTaskExecutor.submitWithSecurityContext(
+                () -> super.updateUsers(users));
     }
 
     @Override

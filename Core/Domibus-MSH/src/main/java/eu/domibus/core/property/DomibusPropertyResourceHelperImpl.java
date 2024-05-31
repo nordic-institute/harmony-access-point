@@ -11,8 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -417,9 +415,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
             } else {
                 // for non-domain properties, we get the values in the null-domain context:
                 // we need the security context restored on this thread because we try to get the logged user down the way
-                properties = domainTaskExecutor.submitWithSecurityContext(() -> {
-                    return getPropertyValues(propertiesMetadata);
-                });
+                properties = domainTaskExecutor.submitWithSecurityContext(
+                        () -> getPropertyValues(propertiesMetadata));
             }
             return this;
         }
