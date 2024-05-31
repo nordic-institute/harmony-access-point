@@ -14,9 +14,13 @@ public interface DomainTaskExecutor {
 
     <T extends Object> T submit(Callable<T> task);
 
+    <T extends Object> T submitWithSecurityContext(Callable<T> task);
+
     <T extends Object> T submit(Callable<T> task, Domain domain);
 
     void submit(Runnable task);
+
+    void submitWithSecurityContext(Runnable task);
 
     Future<?> submit(Runnable task, boolean waitForTask);
 

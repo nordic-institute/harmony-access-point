@@ -23,6 +23,11 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public <T> T submitWithSecurityContext(Callable<T> task) {
+        return submit(task);
+    }
+
+    @Override
     public <T> T submit(Callable<T> task, Domain domain) {
         try {
             return task.call();
@@ -38,6 +43,11 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void submitWithSecurityContext(Runnable task) {
+
     }
 
     @Override

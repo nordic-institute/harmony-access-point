@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -121,7 +123,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         }
 
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if(!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
+        if (!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
         }
 
@@ -164,7 +166,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
-        if(!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
+        if (!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
         }
 
@@ -257,23 +259,23 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     protected void validatePositiveIntegerMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-            if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
-                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
-            }
+        if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+            throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
+        }
     }
 
     protected void validatePositiveDecimalMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
 
-            String values[] = propertyValue.split("\\.");
-            if (values.length > 1) {
-                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1L)) > 0) {
-                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
-                }
-            } else {
-                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
-                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
-                }
+        String values[] = propertyValue.split("\\.");
+        if (values.length > 1) {
+            if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1L)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
             }
+        } else {
+            if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+            }
+        }
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
@@ -414,7 +416,10 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                 properties = getPropertyValues(propertiesMetadata);
             } else {
                 // for non-domain properties, we get the values in the null-domain context:
-                properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
+                // we need the security context restored on this thread because we try to get the logged user down the way
+                properties = domainTaskExecutor.submitWithSecurityContext(() -> {
+                    return getPropertyValues(propertiesMetadata);
+                });
             }
             return this;
         }

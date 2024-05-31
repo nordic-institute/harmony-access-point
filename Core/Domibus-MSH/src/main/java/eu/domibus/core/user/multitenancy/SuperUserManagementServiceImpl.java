@@ -74,11 +74,8 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
-        // TODO: maybe add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
-        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        domainTaskExecutor.submit(() -> {
-            // we need the security context restored on this thread because we try to get the logged user down the way
-            SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+        // we need the security context restored on this thread because we try to get the logged user down the way
+        domainTaskExecutor.submitWithSecurityContext(() -> {
             super.updateUsers(users);
         });
     }
