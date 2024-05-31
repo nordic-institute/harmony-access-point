@@ -6,10 +6,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.concurrent.Callable;
 
 /**
- * Wrapper for the Runnable class to be executed. Clear first the domain set on the thread before execution.
+ * Wrapper for the Callable class to be executed, preserving the security context
  *
- * @author Cosmin Baciu
- * @since 4.0.1
+ * @author Ion perpegel
+ * @since 5.1.5
  */
 public class SetAuthRunnable<T> implements Callable<T> {
     protected Callable<T> runnable;
