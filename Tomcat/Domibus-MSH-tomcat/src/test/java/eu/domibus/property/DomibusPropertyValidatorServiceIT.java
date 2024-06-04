@@ -34,17 +34,23 @@ public class DomibusPropertyValidatorServiceIT extends AbstractIT {
 
 
     @Test
-    public void testDomibusPropertyExceptionIsRaised() throws IOException {
-        String previousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE);
+    public void testDomibusPropertyExceptionIsRaised() {
+        String enforcePreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE);
+        String patternPreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN);
+        String passwordPreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD);
 
         try {
             domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, "true");
+            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN, "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[~`!@#$%^&+=\\\\-_<>.,?:;*/()|\\\\[\\\\]{}'\"\\\\\\\\]).{16,32}$");
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, "test123");
             DomibusPropertyException exception = Assert.assertThrows(DomibusPropertyException.class,
                     () -> domibusPropertyValidatorService.validatePropertiesPasswordPolicy());
             Assert.assertTrue(exception.getMessage().contains("all property passwords must match"));
         }
         finally {
-            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, previousPropValue);
+            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, enforcePreviousPropValue);
+            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN, patternPreviousPropValue);
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, passwordPreviousPropValue);
         }
     }
 }
