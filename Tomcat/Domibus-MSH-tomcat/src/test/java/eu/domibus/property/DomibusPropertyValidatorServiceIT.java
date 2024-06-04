@@ -21,7 +21,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.DomibusPropertyException;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
-
 public class DomibusPropertyValidatorServiceIT extends AbstractIT {
 
     @Autowired
@@ -32,20 +31,28 @@ public class DomibusPropertyValidatorServiceIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyValidatorServiceIT.class);
 
-
     @Test
     public void testDomibusPropertyExceptionIsRaised() {
+        DomibusPropertyException exception = Assert.assertThrows(DomibusPropertyException.class,
+                () -> callPasswordPropertiesValidation(true));
+        Assert.assertTrue(exception.getMessage().contains("all property passwords must match"));
+    }
+
+    @Test
+    public void testDomibusPropertyExceptionIsNotRaised() {
+         callPasswordPropertiesValidation(false);
+    }
+
+    private void callPasswordPropertiesValidation(boolean enforcePasswordPolicy) {
         String enforcePreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE);
         String patternPreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN);
         String passwordPreviousPropValue = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD);
 
         try {
-            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, "true");
+            domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, String.valueOf(enforcePasswordPolicy));
             domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN, "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[~`!@#$%^&+=\\\\-_<>.,?:;*/()|\\\\[\\\\]{}'\"\\\\\\\\]).{16,32}$");
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, "test123");
-            DomibusPropertyException exception = Assert.assertThrows(DomibusPropertyException.class,
-                    () -> domibusPropertyValidatorService.validatePropertiesPasswordPolicy());
-            Assert.assertTrue(exception.getMessage().contains("all property passwords must match"));
+            domibusPropertyValidatorService.validatePropertiesPasswordPolicy();
         }
         finally {
             domibusPropertyProvider.setProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, enforcePreviousPropValue);
