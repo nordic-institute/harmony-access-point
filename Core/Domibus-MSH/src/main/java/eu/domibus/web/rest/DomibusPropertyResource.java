@@ -47,17 +47,13 @@ public class DomibusPropertyResource extends BaseResource {
 
     private final SecurityUtilImpl securityUtil;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
                                    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
-                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil,
-                                   DomibusPropertyProvider domibusPropertyProvider) {
+                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil) {
         this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
         this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.errorHandlerService = errorHandlerService;
         this.securityUtil = securityUtil;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @ExceptionHandler({DomibusPropertyException.class})
