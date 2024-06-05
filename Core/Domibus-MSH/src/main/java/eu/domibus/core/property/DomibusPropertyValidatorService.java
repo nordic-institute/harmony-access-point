@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -82,6 +81,7 @@ public class DomibusPropertyValidatorService {
     }
 
     public void validatePropertiesPasswordPolicy() {
+        LOG.debug("Validating password policy for all the properties of type password.");
         final Pattern passwordPolicyPattern = Pattern.compile(domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN));
         final boolean enforcePropertiesPasswordPolicy = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE));
 
@@ -98,7 +98,7 @@ public class DomibusPropertyValidatorService {
         }
 
         if (enforcePropertiesPasswordPolicy && problemsFound) {
-            throw new DomibusPropertyException("When " + DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE + " is set to true, all property passwords must match " + DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN);
+            throw new DomibusPropertyException("When [" + DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE + "] is set to true, all password properties must match [" + DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN + "].");
         }
     }
 
@@ -115,30 +115,33 @@ public class DomibusPropertyValidatorService {
     }
 
     private boolean globalPropertyMatchesPasswordPolicy(DomibusPropertyMetadata property, Pattern passwordPolicyPattern) {
+        LOG.debug("Validating password policy for global property [{}].", property.getName());
         final String password = domibusPropertyProvider.getProperty(property.getName());
-        if (!StringUtils.isBlank(password)) {
-            final Matcher m = passwordPolicyPattern.matcher(password);
-            if (!m.matches()) {
-                LOG.warn(WarningUtil.warnOutput("Password property [" + property.getName() + "] doesn't match the password policy pattern."));
-                return false;
-            }
+        if (passwordMatchesPasswordPolicy(password, passwordPolicyPattern)) {
+            return true;
         }
-        return true;
+        LOG.warn(WarningUtil.warnOutput("Password property [" + property.getName() + "] doesn't match the password policy pattern [" + DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN + "]."));
+        return false;
     }
 
     private boolean domainPropertyMatchesPasswordPolicy(DomibusPropertyMetadata property, Pattern passwordPolicyPattern) {
+        LOG.debug("Validating password policy for domain property [{}].", property.getName());
         boolean result = true;
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             final String password = domibusPropertyProvider.getProperty(domain, property.getName());
-            if (!StringUtils.isBlank(password)) {
-                Matcher m = passwordPolicyPattern.matcher(password);
-                if (!m.matches()) {
-                    LOG.warn(WarningUtil.warnOutput("Password property [" + property.getName() + "] doesn't match the password policy pattern on domain " + domain.getName()));
-                    result = false;
-                }
+            if (!passwordMatchesPasswordPolicy(password, passwordPolicyPattern)) {
+                LOG.warn(WarningUtil.warnOutput("Password property [" + property.getName() + "] doesn't match the password policy pattern [" + DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN + "] on domain [" + domain.getName() + "]."));
+                result = false;
             }
         }
         return result;
+    }
+
+    public boolean passwordMatchesPasswordPolicy(String password, Pattern passwordPolicyPattern) {
+        if (StringUtils.isBlank(password)) {
+            return true;
+        }
+        return passwordPolicyPattern.matcher(password).matches();
     }
 }
