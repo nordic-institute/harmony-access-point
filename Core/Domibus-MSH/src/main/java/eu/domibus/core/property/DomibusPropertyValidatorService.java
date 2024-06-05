@@ -82,7 +82,6 @@ public class DomibusPropertyValidatorService {
     }
 
     public void validatePropertiesPasswordPolicy() {
-        // TODO IB !!!! test also with DSS and UUMDS
         final Pattern passwordPolicyPattern = Pattern.compile(domibusPropertyProvider.getProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN));
         final boolean enforcePropertiesPasswordPolicy = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE));
 
