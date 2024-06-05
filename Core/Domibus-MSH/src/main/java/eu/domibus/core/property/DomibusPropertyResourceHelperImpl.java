@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
 
 /**
@@ -35,6 +36,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResourceHelperImpl.class);
 
     public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
+
+    public static final String PASSWORD_MASK = "";
 
     DecimalFormat decimalFormat = new DecimalFormat("0.#");
 
@@ -87,7 +90,23 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                 .sort(filter.getOrderBy(), filter.getAsc())
                 .getResults();
 
+        handlePasswords(properties);
+
         return properties;
+    }
+
+    private void handlePasswords(List<DomibusProperty> properties) {
+        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
+        if (allowPasswords) {
+            properties.stream()
+                    .filter(property -> property.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
+                    .forEach(property -> {
+                        property.setValue(PASSWORD_MASK);
+                        property.setUsedValue(PASSWORD_MASK);
+                    });
+        } else {
+            properties.removeIf(property -> property.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD);
+        }
     }
 
     @Override
@@ -116,16 +135,64 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     @Override
     public DomibusProperty getProperty(String propertyName) {
-        if (!globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
-            throw new DomibusPropertyException("Unknown property: " + propertyName);
-        }
+        validateExists(propertyName);
 
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        validateGlobal(propertyName, propertyMetadata);
+
+        DomibusProperty domibusProperty = getValueAndCreateProperty(propertyMetadata);
+        handlePassword(propertyName, propertyMetadata, domibusProperty);
+
+        return domibusProperty;
+    }
+
+    private void handlePassword(String propertyName, DomibusPropertyMetadata propertyMetadata, DomibusProperty domibusProperty) {
+        if (propertyMetadata.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            return;
+        }
+
+        checkAllowPassword(propertyName);
+
+        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
+        if (allowPasswords) {
+            domibusProperty.setValue(PASSWORD_MASK);
+            domibusProperty.setUsedValue(PASSWORD_MASK);
+        }
+    }
+
+    @Override
+    public String getPasswordProperty(String propertyName) {
+        validateExists(propertyName);
+
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (propertyMetadata.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            throw new DomibusPropertyException("Property named " + propertyName + " is not a password");
+        }
+
+        validateGlobal(propertyName, propertyMetadata);
+
+        checkAllowPassword(propertyName);
+
+        return domibusPropertyProvider.getProperty(propertyName);
+    }
+
+    private void checkAllowPassword(String propertyName) {
+        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
+        if (!allowPasswords) {
+            throw new DomibusPropertyException("Not allowed to retrieve password property named: " + propertyName);
+        }
+    }
+
+    private void validateGlobal(String propertyName, DomibusPropertyMetadata propertyMetadata) {
         if (!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
         }
+    }
 
-        return getValueAndCreateProperty(propertyMetadata);
+    private void validateExists(String propertyName) {
+        if (!globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            throw new DomibusPropertyException("Unknown property: " + propertyName);
+        }
     }
 
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {

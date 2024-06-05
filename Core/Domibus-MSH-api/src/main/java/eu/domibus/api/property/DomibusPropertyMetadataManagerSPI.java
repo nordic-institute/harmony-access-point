@@ -365,6 +365,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.password.encryption.active"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
+    String DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW = "domibus.properties.password.view.allow";//NOSONAR
     String DOMIBUS_JMS_QUEUE_PULL = "domibus.jms.queue.pull";
     String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.connectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";

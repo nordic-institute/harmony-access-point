@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
@@ -37,7 +38,6 @@ import java.util.stream.Collectors;
 @Validated
 public class DomibusPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
-    public static final String PASSWORD_MASK = "";
 
     private final DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
@@ -47,13 +47,17 @@ public class DomibusPropertyResource extends BaseResource {
 
     private final SecurityUtilImpl securityUtil;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
                                    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
-                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil) {
+                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil,
+                                   DomibusPropertyProvider domibusPropertyProvider) {
         this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
         this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.errorHandlerService = errorHandlerService;
         this.securityUtil = securityUtil;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @ExceptionHandler({DomibusPropertyException.class})
@@ -76,12 +80,6 @@ public class DomibusPropertyResource extends BaseResource {
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
 
-        items.stream()
-                .filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
-                .forEach(item -> {
-                    item.setValue(PASSWORD_MASK);
-                    item.setUsedValue(PASSWORD_MASK);
-                });
         List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         response.setItems(convertedItems);
@@ -155,10 +153,6 @@ public class DomibusPropertyResource extends BaseResource {
     @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
         DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
-        if (prop.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD) {
-            prop.setValue(PASSWORD_MASK);
-            prop.setUsedValue(PASSWORD_MASK);
-        }
         DomibusPropertyRO convertedProp = domibusPropertyMetadataMapper.propertyApiToPropertyRO(prop);
         return convertedProp;
     }
@@ -173,13 +167,12 @@ public class DomibusPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/{propertyName:.+}/encrypted")
     public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
-        try {
-            DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
-            String propValue = prop.getValue();
-            if (StringUtils.isBlank(propValue)) {
-                return StringUtils.EMPTY;
-            }
+        String propValue = domibusPropertyResourceHelper.getPasswordProperty(propertyName);
+        if (StringUtils.isBlank(propValue)) {
+            return StringUtils.EMPTY;
+        }
 
+        try {
             byte[] decodedKeyPem = Base64.decodeBase64(publicKeyPem);
             return securityUtil.encryptValue(new String(decodedKeyPem), propValue);
         } catch (Exception e) {
