@@ -35,7 +35,7 @@ public class DomibusPropertyValidatorServiceIT extends AbstractIT {
     public void testDomibusPropertyExceptionIsRaised() {
         DomibusPropertyException exception = Assert.assertThrows(DomibusPropertyException.class,
                 () -> callPasswordPropertiesValidation(true));
-        Assert.assertTrue(exception.getMessage().contains("all property passwords must match"));
+        Assert.assertTrue(exception.getMessage().contains("all password properties must match"));
     }
 
     @Test
