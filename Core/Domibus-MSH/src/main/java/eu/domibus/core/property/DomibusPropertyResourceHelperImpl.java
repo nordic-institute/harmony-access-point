@@ -151,13 +151,10 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
             return;
         }
 
-        checkAllowPassword(propertyName);
+        checkAllowPassword(propertyName, propertyMetadata);
 
-        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
-        if (allowPasswords) {
-            domibusProperty.setValue(PASSWORD_MASK);
-            domibusProperty.setUsedValue(PASSWORD_MASK);
-        }
+        domibusProperty.setValue(PASSWORD_MASK);
+        domibusProperty.setUsedValue(PASSWORD_MASK);
     }
 
     @Override
@@ -171,12 +168,16 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
         validateGlobal(propertyName, propertyMetadata);
 
-        checkAllowPassword(propertyName);
+        checkAllowPassword(propertyName, propertyMetadata);
 
         return domibusPropertyProvider.getProperty(propertyName);
     }
 
-    private void checkAllowPassword(String propertyName) {
+    private void checkAllowPassword(String propertyName, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            return;
+        }
+
         Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
         if (!allowPasswords) {
             throw new DomibusPropertyException("Not allowed to retrieve password property named: " + propertyName);
@@ -234,6 +235,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         if (!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
             throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
         }
+
+        checkAllowPassword(propertyName, propMeta);
 
         validatePropertyMetadata(propertyName, propMeta);
 

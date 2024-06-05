@@ -1,6 +1,6 @@
 const PROXY_CONFIG = {
   "/domibus/rest/**": {
-    target: "http://localhost:8080",
+    target: "http://localhost:8851",
     changeOrigin: true,
     secure: false,
     logLevel: "debug",
