@@ -7,6 +7,7 @@ import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -97,7 +98,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     private void handlePasswords(List<DomibusProperty> properties) {
         Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
-        if (allowPasswords) {
+        if (BooleanUtils.isTrue(allowPasswords)) {
             properties.stream()
                     .filter(property -> property.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
                     .forEach(property -> {
