@@ -84,6 +84,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CRL_BY_CERT_CACHE_ENABLED = "domibus.certificate.crlByCert.cache.enabled";
     String DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
     String DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT = "domibus.certificate.crl.http.timeout";
+    String DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN = "domibus.properties.passwordPolicy.pattern";//NOSONAR
+    String DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE = "domibus.properties.passwordPolicy.enforce";//NOSONAR
     String DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT = "domibus.plugin.login.maximum.attempt";
     String DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME = "domibus.plugin.login.suspension.time";
     String DOMIBUS_PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";//NOSONAR

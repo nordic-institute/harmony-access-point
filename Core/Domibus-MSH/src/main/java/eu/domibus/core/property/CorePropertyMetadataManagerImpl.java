@@ -122,6 +122,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED, Type.BOOLEAN),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN, Type.REGEXP),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_REVOCATION_OFFSET, Type.NUMERIC, Usage.DOMAIN, true),
