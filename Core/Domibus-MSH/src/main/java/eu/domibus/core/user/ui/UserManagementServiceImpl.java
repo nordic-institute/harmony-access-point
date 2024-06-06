@@ -27,8 +27,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_AUTOGENERATE_PASSWORD;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
@@ -297,13 +296,21 @@ public class UserManagementServiceImpl implements UserService {
 
         // check already exists an active admin user
         if (hasAtLeastOneActiveAdmin()) {
+            boolean reGeneratePassword = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_REGENERATE_PASSWORD);
+            if (reGeneratePassword) {
+                LOG.info("Property to regenerate default password is enabled.");
+
+                String userName = getDefaultUserName();
+                String newPassword = getPassword();
+                userPersistenceService.reGenerateDefaultPassword(userName, newPassword);
+
+                LOG.info("Default password regenerated successfully for user [{}] is [{}].", userName, newPassword);
+            }
             LOG.info("A user with role [{}] already exists; exiting.", getAdminRole());
             return;
         }
-
         String userName = getDefaultUserName();
         eu.domibus.api.user.User user = createDefaultUser(userName);
-
         userPersistenceService.updateUsers(Arrays.asList(user));
     }
 
