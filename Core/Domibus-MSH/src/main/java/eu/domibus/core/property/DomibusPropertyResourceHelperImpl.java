@@ -180,13 +180,13 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
         Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
         if (!allowPasswords) {
-            throw new DomibusPropertyException("Not allowed to retrieve password property named: " + propertyName);
+            throw new DomibusPropertyException("Not allowed to view or change the password property named: " + propertyName);
         }
     }
 
     private void validateGlobal(String propertyName, DomibusPropertyMetadata propertyMetadata) {
         if (!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
-            throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
+            throw new DomibusPropertyException("Only super admins can view or change global properties: " + propertyName);
         }
     }
 
@@ -232,9 +232,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
-        if (!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
-            throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
-        }
+        validateGlobal(propertyName, propMeta);
 
         checkAllowPassword(propertyName, propMeta);
 
