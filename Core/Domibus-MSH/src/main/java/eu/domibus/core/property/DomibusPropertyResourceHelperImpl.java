@@ -233,11 +233,11 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
+        validatePropertyMetadata(propertyName, propMeta);
+
         validateGlobal(propertyName, propMeta);
 
         checkAllowPassword(propertyName, propMeta);
-
-        validatePropertyMetadata(propertyName, propMeta);
 
         validatePropertyName(propMeta, propertyName);
 

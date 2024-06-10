@@ -53,8 +53,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
             Assert.assertTrue(ex.getMessage().contains("it is not writable"));
         }
     }
-
-    @Ignore
+    
     @Test
     public void setProperty_nonexistent() {
         String propertyName = "non-existent-property-test";
