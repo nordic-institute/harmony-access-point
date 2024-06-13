@@ -148,8 +148,12 @@ public class DomibusApplicationContextListener {
             return;
         }
 
-        doInitialize();
-
+        try {
+            doInitialize();
+        } catch (Exception ex) {
+            LOG.error("Error during initialization. Shutting down.", ex);
+            ShutdownUtils.shutdownDomibus(applicationContext, true);
+        }
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
@@ -169,7 +173,6 @@ public class DomibusApplicationContextListener {
      */
     protected void executeSynchronized(boolean completeInitialization) {
         messageDictionaryService.createStaticDictionaryEntries();
-        domibusPropertyValidatorService.enforceValidation();
         encryptionService.handleEncryption();
         getUserService().createDefaultUserIfApplicable();
 
@@ -198,6 +201,7 @@ public class DomibusApplicationContextListener {
      * Add code that does not need to be executed with regard to other nodes in the cluster
      */
     protected void executeNonSynchronized(boolean completeInitialization) {
+        domibusPropertyValidatorService.enforceValidation();
         routingService.initialize();
         gatewayConfigurationValidator.validateConfiguration();
         backendConnectorService.ensureValidConfiguration();

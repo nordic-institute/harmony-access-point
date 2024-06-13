@@ -1,10 +1,8 @@
 package eu.domibus.core.spring;
 
-import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -34,13 +32,7 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         super.contextDestroyed(servletContextEvent);
         shutdownPluginClassLoader();
-        shutdownLogger();
-    }
-
-    protected void shutdownLogger() {
-        LOG.info("Stop ch.qos.logback.classic.LoggerContext");
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.stop();
+        ShutdownUtils.shutdownDomibus(false);
     }
 
     protected void shutdownPluginClassLoader() {
