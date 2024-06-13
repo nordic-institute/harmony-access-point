@@ -152,7 +152,7 @@ public class DomibusApplicationContextListener {
             doInitialize();
         } catch (Exception ex) {
             LOG.error("Error during initialization. Shutting down.", ex);
-            ShutdownUtils.shutdownDomibus(applicationContext, true);
+            ShutdownUtils.shutdownDomibus(applicationContext);
         }
         LOG.info("Finished processing ContextRefreshedEvent");
     }

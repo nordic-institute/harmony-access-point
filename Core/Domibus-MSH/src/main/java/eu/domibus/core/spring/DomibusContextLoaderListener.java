@@ -32,7 +32,7 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         super.contextDestroyed(servletContextEvent);
         shutdownPluginClassLoader();
-        ShutdownUtils.shutdownDomibus(false);
+        ShutdownUtils.shutdownLogger();
     }
 
     protected void shutdownPluginClassLoader() {

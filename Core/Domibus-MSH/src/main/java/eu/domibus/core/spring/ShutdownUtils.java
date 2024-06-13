@@ -11,7 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ShutdownUtils {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ShutdownUtils.class);
 
-    public static void shutdownDomibus(ApplicationContext applicationContext, boolean forceExit) {
+    public static void shutdownDomibus(ApplicationContext applicationContext) {
         try {
             if (applicationContext instanceof ConfigurableApplicationContext) {
                 ((ConfigurableApplicationContext)applicationContext).close();
@@ -19,24 +19,18 @@ public class ShutdownUtils {
         } catch (Exception ex) {
             LOG.error("Could not close application context", ex);
         }
-        shutdownDomibus(forceExit);
-    }
-
-    public static void shutdownDomibus(boolean forceExit) {
-        try {
-            LOG.warn(WarningUtil.warnOutput("Domibus is stopping."));
-            shutdownLogger();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        if (forceExit) {
-            System.exit(1);
-        }
+        shutdownLogger();
+        System.exit(1);
     }
 
     public static void shutdownLogger() {
-        LOG.info("Stop ch.qos.logback.classic.LoggerContext");
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.stop();
+        try {
+            LOG.warn(WarningUtil.warnOutput("Domibus is stopping."));
+            LOG.info("Stop ch.qos.logback.classic.LoggerContext");
+            LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+            loggerContext.stop();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
