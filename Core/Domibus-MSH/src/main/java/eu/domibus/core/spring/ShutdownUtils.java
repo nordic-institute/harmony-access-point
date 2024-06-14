@@ -14,12 +14,15 @@ public class ShutdownUtils {
     public static void shutdownDomibus(ApplicationContext applicationContext) {
         try {
             if (applicationContext instanceof ConfigurableApplicationContext) {
+                LOG.warn("Stopping the applicationContext");
                 ((ConfigurableApplicationContext)applicationContext).close();
             }
         } catch (Exception ex) {
             LOG.error("Could not close application context", ex);
         }
         shutdownLogger();
+        // logger is stopped, so we use the old way
+        System.err.println("Calling System.exit(1)");
         System.exit(1);
     }
 
@@ -30,6 +33,7 @@ public class ShutdownUtils {
             LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
             loggerContext.stop();
         } catch (Exception ex) {
+            // logger is stopping, so we cannot use it to log the exception
             ex.printStackTrace();
         }
     }
