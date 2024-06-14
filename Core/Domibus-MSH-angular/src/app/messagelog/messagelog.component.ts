@@ -653,8 +653,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   showDetails(selectedRow: any) {
+    let allColumns = <any[]>this.columnPicker.allColumns;
+    const allFields = allColumns.map(col => col.prop);
+    let fetchData = allColumns.some(col => !col.isSelected);
     this.dialogsService.open(MessagelogDetailsComponent, {
-      data: {message: selectedRow}
+      data: {message: selectedRow, fields: allFields, fetchData}
     });
   }
 

@@ -6,7 +6,6 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
@@ -85,7 +84,9 @@ public class MessageLogResource extends BaseResource {
         //creating the filters
         HashMap<String, Object> filters = requestFilterUtils.createFilterMap(request);
 
-        requestFilterUtils.setDefaultFilters(request, filters);
+        if(request.getApplyDefaultFilters()) {
+            requestFilterUtils.setDefaultFilters(request, filters);
+        }
 
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
                 request.getPageSize(), request.getOrderBy(), request.getAsc(), filters, request.getFields());
