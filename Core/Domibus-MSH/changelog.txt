@@ -1,3 +1,7 @@
+Domibus 5.1.5
+- New property to enforce strong rules for all Domibus properties of type password
+- Update the configuration of Weblogic datasource, eDeliveryDs, to disable support for global transactions
+- Security updates on the libraries and Domibus APIs
 Domibus 5.1.4
 - Added endpoint for refreshing DSS Trusted lists. Can be accessed with POST /ext/trustedlists/refreshoperation
 - Added domibus properties for quartz data source in Tomcat
