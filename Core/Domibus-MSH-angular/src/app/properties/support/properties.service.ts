@@ -114,13 +114,16 @@ export class PropertiesService {
 
     let param = new HttpParams();
     param = param.append('publicKeyPem', btoa(publicKeyPem));
-    const response = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propertyName + '/encrypted',
+    const propValue = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propertyName + '/encrypted',
       {params: param}).toPromise();
-
-    // console.log('Encrypted property value:', response);
+    if (!propValue) {
+      console.log('Encrypted property value is empty');
+      return null;
+    }
+    console.log('Encrypted property value:', propValue);
 
     // Convert the encrypted property value from Base64 to an ArrayBuffer
-    const encryptedValueArrayBuffer = this.helperService.base64ToArrayBuffer(response);
+    const encryptedValueArrayBuffer = this.helperService.base64ToArrayBuffer(propValue);
     // console.log('Encrypted property value ArrayBuffer:', encryptedValueArrayBuffer);
 
     // console.log('Private key:', keyPair.privateKey);

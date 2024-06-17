@@ -14,9 +14,18 @@ Release checklist:
 
 
 # Domibus upgrade information
+## Domibus 5.1.5 (from 5.1.4)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+#### Weblogic only
+                - Execute the WLST API script remove.py (from "/conf/domibus/scripts/upgrades") 5.1.4-to-5.1.5-WeblogicRemoveJDBCDatasource.properties to remove the eDeliveryDs datasource:
+                     wlstapi.cmd ../scripts/remove.py --property ../5.1.4-to-5.1.5-WeblogicRemoveJDBCDatasource.properties
+                - Execute the WLST API script import.py (from "/conf/domibus/scripts/upgrades") 5.1.4-to-5.1.5-WeblogicSingleServer.properties or 5.1.4-to-5.1.5-WeblogicCluster.properties to add the eDeliveryDs datasource with new configuration: 
+                     wlstapi.cmd ../scripts/import.py --property ../5.1.4-to-5.1.5-WeblogicCluster.properties
+
 ## Domibus 5.1.4 (from 5.1.3)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
-                - Run the appropriate DB upgrade script (mysql-5.1.2-to-5.4-upgrade.ddl for MySQL or oracle-5.1.2-to-5.1.4-upgrade.ddl for Oracle)
+                - Run the appropriate DB upgrade script (mysql-5.1.2-to-5.1.4-upgrade.ddl for MySQL or oracle-5.1.2-to-5.1.4-upgrade.ddl for Oracle)
                 - Update property name from "domibus.cacerts.validation.enabled" to "domibus.cacerts.download.enabled"
                 - Marked 'mustUnderstand' attribute from Domibus MSH Default WS Plugin Stubs V2 webservicePlugin-header.xsd as deprecated. The attribute will be removed in 6.0
 

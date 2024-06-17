@@ -204,6 +204,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 LOG.debug("FSMessage payloads for message [{}] will be scheduled for saving", messageId);
 
                 final DomainDTO domainDTO = fsDomainService.fsDomainToDomibusDomain(fsPluginDomain);
+                //TODO: replace with a submitLongRunningTaskWithSecurityContext variant(like submit methods have)
                 final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
                 domainTaskExtExecutor.submitLongRunningTask(() -> {
                     SecurityContextHolder.getContext().setAuthentication(currentAuthentication);

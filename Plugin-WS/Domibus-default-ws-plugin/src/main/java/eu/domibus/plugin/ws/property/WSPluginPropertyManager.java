@@ -82,7 +82,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_NAME, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_CONCURRENCY, Type.CONCURRENCY, Module.WS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(DISPATCHER_PUSH_AUTH_USERNAME, Type.STRING, Module.WS_PLUGIN, Usage.DOMAIN),
-                new DomibusPropertyMetadataDTO(DISPATCHER_PUSH_AUTH_PASSWORD, Type.STRING, Module.WS_PLUGIN, Usage.DOMAIN),
+                new DomibusPropertyMetadataDTO(DISPATCHER_PUSH_AUTH_PASSWORD, Type.PASSWORD, Module.WS_PLUGIN, Usage.DOMAIN),
                 new DomibusPropertyMetadataDTO(PUSH_MARK_AS_DOWNLOADED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true)
         );
         knownProperties = allProperties.stream().collect(toMap(DomibusPropertyMetadataDTO::getName, identity()));
