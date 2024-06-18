@@ -36,4 +36,6 @@ public interface DomibusPropertyResourceHelper {
      * @return Metadata and the current value
      */
     DomibusProperty getProperty(String propertyName);
+
+    String getPasswordProperty(String propertyName);
 }

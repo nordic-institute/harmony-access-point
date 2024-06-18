@@ -258,7 +258,9 @@ export class PropertiesComponent extends mix(BaseListComponent)
   async retrievePassword(row) {
     let propertyName = row.name;
     console.log('Retrieving password for property:', propertyName, row);
-    row.value = await this.propertiesService.decryptProperty(propertyName);
+    let value = await this.propertiesService.decryptProperty(propertyName);
+    // console.log(' password value is :', value);
+    row.value = value;
   }
 
   toggleViewPassword(row) {

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
@@ -37,7 +38,6 @@ import java.util.stream.Collectors;
 @Validated
 public class DomibusPropertyResource extends BaseResource {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
-    public static final String PASSWORD_MASK = "";
 
     private final DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
@@ -76,12 +76,6 @@ public class DomibusPropertyResource extends BaseResource {
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
 
-        items.stream()
-                .filter(item -> item.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
-                .forEach(item -> {
-                    item.setValue(PASSWORD_MASK);
-                    item.setUsedValue(PASSWORD_MASK);
-                });
         List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         response.setItems(convertedItems);
@@ -169,12 +163,14 @@ public class DomibusPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/{propertyName:.+}/encrypted")
     public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
-        try {
-            DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
-            String value = prop.getValue();
+        String propValue = domibusPropertyResourceHelper.getPasswordProperty(propertyName);
+        if (StringUtils.isBlank(propValue)) {
+            return StringUtils.EMPTY;
+        }
 
+        try {
             byte[] decodedKeyPem = Base64.decodeBase64(publicKeyPem);
-            return securityUtil.encryptValue(new String(decodedKeyPem), value);
+            return securityUtil.encryptValue(new String(decodedKeyPem), propValue);
         } catch (Exception e) {
             throw new DomibusPropertyException("Error trying to encrypt password", e);
         }

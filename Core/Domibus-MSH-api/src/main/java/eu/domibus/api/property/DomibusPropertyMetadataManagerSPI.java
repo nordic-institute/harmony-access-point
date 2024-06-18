@@ -84,6 +84,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CRL_BY_CERT_CACHE_ENABLED = "domibus.certificate.crlByCert.cache.enabled";
     String DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
     String DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT = "domibus.certificate.crl.http.timeout";
+    String DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN = "domibus.properties.passwordPolicy.pattern";//NOSONAR
+    String DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE = "domibus.properties.passwordPolicy.enforce";//NOSONAR
     String DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT = "domibus.plugin.login.maximum.attempt";
     String DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME = "domibus.plugin.login.suspension.time";
     String DOMIBUS_PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";//NOSONAR
@@ -366,6 +368,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.password.encryption.active"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
+    String DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW = "domibus.properties.password.view.allow";//NOSONAR
     String DOMIBUS_JMS_QUEUE_PULL = "domibus.jms.queue.pull";
     String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.connectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";

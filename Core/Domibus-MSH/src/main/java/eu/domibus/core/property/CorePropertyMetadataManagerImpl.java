@@ -49,6 +49,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, false, Usage.GLOBAL_AND_DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, false, Usage.GLOBAL_AND_DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION, Type.URI, false, Usage.GLOBAL_AND_DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW, Type.BOOLEAN, false, Usage.GLOBAL_AND_DOMAIN, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_PULL, Type.JNDI),
@@ -122,6 +123,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED, Type.BOOLEAN),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_PATTERN, Type.REGEXP),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTIES_PASSWORD_POLICY_ENFORCE, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_REVOCATION_OFFSET, Type.NUMERIC, Usage.DOMAIN, true),
@@ -255,7 +258,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_BLACK_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
+            new DomibusPropertyMetadata(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN, Usage.GLOBAL_AND_DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, Type.POSITIVE_DECIMAL, Usage.GLOBAL_AND_DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX, Type.POSITIVE_INTEGER, Usage.GLOBAL_AND_DOMAIN, true),
 

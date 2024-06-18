@@ -7,6 +7,7 @@ import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
 
 /**
@@ -35,6 +37,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResourceHelperImpl.class);
 
     public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
+
+    public static final String PASSWORD_MASK = "";
 
     DecimalFormat decimalFormat = new DecimalFormat("0.#");
 
@@ -87,7 +91,23 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                 .sort(filter.getOrderBy(), filter.getAsc())
                 .getResults();
 
+        handlePasswords(properties);
+
         return properties;
+    }
+
+    private void handlePasswords(List<DomibusProperty> properties) {
+        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
+        if (BooleanUtils.isTrue(allowPasswords)) {
+            properties.stream()
+                    .filter(property -> property.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD)
+                    .forEach(property -> {
+                        property.setValue(PASSWORD_MASK);
+                        property.setUsedValue(PASSWORD_MASK);
+                    });
+        } else {
+            properties.removeIf(property -> property.getMetadata().getTypeAsEnum() == DomibusPropertyMetadata.Type.PASSWORD);
+        }
     }
 
     @Override
@@ -116,16 +136,65 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     @Override
     public DomibusProperty getProperty(String propertyName) {
+        validateExists(propertyName);
+
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        validateGlobal(propertyName, propertyMetadata);
+
+        DomibusProperty domibusProperty = getValueAndCreateProperty(propertyMetadata);
+        handlePassword(propertyName, propertyMetadata, domibusProperty);
+
+        return domibusProperty;
+    }
+
+    private void handlePassword(String propertyName, DomibusPropertyMetadata propertyMetadata, DomibusProperty domibusProperty) {
+        if (propertyMetadata.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            return;
+        }
+
+        checkAllowPassword(propertyName, propertyMetadata);
+
+        domibusProperty.setValue(PASSWORD_MASK);
+        domibusProperty.setUsedValue(PASSWORD_MASK);
+    }
+
+    @Override
+    public String getPasswordProperty(String propertyName) {
+        validateExists(propertyName);
+
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (propertyMetadata.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            throw new DomibusPropertyException("Property named " + propertyName + " is not a password");
+        }
+
+        validateGlobal(propertyName, propertyMetadata);
+
+        checkAllowPassword(propertyName, propertyMetadata);
+
+        return domibusPropertyProvider.getProperty(propertyName);
+    }
+
+    private void checkAllowPassword(String propertyName, DomibusPropertyMetadata propMeta) {
+        if (propMeta.getTypeAsEnum() != DomibusPropertyMetadata.Type.PASSWORD) {
+            return;
+        }
+
+        Boolean allowPasswords = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROPERTIES_PASSWORD_VIEW_ALLOW);
+        if (!allowPasswords) {
+            throw new DomibusPropertyException("Not allowed to view or change the password property named: " + propertyName);
+        }
+    }
+
+    private void validateGlobal(String propertyName, DomibusPropertyMetadata propertyMetadata) {
+        if (!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
+            throw new DomibusPropertyException("Only super admins can view or change global properties: " + propertyName);
+        }
+    }
+
+    private void validateExists(String propertyName) {
         if (!globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
             throw new DomibusPropertyException("Unknown property: " + propertyName);
         }
-
-        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if(!authUtils.isAPAdmin() && propertyMetadata.isOnlyGlobal()) {
-            throw new DomibusPropertyException("Only super admins can retrieve global properties: " + propertyName);
-        }
-
-        return getValueAndCreateProperty(propertyMetadata);
     }
 
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
@@ -164,11 +233,11 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     protected void validatePropertyWrite(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
-        if(!authUtils.isAPAdmin() && propMeta.isOnlyGlobal()) {
-            throw new DomibusPropertyException("Only super admins can write global properties: " + propertyName);
-        }
-
         validatePropertyMetadata(propertyName, propMeta);
+
+        validateGlobal(propertyName, propMeta);
+
+        checkAllowPassword(propertyName, propMeta);
 
         validatePropertyName(propMeta, propertyName);
 
@@ -257,23 +326,23 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     }
 
     protected void validatePositiveIntegerMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
-            if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
-                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
-            }
+        if (new BigInteger(propertyValue).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+            throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum integer value allowed", propertyValue));
+        }
     }
 
     protected void validatePositiveDecimalMaxValue(String propertyValue, DomibusPropertyMetadata propMeta) {
 
-            String values[] = propertyValue.split("\\.");
-            if (values.length > 1) {
-                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1L)) > 0) {
-                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
-                }
-            } else {
-                if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
-                    throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
-                }
+        String values[] = propertyValue.split("\\.");
+        if (values.length > 1) {
+            if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE - 1L)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
             }
+        } else {
+            if (new BigInteger(values[0]).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+                throw new DomibusPropertyException(String.format("Invalid property value. The value [%s] is greater than the maximum decimal value allowed", propertyValue));
+            }
+        }
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
@@ -414,7 +483,9 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
                 properties = getPropertyValues(propertiesMetadata);
             } else {
                 // for non-domain properties, we get the values in the null-domain context:
-                properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
+                // we need the security context restored on this thread because we try to get the logged user down the way
+                properties = domainTaskExecutor.submitWithSecurityContext(
+                        () -> getPropertyValues(propertiesMetadata));
             }
             return this;
         }
