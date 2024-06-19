@@ -157,7 +157,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .exceptionHandling().and()
                 .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions()
                 .and().xssProtection().xssProtectionEnabled(true)
-                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self';").and().and()
+                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:").and().and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()
                 .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class)
