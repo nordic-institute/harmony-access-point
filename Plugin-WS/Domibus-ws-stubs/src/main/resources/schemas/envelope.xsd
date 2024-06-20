@@ -101,6 +101,4 @@
         <xs:attribute name="qname" type="xs:QName" use="required"/>
     </xs:complexType>
 
-    <xs:attribute name="mustUnderstand" type="xs:boolean"/>
-
 </xs:schema>
