@@ -1024,6 +1024,11 @@
         <xsd:sequence>
           <xsd:element minOccurs="0" name="UserMessage" type="UserMessage"/>
         </xsd:sequence>
+        <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional">
+          <xsd:annotation>
+            <xsd:documentation>Deprecated. Will be removed in Domibus 6.0.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
       </xsd:complexType>
       <xsd:simpleType name="ProcessingType">
         <xsd:restriction base="xsd:string">
