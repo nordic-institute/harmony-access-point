@@ -542,7 +542,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
             userMessage.getCollaborationInfo().setAgreementRef(null);
         }
-        Messaging messaging = EBMS_OBJECT_FACTORY.createMessaging();
+        Messaging messaging = new Messaging();
         messaging.setUserMessage(userMessage);
         ebMSHeaderInfo.value = messaging;
         retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
