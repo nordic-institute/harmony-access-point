@@ -416,7 +416,7 @@ public class BackendNotificationService {
     protected List<MessageDeletedEvent> getMessageDeletedEventsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> individualMessageDeletedEvents = userMessageLogs
                 .stream()
-                .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
+                .filter(userMessageLog -> StringUtils.equals(userMessageLog.getBackend(), backend))
                 .map(this::getMessageDeletedEvent)
                 .collect(toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", individualMessageDeletedEvents.size(), backend);
