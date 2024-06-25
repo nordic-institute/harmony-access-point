@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -82,6 +83,12 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
         }
 
         LOG.info("Prepare unsent messages for dispatch {}", unsentMessageIds);
-        unsentMessageIds.forEach(userMessageService::sendEnqueuedMessage);
+        for (String unsentMessageId : unsentMessageIds) {
+            try {
+                userMessageService.sendEnqueuedMessage(unsentMessageId);
+            } catch (UserMessageException e) {
+                LOG.info("UserMessage [{}] skipped", unsentMessageId);
+            }
+        }
     }
 }

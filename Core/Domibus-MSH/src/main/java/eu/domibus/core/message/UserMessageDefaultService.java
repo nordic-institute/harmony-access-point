@@ -60,6 +60,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -253,7 +255,14 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException("You have to wait " + dateUtil.getDiffMinutesBetweenDates(receivedDateDelta, currentDate) + " minutes before resending the message [" + messageId + "]");
         }
         if (userMessageLog.getNextAttempt() != null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+            ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
+            ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+            if (nextAttempt.isAfter(now)) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+            } else {
+                LOG.info("Skip userMessage [{}] because nextAttempt [{}] is in the future", messageId, nextAttempt.toString());
+                return;
+            }
         }
 
         final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
