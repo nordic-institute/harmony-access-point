@@ -16,7 +16,9 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.*;
+import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
 import org.apache.commons.collections4.CollectionUtils;
@@ -190,13 +192,16 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
+        List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
         } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
-            throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
+            if (CollectionUtils.isEmpty(errorResults)) {
+                throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
+            }
         }
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
-        List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
+
         if (userMessageLog == null && CollectionUtils.isEmpty(errorResults)) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
