@@ -201,7 +201,6 @@ public class MessageRetrieverImpl implements MessageRetriever {
             }
         }
         UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
-
         if (userMessageLog == null && CollectionUtils.isEmpty(errorResults)) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
