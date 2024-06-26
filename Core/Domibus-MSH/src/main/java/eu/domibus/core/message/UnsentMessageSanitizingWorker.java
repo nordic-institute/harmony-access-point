@@ -87,7 +87,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             try {
                 userMessageService.sendEnqueuedMessage(unsentMessageId);
             } catch (UserMessageException e) {
-                LOG.info("UserMessage [{}] skipped", unsentMessageId);
+                LOG.info("UserMessage [{}] skipped", unsentMessageId, e);
             }
         }
     }
