@@ -215,10 +215,6 @@ public class UserMessageDefaultServiceTest {
     public void testGetFinalRecipient(@Injectable final UserMessage userMessage) {
         final String messageId = "1";
 
-        new Expectations() {{
-
-        }};
-
         userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING);
 
         new Verifications() {{
@@ -558,9 +554,9 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    @Test(expected = UserMessageException.class)
+    @Test
     public void test_sendEnqueued_nextAttemptAfterNowException(final @Injectable UserMessageLog userMessageLog,
-                                                               final @Injectable UserMessage userMessage) {
+                                                                final @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -587,8 +583,38 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.sendEnqueuedMessage(messageId);
 
 
-        new FullVerifications() {{
+        new FullVerifications() {};
+    }
+
+    @Test(expected = UserMessageException.class)
+    public void test_sendEnqueued_nextAttemptBeforeNowException(final @Injectable UserMessageLog userMessageLog,
+                                                               final @Injectable UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = Date.from(ZonedDateTime
+                    .now(ZoneOffset.UTC)
+                    .minusMinutes(10)
+                    .toInstant());
         }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
+        new FullVerifications() {};
     }
 
     @Test

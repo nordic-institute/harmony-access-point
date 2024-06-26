@@ -257,7 +257,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog.getNextAttempt() != null) {
             ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
-            if (nextAttempt.isAfter(now)) {
+            if (nextAttempt.isBefore(now)) {
                 throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
             } else {
                 LOG.info("Skip userMessage [{}] because nextAttempt [{}] is in the future", messageId, nextAttempt.toString());
