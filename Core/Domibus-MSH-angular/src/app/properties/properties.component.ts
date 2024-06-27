@@ -260,14 +260,16 @@ export class PropertiesComponent extends mix(BaseListComponent)
     console.log('Retrieving password for property:', propertyName, row);
     let value = await this.propertiesService.decryptProperty(propertyName);
     // console.log(' password value is :', value);
-    row.value = value;
+    row.currentValue = row.value = value;
   }
 
-  toggleViewPassword(row) {
-    if(row.value == this.passwordMask) {
-      this.retrievePassword(row);
+  async toggleViewPassword(row) {
+    if (row.passwordVisible) {
+      row.currentValue = row.value = this.passwordMask;
+      row.passwordVisible = false;
     } else {
-      row.value = this.passwordMask;
+      await this.retrievePassword(row);
+      row.passwordVisible = true;
     }
   }
 

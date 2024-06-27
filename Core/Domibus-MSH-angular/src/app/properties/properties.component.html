@@ -67,9 +67,9 @@
     <div class="input-group property-view" *ngIf="!row.writable">
       <span [class.wrong-value]="row.value != null && row.originalValue != row.usedValue">{{row.value}}</span>
 
-      <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
+      <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour [matTooltip]="!row.passwordVisible?'See password':'Hide password'"
               (click)="toggleViewPassword(row)" style="display: inline-block; float: right;">
-        <mat-icon matTooltipPosition="above">{{row.value==passwordMask? 'visibility': 'visibility_off'}}</mat-icon>
+        <mat-icon matTooltipPosition="above">{{!row.passwordVisible ? 'visibility': 'visibility_off'}}</mat-icon>
       </button>
 
       <div *ngIf="row.originalValue != row.usedValue" style="margin-top: 5px;">
@@ -81,7 +81,7 @@
     </div>
 
     <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
-      <input matInput type="text" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
+      <input matInput [type]="!row.passwordVisible ?'password':'text'" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
              [(ngModel)]="row.value"
              (focus)="onPropertyValueFocus(row)"
              (blur)="onPropertyValueBlur(row)"
@@ -90,10 +90,10 @@
       >
 
       <div class="property-edit-buttons">
-          <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour matTooltip="See password"
-                  (click)="toggleViewPassword(row)">
-            <mat-icon matTooltipPosition="above" >{{row.value==passwordMask? 'visibility': 'visibility_off'}}</mat-icon>
-          </button>
+        <button mat-icon-button *ngIf="row.type == 'PASSWORD'" button-click-behaviour [matTooltip]="!row.passwordVisible?'See password':'Hide password'"
+                (click)="toggleViewPassword(row)">
+          <mat-icon matTooltipPosition="above" >{{!row.passwordVisible ? 'visibility': 'visibility_off'}}</mat-icon>
+        </button>
 
           <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" matTooltip="Save" button-click-behaviour>
             <mat-icon matTooltipPosition="above">save</mat-icon>
