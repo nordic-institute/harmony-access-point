@@ -908,6 +908,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     private boolean isCompressedFile(PartInfo info) {
         if(CollectionUtils.isEmpty(info.getPartProperties())) {
+            LOG.debug("No PartProperties: default -> no compression");
             return false;
         }
         return info.getPartProperties().stream()
