@@ -834,6 +834,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
                 InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
                 if (isCompressedFile(pInfo)) {
+                    LOG.debug("Decompress file for PartInfo [{}]", pInfo.getEntityId());
                     inputStream = new GZIPInputStream(inputStream);
                 }
                 result.put(fileName, inputStream);

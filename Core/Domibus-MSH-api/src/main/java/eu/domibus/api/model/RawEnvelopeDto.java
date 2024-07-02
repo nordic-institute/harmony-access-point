@@ -2,6 +2,8 @@ package eu.domibus.api.model;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
@@ -15,6 +17,8 @@ import java.util.zip.GZIPInputStream;
  * @since 3.3
  */
 public class RawEnvelopeDto {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RawEnvelopeDto.class);
 
     protected final byte[] rawMessage;
     protected final long id;
@@ -61,6 +65,7 @@ public class RawEnvelopeDto {
         if (!this.compressed) {
             return getRawMessage();
         }
+        LOG.debug("Decompressing raw message [{}]", id);
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(getRawMessage()))) {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {

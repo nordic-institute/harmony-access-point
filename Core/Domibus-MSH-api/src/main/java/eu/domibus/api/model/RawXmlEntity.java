@@ -2,11 +2,12 @@ package eu.domibus.api.model;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import java.io.ByteArrayInputStream;
@@ -25,6 +26,8 @@ import java.util.zip.GZIPOutputStream;
 @MappedSuperclass
 public class RawXmlEntity extends AbstractNoGeneratedPkEntity {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RawXmlEntity.class);
+
     @Lob
     @Column(name = "RAW_XML")
     protected byte[] rawXML;
@@ -40,7 +43,7 @@ public class RawXmlEntity extends AbstractNoGeneratedPkEntity {
         if (!this.getCompressed()) {
             return this.rawXML;
         }
-
+        LOG.debug("Decompressing raw XML [{}]", entityId);
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(rawXML))) {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {

@@ -190,7 +190,7 @@ public class CompressionService {
 
         try (InputStream is = new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream()) {
             if (is.available() > 0) {
-                LOG.debug("Creating decompression data source was successful", partInfo.getHref());
+                LOG.debug("Creating decompression data source was successful [{}]", partInfo.getHref());
             }
         } catch (IOException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);

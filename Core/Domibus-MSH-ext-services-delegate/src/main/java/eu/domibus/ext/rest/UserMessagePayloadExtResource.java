@@ -149,6 +149,7 @@ public class UserMessagePayloadExtResource {
         try {
             InputStream inputStream = payloadDatahandler.getInputStream();
             if (payloadCompressed) {
+                LOG.debug("Decompressing raw XML with cid [{}] for partInfo href [{}]", cid, partInfo.getHref());
                 inputStream = new GZIPInputStream(inputStream);
             }
             return inputStream;
