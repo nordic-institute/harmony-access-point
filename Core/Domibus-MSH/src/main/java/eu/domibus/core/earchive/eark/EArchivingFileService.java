@@ -17,6 +17,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -119,7 +120,7 @@ public class EArchivingFileService {
 
     private Map<String, String> getProps(PartInfo partInfo) {
         Map<String, String> props = new HashMap<>();
-        if (partInfo != null) {
+        if (partInfo != null && CollectionUtils.isNotEmpty(partInfo.getPartProperties())) {
             for (PartProperty partProperty : partInfo.getPartProperties()) {
                 props.put(partProperty.getName(), partProperty.getValue());
             }

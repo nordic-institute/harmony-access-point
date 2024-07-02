@@ -876,10 +876,12 @@ public class UserMessageDefaultService implements UserMessageService {
             return messagePayloadNameWithExtension;
         }
 
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
-                LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
-                return property.getValue();
+        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+            for (PartProperty property : info.getPartProperties()) {
+                if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
+                    LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
+                    return property.getValue();
+                }
             }
         }
 
@@ -887,13 +889,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = info.getPartProperties().stream()
-                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
-                .map(PartProperty::getValue)
-                .map(fileServiceUtil::getExtension)
-                .findFirst()
-                .orElse(null);
-        if(StringUtils.isBlank(extension)){
+        String extension = "";
+        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+            extension = info.getPartProperties().stream()
+                    .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                    .map(PartProperty::getValue)
+                    .map(fileServiceUtil::getExtension)
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (StringUtils.isBlank(extension)) {
             LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
         LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
@@ -901,6 +906,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private boolean isCompressedFile(PartInfo info) {
+        if(CollectionUtils.isEmpty(info.getPartProperties())) {
+            return false;
+        }
         return info.getPartProperties().stream()
                 .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
                         && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
