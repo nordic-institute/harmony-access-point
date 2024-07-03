@@ -555,7 +555,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_sendEnqueued_nextAttemptAfterNowException(final @Injectable UserMessageLog userMessageLog,
+    public void test_sendEnqueued_nextAttemptBeforeNow(final @Injectable UserMessageLog userMessageLog,
                                                                 final @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
 
@@ -577,17 +577,27 @@ public class UserMessageDefaultServiceTest {
                     .now(ZoneOffset.UTC)
                     .minusMinutes(10)
                     .toInstant());
+
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+            times = 1;
+
         }};
 
         //tested method
         userMessageDefaultService.sendEnqueuedMessage(messageId);
 
+        new FullVerifications() {{
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
+            userMessageLogDao.update(userMessageLog);
 
-        new FullVerifications() {};
+        }};
     }
 
     @Test(expected = UserMessageException.class)
-    public void test_sendEnqueued_nextAttemptBeforeNowException(final @Injectable UserMessageLog userMessageLog,
+    public void test_sendEnqueued_nextAttemptAfterNowException(final @Injectable UserMessageLog userMessageLog,
                                                                final @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
 
