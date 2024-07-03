@@ -575,7 +575,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getNextAttempt();
             result = Date.from(ZonedDateTime
                     .now(ZoneOffset.UTC)
-                    .plusMinutes(10)
+                    .minusMinutes(10)
                     .toInstant());
         }};
 
@@ -607,7 +607,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getNextAttempt();
             result = Date.from(ZonedDateTime
                     .now(ZoneOffset.UTC)
-                    .minusMinutes(10)
+                    .plusMinutes(10)
                     .toInstant());
         }};
 
