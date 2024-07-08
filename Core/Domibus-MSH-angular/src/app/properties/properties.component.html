@@ -81,7 +81,7 @@
     </div>
 
     <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
-      <input matInput [type]="!row.passwordVisible ?'password':'text'" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
+      <input matInput [type]="row.type == 'PASSWORD' && !row.passwordVisible ?'password':'text'" autocomplete="off" class="form-control property-value" [class.wrong-value]="row.originalValue != row.usedValue"
              [(ngModel)]="row.value"
              (focus)="onPropertyValueFocus(row)"
              (blur)="onPropertyValueBlur(row)"
