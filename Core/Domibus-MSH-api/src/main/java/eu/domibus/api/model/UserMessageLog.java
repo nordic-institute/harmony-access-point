@@ -199,9 +199,8 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
                         "and (uml.messageStatus = :SEND_ENQUEUED " +
-                        "       or (uml.messageStatus = :WAITING_FOR_RETRY " +
-                        "               and uml.entityId < :MAX_ENTITY_ID))"),
-
+                        "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
+                        "               and uml.entityId < :MAX_ENTITY_ID "),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 
