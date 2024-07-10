@@ -20,6 +20,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -65,7 +66,7 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
- * This interceptor is responsible for the trust of an incoming messages.
+ * Intercepts a message to verify the sender certificate is valid and not revoked
  * Useful info on this topic are here: http://tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.html
  *
  * @author Martini Federico
@@ -102,39 +103,31 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     }
 
     /**
-     * Intercepts a message to verify that the sender is trusted.
-     * <p>
-     * There will be two validations:
-     * a) the sender certificate is valid and not revoked and
-     * b) the sender party name is included in the CN of the certificate
+     * Intercepts a message to verify the sender certificate is valid and not revoked
      *
      * @param message the incoming CXF soap message to handle
      */
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
-        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
-            LOG.warn("No trust verification of sending certificate");
-            return;
-        }
+        Boolean inbound = (Boolean) message.get(MSHDispatcher.MESSAGE_INBOUND);
+        MessageType messageTypeIn = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
         String messageId = (String) message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
-        if (!isMessageSecured(message)) {
-            LOG.debug("Message does not contain security info ==> skipping sender trust verification.");
-            return;
-        }
-
-        //set the regex validation for the leaf certificate in case dynamic receiver is used
-        setDynamicReceiverCertSubjectExpression(message);
 
         boolean isPullSignalMessage = false;
-        MessageType messageType = (MessageType) message.get(MSHDispatcher.MESSAGE_TYPE_IN);
-        if (messageType != null && messageType.equals(MessageType.SIGNAL_MESSAGE)) {
-            LOG.debug("PULL Signal Message");
+        if (messageTypeIn != null && messageTypeIn.equals(MessageType.SIGNAL_MESSAGE)) {
+            LOG.debug("Pull Signal Message");
             isPullSignalMessage = true;
+        }
+
+        boolean isSynchronousSignal = false;
+        if (BooleanUtils.isTrue(inbound) && !MessageType.USER_MESSAGE.equals(messageTypeIn)) {
+            LOG.debug("Synchronous Signal Message");
+            isSynchronousSignal = true;
         }
 
         String senderPartyName;
         String receiverPartyName;
-        if (isPullSignalMessage) {
+        if (isPullSignalMessage || isSynchronousSignal) {
             senderPartyName = getReceiverPartyName(message);
             receiverPartyName = getSenderPartyName(message);
         } else {
@@ -144,6 +137,25 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
         LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
         LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
+
+        LOG.debug("Message intercepted. inbound:[{}], messageTypeIn:[{}], messageId:[{}], senderPartyName:[{}], receiverPartyName:[{}]", inbound, messageTypeIn, messageId, senderPartyName, receiverPartyName);
+
+        if (isSynchronousSignal && BooleanUtils.isFalse(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_SIGNAL_SYNC_ONRECEIVING))) {
+            LOG.debug("No trust verification of sending certificate for synchronous signal message ");
+            return;
+        }
+        if ((!isSynchronousSignal) && BooleanUtils.isFalse(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING))) {
+            LOG.warn("No trust verification of sending certificate for a User Message when using Push/Pull or a Signal Acknowledgement (NRR) when using Pull");
+            return;
+        }
+
+        if (!isMessageSecured(message)) {
+            LOG.debug("Message does not contain security info ==> skipping sender trust verification.");
+            return;
+        }
+
+        //set the regex validation for the leaf certificate in case dynamic receiver is used
+        setDynamicReceiverCertSubjectExpression(message);
 
         LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
