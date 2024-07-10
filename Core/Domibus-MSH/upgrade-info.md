@@ -14,10 +14,6 @@ Release checklist:
 
 
 # Domibus upgrade information
-## Domibus 5.1.6 (from 5.1.5)
-- Added property domibus.sender.trust.validation.signal.sync.onreceiving. If activated Domibus will verify before receiving syncronously a signal message following a push or pull request, that the sender certificate is valid and not revoked
-- Updated the description of default.domibus.sender.trust.validation.onreceiving. If activated Domibus will verify before receiving a User Message when using Push/Pull or a Signal Acknowledgement (NRR) when using Pull, that the sender certificate is valid and not revoked. When disabled, none of the other checks are performed on the sender's certificate.
-
 ## Domibus 5.1.5 (from 5.1.4)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
