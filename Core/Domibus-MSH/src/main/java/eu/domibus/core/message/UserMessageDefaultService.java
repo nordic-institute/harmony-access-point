@@ -38,6 +38,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
@@ -64,9 +65,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -834,7 +835,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
                 InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
                 if (isCompressedFile(pInfo)) {
-                    LOG.debug("Decompress file for PartInfo [{}]", pInfo.getEntityId());
+                    LOG.businessDebug(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, pInfo.getHref());
                     inputStream = new GZIPInputStream(inputStream);
                 }
                 result.put(fileName, inputStream);
