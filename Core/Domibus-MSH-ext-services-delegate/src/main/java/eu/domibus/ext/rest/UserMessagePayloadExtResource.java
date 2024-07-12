@@ -150,7 +150,7 @@ public class UserMessagePayloadExtResource {
         try {
             InputStream inputStream = payloadDatahandler.getInputStream();
             if (payloadCompressed) {
-                LOG.businessDebug(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
                 inputStream = new GZIPInputStream(inputStream);
             }
             return inputStream;
