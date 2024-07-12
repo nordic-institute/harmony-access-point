@@ -96,6 +96,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     private String messageId;
     private String messageId2;
+    private String messageId3;
     private String batchId;
 
     @Transactional
@@ -109,12 +110,13 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         messageId = UUID.randomUUID() + "@domibus.eu";
         messageId2 = UUID.randomUUID() + "@domibus.eu";
+        messageId3 = UUID.randomUUID() + "@domibus.eu";
 
         batchId = UUID.randomUUID().toString();
         batchEArchiveDTO = new BatchEArchiveDTOBuilder()
                 .batchId(batchId)
                 .messageEndId("")
-                .messages(Arrays.asList(messageId, messageId2))
+                .messages(Arrays.asList(messageId, messageId2, messageId3))
                 .createBatchEArchiveDTO();
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
@@ -124,6 +126,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId, false));
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4_compressed.xml", messageId2, true));
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4_noPropertyPart.xml", messageId3, false));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
@@ -149,11 +152,15 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         UserMessage byMessageId2 = userMessageDao.findByMessageId(messageId2);
+        UserMessage byMessageId3 = userMessageDao.findByMessageId(messageId3);
         Date messageStartDate = new Date();
         Date messageEndDate = new Date();
 
-        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, Arrays.asList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId),
-                new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2)), messageStartDate, messageEndDate);
+        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO,
+                Arrays.asList(
+                        new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId),
+                        new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2),
+                        new EArchiveBatchUserMessage(byMessageId3.getEntityId(), messageId3)), messageStartDate, messageEndDate);
         try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
             // must have more than one subfolder item
