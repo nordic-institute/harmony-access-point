@@ -566,6 +566,9 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
+            userMessageLog.getEntityId();
+            result = 12L;
+
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
             result = 2;
 
@@ -578,7 +581,7 @@ public class UserMessageDefaultServiceTest {
                     .minusMinutes(10)
                     .toInstant());
 
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(12L);
             result = userMessage;
 
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
