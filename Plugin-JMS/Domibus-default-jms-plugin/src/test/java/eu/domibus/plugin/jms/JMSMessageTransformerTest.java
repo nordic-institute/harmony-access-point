@@ -47,8 +47,9 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_ID = "cid:message";
     private static final String UNREGISTERED_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     private static final String ORIGINAL_SENDER = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+    private static final String ORIGINAL_SENDER_TYPE = "urn:cef.eu:names:identifier:EAS:0007";
     private static final String FINAL_RECIPIENT = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-    private static final String FINAL_RECIPIENT_TYPE = "iso6523-actorid-upis";
+    private static final String FINAL_RECIPIENT_TYPE = "urn:cef.eu:names:identifier:EAS:0201";
     private static final String ACTION_TC1LEG1 = "TC1Leg1";
     private static final String PROTOCOL_AS4 = "AS4";
     private static final String SERVICE_NOPROCESS = "bdx:noprocess";
@@ -98,7 +99,7 @@ public class JMSMessageTransformerTest {
         submissionObj.setFromRole(INITIATOR_ROLE);
         submissionObj.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
         submissionObj.setToRole(RESPONDER_ROLE);
-        submissionObj.addMessageProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        submissionObj.addMessageProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER, ORIGINAL_SENDER_TYPE);
         submissionObj.addMessageProperty(PROPERTY_ENDPOINT, "http://localhost:8080/domibus/domibus-blue");
         submissionObj.addMessageProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT, FINAL_RECIPIENT_TYPE);
         submissionObj.addMessageProperty(PROPERTY_TEST, "test property");
@@ -146,7 +147,9 @@ public class JMSMessageTransformerTest {
         assertEquals(UNREGISTERED_PARTY_TYPE, messageMap.getStringProperty(TO_PARTY_TYPE));
         assertEquals(RESPONDER_ROLE, messageMap.getStringProperty(TO_ROLE));
         assertEquals(ORIGINAL_SENDER, messageMap.getStringProperty(PROPERTY_ORIGINAL_SENDER));
+        assertEquals(ORIGINAL_SENDER_TYPE, messageMap.getStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE));
         assertEquals(FINAL_RECIPIENT, messageMap.getStringProperty(PROPERTY_FINAL_RECIPIENT));
+        assertEquals(FINAL_RECIPIENT_TYPE, messageMap.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE));
         assertEquals("test property", messageMap.getStringProperty(PROPERTY_PREFIX + PROPERTY_TEST));
         assertEquals("12345", messageMap.getStringProperty(AGREEMENT_REF));
         assertEquals("123456", messageMap.getStringProperty(REF_TO_MESSAGE_ID));
@@ -177,6 +180,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(FROM_ROLE, INITIATOR_ROLE);
         messageMap.setStringProperty(TO_ROLE, RESPONDER_ROLE);
         messageMap.setStringProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        messageMap.setStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE, ORIGINAL_SENDER_TYPE);
         messageMap.setStringProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
         messageMap.setStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(PROTOCOL, PROTOCOL_AS4);
@@ -227,6 +231,7 @@ public class JMSMessageTransformerTest {
 
 
         assertEquals(ORIGINAL_SENDER, getMandatoryProperty(messageProperties, PROPERTY_ORIGINAL_SENDER).getValue());
+        assertEquals(ORIGINAL_SENDER_TYPE, getMandatoryProperty(messageProperties, PROPERTY_ORIGINAL_SENDER).getType());
         assertEquals(FINAL_RECIPIENT, getMandatoryProperty(messageProperties, PROPERTY_FINAL_RECIPIENT).getValue());
         assertEquals(FINAL_RECIPIENT_TYPE, getMandatoryProperty(messageProperties, PROPERTY_FINAL_RECIPIENT).getType());
         assertEquals("test property", getMandatoryProperty(messageProperties, PROPERTY_TEST).getValue());
@@ -363,6 +368,7 @@ public class JMSMessageTransformerTest {
         MapMessage messageMap = new ActiveMQMapMessage();
         messageMap.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, "submitMessage");
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER_TYPE, ORIGINAL_SENDER_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);

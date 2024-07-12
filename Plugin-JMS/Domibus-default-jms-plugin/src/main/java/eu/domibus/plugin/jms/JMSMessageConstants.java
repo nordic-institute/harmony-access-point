@@ -33,6 +33,7 @@ public final class JMSMessageConstants {
     public static final String TO_PARTY_TYPE = "toPartyType";
     public static final String TO_ROLE = "toRole";
     public static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    public static final String PROPERTY_ORIGINAL_SENDER_TYPE = "originalSenderType";
     public static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
     public static final String PROPERTY_FINAL_RECIPIENT_TYPE = "finalRecipientType";
     public static final String PROPERTY_ENDPOINT = "endPointAddress";
