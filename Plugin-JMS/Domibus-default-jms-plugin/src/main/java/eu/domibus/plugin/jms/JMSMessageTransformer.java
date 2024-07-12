@@ -165,6 +165,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                     messageOut.setStringProperty(payMimeTypeProp, property.getValue());
                     continue;
                 }
+                // this is set separately
+                if (property.getKey().equals(PAYLOAD_FILENAME)) {
+                    continue;
+                }
 
                 //only reached if none of the predefined properties are set
                 messageOut.setStringProperty(payloadNameFormat + "_" + property.getKey(), property.getValue());
