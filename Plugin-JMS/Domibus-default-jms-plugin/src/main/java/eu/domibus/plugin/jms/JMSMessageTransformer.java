@@ -155,11 +155,21 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         } else {
             final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, counter);
             final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
-            final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
-
             setPayloadDetailsInJMSMessage(messageOut, putAttachmentsInQueue, counter, userMessageEntityId, p, propPayload);
-            messageOut.setStringProperty(payMimeTypeProp, findMime(p.getPayloadProperties()));
             messageOut.setStringProperty(payContID, p.getContentId());
+
+            final String payloadNameFormat = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
+            for (final Submission.TypedProperty property : p.getPayloadProperties()) {
+                if (property.getKey().equals(MIME_TYPE)) {
+                    final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
+                    messageOut.setStringProperty(payMimeTypeProp, property.getValue());
+                    continue;
+                }
+
+                //only reached if none of the predefined properties are set
+                messageOut.setStringProperty(payloadNameFormat + "_" + property.getKey(), property.getValue());
+            }
+
             counter++;
         }
         return counter;
