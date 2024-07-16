@@ -55,6 +55,7 @@ public class JMSMessageTransformerTest {
     private static final String TEST_PROPERTY1 = "testProperty1";
 
     private static final String PAYLOAD_1_PROPERTY_VALUE = "payload_1_";
+    private static final String PAYLOAD_1_PROPERTY_TYPE = "payload_1_Type_";
     private static final String PAYLOAD_1_EMPTY_PROPERTY = PAYLOAD_1_PROPERTY_VALUE;
     private static final String PAYLOAD_2_PROPERTY_VALUE = "payload_2_";
     private static final String PAYLOAD_2_PROPERTY_TYPE = "payload_2_Type_";
@@ -194,6 +195,8 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(AGREEMENT_REF_TYPE, "ref_type");
         messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + "fileName", FILENAME_TEST);
         messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + TEST_PROPERTY, TEST_VALUE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_TYPE + TEST_PROPERTY, TEST_TYPE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + TEST_PROPERTY1, TEST_VALUE);
         messageMap.setStringProperty(PAYLOAD_1_EMPTY_PROPERTY, "blabla");
 
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
@@ -250,10 +253,17 @@ public class JMSMessageTransformerTest {
                         .flatMap(payload -> payload.getPayloadProperties().stream())
                         .collect(toList());
 
-        assertEquals(6, typedProperties.size());
+        assertEquals(7, typedProperties.size());
 
-        assertTrue(typedProperties.stream().anyMatch(el -> el.getKey().equals(TEST_PROPERTY)));
-        assertTrue(typedProperties.stream().anyMatch(el -> el.getValue().equals(TEST_VALUE)));
+        Submission.TypedProperty testProperty = typedProperties.stream().filter(el -> el.getKey().equals(TEST_PROPERTY)).findFirst().orElse(null);
+        assertNotNull(testProperty);
+        assertEquals(TEST_VALUE, testProperty.getValue());
+        assertEquals(TEST_TYPE, testProperty.getType());
+
+        Submission.TypedProperty testProperty1 = typedProperties.stream().filter(el -> el.getKey().equals(TEST_PROPERTY1)).findFirst().orElse(null);
+        assertNotNull(testProperty1);
+        assertEquals(TEST_VALUE, testProperty1.getValue());
+        assertNull(testProperty1.getType());
 
         assertTrue(!typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
 
