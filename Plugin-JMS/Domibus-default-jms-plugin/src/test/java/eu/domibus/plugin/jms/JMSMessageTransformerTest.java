@@ -51,16 +51,14 @@ public class JMSMessageTransformerTest {
     private static final String SERVICE_NOPROCESS = "bdx:noprocess";
     private static final String SERVICE_TYPE_TC1 = "tc1";
     private static final String PAYLOAD_FILENAME = "FileName";
-    private static final String PAYLOAD_1_FILENAME = "payload_1_fileName";
     private static final String TEST_PROPERTY = "testProperty";
     private static final String TEST_PROPERTY1 = "testProperty1";
-    private static final String PAYLOAD_1_TEST_PROPERTY = "payload_1" + "_" + TEST_PROPERTY;
-    private static final String PAYLOAD_1_EMPTY_PROPERTY = "payload_1_";
 
-    private static final String PAYLOAD_2_MIMETYPE = "payload_2_mimeType";
-    private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
-    private static final String PAYLOAD_2_VALUE = "payload_2_";
-    private static final String PAYLOAD_2_TYPE = "payload_2_Type_";
+    private static final String PAYLOAD_1_PROPERTY_VALUE = "payload_1_";
+    private static final String PAYLOAD_1_EMPTY_PROPERTY = PAYLOAD_1_PROPERTY_VALUE;
+    private static final String PAYLOAD_2_PROPERTY_VALUE = "payload_2_";
+    private static final String PAYLOAD_2_PROPERTY_TYPE = "payload_2_Type_";
+
     private static final String FILENAME_TEST = "09878378732323.payload";
     private static final String CUSTOM_AGREEMENT_REF = "customAgreement";
     public static final String PROPERTY_TEST = "test";
@@ -160,13 +158,13 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, "customAgreement");
         assertEquals("true", messageMap.getStringProperty(P1_IN_BODY));
 
-        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_MIMETYPE));
+        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + "mimeType"));
         File file = new File(FILENAME_TEST);
-        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_FILENAME));
-        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_VALUE + TEST_PROPERTY));
-        assertEquals(TEST_TYPE, messageMap.getStringProperty(PAYLOAD_2_TYPE + TEST_PROPERTY));
-        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_VALUE + TEST_PROPERTY1));
-        assertNull(messageMap.getStringProperty(PAYLOAD_2_TYPE + TEST_PROPERTY1));
+        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + "fileName"));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + TEST_PROPERTY));
+        assertEquals(TEST_TYPE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_TYPE + TEST_PROPERTY));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + TEST_PROPERTY1));
+        assertNull(messageMap.getStringProperty(PAYLOAD_2_PROPERTY_TYPE + TEST_PROPERTY1));
     }
 
     /*
@@ -194,8 +192,8 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(PROTOCOL, PROTOCOL_AS4);
         messageMap.setStringProperty(AGREEMENT_REF, "customAgreement");
         messageMap.setStringProperty(AGREEMENT_REF_TYPE, "ref_type");
-        messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
-        messageMap.setStringProperty(PAYLOAD_1_TEST_PROPERTY, TEST_VALUE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + "fileName", FILENAME_TEST);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + TEST_PROPERTY, TEST_VALUE);
         messageMap.setStringProperty(PAYLOAD_1_EMPTY_PROPERTY, "blabla");
 
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
