@@ -60,6 +60,7 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_1_TEST_PROPERTY = "payload_1" + "_" + TEST_PROPERTY;
     private static final String PAYLOAD_1_EMPTY_PROPERTY = "payload_1_";
 
+    private static final String PAYLOAD_2_MIMETYPE = "payload_2_mimeType";
     private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
     private static final String PAYLOAD_2_TEST_PROPERTY = "payload_2" + "_" + TEST_PROPERTY;
     private static final String FILENAME_TEST = "09878378732323.payload";
@@ -111,8 +112,7 @@ public class JMSMessageTransformerTest {
 
         DataHandler payLoadDataHandler2 = new DataHandler(new ByteArrayDataSource(PAY_LOAD.getBytes(), DEFAULT_MT));
 
-
-        Submission.TypedProperty objTypedProperty1 = new Submission.TypedProperty(MIME_TYPE, DEFAULT_MT);
+        Submission.TypedProperty objTypedProperty1 = new Submission.TypedProperty(MIME_TYPE, DEFAULT_MT, "string");
         Submission.TypedProperty objTypedProperty2 = new Submission.TypedProperty(PAYLOAD_FILENAME, FILENAME_TEST);
         Submission.TypedProperty testCustomProperty = new Submission.TypedProperty(TEST_PROPERTY, TEST_VALUE);
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
@@ -162,6 +162,7 @@ public class JMSMessageTransformerTest {
         File file = new File(FILENAME_TEST);
         assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_FILENAME));
         assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_TEST_PROPERTY));
+        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_MIMETYPE));
     }
 
     /*
