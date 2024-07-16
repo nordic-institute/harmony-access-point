@@ -159,6 +159,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             messageOut.setStringProperty(payContID, p.getContentId());
 
             final String payloadNameFormat = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
+            final String payloadTypeFormat = MessageFormat.format(PAYLOAD_TYPE_FORMAT, counter);
             for (final Submission.TypedProperty property : p.getPayloadProperties()) {
                 if (property.getKey().equals(MIME_TYPE)) {
                     final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
@@ -172,6 +173,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
 
                 //only reached if none of the predefined properties are set
                 messageOut.setStringProperty(payloadNameFormat + "_" + property.getKey(), property.getValue());
+                messageOut.setStringProperty(payloadTypeFormat + "_" + property.getKey(), property.getType());
             }
 
             counter++;

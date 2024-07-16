@@ -21,16 +21,12 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Arun Raj on 18/10/2016.
@@ -57,18 +53,21 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_FILENAME = "FileName";
     private static final String PAYLOAD_1_FILENAME = "payload_1_fileName";
     private static final String TEST_PROPERTY = "testProperty";
+    private static final String TEST_PROPERTY1 = "testProperty1";
     private static final String PAYLOAD_1_TEST_PROPERTY = "payload_1" + "_" + TEST_PROPERTY;
     private static final String PAYLOAD_1_EMPTY_PROPERTY = "payload_1_";
 
     private static final String PAYLOAD_2_MIMETYPE = "payload_2_mimeType";
     private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
-    private static final String PAYLOAD_2_TEST_PROPERTY = "payload_2" + "_" + TEST_PROPERTY;
+    private static final String PAYLOAD_2_VALUE = "payload_2_";
+    private static final String PAYLOAD_2_TYPE = "payload_2_Type_";
     private static final String FILENAME_TEST = "09878378732323.payload";
     private static final String CUSTOM_AGREEMENT_REF = "customAgreement";
     public static final String PROPERTY_TEST = "test";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String PAY_LOAD = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
     public static final String TEST_VALUE = "testValue";
+    public static final String TEST_TYPE = "testType";
 
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
@@ -114,11 +113,13 @@ public class JMSMessageTransformerTest {
 
         Submission.TypedProperty objTypedProperty1 = new Submission.TypedProperty(MIME_TYPE, DEFAULT_MT, "string");
         Submission.TypedProperty objTypedProperty2 = new Submission.TypedProperty(PAYLOAD_FILENAME, FILENAME_TEST);
-        Submission.TypedProperty testCustomProperty = new Submission.TypedProperty(TEST_PROPERTY, TEST_VALUE);
+        Submission.TypedProperty testCustomProperty = new Submission.TypedProperty(TEST_PROPERTY, TEST_VALUE, TEST_TYPE);
+        Submission.TypedProperty testCustomProperty1 = new Submission.TypedProperty(TEST_PROPERTY1, TEST_VALUE);
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
         listTypedProperty.add(objTypedProperty1);
         listTypedProperty.add(objTypedProperty2);
         listTypedProperty.add(testCustomProperty);
+        listTypedProperty.add(testCustomProperty1);
         Submission.Payload objPayload1 = new Submission.Payload(PAYLOAD_ID, payLoadDataHandler1, listTypedProperty, false, null, null);
 
         submissionObj.addPayload(objPayload1);
@@ -159,10 +160,13 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, "customAgreement");
         assertEquals("true", messageMap.getStringProperty(P1_IN_BODY));
 
+        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_MIMETYPE));
         File file = new File(FILENAME_TEST);
         assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_FILENAME));
-        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_TEST_PROPERTY));
-        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_MIMETYPE));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_VALUE + TEST_PROPERTY));
+        assertEquals(TEST_TYPE, messageMap.getStringProperty(PAYLOAD_2_TYPE + TEST_PROPERTY));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_VALUE + TEST_PROPERTY1));
+        assertNull(messageMap.getStringProperty(PAYLOAD_2_TYPE + TEST_PROPERTY1));
     }
 
     /*
