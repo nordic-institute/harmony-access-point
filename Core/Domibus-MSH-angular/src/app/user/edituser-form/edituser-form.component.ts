@@ -142,7 +142,12 @@ export class EditUserComponent implements OnInit {
 
   shouldShowErrorsForFieldNamed(fieldName: string): boolean {
     let field = this.userForm.get(fieldName);
-    return (field.touched || field.dirty) && !!field.errors;
+    let hasErrors = !!field.errors;
+    if (fieldName == 'confirmation') {
+      // the 'password confirmation' field does not show only its own errors, but also the 'match' error on the form (if present)
+      hasErrors = hasErrors || !!this.userForm.errors?.match;
+    }
+    return (field.touched || field.dirty) && hasErrors;
   }
 
   isFormDisabled() {
