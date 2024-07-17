@@ -99,7 +99,7 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
         EArchiveFileStorage currentStorage = forDomain(currentDomain);
         if (currentStorage == null) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001,
-                    "eArchiving Storage [" + DOMIBUS_EARCHIVE_STORAGE_LOCATION + "] for domain [" + currentDomain + "] is not accessible. " +
+                    "eArchiving Storage [" + DOMIBUS_EARCHIVE_STORAGE_LOCATION + "] for domain [" + currentDomain + "] is not initialised. " +
                             "The location from the property  -> [" + domibusPropertyProvider.getProperty(currentDomain, DOMIBUS_EARCHIVE_STORAGE_LOCATION) + "]");
         }
         LOG.debug("Retrieved eArchiving Storage for domain [{}] = [{}]", currentDomain, currentStorage.getStorageDirectory());
