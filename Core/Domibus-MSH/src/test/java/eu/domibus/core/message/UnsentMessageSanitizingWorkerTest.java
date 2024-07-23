@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -63,7 +64,7 @@ public class UnsentMessageSanitizingWorkerTest {
         final ZonedDateTime currentDateTime = ZonedDateTime.of(2023, 12, 1, 20, 1 , 0, 0, ZoneOffset.UTC);
         final Date delayedDate = Date.from(currentDateTime.minusMinutes(360).toInstant());
         final long maxEntityId = 231201139999999999l;
-        final List<String> unsentMessageIds = Arrays.asList("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
+        final List<String> unsentMessageIds = Arrays.asList("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1", "7b2736d0-69f8-48de-ac7a-d4bd76ac78c2");
 
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
@@ -80,12 +81,15 @@ public class UnsentMessageSanitizingWorkerTest {
 
             userMessageLogDao.findUnsentMessageIds(delayedDate, maxEntityId);
             result = unsentMessageIds;
+
+            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
+            result = new UserMessageException("TEST");
         }};
 
         unsentMessageSanitizingWorker.sanitize();
 
         new FullVerifications() {{
-            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
+            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c2");
         }};
     }
 

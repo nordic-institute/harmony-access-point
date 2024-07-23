@@ -38,6 +38,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
@@ -60,11 +61,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -253,7 +256,11 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException("You have to wait " + dateUtil.getDiffMinutesBetweenDates(receivedDateDelta, currentDate) + " minutes before resending the message [" + messageId + "]");
         }
         if (userMessageLog.getNextAttempt() != null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+            ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
+            ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+            if (nextAttempt.isAfter(now)) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+            }
         }
 
         final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
@@ -828,6 +835,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
                 InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
                 if (isCompressedFile(pInfo)) {
+                    LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, pInfo.getHref());
                     inputStream = new GZIPInputStream(inputStream);
                 }
                 result.put(fileName, inputStream);
@@ -870,10 +878,12 @@ public class UserMessageDefaultService implements UserMessageService {
             return messagePayloadNameWithExtension;
         }
 
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
-                LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
-                return property.getValue();
+        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+            for (PartProperty property : info.getPartProperties()) {
+                if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
+                    LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
+                    return property.getValue();
+                }
             }
         }
 
@@ -881,13 +891,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = info.getPartProperties().stream()
-                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
-                .map(PartProperty::getValue)
-                .map(fileServiceUtil::getExtension)
-                .findFirst()
-                .orElse(null);
-        if(StringUtils.isBlank(extension)){
+        String extension = "";
+        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+            extension = info.getPartProperties().stream()
+                    .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                    .map(PartProperty::getValue)
+                    .map(fileServiceUtil::getExtension)
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (StringUtils.isBlank(extension)) {
             LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
         LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
@@ -895,6 +908,10 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private boolean isCompressedFile(PartInfo info) {
+        if(CollectionUtils.isEmpty(info.getPartProperties())) {
+            LOG.debug("No PartProperties: default -> no compression");
+            return false;
+        }
         return info.getPartProperties().stream()
                 .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
                         && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
