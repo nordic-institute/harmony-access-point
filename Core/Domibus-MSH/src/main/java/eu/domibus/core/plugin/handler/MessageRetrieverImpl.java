@@ -197,7 +197,9 @@ public class MessageRetrieverImpl implements MessageRetriever {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
         } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
+
             errorResults = errorLogService.getErrors(messageId, role);
+
             if (CollectionUtils.isEmpty(errorResults)) {
                 throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
             }
