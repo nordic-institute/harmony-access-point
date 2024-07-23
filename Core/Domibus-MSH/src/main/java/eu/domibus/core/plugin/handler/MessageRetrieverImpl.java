@@ -255,7 +255,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected void checkMessageAuthorization(String messageId) {
         checkMessageAuthorization(() -> userMessageService.getByMessageId(messageId));
     }
-
+ 
     protected void checkMessageAuthorization(Supplier<UserMessage> messageGetter) {
         checkUserRoleWithUnsecuredLoginAllowed();
 
