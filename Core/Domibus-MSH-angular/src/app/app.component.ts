@@ -127,7 +127,16 @@ export class AppComponent implements OnInit {
     console.log('onHttpEventService in app component error=', error)
     if (error && (error.status === Server.HTTP_UNAUTHORIZED || error.status === Server.HTTP_FORBIDDEN)) {
       this.securityService.clearAppData(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
-      this.router.navigate(['/login']);
+
+      // don't go to login page if we are in the login page already
+      let currentRoute = this.router.url;
+      if (currentRoute === '/login' || currentRoute === '/logout') {
+        console.debug('no redirect, staying on current page: ' + currentRoute);
+        return;
+      }
+
+      // don't go to login page if we're using external authentication, go to logout instead
+      this.router.navigate([this.isExtAuthProviderEnabled() ? '/logout' : '/login']);
     }
   }
 
