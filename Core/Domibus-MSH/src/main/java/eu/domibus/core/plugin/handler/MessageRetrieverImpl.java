@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -193,13 +192,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
-        List<? extends ErrorResult> errorResults = new ArrayList<>();
+        List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
         } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
-
-            errorResults = errorLogService.getErrors(messageId, role);
-
             if (CollectionUtils.isEmpty(errorResults)) {
                 throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
             }
@@ -257,7 +253,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected void checkMessageAuthorization(String messageId) {
         checkMessageAuthorization(() -> userMessageService.getByMessageId(messageId));
     }
- 
+
     protected void checkMessageAuthorization(Supplier<UserMessage> messageGetter) {
         checkUserRoleWithUnsecuredLoginAllowed();
 
