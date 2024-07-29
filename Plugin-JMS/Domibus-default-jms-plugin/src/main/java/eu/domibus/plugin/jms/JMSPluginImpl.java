@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -31,6 +32,7 @@ import javax.jms.*;
 import java.text.MessageFormat;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
@@ -106,7 +108,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
 
-            LOG.info("Received message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
+            LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, jmsCorrelationID);
 
             QueueContext queueContext = jmsMessageTransformer.getQueueContext(messageID, map);
             LOG.debug("Extracted queue context [{}]", queueContext);
@@ -123,6 +125,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
+                if (e instanceof DuplicateMessageException){
+                    LOG.businessError(DUPLICATE_MESSAGEID, messageID);
+                }
                 LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }

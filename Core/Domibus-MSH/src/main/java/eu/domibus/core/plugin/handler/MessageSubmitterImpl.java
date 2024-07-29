@@ -181,6 +181,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
+            backendMessageValidator.validateMessageIsUnique(messageId, userMessage.getMshRole().getRole());
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
