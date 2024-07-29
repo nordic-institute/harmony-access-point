@@ -1,4 +1,5 @@
 import {Component} from "@angular/core";
+import { Router } from "@angular/router";
 
 @Component({
   templateUrl: 'logout.component.html',
@@ -7,14 +8,11 @@ import {Component} from "@angular/core";
 
 export class LogoutAuthExtProviderComponent {
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   login_again(): void {
-    // just redirect to context path
-    let context = window.location.pathname.substring(0, window.location.pathname.indexOf("/", 2));
-    let url = window.location.protocol + "//" + window.location.host + context;
-    window.location.href = url;
+    this.router.navigate(['/login']); // when external auth provider is used, this will redirect the user to / and then to the external auth provider url
   }
 
 }
