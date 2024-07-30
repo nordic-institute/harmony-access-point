@@ -108,6 +108,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_PAYLOAD_PERSISTED_ON_FILE_SYSTEM("BUS-097", "Payload with cid [{}] persisted on the file system"),
     BUS_PAYLOAD_PERSISTED_IN_DB("BUS-098", "Payload with cid [{}] persisted in DB"),
     BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE("BUS-099", "Message with id [{}] and jmsCorrelationID [{}] has been received from jmsplugin.queue.in queue."),
+    BUS_MSG_RETRY("BUS-100", "Scheduling send retry {}/{} for message with id [{}]."),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

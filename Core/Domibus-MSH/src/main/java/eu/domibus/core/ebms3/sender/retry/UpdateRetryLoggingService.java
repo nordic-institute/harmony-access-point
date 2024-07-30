@@ -271,7 +271,7 @@ public class UpdateRetryLoggingService {
         }
         LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",
                 userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(),
-                getScheduledStartTime(userMessageLog), legConfiguration.getReceptionAwareness().getRetryTimeout());
+                getScheduledStartDate(userMessageLog), legConfiguration.getReceptionAwareness().getRetryTimeout());
         // retries start after the first send attempt
         Boolean hasMoreAttempts = userMessageLog.getSendAttempts() < userMessageLog.getSendAttemptsMax();
         long retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000L;
@@ -335,6 +335,10 @@ public class UpdateRetryLoggingService {
 
         Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout, crtInterval, delayInMillis);
 
+        LOG.businessInfo(DomibusMessageCode.BUS_MSG_RETRY,
+                userMessageLog.getSendAttempts(),
+                userMessageLog.getSendAttemptsMax() - 1,
+                userMessageLog.getUserMessage().getMessageId());
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
         reprogrammableService.setRescheduleInfo(userMessageLog, newNextAttempt);
     }
