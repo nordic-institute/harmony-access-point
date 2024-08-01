@@ -7,6 +7,8 @@ import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
+import org.springframework.dao.DataIntegrityViolationException;
+
 
 /**
  * TODO: add class description
@@ -31,9 +33,9 @@ public class MessagingExceptionFactory {
                 messagingProcessingException = new PModeMismatchException(message, originalException);
                 break;
             default:
-                if (originalException.getCause() != null &&
-                        originalException.getCause().getMessage() != null &&
-                        originalException.getCause().getMessage().contains("constraint [tb_user_message.UK_USER_MSG_MESSAGE_ID]")) {
+                if (originalException.getCause() instanceof DataIntegrityViolationException &&
+                    originalException.getCause().getMessage() != null &&
+                    originalException.getCause().getMessage().contains("UK_USER_MSG_MESSAGE_ID")) {
                     messagingProcessingException = new DuplicateMessageException(message, originalException);
                 } else {
                     messagingProcessingException = new MessagingProcessingException(message, originalException);
