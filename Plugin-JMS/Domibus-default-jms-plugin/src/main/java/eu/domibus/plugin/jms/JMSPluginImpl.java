@@ -31,7 +31,6 @@ import org.springframework.jms.support.destination.JndiDestinationResolver;
 import javax.jms.*;
 import java.text.MessageFormat;
 import java.util.List;
-
 import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
