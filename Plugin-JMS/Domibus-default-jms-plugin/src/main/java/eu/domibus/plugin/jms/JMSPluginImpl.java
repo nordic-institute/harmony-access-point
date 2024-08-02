@@ -105,10 +105,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 messageID = messageExtService.cleanMessageIdentifier(messageID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
             }
+            final String conversationId = map.getStringProperty(CONVERSATION_ID);
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
-
-            LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, jmsCorrelationID);
+            LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, conversationId, jmsCorrelationID);
 
             QueueContext queueContext = jmsMessageTransformer.getQueueContext(messageID, map);
             LOG.debug("Extracted queue context [{}]", queueContext);
@@ -159,7 +159,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     public void deliverMessage(final DeliverMessageEvent event) {
         checkEnabled();
 
-        String messageId = event.getMessageId();
+        final String messageId = event.getMessageId();
+        final String messageEntityId = event.getMessageEntityId().toString();
+        final String conversationId = event.getProps().get(MessageConstants.CONVERSATION_ID);
+        LOG.businessInfo(DomibusMessageCode.BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE, messageId, messageEntityId, conversationId);
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
         QueueContext queueContext = createQueueContext(event);
