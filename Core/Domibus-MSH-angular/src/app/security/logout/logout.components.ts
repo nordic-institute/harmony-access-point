@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import { Router } from "@angular/router";
 
 @Component({
   templateUrl: 'logout.component.html',
@@ -8,11 +7,17 @@ import { Router } from "@angular/router";
 
 export class LogoutAuthExtProviderComponent {
 
-  constructor(private router: Router) {
+  constructor() {
   }
 
   login_again(): void {
-    this.router.navigate(['/login']); // when external auth provider is used, this will redirect the user to / and then to the external auth provider url
+    // When external auth provider is used, we rely on the webserver serving the pages for authentication;
+    // so we need to request the page from the server, and we achieve this by changing the window.location
+    // (simply using the router to navigate to the login page/other page will not trigger the authentication) 
+
+    let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    newurl = newurl.replace(/\/logout\/?$/, ''); // replace "/logout" only at the end of the path
+    window.location.href = newurl;
   }
 
 }
