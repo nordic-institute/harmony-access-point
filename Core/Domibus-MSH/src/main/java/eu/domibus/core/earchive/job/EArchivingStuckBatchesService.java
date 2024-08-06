@@ -50,7 +50,7 @@ public class EArchivingStuckBatchesService {
         }
 
         EArchiveBatchFilter filter = new EArchiveBatchFilter();
-        filter.getStatusList().addAll(EnumSet.of(EArchiveBatchStatus.STARTED));
+        filter.getStatusList().addAll(EnumSet.of(EArchiveBatchStatus.STARTED, EArchiveBatchStatus.QUEUED));
         filter.setEndDate(minutesAgo);
 
         List<EArchiveBatchRequestDTO> stuckBatches = eArchivingDefaultService.getBatchRequestList(filter);
