@@ -44,17 +44,16 @@ public class DomibusCertificateValidator extends Merlin implements ISMPCertifica
         setTrustStore(trustStore);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void validateSMPCertificate(X509Certificate certificate) throws CertificateException {
         validateSMPCertificate(certificate, null);
     }
 
     /**
-     * Method used by OASIS Dynamic discovery client for certificate verification
-     *
-     * @param certificate
-     * @param context
-     * @throws CertificateException
+     * {@inheritDoc}
      */
     @Override
     public void validateSMPCertificate(X509Certificate certificate, SignatureValidationContext context) throws CertificateException {
