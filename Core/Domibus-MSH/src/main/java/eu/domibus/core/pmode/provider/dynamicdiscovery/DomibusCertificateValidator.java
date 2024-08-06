@@ -4,6 +4,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.core.security.ISMPCertificateValidator;
+import eu.europa.ec.dynamicdiscovery.core.security.SignatureValidationContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -43,15 +44,23 @@ public class DomibusCertificateValidator extends Merlin implements ISMPCertifica
         setTrustStore(trustStore);
     }
 
+    @Override
+    public void validateSMPCertificate(X509Certificate certificate) throws CertificateException {
+        validateSMPCertificate(certificate, null);
+    }
 
     /**
      * Method used by OASIS Dynamic discovery client for certificate verification
      *
      * @param certificate
+     * @param context
      * @throws CertificateException
      */
     @Override
-    public void validateSMPCertificate(X509Certificate certificate) throws CertificateException {
+    public void validateSMPCertificate(X509Certificate certificate, SignatureValidationContext context) throws CertificateException {
+
+        //TODO: implement context based handling in EDELIVERY-13737
+
         String subjectName = getSubjectDN(certificate);
         LOG.debug("Certificate validator for certificate: [{}]", subjectName);
         // validate
