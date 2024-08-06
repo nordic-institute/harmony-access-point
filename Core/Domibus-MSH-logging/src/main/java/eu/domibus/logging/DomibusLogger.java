@@ -23,6 +23,7 @@ public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor
     public static final String MDC_MESSAGE_ROLE = "messageMSHRole";
     public static final String MDC_MESSAGE_ENTITY_ID = "messageEntityId";
     public static final String MDC_BATCH_ENTITY_ID = "batchEntityId";
+    public static final String MDC_BATCH_STATUS = "batchStatus";
     public static final String MDC_DOMAIN = "domain";
     public static final String MDC_FROM = "from";
     public static final String MDC_TO = "to";

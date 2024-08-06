@@ -77,10 +77,12 @@ public class EArchiveListener implements MessageListener {
         }
         jmsUtil.setCurrentDomainFromMessage(message);
 
+        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
+        LOG.putMDC(DomibusLogger.MDC_BATCH_STATUS, batchMessageType);
+
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
-        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
         if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
             onMessageArchiveBatch(eArchiveBatchByBatchId, userMessageDtos);
         } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
