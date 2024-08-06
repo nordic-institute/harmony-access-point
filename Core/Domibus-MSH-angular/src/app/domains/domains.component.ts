@@ -17,6 +17,7 @@ import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
 import { UserService } from 'app/user/support/user.service';
 import { SecurityService } from 'app/security/security.service';
+import {DomibusInfoService} from "../common/appinfo/domibusinfo.service";
 
 /**
  * @author Ion Perpegel
@@ -37,7 +38,7 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
   @ViewChild('monitorStatus') statusTemplate: TemplateRef<any>;
 
   constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef,
-              private userService: UserService, private securityService: SecurityService) {
+              private userService: UserService, private securityService: SecurityService, private domibusInfoService: DomibusInfoService) {
     super();
   }
 
@@ -96,11 +97,18 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
         if (currentDomain && currentDomain.code == domain.code) {
           throw `Cannot disable the current domain`;
         }
-        let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
-        let users = await this.userService.getUsers();
-        let currentUser = users.find(u => u.userName == currentUserName);
-        if (currentUser.domain == domain.code) {
-          throw `Cannot disable the domain of the current user`;
+
+        const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+        if (isUserFromExternalAuthProvider) {
+          // don't check the domain of the current user if external auth provider is used, 
+          // as the notion of 'preferred domain' is not the same in this case
+        } else {
+          let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
+          let users = await this.userService.getUsers();
+          let currentUser = users.find(u => u.userName == currentUserName);
+          if (currentUser.domain == domain.code) {
+            throw `Cannot disable the domain of the current user`;
+          }
         }
       }
 
