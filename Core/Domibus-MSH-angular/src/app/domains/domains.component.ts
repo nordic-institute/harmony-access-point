@@ -101,7 +101,7 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
         const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
         if (isUserFromExternalAuthProvider) {
           // don't check the domain of the current user if external auth provider is used, 
-          // as there is no such notion as 'preferred domain' in this case
+          // as the notion of 'preferred domain' is not the same in this case
         } else {
           let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
           let users = await this.userService.getUsers();
