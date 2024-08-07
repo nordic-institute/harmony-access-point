@@ -52,14 +52,8 @@ public class DomibusCertificateValidator extends Merlin implements ISMPCertifica
         validateSMPCertificate(certificate, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void validateSMPCertificate(X509Certificate certificate, SignatureValidationContext context) throws CertificateException {
-
-        //TODO: implement context based handling in EDELIVERY-13737
-
         String subjectName = getSubjectDN(certificate);
         LOG.debug("Certificate validator for certificate: [{}]", subjectName);
         // validate
