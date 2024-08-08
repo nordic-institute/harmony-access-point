@@ -410,7 +410,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 errorResult.getTimestamp() == null ? null : errorResult.getTimestamp().toString());
     }
 
-    protected void handleSentMessage(String domain, String messageId) {
+    protected void handleSentMessage(String domain, String messageId, boolean retryIfNotFound) {
         LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -437,9 +437,15 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                     }
                 }
             } else {
-                LOG.error("The successfully sent message file [{}] was not found in domain [{}]", messageId, domain);
+                if (retryIfNotFound) {
+                    LOG.debug("Successfully sent message file [{}] not found. It may not have been renamed yet", messageId);
+                    Thread.sleep(1000L);
+                    handleSentMessage(domain, messageId, false);
+                } else {
+                    LOG.error("The successfully sent message file [{}] was not found in domain [{}]", messageId, domain);
+                }
             }
-        } catch (FileSystemException e) {
+        } catch (FileSystemException | InterruptedException e) {
             LOG.error("Error handling the successfully sent message file [" + messageId + "]", e);
         }
     }
@@ -477,7 +483,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         if (isSendingEvent(event)) {
             renameMessageFile(domain, messageId, event.getToStatus());
         } else if (isSendSuccessEvent(event)) {
-            handleSentMessage(domain, messageId);
+            handleSentMessage(domain, messageId, true);
         } else if (isSendFailedEvent(event)) {
             handleSendFailedMessage(domain, messageId);
         }
