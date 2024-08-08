@@ -22,6 +22,10 @@ public class PartitionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionService.class);
 
+    public static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]+|P[0-9]+";
+
+    public static final String DEFAULT_PARTITION = "P1970"; // default partition that we never delete
+
     protected DateUtil dateUtil;
 
 
@@ -29,17 +33,16 @@ public class PartitionService {
         this.dateUtil = dateUtil;
     }
 
-
-    public Long getExpiredPartitionsHighValue(List<DatabasePartition> partitions, Date expireDate) {
-        Long highValue = partitions.stream().max(Comparator.comparing(DatabasePartition::getHighValue)).get().getHighValue();
-        Long expiredHighValue = getPartitionHighValueFromDate(expireDate);
-
-        return java.lang.Math.min(highValue, expiredHighValue);
-    }
-
     public Long getPartitionHighValueFromDate(Date partitionDate) {
         Long highValue = new Long (dateUtil.getIdPkDateHourPrefix(partitionDate) + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
         LOG.debug("Get partition highValue from date [{}], highValue [{}]", partitionDate, highValue);
         return highValue;
+    }
+
+    public DatabasePartition getNewestNonDefaultPartition(List<DatabasePartition> partitions) {
+        return partitions.stream()
+                .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
+                .max(Comparator.comparing(DatabasePartition::getHighValue))
+                .orElse(null);
     }
 }
