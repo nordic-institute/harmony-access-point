@@ -31,18 +31,31 @@ public class EArchiveErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey(value = DomibusLogger.MDC_BATCH_ENTITY_ID)
     @Transactional
     public void handleError(Throwable t) {
+        if (!(t instanceof EArchiveException)) {
+            LOG.error("Logging eArchive error", t);
+            return;
+        }
 
-        long entityId = Long.parseLong(LOG.getMDC(DomibusLogger.MDC_BATCH_ENTITY_ID));
-        LOG.warn("Handling dispatch error for batch entityId [{}] ", entityId, t);
+        EArchiveException eArchiveException = (EArchiveException) t;
+        Long entityId = eArchiveException.getBatchEntityId();
+        String batchId = eArchiveException.getBatchId();
+        EArchiveBatchStatus batchStatus = eArchiveException.getBatchStatus();
 
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, false);
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED, StringUtils.substring(t.getMessage(), 0, DomibusStringUtilImpl.DEFAULT_MAX_STRING_LENGTH - 1), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED, eArchiveBatchByBatchId.getBatchId(), t.getMessage());
-        eArchivingDefaultService.sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);
+        if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
+            // failure to handle ARCHIVED batch - just log the error :
+            LOG.warn("Handling ARCHIVED batch [{}] with entityId [{}] failed. The eArchive structure may not have been cleaned up and/or the archived messages may not have been marked as 'archived'. ", batchId, entityId, t);
+        } else {
+            // failure to handle EXPORTED batch :
+            LOG.warn("Handling dispatch error for batch entityId [{}] with status [{}]", entityId, batchStatus, t);
 
+            EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, false);
+            LOG.debug("Changing status of batch [{}] with entityId [{}] from [{}] to [{}]", batchId, entityId, eArchiveBatchByBatchId.getEArchiveBatchStatus(), EArchiveBatchStatus.FAILED);
+            eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED, StringUtils.substring(t.getMessage(), 0, DomibusStringUtilImpl.DEFAULT_MAX_STRING_LENGTH - 1), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
+            LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED, eArchiveBatchByBatchId.getBatchId(), t.getMessage());
+            eArchivingDefaultService.sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);
+        }
     }
 
 }

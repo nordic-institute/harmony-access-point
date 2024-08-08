@@ -68,29 +68,40 @@ public class EArchiveListener implements MessageListener {
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
-        String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
-        Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        if (StringUtils.isBlank(batchId) || entityId == null) {
-            LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
-            return;
-        }
-        jmsUtil.setCurrentDomainFromMessage(message);
+        String batchId = null;
+        Long entityId = null;
+        EArchiveBatchStatus batchStatus = null;
 
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
-        List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
+        try {
+            batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
+            entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
+            if (StringUtils.isBlank(batchId) || entityId == null) {
+                LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
+                return;
+            }
+            jmsUtil.setCurrentDomainFromMessage(message);
 
-        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
-        if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
-            onMessageArchiveBatch(eArchiveBatchByBatchId, userMessageDtos);
-        } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
-            onMessageExportBatch(eArchiveBatchByBatchId, userMessageDtos);
-        } else {
-            LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
-                    batchMessageType, batchId, entityId);
-            // If this happens then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
-            // make sure to add also the processing of new message type
-            throw new IllegalArgumentException( "Invalid JMS message type ["+batchMessageType+"] for the eArchive processing of the batchId ["+batchId+"]!");
+            String batchMessageType = jmsUtil.getMessageTypeSafely(message);
+            if (batchMessageType != null) {
+                batchStatus = EArchiveBatchStatus.valueOf(batchMessageType);
+            }
+
+            EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
+            List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
+
+            if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
+                onMessageArchiveBatch(eArchiveBatchByBatchId, userMessageDtos);
+            } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType)) {
+                onMessageExportBatch(eArchiveBatchByBatchId, userMessageDtos);
+            } else {
+                LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
+                        batchMessageType, batchId, entityId);
+                // If this happens then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
+                // make sure to add also the processing of new message type
+                throw new IllegalArgumentException("Invalid JMS message type [" + batchMessageType + "] for the eArchive processing of the batchId [" + batchId + "]!");
+            }
+        } catch (Exception ex) {
+            throw new EArchiveException(batchId, entityId, batchStatus, ex);
         }
     }
 

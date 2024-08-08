@@ -60,8 +60,6 @@ public class EArchiveNotificationListenerTest {
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable BatchNotification batchNotification) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
             result = "test";
@@ -92,8 +90,6 @@ public class EArchiveNotificationListenerTest {
                                                @Injectable BatchNotification batchNotification,
                                                @Injectable ArchiveWebhookApi apiClient) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
             result = "test";
@@ -118,11 +114,9 @@ public class EArchiveNotificationListenerTest {
         eArchiveNotificationListener.onMessage(message);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = EArchiveException.class)
     public void onMessageExported_NotificationTypeUnknown(@Injectable Message message,
                                                           @Injectable EArchiveBatchEntity eArchiveBatch) {
-
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
