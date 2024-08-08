@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author François Gautier
- * @since 5.0
+ * @since 5.1
  */
 public class PartitionServiceTest {
     public static final DatabasePartition DB_PARTITION_DEFAULT = new DatabasePartition(DEFAULT_PARTITION, 220000000000000000L);
