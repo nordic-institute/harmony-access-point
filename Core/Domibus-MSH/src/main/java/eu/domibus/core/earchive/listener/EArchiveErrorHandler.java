@@ -34,7 +34,7 @@ public class EArchiveErrorHandler implements ErrorHandler {
     @Transactional
     public void handleError(Throwable t) {
         if (!(t instanceof EArchiveException)) {
-            LOG.error("Handling dispatch error", t);
+            LOG.error("Logging eArchive error", t);
             return;
         }
 

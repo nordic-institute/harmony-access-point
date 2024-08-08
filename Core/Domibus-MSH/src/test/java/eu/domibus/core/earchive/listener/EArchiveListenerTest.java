@@ -93,7 +93,7 @@ public class EArchiveListenerTest {
         };
     }
 
-    @Test(expected = DomibusEArchiveException.class)
+    @Test(expected = EArchiveException.class)
     public void onMessage_noBatchFound(@Injectable Message message) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();

@@ -39,7 +39,7 @@ public class EArchiveErrorHandlerTest {
             eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
         }};
-        RuntimeException error = new RuntimeException("ERROR");
+        EArchiveException error = new EArchiveException("batchGuid", entityId, EArchiveBatchStatus.EXPORTED, new RuntimeException("ERROR"));
         eArchiveErrorHandler.handleError(error);
 
         new FullVerifications(){{
@@ -48,6 +48,8 @@ public class EArchiveErrorHandlerTest {
             eArchivingDefaultService.sendToNotificationQueue(eArchiveBatch, EArchiveBatchStatus.FAILED);
             times = 1;
             eArchiveBatch.getBatchId();
+            times = 1;
+            eArchiveBatch.getEArchiveBatchStatus();
             times = 1;
         }};
 

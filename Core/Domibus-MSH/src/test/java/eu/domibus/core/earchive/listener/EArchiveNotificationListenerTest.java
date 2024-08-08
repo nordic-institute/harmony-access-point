@@ -114,7 +114,7 @@ public class EArchiveNotificationListenerTest {
         eArchiveNotificationListener.onMessage(message);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = EArchiveException.class)
     public void onMessageExported_NotificationTypeUnknown(@Injectable Message message,
                                                           @Injectable EArchiveBatchEntity eArchiveBatch) {
 
