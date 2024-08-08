@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
-        <cxf.version>3.5.8</cxf.version>
+        <cxf.version>3.5.9</cxf.version>
         <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
@@ -53,7 +53,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <tika.version>2.7.0</tika.version>
         <peppol.version>2.4.0</peppol.version>
-        <dynamic.discovery.client.version>2.1</dynamic.discovery.client.version>
+        <dynamic.discovery.client.version>2.3</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <jaxws-rt.version>2.3.6</jaxws-rt.version>
