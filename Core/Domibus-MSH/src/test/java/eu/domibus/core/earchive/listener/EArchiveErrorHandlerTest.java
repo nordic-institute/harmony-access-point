@@ -34,8 +34,6 @@ public class EArchiveErrorHandlerTest {
     @Test
     public void handleError_ok(@Injectable EArchiveBatchEntity eArchiveBatch) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-
         new Expectations() {{
 
             eArchivingDefaultService.getEArchiveBatch(entityId, false);
