@@ -88,7 +88,7 @@ public class EArchiveListener implements MessageListener {
         } else {
             LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
                     batchMessageType, batchId, entityId);
-            // If this happen then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
+            // If this happens then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
             // make sure to add also the processing of new message type
             throw new IllegalArgumentException( "Invalid JMS message type ["+batchMessageType+"] for the eArchive processing of the batchId ["+batchId+"]!");
         }

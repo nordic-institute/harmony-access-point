@@ -11,6 +11,7 @@ import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
@@ -18,7 +19,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.SecurityProfileDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -32,10 +32,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
