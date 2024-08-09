@@ -266,7 +266,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
                     String propertyValue = trim(property.getValue());
-                    if(PAYLOAD_PROPERTY_FILE_PATH.equals(propertyName)) {
+                    if (PAYLOAD_PROPERTY_FILE_PATH.equalsIgnoreCase(propertyName)) {
                         propertyValue = "-";
                     }
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
