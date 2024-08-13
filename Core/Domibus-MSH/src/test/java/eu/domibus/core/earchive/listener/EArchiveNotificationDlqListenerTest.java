@@ -61,8 +61,6 @@ public class EArchiveNotificationDlqListenerTest {
                                      @Injectable AlertModuleConfiguration alertConfiguration
     ) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "test";
@@ -94,8 +92,6 @@ public class EArchiveNotificationDlqListenerTest {
                                                           @Injectable EArchiveBatchEntity eArchiveBatch,
                                                           @Injectable AlertModuleConfiguration alertConfiguration
     ) {
-
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
