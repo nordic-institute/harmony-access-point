@@ -439,7 +439,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             } else {
                 if (retryIfNotFound) {
                     LOG.debug("Successfully sent message file [{}] not found. It may not have been renamed yet", messageId);
-                    Thread.sleep(1000L);
+                    Thread.sleep(3000L);
                     handleSentMessage(domain, messageId, false);
                 } else {
                     LOG.error("The successfully sent message file [{}] was not found in domain [{}]", messageId, domain);
