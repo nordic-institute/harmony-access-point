@@ -392,7 +392,7 @@ public class FSSendMessagesService {
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
-            if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
+            if (fileInfo != null && StringUtils.equals(fileInfo.getDomain(), domain) && ((currentTime - fileInfo.getModified()) > delta)) {
                 LOG.debug("File [{}] is old and will not be observed anymore", key);
                 observedFilesInfo.remove(key);
             }
