@@ -625,7 +625,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void validateTrustStoreCertificateTypes(KeyStore trustStore) {
-        LOG.debug("No certificate type validation is done for the truststore [{}] since security profiles are not supported in this version of Domibus", trustStore);
+        LOG.debug("No certificate type validation is done for the [{}] since security profiles are not supported in this version of Domibus", trustStore.getType());
     }
 
     protected void initTrustStore() {
@@ -664,7 +664,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void validateKeyStoreCertificateTypes(KeyStore keystore) {
-        LOG.debug("No certificate type validation is done for the keystore [{}] since security profiles are not supported in this version of Domibus", keystore);
+        LOG.debug("No certificate type validation is done for the [{}] since security profiles are not supported in this version of Domibus", keystore.getType());
     }
 
     protected void initKeyStore() {
