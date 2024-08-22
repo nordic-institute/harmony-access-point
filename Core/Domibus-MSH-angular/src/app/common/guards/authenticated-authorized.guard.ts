@@ -19,6 +19,7 @@ export class AuthenticatedAuthorizedGuard {
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const isAuthenticated = await this.securityService.isAuthenticated();
     if (!isAuthenticated) {
+      console.log(`[${this.securityService.getCurrentUser()?.username}] not authenticated`);
       this.handleNotAuthenticated();
       return this.getNotAuthenticatedRoute(state);
     }
@@ -56,11 +57,12 @@ export class AuthenticatedAuthorizedGuard {
 
   private async getNotAuthenticatedRoute(state: RouterStateSnapshot): Promise<UrlTree> {
     let isExtAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
-    // not logged in so redirect to login page with the return url
     if (!isExtAuthProvider) {
+      // Domibus Login: not logged in so redirect to login page with the return url
       return this.router.createUrlTree(['/login'], {queryParams: {returnUrl: state.url}});
+    } else {
+      // EU Login: redirect to logout
+      return this.router.createUrlTree(['/logout']);
     }
-    // EU Login redirect to logout
-    return this.router.createUrlTree(['/logout']);
   }
 }
