@@ -42,7 +42,7 @@ export class AuthenticatedAuthorizedGuard {
     } else {
       allowedRoles = routeData.checkRoles
     }
-    return this.securityService.isCurrentUserInRole(allowedRoles);
+    return this.securityService.isCurrentUserInRole(allowedRoles, true /* logWarning */);
   }
 
   private getNotAuthorizedRoute(): UrlTree {
