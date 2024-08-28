@@ -106,7 +106,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
      * @throws IllegalAccessException
      */
     protected DomibusUserDetails createUserDetails(final String username) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
-        LOG.debug("createUserDetails - start");
+        LOG.debug("createUserDetails for username: {} - start", username);
         List<AuthRole> authRoles = new LinkedList<>();
         Set<String> domainCodesFromLDAP = new HashSet<>();
 
@@ -120,7 +120,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         for (Principal principal : getPrincipals()) {
             LOG.debug("createUserDetails - principal name: {} and class: {}", principal.getName(), principal.getClass().getName());
             if (isUserGroupPrincipal(principal)) {
-                LOG.debug("Found a user group principal: {}", principal);
+                LOG.debug("Found a userGroup principal: {}", principal);
                 final String principalName = principal.getName();
 
                 //only Domibus mapped ldap groups
@@ -128,15 +128,17 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
                     //search for user roles
                     if (userRoleMappings.get(principalName) != null) {
                         authRoles.add(userRoleMappings.get(principalName));
-                        LOG.debug("createUserDetails - userGroup added: {}", userRoleMappings.get(principalName));
+                        LOG.debug("createUserDetails - authority added: {}", userRoleMappings.get(principalName));
                     } else if (domainMappings.get(principalName) != null) {
                         domainCodesFromLDAP.add(domainMappings.get(principalName));
                         LOG.debug("createUserDetails - domain added: {}", domainCodesFromLDAP);
+                    } else {
+                        LOG.debug("createUserDetails - userGroup ignored: {}", principalName);
                     }
                 }
             } else {
-                LOG.debug("createUserDetails - user group is not principal");
-                if (isUserPrincipal(principal) && !username.equals(principal.getName())) {
+                LOG.debug("Principal {} is not a userGroup", principal);
+                if (isUserPrincipal(principal) && !StringUtils.equals(username, principal.getName())) {
                     LOG.error("Username {} does not match Principal {}", username, principal.getName());
                     throw new AccessDeniedException(
                             String.format("The provided username and the principal name do not match. username = %s, principal = %s", username, principal.getName()));
@@ -160,7 +162,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         domainContextProvider.clearCurrentDomain();
         domainContextProvider.setCurrentDomainWithValidation(domainCode);
 
-        LOG.debug("createUserDetails - end");
+        LOG.debug("createUserDetails for username: {} - end", username);
         return domibusUserDetails;
     }
 
@@ -240,7 +242,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
     }
 
     private boolean hasSuperAdminUserPrivilege(GrantedAuthority grantedAuthority) {
-        return StringUtils.equals(grantedAuthority.getAuthority(), AuthRole.ROLE_AP_ADMIN.name());
+        return grantedAuthority != null && StringUtils.equals(grantedAuthority.getAuthority(), AuthRole.ROLE_AP_ADMIN.name());
     }
 
     protected boolean isWeblogicSecurity() {
@@ -264,12 +266,12 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
     }
 
     private boolean isUserPrincipal(Principal principal) throws ClassNotFoundException {
-        LOG.debug("isUserPrincipal class={}", principal.getClass().getName());
+        LOG.trace("isUserPrincipal class={}", principal.getClass().getName());
         return Class.forName(ECAS_USER).isInstance(principal);
     }
 
     protected boolean isUserGroupPrincipal(Principal principal) throws ClassNotFoundException {
-        LOG.debug("isUserGroupPrincipal class={}", principal.getClass().getName());
+        LOG.trace("isUserGroupPrincipal class={}", principal.getClass().getName());
         return Class.forName(ECAS_GROUP).isInstance(principal);
     }
 
