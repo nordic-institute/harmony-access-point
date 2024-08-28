@@ -27,8 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.message.retention.PartitionService.DEFAULT_PARTITION;
 import static eu.domibus.core.message.retention.PartitionService.PARTITION_NAME_REGEXP;
 
@@ -106,11 +105,21 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // A partition may have messages with all statuses, received/sent on any MPC
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
-        LOG.debug("Max retention time configured in pMode is [{}] minutes", maxRetention);
+        LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
         List<String> partitionNames = getExpiredPartitionNames(maxRetention);
-        LOG.debug("Verify if all messages expired for partitions older than [{}] days", maxRetention / 60 / 24);
+        List<String> toDeletePartitionNames = new ArrayList<>();
+        LOG.info("Verify if all messages expired for partitions older than [{}] days", maxRetention / 60 / 24);
+
+        int maxPartitionsDrop = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PARTITIONS_DROP_MAX_PARTITIONS);
+        if (maxPartitionsDrop <= 0) {
+            LOG.warn("Invalid value for [{}] setting limit to 1 partition.", DOMIBUS_PARTITIONS_DROP_MAX_PARTITIONS);
+            maxPartitionsDrop = 1;
+        }
+
+        LOG.info("Maximum number of partitions to delete at once is [{}]", maxPartitionsDrop);
+        LOG.info("Start verifying partitions.");
         for (String partitionName : partitionNames) {
-            LOG.debug("Verify partition [{}]", partitionName);
+            LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
             if (!partitionName.matches(PARTITION_NAME_REGEXP)) {
                 LOG.error("Partition [{}] has invalid name", partitionName);
@@ -125,7 +134,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 continue;
             }
 
-            // TODO We might consider that, if a message was archived it is already expired (in final status and older than the specified retention for its MPC) and skip the next verifications
             // Verify if all messages expired
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
@@ -133,9 +141,20 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
+            toDeletePartitionNames.add(partitionName);
+            LOG.info("Found expired partition to delete [{}].", partitionName);
+            if(toDeletePartitionNames.size() > maxPartitionsDrop) {
+                LOG.info("Reached maximum number of partitions to delete in one round [{}].", toDeletePartitionNames.size());
+                break;
+            }
+        }
 
-            LOG.info("Delete partition [{}]", partitionName);
-            userMessageDao.dropPartition(partitionName);
+        if (toDeletePartitionNames.size() > 0) {
+            String strPartitions = toDeletePartitionNames.stream().collect(Collectors.joining(","));
+            LOG.info("Deleting [{}] partitions [{}]", toDeletePartitionNames.size(), strPartitions);
+            userMessageDao.dropPartition(strPartitions);
+        } else {
+            LOG.info("There was no partition to delete.");
         }
     }
 
