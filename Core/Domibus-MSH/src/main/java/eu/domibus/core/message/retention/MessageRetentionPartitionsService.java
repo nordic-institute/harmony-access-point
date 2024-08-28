@@ -143,7 +143,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             }
             toDeletePartitionNames.add(partitionName);
             LOG.info("Found expired partition to delete [{}].", partitionName);
-            if(toDeletePartitionNames.size() > maxPartitionsDrop) {
+            if(toDeletePartitionNames.size() >= maxPartitionsDrop) {
                 LOG.info("Reached maximum number of partitions to delete in one round [{}].", toDeletePartitionNames.size());
                 break;
             }
