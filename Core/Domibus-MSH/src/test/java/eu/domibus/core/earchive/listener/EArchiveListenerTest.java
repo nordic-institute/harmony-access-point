@@ -93,7 +93,7 @@ public class EArchiveListenerTest {
         };
     }
 
-    @Test(expected = EArchiveException.class)
+    @Test
     public void onMessage_noBatchFound(@Injectable Message message) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
@@ -101,6 +101,9 @@ public class EArchiveListenerTest {
 
             jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
+
+            jmsUtil.getMessageTypeSafely(message);
+            result = "QUEUED";
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
@@ -111,7 +114,9 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {
+        new FullVerifications() {{
+            jmsUtil.setCurrentDomainFromMessage(message);
+        }
         };
     }
 

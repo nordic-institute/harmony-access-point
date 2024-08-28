@@ -1,12 +1,13 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -72,7 +73,13 @@ public class EArchiveNotificationDlqListener implements MessageListener {
             return;
         }
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
+        EArchiveBatchEntity eArchiveBatchByBatchId;
+        try {
+            eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
+        } catch (DomibusEArchiveException e) {
+            LOG.error("Batch ID  [{}] not found, skipping", batchId);
+            return;
+        }
 
         LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
         eventService.enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED, batchId, new EventProperties(batchId, notificationType.name()));

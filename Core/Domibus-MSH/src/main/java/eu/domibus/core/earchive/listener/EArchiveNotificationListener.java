@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -91,7 +92,13 @@ public class EArchiveNotificationListener implements MessageListener {
 
             LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", batchStatus, batchId, entityId);
 
-            EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
+            EArchiveBatchEntity eArchiveBatch;
+            try {
+                eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
+            } catch (DomibusEArchiveException e) {
+                LOG.error("Batch ID [{}] not found, skipping", batchId);
+                return;
+            }
             if (batchStatus != EArchiveBatchStatus.FAILED && batchStatus != EArchiveBatchStatus.EXPORTED) {
                 return;
             }
