@@ -7,7 +7,6 @@ import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,9 +33,6 @@ public class EArchiveNotificationDlqListenerTest {
     private EArchiveNotificationDlqListener eArchiveNotificationDlqListener;
 
     @Injectable
-    private EArchivingDefaultService eArchivingDefaultService;
-
-    @Injectable
     private DatabaseUtil databaseUtil;
 
     @Injectable
@@ -58,8 +54,7 @@ public class EArchiveNotificationDlqListenerTest {
     @Test
     public void onMessageExported_ok(final @Mocked Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable AlertModuleConfiguration alertConfiguration
-    ) {
+                                     @Injectable AlertModuleConfiguration alertConfiguration) {
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
@@ -74,9 +69,6 @@ public class EArchiveNotificationDlqListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
             result = "EXPORTED";
 
-            eArchivingDefaultService.getEArchiveBatch(entityId, false);
-            result = eArchiveBatch;
-
             alertConfigurationService.getConfiguration(AlertType.ARCHIVING_NOTIFICATION_FAILED);
             result = alertConfiguration;
 
@@ -90,8 +82,7 @@ public class EArchiveNotificationDlqListenerTest {
     @Test(expected = IllegalArgumentException.class)
     public void onMessageExported_NotificationTypeUnknown(final @Mocked Message message,
                                                           @Injectable EArchiveBatchEntity eArchiveBatch,
-                                                          @Injectable AlertModuleConfiguration alertConfiguration
-    ) {
+                                                          @Injectable AlertModuleConfiguration alertConfiguration) {
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();

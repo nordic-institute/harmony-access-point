@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
@@ -86,7 +87,14 @@ public class EArchiveListener implements MessageListener {
                 batchStatus = EArchiveBatchStatus.valueOf(batchMessageType);
             }
 
-            EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
+            EArchiveBatchEntity eArchiveBatchByBatchId;
+            try {
+                eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
+            } catch (DomibusEArchiveException e) {
+                LOG.debug("Batch ID [{}] not found, skipping", batchId, e);
+                LOG.error("Batch ID [{}] not found, skipping", batchId);
+                return;
+            }
             List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
             if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
