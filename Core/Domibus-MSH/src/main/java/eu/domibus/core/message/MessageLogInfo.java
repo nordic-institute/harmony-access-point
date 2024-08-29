@@ -88,6 +88,12 @@ public class MessageLogInfo {
 
     private Date archived;
 
+    private Date exported;
+
+    private Date downloaded;
+
+    private Date acknowledged;
+
     public MessageLogInfo() {
     }
 
@@ -148,7 +154,10 @@ public class MessageLogInfo {
                           final Long serviceId,
                           final String pluginType,
                           final Long partLength,
-                          final Date archived
+                          final Date archived,
+                          final Date exported,
+                          final Date downloaded,
+                          final Date acknowledged
     ) {
         this(messageId, messageStatusId, mshRoleId, deleted, received, conversationId, fromPartyIdPk, toPartyIdPk,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -168,6 +177,9 @@ public class MessageLogInfo {
         this.pluginType = pluginType;
         this.partLength = partLength;
         this.archived = archived;
+        this.exported = exported;
+        this.downloaded = downloaded;
+        this.acknowledged = acknowledged;
     }
 
     public void setMessageId(String messageId) {
@@ -435,6 +447,30 @@ public class MessageLogInfo {
         this.archived = archived;
     }
 
+    public Date getExported() {
+        return exported;
+    }
+
+    public void setExported(Date exported) {
+        this.exported = exported;
+    }
+
+    public Date getDownloaded() {
+        return downloaded;
+    }
+
+    public void setDownloaded(Date downloaded) {
+        this.downloaded = downloaded;
+    }
+
+    public Date getAcknowledged() {
+        return acknowledged;
+    }
+
+    public void setAcknowledged(Date acknowledged) {
+        this.acknowledged = acknowledged;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -469,7 +505,10 @@ public class MessageLogInfo {
                 .append(serviceValue, that.serviceValue)
                 .append(pluginType, that.pluginType)
                 .append(partLength, that.partLength)
-                .append(archived, that.partLength)
+                .append(archived, that.archived)
+                .append(exported, that.exported)
+                .append(downloaded, that.downloaded)
+                .append(acknowledged, that.acknowledged)
                 .isEquals();
     }
 
@@ -502,6 +541,9 @@ public class MessageLogInfo {
                 .append(pluginType)
                 .append(partLength)
                 .append(archived)
+                .append(exported)
+                .append(downloaded)
+                .append(acknowledged)
                 .toHashCode();
     }
 }
