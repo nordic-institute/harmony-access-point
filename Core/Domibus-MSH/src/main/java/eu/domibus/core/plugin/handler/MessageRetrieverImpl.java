@@ -180,12 +180,14 @@ public class MessageRetrieverImpl implements MessageRetriever {
             userMessageLog = userMessageLogService.findByMessageId(messageId);
         } catch (DuplicateMessageFoundException e) {
             throw new DuplicateMessageException(e.getMessage(), e.getCause());
-        }
-        if (userMessageLog == null) {
-            throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
+        } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
+            LOG.debug("Message with id [{}] not found", messageId);
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
 
+        if (userMessageLog == null && CollectionUtils.isEmpty(errorsForMessage)) {
+            throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
+        }
         return errorsForMessage.stream().map(errorLogService::convert).collect(Collectors.toList());
     }
 

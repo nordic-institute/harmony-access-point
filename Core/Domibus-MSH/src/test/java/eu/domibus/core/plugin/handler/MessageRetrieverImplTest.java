@@ -5,7 +5,6 @@ import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -33,20 +32,6 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class MessageRetrieverImplTest {
     private static final String MESS_ID = UUID.randomUUID().toString();
-
-    private static final String GREEN = "green_gw";
-    private static final String RED = "red_gw";
-    private static final String AGREEMENT = "";
-    private static final String SERVICE = "testService1";
-    private static final String ACTION = "TC2Leg1";
-    private static final String LEG = "pushTestcase1tc2Action";
-
-    private final String pModeKey = GREEN + PModeConstants.PMODEKEY_SEPARATOR +
-            RED + PModeConstants.PMODEKEY_SEPARATOR +
-            SERVICE + PModeConstants.PMODEKEY_SEPARATOR +
-            ACTION + PModeConstants.PMODEKEY_SEPARATOR +
-            AGREEMENT + PModeConstants.PMODEKEY_SEPARATOR +
-            LEG;
 
     @Tested
     MessageRetrieverImpl messageRetriever;
@@ -110,25 +95,25 @@ public class MessageRetrieverImplTest {
         }};
     }
 
-//    @Test
-//    public void testDownloadMessageNoMsgFound() {
-//        new Expectations() {{
-//            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
-//            result = new eu.domibus.messaging.MessageNotFoundException(MESS_ID);
-//        }};
-//
-//        try {
-//            messageRetriever.downloadMessage(MESS_ID);
-//            Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
-//        } catch (eu.domibus.messaging.MessageNotFoundException mnfEx) {
-//            //OK
-//        }
-//
-//        new Verifications() {{
-//            userMessageLogService.findByMessageId(MESS_ID);
-//            times = 0;
-//        }};
-//    }
+    @Test
+    public void testDownloadMessageNoMsgFound() {
+        new Expectations() {{
+            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
+            result = new eu.domibus.messaging.MessageNotFoundException(MESS_ID);
+        }};
+
+        try {
+            messageRetriever.downloadMessage(MESS_ID);
+            Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
+        } catch (eu.domibus.messaging.MessageNotFoundException mnfEx) {
+            //OK
+        }
+
+        new Verifications() {{
+            userMessageLogService.findByMessageId(MESS_ID);
+            times = 0;
+        }};
+    }
 
     @Test
     public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException, DuplicateMessageException {
@@ -146,15 +131,13 @@ public class MessageRetrieverImplTest {
         new Verifications() {{
             errorLogService.convert(errorLogEntry);
             times = 1;
-            Assert.assertNotNull(results);
         }};
+        Assert.assertNotNull(results);
 
     }
 
     @Test
     public void testGetErrorsForMessageOk_Exception(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
-        List<ErrorLogEntry> list = new ArrayList<>();
-        list.add(errorLogEntry);
         new Expectations() {{
             userMessageLogService.findByMessageId(MESS_ID);
             result = new DuplicateMessageFoundException(MESS_ID);
@@ -166,6 +149,28 @@ public class MessageRetrieverImplTest {
             errorLogService.convert(errorLogEntry);
             times = 0;
         }};
+
+    }
+
+    @Test
+    public void testGetErrorsForMessageOk_NotFound(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException, DuplicateMessageException {
+        List<ErrorLogEntry> list = new ArrayList<>();
+        list.add(errorLogEntry);
+        new Expectations() {{
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
+            result = new eu.domibus.api.messaging.MessageNotFoundException(MESS_ID);
+
+            errorLogService.getErrorsForMessage(MESS_ID);
+            result = list;
+        }};
+
+        final List<? extends ErrorResult> results = messageRetriever.getErrorsForMessage(MESS_ID);
+
+        new Verifications() {{
+            errorLogService.convert(errorLogEntry);
+            times = 1;
+        }};
+        Assert.assertNotNull(results);
 
     }
 
