@@ -258,6 +258,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
         minWidth: 190
       },
       {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Downloaded',
+        width: 200,
+        minWidth: 190
+      },
+      {
         name: 'AP Role',
         prop: 'mshRole',
         width: 150,
@@ -350,6 +356,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Acknowledged',
+        width: 200,
+        minWidth: 190
+      },
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
         name: 'Failed',
         width: 200,
         minWidth: 190
@@ -357,6 +369,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
       {
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Restored',
+        width: 200,
+        minWidth: 190
+      },
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Exported',
         width: 200,
         minWidth: 190
       },

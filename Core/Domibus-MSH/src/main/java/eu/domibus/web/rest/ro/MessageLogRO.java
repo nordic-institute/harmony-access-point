@@ -76,6 +76,12 @@ public class MessageLogRO implements Serializable {
 
     private Date archived;
 
+    private Date exported;
+
+    private Date downloaded;
+
+    private Date acknowledged;
+
     public String getMessageId() {
         return messageId;
     }
@@ -326,5 +332,29 @@ public class MessageLogRO implements Serializable {
 
     public void setArchived(Date archived) {
         this.archived = archived;
+    }
+
+    public Date getExported() {
+        return exported;
+    }
+
+    public void setExported(Date exported) {
+        this.exported = exported;
+    }
+
+    public Date getDownloaded() {
+        return downloaded;
+    }
+
+    public void setDownloaded(Date downloaded) {
+        this.downloaded = downloaded;
+    }
+
+    public Date getAcknowledged() {
+        return acknowledged;
+    }
+
+    public void setAcknowledged(Date acknowledged) {
+        this.acknowledged = acknowledged;
     }
 }
