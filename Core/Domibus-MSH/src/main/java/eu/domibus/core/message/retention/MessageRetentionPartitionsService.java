@@ -152,7 +152,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         if (toDeletePartitionNames.size() > 0) {
             String strPartitions = toDeletePartitionNames.stream().collect(Collectors.joining(","));
             LOG.info("Deleting [{}] partitions [{}]", toDeletePartitionNames.size(), strPartitions);
-            userMessageDao.dropPartition(strPartitions);
+            userMessageDao.dropPartitions(strPartitions);
         } else {
             LOG.info("There was no partition to delete.");
         }
