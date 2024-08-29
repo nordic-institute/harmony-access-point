@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
-@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "DataFlowIssue"})
 @RunWith(JMockit.class)
 public class EArchiveListenerTest {
 
@@ -116,8 +116,7 @@ public class EArchiveListenerTest {
 
         new FullVerifications() {{
             jmsUtil.setCurrentDomainFromMessage(message);
-        }
-        };
+        }};
     }
 
     @Test

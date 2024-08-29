@@ -96,6 +96,7 @@ public class EArchiveNotificationListener implements MessageListener {
             try {
                 eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
             } catch (DomibusEArchiveException e) {
+                LOG.debug("Batch ID [{}] not found, skipping", batchId, e);
                 LOG.error("Batch ID [{}] not found, skipping", batchId);
                 return;
             }
