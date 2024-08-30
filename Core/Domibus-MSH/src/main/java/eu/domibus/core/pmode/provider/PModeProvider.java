@@ -51,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_DIAGNOSTICS_ENABLED;
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
@@ -184,7 +186,7 @@ public abstract class PModeProvider {
         configurationRaw.setDescription(description);
         configurationRawDAO.create(configurationRaw);
 
-        LOG.info("Configuration successfully updated");
+        LOG.info("PMode Configuration successfully updated");
 
         domibusLocalCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
 
@@ -318,6 +320,7 @@ public abstract class PModeProvider {
             if (!(isPull && mpcService.forcePullOnMpc(userMessage))) {
                 e.setMshRole(mshRole);
             }
+            logDiagnosticsData(userMessage, mshRole);
             throw e;
         } catch (IllegalStateException ise) {
             // It can happen if DB is clean and no pmodes are configured yet!
@@ -583,5 +586,20 @@ public abstract class PModeProvider {
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
 
     public abstract int getMaxRetryTimeout();
+
+
+    private void logDiagnosticsData(UserMessage userMessage, MSHRole mshRole) {
+        if (BooleanUtils.isNotTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
+            return;
+        }
+        try {
+            LOG.warn("UserMessage not matching the PMode for MSHRole [{}]:\n[{}]", mshRole, userMessage.format());
+            logCurrentPMode();
+        } catch (Exception ex) {
+            LOG.error("Error logging diagnostics data", ex);
+        }
+    }
+
+    public abstract void logCurrentPMode();
 
 }

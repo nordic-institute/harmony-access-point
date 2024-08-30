@@ -201,6 +201,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_VALUE_PATTERN, Type.REGEXP),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PMODE_VALIDATION_SERVICE_TYPE_PATTERN, Type.REGEXP),
             new DomibusPropertyMetadata(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, Type.REGEXP),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_SENDING, Type.REGEXP),
 
