@@ -312,7 +312,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
         String value = domibusPropertyExtService.getProperty(domain, domainEnabledPropertyName);
-        LOG.info("Checking domibus property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
+        LOG.debug("Checking domibus property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
         return BooleanUtils.toBoolean(value);
     }
 
