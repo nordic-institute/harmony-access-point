@@ -332,7 +332,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     protected CollaborationInfo getCollaborationInfoFromSubmission(Submission submission) {
         CollaborationInfo collaborationInfo = objectFactory.createCollaborationInfo();
 
-        if (StringUtils.isEmpty(submission.getAgreementRef())) {
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
             AgreementRef agreementRef = objectFactory.createAgreementRef();
             agreementRef.setType(submission.getAgreementRefType());
             agreementRef.setValue(submission.getAgreementRef());

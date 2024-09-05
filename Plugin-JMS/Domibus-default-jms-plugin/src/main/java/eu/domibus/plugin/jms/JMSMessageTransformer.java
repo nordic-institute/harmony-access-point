@@ -104,7 +104,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 messageOut.setStringProperty(PROPERTY_TYPE_PREFIX + p.getKey(), p.getType());
             }
             messageOut.setStringProperty(PROTOCOL, "AS4");
-            if (StringUtils.isEmpty(submission.getAgreementRef())) {
+            if (StringUtils.isNotBlank(submission.getAgreementRef())) {
                 messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
                 messageOut.setStringProperty(AGREEMENT_REF_TYPE, submission.getAgreementRefType());
             }

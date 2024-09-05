@@ -10,7 +10,6 @@ import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.exception.WSPluginException;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -76,7 +75,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
         final CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(submission.getConversationId());
         collaborationInfo.setAction(submission.getAction());
-        if (StringUtils.isEmpty(submission.getAgreementRef())) {
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
             final AgreementRef agreementRef = new AgreementRef();
             agreementRef.setValue(submission.getAgreementRef());
             agreementRef.setType(submission.getAgreementRefType());
