@@ -1,7 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
 
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -75,10 +74,12 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
         final CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(submission.getConversationId());
         collaborationInfo.setAction(submission.getAction());
-        final AgreementRef agreementRef = new AgreementRef();
-        agreementRef.setValue(submission.getAgreementRef());
-        agreementRef.setType(submission.getAgreementRefType());
-        collaborationInfo.setAgreementRef(agreementRef);
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
+            final AgreementRef agreementRef = new AgreementRef();
+            agreementRef.setValue(submission.getAgreementRef());
+            agreementRef.setType(submission.getAgreementRefType());
+            collaborationInfo.setAgreementRef(agreementRef);
+        }
         final Service service = new Service();
         service.setValue(submission.getService());
         service.setType(submission.getServiceType());
