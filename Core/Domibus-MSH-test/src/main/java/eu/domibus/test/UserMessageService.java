@@ -54,7 +54,7 @@ public class UserMessageService {
 
         userMessage.setAction(actionDictionaryService.findOrCreateAction(userMessage.getActionValue()));
         userMessage.setService(serviceDictionaryService.findOrCreateService(userMessage.getService().getValue(), userMessage.getService().getType()));
-        if (userMessage.getAgreementRef() != null) {
+        if (userMessage.getAgreementRef() != null && StringUtils.isNotEmpty(userMessage.getAgreementRef().getValue())) {
             userMessage.setAgreementRef(agreementDictionaryService.findOrCreateAgreement(userMessage.getAgreementRef().getValue(), userMessage.getAgreementRef().getType()));
         }
         userMessage.setMpc(mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(userMessage.getMpcValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpcValue()));
