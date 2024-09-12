@@ -531,10 +531,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
         boolean markAsDownloaded = toBooleanDefaultIfNull(toBooleanObject(retrieveMessageRequest.getMarkAsDownloaded()), true);  //workaround jaxws bug
         userMessage = downloadUserMessage(trimmedMessageId, markAsDownloaded);
 
-        // To avoid blocking errors during the Header's response validation
-        if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
-            userMessage.getCollaborationInfo().setAgreementRef(null);
-        }
         Messaging messaging = new Messaging();
         messaging.setUserMessage(userMessage);
         ebMSHeaderInfo.value = messaging;
