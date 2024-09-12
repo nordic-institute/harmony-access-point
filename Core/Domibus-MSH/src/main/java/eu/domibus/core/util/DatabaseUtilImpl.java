@@ -35,6 +35,7 @@ public class DatabaseUtilImpl implements DatabaseUtil {
     @PostConstruct
     public void init() {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
             databaseUserName = connection.getMetaData().getUserName();
             LOG.info("Found database username [{}]", databaseUserName);
         } catch (SQLException e) {
