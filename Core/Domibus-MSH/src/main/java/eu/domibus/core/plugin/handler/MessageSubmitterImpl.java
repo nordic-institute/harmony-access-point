@@ -241,17 +241,33 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage(), MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw new PModeMismatchException(p.getMessage(), p);
         } catch (ConfigurationException ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
+
+
+    private void logDiagnosticsData(Submission submission) {
+//        if (BooleanUtils.isNotTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
+//            return;
+//        }
+        try {
+            LOG.warn("Submission not accepted [{}]:\n[{}]", submission.format());
+        } catch (Exception ex) {
+            LOG.error("Error logging diagnostics data", ex);
+        }
+    }
+
 
     @Transactional
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
