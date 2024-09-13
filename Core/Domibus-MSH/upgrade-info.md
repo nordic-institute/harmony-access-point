@@ -17,9 +17,11 @@ Release checklist:
 ## Domibus 5.1.6 (from 5.1.5)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - No sql updates on the database schemas for both mysql and oracle
 ## Domibus 5.1.5 (from 5.1.4)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - No sql updates on the database schemas for both mysql and oracle
 #### Weblogic only
                 - Execute the WLST API script remove.py (from "/conf/domibus/scripts/upgrades") 5.1.4-to-5.1.5-WeblogicRemoveJDBCDatasource.properties to remove the eDeliveryDs datasource:
                      wlstapi.cmd ../scripts/remove.py --property ../5.1.4-to-5.1.5-WeblogicRemoveJDBCDatasource.properties
