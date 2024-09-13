@@ -215,7 +215,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   protected async uploadFile(comp: ComponentType<unknown>, url: string) {
-    let params = await this.dialogsService.open(comp).afterClosed().toPromise();
+    let config = {data: this.getUploadDialogParams()};
+    let params = await this.dialogsService.open(comp, config).afterClosed().toPromise();
     if (params != null) {
       try {
         super.isLoading = true;
@@ -231,6 +232,10 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
         super.isLoading = false;
       }
     }
+  }
+
+  protected getUploadDialogParams() {
+    return {title: 'Upload truststore', description: ''};
   }
 
   async reloadStore() {
