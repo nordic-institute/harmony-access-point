@@ -443,6 +443,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         List<String> addedProps = Arrays.asList(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i), payFileNameProp, payloadNameProperty);
         final String payloadNameFormat = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
         final String payloadTypeFormat = MessageFormat.format(PAYLOAD_TYPE_FORMAT, i);
+        final String payloadMimeContentIdPropName = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
+
         Enumeration<String> allProps = messageIn.getPropertyNames();
         while (allProps.hasMoreElements()) {
             String key = allProps.nextElement();
@@ -458,6 +460,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             if (propName.isEmpty()) {
                 continue;
             }
+            // ignore mimeContentId because will be sent in href
+            if (key.equals(payloadMimeContentIdPropName)) {
+                continue;
+            }
+
             String propertyValue = messageIn.getStringProperty(key);
             String propertyType = messageIn.getStringProperty(payloadTypeFormat + "_" + propName);
             partProperties.add(new Submission.TypedProperty(propName, propertyValue, propertyType));
@@ -466,9 +473,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         DataHandler payloadDataHandler = getPayloadDataHandler(messageIn, mimeType, payloadNameFormat);
 
         boolean inBody = (i == 1 && "true".equalsIgnoreCase(bodyloadEnabled));
-
-        final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
-        final String contentId = trim(messageIn.getStringProperty(payContID));
+        final String contentId = trim(messageIn.getStringProperty(payloadMimeContentIdPropName));
         target.addPayload(contentId, payloadDataHandler, partProperties, inBody, null, null);
     }
 

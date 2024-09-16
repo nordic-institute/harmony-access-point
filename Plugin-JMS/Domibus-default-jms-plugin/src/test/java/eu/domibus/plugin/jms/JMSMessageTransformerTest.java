@@ -57,6 +57,7 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_1_PROPERTY_VALUE = "payload_1_";
     private static final String PAYLOAD_1_PROPERTY_TYPE = "payload_1_Type_";
     private static final String PAYLOAD_1_EMPTY_PROPERTY = PAYLOAD_1_PROPERTY_VALUE;
+    private static final String PAYLOAD_1_MIME_CONTENT_ID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1);
     private static final String PAYLOAD_2_PROPERTY_VALUE = "payload_2_";
     private static final String PAYLOAD_2_PROPERTY_TYPE = "payload_2_Type_";
 
@@ -205,7 +206,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "2");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), PAYLOAD_ID);
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, PAYLOAD_ID);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), DEFAULT_MT);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, 1), "filename");
         messageMap.setStringProperty(MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, 1), JMS_PAYLOAD_NAME_FORMAT + "name");
@@ -265,7 +266,9 @@ public class JMSMessageTransformerTest {
         assertEquals(TEST_VALUE, testProperty1.getValue());
         assertNull(testProperty1.getType());
 
-        assertTrue(!typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
+        assertFalse(typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
+
+        assertFalse(typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_MIME_CONTENT_ID)));
 
         assertEquals(DEFAULT_MT, getMandatoryProperties(typedProperties, MIME_TYPE).get(0).getValue());
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, getMandatoryProperties(typedProperties, MIME_TYPE).get(1).getValue());
@@ -323,7 +326,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "1");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), "\t" + PAYLOAD_ID + "   ");
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, "\t" + PAYLOAD_ID + "   ");
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), "   " + DEFAULT_MT + "\t\t");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
@@ -393,7 +396,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "1");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), "Content_id");
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, "Content_id");
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), "type_format");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
