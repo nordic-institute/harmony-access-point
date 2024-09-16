@@ -548,10 +548,10 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             final Enumeration<String> aliases = srcStore.aliases();
             KeyStore.ProtectionParameter srcStoreProtection = new KeyStore.PasswordProtection(srcStorePassword.toCharArray());
-            KeyStore.ProtectionParameter destKeyEntryProtection = new KeyStore.PasswordProtection(destKeyEntryPassword.toCharArray());
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
                 if (srcStore.isKeyEntry(alias)) {
+                    KeyStore.ProtectionParameter destKeyEntryProtection = new KeyStore.PasswordProtection(destKeyEntryPassword.toCharArray());
                     KeyStore.Entry entry = srcStore.getEntry(alias, srcStoreProtection);
                     destStore.setEntry(alias, entry, destKeyEntryProtection);
                     LOG.debug("Copied key entry named [{}]", alias);
