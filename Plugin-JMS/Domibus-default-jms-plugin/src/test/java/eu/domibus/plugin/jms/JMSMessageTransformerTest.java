@@ -254,7 +254,7 @@ public class JMSMessageTransformerTest {
                         .flatMap(payload -> payload.getPayloadProperties().stream())
                         .collect(toList());
 
-        assertEquals(7, typedProperties.size());
+        assertEquals(6, typedProperties.size());
 
         Submission.TypedProperty testProperty = typedProperties.stream().filter(el -> el.getKey().equals(TEST_PROPERTY)).findFirst().orElse(null);
         assertNotNull(testProperty);
