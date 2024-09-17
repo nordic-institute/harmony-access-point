@@ -73,7 +73,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             return messageId;
         } catch (IllegalArgumentException iaEx) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, iaEx);
-
             throw new TransformationException(iaEx);
         } catch (IllegalStateException ise) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, ise);
