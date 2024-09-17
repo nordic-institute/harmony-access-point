@@ -270,7 +270,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             return;
         }
         try {
-            LOG.warn("Submission not accepted [{}]:\n[{}]", submission.format());
+            LOG.warn("Submission not accepted [{}]:\n", submission.format());
         } catch (Exception ex) {
             LOG.error("Error logging diagnostics data", ex);
         }
