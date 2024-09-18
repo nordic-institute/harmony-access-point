@@ -11,6 +11,7 @@ import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.common.ErrorCode;
@@ -209,6 +210,9 @@ public class MessageSubmitterImplTest {
 
     @Injectable
     BackendConnectorService backendConnectorService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
