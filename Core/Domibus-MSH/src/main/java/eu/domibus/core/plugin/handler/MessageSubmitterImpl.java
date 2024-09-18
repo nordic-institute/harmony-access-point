@@ -10,6 +10,7 @@ import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Identifier;
@@ -44,6 +45,7 @@ import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,8 @@ import java.util.Map;
 
 import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED;
 
 /**
  * Service used for submitting messages (split from DatabaseMessageHandler)
@@ -113,6 +117,8 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final BackendConnectorService backendConnectorService;
 
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
     public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
@@ -120,7 +126,8 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                                 MessageExchangeService messageExchangeService, MessageFragmentDao messageFragmentDao,
                                 MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
                                 UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper,
-                                TestMessageValidator testMessageValidator, BackendConnectorService backendConnectorService) {
+                                TestMessageValidator testMessageValidator, BackendConnectorService backendConnectorService,
+                                DomibusPropertyProvider domibusPropertyProvider) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
@@ -142,6 +149,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.messageSubmitterHelper = messageSubmitterHelper;
         this.testMessageValidator = testMessageValidator;
         this.backendConnectorService = backendConnectorService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
@@ -241,17 +249,33 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage(), MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw new PModeMismatchException(p.getMessage(), p);
         } catch (ConfigurationException ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
+            logDiagnosticsData(submission);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
+
+
+    private void logDiagnosticsData(Submission submission) {
+        if (BooleanUtils.isNotTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED))) {
+            return;
+        }
+        try {
+            LOG.warn("Submission not accepted [{}]:\n", submission.format());
+        } catch (Exception ex) {
+            LOG.error("Error logging diagnostics data", ex);
+        }
+    }
+
 
     @Transactional
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})

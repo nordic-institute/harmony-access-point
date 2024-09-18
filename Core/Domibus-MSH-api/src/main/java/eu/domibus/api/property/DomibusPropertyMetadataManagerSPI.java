@@ -499,4 +499,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     //End distributed cache properties
 
     String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
+    String DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED = "domibus.message.submission.diagnostics.enabled";
+
 }

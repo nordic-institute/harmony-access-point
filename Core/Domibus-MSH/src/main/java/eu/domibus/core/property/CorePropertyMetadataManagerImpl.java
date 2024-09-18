@@ -458,6 +458,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_TEST_DELIVERY, Type.BOOLEAN, Usage.DOMAIN, true),
 
+            new DomibusPropertyMetadata(DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
+
             new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
 

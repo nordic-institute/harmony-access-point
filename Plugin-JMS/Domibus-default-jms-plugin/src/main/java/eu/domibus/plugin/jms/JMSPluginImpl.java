@@ -131,6 +131,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
+            queueContext.setMessageId(messageID);
             sendReplyMessage(queueContext, errorMessage, jmsCorrelationID);
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
