@@ -286,6 +286,8 @@ public class MessageSubmitterImplTest {
             times = 1;
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
+            domibusPropertyProvider.getBooleanProperty(anyString);
+            times = 1;
         }};
 
     }
@@ -788,6 +790,9 @@ public class MessageSubmitterImplTest {
             times = 1;
 
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
+            times = 1;
+
+            domibusPropertyProvider.getBooleanProperty(anyString);
             times = 1;
         }};
 
