@@ -1,8 +1,15 @@
 Domibus 5.1.6
+- Add support for custom properties in the JMS plugin
 - Added property domibus.sender.trust.validation.signal.sync.onreceiving. If activated Domibus will verify before receiving syncronously a signal message following a push or pull request, that the sender certificate is valid and not revoked
 - Updated the description of default.domibus.sender.trust.validation.onreceiving. If activated Domibus will verify before receiving a User Message when using Push/Pull or a Signal Acknowledgement (NRR) when using Pull, that the sender certificate is valid and not revoked. When disabled, none of the other checks are performed on the sender's certificate.
+- Fixed issue related to expired partition purging and added a new property to limit the number of partitions dropped in one run of the retention worker.
+- Double click on a message should populate all fields for that message
+- Add diagnostic logging in case of a pMode mismatch or a submission error
+- Improve the sql scripts by removing the unnecessarily dropping and recreating an index
+- Fix issue with message sanitizer failing at first message
+- Consider QUEUED batches in batch sanitiser
 - Upgraded Tomcat 9 to the latest version 9.0.91
-- New property to limit the number of partitions dropped in one run of the retention worker.
+- Libraries upgrades to fix OWASP vulnerabilities
 Domibus 5.1.5
 - New property to enforce strong rules for all Domibus properties of type password
 - Update the configuration of Weblogic datasource, eDeliveryDs, to disable support for global transactions
