@@ -881,7 +881,7 @@ public class Submission {
         private Locale lang;
 
         public Description(Locale lang, String description) {
-            if (!StringUtils.isBlank(description)) {
+            if (StringUtils.isEmpty(description)) {
                 throw new IllegalArgumentException("description must not be empty");
             }
 
