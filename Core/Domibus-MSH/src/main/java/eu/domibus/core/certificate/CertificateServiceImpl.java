@@ -19,7 +19,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -44,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.validation.ValidationException;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -100,8 +98,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final SecurityUtilImpl securityUtil;
 
-    private final FieldBlacklistValidator fieldBlacklistValidator;
-
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -113,8 +109,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   DomainContextProvider domainContextProvider,
                                   SecurityUtilImpl securityUtil,
                                   AlertConfigurationService alertConfigurationService,
-                                  AuditService auditService,
-                                  FieldBlacklistValidator fieldBlacklistValidator) {
+                                  AuditService auditService) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -128,8 +123,6 @@ public class CertificateServiceImpl implements CertificateService {
         this.alertConfigurationService = alertConfigurationService;
         this.auditService = auditService;
         this.securityUtil = securityUtil;
-        this.fieldBlacklistValidator = fieldBlacklistValidator;
-        fieldBlacklistValidator.init();
     }
 
     @Override
@@ -380,7 +373,6 @@ public class CertificateServiceImpl implements CertificateService {
             if (checkEqual && storesAreEqual(persistenceInfo, storeName, uploadedStore)) {
                 return false;
             }
-            validateAliases(uploadedStore);
             if (sameProperties(storeInfo, persistenceInfo)) {
                 // same props, so just save the store on disk
                 LOG.info("New and current stores have the same type and password, so persisting it with these values.");
@@ -919,22 +911,6 @@ public class CertificateServiceImpl implements CertificateService {
     private String decrypt(String trustName, String password) {
         return passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(),
                 trustName + ".password", password);
-    }
-
-    private void validateAliases(KeyStore uploadedStore) {
-        try {
-            final Enumeration<String> aliases = uploadedStore.aliases();
-            while (aliases.hasMoreElements()) {
-                final String alias = aliases.nextElement();
-                try {
-                    fieldBlacklistValidator.validate(alias);
-                } catch (Exception e) {
-                    throw new ValidationException("Forbidden character detected in keystore alias [" + alias + "].");
-                }
-            }
-        } catch (KeyStoreException e) {
-            throw new DomibusCertificateException("Error while reading content from source store", e);
-        }
     }
 }
 
