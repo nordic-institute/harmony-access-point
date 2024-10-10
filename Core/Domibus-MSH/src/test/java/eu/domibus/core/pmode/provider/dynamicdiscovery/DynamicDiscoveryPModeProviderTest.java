@@ -157,7 +157,7 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(SecurityUtilImpl.class),
                 Mockito.spy(AlertConfigurationService.class),
                 Mockito.spy(AuditService.class),
-                Mockito.spy(FieldBlacklistValidator.class));
+                Mockito.mock(FieldBlacklistValidator.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
