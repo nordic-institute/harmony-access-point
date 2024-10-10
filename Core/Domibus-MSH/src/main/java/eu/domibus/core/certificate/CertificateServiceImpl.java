@@ -928,8 +928,8 @@ public class CertificateServiceImpl implements CertificateService {
                 final String alias = aliases.nextElement();
                 try {
                     fieldBlacklistValidator.validate(alias);
-                } catch (Exception e) {
-                    throw new ValidationException("Forbidden character detected in keystore alias [" + alias + "].");
+                } catch (ValidationException e) {
+                    throw new ValidationException("Forbidden character detected in store alias [" + alias + "].");
                 }
             }
         } catch (KeyStoreException e) {
