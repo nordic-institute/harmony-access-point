@@ -708,4 +708,60 @@
         <!--Domibus does not use WebMvc.fn or WebFlux.fn-->
         <vulnerabilityName>CVE-2024-38816</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: gmbal-api-only-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.gmbal/gmbal\-api\-only@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: ha-api-3.1.13.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.ha/ha\-api@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-2.3.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb\-runtime@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-2.3.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb\-runtime@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: management-api-3.2.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.external/management\-api@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-2.3.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-2.3.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <!--Glassfish is not used by Domibus-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
 </suppressions>
