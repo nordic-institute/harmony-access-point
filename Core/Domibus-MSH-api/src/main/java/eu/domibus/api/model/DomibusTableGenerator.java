@@ -1,6 +1,10 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
+ * The copyright holder has approved usage of the file “Core/Domibus-MSH-api/src/main/java/eu/domibus/api/model/DomibusTableGenerator.java”,
+ * which is licensed under LPGL-2.1-or-later, as part of the project itself, and that file shall not be under any requirements of the EUPL-1.2,
+ * but solely subject to LGPL-2.1.
+ *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
