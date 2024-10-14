@@ -20,7 +20,7 @@ public class PluginUserRO {
     private String entityId;
 
     @SizeIfPresent(min = 4, max = 255)
-    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
+    @Pattern(regexp = "^[a-zA-Z0-9\\.:@_-]*$")
     private String userName;
 
     @SkipWhiteListed
