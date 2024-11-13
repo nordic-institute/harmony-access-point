@@ -324,13 +324,12 @@ public class FaultInHandler extends AbstractFaultHandler {
     }
 
     LegConfiguration getLegConfiguration(SOAPMessage message, Ebms3Messaging ebms3Messaging) {
-        SoapMessage soapMessage = convertToSoapMessage(message);
-        LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
-        if (legConfigurationExtractor == null) {
-            LOG.info("Could not extract leg configuration for message [{}]", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());
-            return null;
-        }
         try {
+            SoapMessage soapMessage = convertToSoapMessage(message);
+            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
+            if (legConfigurationExtractor == null) {
+                return null;
+            }
             return legConfigurationExtractor.extractMessageConfiguration();
         } catch (Exception e) {
             LOG.info("Could not extract leg configuration for message [{}]", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), e);

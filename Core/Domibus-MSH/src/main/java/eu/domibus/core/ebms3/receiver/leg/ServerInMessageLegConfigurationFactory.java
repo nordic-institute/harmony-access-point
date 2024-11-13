@@ -46,7 +46,7 @@ public class ServerInMessageLegConfigurationFactory implements MessageLegConfigu
     public LegConfigurationExtractor extractMessageConfiguration(SoapMessage soapMessage, Ebms3Messaging messaging) {
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
         if (legConfigurationExtractor == null) {
-            LOG.error("Leconfiguration not found for incoming message with id " + messaging.getId());
+            LOG.error("Leg onfiguration not found for incoming message with id " + messaging.getId());
         }
         return legConfigurationExtractor;
     }
