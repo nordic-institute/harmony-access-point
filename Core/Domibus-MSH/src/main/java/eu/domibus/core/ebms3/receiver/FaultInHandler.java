@@ -323,7 +323,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                         .orElse(null));
     }
 
-    LegConfiguration getLegConfiguration(SOAPMessage message, Ebms3Messaging ebms3Messaging) {
+    private LegConfiguration getLegConfiguration(SOAPMessage message, Ebms3Messaging ebms3Messaging) {
         try {
             SoapMessage soapMessage = convertToSoapMessage(message);
             LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
