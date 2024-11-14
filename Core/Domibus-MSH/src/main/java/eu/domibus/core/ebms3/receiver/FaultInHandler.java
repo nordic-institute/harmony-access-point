@@ -6,14 +6,18 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.cxf.CxfCurrentMessageService;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.core.cxf.CxfCurrentMessageService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
+import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -25,8 +29,9 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.neethi.builders.converters.ConverterException;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -80,6 +85,12 @@ public class FaultInHandler extends AbstractFaultHandler {
     @Autowired
     DomainContextProvider domainContextProvider;
 
+    @Autowired
+    ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
+
+    @Autowired
+    protected SoapService soapService;
+
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -119,7 +130,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         final Domain currentDomainSafely = domainContextProvider.getCurrentDomainSafely();
         if (currentDomainSafely != null) {
             updateErrorLog(soapMessageWithEbMS3Error, ebMS3Exception);
-            notifyPlugins(ebMS3Exception);
+            notifyPlugins(ebMS3Exception, context.getMessage());
         }
 
         return true;
@@ -280,18 +291,18 @@ public class FaultInHandler extends AbstractFaultHandler {
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
     }
 
-    private void notifyPlugins(EbMS3Exception faultCause) {
+    private void notifyPlugins(EbMS3Exception faultCause, SOAPMessage message) {
         LOG.debug("Preparing message details for plugin notification about the receive failure");
 
         final Message currentMessage = cxfCurrentMessageService.getCurrentMessage();
         Ebms3Messaging ebms3Messaging = (Ebms3Messaging) currentMessage.getExchange().get(MessageConstants.EMBS3_MESSAGING_OBJECT);
-        if(ebms3Messaging == null) {
+        if (ebms3Messaging == null) {
             LOG.warn("Could not notify plugins for receive failure: ebms3Messaging is null");
             return;
         }
 
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        if(userMessage == null) {
+        if (userMessage == null) {
             LOG.warn("Could not notify plugins for receive failure: UserMessage is null");
             return;
         }
@@ -302,11 +313,34 @@ public class FaultInHandler extends AbstractFaultHandler {
         }
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
         backendNotificationService.fillEventProperties(userMessage, properties);
-        backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
+        LegConfiguration legConfiguration = getLegConfiguration(message, ebms3Messaging);
+        if (legConfiguration == null || legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
+        }
         LOG.debug("Plugins notified about failure to receive message with id: [{}]",
                 Optional.ofNullable(userMessage)
                         .map(UserMessage::getMessageId)
                         .orElse(null));
+    }
+
+    private LegConfiguration getLegConfiguration(SOAPMessage message, Ebms3Messaging ebms3Messaging) {
+        try {
+            SoapMessage soapMessage = convertToSoapMessage(message);
+            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
+            if (legConfigurationExtractor == null) {
+                return null;
+            }
+            return legConfigurationExtractor.extractMessageConfiguration();
+        } catch (Exception e) {
+            LOG.info("Could not extract leg configuration for message [{}]", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), e);
+            return null;
+        }
+    }
+
+    public SoapMessage convertToSoapMessage(SOAPMessage soapMessage) {
+        MessageImpl messageImpl = new MessageImpl();
+        messageImpl.setContent(SOAPMessage.class, soapMessage);
+        return new SoapMessage(messageImpl);
     }
 
 }
