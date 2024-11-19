@@ -128,6 +128,7 @@
         <cve>CVE-2023-40167</cve>
         <cve>CVE-2023-36479</cve>
         <cve>CVE-2023-44487</cve>
+        <cve>CVE-2024-6763</cve>
     </suppress>
 
     <suppress>
@@ -308,6 +309,7 @@
         <cve>CVE-2020-26870</cve>
         <vulnerabilityName>CVE-2024-45801</vulnerabilityName>
         <vulnerabilityName>CVE-2024-47875</vulnerabilityName>
+        <vulnerabilityName>CVE-2024-48910</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -806,6 +808,8 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
         <!-- Domibus does not use disallowedFields in DataBinder -->
         <cve>CVE-2024-38820</cve>
+        <!--Domibus does not have a Spring MVC controller method with a @RequestBody byte[] parameter-->
+        <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
