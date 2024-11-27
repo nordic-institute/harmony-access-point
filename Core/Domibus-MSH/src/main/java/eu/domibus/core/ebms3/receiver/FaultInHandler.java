@@ -40,14 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.*;
 
@@ -110,7 +106,6 @@ public class FaultInHandler extends AbstractFaultHandler {
     public void close(final MessageContext context) {
     }
 
-
     /**
      * The {@code handleFault} method is responsible for handling and conversion of exceptions
      * thrown during the processing of incoming ebMS3 messages
@@ -120,18 +115,6 @@ public class FaultInHandler extends AbstractFaultHandler {
         if (context == null) {
             LOG.error("Context is null and shouldn't be");
             throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
-        }
-        Ebms3Messaging ebms3Messaging = this.extractMessaging(context.getMessage());
-        LOG.info(ebms3Messaging.toString());
-
-        try {
-            Iterator<SOAPHeaderElement> soapHeaderElementIterator = context.getMessage().getSOAPHeader().examineAllHeaderElements();
-            while (soapHeaderElementIterator.hasNext()) {
-                SOAPHeaderElement next = soapHeaderElementIterator.next();
-                LOG.info(next.getTextContent());
-            }
-        } catch (SOAPException e) {
-            throw new RuntimeException(e);
         }
 
         final Message currentMessage = cxfCurrentMessageService.getCurrentMessage();
@@ -307,15 +290,7 @@ public class FaultInHandler extends AbstractFaultHandler {
 
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
     }
-    public String getXML(SOAPMessage message) {
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            message.writeTo(out);
-            return new String(out.toByteArray());
-        } catch (SOAPException | IOException e) {
-            return "Could not read the soap message for ws plugin";
-        }
-    }
+
     private void notifyPlugins(EbMS3Exception faultCause, SOAPMessage message) {
         LOG.debug("Preparing message details for plugin notification about the receive failure");
 
