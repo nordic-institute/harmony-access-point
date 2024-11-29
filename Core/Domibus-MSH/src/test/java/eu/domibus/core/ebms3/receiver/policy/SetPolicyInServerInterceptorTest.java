@@ -10,6 +10,7 @@ import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.core.ebms3.receiver.interceptor.HeaderLoggingInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -49,6 +50,9 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     Ebms3Converter ebms3Converter;
+
+    @Injectable
+    HeaderLoggingInterceptor headerLoggingInterceptor;
 
     @Injectable
     protected PolicyService policyService;

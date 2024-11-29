@@ -2,16 +2,13 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.apache.cxf.ext.logging.event.LogEventSender;
 import org.apache.cxf.ext.logging.slf4j.Slf4jVerboseEventSender;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,19 +18,14 @@ import org.springframework.stereotype.Service;
  * @author François Gautier
  * @since 5.1
  */
-@Service("headerLoggingInInterceptor")
-public class HeaderLoggingInInterceptor extends AbstractLoggingInterceptor {
+@Service
+public class HeaderLoggingInterceptor extends AbstractLoggingInterceptor {
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    public HeaderLoggingInInterceptor() {
-        this(new Slf4jVerboseEventSender());
-    }
-
-    public HeaderLoggingInInterceptor(LogEventSender sender) {
-        super(Phase.RECEIVE, sender);
-        addBefore(SetPolicyInInterceptor.class.getName());
+    public HeaderLoggingInterceptor(DomibusPropertyProvider domibusPropertyProvider) {
+        super(Phase.RECEIVE, new Slf4jVerboseEventSender());
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     public void handleMessage(Message message) throws Fault {
