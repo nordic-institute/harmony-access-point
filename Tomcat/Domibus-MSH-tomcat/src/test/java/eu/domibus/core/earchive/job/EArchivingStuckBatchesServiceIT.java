@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.job;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -124,7 +125,7 @@ public class EArchivingStuckBatchesServiceIT extends AbstractIT {
                 eArchiveListener.onMessage(mqMessage);
             }
         });
-        eArchivingStuckBatchesService.reExportStuckBatches();
+        eArchivingStuckBatchesService.reExportStuckBatches(new Domain("default", "default"));
 
 
         EArchiveBatchEntity queued = eArchiveBatchDao.findByReference(eArchiveBatchQueued.getEntityId());

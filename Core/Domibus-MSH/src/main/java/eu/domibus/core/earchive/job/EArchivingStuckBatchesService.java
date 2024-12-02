@@ -4,17 +4,20 @@ import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STUCK_IGNORE_RECENT_MINUTES;
 
 /**
@@ -39,7 +42,13 @@ public class EArchivingStuckBatchesService {
         this.dateUtil = dateUtil;
     }
 
-    public void reExportStuckBatches() {
+    public void reExportStuckBatches(Domain domain) {
+        LOG.debug("reExportStuckBatches for domain [{}]", domain);
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            LOG.debug("eArchiving is not enabled");
+            return;
+        }
         final Integer ignoreMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_STUCK_IGNORE_RECENT_MINUTES);
         Date minutesAgo;
         try {

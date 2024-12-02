@@ -24,6 +24,6 @@ public class EArchivingStuckBatchesJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("Marking stuck batches as failed and exporting them again as new batches");
-        eArchivingStuckBatchesService.reExportStuckBatches();
+        eArchivingStuckBatchesService.reExportStuckBatches(domain);
     }
 }
