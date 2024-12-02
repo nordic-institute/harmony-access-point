@@ -836,6 +836,16 @@
                         <groupId>joda-time</groupId>
                         <artifactId>joda-time</artifactId>
                     </exclusion>
+                    <!-- wss4j 2.4.x uses the geronimo javamail in the
+                        AttachmentUtils.canonizeMimeHeaders(outputStream, getAttachment().getHeaders());
+                        for preparing the mime headers for the signature. This is not needed in our case
+                        and it is causing a conflict with the javamail version used in other the project.
+                        NOTE: Remove this exclusion when wss4j is upgraded to 3.x+
+                     -->
+                    <exclusion>
+                        <groupId>org.apache.geronimo.javamail</groupId>
+                        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
