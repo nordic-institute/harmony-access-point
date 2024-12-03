@@ -23,7 +23,6 @@ public final class JMSMessageConstants {
     public static final String SERVICE = "service";
     public static final String SERVICE_TYPE = "serviceType";
     public static final String CONVERSATION_ID = "conversationId";
-    public static final String JMS_CORRELATION_ID = "correlationId";
     public static final String AGREEMENT_REF = "agreementRef";
     public static final String AGREEMENT_REF_TYPE = "agreementRefType";
     public static final String REF_TO_MESSAGE_ID = "refToMessageId";
@@ -97,4 +96,5 @@ public final class JMSMessageConstants {
     public static final String PROCESSING_TYPE = "processingType";
 
     public static final String JMSPLUGIN_DOMAIN_ENABLED = "jmsplugin.domain.enabled";
+    public static final String JMS_CORRELATION_ID = "jmsCorrelationId";
 }
