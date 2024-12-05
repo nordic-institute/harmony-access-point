@@ -26,9 +26,6 @@ public class ReplyMessageCreator {
         if (messageId != null) {
             jmsMessageBuilder.property(JMSMessageConstants.MESSAGE_ID, messageId);
         }
-        if (correlationId != null) {
-            jmsMessageBuilder.property(JMSMessageConstants.JMS_CORRELATION_ID, correlationId);
-        }
         if (errorMessage != null) {
             jmsMessageBuilder.property("ErrorMessage", errorMessage);
         }
