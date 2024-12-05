@@ -369,7 +369,7 @@ public class TestServiceTest {
         Assert.assertTrue("The 'MimeType' payload property should have been correctly defined", payload.getPayloadProperties().contains(new Submission.TypedProperty("MimeType", "text/xml")));
 
         DataSource dataSource = payload.getPayloadDatahandler().getDataSource();
-        byte[] source = Deencapsulation.getField(dataSource, "source");
+        byte[] source = Deencapsulation.getField(dataSource, "data");
         Assert.assertArrayEquals("The payload content should have been correctly defined", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><hello>world</hello>".getBytes(), source);
         Assert.assertEquals("The payload content type should have been correctly defined", "text/xml", dataSource.getContentType());
     }
