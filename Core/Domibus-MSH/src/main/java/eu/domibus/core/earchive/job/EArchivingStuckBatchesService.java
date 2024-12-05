@@ -4,7 +4,6 @@ import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.DateUtilImpl;
@@ -42,9 +41,8 @@ public class EArchivingStuckBatchesService {
         this.dateUtil = dateUtil;
     }
 
-    public void reExportStuckBatches(Domain domain) {
-        LOG.debug("reExportStuckBatches for domain [{}]", domain);
-        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+    public void reExportStuckBatches() {
+        final String eArchiveActive = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             LOG.debug("eArchiving is not enabled");
             return;
