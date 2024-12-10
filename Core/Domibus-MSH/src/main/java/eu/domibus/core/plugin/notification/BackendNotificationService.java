@@ -7,9 +7,11 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.plugin.BackendConnectorService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -19,6 +21,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -89,12 +92,15 @@ public class BackendNotificationService {
 
     protected final ObjectMapper objectMapper;
 
+    private final PModeProvider pModeProvider;
+
     public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
                                       UserMessageLogDao userMessageLogDao, Queue unknownReceiverQueue, UserMessageDao userMessageDao,
                                       DomibusPropertyProvider domibusPropertyProvider, EventService eventService,
                                       UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
                                       BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
-                                      BackendConnectorService backendConnectorService, @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
+                                      BackendConnectorService backendConnectorService, @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper,
+                                      PModeProvider pModeProvider) {
         this.jmsManager = jmsManager;
         this.routingService = routingService;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
@@ -109,6 +115,7 @@ public class BackendNotificationService {
         this.backendConnectorHelper = backendConnectorHelper;
         this.backendConnectorService = backendConnectorService;
         this.objectMapper = objectMapper;
+        this.pModeProvider = pModeProvider;
     }
 
     @Autowired
@@ -152,7 +159,8 @@ public class BackendNotificationService {
         event.setErrorResult(errorResult);
         event.setEndpoint(errorProperties.get(MessageConstants.ENDPOINT));
 
-        notifyOfIncoming(event, matchingBackendFilter, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notifyOfIncoming(event, matchingBackendFilter, notificationType, asyncNotification);
     }
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
@@ -173,7 +181,8 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(deliverMessageEvent, userMessage, null);
 
         LOG.debug("Notify for incoming deliverMessageEvent.");
-        notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, notificationType, asyncNotification);
     }
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
@@ -192,7 +201,8 @@ public class BackendNotificationService {
         MessageResponseSentEvent messageResponseSentEvent = new MessageResponseSentEvent(userMessage.getMessageId());
         messageResponseSentEvent.setMessageEntityId(userMessage.getEntityId());
         addMessagePropertiesToEvent(messageResponseSentEvent, userMessage, null);
-        notifyOfIncoming(messageResponseSentEvent, matchingBackendFilter, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notifyOfIncoming(messageResponseSentEvent, matchingBackendFilter, notificationType, asyncNotification);
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
@@ -250,7 +260,8 @@ public class BackendNotificationService {
         userMessageLogDto.setProperties(properties);
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(userMessageLogDto);
 
-        notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED, asyncNotification);
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
@@ -266,7 +277,8 @@ public class BackendNotificationService {
         payloadSubmittedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage, null);
 
-        notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED, asyncNotification);
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
@@ -282,7 +294,17 @@ public class BackendNotificationService {
         payloadProcessedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
 
-        notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED, asyncNotification);
+    }
+
+    private Boolean isAsyncNotification(UserMessage userMessage) {
+        Boolean asyncNotification = null;
+        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(userMessage);
+        if (legConfiguration!=null) {
+            asyncNotification = legConfiguration.isAsyncNotification();
+        }
+        return asyncNotification;
     }
 
     @Transactional
@@ -303,7 +325,8 @@ public class BackendNotificationService {
         MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendFailedEvent, userMessage, null);
 
-        notify(messageSendFailedEvent, backendName, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(messageSendFailedEvent, backendName, notificationType, asyncNotification);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
@@ -326,7 +349,8 @@ public class BackendNotificationService {
         messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
 
-        notify(messageSendSuccessEvent, backend, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(messageSendSuccessEvent, backend, notificationType, asyncNotification);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
@@ -375,7 +399,8 @@ public class BackendNotificationService {
         messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
-        notify(messageStatusChangeEvent, backend, notificationType);
+        Boolean asyncNotification = isAsyncNotification(userMessage);
+        notify(messageStatusChangeEvent, backend, notificationType, asyncNotification);
     }
 
     protected boolean shouldNotify(UserMessage userMessage, BackendFilter backendFilter) {
@@ -410,7 +435,7 @@ public class BackendNotificationService {
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
         messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
-        notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH);
+        notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH, null);
     }
 
     protected List<MessageDeletedEvent> getMessageDeletedEventsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
@@ -435,7 +460,7 @@ public class BackendNotificationService {
         return messageDeletedEvent;
     }
 
-    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType) {
+    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType, Boolean asyncNotification) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", messageEvent.getMessageId(), unknownReceiverQueue);
             MSHRole role = getMshRole(messageEvent);
@@ -444,7 +469,7 @@ public class BackendNotificationService {
             return;
         }
 
-        notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType);
+        notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType, asyncNotification);
     }
 
     private MSHRole getMshRole(MessageEvent messageEvent) {
@@ -508,7 +533,7 @@ public class BackendNotificationService {
         }
     }
 
-    protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
+    protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType, Boolean asyncNotification) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
 
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
@@ -536,7 +561,7 @@ public class BackendNotificationService {
         }
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
-        if (shouldNotifyAsync(asyncNotificationConfiguration)) {
+        if (shouldNotifyAsync(asyncNotificationConfiguration, asyncNotification)) {
             MSHRole role = getMshRole(messageEvent);
             notifyAsync(messageEvent, asyncNotificationConfiguration, role, notificationType, properties);
             return;
@@ -545,8 +570,15 @@ public class BackendNotificationService {
         notifySync(messageEvent, backendConnector, notificationType);
     }
 
-    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
+    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Boolean asyncNotification) {
+        boolean asyncConfigurationExists = asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
+        if (asyncNotification == null) {
+            return asyncConfigurationExists;
+        }
+        if (asyncNotification && !asyncConfigurationExists) {
+            throw new DomibusPropertyException("The leg is configured for async notifications but the configuration is missing the backend notification queue ");
+        }
+        return asyncNotification;
     }
 
     protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration,

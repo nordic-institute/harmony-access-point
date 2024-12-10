@@ -1392,6 +1392,7 @@ public class CachingPModeProvider extends PModeProvider {
                 sb.append("     CompressPayloads: [").append(legConfiguration.isCompressPayloads()).append("]\n");
                 sb.append("     Splitting: [").append(legConfiguration.getSplitting() == null ? "null" : legConfiguration.getSplitting().getName()).append("]\n");
                 sb.append("     ErrorHandling: [").append(legConfiguration.getErrorHandling() == null ? "null" : legConfiguration.getErrorHandling().getName()).append("]\n");
+                sb.append("     AsyncNotification: [").append(legConfiguration.isAsyncNotification() == null ? "null" : (legConfiguration.isAsyncNotification() ? "async" : "sync")).append("]\n");
                 sb.append("     Security: [").append(legConfiguration.getSecurity() == null ? "null" : legConfiguration.getSecurity().getName()).append("]\n");
                 sb.append("     PayloadProfile: [").append(legConfiguration.getPayloadProfile() == null ? "null" : legConfiguration.getPayloadProfile().getName()).append("]\n");
                 sb.append("     PropertySet: [").append(legConfiguration.getPropertySet() == null ? "null" : legConfiguration.getPropertySet().getName()).append("]\n");

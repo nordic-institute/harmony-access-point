@@ -137,6 +137,10 @@ public class LegConfiguration extends AbstractBaseEntity {
     @JoinColumn(name = "FK_SPLITTING")
     private Splitting splitting;
 
+    @XmlAttribute(name = "asyncNotification")
+    @Column(name = "ASYNC_NOTIFICATION")
+    private Boolean asyncNotification;
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -334,5 +338,13 @@ public class LegConfiguration extends AbstractBaseEntity {
 
     public void setAction(final Action action) {
         this.action = action;
+    }
+
+    public Boolean isAsyncNotification() {
+        return asyncNotification;
+    }
+
+    public void setAsyncNotification(Boolean asyncNotification) {
+        this.asyncNotification = asyncNotification;
     }
 }

@@ -13,6 +13,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -26,6 +27,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -140,6 +142,9 @@ public class BackendNotificationServiceTest {
     @Injectable
     protected BackendConnectorService backendConnectorService;
 
+    @Injectable
+    private PModeProvider pModeProvider;
+
     @Tested
     BackendNotificationService backendNotificationService;
 
@@ -148,10 +153,10 @@ public class BackendNotificationServiceTest {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
-            backendNotificationService.notify(messageEvent, backendName, notificationType);
+            backendNotificationService.notify(messageEvent, backendName, notificationType, null);
         }};
 
-        backendNotificationService.notify(messageEvent, backendName, notificationType);
+        backendNotificationService.notify(messageEvent, backendName, notificationType, null);
 
         new Verifications() {
         };
@@ -182,7 +187,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.notifySync(messageEvent, backendConnector, NotificationType.MESSAGE_RECEIVED);
         }};
 
-        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -213,7 +218,7 @@ public class BackendNotificationServiceTest {
             asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
-            backendNotificationService.shouldNotifyAsync(notificationListener);
+            backendNotificationService.shouldNotifyAsync(notificationListener, null);
             result = true;
 
             userMessage.getMessageId();
@@ -228,7 +233,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.notifyAsync(messageEvent, notificationListener, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -257,7 +262,7 @@ public class BackendNotificationServiceTest {
             asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
             result = notificationListener;
 
-            backendNotificationService.shouldNotifyAsync(notificationListener);
+            backendNotificationService.shouldNotifyAsync(notificationListener, null);
             result = false;
 
             messageEvent.getMessageId();
@@ -265,7 +270,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.notifySync(messageEvent, backendConnector, NotificationType.MESSAGE_RECEIVED);
         }};
 
-        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -285,7 +290,7 @@ public class BackendNotificationServiceTest {
             messageEvent.getMessageId();
         }};
 
-        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -299,7 +304,7 @@ public class BackendNotificationServiceTest {
             result = null;
         }};
 
-        backendNotificationService.notify(deliverMessageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(deliverMessageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new Verifications() {
         };
@@ -324,7 +329,7 @@ public class BackendNotificationServiceTest {
 
         }};
 
-        backendNotificationService.notify(deliverMessageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(deliverMessageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -437,7 +442,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_STATUS_CHANGE);
+            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_STATUS_CHANGE, null);
             times = 1;
         }};
 
@@ -494,7 +499,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE);
+            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, null);
             times = 1;
         }};
 
@@ -830,7 +835,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            backendNotificationService.notifyOfIncoming(messageReceiveFailureEvent, null, MESSAGE_FRAGMENT_RECEIVED_FAILURE);
+            backendNotificationService.notifyOfIncoming(messageReceiveFailureEvent, null, MESSAGE_FRAGMENT_RECEIVED_FAILURE, null);
 
         }};
 
@@ -944,7 +949,7 @@ public class BackendNotificationServiceTest {
             backendConnectorService.isBackendConnectorEnabled(BACKEND_NAME);
             result = true;
 
-            backendNotificationService.notify((MessageSendSuccessEvent) any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
+            backendNotificationService.notify((MessageSendSuccessEvent) any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS, null);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -1166,7 +1171,7 @@ public class BackendNotificationServiceTest {
 //            routingService.getMatchingBackendFilter(userMessage);
         }};
 
-        backendNotificationService.notifyOfIncoming(messageEvent, null, notificationType);
+        backendNotificationService.notifyOfIncoming(messageEvent, null, notificationType, null);
 
         //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
         new Verifications() {{
@@ -1187,11 +1192,11 @@ public class BackendNotificationServiceTest {
             matchingBackendFilter.getBackendName();
             result = BACKEND_NAME;
 
-            backendNotificationService.notify(messageEvent, BACKEND_NAME, MESSAGE_RECEIVED);
+            backendNotificationService.notify(messageEvent, BACKEND_NAME, MESSAGE_RECEIVED, null);
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED);
+        backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED, null);
 
         new Verifications() {{
             //routingService.getMatchingBackendFilter(userMessage);
@@ -1210,11 +1215,11 @@ public class BackendNotificationServiceTest {
             routingService.getMatchingBackendFilter(userMessage);
             result = matchingBackendFilter;
 
-            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED);
+            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED, null);
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED);
+        backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED, null);
 
         new FullVerifications() {
         };
@@ -1275,7 +1280,7 @@ public class BackendNotificationServiceTest {
             userMessage.isMessageFragment();
             result = false;
 
-            backendNotificationService.notify((MessageSendFailedEvent) any, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
+            backendNotificationService.notify((MessageSendFailedEvent) any, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE, null);
             times = 1;
         }};
 
@@ -1536,6 +1541,26 @@ public class BackendNotificationServiceTest {
             pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
             times = 1;
         }};
+    }
+
+
+
+    @Test
+    public void testShouldNotifyAsyncWithoutConfiguration () {
+        assertFalse(backendNotificationService.shouldNotifyAsync(null, null));
+        assertFalse(backendNotificationService.shouldNotifyAsync(null, false));
+        assertThrows(DomibusPropertyException.class, () -> backendNotificationService.shouldNotifyAsync(null, true));
+    }
+
+    @Test
+    public void testShouldNotifyAsyncWithConfiguration(@Mocked AsyncNotificationConfiguration asyncNotificationConfiguration, @Mocked Queue queue) {
+        new Expectations() {{
+            asyncNotificationConfiguration.getBackendNotificationQueue();
+            result = queue;
+        }};
+
+        assertFalse(backendNotificationService.shouldNotifyAsync(asyncNotificationConfiguration, false));
+        assertTrue(backendNotificationService.shouldNotifyAsync(asyncNotificationConfiguration, true));
     }
 
 }

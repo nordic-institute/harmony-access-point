@@ -19,6 +19,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -516,6 +517,27 @@ public abstract class PModeProvider {
     public abstract Agreement getAgreement(String pModeKey);
 
     public abstract LegConfiguration getLegConfiguration(String pModeKey);
+
+    public LegConfiguration getLegConfiguration(UserMessage userMessage) {
+        String pModeKey;
+        LegConfiguration legConfiguration = null;
+        final String messageId = userMessage.getMessageId();
+        try {
+            pModeKey = findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        } catch (EbMS3Exception e) {
+            LOG.debug("PMode key not found for message: [{}]", messageId, e);
+            return null;
+        }
+        LOG.debug("PMode key found: [{}]", pModeKey);
+
+        try {
+            legConfiguration = getLegConfiguration(pModeKey);
+            LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+        } catch (ConfigurationException e) {
+            LOG.debug("LegConfiguration not found for message: [{}]", messageId, e);
+        }
+        return legConfiguration;
+    }
 
     public abstract boolean isMpcExistant(String mpc);
 
