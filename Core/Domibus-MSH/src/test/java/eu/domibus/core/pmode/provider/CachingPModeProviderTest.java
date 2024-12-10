@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.util.ReflectionUtils;
 
 import javax.jms.Topic;
 import javax.persistence.EntityManager;
@@ -46,6 +47,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -764,12 +766,14 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testMatchInitiatorAllowEmpty() {
+    public void testMatchInitiatorAllowEmpty() throws NoSuchFieldException {
         new Expectations() {{
             pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = true;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        Process.class.getDeclaredField("dynamicInitiator").setAccessible(true);
+        ReflectionUtils.setField(Process.class.getDeclaredField("dynamicInitiator"), process, true);
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
         Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
