@@ -772,8 +772,10 @@ public class CachingPModeProviderTest {
             result = true;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
-        Process.class.getDeclaredField("dynamicInitiator").setAccessible(true);
-        ReflectionUtils.setField(Process.class.getDeclaredField("dynamicInitiator"), process, true);
+        Field dynamicInitiatorField = Process.class.getDeclaredField("dynamicInitiator");
+        dynamicInitiatorField.setAccessible(true);
+        ReflectionUtils.setField(dynamicInitiatorField, process, true);
+        
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
         Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
