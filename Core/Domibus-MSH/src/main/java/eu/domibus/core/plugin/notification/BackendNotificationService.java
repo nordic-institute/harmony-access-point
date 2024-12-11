@@ -159,7 +159,7 @@ public class BackendNotificationService {
         event.setErrorResult(errorResult);
         event.setEndpoint(errorProperties.get(MessageConstants.ENDPOINT));
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.RECEIVING);
         notifyOfIncoming(event, matchingBackendFilter, notificationType, asyncNotification);
     }
 
@@ -181,7 +181,7 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(deliverMessageEvent, userMessage, null);
 
         LOG.debug("Notify for incoming deliverMessageEvent.");
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.RECEIVING);
         notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, notificationType, asyncNotification);
     }
 
@@ -201,7 +201,7 @@ public class BackendNotificationService {
         MessageResponseSentEvent messageResponseSentEvent = new MessageResponseSentEvent(userMessage.getMessageId());
         messageResponseSentEvent.setMessageEntityId(userMessage.getEntityId());
         addMessagePropertiesToEvent(messageResponseSentEvent, userMessage, null);
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notifyOfIncoming(messageResponseSentEvent, matchingBackendFilter, notificationType, asyncNotification);
     }
 
@@ -260,7 +260,7 @@ public class BackendNotificationService {
         userMessageLogDto.setProperties(properties);
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(userMessageLogDto);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED, asyncNotification);
     }
 
@@ -277,7 +277,7 @@ public class BackendNotificationService {
         payloadSubmittedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage, null);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED, asyncNotification);
     }
 
@@ -294,13 +294,13 @@ public class BackendNotificationService {
         payloadProcessedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED, asyncNotification);
     }
 
-    private Boolean isAsyncNotification(UserMessage userMessage) {
+    private Boolean isAsyncNotification(UserMessage userMessage, MSHRole role) {
         Boolean asyncNotification = null;
-        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(userMessage);
+        LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(userMessage, role);
         if (legConfiguration!=null) {
             asyncNotification = legConfiguration.isAsyncNotification();
         }
@@ -325,7 +325,7 @@ public class BackendNotificationService {
         MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendFailedEvent, userMessage, null);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notify(messageSendFailedEvent, backendName, notificationType, asyncNotification);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
@@ -349,7 +349,7 @@ public class BackendNotificationService {
         messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, MSHRole.SENDING);
         notify(messageSendSuccessEvent, backend, notificationType, asyncNotification);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
@@ -371,7 +371,8 @@ public class BackendNotificationService {
             return;
         }
 
-        eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
+        MSHRole role = userMessage.getMshRole().getRole();
+        eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, role);
 
         handleMDC(userMessage);
         if (messageLog.getMessageStatus() == newStatus) {
@@ -399,7 +400,7 @@ public class BackendNotificationService {
         messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
-        Boolean asyncNotification = isAsyncNotification(userMessage);
+        Boolean asyncNotification = isAsyncNotification(userMessage, role);
         notify(messageStatusChangeEvent, backend, notificationType, asyncNotification);
     }
 

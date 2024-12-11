@@ -518,12 +518,12 @@ public abstract class PModeProvider {
 
     public abstract LegConfiguration getLegConfiguration(String pModeKey);
 
-    public LegConfiguration getLegConfiguration(UserMessage userMessage) {
+    public LegConfiguration getLegConfiguration(UserMessage userMessage, MSHRole role) {
         String pModeKey;
         LegConfiguration legConfiguration = null;
         final String messageId = userMessage.getMessageId();
         try {
-            pModeKey = findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            pModeKey = findUserMessageExchangeContext(userMessage, role).getPmodeKey();
         } catch (EbMS3Exception e) {
             LOG.debug("PMode key not found for message: [{}]", messageId, e);
             return null;
