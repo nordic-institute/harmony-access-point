@@ -301,7 +301,7 @@ public class BackendNotificationService {
     private Boolean isAsyncNotification(UserMessage userMessage, MSHRole role) {
         Boolean asyncNotification = null;
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(userMessage, role);
-        if (legConfiguration!=null) {
+        if (legConfiguration != null) {
             asyncNotification = legConfiguration.isAsyncNotification();
         }
         return asyncNotification;
