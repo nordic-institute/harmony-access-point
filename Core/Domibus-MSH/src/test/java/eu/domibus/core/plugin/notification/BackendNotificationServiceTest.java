@@ -1543,23 +1543,38 @@ public class BackendNotificationServiceTest {
         }};
     }
 
-
+    @Test
+    public void shouldNotifyAsync_withoutConfiguration_withoutLegConfigFlag () {
+        assertFalse(backendNotificationService.shouldNotifyAsync(null, null));
+    }
 
     @Test
-    public void testShouldNotifyAsyncWithoutConfiguration () {
-        assertFalse(backendNotificationService.shouldNotifyAsync(null, null));
+    public void shouldNotifyAsync_withoutConfiguration_legConfigFlagFalse () {
         assertFalse(backendNotificationService.shouldNotifyAsync(null, false));
+    }
+
+    @Test
+    public void shouldNotifyAsync_withoutConfiguration_legConfigFlagTrue () {
         assertThrows(DomibusPropertyException.class, () -> backendNotificationService.shouldNotifyAsync(null, true));
     }
 
     @Test
-    public void testShouldNotifyAsyncWithConfiguration(@Mocked AsyncNotificationConfiguration asyncNotificationConfiguration, @Mocked Queue queue) {
+    public void shouldNotifyAsync_withConfiguration_legConfigFlagFalse (@Mocked AsyncNotificationConfiguration asyncNotificationConfiguration, @Mocked Queue queue) {
         new Expectations() {{
             asyncNotificationConfiguration.getBackendNotificationQueue();
             result = queue;
         }};
 
         assertFalse(backendNotificationService.shouldNotifyAsync(asyncNotificationConfiguration, false));
+    }
+
+    @Test
+    public void shouldNotifyAsync_withConfiguration_legConfigFlagTrue(@Mocked AsyncNotificationConfiguration asyncNotificationConfiguration, @Mocked Queue queue) {
+        new Expectations() {{
+            asyncNotificationConfiguration.getBackendNotificationQueue();
+            result = queue;
+        }};
+
         assertTrue(backendNotificationService.shouldNotifyAsync(asyncNotificationConfiguration, true));
     }
 
