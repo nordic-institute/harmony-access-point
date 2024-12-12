@@ -571,15 +571,21 @@ public class BackendNotificationService {
         notifySync(messageEvent, backendConnector, notificationType);
     }
 
-    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Boolean asyncNotification) {
+    /**
+     *
+     * @param asyncNotificationConfiguration AsyncNotificationConfiguration associated to the backend from the message
+     * @param asyncNotificationForLeg asyncNotification optional attribute from a LegConfiguration
+     * @return asyncNotificationForLeg if not null; else true if there is a backend notification queue defined for asyncNotificationConfiguration
+     */
+    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Boolean asyncNotificationForLeg) {
         boolean asyncConfigurationExists = asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
-        if (asyncNotification == null) {
+        if (asyncNotificationForLeg == null) {
             return asyncConfigurationExists;
         }
-        if (asyncNotification && !asyncConfigurationExists) {
-            throw new DomibusPropertyException("The leg is configured for async notifications but the configuration is missing the backend notification queue ");
+        if (asyncNotificationForLeg && !asyncConfigurationExists) {
+            throw new DomibusPropertyException("The leg is configured for async notifications but the configuration is missing the backend notification queue");
         }
-        return asyncNotification;
+        return asyncNotificationForLeg;
     }
 
     protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration,
