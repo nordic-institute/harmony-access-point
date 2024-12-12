@@ -197,24 +197,29 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     /**
-     * The match means that either there is no initiator and it is allowed
-     * by configuration OR the initiator name matches
+     * The match means that either the process supports dynamic initiators (and this is allowed
+     * by configuration) OR the initiator name matches
+     *
+     * IMPORTANT NOTE: checking that the collection of initiators is empty is not a reliable way of checking
+     * that a process supports dynamic initiators (because an initiator may have been added dynamically);
+     * instead, we need to check the isDynamicInitiator flag on the process, as this is initialized from the xml
+     * configuration and doesn't change when initiators are added dynamically.
      *
      * @param process     the process containing the initiators
      * @param senderParty the senderParty
      */
     protected boolean matchInitiator(final Process process, final String senderParty) {
-        if (CollectionUtils.isEmpty(process.getInitiatorParties())) {
-            if (pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
-                return true;
+        // if the initiator is already present in the process, we don't need to check for dynamic initiator:
+        if (CollectionUtils.isNotEmpty(process.getInitiatorParties())) {
+            for (final Party party : process.getInitiatorParties()) {
+                if (equalsIgnoreCase(party.getName(), senderParty)) {
+                    return true;
+                }
             }
-            return false;
         }
-
-        for (final Party party : process.getInitiatorParties()) {
-            if (equalsIgnoreCase(party.getName(), senderParty)) {
-                return true;
-            }
+        // if the initiator is not present in the process, we need to check if dynamic initiator is allowed:
+        if (process.isDynamicInitiator() && pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
+            return true;
         }
         return false;
     }
