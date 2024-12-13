@@ -781,12 +781,16 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testMatchInitiatorNotAllowEmpty() {
+    public void testMatchInitiatorNotAllowEmpty() throws NoSuchFieldException {
         new Expectations() {{
             pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = false;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        Field dynamicInitiatorField = Process.class.getDeclaredField("dynamicInitiator");
+        dynamicInitiatorField.setAccessible(true);
+        ReflectionUtils.setField(dynamicInitiatorField, process, true);
+
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
         Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
