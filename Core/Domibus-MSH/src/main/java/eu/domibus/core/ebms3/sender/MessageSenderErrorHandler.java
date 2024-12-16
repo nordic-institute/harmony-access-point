@@ -24,7 +24,7 @@ import java.sql.Timestamp;
  * @since 4.2.2
  */
 
-@Service("messageSenderErrorHandler")
+@Service
 public class MessageSenderErrorHandler implements ErrorHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandler.class);
