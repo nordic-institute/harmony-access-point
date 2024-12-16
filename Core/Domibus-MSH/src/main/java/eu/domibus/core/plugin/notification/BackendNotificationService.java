@@ -303,6 +303,7 @@ public class BackendNotificationService {
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(userMessage, role);
         if (legConfiguration != null) {
             asyncNotification = legConfiguration.isAsyncNotification();
+            LOG.debug("Found the leg configuration for the user message that has asyncNotification [{}]", asyncNotification == null ? "not set to any value" : asyncNotification);
         }
         return asyncNotification;
     }
