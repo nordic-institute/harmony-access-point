@@ -1,6 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.logging.DomibusLogger;
@@ -32,7 +34,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
         Exchange exchange = message.getExchange();
         if (exchange == null) {
-            throw new IllegalStateException("Exchange object is null. Cannot process the SOAP message.");
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, "Exchange object is null. Cannot process the SOAP message.", null);
         }
         exchange.put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
