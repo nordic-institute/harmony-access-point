@@ -58,6 +58,9 @@ public class EArchiveListenerTest {
     @Injectable
     private UserMessageLogDao userMessageLogDao;
 
+    @Injectable
+    private EArchiveErrorHandler eArchiveErrorHandler;
+
     private String batchId;
 
     private Long entityId;
