@@ -20,8 +20,6 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <projectFile>${project.basedir}/src/test/resources/soapUI/AS4-test-guide-soapui-project.xml</projectFile>
         <soapui.root.folder>${project.basedir}/src/test</soapui.root.folder>
-        <soapui.localUrl>http://localhost:8180</soapui.localUrl>
-        <soapui.remoteUrl>http://localhost:9080</soapui.remoteUrl>
 
         <filesToExclude>logback.xml</filesToExclude>
     </properties>
@@ -369,49 +367,6 @@
         </testResources>
         <plugins>
             <plugin>
-                <groupId>com.smartbear.soapui</groupId>
-                <artifactId>soapui-pro-maven-plugin</artifactId>
-                <version>5.1.2</version>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputFolder>${project.build.directory}/surefire-reports</outputFolder>
-                    <junitReport>true</junitReport>
-                    <printReport>true</printReport>
-                    <testSuite>Web Service Submission</testSuite>
-                    <projectProperties>
-                        <value>localUrl=${soapui.localUrl}</value>
-                        <value>remoteUrl=${soapui.remoteUrl}</value>
-                    </projectProperties>
-                    <soapuiProperties>
-                        <property>
-                            <name>soapui.logroot</name>
-                            <value>${project.build.directory}/soapui/logs/</value>
-                        </property>
-                        <property>
-                            <name>http.nonProxyHosts</name>
-                            <value>localhost|127.*|[::1]</value>
-                        </property>
-                    </soapuiProperties>
-                    <testFailIgnore>false</testFailIgnore>
-                    <projectFile>${projectFile}</projectFile>
-                </configuration>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>org.reflections</groupId>
-                        <artifactId>reflections</artifactId>
-                        <version>0.9.8</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
                 <groupId>net.ju-n.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
                 <version>1.2</version>
@@ -483,6 +438,20 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>license-generate-notice</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <configuration>
+                            <licenseResolver>${project.baseUri}../../license</licenseResolver>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>javadoc</id>
             <build>
