@@ -57,7 +57,7 @@
                     <outputFileEncoding>UTF-8</outputFileEncoding>
                     <expressionVariables>
                         <!--Override this property with the correct value where migrating to an older version -->
-                        <DomibusVersion>5.1.4</DomibusVersion>
+                        <DomibusVersion>5.1.6</DomibusVersion>
                         <DomibusBuildTime>${timestamp}</DomibusBuildTime>
                     </expressionVariables>
                 </configuration>

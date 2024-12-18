@@ -25,6 +25,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,7 +39,6 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.ebms3.MessageExchangePattern.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
@@ -104,7 +104,7 @@ public class CachingPModeProvider extends PModeProvider {
         LOG.debug("Initialising the configuration");
         try {
             this.configuration = this.configurationDAO.readEager();
-            LOG.debug("Configuration initialized: [{}]", this.configuration.getEntityId());
+            LOG.info("PMode Configuration initialized: [{}]", this.configuration.getEntityId());
 
             initPullProcessesCache();
         } catch (Exception ex) {
@@ -284,9 +284,16 @@ public class CachingPModeProvider extends PModeProvider {
                     .message("No Candidates for Legs found")
                     .build();
         }
-        Optional<LegConfiguration> optional = candidates.stream()
+
+        List<LegConfiguration> matchingLegs = candidates.stream()
                 .filter(candidate -> candidateMatches(candidate, service, action, mpc))
-                .findFirst();
+                .collect(Collectors.toList());
+
+        if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
+            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
+        }
+
+        Optional<LegConfiguration> optional = matchingLegs.stream().findFirst();
         String pullLegName = optional.isPresent() ? optional.get().getName() : null;
         if (pullLegName != null) {
             return pullLegName;
@@ -344,6 +351,10 @@ public class CachingPModeProvider extends PModeProvider {
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                     .message(errorDetail)
                     .build();
+        }
+
+        if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
+            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
         }
 
         Optional<LegConfiguration> selectedLeg = matchingLegs.stream().findFirst();
@@ -1327,5 +1338,94 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         return null;
+    }
+
+    @Override
+    public void logCurrentPMode() {
+        LOG.info("Current PMode: [{}]", this.configuration);
+        if (this.configuration == null) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        if (CollectionUtils.isEmpty(this.configuration.getMpcs())) {
+            sb.append("No Mpcs\n");
+        } else {
+            for (Mpc mpc : this.configuration.getMpcs()) {
+                sb.append("Mpc: [").append(mpc.getName()).append("]\n");
+                sb.append("     QualifiedName: [").append(mpc.getQualifiedName()).append("]\n");
+                sb.append("     RetentionDownloaded: [").append(mpc.getRetentionDownloaded()).append("]\n");
+                sb.append("     RetentionUndownloaded: [").append(mpc.getRetentionUndownloaded()).append("]\n");
+                sb.append("     RetentionSent: [").append(mpc.getRetentionSent()).append("]\n");
+                sb.append("     DeleteMessageMetadata: [").append(mpc.isDeleteMessageMetadata()).append("]\n");
+                sb.append("     MaxBatchDelete: [").append(mpc.getMaxBatchDelete()).append("]\n");
+                sb.append("     MetadataRetentionOffset: [").append(mpc.getMetadataRetentionOffset()).append("]\n");
+            }
+        }
+
+        if (this.configuration.getBusinessProcesses() == null || CollectionUtils.isEmpty(this.configuration.getBusinessProcesses().getProcesses())) {
+            sb.append("No Processes\n");
+        } else {
+            for (Process process : this.configuration.getBusinessProcesses().getProcesses()) {
+                sb.append("Process: [").append(process.getName()).append("]\n");
+                sb.append("     Initiator Role: [").append(process.getInitiatorRole()).append("]\n");
+                sb.append("     Responder Role: [").append(process.getResponderRole()).append("]\n");
+                sb.append("     Initiator Parties: [").append(CollectionUtils.isEmpty(process.getInitiatorParties()) ? "" : process.getInitiatorParties().stream().map(p -> p.getName()).collect(Collectors.joining(","))).append("]\n");
+                sb.append("     Responder Parties: [").append(CollectionUtils.isEmpty(process.getResponderParties()) ? "" : process.getResponderParties().stream().map(p -> p.getName()).collect(Collectors.joining(","))).append("]\n");
+                sb.append("     Mep: [").append(process.getMep() == null ? "null" : "value: " + process.getMep().getValue() + " name: " + process.getMep().getName()).append("]\n");
+                sb.append("     Mep Binding: [").append(process.getMepBinding() == null ? "null" : "value: " + process.getMepBinding().getValue() + " type: " + process.getMepBinding().getName()).append("]\n");
+                sb.append("     Agreement: [").append(process.getAgreement() == null ? "null" : "value: " + process.getAgreement().getValue() + " type: " + process.getAgreement().getType()).append("]\n");
+                sb.append("     Legs: [").append(CollectionUtils.isEmpty(process.getLegs()) ? "" : process.getLegs().stream().map(leg -> leg.getName()).collect(Collectors.joining(","))).append("]\n");
+            }
+        }
+
+        if (this.configuration.getBusinessProcesses() == null || CollectionUtils.isEmpty(this.configuration.getBusinessProcesses().getLegConfigurations())) {
+            sb.append("No Leg Configurations\n");
+        } else {
+            for (LegConfiguration legConfiguration : this.configuration.getBusinessProcesses().getLegConfigurations()) {
+                sb.append("Leg Configuration: [").append(legConfiguration.getName()).append("]\n");
+                sb.append("     Default Mpc: [").append(legConfiguration.getDefaultMpc() == null ? "null" : legConfiguration.getDefaultMpc().getName()).append("]\n");
+                sb.append("     ReceptionAwareness: [").append(legConfiguration.getReceptionAwareness() == null ? "null" : legConfiguration.getReceptionAwareness().getName()).append("]\n");
+                sb.append("     Service: [").append(legConfiguration.getService() == null ? "null" : legConfiguration.getService().getName()).append("]\n");
+                sb.append("     Action: [").append(legConfiguration.getAction() == null ? "null" : legConfiguration.getAction().getName()).append("]\n");
+                sb.append("     CompressPayloads: [").append(legConfiguration.isCompressPayloads()).append("]\n");
+                sb.append("     Splitting: [").append(legConfiguration.getSplitting() == null ? "null" : legConfiguration.getSplitting().getName()).append("]\n");
+                sb.append("     ErrorHandling: [").append(legConfiguration.getErrorHandling() == null ? "null" : legConfiguration.getErrorHandling().getName()).append("]\n");
+                sb.append("     Security: [").append(legConfiguration.getSecurity() == null ? "null" : legConfiguration.getSecurity().getName()).append("]\n");
+                sb.append("     PayloadProfile: [").append(legConfiguration.getPayloadProfile() == null ? "null" : legConfiguration.getPayloadProfile().getName()).append("]\n");
+                sb.append("     PropertySet: [").append(legConfiguration.getPropertySet() == null ? "null" : legConfiguration.getPropertySet().getName()).append("]\n");
+            }
+        }
+
+        if (this.configuration.getBusinessProcesses() == null || CollectionUtils.isEmpty(this.configuration.getBusinessProcesses().getParties())) {
+            sb.append("No Parties\n");
+        } else {
+            for (Party party : this.configuration.getBusinessProcesses().getParties()) {
+                sb.append("Party: [").append(party.getName()).append("]\n");
+                sb.append("     Identifiers: [").append(CollectionUtils.isEmpty(party.getIdentifiers()) ? "" : party.getIdentifiers().stream().map(id -> id.getPartyId()).collect(Collectors.joining(","))).append("]\n");
+                sb.append("     Endpoint: [").append(party.getEndpoint()).append("]\n");
+            }
+        }
+
+        if (pullProcessesByInitiatorCache == null || pullProcessesByInitiatorCache.isEmpty()) {
+            sb.append("No Pull Processes by Initiator cached\n");
+        } else {
+            for (Map.Entry<Party, List<Process>> entry : pullProcessesByInitiatorCache.entrySet()) {
+                sb.append("Pull Processes by Initiator: [").append(entry.getKey().getName()).append("]\n");
+                sb.append("     Processes: [").append(CollectionUtils.isEmpty(entry.getValue()) ? "" : entry.getValue().stream().map(p -> p.getName()).collect(Collectors.joining(","))).append("]\n");
+            }
+        }
+
+        if (pullProcessByMpcCache == null || pullProcessByMpcCache.isEmpty()) {
+            sb.append("No Pull Processes by Mpc cached\n");
+        } else {
+            for (Map.Entry<String, List<Process>> entry : pullProcessByMpcCache.entrySet()) {
+                sb.append("Pull Processes by Mpc: [").append(entry.getKey()).append("]\n");
+                sb.append("     Processes: [").append(CollectionUtils.isEmpty(entry.getValue()) ? "" : entry.getValue().stream().map(p -> p.getName()).collect(Collectors.joining(","))).append("]\n");
+            }
+        }
+
+        LOG.info("Current PMode content: \n[{}]", sb);
     }
 }

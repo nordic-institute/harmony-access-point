@@ -3,10 +3,20 @@ package eu.domibus.core.util;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.stereotype.Service;
 
-import java.security.KeyStore;
-import java.security.KeyStoreException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.Base64;
 import java.util.Enumeration;
 
 /**
@@ -49,5 +59,21 @@ public class SecurityUtilImpl {
         } catch (KeyStoreException e) {
             throw new DomibusCertificateException("Invalid keystore", e);
         }
+    }
+
+    public String encryptValue(String publicKeyPem, String value) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        PEMParser pemParser = new PEMParser(new StringReader(publicKeyPem));
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+        PublicKey publicKey = converter.getPublicKey((SubjectPublicKeyInfo) pemParser.readObject());
+
+        // Initialize the Cipher with the public key for encryption
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        // Encrypt the value
+        byte[] encryptedBytes = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+
+        // Convert the encrypted bytes to Base64 to get a string
+        return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 }

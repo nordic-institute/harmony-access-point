@@ -41,4 +41,9 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
   canUpload() {
     return this.storeExists && !this.isBusy();
   }
+
+  protected getUploadDialogParams() {
+    return {title: 'Upload TLS truststore', description: ''};
+  }
+
 }

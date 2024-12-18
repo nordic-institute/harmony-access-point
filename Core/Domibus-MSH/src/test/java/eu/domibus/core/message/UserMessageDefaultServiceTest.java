@@ -47,6 +47,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
@@ -214,10 +216,6 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void testGetFinalRecipient(@Injectable final UserMessage userMessage) {
         final String messageId = "1";
-
-        new Expectations() {{
-
-        }};
 
         userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING);
 
@@ -556,6 +554,82 @@ public class UserMessageDefaultServiceTest {
             reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLogDao.update(userMessageLog);
         }};
+    }
+
+    @Test
+    public void test_sendEnqueued_nextAttemptBeforeNow(final @Injectable UserMessageLog userMessageLog,
+                                                                final @Injectable UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            userMessageLog.getEntityId();
+            result = 12L;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = Date.from(ZonedDateTime
+                    .now(ZoneOffset.UTC)
+                    .minusMinutes(10)
+                    .toInstant());
+
+            userMessageDao.findByEntityId(12L);
+            result = userMessage;
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+            times = 1;
+
+        }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
+        new FullVerifications() {{
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
+            userMessageLogDao.update(userMessageLog);
+
+        }};
+    }
+
+    @Test(expected = UserMessageException.class)
+    public void test_sendEnqueued_nextAttemptAfterNowException(final @Injectable UserMessageLog userMessageLog,
+                                                               final @Injectable UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = Date.from(ZonedDateTime
+                    .now(ZoneOffset.UTC)
+                    .plusMinutes(10)
+                    .toInstant());
+        }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
+        new FullVerifications() {};
     }
 
     @Test

@@ -18,7 +18,9 @@ import {HttpClient} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {DialogsService} from '../common/dialogs/dialogs.service';
-import {AddNestedPropertyDialogComponent} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
+import {
+  AddNestedPropertyDialogComponent
+} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
@@ -132,8 +134,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
         name: 'Property Value',
         prop: 'value',
         showInitially: true,
-        width: 350,
-        minWidth: 340,
+        width: 370,
+        minWidth: 370,
         sortable: false
       },
 
@@ -146,10 +148,18 @@ export class PropertiesComponent extends mix(BaseListComponent)
     this.changeDetector.detectChanges();
   }
 
+  private passwordMask = '*****';
+
   public setServerResults(result: PropertyListModel) {
     super.count = result.count;
     let rows = result.items;
-    rows.forEach(row => row.originalValue = row.value);
+    rows.forEach(row => {
+      row.originalValue = row.value;
+      if (row.type == 'PASSWORD') {
+        row.value = this.passwordMask;
+        row.currentValue = this.passwordMask;
+      }
+    });
     super.rows = rows;
   }
 
@@ -244,4 +254,25 @@ export class PropertiesComponent extends mix(BaseListComponent)
     row.value = row.usedValue;
     this.updateProperty(row);
   }
+
+  async retrievePassword(row) {
+    let propertyName = row.name;
+    console.log('Retrieving password for property:', propertyName, row);
+    let value = await this.propertiesService.decryptProperty(propertyName);
+    // console.log(' password value is :', value);
+    row.currentValue = row.value = value;
+  }
+
+  async toggleViewPassword(row) {
+    if (row.passwordVisible) {
+      row.currentValue = row.value = this.passwordMask;
+      row.passwordVisible = false;
+    } else {
+      await this.retrievePassword(row);
+      row.passwordVisible = true;
+    }
+  }
+
 }
+
+

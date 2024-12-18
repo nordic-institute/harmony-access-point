@@ -11,6 +11,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
             saveIncomingPayloadToDisk(partInfo, currentStorage, encryptionActive);
+            LOG.businessInfo(DomibusMessageCode.BUS_PAYLOAD_PERSISTED_ON_FILE_SYSTEM, partInfo.getHref());
         } else {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }

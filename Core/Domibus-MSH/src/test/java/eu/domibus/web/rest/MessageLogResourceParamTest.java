@@ -210,7 +210,7 @@ public class MessageLogResourceParamTest {
                 date, date, 1, 5, date, 1L,
                 "conversationId", 1L, 1L, "originalSender", "finalRecipient",
                 "refToMessageId", date, date, testMessage, false, false, 1L, 1L,
-                "pluginType", 1L, date);
+                "pluginType", 1L, date, date, date, date);
         result.add(messageLog);
         return result;
     }

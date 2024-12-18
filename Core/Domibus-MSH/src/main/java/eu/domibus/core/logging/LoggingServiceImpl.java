@@ -107,6 +107,20 @@ public class LoggingServiceImpl implements LoggingService {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public boolean exists(String loggerName) {
+        if (StringUtils.isBlank(loggerName)) {
+            return false;
+        }
+        return ((LoggerContext) LoggerFactory.getILoggerFactory())
+                .getLoggerList()
+                .stream()
+                .anyMatch(p -> StringUtils.equals(p.getName(), loggerName));
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @return
      */

@@ -105,6 +105,14 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         userDao.update(userEntity);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void reGenerateDefaultPassword(String userName, String newPassword) {
+        User userEntity = userDao.loadUserByUsername(userName);
+        reGenerateDefaultPassword(userEntity, newPassword);
+        userDao.update(userEntity);
+    }
+
     protected void updateUsers(Collection<eu.domibus.api.user.User> users, boolean withPasswordChange) {
         for (eu.domibus.api.user.User user : users) {
             updateUser(withPasswordChange, user);
@@ -190,6 +198,10 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void changePassword(User user, String newPassword) {
         securityPolicyManager.changePassword(user, newPassword);
+    }
+
+    protected void reGenerateDefaultPassword(User user, String newPassword) {
+        securityPolicyManager.reGenerateDefaultPassword(user, newPassword);
     }
 
     protected void insertNewUsers(Collection<eu.domibus.api.user.User> newUsers) {

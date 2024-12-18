@@ -12,7 +12,6 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -77,10 +76,12 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
         final CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(submission.getConversationId());
         collaborationInfo.setAction(submission.getAction());
-        final AgreementRef agreementRef = new AgreementRef();
-        agreementRef.setValue(submission.getAgreementRef());
-        agreementRef.setType(submission.getAgreementRefType());
-        collaborationInfo.setAgreementRef(agreementRef);
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
+            final AgreementRef agreementRef = new AgreementRef();
+            agreementRef.setValue(submission.getAgreementRef());
+            agreementRef.setType(submission.getAgreementRefType());
+            collaborationInfo.setAgreementRef(agreementRef);
+        }
         final Service service = new Service();
         service.setValue(submission.getService());
         service.setType(submission.getServiceType());
@@ -266,7 +267,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
                     String propertyValue = trim(property.getValue());
-                    if(PAYLOAD_PROPERTY_FILE_PATH.equals(propertyName)) {
+                    if (PAYLOAD_PROPERTY_FILE_PATH.equalsIgnoreCase(propertyName)) {
                         propertyValue = "-";
                     }
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {

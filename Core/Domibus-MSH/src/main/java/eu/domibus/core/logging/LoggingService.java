@@ -36,6 +36,11 @@ public interface LoggingService {
     List<LoggingEntry> getLoggingLevel(final String loggerName, final boolean showClasses);
 
     /**
+     * @return true if the loggerName is valid in this environment
+     */
+    boolean exists(String loggerName);
+
+    /**
      * Reset the logging configuration to default
      * @return
      */

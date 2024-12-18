@@ -11,7 +11,7 @@
         <version>2.4.0</version>
     </parent>
 
-    <artifactId>Domibus-archive-webhook-swagger</artifactId>
+    <artifactId>harmony-archive-webhook-swagger</artifactId>
     <packaging>war</packaging>
     <name>Harmony eArchive webhook swagger definition</name>
     <properties>

@@ -1,10 +1,12 @@
-<h2 mat-dialog-title>Upload keystore</h2>
+<h2 mat-dialog-title>{{data.title}}</h2>
 
 <mat-dialog-content style="width:450px;">
 
   <form [formGroup]="truststoreForm" (submit)="submit()">
     <mat-card appearance="outlined">
       <mat-card-content>
+
+        <p>{{data.description}}</p>
 
         <label class="custom-file-upload">
           <input #fileInput type="file" id="truststore" accept=".jks,.p12,.pfx" (change)="selectFile()" style="display: none;">

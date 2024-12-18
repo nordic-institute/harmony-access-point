@@ -8,6 +8,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.*;
@@ -49,6 +51,14 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             throw new DomainTaskException("Could not execute task", e);
         }
     }
+
+    @Override
+    public <T extends Object> T submitWithSecurityContext(Callable<T> task) {
+        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        final Callable<T> setAuthRunnable = new SetAuthRunnable(currentAuthentication, task);
+        return submit(setAuthRunnable);
+    }
+
     @Override
     public <T extends Object> T submit(Callable<T> task, Domain domain) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
@@ -67,6 +77,15 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         LOG.trace("Submitting task");
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void submitWithSecurityContext(Runnable task) {
+        Callable callable = () -> {
+            task.run();
+            return null;
+        };
+        submitWithSecurityContext(callable);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package eu.domibus.property;
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -13,9 +14,13 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -48,8 +53,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
             Assert.assertTrue(ex.getMessage().contains("it is not writable"));
         }
     }
-
-    @Ignore
+    
     @Test
     public void setProperty_nonexistent() {
         String propertyName = "non-existent-property-test";
@@ -65,12 +69,12 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles={"AP_ADMIN"})
     public void setProperty_composable() {
         String propertyName = "composable_property_name";
         boolean isDomain = false;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(propertyName);
+        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getOnTheFlyProperty(propertyName);
         propertyMetadata.setComposable(true);
+        propertyMetadata.setWritable(true);
         String propertyValue = "100";
         globalPropertyMetadataManager.getAllProperties().put(propertyName, propertyMetadata);
 
@@ -116,7 +120,8 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         String composablePropertyName = "composable_property_nested";
         String nestedPropertyName = composablePropertyName + ".prop1";
         boolean isDomain = true;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
+        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getOnTheFlyProperty(composablePropertyName);
+        propertyMetadata.setWritable(true);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
 

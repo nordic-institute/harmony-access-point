@@ -126,6 +126,7 @@ import {NgxMatMomentModule} from '@angular-material-components/moment-adapter';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {ManageBackendsComponent} from './messagefilter/manageBackends-form/manageBackends-form.component';
 import {DateService} from './common/customDate/date.service';
+import {HelperService} from './common/helper.service';
 
 const CUSTOM_MOMENT_FORMATS: NgxMatDateFormats = {
   parse: {
@@ -268,6 +269,7 @@ const CUSTOM_MOMENT_FORMATS: NgxMatDateFormats = {
     PluginUserValidatorService,
     DialogsService,
     PropertiesService,
+    HelperService,
     FileUploadValidatorService,
     ApplicationContextService,
     DatePipe,

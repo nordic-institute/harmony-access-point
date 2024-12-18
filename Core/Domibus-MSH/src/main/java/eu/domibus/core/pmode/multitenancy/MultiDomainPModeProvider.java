@@ -405,4 +405,9 @@ public class MultiDomainPModeProvider extends PModeProvider {
     public Party removeParty(String partyName) {
         return getCurrentPModeProvider().removeParty(partyName);
     }
+
+    @Override
+    public void logCurrentPMode() {
+        getCurrentPModeProvider().logCurrentPMode();
+    }
 }

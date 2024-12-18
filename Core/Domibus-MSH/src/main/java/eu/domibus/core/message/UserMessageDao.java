@@ -152,16 +152,19 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Timer(clazz = UserMessageDao.class, value = "dropPartition")
     @Counter(clazz = UserMessageDao.class, value = "dropPartition")
     @Transactional
-    public void dropPartition(String partitionName) {
+    public void dropPartitions(String partitionNames) {
+        // enhanced method to use a string containing a comma separated list of partition to be dropped
         StoredProcedureQuery query = em.createStoredProcedureQuery("DROP_PARTITION")
                 .registerStoredProcedureParameter(
                         "partition_name",
                         String.class,
                         ParameterMode.IN
                 )
-                .setParameter("partition_name", partitionName);
+                .setParameter("partition_name", partitionNames);
         try {
             query.execute();
+        } catch (Exception ex) {
+            LOG.error("Exception encountered when dropping partitions [{}]", partitionNames, ex);
         } finally {
             try {
                 query.unwrap(ProcedureOutputs.class).release();
