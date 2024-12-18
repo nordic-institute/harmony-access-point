@@ -34,7 +34,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
         Exchange exchange = message.getExchange();
         if (exchange == null) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, "Exchange object is null. Cannot process the SOAP message.", null);
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, "Exchange object not found in the SOAP message. Cannot process the SOAP message.", null);
         }
         exchange.put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
