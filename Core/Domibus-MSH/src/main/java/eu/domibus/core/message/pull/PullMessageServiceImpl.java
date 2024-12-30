@@ -298,8 +298,7 @@ public class PullMessageServiceImpl implements PullMessageService {
             messagingLockDao.save(lock);
             return;
         }
-        final MessageStatus waitingForReceipt = MessageStatus.WAITING_FOR_RECEIPT;
-        LOG.debug("[WAITING_FOR_CALLBACK]:Message:[{}] change status to:[{}]", userMessage.getMessageId(), waitingForReceipt);
+        LOG.debug("[WAITING_FOR_CALLBACK]:Message:[{}] change status to:[{}]", userMessage.getMessageId(), MessageStatus.WAITING_FOR_RECEIPT);
         updateRetryLoggingService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
         if (LOG.isDebugEnabled()) {
             if (attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration)) {
@@ -312,11 +311,11 @@ public class PullMessageServiceImpl implements PullMessageService {
         lock.setMessageState(MessageState.WAITING);
         lock.setSendAttempts(userMessageLog.getSendAttempts());
         reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
-        final MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(waitingForReceipt);
-        userMessageLog.setMessageStatus(messageStatus);
         messagingLockDao.save(lock);
+
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, new Timestamp(System.currentTimeMillis()));
+        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT));
         userMessageLogDao.update(userMessageLog);
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, waitingForReceipt, new Timestamp(System.currentTimeMillis()));
     }
 
     /**
