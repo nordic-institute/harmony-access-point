@@ -105,9 +105,9 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     public void reset(final UserMessageLog userMessageLog, String messageId) {
         final MessageStatusEntity readyToPull = messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", messageId, userMessageLog.getMessageStatus(), readyToPull);
+        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
     }
 
 

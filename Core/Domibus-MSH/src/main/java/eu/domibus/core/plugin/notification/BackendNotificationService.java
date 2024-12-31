@@ -375,9 +375,10 @@ public class BackendNotificationService {
         MSHRole role = userMessage.getMshRole().getRole();
         eventService.enqueueMessageStatusChangedEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, role);
 
-        handleMDC(userMessage);
+        handleLoggingContext(userMessage);
+
         if (messageLog.getMessageStatus() == newStatus) {
-            LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);
+            LOG.debug("Notification not sent: message status change from [{}] to [{}]", newStatus, newStatus);
             return;
         }
 
@@ -613,7 +614,7 @@ public class BackendNotificationService {
         pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
     }
 
-    private void handleMDC(UserMessage userMessage) {
+    private void handleLoggingContext(UserMessage userMessage) {
         final String messageId = userMessage.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
