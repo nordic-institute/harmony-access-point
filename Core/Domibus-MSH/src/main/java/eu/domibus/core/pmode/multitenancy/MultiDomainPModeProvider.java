@@ -387,6 +387,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public boolean hasInitiatorParty(Process process, String partyName) {
+        return getCurrentPModeProvider().hasInitiatorParty(process, partyName);
+    }
+
+    @Override
     public boolean hasLegWithSplittingConfiguration() {
         return getCurrentPModeProvider().hasLegWithSplittingConfiguration();
     }

@@ -446,7 +446,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         Party party = new Party();
         party.setName("initiator");
         process.addInitiator(party);
-        PullContext pullContext = new PullContext(process, new Party(), testQualifiedMpc);
+        PullContext pullContext = new PullContext(process, new Party(), new Party(), testQualifiedMpc);
         LegConfiguration legConfiguration = new LegConfiguration();
         legConfiguration.setName("myLegConfiguration");
         Security security = new Security();
@@ -488,7 +488,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         String testQualifiedMpc = "qualified_mpc_for_test";
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(testMpc);
         Process process = new Process();
-        PullContext pullContext = new PullContext(process, new Party(), testQualifiedMpc);
+        PullContext pullContext = new PullContext(process, new Party(), new Party(), testQualifiedMpc);
         new Expectations() {{
             pModeProvider.findMpcUri(testMpc);
             result = testQualifiedMpc;

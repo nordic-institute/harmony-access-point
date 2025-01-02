@@ -42,8 +42,10 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
         authorizationService.authorizePullRequest(request, messaging.getSignalMessage().getPullRequest().getMpc());
         LOG.trace("before pull request.");
 
-        String refToMessageId = (messaging.getSignalMessage().getMessageInfo() == null) ? null :
+        String refToMessageId = messaging.getSignalMessage().getMessageInfo() == null ? null :
                 messaging.getSignalMessage().getMessageInfo().getMessageId();
+        LOG.trace("Incoming pull request with id [{}] and mpc [{}]", refToMessageId, messaging.getSignalMessage().getPullRequest().getMpc());
+
         final SOAPMessage soapMessage = handlePullRequest(messaging.getSignalMessage().getPullRequest().getMpc(), refToMessageId);
         LOG.trace("returning pull request message.");
         return soapMessage;

@@ -311,6 +311,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             return ProcessingType.PUSH;
         }
         try {
+            LOG.debug("Processing Type specified explicitly: [{}]", processingTypeProperty);
             return ProcessingType.valueOf(processingTypeProperty);
         } catch (IllegalArgumentException e) {
             throw new DefaultJmsPluginException("Value for processingType property:[" + processingTypeProperty + "] is incorrect. Should be PUSH or PULL.", e);

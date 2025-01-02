@@ -159,13 +159,14 @@ public class PullMessageSender {
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
 
             if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getSignalMessage() != null) {
-                LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
+                LOG.trace("No message for sent pull request [{}] with mpc:[{}]", signalMessage.getMessageInfo() == null ? null : signalMessage.getMessageInfo().getMessageId(), mpcQualifiedName);
                 logError(ebms3Messaging.getSignalMessage());
                 return;
             }
 
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
+            LOG.trace("Message [{}] received in response to pull request [{}] with mpc:[{}]", messageId, signalMessage.getMessageInfo() == null ? null : signalMessage.getMessageInfo().getMessageId(), mpcQualifiedName);
 
             partInfos = userMessagePayloadService.handlePayloads(response, ebms3Messaging, null);
             handleResponse(response, userMessage, partInfos);

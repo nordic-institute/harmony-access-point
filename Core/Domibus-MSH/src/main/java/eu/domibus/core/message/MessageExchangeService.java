@@ -75,7 +75,7 @@ public interface MessageExchangeService {
     String retrieveReadyToPullUserMessageId(String mpc, Party initiator);
 
     /**
-     * When a pull request comes in, there is very litle information.  From this information we retrieve
+     * When a pull request comes in, there is very little information.  From this information we retrieve
      * the initiator, the responder and the pull process leg configuration from wich we can retrieve security information
      *
      * @param mpcQualifiedName the mpc attribute within the pull request.
