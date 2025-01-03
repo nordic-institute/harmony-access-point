@@ -295,8 +295,9 @@ public class CachingPModeProvider extends PModeProvider {
                 .collect(Collectors.toList());
 
         if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
-            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
-            LOG.info("Matching processes: [{}]", processes.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
+            LOG.info("Multiple matching legs found: [{}]. Matching processes: [{}].",
+                    matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")),
+                    processes.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
         }
 
         Optional<LegConfiguration> optional = matchingLegs.stream().findFirst();
@@ -360,8 +361,9 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
-            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
-            LOG.info("Matching processes: [{}]", matchingProcesses.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
+            LOG.info("Multiple matching legs found: [{}]. Matching processes: [{}]",
+                    matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")),
+                    matchingProcesses.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
         }
 
         Optional<LegConfiguration> selectedLeg = matchingLegs.stream().findFirst();

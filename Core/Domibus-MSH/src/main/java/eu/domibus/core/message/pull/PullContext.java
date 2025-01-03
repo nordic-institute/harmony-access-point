@@ -53,7 +53,7 @@ public class PullContext {
 
     public Party getInitiator() {
         if (process.isDynamicInitiator()) {
-            // FIXME: not sure if the check for no initiator parties is still needed
+            // FIXME: not sure if the check for no initiator parties is still needed -> Ion Perpegel 03-01-25 [EDELIVERY-12876] PULL refactoring
             if (CollectionUtils.isEmpty(process.getInitiatorParties())) {
                 return null;
             }

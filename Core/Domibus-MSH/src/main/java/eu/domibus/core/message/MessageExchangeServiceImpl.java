@@ -355,7 +355,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
             pullProcessValidator.validatePullProcess(processes);
 
-            // FIXME: this is a possible cause for EDELIVERY-12807:
+            // FIXME: this is a possible cause for EDELIVERY-12807 - Ion Perpegel, August 2023
             if (CollectionUtils.size(processes) > 1) {
                 LOG.warn("[{}] pull processes found for mpc=[{}] : [{}]. The first one will be used.",
                         processes.size(), mpcQualifiedName, processes.stream().map(p -> p.getName()).collect(Collectors.joining(",")));
