@@ -61,6 +61,7 @@ public class PullContext {
         } else {
             // no initiator parties - return null
             if (CollectionUtils.isEmpty(process.getInitiatorParties())) {
+                LOG.warn("No initiator parties found for static-initiator pull process [{}]", process.getName());
                 return null;
             }
             // exactly one initiator party - all is good
