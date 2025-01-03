@@ -217,7 +217,7 @@ public class CachingPModeProvider extends PModeProvider {
                 }
             }
         }
-        // if the initiator is not present in the process, we need to check if dynamic initiator is allowed:
+        // if the initiator is not explicitly present in the process, we need to check if dynamic initiator is allowed:
         if (process.isDynamicInitiator() && pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
             return true;
         }
@@ -295,7 +295,9 @@ public class CachingPModeProvider extends PModeProvider {
                 .collect(Collectors.toList());
 
         if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
-            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
+            LOG.info("Multiple matching legs found: [{}]. Matching processes: [{}].",
+                    matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")),
+                    processes.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
         }
 
         Optional<LegConfiguration> optional = matchingLegs.stream().findFirst();
@@ -359,11 +361,13 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         if (matchingLegs.size() > 1 && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_DIAGNOSTICS_ENABLED))) {
-            LOG.info("Multiple matching legs found: [{}]", matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")));
+            LOG.info("Multiple matching legs found: [{}]. Matching processes: [{}]",
+                    matchingLegs.stream().map(leg -> leg.getName()).collect(Collectors.joining(",")),
+                    matchingProcesses.stream().filter(proc -> proc.getLegs().stream().anyMatch(leg -> matchingLegs.contains(leg))).map(proc -> proc.getName()).collect(Collectors.joining(",")));
         }
 
         Optional<LegConfiguration> selectedLeg = matchingLegs.stream().findFirst();
-        return selectedLeg.map(LegConfiguration::getName).orElse(null);
+        return selectedLeg.map(LegConfiguration::getName).get();
     }
 
     /**
@@ -1083,7 +1087,8 @@ public class CachingPModeProvider extends PModeProvider {
         return process.getLegs().stream().anyMatch(leg -> StringUtils.equals(leg.getName(), legName));
     }
 
-    protected boolean hasInitiatorParty(Process process, String partyName) {
+    @Override
+    public boolean hasInitiatorParty(Process process, String partyName) {
         return matchInitiator(process, partyName);
     }
 

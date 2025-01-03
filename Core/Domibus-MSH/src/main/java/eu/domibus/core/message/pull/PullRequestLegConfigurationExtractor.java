@@ -43,7 +43,11 @@ public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfi
         Ebms3PullRequest pullRequest = ebms3Messaging.getSignalMessage().getPullRequest();
         try {
             String mpc = pullRequest.getMpc();
+            LOG.debug("Handling incoming pull request with mpc=[{}]", mpc);
             PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpc);
+
+            // NOTE: we know that there may be multiple matching legs, but we just choose one of them (the leg is not used below in a significant way)
+            // TODO: maybe improve on this -> Ion Perpegel 03-01-25 [EDELIVERY-12876] PULL refactoring
             LegConfiguration legConfiguration = pullContext.getProcess().getLegs().iterator().next();
             String initiatorPartyName = null;
             if (pullContext.getInitiator() != null) {

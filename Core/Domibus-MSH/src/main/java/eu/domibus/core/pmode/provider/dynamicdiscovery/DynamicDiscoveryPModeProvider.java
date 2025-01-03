@@ -552,7 +552,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             for (final Party party : candidate.getInitiatorParties()) {
                 if (StringUtils.equalsIgnoreCase(configurationParty.getName(), party.getName())) {
                     partyFound = true;
-                    LOG.debug("Party [{}] already found in candidate [{}]", party.getName(), candidate.getName());
+                    LOG.debug("Party [{}] already found as initiator in candidate process [{}]", party.getName(), candidate.getName());
                     break;
                 }
             }

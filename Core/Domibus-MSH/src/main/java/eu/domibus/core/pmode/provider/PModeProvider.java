@@ -583,6 +583,8 @@ public abstract class PModeProvider {
         return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[5];
     }
 
+    public abstract boolean hasInitiatorParty(Process process, String partyName);
+
     public abstract List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration);
 
     public abstract List<Process> findPullProcessesByInitiator(final Party party);
