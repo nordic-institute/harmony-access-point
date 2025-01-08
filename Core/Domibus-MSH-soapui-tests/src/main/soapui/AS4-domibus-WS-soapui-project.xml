@@ -13705,7 +13705,7 @@ test.finalize()
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/inititator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
