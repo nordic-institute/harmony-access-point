@@ -14477,11 +14477,11 @@ Domibus.changePropertyAtRuntime("C3", "wsplugin.schema.validation.enabled", "tru
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -14521,11 +14521,11 @@ Domibus.changePropertyAtRuntime("C3", "wsplugin.schema.validation.enabled", "tru
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -14818,7 +14818,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -15092,7 +15092,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -18497,11 +18497,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -19646,11 +19646,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -23715,7 +23715,7 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -23756,7 +23756,7 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
@@ -23845,11 +23845,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/iNtiAtor</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/RespondeR</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/RespondeR</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/iNtiAtor</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -25507,11 +25507,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -27571,11 +27571,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -27631,11 +27631,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -27691,11 +27691,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -27985,11 +27985,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-BLue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-rED</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29465,11 +29465,11 @@ testRunner.testCase.testSteps['Reset Current log level'].run(testRunner, context
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29536,11 +29536,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29609,11 +29609,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29691,11 +29691,11 @@ Domibus.changePropertyAtRuntime("C3", "wsplugin.schema.validation.enabled", "tru
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29770,11 +29770,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29847,11 +29847,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29917,11 +29917,11 @@ TruststoreUtils.uploadTruststore("sender","special","\\DynamicDiscovery\\C2\\oas
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -29965,11 +29965,11 @@ TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30028,11 +30028,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30073,11 +30073,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30135,11 +30135,11 @@ test.finalize()</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30180,11 +30180,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30234,11 +30234,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30304,11 +30304,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30347,11 +30347,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30390,11 +30390,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30433,11 +30433,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30497,11 +30497,11 @@ This incorrect Charset should result with exception raised in checkCharset metho
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30592,11 +30592,11 @@ Domibus.changePropertyAtRuntime("C3", "domibus.dispatcher.receiveTimeout", "1", 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30654,11 +30654,11 @@ Domibus.changePropertyAtRuntime("C3", "domibus.dispatcher.receiveTimeout", "2400
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30718,11 +30718,11 @@ Domibus.changePropertyAtRuntime("C3", "domibus.attachment.storage.location", "..
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30815,11 +30815,11 @@ TruststoreUtils.uploadTruststore("receiver","special","\\certificates\\Http_Http
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30881,11 +30881,11 @@ TruststoreUtils.uploadTruststore("receiver","special","\\certificates\\Http_Ldap
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -30945,11 +30945,11 @@ TruststoreUtils.uploadTruststore("receiver","special","\\certificates\\Ldap_Ldap
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -31053,11 +31053,11 @@ TruststoreUtils.uploadTruststore("receiver","special","\\certificates\\revoked\\
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -31150,11 +31150,11 @@ TruststoreUtils.uploadTruststore("receiver","special","\\certificates\\expired\\
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -31225,11 +31225,11 @@ testRunner.testCase.testSteps['Upload default truststores Blue-Red'].run(testRun
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-BLue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-rED</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -31297,11 +31297,11 @@ Domibus.changePropertyAtRuntime("C3", "wsplugin.schema.validation.enabled", "tru
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -31340,11 +31340,11 @@ Domibus.changePropertyAtRuntime("C3", "wsplugin.schema.validation.enabled", "tru
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -32573,11 +32573,11 @@ Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -35922,11 +35922,11 @@ Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-ghost</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -35966,11 +35966,11 @@ Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-ghost</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -36056,11 +36056,11 @@ Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -38774,11 +38774,11 @@ PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFi
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -38953,11 +38953,11 @@ sleep(2000);</script></con:config></con:testStep><con:testStep type="delay" name
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -39012,11 +39012,11 @@ PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFi
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43472,11 +43472,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43586,11 +43586,11 @@ TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\gre
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43631,11 +43631,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43676,11 +43676,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43721,11 +43721,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43824,11 +43824,11 @@ TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\gre
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43869,11 +43869,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43914,11 +43914,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -43959,11 +43959,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -44091,11 +44091,11 @@ TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\gre
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-green</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -44289,11 +44289,11 @@ test.finalize();
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -44827,11 +44827,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -45817,11 +45817,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47474,11 +47474,11 @@ Domibus.reportTestCaseCsv(testRunner, log)
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47526,11 +47526,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47578,11 +47578,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47630,11 +47630,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47763,11 +47763,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47828,11 +47828,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47873,11 +47873,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -47916,11 +47916,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48147,11 +48147,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48192,11 +48192,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48237,11 +48237,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48282,11 +48282,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48327,11 +48327,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48372,11 +48372,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -48417,11 +48417,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -50195,11 +50195,11 @@ test.finalize();</con:tearDownScript><con:properties/></con:testCase><con:testCa
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -54918,11 +54918,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57124,11 +57124,11 @@ test.finalize()
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57191,11 +57191,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57259,11 +57259,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57304,11 +57304,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57349,11 +57349,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57394,11 +57394,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57441,11 +57441,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57488,11 +57488,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57553,11 +57553,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57619,11 +57619,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57665,11 +57665,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57731,11 +57731,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57793,11 +57793,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57857,11 +57857,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-domNone</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57920,11 +57920,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             </ns:MessageInfo>
             <ns:PartyInfo>
                <ns:From>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -57984,11 +57984,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered"></ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58052,7 +58052,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58115,7 +58115,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58179,7 +58179,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58239,11 +58239,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unread">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58303,11 +58303,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId>domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58367,11 +58367,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58431,11 +58431,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-domNone</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58495,10 +58495,10 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58558,11 +58558,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered"></ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58622,7 +58622,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
@@ -58686,7 +58686,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
@@ -58749,7 +58749,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
@@ -58813,11 +58813,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unread">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58877,11 +58877,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId>domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -58941,11 +58941,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59005,11 +59005,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59049,11 +59049,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59113,11 +59113,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59177,11 +59177,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59240,11 +59240,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59492,11 +59492,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59559,11 +59559,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59624,11 +59624,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59688,11 +59688,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59751,11 +59751,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59815,11 +59815,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59879,11 +59879,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -59943,11 +59943,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60007,11 +60007,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60070,11 +60070,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60134,11 +60134,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60198,11 +60198,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60262,11 +60262,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60326,11 +60326,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60390,11 +60390,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60454,11 +60454,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60518,11 +60518,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60582,11 +60582,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60645,11 +60645,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60709,11 +60709,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60774,11 +60774,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60839,11 +60839,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60903,11 +60903,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -60967,11 +60967,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61031,11 +61031,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61098,11 +61098,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61173,11 +61173,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61246,11 +61246,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61319,11 +61319,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61365,11 +61365,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61411,11 +61411,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61457,11 +61457,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61503,11 +61503,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -61574,11 +61574,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -62887,11 +62887,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:credential
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue-dom1</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red-dom2</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -98940,11 +98940,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -99381,11 +99381,11 @@ test.finalize();</scriptText></con:configuration></con:assertion><con:assertion 
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -103674,11 +103674,11 @@ sleep(1000);
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -104181,11 +104181,11 @@ sleep(1000);
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -104667,11 +104667,11 @@ sleep(1000);
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -106411,11 +106411,11 @@ sleep(2000)</script></con:config></con:testStep><con:testStep type="request" id=
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -107455,11 +107455,11 @@ sleep(2000)</script></con:config></con:testStep><con:testStep type="request" id=
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -108597,11 +108597,11 @@ sleep(2000)</script></con:config></con:testStep><con:testStep type="request" id=
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -112180,11 +112180,11 @@ Domibus.updatePmodeStringRest(side,context,log,testRunner,domain,target,targetRe
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -113785,11 +113785,11 @@ Domibus.updatePmodeStringRest(side,context,log,testRunner,domain,target,targetRe
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116255,11 +116255,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId>domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116318,11 +116318,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116381,7 +116381,7 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:Role></ns:Role>
@@ -116444,11 +116444,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId>domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116507,11 +116507,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116570,11 +116570,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116632,11 +116632,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116857,11 +116857,11 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
@@ -116931,11 +116931,11 @@ log.info "--DONE--";</script></con:config></con:testStep><con:testStep type="del
             <ns:PartyInfo>
                <ns:From>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
                </ns:From>
                <ns:To>
                   <ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</ns:PartyId>
-                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</ns:Role>
+                  <ns:Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</ns:Role>
                </ns:To>
             </ns:PartyInfo>
             <ns:CollaborationInfo>
