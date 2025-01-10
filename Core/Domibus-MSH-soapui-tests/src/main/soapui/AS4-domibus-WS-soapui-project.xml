@@ -25750,17 +25750,18 @@ propValue=Domibus.getTestCaseCustProp(custPropName+".C3",log,testRunner);
 Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 
 sleep(3000);
-</script></con:config></con:testStep><con:testStep type="groovy" name="Reset mpc legconfiguration values" id="79e453a9-550c-4f3d-b9f5-ce3714e7133a"><con:settings/><con:config><script>// C2
+</script></con:config></con:testStep><con:testStep type="groovy" name="Reset mpc legconfiguration values" id="79e453a9-550c-4f3d-b9f5-ce3714e7133a" disabled="true"><con:settings/><con:config><script>// C2
 Domibus.changePropertyAtRuntime("C2", "domibus.pmode.legconfiguration.mpc.enabled", "true", context, log);
 
 // C3
 Domibus.changePropertyAtRuntime("C3", "domibus.pmode.legconfiguration.mpc.enabled", "true", context, log);
 
-sleep(3000);</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context);
+sleep(3000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith("-Dom00545-")
 test.finalize();
 
 testRunner.testCase.testSteps['Reset mpc validation values'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset mpc legconfiguration values'].run(testRunner, context);
 
 Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>domibus.pmode.legconfiguration.mpc.validation.enabled.C2</con:name><con:value>true</con:value></con:property><con:property><con:name>domibus.pmode.legconfiguration.mpc.validation.enabled.C3</con:name><con:value>true</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Dom00546-Submit Message-Optional-OriginalSender-FinalReceiver" searchProperties="true" id="bcc12eb9-aea7-4e66-9684-80874e56f05c">
