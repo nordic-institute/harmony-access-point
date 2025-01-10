@@ -25011,7 +25011,13 @@ Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
 
 
 
-            <con:testStep type="groovy" name="Save mpc validation values" id="17abd0dd-949f-4d7f-9862-fdb90e5c919a"><con:settings/><con:config><script>def custPropName="domibus.pmode.legconfiguration.mpc.validation.enabled";
+            <con:testStep type="groovy" name="Save mpc legconfiguration values" id="e73b2a5d-379a-4bd3-ad4a-f0868989afd5"><con:settings/><con:config><script>// C2
+Domibus.changePropertyAtRuntime("C2", "domibus.pmode.legconfiguration.mpc.enabled", "false", context, log);
+
+// C3
+Domibus.changePropertyAtRuntime("C3", "domibus.pmode.legconfiguration.mpc.enabled", "false", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Save mpc validation values" id="17abd0dd-949f-4d7f-9862-fdb90e5c919a"><con:settings/><con:config><script>def custPropName="domibus.pmode.legconfiguration.mpc.validation.enabled";
 
 // C2
 // Get Domibus property value
@@ -25744,7 +25750,13 @@ propValue=Domibus.getTestCaseCustProp(custPropName+".C3",log,testRunner);
 Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 
 sleep(3000);
-</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Reset mpc legconfiguration values" id="79e453a9-550c-4f3d-b9f5-ce3714e7133a"><con:settings/><con:config><script>// C2
+Domibus.changePropertyAtRuntime("C2", "domibus.pmode.legconfiguration.mpc.enabled", "true", context, log);
+
+// C3
+Domibus.changePropertyAtRuntime("C3", "domibus.pmode.legconfiguration.mpc.enabled", "true", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:setupScript/><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith("-Dom00545-")
 test.finalize();
 
