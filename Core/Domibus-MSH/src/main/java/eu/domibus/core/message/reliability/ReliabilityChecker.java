@@ -213,7 +213,7 @@ public class ReliabilityChecker {
             } else {
                 LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_RECEIPT_INVALID_EMPTY, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0301)
                         .message("There is no content inside the receipt element received by the responding gateway")
                         .refToMessageId(messageId)
                         .mshRole(MSHRole.SENDING)
