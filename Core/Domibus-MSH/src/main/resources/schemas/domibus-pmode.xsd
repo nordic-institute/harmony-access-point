@@ -326,6 +326,7 @@
                                                 <xs:attribute name="value" use="required"
                                                               type="max255-string"/>
                                                 <xs:attribute name="type"
+                                                              use="optional"
                                                               type="max255-string"/>
                                             </xs:complexType>
                                         </xs:element>

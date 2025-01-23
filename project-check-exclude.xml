@@ -128,6 +128,8 @@
         <cve>CVE-2023-40167</cve>
         <cve>CVE-2023-36479</cve>
         <cve>CVE-2023-44487</cve>
+        <cve>CVE-2024-6763</cve>
+        <cve>CVE-2024-9823</cve>
     </suppress>
 
     <suppress>
@@ -136,6 +138,14 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
         <cve>CVE-2021-27568</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: accessors-smart-2.4.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
+        <!--dependency brought by wiremock, used in testing environment-->
+        <cve>CVE-2023-1370</cve>
     </suppress>
 
     <suppress>
@@ -288,6 +298,7 @@
         <notes><![CDATA[
    file name: wiremock-2.27.2.jar: swagger-ui-bundle.js
    ]]></notes>
+        <!--This is a dependency brought by wiremock and is used only in testing environment-->
         <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
         <vulnerabilityName>Fix a possible XSS in Chrome that is hidden behind #enable-experimental-web-platform-features</vulnerabilityName>
         <vulnerabilityName>Fixed a new MathML-based bypass submitted by PewGrand. Fixed a new SVG-related bypass submitted by SecurityMB</vulnerabilityName>
@@ -297,6 +308,9 @@
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
         <cve>CVE-2020-26870</cve>
+        <cve>CVE-2024-45801</cve>
+        <cve>CVE-2024-47875</cve>
+        <cve>CVE-2024-48910</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -689,5 +703,21 @@
         <packageUrl regex="true">^pkg:maven/net\.sf\.dozer/dozer@.*$</packageUrl>
         <!-- Brought as a dependency by commons-test, used in testing environment -->
         <cve>CVE-2014-9515</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xmlunit-core-2.7.0.jar
+   ]]></notes>
+        <!--This is a dependency brought by wiremock and is used only in testing environment-->
+        <packageUrl regex="true">^pkg:maven/org\.xmlunit/xmlunit\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-31573</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-webmvc-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@.*$</packageUrl>
+        <!--Domibus does not use WebMvc.fn or WebFlux.fn-->
+        <vulnerabilityName>CVE-2024-38816</vulnerabilityName>
     </suppress>
 </suppressions>

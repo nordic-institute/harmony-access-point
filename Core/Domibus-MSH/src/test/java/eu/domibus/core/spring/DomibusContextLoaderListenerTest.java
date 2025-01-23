@@ -2,6 +2,7 @@ package eu.domibus.core.spring;
 
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -54,6 +55,7 @@ public class DomibusContextLoaderListenerTest {
                                     @Mocked LoggerContext loggerContext,
                                     @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
+        Deencapsulation.setField(ShutdownUtils.class, "LOG", domibusLogger);
 
         new Expectations() {{
 
@@ -70,6 +72,9 @@ public class DomibusContextLoaderListenerTest {
             times = 1;
 
             domibusLogger.info("Closing PluginClassLoader");
+            times = 1;
+
+            domibusLogger.warn(WarningUtil.warnOutput("Domibus is stopping."));
             times = 1;
 
             domibusLogger.info("Stop ch.qos.logback.classic.LoggerContext");
@@ -103,6 +108,7 @@ public class DomibusContextLoaderListenerTest {
                                            @Mocked LoggerContext loggerContext,
                                            @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
+        Deencapsulation.setField(ShutdownUtils.class, "LOG", domibusLogger);
 
         pluginClassLoader.throwExceptionOnClose();
 
@@ -125,6 +131,9 @@ public class DomibusContextLoaderListenerTest {
             times = 1;
 
             domibusLogger.warn(anyString, (Throwable) any);
+            times = 1;
+
+            domibusLogger.warn(WarningUtil.warnOutput("Domibus is stopping."));
             times = 1;
 
             domibusLogger.info("Stop ch.qos.logback.classic.LoggerContext");

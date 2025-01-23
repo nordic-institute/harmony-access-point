@@ -1,10 +1,13 @@
 package eu.domibus.api.model;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
@@ -286,5 +289,43 @@ public class UserMessage extends AbstractBaseEntity {
                 ", messageFragment=" + messageFragment +
                 ", testMessage=" + testMessage +
                 '}';
+    }
+
+    public String format() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("UserMessage Details:\n");
+        sb.append("     Message ID: ").append(messageId).append("\n");
+        sb.append("     Ref To Message ID: ").append(refToMessageId).append("\n");
+        sb.append("     Timestamp: ").append(timestamp).append("\n");
+        sb.append("     Source Message: ").append(sourceMessage).append("\n");
+        sb.append("     Message Fragment: ").append(messageFragment).append("\n");
+        sb.append("     Test Message: ").append(testMessage).append("\n");
+        sb.append("     MSH Role: ").append(mshRole == null ? "null" : mshRole.getRole()).append("\n");
+        sb.append("Collaboration Info:\n");
+        sb.append("     Conversation ID: ").append(conversationId).append("\n");
+        sb.append("     Action: ").append(action == null ? "null" : action.getValue()).append("\n");
+        sb.append("     Service: ").append(service == null ? "null" : "value: " + service.getValue() + " type: " + service.getType()).append("\n");
+        sb.append("     Agreement Ref: ").append(agreementRef == null ? "null" : "value: " + agreementRef.getValue() + " type: " + agreementRef.getType()).append("\n");
+        sb.append("     MPC: ").append(mpc == null ? "null" : mpc.getValue()).append("\n");
+        sb.append("Message Properties: ").append(CollectionUtils.isEmpty(messageProperties) ? "none\n" : "\n");
+        if (CollectionUtils.isNotEmpty(messageProperties)) {
+            for (MessageProperty messageProperty : messageProperties) {
+                sb.append("    ").append(messageProperty.getName()).append(": ").append(messageProperty.getValue()).append("\n");
+            }
+        }
+        sb.append("Party Info: ").append(partyInfo == null ? "null\n" : "\n");
+        if (partyInfo != null) {
+            if (partyInfo.getFrom() != null) {
+                sb.append("    From Party: \n");
+                sb.append("       Party ID: ").append(partyInfo.getFrom().getFromPartyId() == null ? "null\n" : "value: " + partyInfo.getFrom().getFromPartyId().getValue() + " type: "+ partyInfo.getFrom().getFromPartyId().getType()).append("\n");
+                sb.append("           Role: ").append(partyInfo.getFrom().getFromRole() == null ? "null\n" : partyInfo.getFrom().getFromRole().getValue() ).append("\n");
+            }
+            if (partyInfo.getTo() != null) {
+                sb.append("    To Party: \n");
+                sb.append("       Party ID: ").append(partyInfo.getTo().getToPartyId() == null ? "null\n" : "value: " + partyInfo.getTo().getToPartyId().getValue() + " type: "+ partyInfo.getTo().getToPartyId().getType()).append("\n");
+                sb.append("           Role: ").append(partyInfo.getTo().getToRole() == null ? "null\n" : partyInfo.getTo().getToRole().getValue() ).append("\n");
+            }
+        }
+        return sb.toString();
     }
 }

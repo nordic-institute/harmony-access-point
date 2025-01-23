@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -14,11 +15,13 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * A worker that picks up unsent messages that are still in ${@code SEND_ENQUEUED} and ${@code WAITING_FOR_RETRY} states
@@ -80,8 +83,21 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             LOG.debug("No unsent stuck messages found to dispatch");
             return;
         }
-
-        LOG.info("Prepare unsent messages for dispatch {}", unsentMessageIds);
-        unsentMessageIds.forEach(userMessageService::sendEnqueuedMessage);
+        List<String> skippedMessageIds = new ArrayList<>();
+        LOG.info("Prepare [{}] unsent messages for dispatch", unsentMessageIds.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Unsent messages {}", unsentMessageIds);
+        }
+        for (String unsentMessageId : unsentMessageIds) {
+            try {
+                userMessageService.sendEnqueuedMessage(unsentMessageId);
+            } catch (UserMessageException e) {
+                skippedMessageIds.add(unsentMessageId);
+                LOG.debug("UserMessage [{}] skipped", unsentMessageId, e);
+            }
+        }
+        if (!isEmpty(skippedMessageIds)) {
+            LOG.info("[{}] messages skipped {}", skippedMessageIds.size(), skippedMessageIds);
+        }
     }
 }

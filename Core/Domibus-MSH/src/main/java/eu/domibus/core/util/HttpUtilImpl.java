@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.HttpUtil;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.api.util.HttpUtil;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,7 +14,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -120,7 +120,7 @@ public class HttpUtilImpl implements HttpUtil {
                 sslContext,
                 null,
                 null,
-                NoopHostnameVerifier.INSTANCE);
+                new DefaultHostnameVerifier());
 
         return sslsf;
     }

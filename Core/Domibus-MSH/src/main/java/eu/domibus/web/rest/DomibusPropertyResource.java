@@ -4,14 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -43,18 +45,21 @@ public class DomibusPropertyResource extends BaseResource {
 
     private final ErrorHandlerService errorHandlerService;
 
+    private final SecurityUtilImpl securityUtil;
+
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
                                    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
-                                   ErrorHandlerService errorHandlerService) {
+                                   ErrorHandlerService errorHandlerService, SecurityUtilImpl securityUtil) {
         this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
         this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.errorHandlerService = errorHandlerService;
+        this.securityUtil = securityUtil;
     }
 
     @ExceptionHandler({DomibusPropertyException.class})
     public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
         Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        String message = rootCause == null ? ex.getMessage() : rootCause.getMessage();
+        String message = (rootCause == null || rootCause.getMessage() == null) ? ex.getMessage() : rootCause.getMessage();
         return errorHandlerService.createResponse(message, HttpStatus.BAD_REQUEST);
     }
 
@@ -147,4 +152,28 @@ public class DomibusPropertyResource extends BaseResource {
         DomibusPropertyRO convertedProp = domibusPropertyMetadataMapper.propertyApiToPropertyRO(prop);
         return convertedProp;
     }
+
+
+    /**
+     * Returns the encrypted value of the specified property with the specified public key
+     *
+     * @param propertyName the name of the property
+     * @param publicKeyPem the public encryption key pem
+     * @return the encrypted property value
+     */
+    @GetMapping(path = "/{propertyName:.+}/encrypted")
+    public String getEncryptedPropertyValue(@Valid @PathVariable String propertyName, @SkipWhiteListed @RequestParam String publicKeyPem) {
+        String propValue = domibusPropertyResourceHelper.getPasswordProperty(propertyName);
+        if (StringUtils.isBlank(propValue)) {
+            return StringUtils.EMPTY;
+        }
+
+        try {
+            byte[] decodedKeyPem = Base64.decodeBase64(publicKeyPem);
+            return securityUtil.encryptValue(new String(decodedKeyPem), propValue);
+        } catch (Exception e) {
+            throw new DomibusPropertyException("Error trying to encrypt password", e);
+        }
+    }
+
 }

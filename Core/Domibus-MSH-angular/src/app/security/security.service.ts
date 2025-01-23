@@ -186,13 +186,17 @@ export class SecurityService {
     return user ? user.externalAuthProvider : false;
   }
 
-  isCurrentUserInRole(roles: Array<string>): boolean {
+  isCurrentUserInRole(roles: Array<string>, logWarning = false): boolean {
     if (!roles) {
       return true;
     }
     const currentUser = this.getCurrentUser();
     if (currentUser && currentUser.authorities) {
-      return roles.some(role => currentUser.authorities.includes(role));
+      let result = roles.some(role => currentUser.authorities.includes(role));
+      if (!result && logWarning) {
+        console.warn(`Authorization check failed for user [${currentUser?.username}] with authorities [${currentUser?.authorities}]. None of [${roles}] found.`);
+      }
+      return result;
     }
     return false;
   }

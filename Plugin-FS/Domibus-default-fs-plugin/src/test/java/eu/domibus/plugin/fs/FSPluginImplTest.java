@@ -551,7 +551,7 @@ public class FSPluginImplTest {
         backendFS.messageStatusChanged(event);
 
         new Verifications() {{
-            backendFS.handleSentMessage(domain, messageId);
+            backendFS.handleSentMessage(domain, messageId, true);
         }};
 
     }
@@ -602,7 +602,7 @@ public class FSPluginImplTest {
 
         }};
 
-        backendFS.handleSentMessage(null, messageId);
+        backendFS.handleSentMessage(null, messageId, true);
 
         new Verifications() {{
             fsFilesManager.moveFile(contentFile, archivedFile);

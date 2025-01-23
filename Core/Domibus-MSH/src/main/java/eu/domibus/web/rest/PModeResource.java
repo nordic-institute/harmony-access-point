@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Mircea Musat
@@ -129,6 +130,12 @@ public class PModeResource extends BaseResource {
             return ResponseEntity.badRequest().body("Failed to delete PModes since the list of ids was empty.");
         }
         try {
+            long currentPmodeId = pModeProvider.getCurrentPmode().getId();
+            if (pModeIds.stream().anyMatch(pModeId -> Objects.equals(Long.parseLong(pModeId), currentPmodeId))) {
+                LOG.error("Could not delete current PMode [{}]", currentPmodeId);
+                return ResponseEntity.badRequest().body("Could not delete current PMode [" + currentPmodeId + "]");
+            }
+
             for (String pModeId : pModeIds) {
                 pModeProvider.removePMode(Long.parseLong(pModeId));
             }

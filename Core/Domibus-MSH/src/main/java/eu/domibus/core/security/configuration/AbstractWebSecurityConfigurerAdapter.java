@@ -6,6 +6,7 @@ import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
 import eu.domibus.web.header.ServerHeaderWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -14,8 +15,6 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import javax.ws.rs.HttpMethod;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -125,6 +124,8 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                         "/rest/application/multitenancy",
                         "/rest/application/supportteam",
                         "/rest/security/user").permitAll()
+                // in non-EuLogin version, only super-admin can change the current domain
+                .antMatchers(HttpMethod.PUT, "/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/userdomains/**").authenticated()
                 .antMatchers("/rest/application/info").authenticated()
                 .antMatchers("/rest/domains/**").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
@@ -146,6 +147,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL).authenticated()
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_LANDING_PAGE).authenticated()
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_SEARCH_ADVANCED_ENABLED).authenticated()
+                .antMatchers(HttpMethod.GET, "/rest/configuration/properties/**/encrypted").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/message/restore/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
@@ -155,7 +157,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .exceptionHandling().and()
                 .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions()
                 .and().xssProtection().xssProtectionEnabled(true)
-                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self';").and().and()
+                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:").and().and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()
                 .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class)

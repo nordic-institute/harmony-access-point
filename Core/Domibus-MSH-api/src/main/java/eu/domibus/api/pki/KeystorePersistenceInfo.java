@@ -42,4 +42,8 @@ public interface KeystorePersistenceInfo {
      * @return
      */
     String getPassword();
+
+    default String getKeyEntryPassword() {
+        return null;
+    }
 }

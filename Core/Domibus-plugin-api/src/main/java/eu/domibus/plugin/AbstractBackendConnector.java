@@ -69,7 +69,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = messageSubmitter.submit(messageData, this.getName());
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED, messageData.getFirstFromPartyId(), messageData.getFirstToPartyId());
             return messageId;
         } catch (IllegalArgumentException iaEx) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, iaEx);
@@ -217,8 +217,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     public List<ErrorResult> getErrorsForMessage(final String messageId) throws DuplicateMessageException {
         List<ErrorResult> errorResults = new ArrayList<>();
-        try{
-            errorResults= new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
+        try {
+            errorResults = new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
         } catch (MessageNotFoundException e) {
             LOG.error("Message [{}] does not exist", messageId);
         }
@@ -312,7 +312,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
         String value = domibusPropertyExtService.getProperty(domain, domainEnabledPropertyName);
-        LOG.info("Checking domibus property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
+        LOG.debug("Checking domibus property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
         return BooleanUtils.toBoolean(value);
     }
 

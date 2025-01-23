@@ -33,11 +33,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -72,6 +70,9 @@ public class CertificateServiceImplTest {
 
     @Tested
     CertificateServiceImpl certificateService;
+
+    @Tested
+    CertificateHelper realCertificateHelper;
 
     @Injectable
     CRLService crlService;
@@ -1112,4 +1113,32 @@ public class CertificateServiceImplTest {
         assertEquals(0, list.size());
     }
 
+    @Test
+    public void testCopyStoreContent() throws Exception {
+        String storePassword = "test123";
+
+        URL resourceUrl = this.getClass().getClassLoader().getResource("keystores/mixed.jks");
+        try (InputStream inputStream = resourceUrl.openStream()) {
+            byte[] contentBytes = readAllBytes(inputStream);
+            KeyStoreContentInfo storeInfo = realCertificateHelper.createStoreContentInfo("srcStore", "mixed.jks", contentBytes, storePassword);
+            KeyStore srcStore = certificateService.loadStore(storeInfo);
+
+            KeyStore destStore = certificateService.getNewKeystore("JKS");
+            certificateService.copyStoreContent(srcStore, destStore, storePassword, storePassword);
+            assertEquals(2, Collections.list(destStore.aliases()).size());
+        }
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            byte[] data = new byte[1024]; // Buffer size (can be adjusted)
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, bytesRead);
+            }
+
+            return buffer.toByteArray();
+        }
+    }
 }

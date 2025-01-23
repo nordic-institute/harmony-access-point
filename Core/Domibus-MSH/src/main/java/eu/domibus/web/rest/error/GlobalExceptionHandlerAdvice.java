@@ -14,6 +14,7 @@ import org.hibernate.HibernateException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,6 +45,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
 
     public GlobalExceptionHandlerAdvice(ErrorHandlerService errorHandlerService) {
         this.errorHandlerService = errorHandlerService;
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<ErrorRO> handleAccessDeniedException(AccessDeniedException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler({DomainTaskException.class})

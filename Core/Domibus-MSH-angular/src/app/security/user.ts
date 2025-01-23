@@ -7,7 +7,7 @@ export class User {
   externalAuthProvider: boolean;
 
   constructor (id: number,
-               login: string,
+               username: string,
                profile: string,
                authorities: Array<string>,
                defaultPasswordUsed: boolean,

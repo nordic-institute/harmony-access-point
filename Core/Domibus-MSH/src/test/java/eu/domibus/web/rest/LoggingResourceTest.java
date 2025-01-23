@@ -48,31 +48,6 @@ public class LoggingResourceTest {
         loggingResource = new LoggingResource(coreMapper, loggingService, errorHandlerService);
     }
 
-    @Test
-    public void testSetLogLevel(final @Mocked LoggingLevelRO loggingLevelRO) {
-        final String name = "eu.domibus";
-        final String level = "DEBUG";
-
-        new Expectations() {{
-            loggingLevelRO.getName();
-            result = name;
-
-            loggingLevelRO.getLevel();
-            result = level;
-
-        }};
-
-        //tested method
-        loggingResource.setLogLevel(loggingLevelRO);
-
-        new Verifications() {{
-            loggingService.setLoggingLevel(name, level);
-            times = 1;
-
-            loggingService.signalSetLoggingLevel(name, level);
-            times = 1;
-        }};
-    }
 
     @Test
     public void testGetLogLevel(final @Mocked List<LoggingEntry> loggingEntryList) {

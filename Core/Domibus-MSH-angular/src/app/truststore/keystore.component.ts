@@ -37,4 +37,9 @@ export class KeystoreComponent extends BaseTruststoreComponent implements OnInit
 
     this.checkModifiedOnDisk();
   }
+
+  protected getUploadDialogParams() {
+    return {title: 'Upload keystore', description: 'Please make sure to use a keystore with the same passwords for keystore and all private keys present inside'};
+  }
+
 }

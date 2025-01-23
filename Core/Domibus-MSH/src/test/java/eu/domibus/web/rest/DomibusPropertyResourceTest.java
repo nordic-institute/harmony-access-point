@@ -7,6 +7,7 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyMetadataMapper;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
@@ -51,6 +52,9 @@ public class DomibusPropertyResourceTest {
 
     @Injectable
     DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
+
+    @Injectable
+    SecurityUtilImpl securityUtil;
 
     @Test
     public void getProperty(@Mocked DomibusProperty prop, @Mocked DomibusPropertyRO convertedProp) {

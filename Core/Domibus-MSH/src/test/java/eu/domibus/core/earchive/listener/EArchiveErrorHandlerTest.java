@@ -34,14 +34,12 @@ public class EArchiveErrorHandlerTest {
     @Test
     public void handleError_ok(@Injectable EArchiveBatchEntity eArchiveBatch) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-
         new Expectations() {{
 
             eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
         }};
-        RuntimeException error = new RuntimeException("ERROR");
+        EArchiveException error = new EArchiveException("batchGuid", entityId, EArchiveBatchStatus.EXPORTED, new RuntimeException("ERROR"));
         eArchiveErrorHandler.handleError(error);
 
         new FullVerifications(){{
@@ -50,6 +48,8 @@ public class EArchiveErrorHandlerTest {
             eArchivingDefaultService.sendToNotificationQueue(eArchiveBatch, EArchiveBatchStatus.FAILED);
             times = 1;
             eArchiveBatch.getBatchId();
+            times = 1;
+            eArchiveBatch.getEArchiveBatchStatus();
             times = 1;
         }};
 

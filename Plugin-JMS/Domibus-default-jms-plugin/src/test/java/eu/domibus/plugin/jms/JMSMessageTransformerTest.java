@@ -21,16 +21,12 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Arun Raj on 18/10/2016.
@@ -47,25 +43,31 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_ID = "cid:message";
     private static final String UNREGISTERED_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     private static final String ORIGINAL_SENDER = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+    private static final String ORIGINAL_SENDER_TYPE = "urn:cef.eu:names:identifier:EAS:0007";
     private static final String FINAL_RECIPIENT = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-    private static final String FINAL_RECIPIENT_TYPE = "iso6523-actorid-upis";
+    private static final String FINAL_RECIPIENT_TYPE = "urn:cef.eu:names:identifier:EAS:0201";
     private static final String ACTION_TC1LEG1 = "TC1Leg1";
     private static final String PROTOCOL_AS4 = "AS4";
     private static final String SERVICE_NOPROCESS = "bdx:noprocess";
     private static final String SERVICE_TYPE_TC1 = "tc1";
     private static final String PAYLOAD_FILENAME = "FileName";
-    private static final String PAYLOAD_1_FILENAME = "payload_1_fileName";
     private static final String TEST_PROPERTY = "testProperty";
-    private static final String PAYLOAD_1_TEST_PROPERTY = "payload_1" + "_" + TEST_PROPERTY;
-    private static final String PAYLOAD_1_EMPTY_PROPERTY = "payload_1_";
+    private static final String TEST_PROPERTY1 = "testProperty1";
 
-    private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
+    private static final String PAYLOAD_1_PROPERTY_VALUE = "payload_1_";
+    private static final String PAYLOAD_1_PROPERTY_TYPE = "payload_1_Type_";
+    private static final String PAYLOAD_1_EMPTY_PROPERTY = PAYLOAD_1_PROPERTY_VALUE;
+    private static final String PAYLOAD_1_MIME_CONTENT_ID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1);
+    private static final String PAYLOAD_2_PROPERTY_VALUE = "payload_2_";
+    private static final String PAYLOAD_2_PROPERTY_TYPE = "payload_2_Type_";
+
     private static final String FILENAME_TEST = "09878378732323.payload";
     private static final String CUSTOM_AGREEMENT_REF = "customAgreement";
     public static final String PROPERTY_TEST = "test";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String PAY_LOAD = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
     public static final String TEST_VALUE = "testValue";
+    public static final String TEST_TYPE = "testType";
 
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
@@ -98,7 +100,7 @@ public class JMSMessageTransformerTest {
         submissionObj.setFromRole(INITIATOR_ROLE);
         submissionObj.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
         submissionObj.setToRole(RESPONDER_ROLE);
-        submissionObj.addMessageProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        submissionObj.addMessageProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER, ORIGINAL_SENDER_TYPE);
         submissionObj.addMessageProperty(PROPERTY_ENDPOINT, "http://localhost:8080/domibus/domibus-blue");
         submissionObj.addMessageProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT, FINAL_RECIPIENT_TYPE);
         submissionObj.addMessageProperty(PROPERTY_TEST, "test property");
@@ -109,12 +111,15 @@ public class JMSMessageTransformerTest {
 
         DataHandler payLoadDataHandler2 = new DataHandler(new ByteArrayDataSource(PAY_LOAD.getBytes(), DEFAULT_MT));
 
-
-        Submission.TypedProperty objTypedProperty1 = new Submission.TypedProperty(MIME_TYPE, DEFAULT_MT);
+        Submission.TypedProperty objTypedProperty1 = new Submission.TypedProperty(MIME_TYPE, DEFAULT_MT, "string");
         Submission.TypedProperty objTypedProperty2 = new Submission.TypedProperty(PAYLOAD_FILENAME, FILENAME_TEST);
+        Submission.TypedProperty testCustomProperty = new Submission.TypedProperty(TEST_PROPERTY, TEST_VALUE, TEST_TYPE);
+        Submission.TypedProperty testCustomProperty1 = new Submission.TypedProperty(TEST_PROPERTY1, TEST_VALUE);
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
         listTypedProperty.add(objTypedProperty1);
         listTypedProperty.add(objTypedProperty2);
+        listTypedProperty.add(testCustomProperty);
+        listTypedProperty.add(testCustomProperty1);
         Submission.Payload objPayload1 = new Submission.Payload(PAYLOAD_ID, payLoadDataHandler1, listTypedProperty, false, null, null);
 
         submissionObj.addPayload(objPayload1);
@@ -146,16 +151,22 @@ public class JMSMessageTransformerTest {
         assertEquals(UNREGISTERED_PARTY_TYPE, messageMap.getStringProperty(TO_PARTY_TYPE));
         assertEquals(RESPONDER_ROLE, messageMap.getStringProperty(TO_ROLE));
         assertEquals(ORIGINAL_SENDER, messageMap.getStringProperty(PROPERTY_ORIGINAL_SENDER));
+        assertEquals(ORIGINAL_SENDER_TYPE, messageMap.getStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE));
         assertEquals(FINAL_RECIPIENT, messageMap.getStringProperty(PROPERTY_FINAL_RECIPIENT));
+        assertEquals(FINAL_RECIPIENT_TYPE, messageMap.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE));
         assertEquals("test property", messageMap.getStringProperty(PROPERTY_PREFIX + PROPERTY_TEST));
         assertEquals("12345", messageMap.getStringProperty(AGREEMENT_REF));
         assertEquals("123456", messageMap.getStringProperty(REF_TO_MESSAGE_ID));
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, "customAgreement");
         assertEquals("true", messageMap.getStringProperty(P1_IN_BODY));
 
+        assertEquals(DEFAULT_MT, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + "mimeType"));
         File file = new File(FILENAME_TEST);
-        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_FILENAME));
-
+        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + "fileName"));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + TEST_PROPERTY));
+        assertEquals(TEST_TYPE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_TYPE + TEST_PROPERTY));
+        assertEquals(TEST_VALUE, messageMap.getStringProperty(PAYLOAD_2_PROPERTY_VALUE + TEST_PROPERTY1));
+        assertNull(messageMap.getStringProperty(PAYLOAD_2_PROPERTY_TYPE + TEST_PROPERTY1));
     }
 
     /*
@@ -177,13 +188,16 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(FROM_ROLE, INITIATOR_ROLE);
         messageMap.setStringProperty(TO_ROLE, RESPONDER_ROLE);
         messageMap.setStringProperty(PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        messageMap.setStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE, ORIGINAL_SENDER_TYPE);
         messageMap.setStringProperty(PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
         messageMap.setStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(PROTOCOL, PROTOCOL_AS4);
         messageMap.setStringProperty(AGREEMENT_REF, "customAgreement");
         messageMap.setStringProperty(AGREEMENT_REF_TYPE, "ref_type");
-        messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
-        messageMap.setStringProperty(PAYLOAD_1_TEST_PROPERTY, TEST_VALUE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + "fileName", FILENAME_TEST);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + TEST_PROPERTY, TEST_VALUE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_TYPE + TEST_PROPERTY, TEST_TYPE);
+        messageMap.setStringProperty(PAYLOAD_1_PROPERTY_VALUE + TEST_PROPERTY1, TEST_VALUE);
         messageMap.setStringProperty(PAYLOAD_1_EMPTY_PROPERTY, "blabla");
 
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
@@ -192,7 +206,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "2");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), PAYLOAD_ID);
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, PAYLOAD_ID);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), DEFAULT_MT);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, 1), "filename");
         messageMap.setStringProperty(MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, 1), JMS_PAYLOAD_NAME_FORMAT + "name");
@@ -227,6 +241,7 @@ public class JMSMessageTransformerTest {
 
 
         assertEquals(ORIGINAL_SENDER, getMandatoryProperty(messageProperties, PROPERTY_ORIGINAL_SENDER).getValue());
+        assertEquals(ORIGINAL_SENDER_TYPE, getMandatoryProperty(messageProperties, PROPERTY_ORIGINAL_SENDER).getType());
         assertEquals(FINAL_RECIPIENT, getMandatoryProperty(messageProperties, PROPERTY_FINAL_RECIPIENT).getValue());
         assertEquals(FINAL_RECIPIENT_TYPE, getMandatoryProperty(messageProperties, PROPERTY_FINAL_RECIPIENT).getType());
         assertEquals("test property", getMandatoryProperty(messageProperties, PROPERTY_TEST).getValue());
@@ -241,10 +256,19 @@ public class JMSMessageTransformerTest {
 
         assertEquals(6, typedProperties.size());
 
-        assertTrue(typedProperties.stream().anyMatch(el -> el.getKey().equals(TEST_PROPERTY)));
-        assertTrue(typedProperties.stream().anyMatch(el -> el.getValue().equals(TEST_VALUE)));
+        Submission.TypedProperty testProperty = typedProperties.stream().filter(el -> el.getKey().equals(TEST_PROPERTY)).findFirst().orElse(null);
+        assertNotNull(testProperty);
+        assertEquals(TEST_VALUE, testProperty.getValue());
+        assertEquals(TEST_TYPE, testProperty.getType());
 
-        assertTrue(!typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
+        Submission.TypedProperty testProperty1 = typedProperties.stream().filter(el -> el.getKey().equals(TEST_PROPERTY1)).findFirst().orElse(null);
+        assertNotNull(testProperty1);
+        assertEquals(TEST_VALUE, testProperty1.getValue());
+        assertNull(testProperty1.getType());
+
+        assertFalse(typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
+
+        assertFalse(typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_MIME_CONTENT_ID)));
 
         assertEquals(DEFAULT_MT, getMandatoryProperties(typedProperties, MIME_TYPE).get(0).getValue());
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, getMandatoryProperties(typedProperties, MIME_TYPE).get(1).getValue());
@@ -302,7 +326,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "1");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), "\t" + PAYLOAD_ID + "   ");
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, "\t" + PAYLOAD_ID + "   ");
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), "   " + DEFAULT_MT + "\t\t");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
@@ -363,6 +387,7 @@ public class JMSMessageTransformerTest {
         MapMessage messageMap = new ActiveMQMapMessage();
         messageMap.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, "submitMessage");
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER, ORIGINAL_SENDER);
+        messageMap.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_SENDER_TYPE, ORIGINAL_SENDER_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);
@@ -371,7 +396,7 @@ public class JMSMessageTransformerTest {
         messageMap.setJMSCorrelationID("12345");
 
         messageMap.setStringProperty(JMSMessageConstants.TOTAL_NUMBER_OF_PAYLOADS, "1");
-        messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), "Content_id");
+        messageMap.setStringProperty(PAYLOAD_1_MIME_CONTENT_ID, "Content_id");
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), "type_format");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 

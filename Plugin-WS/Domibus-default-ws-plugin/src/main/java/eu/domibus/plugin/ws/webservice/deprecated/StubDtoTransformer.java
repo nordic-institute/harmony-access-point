@@ -75,10 +75,12 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
         final CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(submission.getConversationId());
         collaborationInfo.setAction(submission.getAction());
-        final AgreementRef agreementRef = new AgreementRef();
-        agreementRef.setValue(submission.getAgreementRef());
-        agreementRef.setType(submission.getAgreementRefType());
-        collaborationInfo.setAgreementRef(agreementRef);
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
+            final AgreementRef agreementRef = new AgreementRef();
+            agreementRef.setValue(submission.getAgreementRef());
+            agreementRef.setType(submission.getAgreementRefType());
+            collaborationInfo.setAgreementRef(agreementRef);
+        }
         final Service service = new Service();
         service.setValue(submission.getService());
         service.setType(submission.getServiceType());

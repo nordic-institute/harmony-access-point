@@ -330,16 +330,19 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     }
 
     protected CollaborationInfo getCollaborationInfoFromSubmission(Submission submission) {
-        AgreementRef agreementRef = objectFactory.createAgreementRef();
-        agreementRef.setType(submission.getAgreementRefType());
-        agreementRef.setValue(submission.getAgreementRef());
+        CollaborationInfo collaborationInfo = objectFactory.createCollaborationInfo();
+
+        if (StringUtils.isNotBlank(submission.getAgreementRef())) {
+            AgreementRef agreementRef = objectFactory.createAgreementRef();
+            agreementRef.setType(submission.getAgreementRefType());
+            agreementRef.setValue(submission.getAgreementRef());
+            collaborationInfo.setAgreementRef(agreementRef);
+        }
 
         Service service = objectFactory.createService();
         service.setType(submission.getServiceType());
         service.setValue(submission.getService());
 
-        CollaborationInfo collaborationInfo = objectFactory.createCollaborationInfo();
-        collaborationInfo.setAgreementRef(agreementRef);
         collaborationInfo.setService(service);
         collaborationInfo.setAction(submission.getAction());
         collaborationInfo.setConversationId(submission.getConversationId());

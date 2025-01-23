@@ -87,6 +87,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             for (final Submission.TypedProperty p : submission.getMessageProperties()) {
                 if (p.getKey().equals(PROPERTY_ORIGINAL_SENDER)) {
                     messageOut.setStringProperty(PROPERTY_ORIGINAL_SENDER, p.getValue());
+                    messageOut.setStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE, p.getType());
                     continue;
                 }
                 if (p.getKey().equals(PROPERTY_ENDPOINT)) {
@@ -95,6 +96,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 }
                 if (p.getKey().equals(PROPERTY_FINAL_RECIPIENT)) {
                     messageOut.setStringProperty(PROPERTY_FINAL_RECIPIENT, p.getValue());
+                    messageOut.setStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE, p.getType());
                     continue;
                 }
                 //only reached if none of the predefined properties are set
@@ -102,8 +104,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 messageOut.setStringProperty(PROPERTY_TYPE_PREFIX + p.getKey(), p.getType());
             }
             messageOut.setStringProperty(PROTOCOL, "AS4");
-            messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
-            messageOut.setStringProperty(AGREEMENT_REF_TYPE, submission.getAgreementRefType());
+            if (StringUtils.isNotBlank(submission.getAgreementRef())) {
+                messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
+                messageOut.setStringProperty(AGREEMENT_REF_TYPE, submission.getAgreementRefType());
+            }
             messageOut.setStringProperty(REF_TO_MESSAGE_ID, submission.getRefToMessageId());
 
             // save the first payload (payload_1) for the bodyload (if exists)
@@ -153,11 +157,27 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         } else {
             final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, counter);
             final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
-            final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
-
             setPayloadDetailsInJMSMessage(messageOut, putAttachmentsInQueue, counter, userMessageEntityId, p, propPayload);
-            messageOut.setStringProperty(payMimeTypeProp, findMime(p.getPayloadProperties()));
             messageOut.setStringProperty(payContID, p.getContentId());
+
+            final String payloadNameFormat = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
+            final String payloadTypeFormat = MessageFormat.format(PAYLOAD_TYPE_FORMAT, counter);
+            for (final Submission.TypedProperty property : p.getPayloadProperties()) {
+                if (property.getKey().equals(MIME_TYPE)) {
+                    final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
+                    messageOut.setStringProperty(payMimeTypeProp, property.getValue());
+                    continue;
+                }
+                // this is set separately
+                if (property.getKey().equals(PAYLOAD_FILENAME)) {
+                    continue;
+                }
+
+                //only reached if none of the predefined properties are set
+                messageOut.setStringProperty(payloadNameFormat + "_" + property.getKey(), property.getValue());
+                messageOut.setStringProperty(payloadTypeFormat + "_" + property.getKey(), property.getType());
+            }
+
             counter++;
         }
         return counter;
@@ -334,8 +354,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
         //not part of ebMS3, eCODEX legacy property
         String strOriginalSender = messageIn.getStringProperty(PROPERTY_ORIGINAL_SENDER);
+        String strOriginalSenderType = messageIn.getStringProperty(PROPERTY_ORIGINAL_SENDER_TYPE);
         if (isNotBlank(strOriginalSender)) {
-            target.addMessageProperty(PROPERTY_ORIGINAL_SENDER, strOriginalSender);
+            target.addMessageProperty(PROPERTY_ORIGINAL_SENDER, strOriginalSender, strOriginalSenderType);
         }
         String endpoint = messageIn.getStringProperty(PROPERTY_ENDPOINT);
         if (isNotEmpty(endpoint)) {
@@ -420,26 +441,39 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
 
         List<String> addedProps = Arrays.asList(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i), payFileNameProp, payloadNameProperty);
-        final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
+        final String payloadNameFormat = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
+        final String payloadTypeFormat = MessageFormat.format(PAYLOAD_TYPE_FORMAT, i);
+        final String payloadMimeContentIdPropName = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
+
         Enumeration<String> allProps = messageIn.getPropertyNames();
         while (allProps.hasMoreElements()) {
             String key = allProps.nextElement();
-            if (!key.startsWith(propPayload) || propPayload.equals(key) || addedProps.contains(key)) {
+            // if it's not a property of payload i, it's an invalid property or was already added then ignore it
+            if ((!key.startsWith(payloadNameFormat)) || payloadNameFormat.equals(key) || addedProps.contains(key)) {
                 continue;
             }
-            String propName = key.substring(propPayload.length() + 1);
+            // if it's the type for a payload property, ignore it. It will be processed together with the property value
+            if (key.startsWith(payloadTypeFormat)) {
+                continue;
+            }
+            String propName = key.substring(payloadNameFormat.length() + 1);
             if (propName.isEmpty()) {
                 continue;
             }
-            partProperties.add(new Submission.TypedProperty(propName, messageIn.getStringProperty(key)));
+            // ignore mimeContentId because will be sent in href
+            if (key.equals(payloadMimeContentIdPropName)) {
+                continue;
+            }
+
+            String propertyValue = messageIn.getStringProperty(key);
+            String propertyType = messageIn.getStringProperty(payloadTypeFormat + "_" + propName);
+            partProperties.add(new Submission.TypedProperty(propName, propertyValue, propertyType));
         }
 
-        DataHandler payloadDataHandler = getPayloadDataHandler(messageIn, mimeType, propPayload);
+        DataHandler payloadDataHandler = getPayloadDataHandler(messageIn, mimeType, payloadNameFormat);
 
         boolean inBody = (i == 1 && "true".equalsIgnoreCase(bodyloadEnabled));
-
-        final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
-        final String contentId = trim(messageIn.getStringProperty(payContID));
+        final String contentId = trim(messageIn.getStringProperty(payloadMimeContentIdPropName));
         target.addPayload(contentId, payloadDataHandler, partProperties, inBody, null, null);
     }
 

@@ -2,14 +2,12 @@ package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,8 +29,6 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     private final DatabaseUtil databaseUtil;
 
-    private final EArchivingDefaultService eArchiveService;
-
     private final JmsUtil jmsUtil;
 
     private final EventService eventService;
@@ -41,11 +37,9 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     public EArchiveNotificationDlqListener(
             DatabaseUtil databaseUtil,
-            EArchivingDefaultService eArchiveService,
             JmsUtil jmsUtil,
             EventService eventService, AlertConfigurationService alertConfigurationService) {
         this.databaseUtil = databaseUtil;
-        this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
         this.eventService = eventService;
         this.alertConfigurationService = alertConfigurationService;
@@ -72,9 +66,8 @@ public class EArchiveNotificationDlqListener implements MessageListener {
             return;
         }
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
 
-        LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
+        LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, batchId);
         eventService.enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED, batchId, new EventProperties(batchId, notificationType.name()));
     }
 

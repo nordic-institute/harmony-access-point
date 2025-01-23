@@ -329,9 +329,10 @@ public class WebServicePluginImpl implements BackendInterface {
         retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
         fillInfoPartsForLargeFilesWs(retrieveMessageResponse, messagingWs);
         // To avoid blocking errors during the Header's response validation
-        if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
+        if (userMessage.getCollaborationInfo().getAgreementRef() != null && StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
             userMessage.getCollaborationInfo().setAgreementRef(null);
         }
+
         ebMSHeaderInfo.value = messagingMapper.messagingFromEntity(messagingWs);
 
         try {

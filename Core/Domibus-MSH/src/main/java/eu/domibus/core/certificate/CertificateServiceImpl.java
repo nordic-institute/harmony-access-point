@@ -375,11 +375,13 @@ public class CertificateServiceImpl implements CertificateService {
             }
             if (sameProperties(storeInfo, persistenceInfo)) {
                 // same props, so just save the store on disk
+                LOG.info("New and current stores have the same type and password, so persisting it with these values.");
                 keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
             } else {
                 // we need to copy the certificates to a store with the same props as the ones on disk store
+                LOG.info("New and current stores have different type and/or password, so persisting it with the old properties.");
                 KeyStore destStore = getNewKeystore(persistenceInfo.getType());
-                copyStoreCertificates(uploadedStore, destStore);
+                copyStoreContent(uploadedStore, destStore, storeInfo.getPassword(), persistenceInfo.getKeyEntryPassword());
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
             LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(uploadedStore));
@@ -542,17 +544,25 @@ public class CertificateServiceImpl implements CertificateService {
         return instance;
     }
 
-    protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
+    protected void copyStoreContent(KeyStore srcStore, KeyStore destStore, String srcStorePassword, String destKeyEntryPassword) {
         try {
             final Enumeration<String> aliases = srcStore.aliases();
+            KeyStore.ProtectionParameter srcStoreProtection = new KeyStore.PasswordProtection(srcStorePassword.toCharArray());
             while (aliases.hasMoreElements()) {
-                final String alias = aliases.nextElement();
-                final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
-                destStore.setCertificateEntry(alias, certificate);
-                LOG.debug("Copy certificate [{}] named [{}]", certificate, alias);
+                String alias = aliases.nextElement();
+                if (srcStore.isKeyEntry(alias)) {
+                    KeyStore.ProtectionParameter destKeyEntryProtection = new KeyStore.PasswordProtection(destKeyEntryPassword.toCharArray());
+                    KeyStore.Entry entry = srcStore.getEntry(alias, srcStoreProtection);
+                    destStore.setEntry(alias, entry, destKeyEntryProtection);
+                    LOG.debug("Copied key entry named [{}]", alias);
+                } else {
+                    final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
+                    destStore.setCertificateEntry(alias, certificate);
+                    LOG.debug("Copied certificate [{}] named [{}]", certificate, alias);
+                }
             }
         } catch (Exception e) {
-            throw new DomibusCertificateException("Error while copying certificates from source store", e);
+            throw new DomibusCertificateException("Error while copying content from source store to destination store", e);
         }
     }
 
