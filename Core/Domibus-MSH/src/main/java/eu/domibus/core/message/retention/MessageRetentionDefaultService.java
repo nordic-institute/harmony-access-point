@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
