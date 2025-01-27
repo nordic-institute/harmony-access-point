@@ -323,18 +323,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         List<UserMessageLogDto> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
 
-        try {
-            userMessageLogs.forEach(UserMessageLogDto -> {
-                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(UserMessageLogDto.getEntityId());
-                backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
-            });
-
-        } catch (RuntimeException e) {
-            LOG.warn("Error occurred while notifying message status change.", e);
-            throw e;
-        }
-
-
         while (CollectionUtils.isNotEmpty(userMessageLogsToDelete)) {
             LOG.debug("messageIds size is [{}]", userMessageLogsToDelete.size());
             int currentBatch = userMessageLogsToDelete.size();
