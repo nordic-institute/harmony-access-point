@@ -3,7 +3,9 @@ package eu.domibus.core.util;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -145,7 +147,7 @@ public class MessageUtil {
         LOG.debug("Creating the Messaging instance from the SOAPMessage using DOM processing");
 
         if (messagingNode == null) {
-            throw new SOAPException("Could not found Messaging node");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_007, "Could not found Messaging node");
         }
 
         try {
