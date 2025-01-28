@@ -20,6 +20,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.MessagingNodeNotFoundException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class ResponseHandler {
         try {
             ebms3Messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(ebms3Messaging);
-        } catch (UserMessageException ex) {
+        } catch (MessagingNodeNotFoundException ex) {
             throw EbMS3ExceptionBuilder
                     .getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0301)

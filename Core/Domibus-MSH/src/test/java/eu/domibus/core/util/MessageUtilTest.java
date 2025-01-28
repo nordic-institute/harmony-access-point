@@ -115,7 +115,7 @@ public class MessageUtilTest {
         try {
             messageUtil.getMessagingWithDom((Node) null);
             fail();
-        } catch (UserMessageException e) {
+        } catch (MessagingNodeNotFoundException e) {
             // nothing to check
         }
     }

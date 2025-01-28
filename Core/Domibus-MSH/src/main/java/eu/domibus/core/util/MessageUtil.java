@@ -147,7 +147,7 @@ public class MessageUtil {
         LOG.debug("Creating the Messaging instance from the SOAPMessage using DOM processing");
 
         if (messagingNode == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_007, "Could not found Messaging node");
+            throw new MessagingNodeNotFoundException("Could not find Messaging node");
         }
 
         try {
