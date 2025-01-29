@@ -10,10 +10,10 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessagePayloadService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
+import java.util.Date;
 
 import static org.junit.Assert.fail;
 
@@ -105,6 +106,9 @@ public class IncomingUserMessageHandlerTest {
 
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
             result = soapResponseMessage;
+
+            userMessage.getCreationTime();
+            result = new Date();
         }};
 
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);

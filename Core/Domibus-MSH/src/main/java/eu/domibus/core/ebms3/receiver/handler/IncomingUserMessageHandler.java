@@ -8,7 +8,6 @@ import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.SecurityProfile;
-import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
@@ -25,6 +24,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -87,7 +87,9 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         authorizationService.authorizeUserMessage(request, userMessage, securityProfile);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
 
-        LOG.businessInfo(BUS_MSG_RECEIVED, userMessage.getMessageId(), userMessage.getEntityId(), DateUtil.DEFAULT_FORMATTER.withZone(ZoneOffset.UTC).format(userMessage.getCreationTime().toInstant()));
+        LOG.businessInfo(BUS_MSG_RECEIVED, Instant.ofEpochMilli(userMessage.getCreationTime().getTime())
+                .atZone(ZoneOffset.UTC)
+                .format(DEFAULT_FORMATTER));
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }
