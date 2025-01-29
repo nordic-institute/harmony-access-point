@@ -8,6 +8,7 @@ import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.SecurityProfile;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
@@ -24,7 +25,11 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.time.ZoneOffset;
 import java.util.List;
+
+import static eu.domibus.api.util.DateUtil.DEFAULT_FORMATTER;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_RECEIVED;
 
 /**
  * Handles the incoming AS4 UserMessages
@@ -64,6 +69,9 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
 
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, mshRole.name());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
 
         Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
         List<PartInfo> partInfoList = userMessagePayloadService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
@@ -78,6 +86,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         authorizationService.authorizeUserMessage(request, userMessage, securityProfile);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
+
+        LOG.businessInfo(BUS_MSG_RECEIVED, userMessage.getMessageId(), userMessage.getEntityId(), DateUtil.DEFAULT_FORMATTER.withZone(ZoneOffset.UTC).format(userMessage.getCreationTime().toInstant()));
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }

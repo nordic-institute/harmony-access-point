@@ -69,6 +69,10 @@ public class MessageSenderService {
         }
 
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
+
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
 

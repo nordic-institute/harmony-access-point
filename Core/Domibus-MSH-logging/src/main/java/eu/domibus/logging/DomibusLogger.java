@@ -19,7 +19,9 @@ import java.util.Map;
  */
 public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor {
     public static final String MDC_USER = "user";
+    public static final String MDC_BUSINESS_CODE = "businessCode";
     public static final String MDC_MESSAGE_ID = "messageId";
+    public static final String MDC_CONVERSATION_ID = "conversationId";
     public static final String MDC_MESSAGE_ROLE = "messageMSHRole";
     public static final String MDC_MESSAGE_ENTITY_ID = "messageEntityId";
     public static final String MDC_DOMAIN = "domain";
@@ -42,15 +44,21 @@ public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor
     }
 
     public void businessTrace(DomibusMessageCode key, Object... args) {
+        putMDC(MDC_BUSINESS_CODE, key.getCode());
         markerTrace(BUSINESS_MARKER, key, null, args);
+        removeMDC(MDC_BUSINESS_CODE);
     }
 
     public void businessDebug(DomibusMessageCode key, Object... args) {
+        putMDC(MDC_BUSINESS_CODE, key.getCode());
         markerDebug(BUSINESS_MARKER, key, null, args);
+        removeMDC(MDC_BUSINESS_CODE);
     }
 
     public void businessInfo(DomibusMessageCode key, Object... args) {
+        putMDC(MDC_BUSINESS_CODE, key.getCode());
         markerInfo(BUSINESS_MARKER, key, null, args);
+        removeMDC(MDC_BUSINESS_CODE);
     }
 
     public void businessWarn(DomibusMessageCode key, Object... args) {
@@ -58,7 +66,9 @@ public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor
     }
 
     public void businessWarn(DomibusMessageCode key, Throwable t, Object... args) {
+        putMDC(MDC_BUSINESS_CODE, key.getCode());
         markerWarn(BUSINESS_MARKER, key, t, args);
+        removeMDC(MDC_BUSINESS_CODE);
     }
 
     public void businessError(DomibusMessageCode key, Object... args) {
@@ -66,7 +76,9 @@ public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor
     }
 
     public void businessError(DomibusMessageCode key, Throwable t, Object... args) {
+        putMDC(MDC_BUSINESS_CODE, key.getCode());
         markerError(BUSINESS_MARKER, key, t, args);
+        removeMDC(MDC_BUSINESS_CODE);
     }
 
     public void securityTrace(DomibusMessageCode key, Object... args) {

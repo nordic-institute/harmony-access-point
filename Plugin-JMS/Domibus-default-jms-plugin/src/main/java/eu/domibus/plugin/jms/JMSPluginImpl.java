@@ -30,6 +30,7 @@ import org.springframework.jms.support.destination.JndiDestinationResolver;
 
 import javax.jms.*;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.List;
 import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
@@ -91,7 +92,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_CONVERSATION_ID}, cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -107,6 +108,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             final String conversationId = map.getStringProperty(CONVERSATION_ID);
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
+            LOG.putMDC(CONVERSATION_ID, conversationId);
             LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, conversationId, jmsCorrelationID);
 
             QueueContext queueContext = jmsMessageTransformer.getQueueContext(messageID, map);
@@ -156,12 +158,19 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Override
     @Timer(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
+    @MDCKey({DomibusLogger.MDC_CONVERSATION_ID})
     public void deliverMessage(final DeliverMessageEvent event) {
         checkEnabled();
 
         final String messageId = event.getMessageId();
         final String messageEntityId = event.getMessageEntityId().toString();
         final String conversationId = event.getProps().get(MessageConstants.CONVERSATION_ID);
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, conversationId);
+        final String from = event.getProps().get(MessageConstants.FROM_PARTY_ID);
+        LOG.putMDC(DomibusLogger.MDC_FROM, from);
+        final String to = event.getProps().get(MessageConstants.TO_PARTY_ID);
+        LOG.putMDC(DomibusLogger.MDC_TO, to);
+
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE, messageId, messageEntityId, conversationId);
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 

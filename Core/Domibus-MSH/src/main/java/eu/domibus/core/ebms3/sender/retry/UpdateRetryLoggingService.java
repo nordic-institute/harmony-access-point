@@ -98,7 +98,7 @@ public class UpdateRetryLoggingService {
      * In case of failure the message will be put back in waiting_for_retry status, after a certain amount of retry/time
      * it will be marked as failed.
      *
-     * @param userMessage        id of the message that needs to be retried
+     * @param userMessage      id of the message that needs to be retried
      * @param legConfiguration processing information for the message
      */
     @Transactional
@@ -123,6 +123,7 @@ public class UpdateRetryLoggingService {
             LOG.debug("Message with entity id [{}] and message id [{}] is not expired", userMessageEntityId, userMessage.getMessageId());
             return false;
         }
+        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         LOG.debug("Message [{}] is expired", userMessageEntityId);
         setMessageFailed(userMessage, userMessageLog);
         return true;

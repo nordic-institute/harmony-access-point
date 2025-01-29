@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SMART_RETRY_ENABLED;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE;
 
 /**
  * @author Thomas Dussart
@@ -124,10 +125,12 @@ public class ReliabilityServiceImpl implements ReliabilityService {
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(userMessage, legConfiguration);
                 break;
-            case SEND_FAIL:
+            case SEND_FAIL: //todo add businessLog + attemept number
+                LOG.businessError(BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
                 updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, attempt);
                 break;
-            case ABORT:
+            case ABORT: // todo add business Log
+                LOG.businessError(BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
                 updateRetryLoggingService.messageFailedAndDeleteRawEnvelope(userMessage, userMessageLog);
 
                 if (userMessage.isMessageFragment()) {
