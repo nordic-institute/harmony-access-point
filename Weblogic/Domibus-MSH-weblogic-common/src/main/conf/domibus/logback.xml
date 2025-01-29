@@ -124,6 +124,9 @@
 <!--        <encoder>-->
 <!--            <pattern>${encoderPattern}</pattern>-->
 <!--        </encoder>-->
+        <!-- uncomment and remove the other encoder to enable json encoder
+            <encoder class="ch.qos.logback.classic.encoder.JsonEncoder"/>
+        -->
 <!--    </appender>-->
     <!-- Business file appender end -->
 
