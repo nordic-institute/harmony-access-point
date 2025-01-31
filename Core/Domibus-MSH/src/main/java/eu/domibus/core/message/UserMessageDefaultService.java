@@ -660,6 +660,17 @@ public class UserMessageDefaultService implements UserMessageService {
 
         deleteMessagesWithIDs(ids);
 
+        try {
+            ids.forEach(eid -> {
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
+                backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+            });
+
+        } catch (RuntimeException e) {
+            LOG.warn("Error occurred while notifying message status change.", e);
+            throw e;
+        }
+
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
     }
