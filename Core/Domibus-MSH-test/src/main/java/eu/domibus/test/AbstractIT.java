@@ -163,7 +163,7 @@ public abstract class AbstractIT {
     DomainService domainService;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    public DomibusPropertyProvider domibusPropertyProvider;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
