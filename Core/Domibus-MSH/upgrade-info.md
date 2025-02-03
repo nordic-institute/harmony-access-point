@@ -14,6 +14,10 @@ Release checklist:
 
 
 # Domibus upgrade information
+## Domibus 5.1.7 (from 5.1.6)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - No sql updates on the database schemas for both mysql and oracle
 ## Domibus 5.1.6 (from 5.1.5)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
