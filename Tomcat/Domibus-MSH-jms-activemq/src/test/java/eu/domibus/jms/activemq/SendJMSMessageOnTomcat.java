@@ -7,8 +7,23 @@ import java.util.UUID;
 
 public class SendJMSMessageOnTomcat {
 
+    /**
+     *
+     * @param args first argument is the port number
+     */
     public static void main(String[] args) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        long port = 61616L;
+        if (args != null && args.length > 0) {
+            try {
+                port = Long.parseLong(args[0]);
+            } catch (NumberFormatException nfe) {
+                //do nothing
+            }
+        } else {
+            System.out.print("No Arguments passed");
+        }
+
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:" + port);
         Connection connection;
         MessageProducer producer;
         try {
@@ -64,7 +79,7 @@ public class SendJMSMessageOnTomcat {
             messageMap.setStringProperty("payload_1_description", "message");
             messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
             messageMap.setStringProperty("payload_1_mimeType", "text/xml");
-            messageMap.setStringProperty("processingType","PUSH");
+            messageMap.setStringProperty("processingType", "PUSH");
 
             //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
 

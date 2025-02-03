@@ -110,6 +110,11 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE("BUS-099", "Message with id [{}], conversationId [{}] and jmsCorrelationID [{}] has been received from JMS Plugin inQueue."),
     BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE("BUS-100", "Message with id [{}], entityId [{}] and conversationId [{}] was delivered to JMS Plugin outQueue."),
     BUS_MSG_RETRY("BUS-101", "Scheduling send retry {}/{} for message with id [{}]."),
+    BUS_MSG_RECEIVED("BUS-102", "Message received with messageId [{}] entityId [{}]."),
+    BUS_MSG_NOT_RECEIVED("BUS-103", "Message not received"),
+    BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE_FAILED("BUS-103", "Message not delivered to the jms out queue"),
+    BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED("BUS-104", "Message not received from the jms in queue"),
+    BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT("BUS-105", "Message sending from [{}] to [{}] on attempt [{}]/[{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

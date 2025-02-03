@@ -58,20 +58,31 @@ public class DomibusLoggerTest {
         domibusLogger.businessInfo(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
         domibusLogger.businessWarn(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
         domibusLogger.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
-
+        String addKey = "Added key [d_businessCode] with value [BUS-005] to MDC";
+        String removeKey = "Removed key [d_businessCode] from MDC";
         String domibusMessageLogSuffix = "[BUS-005] Invalid charset [UTF-8] used";
         final String businessMessageLogSuffix = "[BUSINESS - BUS-005] Invalid charset [UTF-8] used";
         List<String> expectedLogs = new ArrayList<>();
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[TRACE] " + domibusMessageLogSuffix);
         expectedLogs.add("[TRACE] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[DEBUG] " + domibusMessageLogSuffix);
         expectedLogs.add("[DEBUG] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[INFO] " + domibusMessageLogSuffix);
         expectedLogs.add("[INFO] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[WARN] " + domibusMessageLogSuffix);
         expectedLogs.add("[WARN] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[ERROR] " + domibusMessageLogSuffix);
         expectedLogs.add("[ERROR] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
 
         final List<ILoggingEvent> list = listAppender.list;
         assertEqualLogs(list, expectedLogs);
