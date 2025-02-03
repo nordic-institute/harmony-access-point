@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT;
 
 /**
  * @author Cosmin Baciu
@@ -176,6 +177,8 @@ public class UpdateRetryLoggingService {
     protected void updateRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt) {
         LOG.debug("Updating retry for message");
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessage.getEntityId());
+        LOG.businessError(BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax());
+
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
