@@ -120,7 +120,6 @@ public class MessageExchangeServiceImplIT extends AbstractIT {
      * todo EDELIVERY-12876 improve this test
      */
     @Test
-    @Transactional
     public void processPullRequest() throws XmlProcessingException, IOException, EbMS3Exception, SOAPException, ParserConfigurationException, SAXException {
         uploadPmode(null, "dataset/pmode/PModeTemplatePuller.xml", null);
 
@@ -140,7 +139,7 @@ public class MessageExchangeServiceImplIT extends AbstractIT {
         messageExchangeService.initiatePullRequest("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull");
         Integer pullRequestNumberForMpc = pullFrequencyHelper.getPullRequestNumberForMpc("pullMpc");
         Assert.assertEquals(2, pullRequestNumberForMpc.intValue());
-//        Assert.assertEquals(0L, pullRequestDao.countPendingPullRequest().longValue());
+        Assert.assertEquals(0L, pullRequestDao.countPendingPullRequest().longValue());
 
         messageExchangeService.initiatePullRequest("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull");
         pullRequestNumberForMpc = pullFrequencyHelper.getPullRequestNumberForMpc("pullMpc");
