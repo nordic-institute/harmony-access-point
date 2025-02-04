@@ -155,14 +155,15 @@ public class PullMessageSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
 
             if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request [{}] with mpc:[{}]", signalMessage.getMessageInfo() == null ? null : signalMessage.getMessageInfo().getMessageId(), mpcQualifiedName);
+                pullFrequencyHelper.increaseError(mpcName);
                 logError(ebms3Messaging.getSignalMessage());
                 return;
             }
+            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
 
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
