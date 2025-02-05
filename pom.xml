@@ -222,6 +222,16 @@
             </snapshots>
         </repository>
         <repository>
+            <id>harmony-releases</id>
+            <url>https://artifactory.niis.org/artifactory/harmony-release-maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>cefdigital-releases</id>
             <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
             <releases>
@@ -915,7 +925,7 @@
 
             <!-- eDelivery SMP profile  -->
             <dependency>
-                <groupId>eu.europa.ec.dynamic-discovery</groupId>
+                <groupId>org.niis.dynamic-discovery</groupId>
                 <artifactId>dynamic-discovery-client</artifactId>
                 <version>${dynamic.discovery.client.version}</version>
                 <exclusions>
