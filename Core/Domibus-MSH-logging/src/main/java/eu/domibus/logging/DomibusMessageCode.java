@@ -115,6 +115,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE_FAILED("BUS-103", "Message not delivered to the jms out queue"),
     BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED("BUS-104", "Message not received from the jms in queue"),
     BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT("BUS-105", "Message sending from [{}] to [{}] on attempt [{}]/[{}]"),
+    BUS_MESSAGE_STATUS_INITIAL("BUS-106", "Message with type [{}] persisted with initial status [{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
