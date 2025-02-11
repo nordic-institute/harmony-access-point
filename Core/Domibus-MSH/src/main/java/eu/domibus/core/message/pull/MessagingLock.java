@@ -195,6 +195,33 @@ public class MessagingLock extends AbstractBaseEntity implements Reprogrammable 
         this.sendAttempts = sendAttempts;
     }
 
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
+    public void setReceived(Date received) {
+        this.received = received;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setInitiator(String initiator) {
+        this.initiator = initiator;
+    }
+
+    public void setMpc(String mpc) {
+        this.mpc = mpc;
+    }
+
+    public void setStaled(Date staled) {
+        this.staled = staled;
+    }
+
+    public void setSendAttemptsMax(int sendAttemptsMax) {
+        this.sendAttemptsMax = sendAttemptsMax;
+    }
 
     @Override
     public boolean equals(Object o) {

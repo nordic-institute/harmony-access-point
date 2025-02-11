@@ -3207,4 +3207,40 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <changeSet dbms="oracle" author="perpeio" id="EDELIVERY-14338">
+        <sql endDelimiter="\n/">
+            CREATE OR REPLACE PROCEDURE LOCK_MESSAGE_SKIP_BLOCKED (
+                p_MPC IN NVARCHAR2,
+                p_INITIATOR IN NVARCHAR2,
+                p_CURRENT_TIMESTAMP IN DATE,
+                p_ROW OUT SYS_REFCURSOR
+            ) IS
+                CURSOR c_1 IS
+                    SELECT /*+FIRST_ROWS_1*/ ml.*
+                    FROM TB_MESSAGING_LOCK ml
+                    WHERE ml.MESSAGE_STATE='READY'
+                      AND ml.MPC=p_MPC
+                      AND LOWER(ml.INITIATOR)=LOWER(p_INITIATOR)
+                      AND ml.MESSAGE_TYPE='PULL'
+                      AND ml.NEXT_ATTEMPT &lt; p_CURRENT_TIMESTAMP
+                      AND ml.MESSAGE_STALED &gt; p_CURRENT_TIMESTAMP
+                    ORDER BY ID_PK
+                        FOR UPDATE SKIP LOCKED;
+
+                v_row TB_MESSAGING_LOCK%ROWTYPE;
+
+            BEGIN
+                OPEN c_1;
+                FETCH c_1 INTO v_row;
+                IF c_1%FOUND THEN
+                    OPEN p_row FOR SELECT * FROM TB_MESSAGING_LOCK WHERE ID_PK = v_row.ID_PK;
+                ELSE
+                    OPEN p_row FOR SELECT NULL FROM DUAL WHERE 1=0;
+                END IF;
+                CLOSE c_1;
+            END LOCK_MESSAGE_SKIP_BLOCKED;
+
+        </sql>
+    </changeSet>
 </databaseChangeLog>
