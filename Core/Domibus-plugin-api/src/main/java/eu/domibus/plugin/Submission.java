@@ -2,8 +2,9 @@ package eu.domibus.plugin;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.activation.DataHandler;
 import java.util.*;
@@ -44,6 +45,45 @@ public class Submission {
     private String toRole;
     private String mpc;
     private ProcessingType processingType;
+
+
+    public String format() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Submission Details:\n");
+        sb.append("     Message Entity ID: ").append(messageEntityId == null ? "null" : messageEntityId).append("\n");
+        sb.append("     Message ID: ").append(messageId == null ? "null" : messageId).append("\n");
+        sb.append("     Ref To Message ID: ").append(refToMessageId == null ? "null" : refToMessageId).append("\n");
+        sb.append("     Conversation ID: ").append(conversationId == null ? "null" : conversationId).append("\n");
+        sb.append("     Action: ").append(action == null ? "null" : action).append("\n");
+        sb.append("     Service: ").append(service == null ? "null" : "value: " + service + " type: " + serviceType).append("\n");
+        sb.append("     Agreement Ref: ").append(agreementRef == null ? "null" : "value: " + agreementRef + " type: " + agreementRefType).append("\n");
+        sb.append("     FromRole: ").append(fromRole == null ? "null" : fromRole).append("\n");
+        sb.append("     ToRole: ").append(toRole == null ? "null" : toRole).append("\n");
+        sb.append("     MPC: ").append(mpc == null ? "null" : mpc).append("\n");
+        sb.append("Message Properties: ").append(CollectionUtils.isEmpty(messageProperties) ? "none\n" : "\n");
+        if (CollectionUtils.isNotEmpty(messageProperties)) {
+            for (TypedProperty messageProperty : messageProperties) {
+                sb.append("    ").append(messageProperty.getKey()).append(": ").append(messageProperty.getValue()).append("\n");
+            }
+        }
+        sb.append("From Party Info: ").append(fromParties == null ? "null\n" : "\n");
+        if (fromParties != null) {
+            if (fromParties.iterator().hasNext()) {
+                Submission.Party fromParty = fromParties.iterator().next();
+                sb.append("    From Party: \n");
+                sb.append("       Party ID: ").append(fromParty.getPartyId() == null ? "null\n" : "value: " + fromParty.getPartyId() + " type: " + fromParty.getPartyIdType()).append("\n");
+            }
+        }
+        sb.append("To Party Info: ").append(fromParties == null ? "null\n" : "\n");
+        if (toParties != null) {
+            if (toParties.iterator().hasNext()) {
+                Submission.Party toParty = toParties.iterator().next();
+                sb.append("    To Party: \n");
+                sb.append("       Party ID: ").append(toParty.getPartyId() == null ? "null\n" : "value: " + toParty.getPartyId() + " type: " + toParty.getPartyIdType()).append("\n");
+            }
+        }
+        return sb.toString();
+    }
 
 
     /**
@@ -397,6 +437,16 @@ public class Submission {
     }
 
     /**
+     * Returns the partyId for the first From party, or null if there is no From party
+     */
+    public String getFirstFromPartyId() {
+        if (this.fromParties == null || this.fromParties.isEmpty()) {
+            return null;
+        }
+        return this.fromParties.iterator().next().getPartyId();
+    }
+
+    /**
      * This method adds one message property to the plugin. The optional type attribute is not set.
      * <p>
      * "Its actual semantics is beyond the scope of this specification. The element is intended to be consumed outside
@@ -459,6 +509,16 @@ public class Submission {
      */
     public Set<Submission.Party> getToParties() {
         return this.toParties;
+    }
+
+    /**
+     * Returns the partyId for the first To party, or null if there is no To party
+     */
+    public String getFirstToPartyId() {
+        if (this.toParties == null || this.toParties.isEmpty()) {
+            return null;
+        }
+        return this.toParties.iterator().next().getPartyId();
     }
 
     /**
@@ -821,7 +881,7 @@ public class Submission {
         private Locale lang;
 
         public Description(Locale lang, String description) {
-            if (!StringUtils.hasLength(description)) {
+            if (StringUtils.isEmpty(description)) {
                 throw new IllegalArgumentException("description must not be empty");
             }
 

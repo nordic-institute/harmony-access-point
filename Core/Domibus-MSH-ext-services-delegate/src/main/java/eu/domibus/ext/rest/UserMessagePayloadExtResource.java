@@ -12,6 +12,7 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PayloadExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -149,6 +150,7 @@ public class UserMessagePayloadExtResource {
         try {
             InputStream inputStream = payloadDatahandler.getInputStream();
             if (payloadCompressed) {
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
                 inputStream = new GZIPInputStream(inputStream);
             }
             return inputStream;

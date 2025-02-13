@@ -1,3 +1,20 @@
+Domibus 5.1.6
+- Add support for custom properties in the JMS plugin
+- Improved the information provided in the BUSINESS logs and added more codes.
+- Added property domibus.sender.trust.validation.signal.sync.onreceiving. If activated Domibus will verify before receiving syncronously a signal message following a push or pull request, that the sender certificate is valid and not revoked
+- Updated the description of default.domibus.sender.trust.validation.onreceiving. If activated Domibus will verify before receiving a User Message when using Push/Pull or a Signal Acknowledgement (NRR) when using Pull, that the sender certificate is valid and not revoked. When disabled, none of the other checks are performed on the sender's certificate.
+- Fixed issue related to expired partition purging and added a new property to limit the number of partitions dropped in one run of the retention worker.
+- Double click on a message should populate all fields for that message
+- Added diagnostic logging in case of a pMode mismatch or a submission error
+- Improved the sql scripts by removing the unnecessarily dropping and recreating an index
+- Fixed issue with message sanitizer failing at first message
+- Consider QUEUED batches in batch sanitiser
+- Upgraded Tomcat 9 to the latest version 9.0.91
+- Libraries upgrades to fix OWASP vulnerabilities
+Domibus 5.1.5
+- New property to enforce strong rules for all Domibus properties of type password
+- Update the configuration of Weblogic datasource, eDeliveryDs, to disable support for global transactions
+- Security updates on the libraries and Domibus APIs
 Domibus 5.1.4
 - Added endpoint for refreshing DSS Trusted lists. Can be accessed with POST /ext/trustedlists/refreshoperation
 - Added domibus properties for quartz data source in Tomcat
@@ -71,6 +88,10 @@ Domibus 5.1
 - Added new retention policy for metadata - by setting delete_message_metadata and retention_metadata_offset the user can keep the metadata after the payload was deleted
 - Changed MySQL dialect from MySQL5InnoDBDialect to MySQL8Dialect
 - Disable metrics features by default (logging, memory, garbage collector, cached threads and jms queues)
+
+Domibus 5.0.10
+- Added property domibus.sender.trust.validation.signal.sync.onreceiving. If activated Domibus will verify before receiving syncronously a signal message following a push or pull request, that the sender certificate is valid and not revoked
+- Updated the description of default.domibus.sender.trust.validation.onreceiving. If activated Domibus will verify before receiving a User Message when using Push/Pull or a Signal Acknowledgement (NRR) when using Pull, that the sender certificate is valid and not revoked. When disabled, none of the other checks are performed on the sender's certificate.
 Domibus 5.0.8
 - Improve performance of the Messages page
 - Improve the performance of query used for payload handling

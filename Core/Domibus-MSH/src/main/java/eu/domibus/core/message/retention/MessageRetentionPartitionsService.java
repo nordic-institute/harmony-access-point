@@ -21,16 +21,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.message.retention.PartitionService.DEFAULT_PARTITION;
+import static eu.domibus.core.message.retention.PartitionService.PARTITION_NAME_REGEXP;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages.
@@ -41,8 +40,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
-
-    protected static final String PARTITION_NAME_REGEXP = "SYS_P[0-9]+|P[0-9]+";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
@@ -65,8 +62,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected final DateUtil dateUtil;
 
     protected final PartitionService partitionService;
-
-    public static final String DEFAULT_PARTITION = "P1970"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                              UserMessageDao userMessageDao,
@@ -110,11 +105,21 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // A partition may have messages with all statuses, received/sent on any MPC
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
-        LOG.debug("Max retention time configured in pMode is [{}] minutes", maxRetention);
+        LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
         List<String> partitionNames = getExpiredPartitionNames(maxRetention);
-        LOG.debug("Verify if all messages expired for partitions older than [{}] days", maxRetention/60/24);
+        List<String> toDeletePartitionNames = new ArrayList<>();
+        LOG.info("Verify if all messages expired for partitions older than [{}] days", maxRetention / 60 / 24);
+
+        int maxPartitionsDrop = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PARTITIONS_DROP_MAX_PARTITIONS);
+        if (maxPartitionsDrop <= 0) {
+            LOG.warn("Invalid value for [{}] setting limit to 1 partition.", DOMIBUS_PARTITIONS_DROP_MAX_PARTITIONS);
+            maxPartitionsDrop = 1;
+        }
+
+        LOG.info("Maximum number of partitions to delete at once is [{}]", maxPartitionsDrop);
+        LOG.info("Start verifying partitions.");
         for (String partitionName : partitionNames) {
-            LOG.debug("Verify partition [{}]", partitionName);
+            LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
             if (!partitionName.matches(PARTITION_NAME_REGEXP)) {
                 LOG.error("Partition [{}] has invalid name", partitionName);
@@ -129,7 +134,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 continue;
             }
 
-            // TODO We might consider that, if a message was archived it is already expired (in final status and older than the specified retention for its MPC) and skip the next verifications
             // Verify if all messages expired
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
@@ -137,9 +141,20 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
+            toDeletePartitionNames.add(partitionName);
+            LOG.info("Found expired partition to delete [{}].", partitionName);
+            if(toDeletePartitionNames.size() >= maxPartitionsDrop) {
+                LOG.info("Reached maximum number of partitions to delete in one round [{}].", toDeletePartitionNames.size());
+                break;
+            }
+        }
 
-            LOG.info("Delete partition [{}]", partitionName);
-            userMessageDao.dropPartition(partitionName);
+        if (toDeletePartitionNames.size() > 0) {
+            String strPartitions = toDeletePartitionNames.stream().collect(Collectors.joining(","));
+            LOG.info("Deleting [{}] partitions [{}]", toDeletePartitionNames.size(), strPartitions);
+            userMessageDao.dropPartitions(strPartitions);
+        } else {
+            LOG.info("There was no partition to delete.");
         }
     }
 
@@ -167,29 +182,27 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         //we have to keep the newest non default partition, otherwise the hourly interval partitioning will generate more
         //than the maximum nr of partitions allowed by Oracle (ORA-14300) when we would insert a new message
-        DatabasePartition newestNonDefaultPartition = getNewestNonDefaultPartition(partitions);
+        DatabasePartition newestNonDefaultPartition = partitionService.getNewestNonDefaultPartition(partitions);
+
+        if (newestNonDefaultPartition == null) {
+            LOG.info("No partitions found (except default)");
+            return new ArrayList<>();
+        }
 
         List<String> partitionNames =
                 partitions.stream()
                         .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
-                        .filter(p -> p.getHighValue() < expiredHighValue )
+                        .filter(p -> p.getHighValue() < expiredHighValue)
                         .filter(p -> !p.equals(newestNonDefaultPartition))
                         .map(DatabasePartition::getPartitionName)
                         .collect(Collectors.toList());
-        LOG.debug("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size());
-        if(LOG.isDebugEnabled()) {
+        LOG.debug("Found [{}] partitions", partitionNames.size());
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Expired Partitions are: ");
-            partitionNames.stream().forEach(p->LOG.debug("["  + p + "] "));
+            partitionNames.stream().forEach(p -> LOG.debug("[{}] ", p));
         }
 
         return partitionNames;
-    }
-
-    protected static DatabasePartition getNewestNonDefaultPartition(List<DatabasePartition> partitions) {
-        return partitions.stream()
-                .filter(p -> !DEFAULT_PARTITION.equalsIgnoreCase(p.getPartitionName()))
-                .max(Comparator.comparing(DatabasePartition::getHighValue))
-                .orElseThrow(NoSuchElementException::new);
     }
 
     protected boolean verifyIfAllMessagesAreArchived(String partitionName) {
@@ -248,11 +261,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected boolean checkByMessageStatusAndMpcOnPartition(String mpc, MessageStatus messageStatus, String partitionName) {
         int retention = getRetention(mpc, messageStatus);
         int count;
-        if(retention == -1){
+        if (retention == -1) {
             LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
             count = userMessageLogDao.getAllMessagesWithStatus(mpc, messageStatus, partitionName);
-        }
-        else {
+        } else {
             LOG.info("getAllMessagesWithStatus [{}]  retention [{}] on partition [{}]", messageStatus, retention, partitionName);
             count = userMessageLogDao.getMessagesNewerThan(
                     DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);

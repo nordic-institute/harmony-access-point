@@ -388,11 +388,11 @@ public class FSSendMessagesService {
         LOG.trace("Starting clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
 
         int delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
-        long currentTime = new Date().getTime();
+        long thresholdTime = new Date().getTime() - delta;
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {
             FileInfo fileInfo = observedFilesInfo.get(key);
-            if (fileInfo.getDomain().equals(domain) && ((currentTime - fileInfo.getModified()) > delta)) {
+            if (fileInfo != null && StringUtils.equalsIgnoreCase(fileInfo.getDomain(), domain) && fileInfo.getModified() < thresholdTime) {
                 LOG.debug("File [{}] is old and will not be observed anymore", key);
                 observedFilesInfo.remove(key);
             }

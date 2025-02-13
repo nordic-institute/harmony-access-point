@@ -63,6 +63,8 @@ public class MessageLogFilterRequestRO implements Serializable {
     @CustomWhiteListed(permitted = ":/-.,")
     private List<String> fields;
 
+    private Boolean applyDefaultFilters = true;
+
     public int getPage() {
         return page;
     }
@@ -240,5 +242,13 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     public void setFields(List<String> fields) {
         this.fields = fields;
+    }
+
+    public Boolean getApplyDefaultFilters() {
+        return applyDefaultFilters;
+    }
+
+    public void setApplyDefaultFilters(Boolean applyDefaultFilters) {
+        this.applyDefaultFilters = applyDefaultFilters;
     }
 }

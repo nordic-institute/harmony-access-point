@@ -12,6 +12,7 @@ import eu.domibus.api.util.DomibusDatabaseNotSupportedException;
 import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -137,7 +138,13 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
+
             String databaseSchema = getDatabaseSchema(domain);
+            if (StringUtils.isBlank(databaseSchema)) {
+                LOG.warn("Could not find database schema for domain [{}]. Please check the value of the [{}] property.", domain.getCode(), DOMIBUS_DATABASE_SCHEMA);
+                return false;
+            }
+
             try {
                 setSchema(connection, databaseSchema);
             } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
@@ -220,7 +227,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     @Override
     public boolean isDatabaseSchemaNameSane(final String schemaName) {
-        return schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
+        return StringUtils.isNotBlank(schemaName) && schemaName.matches(ALPHANUMERIC_PATTERN_WITH_UNDERSCORE);
     }
 
     private void checkTableExists(String databaseSchema, Connection connection) throws SQLException {
@@ -237,7 +244,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         if (!isDatabaseSchemaNameSane(databaseSchemaName)) {
             LOG.error("Faulty database schema name: [{}]", databaseSchemaName);
-            throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: " + databaseSchemaName);
+            throw new FaultyDatabaseSchemaNameException("Database schema name is invalid: [" + databaseSchemaName + "]");
         }
 
         switch (databaseEngine) {

@@ -42,6 +42,7 @@ public class MSHDispatcher {
 
     public static final String MESSAGE_TYPE_IN = "MESSAGE_TYPE";
     public static final String MESSAGE_TYPE_OUT = "MESSAGE_TYPE_OUT";
+    public static final String MESSAGE_INBOUND = "org.apache.cxf.message.inbound";
     public static final String LOCAL_MSH_ENDPOINT = "local://localMSH";
     public static final String HEADER_DOMIBUS_MESSAGE_ID = "DOMIBUS-MESSAGE_ID";
     public static final String HEADER_DOMIBUS_SPLITTING_COMPRESSION = "DOMIBUS-SPLITTING-COMPRESSION";

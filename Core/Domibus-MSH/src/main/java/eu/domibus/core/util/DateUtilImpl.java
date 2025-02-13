@@ -18,7 +18,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 
@@ -42,7 +43,7 @@ public class DateUtilImpl implements DateUtil {
     @Override
     public ZonedDateTime getDateHour(String idPk) {
         DateTimeFormatter formatter = ofPattern(DATETIME_FORMAT_DEFAULT).withZone(ZoneOffset.UTC);
-        String dateHour = StringUtils.substring(idPk, 0, DATETIME_FORMAT_DEFAULT.length());
+        String dateHour = StringUtils.substring(StringUtils.leftPad(idPk, 18, "0"), 0, DATETIME_FORMAT_DEFAULT.length());
         return ZonedDateTime.parse(dateHour, formatter);
     }
 
@@ -118,8 +119,8 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime){
-      return localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+    public LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
     }
 
     @Override
@@ -161,6 +162,7 @@ public class DateUtilImpl implements DateUtil {
         LOG.trace("Turned date [{}] delayed by [{}] seconds into MIN entity ID [{}]", instant, delayInSeconds, entityId);
         return entityId;
     }
+
     @Override
     public long getMaxEntityId(long delayInSeconds) {
         return getMaxEntityId(ZonedDateTime.now(ZoneOffset.UTC), delayInSeconds);
@@ -173,7 +175,7 @@ public class DateUtilImpl implements DateUtil {
 
     @Override
     public Date convertOffsetDateTimeToDate(OffsetDateTime offsetDateTime) {
-        if(offsetDateTime == null) {
+        if (offsetDateTime == null) {
             return null;
         }
         return new Date(offsetDateTime.toInstant().toEpochMilli());
@@ -181,7 +183,7 @@ public class DateUtilImpl implements DateUtil {
 
     @Override
     public OffsetDateTime convertDateToOffsetDateTime(Date date) {
-        if(date == null) {
+        if (date == null) {
             return null;
         }
         return date.toInstant().atOffset(ZoneOffset.UTC);

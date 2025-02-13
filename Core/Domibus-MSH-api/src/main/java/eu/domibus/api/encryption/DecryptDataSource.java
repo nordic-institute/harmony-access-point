@@ -31,6 +31,7 @@ public class DecryptDataSource implements DataSource {
 
     @Override
     public InputStream getInputStream() throws IOException {
+        LOG.debug("Decrypting data source");
         return new CipherInputStream(source.getInputStream(), cipher);
     }
 

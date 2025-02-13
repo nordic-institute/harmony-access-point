@@ -236,6 +236,12 @@ public class DateUtilImplTest {
     }
 
     @Test
+    public void getDateHour_default() {
+        ZonedDateTime dateHour = dateUtilImpl.getDateHour("101000000000000");
+        assertEquals(ZonedDateTime.of(LocalDateTime.of(2000, 1, 1, 0, 0), ZoneOffset.UTC), dateHour);
+    }
+
+    @Test
     public void getDateMinutesAgo() {
         // Ensure we return the same "now" both in this test ("current") and in the dateUtilImpl#getMinutesAgo(int) ("minutesAgo")
         new MockUp<ZonedDateTime>() {

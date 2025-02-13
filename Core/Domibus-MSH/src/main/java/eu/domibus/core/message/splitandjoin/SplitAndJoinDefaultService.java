@@ -57,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;

@@ -236,10 +236,17 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(result);
     }
 
+    /**
+     *
+     * @param entityId
+     * @param fetchEarchiveBatchUm
+     * @return {@link EArchiveBatchEntity}
+     * @throws DomibusEArchiveException if {@link EArchiveBatchEntity} is not found with {@param entityId}
+     */
     @Transactional
     @Timer(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
     @Counter(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
-    public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) {
+    public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) throws DomibusEArchiveException {
         EArchiveBatchEntity eArchiveBatch = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
 
         if (eArchiveBatch == null) {

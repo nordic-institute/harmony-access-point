@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -73,44 +74,58 @@ public class EArchiveNotificationListener implements MessageListener {
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
-        String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
-        Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
-        if (StringUtils.isBlank(batchId) || entityId == null) {
-            LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
-            return;
-        }
-
-        jmsUtil.setCurrentDomainFromMessage(message);
-
-        EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
-
-        LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", notificationType, batchId, entityId);
-
-        EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
-        if (notificationType != EArchiveBatchStatus.FAILED && notificationType != EArchiveBatchStatus.EXPORTED) {
-            return;
-        }
-
-        LOG.info("Notification to the eArchive client for batch [{}] [{}] ", notificationType, eArchiveBatch);
-        BatchNotification notification = buildBatchNotification(eArchiveBatch);
+        String batchId = null;
+        Long entityId = null;
+        EArchiveBatchStatus batchStatus = null;
 
         try {
-            if (notificationType == EArchiveBatchStatus.FAILED) {
-                getEArchivingClientApi().putStaleNotification(notification, eArchiveBatch.getBatchId());
+            batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
+            entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
+            if (StringUtils.isBlank(batchId) || entityId == null) {
+                LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
+                return;
             }
-            if (notificationType == EArchiveBatchStatus.EXPORTED) {
-                getEArchivingClientApi().putExportNotification(notification, eArchiveBatch.getBatchId());
-            }
-        } catch (HttpServerErrorException | HttpClientErrorException ex) {
-            LOG.warn("Notifying the eArchive client at [{}] failed: the remote server returned an error [{}]", domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL), ex.getStatusCode());
-            throw ex;
-        } catch (Exception ex) {
-            LOG.warn("Notifying the eArchive client at [{}] failed", domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL));
-            throw ex;
-        }
 
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
+            jmsUtil.setCurrentDomainFromMessage(message);
+
+            batchStatus = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
+
+            LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", batchStatus, batchId, entityId);
+
+            EArchiveBatchEntity eArchiveBatch;
+            try {
+                eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
+            } catch (DomibusEArchiveException e) {
+                LOG.debug("Batch ID [{}] not found, skipping", batchId, e);
+                LOG.error("Batch ID [{}] not found, skipping", batchId);
+                return;
+            }
+            if (batchStatus != EArchiveBatchStatus.FAILED && batchStatus != EArchiveBatchStatus.EXPORTED) {
+                return;
+            }
+
+            LOG.info("Notification to the eArchive client for batch [{}] [{}] ", batchStatus, eArchiveBatch);
+            BatchNotification notification = buildBatchNotification(eArchiveBatch);
+
+            try {
+                if (batchStatus == EArchiveBatchStatus.FAILED) {
+                    getEArchivingClientApi().putStaleNotification(notification, eArchiveBatch.getBatchId());
+                }
+                if (batchStatus == EArchiveBatchStatus.EXPORTED) {
+                    getEArchivingClientApi().putExportNotification(notification, eArchiveBatch.getBatchId());
+                }
+            } catch (HttpServerErrorException | HttpClientErrorException ex) {
+                LOG.warn("Notifying the eArchive client at [{}] failed: the remote server returned an error [{}]", domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL), ex.getStatusCode());
+                throw ex;
+            } catch (Exception ex) {
+                LOG.warn("Notifying the eArchive client at [{}] failed", domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL));
+                throw ex;
+            }
+
+            LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
+        } catch (Exception ex) {
+            throw new EArchiveException(batchId, entityId, batchStatus, ex);
+        }
     }
 
     protected ArchiveWebhookApi getEArchivingClientApi() {

@@ -156,6 +156,7 @@ public class CompressionService {
         }
 
         if (!payloadCompressed) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_NOT_ENABLED, partInfo.getHref());
             LOG.debug("Decompression is not needed: payload is not compressed");
             return;
         }
@@ -189,7 +190,7 @@ public class CompressionService {
 
         try (InputStream is = new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream()) {
             if (is.available() > 0) {
-                LOG.debug("Creating decompression data source was successful", partInfo.getHref());
+                LOG.debug("Creating decompression data source was successful [{}]", partInfo.getHref());
             }
         } catch (IOException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);

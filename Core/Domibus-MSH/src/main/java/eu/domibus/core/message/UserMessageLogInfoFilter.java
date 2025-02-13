@@ -42,7 +42,10 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         ? MESSAGE_COLLABORATION_INFO_SERVICE + ".entityId," : "0L,") +
                 "log.backend," +
                 "0L," +
-                "log.archived" +
+                "log.archived," +
+                "log.exported," +
+                "log.downloaded," +
+                "log.acknowledged" +
                 ")" +
                 getQueryBody(filters, fields);
         StringBuilder result = filterQuery(query, column, asc, filters);

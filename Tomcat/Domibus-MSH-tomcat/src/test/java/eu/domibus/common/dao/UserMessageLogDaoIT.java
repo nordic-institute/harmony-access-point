@@ -12,6 +12,8 @@ import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.test.common.BackendConnectorMock;
 import org.junit.*;
@@ -33,7 +35,7 @@ import static eu.domibus.api.util.DateUtil.REST_FORMATTER;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -740,5 +742,38 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> msgs = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, startDate, endDate);
 
         assertEquals(2, msgs.size());
+    }
+
+
+    @Test
+    @Transactional
+    public void findUnsentMessageIds() {
+        messageDaoTestUtil.clear();
+
+        String originalUser = "pluginUser1";
+        String originalSender = originalUser;
+        String finalRecipient = "pluginUser2";
+        String originalSender2 = finalRecipient;
+
+        messageDaoTestUtil.createUserMessageLog("not_found1", dateUtil.getDateMinutesAgo(5), MSHRole.SENDING, MessageStatus.SEND_ENQUEUED, finalRecipient, originalSender);
+        messageDaoTestUtil.createUserMessageLog("not_found2", dateUtil.getDateMinutesAgo(5), MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, finalRecipient, originalSender);
+
+
+        messageDaoTestUtil.createUserMessageLog("msg1", dateUtil.getDateMinutesAgo(10), MSHRole.SENDING, MessageStatus.SEND_ENQUEUED, finalRecipient, originalSender);
+        messageDaoTestUtil.createUserMessageLog("msg2", dateUtil.getDateMinutesAgo(10), MSHRole.SENDING, WAITING_FOR_RETRY, finalRecipient, originalSender);
+        UserMessageLog notFound3 = messageDaoTestUtil.createUserMessageLog("not_found3", dateUtil.getDateMinutesAgo(10), MSHRole.SENDING, WAITING_FOR_RETRY, finalRecipient, originalSender);
+        messageDaoTestUtil.createUserMessageLog("not_found4", dateUtil.getDateMinutesAgo(10), MSHRole.SENDING, SEND_ENQUEUED, finalRecipient, originalSender);
+
+
+        List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(dateUtil.getDateMinutesAgo(10), notFound3.getEntityId());
+
+        assertEquals(2, unsentMessageIds.size());
+        MatcherAssert.assertThat(unsentMessageIds, CoreMatchers.allOf(
+                hasItem("msg1"),
+                hasItem("msg2"),
+                not(hasItem("not_found1")),
+                not(hasItem("not_found2")),
+                not(hasItem("not_found3")),
+                not(hasItem("not_found4"))));
     }
 }

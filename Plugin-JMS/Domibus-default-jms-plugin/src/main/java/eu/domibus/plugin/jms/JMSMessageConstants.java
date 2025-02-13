@@ -33,6 +33,7 @@ public final class JMSMessageConstants {
     public static final String TO_PARTY_TYPE = "toPartyType";
     public static final String TO_ROLE = "toRole";
     public static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    public static final String PROPERTY_ORIGINAL_SENDER_TYPE = "originalSenderType";
     public static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
     public static final String PROPERTY_FINAL_RECIPIENT_TYPE = "finalRecipientType";
     public static final String PROPERTY_ENDPOINT = "endPointAddress";
@@ -50,6 +51,7 @@ public final class JMSMessageConstants {
     public static final String PROPERTY_TYPE_PREFIX = "propertyType_";
     private static final String PAYLOAD_NAME_PREFIX = "payload_";
     public static final String PAYLOAD_NAME_FORMAT = PAYLOAD_NAME_PREFIX + "{0}";
+    public static final String PAYLOAD_TYPE_FORMAT = PAYLOAD_NAME_FORMAT + "_Type";
     private static final String PAYLOAD_MIME_TYPE_SUFFIX = "_mimeType";
     public static final String PAYLOAD_MIME_TYPE_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_MIME_TYPE_SUFFIX;
     private static final String PAYLOAD_FILE_NAME_SUFFIX = "_fileName";

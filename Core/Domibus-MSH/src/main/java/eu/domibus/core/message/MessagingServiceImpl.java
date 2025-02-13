@@ -191,6 +191,8 @@ public class MessagingServiceImpl implements MessagingService {
         final boolean hasCompressionProperty = hasCompressionProperty(partInfo);
         if (hasCompressionProperty) {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION, partInfo.getHref());
+        } else {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_NO_COMPRESSION, partInfo.getHref());
         }
     }
 

@@ -187,6 +187,15 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         user.setDefaultPassword(false);
     }
 
+    public void reGenerateDefaultPassword(U user, String newPassword) {
+        // save old password in history
+        savePasswordHistory(user);
+        user.setPassword(bCryptEncoder.encode(newPassword));
+        user.setDefaultPassword(true);
+        user.setActive(true);
+    }
+
+
     protected void savePasswordHistory(U user) {
         int passwordsToKeep = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (passwordsToKeep <= 0) {

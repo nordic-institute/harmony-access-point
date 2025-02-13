@@ -268,6 +268,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
+        public String getKeyEntryPassword() {
+            return domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD);
+        }
+
+        @Override
         public String toString() {
             return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
         }

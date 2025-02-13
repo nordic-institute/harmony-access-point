@@ -37,6 +37,10 @@
         <input matInput  value="{{message.downloaded | domibusDate}}" readonly/>
       </mat-form-field>
 
+      <mat-form-field style="width:100%">
+        <mat-label>Acknowledged</mat-label>
+        <input matInput  value="{{message.acknowledged | domibusDate}}" readonly/>
+      </mat-form-field>
 
       <mat-form-field style="width:100%">
         <mat-label>AP Role</mat-label>
@@ -66,6 +70,16 @@
       <mat-form-field style="width:100%">
         <mat-label>Message Type</mat-label>
         <input matInput  value="{{message.messageType}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <mat-label>Exported</mat-label>
+        <input matInput  value="{{message.exported | domibusDate}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <mat-label>Archived</mat-label>
+        <input matInput  value="{{message.archived | domibusDate}}" readonly/>
       </mat-form-field>
 
       <mat-form-field style="width:100%">

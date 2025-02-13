@@ -1,4 +1,3 @@
-
 /* TODO(mdc-migration): The following rule targets internal classes of input that may no longer apply for the MDC version. */
 .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
   width: 100% !important;
@@ -7,7 +6,7 @@
 .property-value {
   border: solid 1px transparent;
   padding: 0 4px;
-  width: calc(100% - 84px);
+  width: calc(100% - 100px);
 }
 
 .property-value:focus, .property-value:hover {
@@ -21,12 +20,6 @@
 
 .property-view {
   position: relative;
-}
-
-.property-edit-buttons {
-  position: absolute;
-  top: -6px;
-  right: 0;
 }
 
 .property-edit-buttons.disabled button {
@@ -48,4 +41,21 @@
 .wrong-value {
   border: solid 0.5px red;
   color: red;
+}
+
+.property-edit-buttons {
+  /*margin-top: -4px;*/
+  position: absolute;
+  top: -6px;
+  right: 0;
+}
+.property-edit-buttons mat-icon {
+  padding-top: 3px;
+}
+
+::ng-deep .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-mdc-icon-button {
+  /*height: inherit !important;*/
+  margin-top: 0px !important;
+  padding-bottom: 0;
+  padding-top: 0px;
 }
