@@ -986,4 +986,12 @@
         <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
         <cve>CVE-2024-38820</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-messaging-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
 </suppressions>
