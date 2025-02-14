@@ -706,4 +706,308 @@
         <!--Domibus does not use WebMvc.fn or WebFlux.fn-->
         <vulnerabilityName>CVE-2024-38816</vulnerabilityName>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-io-2.11.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <!-- Domibus does not use the XMLStreamReader from commons.io.input -->
+        <vulnerabilityName>CVE-2024-47554</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: gmbal-api-only-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.gmbal/gmbal\-api\-only@.*$</packageUrl>
+        <!--brought as a dependency by jaxws-rt:jar:2.3.6 - Domibus does not use Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: ha-api-3.1.13.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.ha/ha\-api@.*$</packageUrl>
+        <!--brought as a dependency by jaxws-rt:jar:2.3.6 - Domibus does not use Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-2.3.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb\-runtime@.*$</packageUrl>
+        <!--brought as a dependency by cxf-core-3.5.9.jar - Domibus does not use Eclipse Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-2.3.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb\-runtime@.*$</packageUrl>
+        <!--Domibus does not use Eclipse Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-server-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>
+        <!-- used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-servlets-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlets@.*$</packageUrl>
+        <!-- used in testing environment-->
+        <vulnerabilityName>CVE-2024-9823</vulnerabilityName>
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: logback-core-1.3.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
+        <!--an external DTD file has to be provided (https://github.com/qos-ch/logback/commit/5f05041cba4c4ac0a62748c5c527a2da48999f2d)- scoring is low-->
+        <vulnerabilityName>CVE-2024-12798</vulnerabilityName>
+        <!-- the attacker has must have write access to a configuration file - does not affect Domibus, or probability is very low-->
+        <vulnerabilityName>CVE-2024-12801</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: management-api-3.2.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.external/management\-api@.*$</packageUrl>
+        <!--brought as a dependency by jaxws-rt - Domibus does not use Eclipse Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-core-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-web-5.8.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-web@.*$</packageUrl>
+        <!--Domibus does not use WebFlux-->
+        <vulnerabilityName>CVE-2024-38821</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <!--Domibus does not have Spring MVC Controller methods having a parameter annotated with with @RequestBody byte[] -->
+        <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-webmvc-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-2.3.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <!-- brought as a dependency by cxf-core-3.5.10.jar Domibus does not use Eclipse Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-2.3.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <!--Domibus does not use Eclipse Glassfish-->
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: wiremock-2.27.2.jar: swagger-ui-bundle.js
+   ]]></notes>
+        <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
+        <!--used in testing environment-->
+        <vulnerabilityName>CVE-2024-45801</vulnerabilityName>
+        <vulnerabilityName>CVE-2024-47875</vulnerabilityName>
+        <vulnerabilityName>CVE-2024-48910</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-io-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-io@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-tx-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-xml-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-xml@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-aop-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-aop@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-http-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-http@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-jcl-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jcl@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-util-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-util@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-jms-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jms@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-client-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-client@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-orm-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-orm@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-webapp-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-webapp@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-jdbc-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jdbc@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-servlet-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlet@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-test-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-test@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-security-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-security@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-beans-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-beans@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-continuation-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-continuation@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-context-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-messaging-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-expression-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-context-support-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-context\-support@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
 </suppressions>
