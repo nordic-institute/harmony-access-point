@@ -922,4 +922,20 @@
         <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
         <cve>CVE-2024-38820</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-webapp-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-webapp@.*$</packageUrl>
+        <!--used in testing environment-->
+        <cve>CVE-2024-6763</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-jdbc-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jdbc@.*$</packageUrl>
+        <!--does not affect Domibus, it does not use disallowedFields in DataBinder-->
+        <cve>CVE-2024-38820</cve>
+    </suppress>
 </suppressions>
