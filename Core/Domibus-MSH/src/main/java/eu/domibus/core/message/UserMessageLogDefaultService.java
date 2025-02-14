@@ -10,6 +10,7 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,11 +90,12 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
         userMessageLog.setUserMessage(userMessage);
 
-        if (!userMessage.isTestMessage()) {
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
-        }
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
+
         userMessageLogDao.create(userMessageLog);
         LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_INITIAL, "USER_MESSAGE", messageStatus);
 
         return userMessageLog;
     }
