@@ -1,3 +1,6 @@
+Domibus 5.1.7
+- Upgrade CXF to the latest compatible version
+- Fix issue with missing receipt notification.
 Domibus 5.1.6
 - Add support for custom properties in the JMS plugin
 - Improved the information provided in the BUSINESS logs and added more codes.
