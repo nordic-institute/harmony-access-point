@@ -1,5 +1,8 @@
-Domibus 5.1.7
+Domibus 5.1.8
 - Add new optional attribute asyncNotification to the leg configuration in the Pmode. If this boolean attribute is set then, if true, it enables asynchronous processing of notifications, or, if false, it makes processing notifications synchronously. When the attribute is set it is overriding the plugin's behavior. If the attribute is not present on the leg then the plugin's behavior is used like before
+Domibus 5.1.7
+- Upgrade CXF to the latest compatible version
+- Fix issue with missing receipt notification.
 Domibus 5.1.6
 - Add support for custom properties in the JMS plugin
 - Improved the information provided in the BUSINESS logs and added more codes.
