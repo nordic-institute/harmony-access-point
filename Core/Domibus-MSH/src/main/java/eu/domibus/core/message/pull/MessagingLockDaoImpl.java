@@ -57,7 +57,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PullMessageId getNextPullMessageToProcess(final String initiator, final String mpc) {
         if (DataBaseEngine.ORACLE == domibusConfigurationService.getDataBaseEngine()) {
             return getNextPullMessageToProcessOracle(initiator, mpc);
