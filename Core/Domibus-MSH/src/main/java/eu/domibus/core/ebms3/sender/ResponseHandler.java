@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;
@@ -19,6 +20,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.MessagingNodeNotFoundException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -71,7 +73,16 @@ public class ResponseHandler {
         try {
             ebms3Messaging = messageUtil.getMessagingWithDom(response);
             result.setResponseMessaging(ebms3Messaging);
-        } catch (SOAPException | DomibusDateTimeException ex) {
+        } catch (MessagingNodeNotFoundException ex) {
+            throw EbMS3ExceptionBuilder
+                    .getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0301)
+                    .message("Receipt is missing")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .cause(ex)
+                    .build();
+        }  catch (SOAPException | DomibusDateTimeException ex) {
             throw EbMS3ExceptionBuilder
                     .getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
