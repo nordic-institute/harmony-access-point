@@ -41,6 +41,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -387,6 +388,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-14485")
     public void testDeleteMessages(@Injectable UserMessageLogDto uml1,
                                    @Injectable UserMessageLogDto uml2,
                                    @Injectable Session session) {

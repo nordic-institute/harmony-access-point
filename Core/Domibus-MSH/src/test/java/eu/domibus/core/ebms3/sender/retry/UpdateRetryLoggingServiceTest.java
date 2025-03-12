@@ -348,11 +348,11 @@ public class UpdateRetryLoggingServiceTest {
         final Date expectedDate = new Date(restoredTime + timeOutInMillis);
 
 
-        new Expectations(updateRetryLoggingService) {{
+        new Expectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = timeOutInMin;
 
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
+            userMessageLog.getRestored();
             result = restoredTime;
         }};
 
@@ -369,11 +369,11 @@ public class UpdateRetryLoggingServiceTest {
         final long restoredTime = System.currentTimeMillis();
         final Date expectedDate = new Date(restoredTime + timeOutInMillis);
 
-        new Expectations(updateRetryLoggingService) {{
+        new Expectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = timeOutInMin;
 
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
+            userMessageLog.getRestored();
             result = restoredTime;
         }};
         Date messageExpirationDate = updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);

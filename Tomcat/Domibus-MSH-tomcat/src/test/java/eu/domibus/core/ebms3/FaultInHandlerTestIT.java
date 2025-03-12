@@ -1,22 +1,27 @@
 package eu.domibus.core.ebms3;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cxf.CxfCurrentMessageService;
 import eu.domibus.core.ebms3.receiver.FaultInHandler;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.property.PropertyProviderHelper;
 import eu.domibus.test.AbstractIT;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-@Transactional
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.isNull;
+
 public class FaultInHandlerTestIT extends AbstractIT {
 
     @Autowired
@@ -26,7 +31,7 @@ public class FaultInHandlerTestIT extends AbstractIT {
     DomainContextProvider domainContextProvider;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    ErrorLogDao errorLogDao;
 
     @Autowired
     PropertyProviderHelper propertyProviderHelper;
@@ -52,6 +57,9 @@ public class FaultInHandlerTestIT extends AbstractIT {
 
             ReflectionTestUtils.setField(faultInHandler, "cxfCurrentMessageService", cxfCurrentMessageServiceMock);
 
+            final ErrorLogService errorLogService = Mockito.mock(ErrorLogService.class);
+            ReflectionTestUtils.setField(faultInHandler, "errorLogService", errorLogService);
+
             //we simulate multitenancy to reproduce the context of the bug
             ReflectionTestUtils.setField(propertyProviderHelper, "isMultiTenantAware", true);
 
@@ -59,6 +67,9 @@ public class FaultInHandlerTestIT extends AbstractIT {
             Mockito.when(soapMessageContext.get(Mockito.any())).thenReturn(new RuntimeException("Simulating an error"));
 
             faultInHandler.handleFault(soapMessageContext);
+//            Mockito.verify(errorLogService).createErrorLog((Ebms3Messaging) Mockito.any(), Mockito.any(), Mockito.any());
+            Mockito.verify(errorLogService).createErrorLog(isA(Ebms3Messaging.class), ArgumentMatchers.eq(MSHRole.RECEIVING), isNull());
+
         } finally {
             //we put back the old values
             ReflectionTestUtils.setField(propertyProviderHelper, "isMultiTenantAware", saveIsMultiTenantAwareField);
