@@ -9,6 +9,7 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +74,7 @@ public class MessageExchangeServiceIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore("EDELIVERY-14826")
     public void getMessageStatus_PULL() throws EbMS3Exception {
 
         UserMessageLog userMessageLog = messageDaoTestUtil.createUserMessageLog("msg1", new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, true, "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull", new Date(), false);

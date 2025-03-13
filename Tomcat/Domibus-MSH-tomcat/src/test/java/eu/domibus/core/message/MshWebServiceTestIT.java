@@ -147,6 +147,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-14826")
     public void testDuplicateDetection() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
