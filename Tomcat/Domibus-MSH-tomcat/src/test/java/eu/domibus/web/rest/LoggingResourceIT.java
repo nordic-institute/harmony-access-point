@@ -48,13 +48,12 @@ public class LoggingResourceIT extends AbstractIT {
     private DomibusCoreMapper coreMapper;
 
     @Autowired
-    private LoggingService loggingService;
-
-    @Autowired
     private LoggingResource loggingResource;
 
     @Autowired
     protected AuthUtils authUtils;
+
+    private LoggingService loggingServiceMock;
 
     private MockMvc mockMvc;
 
@@ -66,17 +65,15 @@ public class LoggingResourceIT extends AbstractIT {
             return Mockito.mock(AuthUtils.class);
         }
 
-        @Primary
-        @Bean
-        public LoggingService loggingService() {
-            return Mockito.mock(LoggingService.class);
-        }
-
     }
 
     @Before
     public void setUp() {
+
+        loggingServiceMock = Mockito.mock(LoggingService.class);
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
+
+        loggingResource.setLoggingService(loggingServiceMock);
     }
 
     @Test(expected = NestedServletException.class)
@@ -93,7 +90,8 @@ public class LoggingResourceIT extends AbstractIT {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
         loggingLevelRO.setName("eu.domibus");
-        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(true);
+        Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(true);
+
         mockMvc.perform(post("/rest/logging/loglevel")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -108,7 +106,7 @@ public class LoggingResourceIT extends AbstractIT {
         loggingLevelRO.setLevel("DEBUG");
         loggingLevelRO.setName("custom.package");
 
-        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(false);
+        Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(false);
 
         mockMvc.perform(post("/rest/logging/loglevel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +122,7 @@ public class LoggingResourceIT extends AbstractIT {
         loggingLevelRO.setName("eu.domibus");
 
         mockMvc.perform(post("/rest/logging/loglevel")
-                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -158,17 +156,17 @@ public class LoggingResourceIT extends AbstractIT {
         loggingFilterRequestRO.setPage(0);
         loggingFilterRequestRO.setShowClasses(true);
 
-        Mockito.when(loggingService.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
+        Mockito.when(loggingServiceMock.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
 
         // the order of the items are not checked
-        mockMvc.perform(get("/rest/logging/loglevel")
-                .param("page", loggingFilterRequestRO.getPage() + "")
-                .param("loggerName", loggingFilterRequestRO.getLoggerName())
-                .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
-                .param("orderBy", loggingFilterRequestRO.getOrderBy())
-                .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
-                .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
-        )
+        mockMvc.perform(get("/rest/logging/loglevel").with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
+                        .param("page", loggingFilterRequestRO.getPage() + "")
+                        .param("loggerName", loggingFilterRequestRO.getLoggerName())
+                        .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
+                        .param("orderBy", loggingFilterRequestRO.getOrderBy())
+                        .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
+                        .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.filter.loggerName").value(loggingFilterRequestRO.getLoggerName()))
                 .andExpect(jsonPath("$.filter.showClasses").value(loggingFilterRequestRO.isShowClasses()))

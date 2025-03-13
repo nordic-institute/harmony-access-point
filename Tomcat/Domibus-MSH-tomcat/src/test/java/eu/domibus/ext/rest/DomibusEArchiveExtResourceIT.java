@@ -1,6 +1,13 @@
 package eu.domibus.ext.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.earchive.job.EArchiveBatchDispatcherService;
+import eu.domibus.core.earchive.listener.EArchiveListener;
+import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.jms.JMSManagerImpl;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
@@ -14,12 +21,14 @@ import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
 import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,9 +37,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.jms.JMSException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -72,10 +87,19 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     EArchiveBatchDao eArchiveBatchDao;
 
     @Autowired
+    EArchiveListener eArchiveListener;
+
+    @Autowired
+    EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
+
+    @Autowired
     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
+
+    @Autowired
+    EArchiveFileStorageProvider eArchiveFileStorageProvider;
 
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
@@ -89,8 +113,10 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     UserMessageLog uml7_not_archived;
     UserMessageLog uml8_not_archived;
 
+    private Object savedJmsManager;
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
         // Do not use @Transactional on Class because it adds "false" transactions also to services.
@@ -144,6 +170,49 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 1,
                 "/tmp/batch")); // is copy from 2
         eArchiveBatchUserMessageDao.create(batch3, Collections.singletonList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
+
+        //we save the JMS manager to restore it later
+        savedJmsManager = ReflectionTestUtils.getField(eArchiveBatchDispatcherService, "jmsManager");
+        ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", new JMSManagerImpl() {
+            @Override
+            public void sendMessageToQueue(JmsMessage message, javax.jms.Queue destination) {
+                LOG.info("Jms override [{}] [{}]", message, destination);
+
+                sendMessage(message.getStringProperty(MessageConstants.DOMAIN), message.getStringProperty(MessageConstants.BATCH_ENTITY_ID), message.getStringProperty(MessageConstants.BATCH_ID), message.getType());
+                LOG.putMDC(DomibusLogger.MDC_DOMAIN, "default");
+            }
+        });
+
+        File temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
+        domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_DB, "false");
+
+        eArchiveFileStorageProvider.initialize();
+    }
+
+    @After
+    public void tearDown() {
+        ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", savedJmsManager);
+    }
+
+    private void sendMessage(String domain, String messageEntityId, String messageId, String type) {
+        eArchiveListener.onMessage(getActiveMQTextMessage(domain, messageEntityId, messageId, type));
+    }
+
+    public ActiveMQTextMessage getActiveMQTextMessage(String domain, String batchEntityId, String batchId, String type) {
+        ActiveMQTextMessage activeMQTextMessage = new ActiveMQTextMessage();
+
+        try {
+            activeMQTextMessage.setStringProperty(MessageConstants.DOMAIN, domain);
+            activeMQTextMessage.setStringProperty(MessageConstants.BATCH_ID, batchId);
+            activeMQTextMessage.setStringProperty(MessageConstants.BATCH_ENTITY_ID, batchEntityId);
+            activeMQTextMessage.setJMSType(type);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+        return activeMQTextMessage;
     }
 
 
@@ -212,7 +281,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(StringUtils.contains(content, "QUEUED"));
+        Assert.assertTrue(StringUtils.contains(content, "EXPORTED"));
     }
 
     @Test
