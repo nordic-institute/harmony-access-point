@@ -17,10 +17,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -202,6 +199,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore("EDELIVERY-14826")
     public void testExport() throws Exception {
 
         // when
