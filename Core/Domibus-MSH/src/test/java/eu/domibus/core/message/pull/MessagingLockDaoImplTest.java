@@ -209,6 +209,9 @@ public class MessagingLockDaoImplTest {
             messagingLock.getStaled();
             result = date;
 
+            dateUtil.getUtcDate();
+            result = new Date();
+
         }};
     }
 }

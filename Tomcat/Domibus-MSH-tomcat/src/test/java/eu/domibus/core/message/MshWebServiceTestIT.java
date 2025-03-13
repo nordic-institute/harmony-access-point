@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.test.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
@@ -30,6 +29,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.test.AbstractIT;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import mockit.Injectable;
@@ -45,7 +45,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jms.UncategorizedJmsException;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import javax.xml.soap.SOAPMessage;
@@ -215,7 +214,6 @@ public class MshWebServiceTestIT extends AbstractIT {
         ReflectionTestUtils.setField(backendNotificationService, "jmsManager", saveField);
     }
 
-    @Transactional
     @Test
     public void testGetStatusReceived() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);

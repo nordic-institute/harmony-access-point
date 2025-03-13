@@ -10,14 +10,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static eu.domibus.core.message.pull.PullMessageState.EXPIRED;
 import static eu.domibus.core.message.pull.PullMessageState.RETRY;
@@ -108,6 +108,8 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
                     return null;
                 }
                 final MessagingLock messagingLock = new MessagingLock();
+                java.util.Calendar cal = Calendar.getInstance();
+                cal.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                 messagingLock.setEntityId(resultSet.getLong("ID_PK"));
                 messagingLock.setMessageState(MessageState.valueOf(resultSet.getString("MESSAGE_STATE")));
@@ -116,14 +118,14 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
                 messagingLock.setMpc(resultSet.getString("MPC"));
                 messagingLock.setSendAttempts(resultSet.getInt("SEND_ATTEMPTS"));
                 messagingLock.setSendAttemptsMax(resultSet.getInt("SEND_ATTEMPTS_MAX"));
-                messagingLock.setNextAttempt(resultSet.getTimestamp("NEXT_ATTEMPT"));
-                messagingLock.setStaled(resultSet.getTimestamp("MESSAGE_STALED"));
-                messagingLock.setReceived(resultSet.getTimestamp("MESSAGE_RECEIVED"));
+                messagingLock.setNextAttempt(resultSet.getTimestamp("NEXT_ATTEMPT", cal));
+                messagingLock.setStaled(resultSet.getTimestamp("MESSAGE_STALED", cal));
+                messagingLock.setReceived(resultSet.getTimestamp("MESSAGE_RECEIVED", cal));
                 messagingLock.setMessageType(resultSet.getString("MESSAGE_TYPE"));
                 messagingLock.setCreatedBy(resultSet.getString("CREATED_BY"));
-                messagingLock.setCreationTime(resultSet.getTimestamp("CREATION_TIME"));
+                messagingLock.setCreationTime(resultSet.getTimestamp("CREATION_TIME", cal));
                 messagingLock.setModifiedBy(resultSet.getString("MODIFIED_BY"));
-                messagingLock.setModificationTime(resultSet.getTimestamp("MODIFICATION_TIME"));
+                messagingLock.setModificationTime(resultSet.getTimestamp("MODIFICATION_TIME", cal));
 
                 return buildPullMessageId(messagingLock);
             }
@@ -140,15 +142,15 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
         }
     }
 
-    private PullMessageId buildPullMessageId(MessagingLock messagingLock) {
+    protected PullMessageId buildPullMessageId(MessagingLock messagingLock) {
         LOG.debug("[getNextPullMessageToProcess]:id[{}] locked", messagingLock.getEntityId());
         final String messageId = messagingLock.getMessageId();
         final int sendAttempts = messagingLock.getSendAttempts();
         final int sendAttemptsMax = messagingLock.getSendAttemptsMax();
         final Date messageStaled = messagingLock.getStaled();
 
-        final Timestamp currentDate = new Timestamp(System.currentTimeMillis());
-        LOG.debug("expiration date[{}], current date[{}] ", messageStaled, currentDate);
+        final Date currentDate = dateUtil.getUtcDate();
+        LOG.debug("expiration date[{}], current date[{}] UTC", messageStaled, currentDate);
         if (messageStaled.compareTo(currentDate) < 0) {
             messagingLock.setMessageState(MessageState.DEL);
             merge(messagingLock);
