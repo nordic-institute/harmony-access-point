@@ -67,7 +67,6 @@ public class FaultInHandlerTestIT extends AbstractIT {
             Mockito.when(soapMessageContext.get(Mockito.any())).thenReturn(new RuntimeException("Simulating an error"));
 
             faultInHandler.handleFault(soapMessageContext);
-//            Mockito.verify(errorLogService).createErrorLog((Ebms3Messaging) Mockito.any(), Mockito.any(), Mockito.any());
             Mockito.verify(errorLogService).createErrorLog(isA(Ebms3Messaging.class), ArgumentMatchers.eq(MSHRole.RECEIVING), isNull());
 
         } finally {
