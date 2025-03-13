@@ -42,8 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author François Gautier
  * @since 4.2
  */
-
-@Ignore("EDELIVERY-14826")
 public class LoggingResourceIT extends AbstractIT {
 
     @Autowired

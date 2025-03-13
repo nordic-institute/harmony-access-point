@@ -199,7 +199,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-14826")
     public void testExport() throws Exception {
 
         // when
