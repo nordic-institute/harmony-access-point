@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
@@ -20,6 +21,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -28,6 +32,7 @@ import org.springframework.web.util.NestedServletException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -64,6 +69,13 @@ public class LoggingResourceIT extends AbstractIT {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
 
         loggingResource.setLoggingService(loggingServiceMock);
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "domibus",
+                        "domibus",
+                        Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
+
     }
 
     @Test(expected = NestedServletException.class)
@@ -75,7 +87,6 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-//    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void setLogLevel_ok() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
@@ -83,7 +94,6 @@ public class LoggingResourceIT extends AbstractIT {
         Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(true);
 
         mockMvc.perform(post("/rest/logging/loglevel")
-                        .with(httpBasic(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
                 .andExpect(status().is2xxSuccessful())
@@ -91,7 +101,6 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void setLogLevel_nok_custom_name() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
@@ -113,7 +122,6 @@ public class LoggingResourceIT extends AbstractIT {
         loggingLevelRO.setName("eu.domibus");
 
         mockMvc.perform(post("/rest/logging/loglevel")
-                        .with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -150,7 +158,6 @@ public class LoggingResourceIT extends AbstractIT {
 
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel")
-                        .with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
                         .param("page", loggingFilterRequestRO.getPage() + "")
                         .param("loggerName", loggingFilterRequestRO.getLoggerName())
                         .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
