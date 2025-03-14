@@ -57,16 +57,6 @@ public class LoggingResourceIT extends AbstractIT {
 
     private MockMvc mockMvc;
 
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public AuthUtils authUtils() {
-            return Mockito.mock(AuthUtils.class);
-        }
-
-    }
-
     @Before
     public void setUp() {
 
@@ -85,7 +75,7 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
+//    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void setLogLevel_ok() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
@@ -93,6 +83,7 @@ public class LoggingResourceIT extends AbstractIT {
         Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(true);
 
         mockMvc.perform(post("/rest/logging/loglevel")
+                        .with(httpBasic(TEST_ADMIN_USERNAME, TEST_ADMIN_PASSWORD))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
                 .andExpect(status().is2xxSuccessful())
@@ -131,7 +122,6 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void getLogLevel_ok() throws Exception {
 
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
@@ -159,7 +149,8 @@ public class LoggingResourceIT extends AbstractIT {
         Mockito.when(loggingServiceMock.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
 
         // the order of the items are not checked
-        mockMvc.perform(get("/rest/logging/loglevel").with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
+        mockMvc.perform(get("/rest/logging/loglevel")
+                        .with(httpBasic(TEST_SUPER_USERNAME, TEST_SUPER_PASSWORD))
                         .param("page", loggingFilterRequestRO.getPage() + "")
                         .param("loggerName", loggingFilterRequestRO.getLoggerName())
                         .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
