@@ -3,11 +3,17 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.MultiDomainCryptoServiceIT;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
+import eu.domibus.core.property.PropertyRetrieveManager;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
@@ -32,6 +38,7 @@ import org.springframework.web.util.NestedServletException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 4.2
  */
 public class LoggingResourceIT extends AbstractIT {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResourceIT.class);
 
     @Autowired
     private DomibusCoreMapper coreMapper;
@@ -57,6 +65,9 @@ public class LoggingResourceIT extends AbstractIT {
 
     @Autowired
     protected AuthUtils authUtils;
+
+    @Autowired
+    protected PropertyRetrieveManager propertyRetrieveManager;
 
     private LoggingService loggingServiceMock;
 
@@ -74,8 +85,9 @@ public class LoggingResourceIT extends AbstractIT {
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "domibus",
                         "domibus",
-                        Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
+                        Arrays.asList(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()), new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
 
+        LOG.info("Is multi tenancy mode enabled? [{}]", propertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Test(expected = NestedServletException.class)
