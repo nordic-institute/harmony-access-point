@@ -310,6 +310,7 @@
         <vulnerabilityName>CVE-2024-45801</vulnerabilityName>
         <vulnerabilityName>CVE-2024-47875</vulnerabilityName>
         <vulnerabilityName>CVE-2024-48910</vulnerabilityName>
+        <vulnerabilityName>CVE-2025-26791</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
