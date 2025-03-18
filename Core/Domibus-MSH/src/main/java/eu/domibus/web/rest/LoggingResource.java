@@ -40,7 +40,7 @@ public class LoggingResource {
 
     private final DomibusCoreMapper coreMapper;
 
-    private final LoggingService loggingService;
+    private LoggingService loggingService;
 
     protected final ErrorHandlerService errorHandlerService;
 
@@ -139,6 +139,10 @@ public class LoggingResource {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("Logging configuration was successfully reset.");
+    }
+
+    protected void setLoggingService(LoggingService loggingService) {
+        this.loggingService = loggingService;
     }
 
 }
