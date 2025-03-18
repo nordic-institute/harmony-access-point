@@ -658,8 +658,6 @@ public class UserMessageDefaultService implements UserMessageService {
                 .map(UserMessageLogDto::getEntityId)
                 .collect(Collectors.toList());
 
-        deleteMessagesWithIDs(ids);
-
         try {
             ids.forEach(eid -> {
                 UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
@@ -670,6 +668,8 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("Error occurred while notifying message status change.", e);
             throw e;
         }
+
+        deleteMessagesWithIDs(ids);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
