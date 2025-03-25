@@ -28,6 +28,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityDTOBuilder;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -127,6 +128,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         LegConfiguration legConfiguration = null;
         final String pModeKey;
 
+        ReliabilityDTOBuilder reliabilityDTOBuilder = ReliabilityDTOBuilder.builder()
+                .userMessage(userMessage)
+                .userMessageLog(userMessageLog);
         try {
             try {
                 validateBeforeSending(userMessage);
@@ -208,16 +212,19 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
             attempt.setError(soapFEx.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
+            reliabilityDTOBuilder.throwable(soapFEx);
         } catch (final EbMS3Exception e) {
             getLog().error("EbMS3 exception occurred when sending message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, userMessage);
             attempt.setError(e.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
+            reliabilityDTOBuilder.throwable(e);
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             getLog().error("Error occurred when sending message with ID [{}]", messageId, t);
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
+            reliabilityDTOBuilder.throwable(t);
         } finally {
             final Boolean isTestMessage = userMessage.isTestMessage();
             if (isTestMessage) {
@@ -226,9 +233,16 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                     reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
                 }
             }
+            reliabilityDTOBuilder
+                    .reliabilityCheckStatus(reliabilityCheckResult)
+                    .requestRawXMLMessage(requestRawXMLMessage)
+                    .responseSoapMessage(responseSoapMessage)
+                    .responseResult(responseResult)
+                    .legConfiguration(legConfiguration)
+                    .attempt(attempt);
 
             getLog().debug("Finally handle reliability");
-            reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
+            reliabilityService.handleReliability(reliabilityDTOBuilder.build());
             if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
                 getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
@@ -243,6 +257,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     /**
      * If smart retry feature is activated then check the reachability of the destination party and
      * if not reachable avoid sending the user message.
+     *
      * @param userMessage
      * @throws PartyNotReachableException if destination party connectivity status is not SUCCESS (set by monitoring feature)
      */

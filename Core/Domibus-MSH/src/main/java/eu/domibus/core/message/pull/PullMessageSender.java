@@ -45,8 +45,12 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
+
+import static eu.domibus.api.util.DateUtil.DEFAULT_FORMATTER;
 
 /**
  * @author Thomas Dussart
@@ -211,8 +215,13 @@ public class PullMessageSender {
         userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, null, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
-
+                userMessage.getPartyInfo().getFromParty(),
+                userMessage.getPartyInfo().getToParty()
+//                ,
+//                Instant.ofEpochMilli(userMessage.getCreationTime().getTime())
+//                        .atZone(ZoneOffset.UTC)
+//                        .format(DEFAULT_FORMATTER)
+        );
     }
 
     private Policy getPolicy(LegConfiguration legConfiguration) throws EbMS3Exception {

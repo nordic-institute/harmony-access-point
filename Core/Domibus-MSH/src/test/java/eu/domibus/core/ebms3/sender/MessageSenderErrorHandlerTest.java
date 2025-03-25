@@ -42,9 +42,6 @@ public class MessageSenderErrorHandlerTest {
     private UpdateRetryLoggingService updateRetryLoggingService;
 
     @Mocked
-    private Messaging messaging;
-
-    @Mocked
     LegConfiguration legConfiguration;
 
     @Mocked
@@ -57,13 +54,13 @@ public class MessageSenderErrorHandlerTest {
             userMessageDao.findByMessageId(anyString, MSHRole.SENDING);
             result = userMessage;
 
-            pModeProvider.findUserMessageExchangeContext((UserMessage)any, MSHRole.SENDING).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext((UserMessage) any, MSHRole.SENDING).getPmodeKey();
             result = PMODE_KEY;
 
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = legConfiguration;
 
-            updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, (MessageAttempt)any);
+            updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, (MessageAttempt) any, null);
         }};
 
         messageSenderErrorHandler.handleError(new RuntimeException("Unexpected exception occured"));

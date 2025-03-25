@@ -57,14 +57,14 @@ public class SendJMSMessageOnTomcat {
             messageMap.setStringProperty("conversationId", "123");
             //messageMap.setStringProperty("fromPartyId", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:domibus-blue");
             //messageMap.setStringProperty("fromPartyType", ""); // Mandatory but empty here because it is in the value of the party ID
-            messageMap.setStringProperty("fromPartyId", "domibus-blue");
+            messageMap.setStringProperty("fromPartyId", "domibus-red");
             messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered"); // Mandatory
 
             messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
 
             //messageMap.setStringProperty("toPartyId", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:domibus-red");
             //messageMap.setStringProperty("toPartyType", ""); // Mandatory but empty here because it is in the value of the party ID
-            messageMap.setStringProperty("toPartyId", "domibus-red");
+            messageMap.setStringProperty("toPartyId", "domibus-teal");
             messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered"); // Mandatory
 
             messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");

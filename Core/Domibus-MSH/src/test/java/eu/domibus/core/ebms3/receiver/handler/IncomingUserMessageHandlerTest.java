@@ -107,8 +107,8 @@ public class IncomingUserMessageHandlerTest {
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
             result = soapResponseMessage;
 
-            userMessage.getCreationTime();
-            result = new Date();
+//            userMessage.getCreationTime();
+//            result = new Date();
         }};
 
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);

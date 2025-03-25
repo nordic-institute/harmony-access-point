@@ -30,4 +30,30 @@ public class DefaultMessageConverter implements MessageConverter {
             return "[" + messageCode.getCode() + "] " + message;
         }
     }
+
+    @Override
+    public String getMessageWithSummaryThrowable(Marker marker, MessageCode messageCode, Throwable t, Object... args) {
+        return getMessage(marker, messageCode, args) + getThrowableSummary(t);
+    }
+
+    private String getThrowableSummary(Throwable t) {
+        StringBuilder summary = new StringBuilder();
+        if (t != null) {
+            summary.append(getString("(1) ", t));
+
+            Throwable cause = t.getCause();
+            if (cause != null) {
+                summary.append(getString("(2) ", cause));
+                Throwable subCause = cause.getCause();
+                if (subCause != null) {
+                    summary.append(getString("(3) ", subCause));
+                }
+            }
+        }
+        return summary.toString();
+    }
+
+    private static String getString(String prefix, Throwable t) {
+        return " [" + prefix + t.getMessage() + "] ";
+    }
 }

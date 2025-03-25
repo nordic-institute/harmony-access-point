@@ -26,6 +26,9 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -108,7 +111,12 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         try {
             responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
             LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                    ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
+                    ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId()
+//                    ,
+//                    Instant.ofEpochMilli(userMessage.getTimestamp().getTime())
+//                            .atZone(ZoneOffset.UTC)
+//                            .format(DateTimeFormatter.ISO_DATE_TIME)
+            );
 
             LOG.debug("Ping message {}", testMessage);
         } catch (TransformerException | SOAPException | JAXBException | IOException e) {

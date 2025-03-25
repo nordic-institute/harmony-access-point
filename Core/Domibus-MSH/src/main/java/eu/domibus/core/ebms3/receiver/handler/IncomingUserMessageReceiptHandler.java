@@ -17,6 +17,7 @@ import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityDTOBuilder;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -100,6 +101,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
+        ReliabilityDTOBuilder reliabilityDTOBuilder = ReliabilityDTOBuilder.builder().userMessageLog(userMessageLog);
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
             LOG.error("Received a UserMessage receipt for an already acknowledged message with status [{}]", userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
@@ -109,7 +111,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                     .build());
         }
 
-        ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
+        ReliabilityChecker.CheckResult checkResult = ReliabilityChecker.CheckResult.ABORT;
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
         UserMessage sentUserMessage = null;
@@ -124,18 +126,28 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             SOAPMessage soapMessage = getSoapMessage(legConfiguration, sentUserMessage);
             responseResult = responseHandler.verifyResponse(request, messageId);
 
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
+            checkResult = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when handling receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), sentUserMessage);
             }
+            reliabilityDTOBuilder.throwable(soapFEx);
         } catch (final EbMS3Exception e) {
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
+            reliabilityDTOBuilder.throwable(e);
         } finally {
-            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
-            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
+
+            reliabilityDTOBuilder
+                    .userMessage(sentUserMessage)
+                    .reliabilityCheckStatus(checkResult)
+                    .responseSoapMessage(request)
+                    .responseResult(responseResult)
+                    .legConfiguration(legConfiguration);
+
+            reliabilityService.handleReliability(reliabilityDTOBuilder.build());
+            if (ReliabilityChecker.CheckResult.OK == checkResult) {
                 final Boolean isTestMessage = sentUserMessage.isTestMessage();
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());

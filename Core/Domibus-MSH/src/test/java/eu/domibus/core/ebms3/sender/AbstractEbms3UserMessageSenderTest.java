@@ -26,6 +26,7 @@ import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityDTO;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
@@ -123,18 +124,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
 
     @Test
-    public void testSendMessage(@Injectable Messaging messaging,
-                                @Injectable UserMessage userMessage,
-                                @Injectable UserMessageLog userMessageLog,
-                                @Injectable LegConfiguration legConfiguration,
-                                @Injectable Policy policy,
-                                @Injectable Party senderParty,
-                                @Injectable Party receiverParty,
-                                @Injectable SOAPMessage soapMessage,
-                                @Injectable SOAPMessage response,
-                                @Injectable ResponseResult responseResult) throws Exception {
+    public void testSendMessage(@Injectable Messaging messaging, @Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration, @Injectable Policy policy, @Injectable Party senderParty, @Injectable Party receiverParty, @Injectable SOAPMessage soapMessage, @Injectable SOAPMessage response, @Injectable ResponseResult responseResult) throws Exception {
 
-        final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
+        final ReliabilityChecker.CheckResult reliabilityCheck = ReliabilityChecker.CheckResult.SEND_FAIL;
         String messageId = "123";
         String finalRecipient = "0151:123";
         String receiverURL = "http://localhost";
@@ -195,7 +187,7 @@ public class AbstractEbms3UserMessageSenderTest {
             result = responseResult;
 
             reliabilityChecker.check(soapMessage, response, responseResult, legConfiguration);
-            result = reliabilityCheckSuccessful;
+            result = reliabilityCheck;
 
         }};
 
@@ -215,19 +207,16 @@ public class AbstractEbms3UserMessageSenderTest {
             Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
             Assert.assertEquals(senderName, senderPartyNameActual);
 
-            ReliabilityChecker.CheckResult checkResultActual;
+            ReliabilityDTO checkResultActual;
 
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, response, responseResult, legConfiguration, null);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            reliabilityService.handleReliability(checkResultActual = withCapture());
+            Assert.assertEquals(reliabilityCheck, checkResultActual.getReliabilityCheck());
 
         }};
     }
 
     @Test
-    public void testSendMessage_WrongPolicyConfig_Exception(@Injectable final Messaging messaging,
-                                                            @Injectable final UserMessage userMessage,
-                                                            @Injectable final UserMessageLog userMessageLog,
-                                                            @Injectable final LegConfiguration legConfiguration) throws EbMS3Exception {
+    public void testSendMessage_WrongPolicyConfig_Exception(@Injectable final Messaging messaging, @Injectable final UserMessage userMessage, @Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration) throws EbMS3Exception {
 
         final ConfigurationException configurationException = new ConfigurationException("policy file not found");
 
@@ -269,13 +258,7 @@ public class AbstractEbms3UserMessageSenderTest {
     }
 
     @Test
-    public void testSendMessage_ChainCertificateInvalid_Exception(@Injectable final Messaging messaging,
-                                                                  @Injectable final UserMessage userMessage,
-                                                                  @Injectable final UserMessageLog userMessageLog,
-                                                                  @Injectable final LegConfiguration legConfiguration,
-                                                                  @Injectable final Party senderParty,
-                                                                  @Injectable final Party receiverParty,
-                                                                  @Injectable SOAPMessage response) throws Exception {
+    public void testSendMessage_ChainCertificateInvalid_Exception(@Injectable final Messaging messaging, @Injectable final UserMessage userMessage, @Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration, @Injectable final Party senderParty, @Injectable final Party receiverParty, @Injectable SOAPMessage response) throws Exception {
         final String chainExceptionMessage = "certificate invalid";
         final ChainCertificateInvalidException chainCertificateInvalidException = new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
@@ -318,26 +301,17 @@ public class AbstractEbms3UserMessageSenderTest {
         abstractUserMessageSender.sendMessage(userMessage, userMessageLog);
 
         new FullVerifications(abstractUserMessageSender) {{
-            ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
+            ReliabilityDTO checkResultActual;
+            reliabilityService.handleReliability(checkResultActual = withCapture());
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), MSHRole.SENDING, userMessage);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual.getReliabilityCheck());
 
         }};
     }
 
     @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
-    public void testSendMessage_UnmarshallingError_Exception(@Injectable final Messaging messaging,
-                                                             @Injectable final UserMessage userMessage,
-                                                             @Injectable final UserMessageLog userMessageLog,
-                                                             @Injectable final LegConfiguration legConfiguration,
-                                                             @Injectable final Policy policy,
-                                                             @Injectable final Party senderParty,
-                                                             @Injectable final Party receiverParty,
-                                                             @Injectable final SOAPMessage soapMessage,
-                                                             @Injectable final SOAPMessage response,
-                                                             @Injectable ResponseResult responseResult) throws Exception {
+    public void testSendMessage_UnmarshallingError_Exception(@Injectable final Messaging messaging, @Injectable final UserMessage userMessage, @Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration, @Injectable final Policy policy, @Injectable final Party senderParty, @Injectable final Party receiverParty, @Injectable final SOAPMessage soapMessage, @Injectable final SOAPMessage response, @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         String finalRecipient = "0151:123";
@@ -394,13 +368,7 @@ public class AbstractEbms3UserMessageSenderTest {
             result = response;
 
             responseHandler.verifyResponse(response, messageId);
-            result = EbMS3ExceptionBuilder
-                    .getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .message("Problem occurred during marshalling")
-                    .refToMessageId(messageId)
-                    .mshRole(MSHRole.SENDING)
-                    .build();
+            result = EbMS3ExceptionBuilder.getInstance().ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004).message("Problem occurred during marshalling").refToMessageId(messageId).mshRole(MSHRole.SENDING).build();
         }};
 
         //tested method
@@ -428,18 +396,10 @@ public class AbstractEbms3UserMessageSenderTest {
             Assert.assertEquals("Problem occurred during marshalling", ebMS3ExceptionActual.getErrorDetail());
             Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
 
-            ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(
-                    userMessage,
-                    userMessageLog,
-                    checkResultActual = withCapture(),
-                    null,
-                    response,
-                    null,
-                    legConfiguration,
-                    null);
+            ReliabilityDTO checkResultActual;
+            reliabilityService.handleReliability(checkResultActual = withCapture());
 
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual.getReliabilityCheck());
 
             String ToPartyName = userMessage.getPartyInfo().getToParty();
             Assert.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
@@ -449,16 +409,7 @@ public class AbstractEbms3UserMessageSenderTest {
     }
 
     @Test
-    public void testSendMessage_DispatchError_Exception(final @Injectable Messaging messaging,
-                                                        @Injectable final UserMessage userMessage,
-                                                        @Injectable final UserMessageLog userMessageLog,
-                                                        @Injectable final LegConfiguration legConfiguration,
-                                                        @Injectable final Policy policy,
-                                                        @Injectable final Party senderParty,
-                                                        @Injectable final Party receiverParty,
-                                                        @Injectable final SOAPMessage soapMessage,
-                                                        @Injectable SOAPMessage response,
-                                                        @Injectable ResponseResult responseResult) throws Exception {
+    public void testSendMessage_DispatchError_Exception(final @Injectable Messaging messaging, @Injectable final UserMessage userMessage, @Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration, @Injectable final Policy policy, @Injectable final Party senderParty, @Injectable final Party receiverParty, @Injectable final SOAPMessage soapMessage, @Injectable SOAPMessage response, @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
@@ -522,9 +473,9 @@ public class AbstractEbms3UserMessageSenderTest {
         abstractUserMessageSender.sendMessage(userMessage, userMessageLog);
 
         new Verifications() {{
-            ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            ReliabilityDTO checkResultActual;
+            reliabilityService.handleReliability(checkResultActual = withCapture());
+            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual.getReliabilityCheck());
         }};
     }
 }
