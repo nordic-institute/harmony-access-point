@@ -114,9 +114,9 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         }
         String formattedMessage = formatMessage(marker, key, t, printST, args);
         if (printST) {
-            logError(marker, formattedMessage, t, args);
+            logWarn(marker, formattedMessage, t, args);
         } else {
-            logError(marker, formattedMessage, null, args);
+            logWarn(marker, formattedMessage, null, args);
         }
     }
 
