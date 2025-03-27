@@ -666,11 +666,13 @@ public class UserMessageDefaultService implements UserMessageService {
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+
         } catch (RuntimeException e) {
             LOG.warn("Error occurred while notifying message status change.", e);
             throw e;
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         }
 
         deleteMessagesWithIDs(ids);
@@ -802,13 +804,16 @@ public class UserMessageDefaultService implements UserMessageService {
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
+
             LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
             LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
-
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
         } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);
             throw e;
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         }
     }
 
@@ -899,7 +904,7 @@ public class UserMessageDefaultService implements UserMessageService {
             return messagePayloadNameWithExtension;
         }
 
-        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isNotEmpty(info.getPartProperties())) {
             for (PartProperty property : info.getPartProperties()) {
                 if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
                     LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
@@ -913,7 +918,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected String getPayloadExtension(PartInfo info) {
         String extension = "";
-        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isNotEmpty(info.getPartProperties())) {
             extension = info.getPartProperties().stream()
                     .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
                     .map(PartProperty::getValue)
@@ -929,7 +934,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private boolean isCompressedFile(PartInfo info) {
-        if(CollectionUtils.isEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isEmpty(info.getPartProperties())) {
             LOG.debug("No PartProperties: default -> no compression");
             return false;
         }

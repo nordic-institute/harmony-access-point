@@ -95,42 +95,44 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
-
-        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
-        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
-        }
-
-        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
-
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
-        userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, newMessageStatus.getMessageStatus());
-
-        final Date currentDate = new Date();
-        userMessageLog.setRestored(currentDate);
-        userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
-
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
-        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
-        userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-        userMessageLogDefaultService.update(userMessageLog);
-
-        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            try {
-                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
-                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
+        try {
+            LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
+            if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
             }
+
+            UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+
+            final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, newMessageStatus.getMessageStatus());
+
+            final Date currentDate = new Date();
+            userMessageLog.setRestored(currentDate);
+            userMessageLog.setFailed(null);
+            userMessageLog.setNextAttempt(currentDate);
+
+            Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
+            LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
+            userMessageLog.setSendAttemptsMax(newMaxAttempts);
+
+            userMessageLogDefaultService.update(userMessageLog);
+
+            if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
+                userMessageService.scheduleSending(userMessage, userMessageLog);
+            } else {
+                try {
+                    MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                    String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+                    LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
+                    pullMessageService.addPullMessageLock(userMessage, userMessageLog);
+                } catch (EbMS3Exception ebms3Ex) {
+                    LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
+                }
+            }
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         }
-        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
     }
 
     protected Integer getMaxAttemptsConfiguration(final Long messageEntityId) {
