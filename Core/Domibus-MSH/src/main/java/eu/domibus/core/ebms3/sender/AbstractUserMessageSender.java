@@ -6,10 +6,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.party.PartyNotReachableException;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.security.ChainCertificateInvalidException;
@@ -46,6 +43,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
 
 import static eu.domibus.core.message.reliability.ReliabilityServiceImpl.SUCCESS;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -244,6 +242,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("Finally handle reliability");
             reliabilityService.handleReliability(reliabilityDTOBuilder.build());
             if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
+                getLog().businessInfo(BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
             }

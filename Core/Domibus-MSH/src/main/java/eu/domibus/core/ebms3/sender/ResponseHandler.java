@@ -4,11 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MSHRoleEntity;
-import eu.domibus.api.model.SignalMessageResult;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -28,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_FAILED;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -101,28 +99,33 @@ public class ResponseHandler {
     }
 
     @Transactional
-    public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {
-        SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
+    public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse, ProcessingType processingType) {
+        try {
+            SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
-        final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
-        signalMessage.setMshRole(mshRoleEntity);
+            final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
+            final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
+            signalMessage.setMshRole(mshRoleEntity);
 
-        // Stores the signal message
-        UserMessage message = userMessageDao.findByReference(userMessage.getEntityId());
-        signalMessage.setUserMessage(message);
-        signalMessageDao.create(signalMessage);
+            // Stores the signal message
+            UserMessage message = userMessageDao.findByReference(userMessage.getEntityId());
+            signalMessage.setUserMessage(message);
+            signalMessageDao.create(signalMessage);
 
-        nonRepudiationService.saveResponse(response, signalMessage.getEntityId());
+            nonRepudiationService.saveResponse(response, signalMessage.getEntityId());
 
-        // Builds the signal message log
-        // Updating the reference to the signal message
-        String userMessageService = userMessage.getService().getValue();
-        String userMessageAction = userMessage.getActionValue();
+            // Builds the signal message log
+            // Updating the reference to the signal message
+            String userMessageService = userMessage.getService().getValue();
+            String userMessageAction = userMessage.getActionValue();
 
-        signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
+            signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
-        createWarningEntries(ebms3MessagingResponse.getSignalMessage(), userMessage);
+            createWarningEntries(ebms3MessagingResponse.getSignalMessage(), userMessage);
+        } catch (Throwable t) {
+            LOGGER.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, t, processingType);
+            throw t;
+        }
     }
 
     protected void createWarningEntries(Ebms3SignalMessage signalMessage, UserMessage userMessage) {
