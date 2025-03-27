@@ -67,7 +67,18 @@ public class UpdateRetryLoggingService {
 
     private final ReprogrammableService reprogrammableService;
 
-    public UpdateRetryLoggingService(BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, UserMessageLogDefaultService userMessageLogService, DomibusPropertyProvider domibusPropertyProvider, UserMessageRawEnvelopeDao rawEnvelopeLogDao, UserMessageService userMessageService, MessageAttemptService messageAttemptService, PModeProvider pModeProvider, MessageRetentionDefaultService messageRetentionService, MessageGroupDao messageGroupDao, MessageStatusDao messageStatusDao, ReprogrammableService reprogrammableService) {
+    public UpdateRetryLoggingService(BackendNotificationService backendNotificationService,
+                                     UserMessageLogDao userMessageLogDao,
+                                     UserMessageLogDefaultService userMessageLogService,
+                                     DomibusPropertyProvider domibusPropertyProvider,
+                                     UserMessageRawEnvelopeDao rawEnvelopeLogDao,
+                                     UserMessageService userMessageService,
+                                     MessageAttemptService messageAttemptService,
+                                     PModeProvider pModeProvider,
+                                     MessageRetentionDefaultService messageRetentionService,
+                                     MessageGroupDao messageGroupDao,
+                                     MessageStatusDao messageStatusDao,
+                                     ReprogrammableService reprogrammableService) {
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
         this.userMessageLogService = userMessageLogService;

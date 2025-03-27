@@ -147,7 +147,7 @@ public class PullMessageServiceImpl implements PullMessageService {
             case OK:
                 if (responseResult != null) {
                     LOG.warn("Saving signal message to the database");
-                    responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging(), ProcessingType.PULL);
+                    responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
                 } else {
                     LOG.warn("Could not save signal message in the database, invalid response result");
                 }
