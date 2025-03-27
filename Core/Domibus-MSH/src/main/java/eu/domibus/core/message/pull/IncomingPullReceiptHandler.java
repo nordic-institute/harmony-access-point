@@ -36,6 +36,9 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_FAILED;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS;
+
 /**
  * Handles the incoming AS4 pull receipt
  *
@@ -104,6 +107,11 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
         LOG.debug("Handle PULL request receipt [{}]", userMessage);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
@@ -126,7 +134,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
                     .refToMessageId(messageId)
                     .build());
         }
-        ResponseResult responseResult = null;
+         ResponseResult responseResult = null;
+        Throwable t = null;
         try {
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
@@ -138,26 +147,34 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, legConfiguration, pullReceiptMatcher);
         } catch (final SOAPFaultException soapFEx) {
+            t = soapFEx;
             LOG.error("A SOAP fault occurred when handling pull receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), userMessage);
             }
         } catch (final EbMS3Exception e) {
+            t = e;
             LOG.error("EbMS3 exception occurred when handling pull receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, userMessage);
         } catch (ReliabilityException r) {
+            t = r;
             LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
+        } catch (Throwable tr){
+           t = tr;
         } finally {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, responseResult, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
         if ((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
                 (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
+            LOG.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, t, ProcessingType.PULL);
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
                     .message(String.format("There was an error processing the receipt for pulled message:[%s].", messageId))
                     .refToMessageId(messageId)
                     .build());
+        } else {
+            LOG.businessInfo(BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PULL);
         }
 
         // when the pull receipt is valid, no response is expected back

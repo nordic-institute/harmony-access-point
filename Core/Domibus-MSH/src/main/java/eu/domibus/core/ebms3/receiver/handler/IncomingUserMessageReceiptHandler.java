@@ -149,6 +149,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             reliabilityService.handleReliability(reliabilityDTOBuilder.build());
             if (ReliabilityChecker.CheckResult.OK == checkResult) {
                 final Boolean isTestMessage = sentUserMessage.isTestMessage();
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
             }
