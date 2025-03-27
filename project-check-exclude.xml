@@ -96,26 +96,28 @@
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
     <suppress>
-        <!--Only used in testing environment-->
         <notes><![CDATA[
-   file name: tomcat-embed-core-9.0.80.jar
+   file name: tomcat-embed-core-9.0.xx.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
+        <!--Only used in testing environment-->
         <cve>CVE-2023-42794</cve>
         <cve>CVE-2023-44487</cve>
         <cve>CVE-2023-42795</cve>
         <cve>CVE-2023-45648</cve>
+        <cve>CVE-2025-24813</cve>
     </suppress>
     <suppress>
-        <!--Only used in testing environment-->
         <notes><![CDATA[
-   file name: tomcat-embed-websocket-9.0.80.jar
+   file name: tomcat-embed-websocket-9.0.xx.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
+        <!--Only used in testing environment-->
         <cve>CVE-2023-42794</cve>
         <cve>CVE-2023-44487</cve>
         <cve>CVE-2023-42795</cve>
         <cve>CVE-2023-45648</cve>
+        <cve>CVE-2025-24813</cve>
     </suppress>
     <suppress>
         <!-- jetty-server is not used in production - used in tests -->
@@ -479,6 +481,9 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
         <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+        <!-- Probability is very low since the vulnerability is manifesting when passwords are above 72 characters and then the first 72 characters must be identical
+        also Domibus imposes through property omibus.passwordPolicy.pattern a lower maximum size than 72 characters for the passwords-->
+        <vulnerabilityName>CVE-2025-22228</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -917,5 +922,14 @@
         <cve>CVE-2024-38820</cve>
     </suppress>
     <!--end - disallowedFields in DataBinder - to be removed when Spring is updated-->
-
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-vfs2-2.9.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-vfs2@.*$</packageUrl>
+        <!-- FSPlugin is used and administered in a controlled environment therefore the file path is not a parameter received from outside -->
+        <vulnerabilityName>CVE-2025-27553</vulnerabilityName>
+        <!-- Domibus does not log passwords -->
+        <vulnerabilityName>CVE-2025-30474</vulnerabilityName>
+    </suppress>
 </suppressions>
