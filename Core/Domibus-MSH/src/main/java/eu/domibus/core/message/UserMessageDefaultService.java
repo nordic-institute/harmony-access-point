@@ -661,9 +661,13 @@ public class UserMessageDefaultService implements UserMessageService {
         try {
             ids.forEach(eid -> {
                 UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLog.getUserMessage().getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
-
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         } catch (RuntimeException e) {
             LOG.warn("Error occurred while notifying message status change.", e);
             throw e;
@@ -793,8 +797,14 @@ public class UserMessageDefaultService implements UserMessageService {
             entityIds.forEach(partInfoService::clearPayloadData);
             entityIds.forEach(eid -> {
                 UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLog.getUserMessage().getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
         } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);

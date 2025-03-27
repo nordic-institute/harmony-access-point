@@ -2,7 +2,6 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
@@ -42,6 +41,6 @@ public interface PullMessageStateService {
      *
      * @param userMessageLog the user message.
      */
-    void reset(UserMessageLog userMessageLog, String messageId);
+    void reset(UserMessageLog userMessageLog, UserMessage userMessage);
 
 }

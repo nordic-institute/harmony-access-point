@@ -24,18 +24,13 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
-import java.sql.Timestamp;
 import java.util.Date;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
@@ -313,8 +308,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
         messagingLockDao.save(lock);
 
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT));
+        userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLogDao.update(userMessageLog);
     }
 
@@ -372,7 +366,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         LOG.debug("[PULL_RECEIPT]:Message:[{}] failed on pull message acknowledgement", userMessage.getMessageId());
         if (attemptNumberLeftIsStricltyLowerThenMaxAttemps(userMessageLog, legConfiguration)) {
             LOG.debug("[PULL_RECEIPT]:Message:[{}] has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
-            pullMessageStateService.reset(userMessageLog, userMessage.getMessageId());
+            pullMessageStateService.reset(userMessageLog, userMessage);
             LOG.debug("[pullFailedOnReceipt]:Message:[{}] add lock", userMessage.getMessageId());
             LOG.debug("[PULL_RECEIPT]:Message:[{}] will be available for pull at [{}]", userMessage.getMessageId(), userMessageLog.getNextAttempt());
 
@@ -423,7 +417,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
         if (lock.getSendAttempts() < lock.getSendAttemptsMax() && lock.getStaled().getTime() > System.currentTimeMillis()) {
             LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] set ready for pulling", lock.getMessageId());
-            pullMessageStateService.reset(userMessageLog, messageId);
+            pullMessageStateService.reset(userMessageLog, userMessageLog.getUserMessage());
             lock.setMessageState(MessageState.READY);
             messagingLockDao.save(lock);
         } else {

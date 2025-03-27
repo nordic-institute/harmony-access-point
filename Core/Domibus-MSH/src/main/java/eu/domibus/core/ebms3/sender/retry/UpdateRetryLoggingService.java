@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
@@ -240,11 +239,7 @@ public class UpdateRetryLoggingService {
     }
 
     public void saveAndNotify(UserMessage userMessage, MessageStatus messageStatus, UserMessageLog userMessageLog) {
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, messageStatus, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
-        LOG.debug("Updating status to [{}]", userMessageLog.getMessageStatus());
-        userMessageLogDao.update(userMessageLog);
-
+        userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, messageStatus);
     }
 
     /**
