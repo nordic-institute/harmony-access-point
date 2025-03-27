@@ -111,7 +111,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                     .build());
         }
 
-        ReliabilityChecker.CheckResult checkResult = ReliabilityChecker.CheckResult.ABORT;
+        ReliabilityChecker.CheckResult reliabilityCheckResult = ReliabilityChecker.CheckResult.ABORT;
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
         UserMessage sentUserMessage = null;
@@ -126,7 +126,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             SOAPMessage soapMessage = getSoapMessage(legConfiguration, sentUserMessage);
             responseResult = responseHandler.verifyResponse(request, messageId);
 
-            checkResult = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
+            reliabilityCheckResult = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when handling receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
@@ -141,13 +141,13 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
             reliabilityDTOBuilder
                     .userMessage(sentUserMessage)
-                    .reliabilityCheckStatus(checkResult)
+                    .reliabilityCheckStatus(reliabilityCheckResult)
                     .responseSoapMessage(request)
                     .responseResult(responseResult)
                     .legConfiguration(legConfiguration);
 
             reliabilityService.handleReliability(reliabilityDTOBuilder.build());
-            if (ReliabilityChecker.CheckResult.OK == checkResult) {
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
                 final Boolean isTestMessage = sentUserMessage.isTestMessage();
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,

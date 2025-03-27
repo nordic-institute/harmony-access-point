@@ -26,9 +26,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -43,7 +40,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIncomingMessageHandler.class);
 
-    private final static String INCOMING_TEST_MESSAGE ="incoming-test-message";
+    private final static String INCOMING_TEST_MESSAGE = "incoming-test-message";
 
     @Autowired
     protected BackendNotificationService backendNotificationService;
@@ -80,24 +77,22 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         boolean testMessage = userMessage.isTestMessage();
-        if(testMessage) {
+        if (testMessage) {
             String finalPmodeKey = pmodeKey;
             try {
-                return metricRegistry.timer(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "timer")).time(
-                        () -> {
-                            com.codahale.metrics.Counter testMessageCounter = null;
-                            try {
-                                testMessageCounter= metricRegistry.counter(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "counter"));
-                                testMessageCounter.inc();
-                                return processMessage(request, ebms3Messaging, finalPmodeKey, userMessage, true);
-                            } finally {
-                                Optional.ofNullable(testMessageCounter).ifPresent(com.codahale.metrics.Counter::dec);
-                            }
-                        }
-                );
+                return metricRegistry.timer(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "timer")).time(() -> {
+                    com.codahale.metrics.Counter testMessageCounter = null;
+                    try {
+                        testMessageCounter = metricRegistry.counter(name(AbstractIncomingMessageHandler.class, INCOMING_TEST_MESSAGE, "counter"));
+                        testMessageCounter.inc();
+                        return processMessage(request, ebms3Messaging, finalPmodeKey, userMessage, true);
+                    } finally {
+                        Optional.ofNullable(testMessageCounter).ifPresent(com.codahale.metrics.Counter::dec);
+                    }
+                });
             } catch (RuntimeException e) {
                 throw e;
-            } catch (Exception e){
+            } catch (Exception e) {
                 new WebServiceException("Unexpected exception", e);    //should never happen
             }
         }
@@ -110,13 +105,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
             responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
-            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                    ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId()
-//                    ,
-//                    Instant.ofEpochMilli(userMessage.getTimestamp().getTime())
-//                            .atZone(ZoneOffset.UTC)
-//                            .format(DateTimeFormatter.ISO_DATE_TIME)
-            );
+            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED, ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
 
             LOG.debug("Ping message {}", testMessage);
         } catch (TransformerException | SOAPException | JAXBException | IOException e) {
