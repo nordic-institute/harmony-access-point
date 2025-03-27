@@ -35,6 +35,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_FAILED;
+
 /**
  * Handles the incoming AS4 receipts
  *
@@ -152,6 +154,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+            } else {
+                LOG.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, null, ProcessingType.PUSH);
             }
         }
         return null;

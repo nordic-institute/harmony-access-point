@@ -29,7 +29,6 @@ import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
-import java.util.Date;
 
 import static org.junit.Assert.fail;
 
@@ -107,8 +106,6 @@ public class IncomingUserMessageHandlerTest {
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
             result = soapResponseMessage;
 
-//            userMessage.getCreationTime();
-//            result = new Date();
         }};
 
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);

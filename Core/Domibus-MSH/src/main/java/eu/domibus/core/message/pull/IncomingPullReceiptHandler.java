@@ -97,6 +97,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         LOG.trace("before pull receipt.");
 
         String messageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         final SOAPMessage soapMessage = handlePullRequestReceipt(request, messageId);
         LOG.trace("returning pull receipt.");
         return soapMessage;
@@ -107,7 +108,6 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
@@ -135,7 +135,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
                     .build());
         }
          ResponseResult responseResult = null;
-        Throwable t = null;
+        Throwable throwable = null;
         try {
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
@@ -147,27 +147,27 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, legConfiguration, pullReceiptMatcher);
         } catch (final SOAPFaultException soapFEx) {
-            t = soapFEx;
+            throwable = soapFEx;
             LOG.error("A SOAP fault occurred when handling pull receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), userMessage);
             }
         } catch (final EbMS3Exception e) {
-            t = e;
+            throwable = e;
             LOG.error("EbMS3 exception occurred when handling pull receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, userMessage);
         } catch (ReliabilityException r) {
-            t = r;
+            throwable = r;
             LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
         } catch (Throwable tr){
-           t = tr;
+           throwable = tr;
         } finally {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, responseResult, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
         if ((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
                 (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
-            LOG.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, t, ProcessingType.PULL);
+            LOG.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, throwable, ProcessingType.PULL);
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
                     .message(String.format("There was an error processing the receipt for pulled message:[%s].", messageId))

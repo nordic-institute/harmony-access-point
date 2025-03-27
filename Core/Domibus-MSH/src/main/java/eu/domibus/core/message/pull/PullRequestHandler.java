@@ -79,6 +79,7 @@ public class PullRequestHandler {
 
     public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.info("Message id [{}] for received pull request [{}] with pull context mpc [{}]", messageId, refToMessageId, pullContext.getMpcQualifiedName());
             return handleRequest(messageId, pullContext);
         } else {
@@ -99,10 +100,9 @@ public class PullRequestHandler {
         final Timestamp startDate = new Timestamp(System.currentTimeMillis());
         SOAPMessage soapMessage = null;
         UserMessage userMessage = null;
-        Throwable t = null;
+        Throwable throwable = null;
         try {
             userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
             LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
             LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
@@ -146,12 +146,12 @@ public class PullRequestHandler {
             }
 
         } catch (ChainCertificateInvalidException e) {
-            t = e;
+            throwable = e;
             checkResult = ABORT;
             LOG.debug("Skipped checking the reliability for message [{}]: message sending has been aborted", messageId);
             LOG.error("Cannot handle pullrequest for message:[{}], Receiver:[{}] certificate is not valid or it has been revoked ", messageId, pullContext.getInitiator().getName(), e);
         } catch (EbMS3Exception e) {
-            t = e;
+            throwable = e;
             LOG.error("EbMS3 exception occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
@@ -162,7 +162,7 @@ public class PullRequestHandler {
                 throw new WebServiceException(e1);
             }
         } catch (Throwable e) { // NOSONAR: This was done on purpose.
-            t = e;
+            throwable = e;
             LOG.error("Error occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
@@ -171,13 +171,18 @@ public class PullRequestHandler {
             LOG.debug("Before updatePullMessageAfterRequest message id[{}] checkResult[{}]", messageId, checkResult);
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, leg, checkResult);
             if (checkResult != WAITING_FOR_CALLBACK) {
-                LOG.businessError(BUS_MESSAGE_PULL_REQUEST_RECEIVED_FAILED, t);
+                LOG.businessError(BUS_MESSAGE_PULL_REQUEST_RECEIVED_FAILED, throwable);
             } else {
                 LOG.businessInfo(BUS_MESSAGE_PULL_REQUEST_RECEIVED_SUCCESS);
             }
             if (checkResult != ABORT) {
                 try {
-                    final MessageAttempt attempt = MessageAttemptBuilder.create().setMessageId(messageId).setAttemptStatus(attemptStatus).setAttemptError(attemptError).setStartDate(startDate).build();
+                    final MessageAttempt attempt = MessageAttemptBuilder.create()
+                            .setMessageId(messageId)
+                            .setAttemptStatus(attemptStatus)
+                            .setAttemptError(attemptError)
+                            .setStartDate(startDate)
+                            .build();
                     attempt.setUserMessageEntityId(userMessage.getEntityId());
                     messageAttemptService.create(attempt);
                 } catch (Exception e) {
