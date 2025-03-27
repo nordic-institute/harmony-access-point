@@ -1,6 +1,5 @@
 package eu.domibus.core.message.reliability;
 
-import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
@@ -94,7 +93,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 if(StringUtils.isNotBlank(reliabilityDTO.getRequestRawXMLMessage())) {
                     nonRepudiationService.saveRawEnvelope(reliabilityDTO.getRequestRawXMLMessage(), userMessage);
                 }
-                responseHandler.saveResponse(reliabilityDTO.getResponseSoapMessage(), userMessage,reliabilityDTO.getResponseResult().getResponseMessaging(), ProcessingType.PUSH);
+                responseHandler.saveResponse(reliabilityDTO.getResponseSoapMessage(), userMessage,reliabilityDTO.getResponseResult().getResponseMessaging());
 
                 ResponseHandler.ResponseStatus responseStatus = reliabilityDTO.getResponseResult().getResponseStatus();
                 switch (responseStatus) {

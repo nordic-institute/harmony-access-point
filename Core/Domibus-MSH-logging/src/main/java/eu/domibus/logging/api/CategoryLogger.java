@@ -37,13 +37,13 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         this.fqcn = fqcn;
     }
 
-    public void trace(Marker marker, MessageCode key, Throwable t, boolean printST, Object... args) {
+    public void trace(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object... args) {
         if (!logger.isTraceEnabled()) {
             return;
         }
 
-        String formattedMessage = formatMessage(marker, key, t, printST, args);
-        if (printST) {
+        String formattedMessage = formatMessage(marker, key, t, printStackTrace, args);
+        if (printStackTrace) {
             logTrace(marker, formattedMessage, t, args);
         } else {
             logTrace(marker, formattedMessage, null, args);
@@ -62,12 +62,12 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         debug(marker, key, null, args);
     }
 
-    public void debug(Marker marker, MessageCode key, Throwable t, boolean printST, Object... args) {
+    public void debug(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object... args) {
         if (!logger.isDebugEnabled()) {
             return;
         }
-        String formattedMessage = formatMessage(marker, key, t, printST, args);
-        if (printST) {
+        String formattedMessage = formatMessage(marker, key, t, printStackTrace, args);
+        if (printStackTrace) {
             logDebug(marker, formattedMessage, t, args);
         } else {
             logDebug(marker, formattedMessage, null, args);
@@ -86,11 +86,11 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         info(marker, key, null, args);
     }
 
-    public void info(Marker marker, MessageCode key, Throwable t, boolean printST, Object... args) {
+    public void info(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object... args) {
         if (!logger.isInfoEnabled()) {
             return;
         }
-        String formattedMessage = formatMessage(marker, key, t, printST, args);
+        String formattedMessage = formatMessage(marker, key, t, printStackTrace, args);
 
         logInfo(marker, formattedMessage, t, args);
 
@@ -108,12 +108,12 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         warn(marker, key, null, args);
     }
 
-    public void warn(Marker marker, MessageCode key, Throwable t, boolean printST, Object... args) {
+    public void warn(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object... args) {
         if (!logger.isWarnEnabled()) {
             return;
         }
-        String formattedMessage = formatMessage(marker, key, t, printST, args);
-        if (printST) {
+        String formattedMessage = formatMessage(marker, key, t, printStackTrace, args);
+        if (printStackTrace) {
             logWarn(marker, formattedMessage, t, args);
         } else {
             logWarn(marker, formattedMessage, null, args);
@@ -128,12 +128,12 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         }
     }
 
-    public void error(Marker marker, MessageCode key, Throwable t, boolean printST, Object... args) {
+    public void error(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object... args) {
         if (!logger.isErrorEnabled()) {
             return;
         }
-        String formattedMessage = formatMessage(marker, key, t, printST, args);
-        if (printST) {
+        String formattedMessage = formatMessage(marker, key, t, printStackTrace, args);
+        if (printStackTrace) {
             logError(marker, formattedMessage, t, args);
         } else {
             logError(marker, formattedMessage, null, args);
@@ -148,8 +148,8 @@ public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor
         }
     }
 
-    protected String formatMessage(Marker marker, MessageCode key, Throwable t, boolean printST, Object[] args) {
-        if (printST) {
+    protected String formatMessage(Marker marker, MessageCode key, Throwable t, boolean printStackTrace, Object[] args) {
+        if (printStackTrace) {
             //No need for a summary of the exception if the stackTrace is printed
             return messageConverter.getMessage(marker, key, args);
         }
