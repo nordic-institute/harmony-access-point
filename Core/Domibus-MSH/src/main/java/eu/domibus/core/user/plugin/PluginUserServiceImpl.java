@@ -174,10 +174,10 @@ public class PluginUserServiceImpl implements PluginUserService {
         String lclPluginUserName = StringUtils.trim(userName);
         int lclPluginUserNameLength = StringUtils.length(lclPluginUserName);
         if (lclPluginUserNameLength < PLUGIN_USERNAME_MIN_LENGTH || lclPluginUserNameLength > PLUGIN_USERNAME_MAX_LENGTH) {
-            throw new UserManagementException("Plugin User Username should be between 4 and 255 characters long.");
+            throw new UserManagementException("Plugin User username should be between 4 and 255 characters long.");
         }
         if (!lclPluginUserName.matches(PLUGIN_USERNAME_PATTERN)) {
-            throw new UserManagementException("Plugin User should be alphanumeric with allowed special characters .@_");
+            throw new UserManagementException("Plugin User username should be alphanumeric with allowed special characters .@_-");
         }
     }
 

@@ -31,7 +31,7 @@ import java.util.*;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class PluginUserEbms3ServiceImplTest {
+public class PluginUserServiceImplTest {
 
     @Tested
     private PluginUserServiceImpl pluginUserService;
@@ -330,7 +330,7 @@ public class PluginUserEbms3ServiceImplTest {
         }};
 
         thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Plugin User should be alphanumeric with allowed special characters .@_");
+        thrown.expectMessage("Plugin User username should be alphanumeric with allowed special characters .@_-");
 
         pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
     }
@@ -343,7 +343,7 @@ public class PluginUserEbms3ServiceImplTest {
         }};
 
         thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Plugin User Username should be between 4 and 255 characters long.");
+        thrown.expectMessage("Plugin User username should be between 4 and 255 characters long.");
 
         pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
     }
