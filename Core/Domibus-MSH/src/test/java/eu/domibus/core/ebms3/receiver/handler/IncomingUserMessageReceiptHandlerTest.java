@@ -18,15 +18,16 @@ import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.PullRequestResult;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityDTO;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.test.common.UserMessageSampleUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.soap.SOAPMessage;
@@ -69,7 +70,6 @@ public class IncomingUserMessageReceiptHandlerTest {
     @Test
     public void testHandleUserMessageReceipt_HappyFlow(@Injectable final SOAPMessage request,
                                                       @Injectable final SignalMessage signalMessage,
-                                                      @Injectable final UserMessage userMessage,
                                                       @Injectable final MessageExchangeConfiguration messageConfiguration,
                                                       @Injectable final PullRequestResult pullRequestResult,
                                                       @Injectable final MessagingLock messagingLock,
@@ -79,6 +79,8 @@ public class IncomingUserMessageReceiptHandlerTest {
                                                       @Injectable ResponseResult responseResult) throws EbMS3Exception {
         final String messageId = "12345";
         final String pModeKey = "pmodeKey";
+        UserMessage userMessage = UserMessageSampleUtil.createUserMessage();
+
         final UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
         messageStatusEntity.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
@@ -112,26 +114,20 @@ public class IncomingUserMessageReceiptHandlerTest {
 
             userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
-
-            reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.OK, null, request, responseResult, legConfiguration, null);
-
-            userMessage.isTestMessage();
-            result = false;
-
-            userMessage.getPartyInfo();
-            result = new PartyInfo();
         }};
 
         incomingUserMessageReceiptHandler.handlePushUserMessageReceipt(request, messageId, userMessageLog);
 
-        new FullVerifications() {};
+        new FullVerifications() {{
+            reliabilityService.handleReliability((ReliabilityDTO) any);
+            times = 1;
+        }};
 
     }
 
     @Test
     public void testHandleUserMessageReceipt_Exception(@Injectable final SOAPMessage request,
                                                       @Injectable final SignalMessage signalMessage,
-                                                      @Injectable final UserMessage userMessage,
                                                       @Injectable final MessageExchangeConfiguration messageConfiguration,
                                                       @Injectable final PullRequestResult pullRequestResult,
                                                       @Injectable final MessagingLock messagingLock,
@@ -141,6 +137,7 @@ public class IncomingUserMessageReceiptHandlerTest {
                                                       @Injectable ResponseResult responseResult) throws EbMS3Exception {
         final String messageId = "12345";
         final String pModeKey = "pmodeKey";
+        UserMessage userMessage = UserMessageSampleUtil.createUserMessage();
         final UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
         messageStatusEntity.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
@@ -179,13 +176,14 @@ public class IncomingUserMessageReceiptHandlerTest {
 
             reliabilityChecker.handleEbms3Exception((EbMS3Exception) any, userMessage);
 
-            reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.ABORT, null, request, null, legConfiguration, null);
-
         }};
 
         incomingUserMessageReceiptHandler.handlePushUserMessageReceipt(request, messageId, userMessageLog);
 
-        new FullVerifications() {};
+        new FullVerifications() {{
+            reliabilityService.handleReliability((ReliabilityDTO) any);
+            times = 1;
+        }};
 
     }
 }

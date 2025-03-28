@@ -107,6 +107,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
 
         if (userMessageLog.getProcessingType() == ProcessingType.PULL) {
             return incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
@@ -132,6 +134,9 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         UserMessage sentUserMessage = null;
         try {
             sentUserMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            LOG.putMDC(DomibusLogger.MDC_FROM, sentUserMessage.getPartyInfo().getFromParty());
+            LOG.putMDC(DomibusLogger.MDC_TO, sentUserMessage.getPartyInfo().getToParty());
+            LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, sentUserMessage.getConversationId());
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 

@@ -91,8 +91,6 @@ public class IncomingPullReceiptHandler {
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
         UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
         LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
