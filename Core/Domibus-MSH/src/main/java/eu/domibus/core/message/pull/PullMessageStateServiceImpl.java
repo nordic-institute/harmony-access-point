@@ -105,6 +105,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Override
     public void reset(final UserMessageLog userMessageLog, UserMessage userMessage) {
         userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.READY_TO_PULL);
+        userMessageLogService.update(userMessageLog);
     }
 
 

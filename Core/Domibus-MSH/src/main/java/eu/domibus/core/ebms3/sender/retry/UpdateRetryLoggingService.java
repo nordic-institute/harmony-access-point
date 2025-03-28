@@ -251,6 +251,7 @@ public class UpdateRetryLoggingService {
 
     public void saveAndNotify(UserMessage userMessage, MessageStatus messageStatus, UserMessageLog userMessageLog) {
         userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, messageStatus);
+        userMessageLogService.update(userMessageLog);
     }
 
     /**
