@@ -16,6 +16,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
@@ -35,7 +36,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
 
 /**
- * Handles the incoming AS4 receipts
+ * Handles the incoming AS4 receipts for User Messages (that were sent with either PUSH or PULL).
  *
  * @author Cosmin Baciu
  * @since 4.1
@@ -58,6 +59,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     protected final SoapUtil soapUtil;
     protected Ebms3Converter ebms3Converter;
     protected PartInfoDao partInfoDao;
+    protected final IncomingPullReceiptHandler incomingPullReceiptHandler;
 
     public IncomingUserMessageReceiptHandler(ReliabilityService reliabilityService,
                                              ReliabilityChecker reliabilityChecker,
@@ -69,7 +71,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                                              MessageUtil messageUtil,
                                              SoapUtil soapUtil,
                                              Ebms3Converter ebms3Converter,
-                                             PartInfoDao partInfoDao) {
+                                             PartInfoDao partInfoDao,
+                                             IncomingPullReceiptHandler incomingPullReceiptHandler) {
         this.reliabilityService = reliabilityService;
         this.reliabilityChecker = reliabilityChecker;
         this.userMessageLogDao = userMessageLogDao;
@@ -81,6 +84,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         this.soapUtil = soapUtil;
         this.ebms3Converter = ebms3Converter;
         this.partInfoDao = partInfoDao;
+        this.incomingPullReceiptHandler = incomingPullReceiptHandler;
     }
 
     @Transactional
@@ -89,17 +93,28 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     @Counter(clazz = IncomingUserMessageReceiptHandler.class, value = "incoming_user_message_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.debug("Processing UserMessage receipt");
-        SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        return handleUserMessageReceipt(request, signalMessageResult.getSignalMessage());
+
+        String refToMessageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+
+        return handleIncomingReceipt(request, refToMessageId);
     }
 
-    protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, SignalMessage signalMessage) {
-        String messageId = signalMessage.getRefToMessageId();
-
+    protected SOAPMessage handleIncomingReceipt(SOAPMessage request, String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
+
+        if (userMessageLog.getProcessingType() == ProcessingType.PULL) {
+            return incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
+        } else if (userMessageLog.getProcessingType() == ProcessingType.PUSH) {
+            return handlePushUserMessageReceipt(request, messageId, userMessageLog);
+        } else {
+            throw new MessageNotFoundException("Processing type not found for message with ID [" + messageId + "]");
+        }
+    }
+
+    protected SOAPMessage handlePushUserMessageReceipt(SOAPMessage request, String messageId, final UserMessageLog userMessageLog) {
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
             LOG.error("Received a UserMessage receipt for an already acknowledged message with status [{}]", userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
@@ -114,7 +129,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         LegConfiguration legConfiguration = null;
         UserMessage sentUserMessage = null;
         try {
-            sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            sentUserMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 

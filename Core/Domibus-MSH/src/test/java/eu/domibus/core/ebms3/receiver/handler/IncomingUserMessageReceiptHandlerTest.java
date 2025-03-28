@@ -14,6 +14,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.PullRequestResult;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -35,7 +36,6 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.2
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
-@Ignore("[EDELIVERY-8739] Improve code coverage")
 public class IncomingUserMessageReceiptHandlerTest {
 
     @Tested
@@ -63,6 +63,8 @@ public class IncomingUserMessageReceiptHandlerTest {
     Ebms3Converter ebms3Converter;
     @Injectable
     PartInfoDao partInfoDao;
+    @Injectable
+    IncomingPullReceiptHandler incomingPullReceiptHandler;
 
     @Test
     public void testHandleUserMessageReceipt_HappyFlow(@Injectable final SOAPMessage request,
@@ -83,13 +85,8 @@ public class IncomingUserMessageReceiptHandlerTest {
         userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLog.setUserMessage(userMessage);
         new Expectations(incomingUserMessageReceiptHandler) {{
-            signalMessage.getRefToMessageId();
-            result = messageId;
 
-            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
-            result = userMessageLog;
-
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = messageConfiguration;
 
             messageConfiguration.getPmodeKey();
@@ -113,13 +110,19 @@ public class IncomingUserMessageReceiptHandlerTest {
             reliabilityChecker.check(soapMessage, request, responseResult, reliability);
             result = ReliabilityChecker.CheckResult.OK;
 
-
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
 
+            reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.OK, null, request, responseResult, legConfiguration, null);
+
+            userMessage.isTestMessage();
+            result = false;
+
+            userMessage.getPartyInfo();
+            result = new PartyInfo();
         }};
 
-        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, signalMessage);
+        incomingUserMessageReceiptHandler.handlePushUserMessageReceipt(request, messageId, userMessageLog);
 
         new FullVerifications() {};
 
@@ -145,11 +148,11 @@ public class IncomingUserMessageReceiptHandlerTest {
         userMessageLog.setUserMessage(userMessage);
 
         new Expectations(incomingUserMessageReceiptHandler) {{
-            signalMessage.getRefToMessageId();
-            result = messageId;
+//            signalMessage.getRefToMessageId();
+//            result = messageId;
 
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
-            result = userMessageLog;
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = messageConfiguration;
@@ -161,6 +164,7 @@ public class IncomingUserMessageReceiptHandlerTest {
             result = EbMS3ExceptionBuilder
                     .getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("Mock Error")
                     .refToMessageId(messageId)
                     .build();
 
@@ -173,9 +177,13 @@ public class IncomingUserMessageReceiptHandlerTest {
             incomingUserMessageReceiptHandler.getSoapMessage(legConfiguration, userMessage);
             result = soapMessage;
 
+            reliabilityChecker.handleEbms3Exception((EbMS3Exception) any, userMessage);
+
+            reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.ABORT, null, request, null, legConfiguration, null);
+
         }};
 
-        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, signalMessage);
+        incomingUserMessageReceiptHandler.handlePushUserMessageReceipt(request, messageId, userMessageLog);
 
         new FullVerifications() {};
 
