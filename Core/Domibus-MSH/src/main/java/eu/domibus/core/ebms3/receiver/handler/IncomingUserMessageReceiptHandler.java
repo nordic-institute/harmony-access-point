@@ -107,10 +107,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
 
         if (userMessageLog.getProcessingType() == ProcessingType.PULL) {
             return incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
-        } else if (userMessageLog.getProcessingType() == ProcessingType.PUSH) {
-            return handlePushUserMessageReceipt(request, messageId, userMessageLog);
         } else {
-            throw new MessageNotFoundException("Processing type not found for message with ID [" + messageId + "]");
+            return handlePushUserMessageReceipt(request, messageId, userMessageLog);
         }
     }
 

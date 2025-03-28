@@ -71,6 +71,10 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
         userMessageLog.setMessageStatus(messageStatusEntity);
 
+        if (messageStatusEntity.getMessageStatus() == MessageStatus.READY_TO_PULL) {
+            userMessageLog.setProcessingType(ProcessingType.PULL);
+        }
+
         final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
         userMessageLog.setMshRole(mshRoleEntity);
 
