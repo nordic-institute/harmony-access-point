@@ -17,6 +17,7 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
@@ -238,9 +239,13 @@ public class FaultInHandler extends AbstractFaultHandler {
                         .mshRole(MSHRole.RECEIVING)
                         .build();
             } else {
+                String message = UNKNOWN_ERROR_OCCURRED;
+                if (exception instanceof ConfigurationException) {
+                    message = exception.getMessage();
+                }
                 ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                        .message(UNKNOWN_ERROR_OCCURRED)
+                        .message(message)
                         .refToMessageId(messageId)
                         .mshRole(MSHRole.RECEIVING)
                         .build();
