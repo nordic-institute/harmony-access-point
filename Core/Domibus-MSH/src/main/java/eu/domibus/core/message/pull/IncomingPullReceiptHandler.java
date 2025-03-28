@@ -1,6 +1,5 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.reliability.ReliabilityException;
@@ -8,7 +7,6 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
@@ -18,8 +16,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -46,7 +42,7 @@ import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED
  * @since 4.1
  */
 @Service
-public class IncomingPullReceiptHandler implements IncomingMessageHandler {
+public class IncomingPullReceiptHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullReceiptHandler.class);
 
@@ -90,30 +86,15 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         this.partInfoDao = partInfoDao;
     }
 
-    @Override
-    @Timer(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
-    @Counter(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
-    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
-        LOG.trace("before pull receipt.");
-
-        String messageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        final SOAPMessage soapMessage = handlePullRequestReceipt(request, messageId);
-        LOG.trace("returning pull receipt.");
-        return soapMessage;
-    }
-
-    protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId) {
+    public SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId, final UserMessageLog userMessageLog) {
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
         LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
         LOG.debug("Handle PULL request receipt [{}]", userMessage);
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
