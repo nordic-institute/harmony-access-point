@@ -177,7 +177,7 @@ public class PluginUserServiceImpl implements PluginUserService {
             throw new UserManagementException("Plugin User username should be between 4 and 255 characters long.");
         }
         if (!lclPluginUserName.matches(PLUGIN_USERNAME_PATTERN)) {
-            throw new UserManagementException("Plugin User username should be alphanumeric with allowed special characters .@_-");
+            throw new UserManagementException("Plugin User username contains unsupported characters. Allowed characters are: letters (a-z, A-Z), digits (0-9), and the symbols '.', '@', '_' and '-'.");
         }
     }
 

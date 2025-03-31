@@ -330,7 +330,7 @@ public class PluginUserServiceImplTest {
         }};
 
         thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Plugin User username should be alphanumeric with allowed special characters .@_-");
+        thrown.expectMessage("Plugin User username contains unsupported characters. Allowed characters are: letters (a-z, A-Z), digits (0-9), and the symbols '.', '@', '_' and '-'.");
 
         pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
     }
