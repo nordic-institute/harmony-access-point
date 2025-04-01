@@ -97,7 +97,7 @@ public class IncomingPullReceiptHandler {
                     .refToMessageId(messageId)
                     .build());
         }
-        LOG.debug("[handlePullRequestReceipt]:Message:[{}] delete lock ", messageId);
+        LOG.debug("[handlePullRequestReceipt]:Message:[{}] checking lock ", messageId);
 
         final MessagingLock lock = pullMessageService.getLock(messageId);
         if (lock == null || MessageState.WAITING != lock.getMessageState()) {
