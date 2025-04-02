@@ -207,6 +207,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_POLICIES_CHECK_CRON = "domibus.passwordPolicies.check.cron";//NOSONAR
     String DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON = "domibus.plugin_passwordPolicies.check.cron";//NOSONAR
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON = "domibus.payload.temp.job.retention.cron";
+    String DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES = "domibus.payload.file_system.folder.added_minutes";
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
     String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON = "domibus.ongoingMessagesSanitizing.worker.cron";
