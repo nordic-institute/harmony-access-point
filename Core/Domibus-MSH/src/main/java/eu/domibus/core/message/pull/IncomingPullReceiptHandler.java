@@ -50,7 +50,6 @@ public class IncomingPullReceiptHandler {
     private final ReliabilityChecker reliabilityChecker;
     private final ReliabilityMatcher pullReceiptMatcher;
     private final PullMessageService pullMessageService;
-    private final UserMessageLogDao userMessageLogDao;
     private final EbMS3MessageBuilder messageBuilder;
     private final ResponseHandler responseHandler;
     private final PModeProvider pModeProvider;
@@ -76,7 +75,6 @@ public class IncomingPullReceiptHandler {
         this.reliabilityChecker = reliabilityChecker;
         this.pullReceiptMatcher = pullReceiptMatcher;
         this.pullMessageService = pullMessageService;
-        this.userMessageLogDao = userMessageLogDao;
         this.responseHandler = responseHandler;
         this.messageBuilder = messageBuilder;
         this.pModeProvider = pModeProvider;

@@ -119,6 +119,8 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_RECEIPT_RECEIVED_FAILED("BUS-108", "Message receipt received [FAILED] [{}]"),
     BUS_MESSAGE_PULL_REQUEST_RECEIVED_SUCCESS("BUS-109", "Pull request received [SUCCESS]"),
     BUS_MESSAGE_PULL_REQUEST_RECEIVED_FAILED("BUS-110", "Pull request received [FAILED]"),
+    BUS_MESSAGE_RESTORED_SUCCESS("BUS-111", "Message restored [SUCCESS]"),
+    BUS_MESSAGE_RESTORED_FAILED("BUS-112", "Message restored [FAILED]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RESTORED_FAILED;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RESTORED_SUCCESS;
+
 /**
  * This service class is responsible for the restore of failed messages.
  *
@@ -119,7 +122,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
             if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
                 userMessageService.scheduleSending(userMessage, userMessageLog);
+                LOG.businessInfo(BUS_MESSAGE_RESTORED_SUCCESS);
             } else {
+                LOG.businessError(BUS_MESSAGE_RESTORED_FAILED);
                 try {
                     MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                     String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
