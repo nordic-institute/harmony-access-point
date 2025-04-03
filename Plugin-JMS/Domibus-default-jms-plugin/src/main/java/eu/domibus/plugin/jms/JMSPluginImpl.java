@@ -30,9 +30,9 @@ import org.springframework.jms.support.destination.JndiDestinationResolver;
 
 import javax.jms.*;
 import java.text.MessageFormat;
-import java.time.ZonedDateTime;
 import java.util.List;
-import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
+
+import static eu.domibus.logging.DomibusMessageCode.*;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
@@ -126,8 +126,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                if (e instanceof DuplicateMessageException){
+                if (e instanceof DuplicateMessageException) {
                     LOG.businessError(DUPLICATE_MESSAGEID, messageID);
+                } else {
+                    LOG.businessError(BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED, e);
                 }
                 LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
@@ -138,6 +140,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
+            LOG.businessError(BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED, e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
     }
@@ -174,10 +177,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE, messageId, messageEntityId, conversationId);
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
-        QueueContext queueContext = createQueueContext(event);
-        final String queueValue = jmsPluginQueueService.getJMSQueue(queueContext, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
-        LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
+        try {
+            QueueContext queueContext = createQueueContext(event);
+            final String queueValue = jmsPluginQueueService.getJMSQueue(queueContext, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+            LOG.info("Sending message to queue [{}]", queueValue);
+            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
+        } catch (Exception e) {
+            LOG.businessError(BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE_FAILED, e);
+            throw e;
+        }
     }
 
     @Override

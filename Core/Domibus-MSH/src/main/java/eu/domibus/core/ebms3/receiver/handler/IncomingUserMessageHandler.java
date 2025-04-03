@@ -24,12 +24,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
-
-import static eu.domibus.api.util.DateUtil.DEFAULT_FORMATTER;
-import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_RECEIVED;
 
 /**
  * Handles the incoming AS4 UserMessages
@@ -87,9 +82,6 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         authorizationService.authorizeUserMessage(request, userMessage, securityProfile);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
 
-        LOG.businessInfo(BUS_MSG_RECEIVED, Instant.ofEpochMilli(userMessage.getCreationTime().getTime())
-                .atZone(ZoneOffset.UTC)
-                .format(DEFAULT_FORMATTER));
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }

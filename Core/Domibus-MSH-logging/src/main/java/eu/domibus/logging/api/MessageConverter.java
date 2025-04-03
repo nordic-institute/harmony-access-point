@@ -10,4 +10,6 @@ public interface MessageConverter {
 
   String getMessage(Marker marker, MessageCode key, Object... args);
 
+  String getMessageWithSummaryThrowable(Marker marker, MessageCode key, Throwable t, Object... args);
+
 }

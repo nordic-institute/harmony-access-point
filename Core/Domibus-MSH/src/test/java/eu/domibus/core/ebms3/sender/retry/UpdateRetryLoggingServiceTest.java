@@ -1,4 +1,3 @@
-
 package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
@@ -26,6 +25,7 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 import java.util.UUID;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -97,9 +97,7 @@ public class UpdateRetryLoggingServiceTest {
      * @throws Exception
      */
     @Test
-    public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
-                                                                                                  @Injectable UserMessageLog userMessageLog,
-                                                                                                  @Injectable LegConfiguration legConfiguration) throws Exception {
+    public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration) throws Exception {
         final long entityId = 123;
 
         new Expectations(updateRetryLoggingService) {{
@@ -112,16 +110,16 @@ public class UpdateRetryLoggingServiceTest {
             updateRetryLoggingService.hasAttemptsLeft(userMessageLog, legConfiguration);
             result = false;
 
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
             updateRetryLoggingService.getScheduledStartDate(userMessageLog);
         }};
 
 
-        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, null);
+        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, null, null);
 
         new Verifications() {{
             userMessageLogDao.update(userMessageLog);
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
         }};
     }
 
@@ -131,9 +129,7 @@ public class UpdateRetryLoggingServiceTest {
      * NextAttempt is set correctly
      */
     @Test
-    public void testUpdateRetryLogging_Restored(@Injectable UserMessage userMessage,
-                                                @Injectable LegConfiguration legConfiguration,
-                                                @Injectable UserMessageLog userMessageLog) throws Exception {
+    public void testUpdateRetryLogging_Restored(@Injectable UserMessage userMessage, @Injectable LegConfiguration legConfiguration, @Injectable UserMessageLog userMessageLog) throws Exception {
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
         final long entityId = 123;
@@ -151,7 +147,7 @@ public class UpdateRetryLoggingServiceTest {
         }};
 
 
-        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, null);
+        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, null, null);
 
         new Verifications() {{
             userMessageLog.setSendAttempts(3);
@@ -159,8 +155,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testUpdateMessageLogNextAttemptDateForRestoredMessage(@Injectable LegConfiguration legConfiguration,
-                                                                      @Injectable UserMessageLog userMessageLog) {
+    public void testUpdateMessageLogNextAttemptDateForRestoredMessage(@Injectable LegConfiguration legConfiguration, @Injectable UserMessageLog userMessageLog) {
 
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
@@ -198,9 +193,7 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setAsNotified() is not called
      */
     @Test
-    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
-                                                                                                                        @Injectable UserMessageLog userMessageLog,
-                                                                                                                        @Injectable LegConfiguration legConfiguration) throws Exception {
+    public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration) throws Exception {
         new SystemMockFirstOfJanuary2016();
 
         final long entityId = 123;
@@ -220,7 +213,7 @@ public class UpdateRetryLoggingServiceTest {
             result = userMessageLog;
         }};
 
-        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, null);
+        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, null, null);
 
         new Verifications() {{
             messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
@@ -239,10 +232,7 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setAsNotified() is called
      */
     @Test
-    public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
-                                                                                        @Injectable UserMessageLog userMessageLog,
-                                                                                        @Injectable LegConfiguration legConfiguration,
-                                                                                        @Injectable NotificationStatusEntity notificationStatus) {
+    public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration, @Injectable NotificationStatusEntity notificationStatus) {
         new SystemMockFirstOfJanuary2016();
 
         long userMessageEntityId = 123;
@@ -265,7 +255,7 @@ public class UpdateRetryLoggingServiceTest {
         }};
 
 
-        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, null);
+        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, null, null);
 
 
         new Verifications() {{
@@ -281,9 +271,7 @@ public class UpdateRetryLoggingServiceTest {
      * Timeout limit reached
      */
     @Test
-    public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
-                                                                                         @Injectable UserMessageLog userMessageLog,
-                                                                                         @Injectable LegConfiguration legConfiguration) {
+    public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration) {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
@@ -308,10 +296,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testUpdateRetryLogging_success_ExpectedMessageStatus(@Injectable UserMessage userMessage,
-                                                                     @Injectable UserMessageLog userMessageLog,
-                                                                     @Injectable LegConfiguration legConfiguration,
-                                                                     @Injectable MessageAttempt messageAttempt) throws Exception {
+    public void testUpdateRetryLogging_success_ExpectedMessageStatus(@Injectable UserMessage userMessage, @Injectable UserMessageLog userMessageLog, @Injectable LegConfiguration legConfiguration, @Injectable MessageAttempt messageAttempt) throws Exception {
 
         long userMessageEntityId = 123;
         new Expectations(updateRetryLoggingService) {{
@@ -330,7 +315,7 @@ public class UpdateRetryLoggingServiceTest {
             updateRetryLoggingService.updateNextAttemptAndNotify(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, userMessageLog);
         }};
 
-        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
+        updateRetryLoggingService.updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt, null);
 
         new Verifications() {{
             userMessageLogDao.update(userMessageLog);
@@ -340,8 +325,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testMessageExpirationDate(@Injectable final UserMessageLog userMessageLog,
-                                          @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+    public void testMessageExpirationDate(@Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
         final int timeOutInMin = 10; // in minutes
         final long timeOutInMillis = 60000L * timeOutInMin;
         final long restoredTime = System.currentTimeMillis();
@@ -362,8 +346,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testMessageExpirationDateInTheFarFuture(@Injectable final UserMessageLog userMessageLog,
-                                                        @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+    public void testMessageExpirationDateInTheFarFuture(@Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
         final int timeOutInMin = 90 * 24 * 60; // 90 days in minutes
         final long timeOutInMillis = 60000L * timeOutInMin;
         final long restoredTime = System.currentTimeMillis();
@@ -382,8 +365,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testIsExpired(@Injectable final UserMessageLog userMessageLog,
-                              @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+    public void testIsExpired(@Injectable final UserMessageLog userMessageLog, @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
 
         long delay = 10;
 
@@ -433,7 +415,7 @@ public class UpdateRetryLoggingServiceTest {
             updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result = true;
 
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
         }};
 
         //tested method
@@ -441,7 +423,7 @@ public class UpdateRetryLoggingServiceTest {
         Assert.assertTrue(result);
 
         new FullVerifications(updateRetryLoggingService) {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
 
             updateRetryLoggingService.setMessageFailed(userMessage, userMessageLog);
         }};
@@ -505,8 +487,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void setSourceMessageAsFailed(@Injectable UserMessage userMessage,
-                                         @Injectable UserMessageLog messageLog) {
+    public void setSourceMessageAsFailed(@Injectable UserMessage userMessage, @Injectable UserMessageLog messageLog) {
         final long entityId = 123;
 
         new Expectations() {{
@@ -520,7 +501,7 @@ public class UpdateRetryLoggingServiceTest {
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
             times = 1;
         }};
     }

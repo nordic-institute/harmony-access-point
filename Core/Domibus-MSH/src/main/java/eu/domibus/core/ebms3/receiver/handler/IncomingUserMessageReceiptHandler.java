@@ -18,6 +18,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityDTOBuilder;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -34,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.List;
+
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_FAILED;
 
 /**
  * Handles the incoming AS4 receipts for User Messages (that were sent with either PUSH or PULL).
@@ -104,6 +107,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
 
         if (userMessageLog.getProcessingType() == ProcessingType.PULL) {
             return incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
@@ -121,13 +126,17 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                     .refToMessageId(messageId)
                     .build());
         }
+        ReliabilityDTOBuilder reliabilityDTOBuilder = ReliabilityDTOBuilder.builder().userMessageLog(userMessageLog);
 
-        ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
+        ReliabilityChecker.CheckResult reliabilityCheckResult = ReliabilityChecker.CheckResult.ABORT;
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
         UserMessage sentUserMessage = null;
         try {
             sentUserMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            LOG.putMDC(DomibusLogger.MDC_FROM, sentUserMessage.getPartyInfo().getFromParty());
+            LOG.putMDC(DomibusLogger.MDC_TO, sentUserMessage.getPartyInfo().getToParty());
+            LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, sentUserMessage.getConversationId());
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 
@@ -137,21 +146,35 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             SOAPMessage soapMessage = getSoapMessage(legConfiguration, sentUserMessage);
             responseResult = responseHandler.verifyResponse(request, messageId);
 
-            reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
+            reliabilityCheckResult = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when handling receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
                 reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), sentUserMessage);
             }
+            reliabilityDTOBuilder.throwable(soapFEx);
         } catch (final EbMS3Exception e) {
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
+            reliabilityDTOBuilder.throwable(e);
         } finally {
-            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
-            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
+
+            reliabilityDTOBuilder
+                    .userMessage(sentUserMessage)
+                    .reliabilityCheckStatus(reliabilityCheckResult)
+                    .responseSoapMessage(request)
+                    .responseResult(responseResult)
+                    .legConfiguration(legConfiguration);
+
+            reliabilityService.handleReliability(reliabilityDTOBuilder.build());
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
                 final Boolean isTestMessage = sentUserMessage.isTestMessage();
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        ProcessingType.PUSH,
                         sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+            } else {
+                LOG.businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, null, ProcessingType.PUSH);
             }
         }
         return null;
