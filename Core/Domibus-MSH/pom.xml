@@ -529,27 +529,19 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-hibernate-cache-v53</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.infinispan.protostream</groupId>
-                    <artifactId>protostream</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.infinispan.protostream</groupId>
-                    <artifactId>protostream-types</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
+        <!-- To be removed with EDELIVERY-14933 -->
         <dependency>
             <groupId>org.infinispan.protostream</groupId>
             <artifactId>protostream</artifactId>
-            <version>4.6.2.Final</version>
+            <version>4.6.5.Final</version>
         </dependency>
         <dependency>
             <groupId>org.infinispan.protostream</groupId>
             <artifactId>protostream-types</artifactId>
             <version>4.6.5.Final</version>
         </dependency>
+        <!-- end to be removed with EDELIVERY-14933-->
 
         <dependency>
             <groupId>javax.cache</groupId>

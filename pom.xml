@@ -553,6 +553,7 @@
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-hibernate-cache-v53</artifactId>
                 <version>${infinispan.version}</version>
+                <!-- To be removed with EDELIVERY-14933 -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.infinispan.protostream</groupId>
@@ -563,16 +564,7 @@
                         <artifactId>protostream-types</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.infinispan.protostream</groupId>
-                <artifactId>protostream</artifactId>
-                <version>4.6.2.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.infinispan.protostream</groupId>
-                <artifactId>protostream-types</artifactId>
-                <version>4.6.5.Final</version>
+                <!-- end to be removed with EDELIVERY-14933-->
             </dependency>
 
             <!-- End Hibernate -->
