@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
 
+import static eu.domibus.api.model.ProcessingType.PULL;
 import static eu.domibus.api.model.ProcessingType.PUSH;
 
 /**
@@ -66,10 +67,10 @@ public class PullMessageStateServiceImplTest {
     }
 
     @Test
-    public void sendFailedTest(@Injectable UserMessageLog userMessageLog,
-                               @Injectable UserMessage userMessage) {
+    public void sendFailedTest(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "messageId";
 
+        UserMessage userMessage = new UserMessage();
         new Expectations() {{
             userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
@@ -78,7 +79,7 @@ public class PullMessageStateServiceImplTest {
         Assert.assertNotNull(userMessage);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
             times = 1;
         }};
     }
