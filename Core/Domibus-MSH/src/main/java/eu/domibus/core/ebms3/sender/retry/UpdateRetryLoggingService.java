@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT;
 
@@ -125,7 +126,7 @@ public class UpdateRetryLoggingService {
             LOG.debug("Message with entity id [{}] and message id [{}] is not expired", userMessageEntityId, userMessage.getMessageId());
             return false;
         }
-        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessageLog.getProcessingType(), userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         LOG.debug("Message [{}] is expired", userMessageEntityId);
         setMessageFailed(userMessage, userMessageLog);
         return true;
@@ -145,7 +146,7 @@ public class UpdateRetryLoggingService {
 
     protected void setMessageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         final String messageId = userMessage.getMessageId();
-        messageFailed(userMessage, userMessageLog);
+        messageFailed(userMessage, userMessageLog, PUSH);
 
         if (userMessage.isMessageFragment()) {
             MessageGroupEntity messageGroup = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());
@@ -181,7 +182,11 @@ public class UpdateRetryLoggingService {
 
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
 
-        LOG.businessError(BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT, throwable, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax());
+        LOG.businessError(BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT, throwable,
+                userMessageLog.getSendAttempts(),
+                userMessageLog.getSendAttemptsMax(),
+                userMessage.getPartyInfo().getFromParty(),
+                userMessage.getPartyInfo().getToParty());
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
 
@@ -205,17 +210,17 @@ public class UpdateRetryLoggingService {
     public void messageFailedAndDeleteRawEnvelope(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed and deleting the user message raw envelope", userMessage.getMessageId());
 
-        messageFailed(userMessage, userMessageLog);
+        messageFailed(userMessage, userMessageLog, PUSH);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
     }
 
-    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
+    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog, ProcessingType processingType) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageId());
 
         NotificationStatusEntity notificationStatus = userMessageLog.getNotificationStatus();
         boolean isTestMessage = userMessage.isTestMessage();
 
-        LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+        LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, processingType, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         if (NotificationStatus.REQUIRED.equals(notificationStatus.getStatus())) {
             LOG.info("Notifying backend for message failure");
             backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
@@ -235,7 +240,7 @@ public class UpdateRetryLoggingService {
             LOG.error("UserMessageLogEntity not found for message with entity id [{}] and message id [{}]: could not mark the message as failed", userMessageEntityId, userMessage.getMessageId());
             return;
         }
-        messageFailed(userMessage, messageLog);
+        messageFailed(userMessage, messageLog, PUSH);
     }
 
 

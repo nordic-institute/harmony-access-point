@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -105,7 +106,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
             responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
-            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED, ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
+            LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED, ProcessingType.PUSH, ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
 
             LOG.debug("Ping message {}", testMessage);
         } catch (TransformerException | SOAPException | JAXBException | IOException e) {

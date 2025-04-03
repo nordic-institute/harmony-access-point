@@ -68,6 +68,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 /**
@@ -410,7 +411,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
 
-        updateRetryLoggingService.messageFailed(userMessage, messageLog);
+        updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

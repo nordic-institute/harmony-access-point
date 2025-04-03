@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
+
 /**
  * @author Soumya Chandran
  * @since 4.2
@@ -76,7 +78,7 @@ public class PullMessageStateServiceImplTest {
         Assert.assertNotNull(userMessage);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
             times = 1;
         }};
     }
@@ -95,7 +97,7 @@ public class PullMessageStateServiceImplTest {
         pullMessageStateService.sendFailed(userMessageLog, messageId);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
             times = 0;
         }};
     }

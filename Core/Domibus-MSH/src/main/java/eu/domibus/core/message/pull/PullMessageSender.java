@@ -8,6 +8,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
@@ -211,6 +212,7 @@ public class PullMessageSender {
         userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, null, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
+                ProcessingType.PULL,
                 userMessage.getPartyInfo().getFromParty(),
                 userMessage.getPartyInfo().getToParty());
     }

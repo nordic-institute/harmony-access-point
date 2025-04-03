@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
+import static eu.domibus.api.model.ProcessingType.PULL;
+
 /**
  * @author Thomas Dussart
  * @since 3.3.3
@@ -73,7 +75,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
             return;
         }
         LOG.debug("Setting [{}] message as failed", userMessage.getMessageId());
-        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
     }
 
     /**
@@ -94,7 +96,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
             return;
         }
 
-        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
     }
 
     /**

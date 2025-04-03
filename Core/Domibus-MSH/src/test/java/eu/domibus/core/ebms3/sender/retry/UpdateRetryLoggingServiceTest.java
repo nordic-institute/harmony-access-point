@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 import java.util.UUID;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -109,7 +110,7 @@ public class UpdateRetryLoggingServiceTest {
             updateRetryLoggingService.hasAttemptsLeft(userMessageLog, legConfiguration);
             result = false;
 
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
             updateRetryLoggingService.getScheduledStartDate(userMessageLog);
         }};
 
@@ -118,7 +119,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             userMessageLogDao.update(userMessageLog);
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
         }};
     }
 
@@ -414,7 +415,7 @@ public class UpdateRetryLoggingServiceTest {
             updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result = true;
 
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
         }};
 
         //tested method
@@ -422,7 +423,7 @@ public class UpdateRetryLoggingServiceTest {
         Assert.assertTrue(result);
 
         new FullVerifications(updateRetryLoggingService) {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
 
             updateRetryLoggingService.setMessageFailed(userMessage, userMessageLog);
         }};
@@ -500,7 +501,7 @@ public class UpdateRetryLoggingServiceTest {
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
             times = 1;
         }};
     }
