@@ -245,6 +245,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             if (ReliabilityChecker.CheckResult.OK == reliabilityCheckResult) {
                 getLog().businessInfo(BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS, ProcessingType.PUSH);
                 getLog().businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        ProcessingType.PUSH,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
             } else {
                 getLog().businessError(BUS_MESSAGE_RECEIPT_RECEIVED_FAILED, null, ProcessingType.PUSH);

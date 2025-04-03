@@ -165,6 +165,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 }
                 backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
                 LOG.businessInfo(userMessage.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        ProcessingType.PULL,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
                 messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 

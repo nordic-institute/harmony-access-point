@@ -15,6 +15,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static eu.domibus.api.model.ProcessingType.PULL;
+import static eu.domibus.api.model.ProcessingType.PUSH;
+
 /**
  * @author Soumya Chandran
  * @since 4.2
@@ -66,10 +69,10 @@ public class PullMessageStateServiceImplTest {
     }
 
     @Test
-    public void sendFailedTest(@Injectable UserMessageLog userMessageLog,
-                               @Injectable UserMessage userMessage) {
+    public void sendFailedTest(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "messageId";
 
+        UserMessage userMessage = new UserMessage();
         new Expectations() {{
             userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
@@ -78,7 +81,7 @@ public class PullMessageStateServiceImplTest {
         Assert.assertNotNull(userMessage);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
             times = 1;
         }};
     }
@@ -97,7 +100,7 @@ public class PullMessageStateServiceImplTest {
         pullMessageStateService.sendFailed(userMessageLog, messageId);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+            updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PUSH);
             times = 0;
         }};
     }
