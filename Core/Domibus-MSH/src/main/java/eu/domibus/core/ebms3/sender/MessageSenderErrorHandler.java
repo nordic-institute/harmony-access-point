@@ -13,7 +13,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ErrorHandler;
 
@@ -67,6 +66,6 @@ public class MessageSenderErrorHandler implements ErrorHandler {
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         LOG.warn("Updating the retry logging for message " + messageId);
-        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, attempt);
+        updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, attempt, t);
     }
 }

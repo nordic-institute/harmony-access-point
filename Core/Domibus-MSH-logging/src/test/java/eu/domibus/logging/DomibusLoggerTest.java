@@ -19,17 +19,16 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
 public class DomibusLoggerTest {
 
     @Test
-    public void testMDC() throws Exception {
+    public void testMDC() {
         final DomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class.getName());
         final String key = "key1";
         final String value = "value1";
         domibusLogger.putMDC(key, value);
         assertTrue(domibusLogger.getCopyOfContextMap().containsKey("d_key1"));
-        assertEquals(domibusLogger.getMDC(key), value);
+        assertEquals(value, domibusLogger.getMDC(key));
         domibusLogger.removeMDC(key);
         assertFalse(domibusLogger.getCopyOfContextMap().containsKey("d_key1"));
 
@@ -40,7 +39,7 @@ public class DomibusLoggerTest {
     }
 
     @Test
-    public void testLoggerMethods() throws Exception {
+    public void testLoggerMethods() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.setContext(root.getLoggerContext());

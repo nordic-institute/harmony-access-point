@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT;
 
@@ -101,16 +102,17 @@ public class UpdateRetryLoggingService {
      *
      * @param userMessage      id of the message that needs to be retried
      * @param legConfiguration processing information for the message
+     * @param throwable
      */
     @Transactional
-    public void updatePushedMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt) {
-        updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
+    public void updatePushedMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt, Throwable throwable) {
+        updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt, throwable);
     }
 
     /**
      * Set a message as failed if it has expired
      *
-     * @param userMessage The userMessage to be checked for expiration
+     * @param userMessage      The userMessage to be checked for expiration
      * @param legConfiguration
      * @return true in case the message was set as expired
      */
@@ -124,7 +126,7 @@ public class UpdateRetryLoggingService {
             LOG.debug("Message with entity id [{}] and message id [{}] is not expired", userMessageEntityId, userMessage.getMessageId());
             return false;
         }
-        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, userMessageLog.getProcessingType(), userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         LOG.debug("Message [{}] is expired", userMessageEntityId);
         setMessageFailed(userMessage, userMessageLog);
         return true;
@@ -144,7 +146,7 @@ public class UpdateRetryLoggingService {
 
     protected void setMessageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         final String messageId = userMessage.getMessageId();
-        messageFailed(userMessage, userMessageLog);
+        messageFailed(userMessage, userMessageLog, PUSH);
 
         if (userMessage.isMessageFragment()) {
             MessageGroupEntity messageGroup = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());
@@ -174,12 +176,17 @@ public class UpdateRetryLoggingService {
     }
 
 
-    protected void updateRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt) {
+    protected void updateRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, MessageStatus messageStatus, final MessageAttempt messageAttempt, Throwable throwable) {
         LOG.debug("Updating retry for message");
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessage.getEntityId());
-        LOG.businessError(BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty(), userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax());
 
         userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
+
+        LOG.businessError(BUS_MESSAGE_RETRY_MESSAGE_ATTEMPT, throwable,
+                userMessageLog.getSendAttempts(),
+                userMessageLog.getSendAttemptsMax(),
+                userMessage.getPartyInfo().getFromParty(),
+                userMessage.getPartyInfo().getToParty());
         LOG.debug("Updating sendAttempts to [{}]", userMessageLog.getSendAttempts());
         userMessageLog.setNextAttempt(getScheduledStartDate(userMessageLog)); // this is needed for the first computation of "next attempt" if receiver is down
 
@@ -203,18 +210,17 @@ public class UpdateRetryLoggingService {
     public void messageFailedAndDeleteRawEnvelope(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed and deleting the user message raw envelope", userMessage.getMessageId());
 
-        messageFailed(userMessage, userMessageLog);
+        messageFailed(userMessage, userMessageLog, PUSH);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
     }
 
-    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
+    public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog, ProcessingType processingType) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageId());
 
         NotificationStatusEntity notificationStatus = userMessageLog.getNotificationStatus();
         boolean isTestMessage = userMessage.isTestMessage();
 
-        LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
-                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
+        LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE, processingType, userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
         if (NotificationStatus.REQUIRED.equals(notificationStatus.getStatus())) {
             LOG.info("Notifying backend for message failure");
             backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
@@ -234,14 +240,14 @@ public class UpdateRetryLoggingService {
             LOG.error("UserMessageLogEntity not found for message with entity id [{}] and message id [{}]: could not mark the message as failed", userMessageEntityId, userMessage.getMessageId());
             return;
         }
-        messageFailed(userMessage, messageLog);
+        messageFailed(userMessage, messageLog, PUSH);
     }
 
 
     @Transactional
-    public void updateWaitingReceiptMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration) {
+    public void updateWaitingReceiptMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, Throwable throwable) {
         LOG.debug("Updating waiting receipt retry for message");
-        updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT, null);
+        updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RECEIPT, null, throwable);
     }
 
     protected void updateNextAttemptAndNotify(UserMessage userMessage, LegConfiguration legConfiguration, MessageStatus messageStatus, UserMessageLog userMessageLog) {
@@ -273,9 +279,7 @@ public class UpdateRetryLoggingService {
             LOG.debug("No more send attempts as reception awareness of the leg configuration is not null.");
             return false;
         }
-        LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]",
-                userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(),
-                getScheduledStartDate(userMessageLog), legConfiguration.getReceptionAwareness().getRetryTimeout());
+        LOG.debug("Send attempts [{}], max send attempts [{}], scheduled start time [{}], retry timeout [{}]", userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax(), getScheduledStartDate(userMessageLog), legConfiguration.getReceptionAwareness().getRetryTimeout());
         // retries start after the first send attempt
         Boolean hasMoreAttempts = userMessageLog.getSendAttempts() < userMessageLog.getSendAttemptsMax();
         long retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000L;
@@ -304,8 +308,7 @@ public class UpdateRetryLoggingService {
         return result;
     }
 
-    public Date getMessageExpirationDate(final UserMessageLog userMessageLog,
-                                         final LegConfiguration legConfiguration) {
+    public Date getMessageExpirationDate(final UserMessageLog userMessageLog, final LegConfiguration legConfiguration) {
         if (legConfiguration.getReceptionAwareness() != null) {
             final Long scheduledStartTime = getScheduledStartTime(userMessageLog);
             final long timeOut = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000L;
@@ -334,15 +337,12 @@ public class UpdateRetryLoggingService {
         long delayInMillis = domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
         int crtInterval = 0;
         if (legConfiguration.getReceptionAwareness().getStrategy() == RetryStrategy.PROGRESSIVE) {
-            crtInterval = legConfiguration.getReceptionAwareness().getRetryIntervals().get(userMessageLog.getSendAttempts()-1);
+            crtInterval = legConfiguration.getReceptionAwareness().getRetryIntervals().get(userMessageLog.getSendAttempts() - 1);
         }
 
         Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout, crtInterval, delayInMillis);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MSG_RETRY,
-                userMessageLog.getSendAttempts(),
-                userMessageLog.getSendAttemptsMax() - 1,
-                userMessageLog.getUserMessage().getMessageId());
+        LOG.businessInfo(DomibusMessageCode.BUS_MSG_RETRY, userMessageLog.getSendAttempts(), userMessageLog.getSendAttemptsMax() - 1, userMessageLog.getUserMessage().getMessageId());
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
         reprogrammableService.setRescheduleInfo(userMessageLog, newNextAttempt);
     }

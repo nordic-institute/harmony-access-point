@@ -38,7 +38,14 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
 
     @Before
     public void beforeTest() {
-        distributedCacheDao.getCacheNames().stream().forEach(mapName -> hazelcastInstance.getMap(mapName).destroy());
+        distributedCacheDao.getCacheNames().forEach(mapName ->
+        {
+            try {
+                hazelcastInstance.getMap(mapName).destroy();
+            } catch (Throwable throwable){
+                LOG.error("Could not destroy map:  [{}]", mapName, throwable);
+            }
+        });
     }
 
     @Test

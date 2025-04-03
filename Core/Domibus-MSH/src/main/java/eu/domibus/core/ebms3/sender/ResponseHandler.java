@@ -4,7 +4,6 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;

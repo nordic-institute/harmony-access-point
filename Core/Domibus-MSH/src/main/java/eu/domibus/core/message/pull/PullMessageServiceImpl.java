@@ -24,7 +24,6 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,9 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.soap.SOAPMessage;
 import java.sql.Timestamp;
 import java.util.Date;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
@@ -170,6 +166,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 }
                 backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
                 LOG.businessInfo(userMessage.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                        ProcessingType.PULL,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
                 messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 
