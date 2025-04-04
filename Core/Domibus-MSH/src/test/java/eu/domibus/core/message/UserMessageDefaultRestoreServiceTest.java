@@ -10,7 +10,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.resend.MessageResendEntity;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
@@ -21,7 +20,6 @@ import org.junit.runner.RunWith;
 import org.quartz.SchedulerException;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,10 +47,7 @@ public class UserMessageDefaultRestoreServiceTest {
     MessageExchangeService messageExchangeService;
 
     @Injectable
-    private BackendNotificationService backendNotificationService;
-
-    @Injectable
-    private UserMessageLogDao userMessageLogDao;
+    private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Injectable
     private UserMessageDao userMessageDao;
@@ -177,22 +172,21 @@ public class UserMessageDefaultRestoreServiceTest {
         restoreService.restoreFailedMessage(messageId);
 
         new FullVerifications(restoreService) {{
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_ENQUEUED);
 
-            userMessageLog.setMessageStatus(messageStatusEntity);
             userMessageLog.setRestored(withAny(new Date()));
             userMessageLog.setFailed(null);
             userMessageLog.setNextAttempt(withAny(new Date()));
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
-            userMessageLogDao.update(userMessageLog);
+            userMessageLogDefaultService.update(userMessageLog);
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
         }};
     }
 
     @Test
-    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog,
+    public void testRestorePulledMessage(@Injectable final UserMessageLog userMessageLog,
                                          @Injectable final UserMessage userMessage) {
         final String messageId = "1";
         final Integer newMaxAttempts = 5;
@@ -219,8 +213,6 @@ public class UserMessageDefaultRestoreServiceTest {
         restoreService.restoreFailedMessage(messageId);
 
         new Verifications() {{
-            userMessageLog.setMessageStatus(messageStatusEntity);
-            times = 1;
             userMessageLog.setRestored(withAny(new Date()));
             times = 1;
             userMessageLog.setFailed(null);
@@ -230,7 +222,7 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
             times = 1;
 
-            userMessageLogDao.update(userMessageLog);
+            userMessageLogDefaultService.update(userMessageLog);
             times = 1;
 
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
@@ -249,7 +241,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDefaultService.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
 
@@ -270,7 +262,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDefaultService.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();

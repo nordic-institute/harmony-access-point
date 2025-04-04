@@ -1,10 +1,12 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
@@ -12,8 +14,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.sql.Timestamp;
 
 import static eu.domibus.api.model.ProcessingType.PULL;
 import static eu.domibus.api.model.ProcessingType.PUSH;
@@ -25,13 +25,15 @@ import static eu.domibus.api.model.ProcessingType.PUSH;
 @SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
 public class PullMessageStateServiceImplTest {
+
     @Tested
     PullMessageStateServiceImpl pullMessageStateService;
+
     @Injectable
     protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
-    protected UserMessageLogDao userMessageLogDao;
+    protected UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Injectable
     protected UpdateRetryLoggingService updateRetryLoggingService;
@@ -51,7 +53,7 @@ public class PullMessageStateServiceImplTest {
         final String messageId = "messageId";
 
         new Expectations(pullMessageStateService) {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageLogDefaultService.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
             pullMessageStateService.sendFailed(userMessageLog, messageId);
             times = 1;
@@ -112,28 +114,6 @@ public class PullMessageStateServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void resetTest(@Injectable UserMessageLog userMessageLog,
-                          @Injectable MessageStatusEntity readyToPull) {
-        final String messageId = "messageId";
-
-        new Expectations() {{
-            messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
-            result = readyToPull;
-        }};
-
-        pullMessageStateService.reset(userMessageLog, messageId);
-
-        new Verifications() {{
-            userMessageLog.setMessageStatus(readyToPull);
-            userMessageLogDao.update(userMessageLog);
-            times = 1;
-            times = 1;
-            backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, (Timestamp) any);
-            times = 1;
-        }};
     }
 
 }

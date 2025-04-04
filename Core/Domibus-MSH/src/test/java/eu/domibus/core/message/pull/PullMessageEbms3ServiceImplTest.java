@@ -23,7 +23,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Timestamp;
@@ -86,6 +85,9 @@ public class PullMessageEbms3ServiceImplTest {
     @Injectable
     private ResponseHandler responseHandler;
 
+    @Injectable
+    private UserMessageLogDefaultService userMessageLogService;
+
     @Tested
     private PullMessageServiceImpl pullMessageService;
 
@@ -99,7 +101,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdFirstAttempt(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdFirstAttempt(@Mocked final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -301,9 +303,6 @@ public class PullMessageEbms3ServiceImplTest {
             result = false;
 
             updateRetryLoggingService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
-
-            messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT);
-            result = messageStatusEntity;
         }};
 
         pullMessageService.waitingForCallBack(userMessage, legConfiguration, userMessageLog);
@@ -312,14 +311,13 @@ public class PullMessageEbms3ServiceImplTest {
             lock.setMessageState(MessageState.WAITING);
             lock.setSendAttempts(userMessageLog.getSendAttempts());
             reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
-            messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT);
-            userMessageLog.setMessageStatus(messageStatusEntity);
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, withAny(timestamp));
             legConfiguration.getReceptionAwareness();
             userMessageLog.getSendAttemptsMax();
             timestamp.toString();
+
+            userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT);
         }};
     }
 
@@ -468,7 +466,7 @@ public class PullMessageEbms3ServiceImplTest {
         }};
         pullMessageService.pullFailedOnReceipt(userMessage, legConfiguration, userMessageLog);
         new VerificationsInOrder() {{
-            pullMessageStateService.reset(userMessageLog, messageID);
+            pullMessageStateService.reset(userMessageLog, userMessage);
             times = 1;
         }};
 

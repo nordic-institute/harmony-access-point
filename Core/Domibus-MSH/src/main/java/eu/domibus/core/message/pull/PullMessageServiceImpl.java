@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Service
@@ -311,8 +310,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
         messagingLockDao.save(lock);
 
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT));
+        userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLogDao.update(userMessageLog);
     }
 
@@ -369,7 +367,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         LOG.debug("[PULL_RECEIPT]:Message:[{}] failed on pull message acknowledgement", userMessage.getMessageId());
         if (attemptNumberLeftIsStricltyLowerThenMaxAttemps(userMessageLog, legConfiguration)) {
             LOG.debug("[PULL_RECEIPT]:Message:[{}] has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
-            pullMessageStateService.reset(userMessageLog, userMessage.getMessageId());
+            pullMessageStateService.reset(userMessageLog, userMessage);
             LOG.debug("[pullFailedOnReceipt]:Message:[{}] add lock", userMessage.getMessageId());
             LOG.debug("[PULL_RECEIPT]:Message:[{}] will be available for pull at [{}]", userMessage.getMessageId(), userMessageLog.getNextAttempt());
         } else {
@@ -420,7 +418,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
         if (lock.getSendAttempts() < lock.getSendAttemptsMax() && lock.getStaled().getTime() > System.currentTimeMillis()) {
             LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] set ready for pulling", lock.getMessageId());
-            pullMessageStateService.reset(userMessageLog, messageId);
+            pullMessageStateService.reset(userMessageLog, userMessageLog.getUserMessage());
             lock.setMessageState(MessageState.READY);
             messagingLockDao.save(lock);
         } else {

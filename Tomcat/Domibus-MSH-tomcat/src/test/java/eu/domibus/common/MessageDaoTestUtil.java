@@ -1,8 +1,8 @@
 package eu.domibus.common;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.*;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -13,7 +13,6 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.user.UserManagementServiceTestIT;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -37,6 +36,7 @@ import java.util.List;
 public class MessageDaoTestUtil {
     public static final String MPC = "mpc";
     public static final String DEFAULT_MPC = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
+    public static final String PULL_MPC = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageDaoTestUtil.class);
 
     @Autowired
