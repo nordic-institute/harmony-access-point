@@ -111,42 +111,42 @@ public class DomibusLogger extends CategoryLogger implements Logger, MDCAccessor
 
     protected void markerTrace(Marker marker, DomibusMessageCode key, Throwable t, Object... args) {
         // log with no marker and stacktrace (if there is one)
-        trace(null, key, t, args);
+        trace(null, key, t, true, args);
 
         //log with marker and without stacktrace
-        trace(marker, key, args);
+        trace(marker, key, t, false, args);
     }
 
     protected void markerDebug(Marker marker, DomibusMessageCode key, Throwable t, Object... args) {
         // log with no marker and stacktrace (if there is one)
-        debug(null, key, t, args);
+        debug(null, key, t, true, args);
 
         //log with marker and without stacktrace
-        debug(marker, key, args);
+        debug(marker, key, t, false, args);
     }
 
     protected void markerInfo(Marker marker, DomibusMessageCode key, Throwable t, Object... args) {
         // log with no marker and stacktrace (if there is one)
-        info(null, key, t, args);
+        info(null, key, t, true, args);
 
         //log with marker and without stacktrace
-        info(marker, key, args);
+        info(marker, key, t, false, args);
     }
 
     protected void markerWarn(Marker marker, DomibusMessageCode key, Throwable t, Object... args) {
         // log with no marker and stacktrace (if there is one)
-        warn(null, key, t, args);
+        warn(null, key, t, true, args);
 
         //log with marker and without stacktrace
-        warn(marker, key, args);
+        warn(marker, key, t, false, args);
     }
 
     protected void markerError(Marker marker, DomibusMessageCode key, Throwable t, Object... args) {
         // log with no marker and stacktrace (if there is one)
-        error(null, key, t, args);
+        error(null, key, t, true, args);
 
         //log with marker and without stacktrace
-        error(marker, key, args);
+        error(marker, key, t, false, args);
     }
 
     public Map<String, String> getCopyOfContextMap() {

@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -45,12 +44,9 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected final EventService eventService;
 
-    private final AlertConfigurationService alertConfigurationService;
-
     public UserMessageLogDefaultService(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
                                         BackendNotificationService backendNotificationService, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao,
-                                        NotificationStatusDao notificationStatusDao, EventService eventService,
-                                        AlertConfigurationService alertConfigurationService) {
+                                        NotificationStatusDao notificationStatusDao, EventService eventService) {
         this.userMessageLogDao = userMessageLogDao;
         this.signalMessageLogDao = signalMessageLogDao;
         this.backendNotificationService = backendNotificationService;
@@ -58,7 +54,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         this.mshRoleDao = mshRoleDao;
         this.notificationStatusDao = notificationStatusDao;
         this.eventService = eventService;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     public UserMessageLog findById(Long entityId) {
@@ -104,7 +99,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         return userMessageLog;
     }
 
-    protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
+    public void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         LOG.debug("Updating message status to [{}]", newStatus);
 
         if (!userMessage.isTestMessage()) {
@@ -192,5 +187,13 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToExported(List<Long> entityIds) {
         userMessageLogDao.updateExported(entityIds);
+    }
+
+    public void update(UserMessageLog userMessageLog) {
+        userMessageLogDao.update(userMessageLog);
+    }
+
+    public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
+        return userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
     }
 }

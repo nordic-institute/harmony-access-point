@@ -13,7 +13,7 @@ See the Licence for the specific language governing permissions and limitations 
 This product includes dynamically linked software developed by third parties which is provided under their respective licences:
 
 
-***ch.qos.logback:logback-classic:1.3.14*** 
+***ch.qos.logback:logback-classic:1.3.15*** 
 - License: EPL-1.0
 - Url: http://www.eclipse.org/legal/epl-v10.html
 - File: license/third-party-licenses/EPL-1.0.txt
@@ -24,7 +24,7 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2005 - 2024 QOS.ch (http://www.qos.ch), Ceki Gulcu, Joern Huxhorn
 
-***ch.qos.logback:logback-core:1.3.14*** 
+***ch.qos.logback:logback-core:1.3.15*** 
 - License: EPL-1.0
 - Url: http://www.eclipse.org/legal/epl-v10.html
 - File: license/third-party-licenses/EPL-1.0.txt
@@ -404,70 +404,70 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2002 - 2024 The Apache Software Foundation (https://www.apache.org/), Adam Murdoch, James Strachan, Mario Ivankovits, Rahul Akolkar, James Carman, Ralph Goers, Joerg Schaible, Gary Gregory, Bernd Eckenfels
 
-***org.apache.cxf:cxf-core:3.5.9*** 
+***org.apache.cxf:cxf-core:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-bindings-soap:3.5.9*** 
+***org.apache.cxf:cxf-rt-bindings-soap:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-features-logging:3.5.9*** 
+***org.apache.cxf:cxf-rt-features-logging:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-frontend-jaxws:3.5.9*** 
+***org.apache.cxf:cxf-rt-frontend-jaxws:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-security:3.5.9*** 
+***org.apache.cxf:cxf-rt-security:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-transports-http:3.5.9*** 
+***org.apache.cxf:cxf-rt-transports-http:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-transports-local:3.5.9*** 
+***org.apache.cxf:cxf-rt-transports-local:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-ws-policy:3.5.9*** 
+***org.apache.cxf:cxf-rt-ws-policy:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-rt-ws-security:3.5.9*** 
+***org.apache.cxf:cxf-rt-ws-security:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2006 - 2024 The Apache Software Foundation (https://www.apache.org/), The Apache CXF Team
 
-***org.apache.cxf:cxf-spring-boot-starter-jaxws:3.5.9*** 
+***org.apache.cxf:cxf-spring-boot-starter-jaxws:3.5.10*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
@@ -797,21 +797,21 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2024 Spring IO (https://spring.io/projects/spring-framework), Juergen Hoeller
 
-***org.springframework.security:spring-security-config:5.8.14*** 
+***org.springframework.security:spring-security-config:5.8.16*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2024 Pivotal Software, Inc. (https://spring.io), Pivotal
 
-***org.springframework.security:spring-security-core:5.8.14*** 
+***org.springframework.security:spring-security-core:5.8.16*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2024 Pivotal Software, Inc. (https://spring.io), Pivotal
 
-***org.springframework.security:spring-security-web:5.8.14*** 
+***org.springframework.security:spring-security-web:5.8.16*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0
 - File: license/third-party-licenses/Apache-2.0.txt
