@@ -308,7 +308,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             LOG.debug("fileName value decoded to=[{}]", decodedFileName);
         }
 
-        try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
+        try (FileObject fileObject = incomingFolderByMessageId.resolveFile(sanitizeFileName(fileName), NameScope.CHILD)) {
         } catch (FileSystemException e) {
             LOG.warn("invalid fileName or outside the parent folder=[{}], returning contentId based one=[{}]", fileName, fileNameContentId);
             return fileNameContentId;
