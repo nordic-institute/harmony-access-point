@@ -132,16 +132,15 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         List<DatabasePartition> toDeletePartition = getPartitionsToDelete(expiredPartitionNames, maxPartitionsDrop);
 
-        if (CollectionUtils.isNotEmpty(toDeletePartition)) {
-            String strPartitions = toDeletePartition.stream().map(DatabasePartition::getPartitionName).collect(Collectors.joining(","));
-            LOG.info("Deleting [{}] partitions [{}]", toDeletePartition.size(), strPartitions);
-            userMessageDao.dropPartitions(strPartitions);
-
-            partInfoService.deleteAllPayloadFromFileSystem(toDeletePartition);
-
-        } else {
+        if (CollectionUtils.isEmpty(toDeletePartition)) {
             LOG.info("There was no partition to delete.");
+            return;
         }
+        String strPartitions = toDeletePartition.stream().map(DatabasePartition::getPartitionName).collect(Collectors.joining(","));
+        LOG.info("Deleting [{}] partitions [{}]", toDeletePartition.size(), strPartitions);
+        userMessageDao.dropPartitions(strPartitions);
+
+        partInfoService.deleteAllPayloadFromFileSystem(toDeletePartition);
     }
 
     private List<DatabasePartition> getPartitionsToDelete(List<DatabasePartition> expiredPartitionNames, int maxPartitionsDrop) {
@@ -164,7 +163,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 continue;
             }
 
-            // TODO We might consider that, if a message was archived it is already expired (in final status and older than the specified retention for its MPC) and skip the next verifications
             // Verify if all messages expired
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {

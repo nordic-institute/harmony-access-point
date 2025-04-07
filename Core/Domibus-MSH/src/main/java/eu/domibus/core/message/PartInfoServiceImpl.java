@@ -289,7 +289,6 @@ public class PartInfoServiceImpl implements PartInfoService {
      */
     @Override
     public String getPayloadFolder(long databasePartitionHighValue) {
-//TODO to be checked
         ZonedDateTime currentDate = dateUtil.getDateHour(databasePartitionHighValue - 1 + "");
         return getPayloadFolder(currentDate);
     }
