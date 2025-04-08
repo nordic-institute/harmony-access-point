@@ -2,6 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -75,6 +76,8 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
     @Injectable
     AlertConfigurationService alertConfigurationService;
 
+    @Injectable
+    PartInfoService partInfoService;
 
     @Test
     public void testPartitionName() {
@@ -158,7 +161,7 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
 
         }};
 
-        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(120);
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
 
         assertThat(expiredPartitions, empty());
     }
@@ -180,7 +183,7 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
 
         }};
 
-        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(120);
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
 
         assertThat(expiredPartitions, empty());
     }
@@ -204,7 +207,8 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
             result = NOW_AS_NUMBER;
         }};
 
-        List<String> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(120);
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
+
         assertFalse(expiredPartitions.isEmpty());
     }
 }
