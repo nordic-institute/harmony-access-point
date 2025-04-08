@@ -20,6 +20,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.ObjectProvider;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
@@ -62,7 +63,7 @@ public class PasswordEncryptionServiceImplTest {
     protected BackupService backupService;
 
     @Injectable
-    protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
+    protected ObjectProvider<DomibusPropertyEncryptionNotifier> domibusPropertyEncryptionListenerDelegate;
 
     @Injectable
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
@@ -96,7 +97,7 @@ public class PasswordEncryptionServiceImplTest {
         new FullVerifications() {{
             domainContextProvider.clearCurrentDomain();
 
-            domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
+            domibusPropertyEncryptionListenerDelegate.getObject().signalEncryptPasswords();
             times = 1;
         }};
     }
@@ -138,7 +139,7 @@ public class PasswordEncryptionServiceImplTest {
             domainContextProvider.setCurrentDomain(domain2);
             times = 1;
 
-            domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
+            domibusPropertyEncryptionListenerDelegate.getObject().signalEncryptPasswords();
             times = 1;
         }};
     }
