@@ -8,6 +8,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
@@ -70,11 +71,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected BackupService backupService;
 
-    // we need Lazy here to avoid circular dependency
-    // passwordEncryptionExtService->passwordEncryptionContextFactory->domibusPropertyEncryptionNotifier->FSPluginPropertyEncryptionListener
-    @Autowired
-    protected ObjectProvider<DomibusPropertyEncryptionNotifier> domibusPropertyEncryptionListenerDelegate;
-
     @Autowired
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
@@ -103,7 +99,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             encryptPasswords(domains);
         }
 
-        domibusPropertyEncryptionListenerDelegate.getObject().signalEncryptPasswords();
+        SpringContextProvider.getApplicationContext().getBean(DomibusPropertyEncryptionNotifier.class).signalEncryptPasswords();
 
         LOG.debug("Finished encrypting passwords");
     }
