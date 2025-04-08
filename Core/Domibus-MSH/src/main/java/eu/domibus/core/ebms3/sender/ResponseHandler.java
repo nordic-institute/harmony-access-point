@@ -112,7 +112,8 @@ public class ResponseHandler {
         signalMessage.setUserMessage(message);
         signalMessageDao.create(signalMessage);
 
-        nonRepudiationService.saveResponse(response, signalMessage.getEntityId());
+        String rawXMLMessage = nonRepudiationService.extractRawXMLMessage(response);
+        nonRepudiationService.saveSignalMessageRawEnvelope(rawXMLMessage, signalMessage.getEntityId());
 
         // Builds the signal message log
         // Updating the reference to the signal message
