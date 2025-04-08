@@ -3,19 +3,21 @@ package eu.domibus.core.message;
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.message.compression.DecompressionDataSource;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.spring.SpringContextProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.spi.payload.DeleteFolderResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -63,6 +66,15 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     @Autowired
     protected PayloadPersistenceHelper payloadPersistenceHelper;
+
+    @Autowired
+    protected PayloadFileStorageProvider storageProvider;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected DateUtil dateUtil;
 
     @Override
     public void create(PartInfo partInfo, UserMessage userMessage) {
@@ -241,6 +253,65 @@ public class PartInfoServiceImpl implements PartInfoService {
             createPayloadDataHandler(partInfo, dataSource);
         }
     }
+
+    @Override
+    public void deleteAllPayloadFromFileSystem(List<DatabasePartition> toDeletePartition) {
+        LOG.debug("delete All Payload From partitions [{}] present in the File System", toDeletePartition);
+
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
+            LOG.info("Payloads are not from file system");
+            return;
+        }
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        for (DatabasePartition databasePartition : toDeletePartition) {
+            String payloadFolder = getPayloadFolder(databasePartition.getHighValue());
+            //All payload are saved in a unique folder per hour similar to the partition segregation.
+            DeleteFolderResult deleteFolderResult = storageProvider.deleteFolder(currentDomain.getCode(), payloadFolder);
+            if (deleteFolderResult.getResult() != DeleteFolderResult.Result.OK) {
+                LOG.error("Error while deleting folder [{}] for partition [{}]. Failed to delete [{}]/[{}] files",
+                        payloadFolder,
+                        databasePartition.getPartitionName(),
+                        deleteFolderResult.getFailed().size(),
+                        deleteFolderResult.getTotal());
+                for (String fileFailed : deleteFolderResult.getFailed()) {
+                    LOG.debug("File in error [{}]", fileFailed);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * For a partition holding messages between 13h and 13h59, the databasePartitionHighValue will be 14h
+     * We subtract one, to find the name of the folder: 13.
+     * @param databasePartitionHighValue
+     * @return folder name associated with the partition (YYYY/MM/dd/HH/)
+     */
+    @Override
+    public String getPayloadFolder(long databasePartitionHighValue) {
+        ZonedDateTime currentDate = dateUtil.getDateHour(databasePartitionHighValue - 1 + "");
+        return getPayloadFolder(currentDate);
+    }
+
+    @Override
+    public String getPayloadFolder(ZonedDateTime currentDate) {
+        return currentDate.getYear() + "/" +
+                padLeft(currentDate.getMonthValue()) + "/" +
+                padLeft(currentDate.getDayOfMonth()) + "/" +
+                padLeft(currentDate.getHour()) + "/";
+    }
+
+    /**
+     * 1  -> 01
+     * 12 -> 12
+     *
+     * @param i could be a month, day or hour
+     * @return {@param i} left padded with '0'
+     */
+    protected String padLeft(int i) {
+        return StringUtils.leftPad(i + "", 2, "0");
+    }
+
 
     private void createPayloadDataHandler(PartInfo partInfo, DataSource fsDataSource) {
         String href = partInfo.getHref();
