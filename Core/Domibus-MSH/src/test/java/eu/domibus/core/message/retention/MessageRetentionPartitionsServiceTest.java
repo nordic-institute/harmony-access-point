@@ -147,12 +147,6 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
                 DB_PARTITION_MESSAGES_BEFORE_PARTIONING
         );
         new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
-
-            userMessageDao.findAllPartitions();
-            result = partitions;
-
             partitionService.getNewestNonDefaultPartition(partitions);
             result = DB_PARTITION_MESSAGES_BEFORE_PARTIONING;
 
@@ -161,7 +155,7 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
 
         }};
 
-        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(partitions);
 
         assertThat(expiredPartitions, empty());
     }
@@ -172,43 +166,31 @@ public static final Long NOW_AS_NUMBER = 230702090000000000L;
                 DB_PARTITION_DEFAULT
         );
         new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
-
-            userMessageDao.findAllPartitions();
-            result = partitions;
-
             partitionService.getNewestNonDefaultPartition(partitions);
             result = null;
 
         }};
 
-        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(partitions);
 
         assertThat(expiredPartitions, empty());
     }
 
     @Test
     public void testGetExpiredPartitionsWithOneExpiredPartition() {
+        List<DatabasePartition> partitions = Arrays.asList(
+                DB_PARTITION_DEFAULT,
+                DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
+                DB_PARTITION_UNTIL_NOW_MINUS_1H,
+                DB_PARTITION_UNTIL_NOW,
+                DB_PARTITION_UNTIL_NOW_PLUS_1H
+        );
         new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = false;
-
-            userMessageDao.findAllPartitions();
-            result = Arrays.asList(
-                    DB_PARTITION_DEFAULT,
-                    DB_PARTITION_MESSAGES_BEFORE_PARTIONING,
-                    DB_PARTITION_UNTIL_NOW_MINUS_1H,
-                    DB_PARTITION_UNTIL_NOW,
-                    DB_PARTITION_UNTIL_NOW_PLUS_1H
-            );
-
             partitionService.getPartitionHighValueFromDate(withAny(new Date()));
             result = NOW_AS_NUMBER;
         }};
 
-        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(Arrays.asList(new DatabasePartition("TEST", 120L)));
-
+        List<DatabasePartition> expiredPartitions = messageRetentionPartitionsService.getExpiredPartitionNames(partitions);
         assertFalse(expiredPartitions.isEmpty());
     }
 }
