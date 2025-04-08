@@ -92,7 +92,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_CONVERSATION_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_CONVERSATION_ID},  cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -107,6 +107,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             }
             final String conversationId = map.getStringProperty(CONVERSATION_ID);
             final String jmsCorrelationID = map.getJMSCorrelationID();
+            LOG.putMDC(JMS_CORRELATION_ID, jmsCorrelationID);
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
             LOG.putMDC(CONVERSATION_ID, conversationId);
             LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, conversationId, jmsCorrelationID);
@@ -229,7 +230,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         final String service = event.getProps().get(MessageConstants.SERVICE);
         final String action = event.getProps().get(MessageConstants.ACTION);
         final String messageId = event.getMessageId();
-        QueueContext queueContext = new QueueContext(messageId, service, action);
+        final String jmsCorrelationId = LOG.getMDC(JMSMessageConstants.JMS_CORRELATION_ID);
+        QueueContext queueContext = new QueueContext(messageId, service, action, jmsCorrelationId);
         return queueContext;
     }
 
@@ -243,6 +245,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
 
         QueueContext queueContext = createQueueContext(event);
+        jmsMessageDTO.setJmsCorrelationId(queueContext.getJmsCorrelationId());
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
