@@ -12,7 +12,7 @@ Lists of 113 third-party dependencies.
      (Apache-2.0) Apache Commons IO (commons-io:commons-io:2.17.0 - https://commons.apache.org/proper/commons-io/)
      (Apache-2.0) Apache Commons Lang (org.apache.commons:commons-lang3:3.14.0 - https://commons.apache.org/proper/commons-lang/)
      (Apache-2.0) Apache Commons Net (commons-net:commons-net:3.9.0 - https://commons.apache.org/proper/commons-net/)
-     (Apache-2.0) Apache Commons VFS (org.apache.commons:commons-vfs2:2.9.0 - http://commons.apache.org/proper/commons-vfs/)
+     (Apache-2.0) Apache Commons VFS (org.apache.commons:commons-vfs2:2.10.0 - https://commons.apache.org/proper/commons-vfs/)
      (Apache-2.0) Apache CXF Advanced Logging Feature (org.apache.cxf:cxf-rt-features-logging:3.5.10 - https://cxf.apache.org/cxf-rt-features-logging)
      (Apache-2.0) Apache CXF Core (org.apache.cxf:cxf-core:3.5.10 - https://cxf.apache.org)
      (Apache-2.0) Apache CXF Runtime HTTP Transport (org.apache.cxf:cxf-rt-transports-http:3.5.10 - https://cxf.apache.org)

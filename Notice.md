@@ -397,7 +397,7 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2001 - 2024 The Apache Software Foundation (https://www.apache.org/), Daniel Rall, Stephen Colebourne, Henri Yandell, Steven Caswell, Robert Burrell Donkin, Gary Gregory, Fredrik Westermarck, James Carman, Niall Pemberton, Matt Benson, Joerg Schaible, Oliver Heger, Paul Benedict, Benedikt Ritter, Duncan Jones, Loic Guibert, Rob Tompkins
 
-***org.apache.commons:commons-vfs2:2.9.0*** 
+***org.apache.commons:commons-vfs2:2.10.0*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
