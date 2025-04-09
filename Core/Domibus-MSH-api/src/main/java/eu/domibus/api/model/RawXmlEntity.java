@@ -62,15 +62,20 @@ public class RawXmlEntity extends AbstractNoGeneratedPkEntity {
             return;
         }
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream(rawXML.length);
-        try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream)) {
-            zipStream.write(rawXML);
-        } catch (IOException e) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_008, "Compression failed", e);
+        boolean compressionEnabled = true; // NOTE: disable compression only for dev/debug purposes
+        if (compressionEnabled) {
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream(rawXML.length);
+            try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream)) {
+                zipStream.write(rawXML);
+            } catch (IOException e) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_008, "Compression failed", e);
+            }
+            this.rawXML = byteStream.toByteArray();
+            this.compressed = true;
+        } else {
+            this.rawXML = rawXML;
+            this.compressed = false;
         }
-
-        this.rawXML = byteStream.toByteArray();
-        this.compressed = true;
     }
 
     public Boolean getCompressed() {

@@ -91,7 +91,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         switch (reliabilityDTO.getReliabilityCheck()) {
             case OK:
                 if(StringUtils.isNotBlank(reliabilityDTO.getRequestRawXMLMessage())) {
-                    nonRepudiationService.saveRawEnvelope(reliabilityDTO.getRequestRawXMLMessage(), userMessage);
+                    nonRepudiationService.saveUserMessageRawEnvelope(reliabilityDTO.getRequestRawXMLMessage(), userMessage.getEntityId());
                 }
                 responseHandler.saveResponse(reliabilityDTO.getResponseSoapMessage(), userMessage,reliabilityDTO.getResponseResult().getResponseMessaging());
 

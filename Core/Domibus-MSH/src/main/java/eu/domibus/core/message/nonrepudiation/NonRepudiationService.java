@@ -17,13 +17,13 @@ import java.util.Map;
 
 public interface NonRepudiationService {
 
-    void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage);
+    void saveUserMessageRawEnvelope(String rawXMLMessage, Long messageEntityId);
+
+    void saveSignalMessageRawEnvelope(String rawXMLMessage, Long messageEntityId);
 
     UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException;
 
-    void saveRequest(SOAPMessage request, UserMessage userMessage);
-
-    void saveResponse(SOAPMessage response, Long userMessageEntityId);
+    String extractRawXMLMessage(SOAPMessage message);
 
     /**
      * Retrieves the user message envelope xml
