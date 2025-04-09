@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import eu.domibus.ext.services.AuthenticationExtService;
 
 import javax.jms.*;
 import java.text.MessageFormat;
@@ -53,6 +54,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     protected final MetricRegistry metricRegistry;
     protected final JndiDestinationResolver jndiDestinationResolver;
     protected final JmsPluginPropertyManager jmsPluginPropertyManager;
+    protected final AuthenticationExtService authenticationExtService;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
@@ -60,7 +62,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
                          JMSMessageTransformer jmsMessageTransformer,
-                         JndiDestinationResolver jndiDestinationResolver, JmsPluginPropertyManager jmsPluginPropertyManager) {
+                         JndiDestinationResolver jndiDestinationResolver,
+                         JmsPluginPropertyManager jmsPluginPropertyManager,
+                         AuthenticationExtService authenticationExtService) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -70,6 +74,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.metricRegistry = metricRegistry;
         this.jndiDestinationResolver = jndiDestinationResolver;
         this.jmsPluginPropertyManager = jmsPluginPropertyManager;
+        this.authenticationExtService = authenticationExtService;
     }
 
     @Override
@@ -126,7 +131,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                if (e instanceof DuplicateMessageException) {
+                if (e instanceof DuplicateMessageException){
                     LOG.businessError(DUPLICATE_MESSAGEID, messageID);
                 } else {
                     LOG.businessError(BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED, e);
@@ -163,6 +168,12 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @MDCKey({DomibusLogger.MDC_CONVERSATION_ID})
     public void deliverMessage(final DeliverMessageEvent event) {
+        // an administrative user for delivering a received message to the OUT queue.
+        authenticationExtService.runWithSecurityContext(() -> doDeliverMessage(event),
+                "jms_deliver_user", "jms_deliver_password", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void doDeliverMessage(final DeliverMessageEvent event) {
         checkEnabled();
 
         final String messageId = event.getMessageId();
