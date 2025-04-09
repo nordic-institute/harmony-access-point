@@ -4,6 +4,7 @@ import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.FSTestHelper;
+import eu.domibus.plugin.fs.worker.FSAuthenticationService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -31,6 +32,10 @@ public class FSSendMessageListenerTest {
 
     @Injectable
     private FSSendMessagesService fsSendMessagesService;
+
+    @Injectable
+    private FSAuthenticationService fsAuthenticationService;
+
 
     @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;
@@ -87,7 +92,7 @@ public class FSSendMessageListenerTest {
         fsSendMessageListener.onMessage(message);
 
         new FullVerifications(fsSendMessagesService) {{
-            fsSendMessagesService.authenticateForDomain(domain);
+            fsAuthenticationService.authenticateForDomain(domain);
 
             String domainActual;
             fsSendMessagesService.processFileSafely((FileObject) any, domainActual = withCapture());
