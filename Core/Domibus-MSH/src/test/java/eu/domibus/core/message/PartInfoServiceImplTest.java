@@ -4,10 +4,13 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -16,6 +19,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -42,7 +46,16 @@ public class PartInfoServiceImplTest {
     private PartInfoDao partInfoDao;
 
     @Injectable
+    protected PayloadFileStorageProvider storageProvider;
+
+    @Injectable
     private PayloadPersistenceHelper payloadPersistenceHelper;
+
+    @Injectable
+    protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected DateUtil dateUtil;
 
     @Test
     public void clearPayloadData_empty() {
