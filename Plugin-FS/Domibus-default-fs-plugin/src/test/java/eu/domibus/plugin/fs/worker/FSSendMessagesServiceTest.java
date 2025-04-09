@@ -77,6 +77,9 @@ public class FSSendMessagesServiceTest {
     @Injectable
     private FSProcessFileService fsProcessFileService;
 
+    @Injectable
+    FSAuthenticationService fsAuthenticationService;
+
     private FileObject rootDir;
     private FileObject outgoingFolder;
     private FileObject contentFile;
