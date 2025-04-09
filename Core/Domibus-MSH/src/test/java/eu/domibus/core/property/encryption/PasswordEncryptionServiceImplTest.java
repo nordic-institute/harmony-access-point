@@ -18,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -67,7 +66,7 @@ public class PasswordEncryptionServiceImplTest {
     protected ObjectProvider<DomibusPropertyEncryptionNotifier> domibusPropertyEncryptionListenerDelegate;
 
     @Injectable
-    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+    protected ObjectProvider<PasswordEncryptionContextFactory> passwordEncryptionContextFactory;
 
     @Injectable
     PasswordDecryptionHelper passwordDecryptionHelper;
@@ -81,11 +80,19 @@ public class PasswordEncryptionServiceImplTest {
     @Tested
     PasswordEncryptionServiceImpl passwordEncryptionService;
 
+    @Injectable
+    DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegateObject;
+
+    @Injectable
+    PasswordEncryptionContextFactory passwordEncryptionContextFactoryObject;
+
     @Test
-    @Ignore
     public void encryptPasswordsNonMultitenancy(@Injectable PasswordEncryptionContext passwordEncryptionContext) {
         new Expectations(passwordEncryptionService) {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(null);
+            passwordEncryptionContextFactory.getObject();
+            result = passwordEncryptionContextFactoryObject;
+
+            passwordEncryptionContextFactoryObject.getPasswordEncryptionContext(null);
             result = passwordEncryptionContext;
 
             domibusConfigurationService.isMultiTenantAware();
@@ -105,7 +112,6 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void encryptPasswordsMultitenancy(@Injectable Domain domain1,
                                              @Injectable Domain domain2,
                                              @Injectable PasswordEncryptionContext passwordEncryptionContext) {
@@ -120,7 +126,10 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionContextFactory.getPasswordEncryptionContext((Domain) any);
+            passwordEncryptionContextFactory.getObject();
+            result = passwordEncryptionContextFactoryObject;
+
+            passwordEncryptionContextFactoryObject.getPasswordEncryptionContext((Domain) any);
             result = passwordEncryptionContext;
 
             passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
@@ -699,7 +708,10 @@ public class PasswordEncryptionServiceImplTest {
         String propertyValue = "propertyValue";
         File encryptedKeyFile = new File(this.getClass().getResource("/encrypt").getPath());
         new Expectations(passwordEncryptionService) {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            passwordEncryptionContextFactory.getObject();
+            result = passwordEncryptionContextFactoryObject;
+
+            passwordEncryptionContextFactoryObject.getPasswordEncryptionContext(domain);
             result = passwordEncryptionContext;
 
             passwordEncryptionContext.isPasswordEncryptionActive();
@@ -745,7 +757,10 @@ public class PasswordEncryptionServiceImplTest {
     public void encryptProperty_noKeyFile(@Injectable PasswordEncryptionContext passwordEncryptionContext, @Injectable File encryptedKeyFile) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         new Expectations(passwordEncryptionService) {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            passwordEncryptionContextFactory.getObject();
+            result = passwordEncryptionContextFactoryObject;
+
+            passwordEncryptionContextFactoryObject.getPasswordEncryptionContext(domain);
             result = passwordEncryptionContext;
 
             passwordEncryptionContext.isPasswordEncryptionActive();
@@ -774,7 +789,10 @@ public class PasswordEncryptionServiceImplTest {
     public void encryptProperty_notActive(@Injectable PasswordEncryptionContext passwordEncryptionContext) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         new Expectations() {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            passwordEncryptionContextFactory.getObject();
+            result = passwordEncryptionContextFactoryObject;
+
+            passwordEncryptionContextFactoryObject.getPasswordEncryptionContext(domain);
             result = passwordEncryptionContext;
 
             passwordEncryptionContext.isPasswordEncryptionActive();
