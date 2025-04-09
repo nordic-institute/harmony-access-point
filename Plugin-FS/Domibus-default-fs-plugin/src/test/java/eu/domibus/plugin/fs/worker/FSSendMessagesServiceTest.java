@@ -142,6 +142,8 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages();
 
         new FullVerifications(instance) {{
+            domibusConfigurationExtService.isSecuredLoginRequired();
+            fsAuthenticationService.authenticateForDomain(anyString);
             instance.sendMessages(domain0);
             times = 1;
         }};
@@ -174,6 +176,7 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages(domain);
 
         new VerificationsInOrder(1) {{
+            domibusConfigurationExtService.isSecuredLoginRequired();
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
@@ -213,7 +216,7 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages(domainDefault);
 
         new VerificationsInOrder(1) {{
-            authenticationExtService.basicAuthenticate(anyString, anyString);
+            fsAuthenticationService.authenticateForDomain(anyString);
 
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
@@ -253,7 +256,7 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages(domain1);
 
         new Verifications() {{
-            authenticationExtService.basicAuthenticate(anyString, anyString);
+            fsAuthenticationService.authenticateForDomain(anyString);
 
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
@@ -284,7 +287,7 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages(domain1);
 
         new Verifications() {{
-            authenticationExtService.basicAuthenticate(anyString, anyString);
+            fsAuthenticationService.authenticateForDomain(anyString);
 
             instance.enqueueProcessableFile((FileObject) any);
             maxTimes = 0;
