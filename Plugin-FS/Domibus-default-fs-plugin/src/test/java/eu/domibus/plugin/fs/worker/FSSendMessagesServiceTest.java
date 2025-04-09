@@ -127,9 +127,6 @@ public class FSSendMessagesServiceTest {
     public void test_SendMessages_Root_Domain1() {
         final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
-            result = true;
-
             fsDomainService.getFSPluginDomain();
             result = domain0;
 
@@ -142,7 +139,6 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages();
 
         new FullVerifications(instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
             fsAuthenticationService.authenticateForDomain(anyString);
             instance.sendMessages(domain0);
             times = 1;
@@ -153,9 +149,6 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_RootDomain_NoMultitenancy() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain = null; //root
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
-            result = false;
-
             fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
@@ -176,7 +169,6 @@ public class FSSendMessagesServiceTest {
         instance.sendMessages(domain);
 
         new VerificationsInOrder(1) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
             Assert.assertEquals(contentFile, fileActual);
@@ -187,14 +179,6 @@ public class FSSendMessagesServiceTest {
     public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
-            result = true;
-
-            fsPluginProperties.getAuthenticationUser(domainDefault);
-            result = "user1";
-
-            fsPluginProperties.getAuthenticationPassword(domainDefault);
-            result = "pass1";
 
             fsFilesManager.setUpFileSystem(domainDefault);
             result = rootDir;
@@ -228,9 +212,6 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_Domain1() throws MessagingProcessingException, FileSystemException {
         final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
-            result = true;
-
             fsFilesManager.setUpFileSystem(domain1);
             result = rootDir;
 
@@ -239,12 +220,6 @@ public class FSSendMessagesServiceTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{metadataFile, contentFile};
-
-            fsPluginProperties.getAuthenticationUser(anyString);
-            result = "user1";
-
-            fsPluginProperties.getAuthenticationPassword(anyString);
-            result = "pass1";
 
             instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
@@ -268,15 +243,6 @@ public class FSSendMessagesServiceTest {
     public void testSendMessages_Domain1_BadConfiguration() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain1 = "DOMAIN1";
         new Expectations(1, instance) {{
-            domibusConfigurationExtService.isSecuredLoginRequired();
-            result = true;
-
-            fsPluginProperties.getAuthenticationUser(anyString);
-            result = "user1";
-
-            fsPluginProperties.getAuthenticationPassword(anyString);
-            result = "pass1";
-
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");
 
