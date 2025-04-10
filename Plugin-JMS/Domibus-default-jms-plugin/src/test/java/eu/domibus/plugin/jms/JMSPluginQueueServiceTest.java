@@ -49,12 +49,13 @@ public class JMSPluginQueueServiceTest {
         String action = "myAction";
         String defaultQueueProperty = "domibus.defaultQueue";
         String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
+        String jmsCorrelationId ="myJmsCorrelationId";
 
         new Expectations(jmsPluginQueueService) {{
             jmsPluginQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
         }};
 
-        final QueueContext queueContext = new QueueContext(messageId, service, action);
+        final QueueContext queueContext = new QueueContext(messageId, service, action, jmsCorrelationId);
         jmsPluginQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
 
         new Verifications() {{
