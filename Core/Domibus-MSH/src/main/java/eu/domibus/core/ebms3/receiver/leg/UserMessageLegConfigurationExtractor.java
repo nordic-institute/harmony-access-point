@@ -36,9 +36,7 @@ public class UserMessageLegConfigurationExtractor extends AbstractLegConfigurati
     @Override
     public LegConfiguration extractMessageConfiguration() throws EbMS3Exception {
         message.put(MSHDispatcher.MESSAGE_TYPE_IN, MessageType.USER_MESSAGE);
-        if (message.getExchange() != null) {
-            message.getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.SIGNAL_MESSAGE);
-        }
+        message.getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.SIGNAL_MESSAGE);
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         final String pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING).getPmodeKey(); // FIXME: This does not work for signalmessages
         setUpMessage(pmodeKey);
