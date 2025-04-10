@@ -13,6 +13,7 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -84,6 +85,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Override
     @Transactional
+    @MDCKey(cleanOnStart = true, cleanAllCustom = true)
     public void sendFailed(final UserMessageLog userMessageLog, String messageId) {
         if (userMessageLog == null) {
             LOG.warn("Could not mark message as failed: userMessageLog is null");
@@ -92,11 +94,17 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
 
         LOG.debug("Setting [{}] message as failed", messageId);
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+
         if (userMessage == null) {
             LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);
             return;
         }
 
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
         updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
     }
 
