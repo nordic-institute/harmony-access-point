@@ -1657,7 +1657,7 @@ public class CachingPModeProviderTest {
             process.getInitiatorRole();
             result = role1;
 
-            legFilterCriteria.getInitiatorRole();
+            legFilterCriteria.getSenderRole();
             result = initiatorRole;
 
             cachingPModeProvider.matchRole(role1, initiatorRole);
@@ -1677,7 +1677,7 @@ public class CachingPModeProviderTest {
             process.getResponderRole();
             result = role1;
 
-            legFilterCriteria.getResponderRole();
+            legFilterCriteria.getReceiverRole();
             result = responderRole;
 
             cachingPModeProvider.matchRole(role1, responderRole);
