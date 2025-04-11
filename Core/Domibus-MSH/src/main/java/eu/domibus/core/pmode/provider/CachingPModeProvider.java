@@ -325,14 +325,15 @@ public class CachingPModeProvider extends PModeProvider {
      * From the list of processes in the pmode {@link Configuration}, filters the list of {@link Process} matching the input parameters
      * and then filters the list of {@link LegConfiguration} matching the input parameters.<br/>
      * If several candidate leg configurations match, returns only the first leg configuration that matches.<br/>
-     * Meant for use with PUSH message exchange patterns as filtering with MEP and MPC are not considered.<br/>
+     * Initially meant for use with PUSH message exchange patterns as filtering with MEP and MPC were not considered.<br/>
+     * Afterwards extended to consider MPC as well, allowing support for PULL message exchange patterns.<br/>
      * If no processes or legs match, throws {@link EbMS3Exception} with details of all mismatches across processes and legs<br/>
      */
     @Override
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                              final String service, final String action, final Role initiatorRole, final Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
+                              final String service, final String action, final Role senderRole, final Role receiverRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
 
-        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processingType, mpc);
+        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, senderRole, receiverRole, service, action, processingType, mpc);
 
         final List<Process> matchingProcesses = filterMatchingProcesses(legFilterCriteria);
         if (matchingProcesses.isEmpty()) {
@@ -392,6 +393,7 @@ public class CachingPModeProvider extends PModeProvider {
         logProcesses(candidateProcesses);
 
         for (Process process : candidateProcesses) {
+            LOG.debug("Checking candidate process [{}]", process.getName());
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
             checkAgreementMismatch(process, legFilterCriteria);
             checkInitiatorMismatch(process, processTypePartyExtractor, legFilterCriteria);
@@ -465,6 +467,7 @@ public class CachingPModeProvider extends PModeProvider {
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
         matchingProcessesList.forEach(process -> candidateLegs.addAll(process.getLegs()));
         for (LegConfiguration candidateLeg : candidateLegs) {
+            LOG.debug("Checking candidate leg [{}]", candidateLeg.getName());
             checkServiceMismatch(candidateLeg, legFilterCriteria);
             checkActionMismatch(candidateLeg, legFilterCriteria);
             checkMpcMismatch(candidateLeg, legFilterCriteria);
@@ -552,19 +555,27 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void checkInitiatorRoleMismatch(Process process, LegFilterCriteria legFilterCriteria) {
-        if (matchRole(process.getInitiatorRole(), legFilterCriteria.getInitiatorRole())) {
-            LOG.debug("InitiatorRole:[{}] matched for Process:[{}]", legFilterCriteria.getInitiatorRole(), process.getName());
+        // for PULL processes, the initiator is the receiver party
+        // for PUSH processes, the initiator is the sender party
+        Role initiatorRole = getProcessingType(process) == eu.domibus.api.model.ProcessingType.PULL ? legFilterCriteria.getReceiverRole() : legFilterCriteria.getSenderRole();
+
+        if (matchRole(process.getInitiatorRole(), initiatorRole)) {
+            LOG.debug("InitiatorRole:[{}] matched for Process:[{}]", initiatorRole, process.getName());
             return;
         }
-        legFilterCriteria.appendProcessMismatchErrors(process, "InitiatorRole:[" + legFilterCriteria.getInitiatorRole() + DOES_NOT_MATCH_END_STRING);
+        legFilterCriteria.appendProcessMismatchErrors(process, "InitiatorRole:[" + initiatorRole + DOES_NOT_MATCH_END_STRING);
     }
 
     protected void checkResponderRoleMismatch(Process process, LegFilterCriteria legFilterCriteria) {
-        if (matchRole(process.getResponderRole(), legFilterCriteria.getResponderRole())) {
-            LOG.debug("ResponderRole:[{}] matched for Process:[{}]", legFilterCriteria.getResponderRole(), process.getName());
+        // for PULL processes, the responder is the sender party
+        // for PUSH processes, the responder is the receiver party
+        Role responderRole = getProcessingType(process) == eu.domibus.api.model.ProcessingType.PULL ? legFilterCriteria.getSenderRole() : legFilterCriteria.getReceiverRole();
+
+        if (matchRole(process.getResponderRole(), responderRole)) {
+            LOG.debug("ResponderRole:[{}] matched for Process:[{}]", responderRole, process.getName());
             return;
         }
-        legFilterCriteria.appendProcessMismatchErrors(process, "ResponderRole:[" + legFilterCriteria.getResponderRole() + DOES_NOT_MATCH_END_STRING);
+        legFilterCriteria.appendProcessMismatchErrors(process, "ResponderRole:[" + responderRole + DOES_NOT_MATCH_END_STRING);
     }
 
     @Override

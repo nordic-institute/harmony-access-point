@@ -1653,11 +1653,16 @@ public class CachingPModeProviderTest {
 
     @Test
     public void checkInitiatorRoleMismatch() {
+        Binding pushBinding = new Binding();
+        pushBinding.setValue(MessageExchangePattern.ONE_WAY_PUSH.getUri());
         new Expectations(cachingPModeProvider) {{
+            process.getMepBinding();
+            result = pushBinding;
+
             process.getInitiatorRole();
             result = role1;
 
-            legFilterCriteria.getInitiatorRole();
+            legFilterCriteria.getSenderRole();
             result = initiatorRole;
 
             cachingPModeProvider.matchRole(role1, initiatorRole);
@@ -1673,11 +1678,16 @@ public class CachingPModeProviderTest {
 
     @Test
     public void checkResponderRoleMismatch() {
+        Binding pushBinding = new Binding();
+        pushBinding.setValue(MessageExchangePattern.ONE_WAY_PUSH.getUri());
         new Expectations(cachingPModeProvider) {{
+            process.getMepBinding();
+            result = pushBinding;
+
             process.getResponderRole();
             result = role1;
 
-            legFilterCriteria.getResponderRole();
+            legFilterCriteria.getReceiverRole();
             result = responderRole;
 
             cachingPModeProvider.matchRole(role1, responderRole);

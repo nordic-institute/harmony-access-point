@@ -58,13 +58,18 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
         String messageEntityIdValue = (String) message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
         Long messageEntityId = StringUtils.isBlank(messageEntityIdValue) ? null : Long.valueOf(messageEntityIdValue);
         boolean duplicateMessage = BooleanUtils.toBoolean(userMessageContextKeyProvider.getKeyFromTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY));
-
-        String outgoingUserMessageId = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
-        String messageRole = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ROLE);
-        if (messageType == null || messageEntityId == null || duplicateMessage) {
+        if (duplicateMessage) {
             LOG.debug("Skip saving the outgoing message raw xml envelope: message type is [{}]; user message entity id: [{}]; duplicateMessage: [{}]", messageType, messageEntityId, duplicateMessage);
             return;
         }
+        if (messageType == null || messageEntityId == null) {
+            LOG.warn("Skip saving the outgoing message raw xml envelope: message type is [{}]; user message entity id: [{}]", messageType, messageEntityId);
+            return;
+        }
+
+        String outgoingUserMessageId = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
+        String messageRole = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ROLE);
+
         if (messageType == MessageType.USER_MESSAGE) {
             LOG.info("Saving the outgoing message raw xml envelope: message type is [{}]; outgoing user message id: [{}] with message entity id: [{}]; in response to incoming message id: [{}]", messageType, outgoingUserMessageId, messageEntityId, ebmsMessageId);
         } else if (messageType == MessageType.SIGNAL_MESSAGE) {
@@ -81,6 +86,8 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
             } else if (messageType == MessageType.SIGNAL_MESSAGE) {
                 nonRepudiationService.saveSignalMessageRawEnvelope(rawXMLMessage, messageEntityId);
                 LOG.debug("Saved the outgoing signal message envelope for user message id [{}], entity id [{}]", ebmsMessageId, messageEntityId);
+            } else {
+                LOG.error("Unknown message type: [{}] for message entity id [{}]", messageType, messageEntityId);
             }
         } catch (TransformerException e) {
             throw new WebServiceException(new IllegalArgumentException(e));

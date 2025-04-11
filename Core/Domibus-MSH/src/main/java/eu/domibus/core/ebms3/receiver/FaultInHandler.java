@@ -5,15 +5,15 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.model.configuration.ErrorHandling;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.cxf.CxfCurrentMessageService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
-import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
@@ -23,6 +23,7 @@ import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -30,9 +31,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapFault;
-import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.neethi.builders.converters.ConverterException;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -87,7 +86,7 @@ public class FaultInHandler extends AbstractFaultHandler {
     DomainContextProvider domainContextProvider;
 
     @Autowired
-    ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
+    private PModeProvider pModeProvider;
 
     @Autowired
     protected SoapService soapService;
@@ -129,10 +128,20 @@ public class FaultInHandler extends AbstractFaultHandler {
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
         final Domain currentDomainSafely = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomainSafely != null) {
-            updateErrorLog(soapMessageWithEbMS3Error, ebMS3Exception);
-            notifyPlugins(ebMS3Exception, context.getMessage());
+        if (currentDomainSafely == null) {
+            LOG.warn("Current domain could not be determined. Error log not created");
+            return true; // fault handled
         }
+
+        LegConfiguration legConfiguration = null;
+        String pmodeKey = (String) currentMessage.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+        //The Pmode key is null when there is no match for a leg configuration(eg wrong service, action, etc) while receiving a message
+        if (StringUtils.isNotBlank(pmodeKey)) {
+            legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
+        }
+
+        updateErrorLog(soapMessageWithEbMS3Error, ebMS3Exception);
+        notifyPlugins(ebMS3Exception, context.getMessage(), legConfiguration);
 
         return true;
     }
@@ -296,7 +305,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
     }
 
-    private void notifyPlugins(EbMS3Exception faultCause, SOAPMessage message) {
+    private void notifyPlugins(EbMS3Exception faultCause, SOAPMessage message, LegConfiguration legConfiguration) {
         LOG.debug("Preparing message details for plugin notification about the receive failure");
 
         final Message currentMessage = cxfCurrentMessageService.getCurrentMessage();
@@ -318,34 +327,27 @@ public class FaultInHandler extends AbstractFaultHandler {
         }
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
         backendNotificationService.fillEventProperties(userMessage, properties);
-        LegConfiguration legConfiguration = getLegConfiguration(message, ebms3Messaging);
-        if (legConfiguration == null || legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+
+        if (shouldNotifyPlugins(legConfiguration)) {
             backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
-        }
-        LOG.debug("Plugins notified about failure to receive message with id: [{}]",
-                Optional.ofNullable(userMessage)
-                        .map(UserMessage::getMessageId)
-                        .orElse(null));
-    }
-
-    private LegConfiguration getLegConfiguration(SOAPMessage message, Ebms3Messaging ebms3Messaging) {
-        try {
-            SoapMessage soapMessage = convertToSoapMessage(message);
-            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
-            if (legConfigurationExtractor == null) {
-                return null;
-            }
-            return legConfigurationExtractor.extractMessageConfiguration();
-        } catch (Exception e) {
-            LOG.info("Could not extract leg configuration for message [{}]", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), e);
-            return null;
+            LOG.debug("Plugins notified about failure to receive message with id: [{}]",
+                    Optional.ofNullable(userMessage)
+                            .map(UserMessage::getMessageId)
+                            .orElse(null));
         }
     }
 
-    public SoapMessage convertToSoapMessage(SOAPMessage soapMessage) {
-        MessageImpl messageImpl = new MessageImpl();
-        messageImpl.setContent(SOAPMessage.class, soapMessage);
-        return new SoapMessage(messageImpl);
+    private boolean shouldNotifyPlugins(LegConfiguration legConfiguration) {
+        if (legConfiguration == null) {
+            return true;
+        }
+        ErrorHandling errorHandling = legConfiguration.getErrorHandling();
+        if (errorHandling == null) {
+            LOG.debug("Leg Error Handling not found");
+            return false;
+        }
+        LOG.debug("Leg Error Handling found [{}]", errorHandling);
+        return errorHandling.isBusinessErrorNotifyConsumer();
     }
 
 }
