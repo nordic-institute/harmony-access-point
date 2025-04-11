@@ -922,14 +922,4 @@
         <cve>CVE-2024-38820</cve>
     </suppress>
     <!--end - disallowedFields in DataBinder - to be removed when Spring is updated-->
-    <suppress>
-        <notes><![CDATA[
-   file name: commons-vfs2-2.9.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-vfs2@.*$</packageUrl>
-        <!-- FSPlugin is used and administered in a controlled environment therefore the file path is not a parameter received from outside -->
-        <vulnerabilityName>CVE-2025-27553</vulnerabilityName>
-        <!-- Domibus does not log passwords -->
-        <vulnerabilityName>CVE-2025-30474</vulnerabilityName>
-    </suppress>
 </suppressions>

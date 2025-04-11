@@ -45,7 +45,9 @@ public class MessageResponseSentBackendNotifierInterceptor extends AbstractSoapI
         BackendFilter matchingBackendFilter = (BackendFilter) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(BACKEND_FILTER);
         UserMessage userMessage = (UserMessage) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(USER_MESSAGE);
         if (userMessage == null) {
-            LOG.info("User message was not present in the userMessageContextKeyProvider; exiting.");
+            // This was not a response to an incoming user message, so we'll not notify the backend.
+            // But this is not an error (it may be a response to a pull request, or to an incoming receipt).
+            LOG.debug("User message was not present in the userMessageContextKeyProvider; exiting.");
             return;
         }
         LOG.debug("Notifying plugin of message response sent event for message [{}]", userMessage);

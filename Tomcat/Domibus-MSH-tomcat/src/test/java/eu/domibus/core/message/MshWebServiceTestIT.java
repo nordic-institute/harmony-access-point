@@ -266,7 +266,8 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String expectedReceivedRawXml = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("dataset/as4/mshwebserviceit-soapenvelope.xml"), StandardCharsets.UTF_8);
         assertEquals(expectedReceivedRawXml, receivedUserMessageRawXml);
 
-        nonRepudiationService.saveResponse(soapResponse, userMessage.getEntityId());
+        final String signalRawXml = nonRepudiationService.extractRawXMLMessage(soapResponse);
+        nonRepudiationService.saveSignalMessageRawEnvelope(signalRawXml, userMessage.getEntityId());
         final SignalMessageRaw signalMessageRaw = signalMessageRawEnvelopeDao.read(userMessage.getEntityId());
         assertNotNull(signalMessageRaw);
         final String signalMessageRawString = new String(signalMessageRaw.getRawXML());

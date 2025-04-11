@@ -263,7 +263,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     public QueueContext getQueueContext(final String messageId, final MapMessage messageIn) throws JMSException {
         String service = getService(messageIn);
         String action = getAction(messageIn);
-        return new QueueContext(messageId, service, action);
+        String jmsCorrelationId = messageIn.getJMSCorrelationID();
+        return new QueueContext(messageId, service, action, jmsCorrelationId);
     }
 
     protected String getService(final MapMessage messageIn) throws JMSException {
