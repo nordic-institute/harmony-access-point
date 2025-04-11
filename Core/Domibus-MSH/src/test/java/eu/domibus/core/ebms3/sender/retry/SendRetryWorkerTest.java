@@ -72,6 +72,7 @@ public class SendRetryWorkerTest {
             retryService.enqueueMessage(MESSAGE_ID_1);
             retryService.enqueueMessage(MESSAGE_ID_2);
             retryService.enqueueMessage(MESSAGE_ID_3);
+            authUtils.clearSecurityContext();
         }};
     }
 

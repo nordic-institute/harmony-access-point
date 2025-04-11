@@ -50,6 +50,7 @@ public class MessagePullerJobTest {
 
         new FullVerifications() {{
             messageExchangeService.initiatePullRequest();
+            authUtils.clearSecurityContext();
         }};
     }
 

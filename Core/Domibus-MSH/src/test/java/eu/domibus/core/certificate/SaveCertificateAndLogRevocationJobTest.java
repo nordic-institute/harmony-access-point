@@ -57,6 +57,7 @@ public class SaveCertificateAndLogRevocationJobTest {
         new FullVerifications() {{
             certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
             certificateService.sendCertificateAlerts();
+            authUtils.clearSecurityContext();
         }};
     }
 
