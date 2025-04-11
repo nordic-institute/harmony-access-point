@@ -35,6 +35,9 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
         } catch (PModeException e) {
             LOG.warn("Invalid pmode configuration for pull request " + e.getMessage(), e);
         }
+        finally {
+            authUtils.clearSecurityContext();
+        }
     }
 
     @Override

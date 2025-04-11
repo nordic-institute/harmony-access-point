@@ -45,6 +45,9 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
         } catch (Exception e) {
             LOG.error("Error while bulk deleting messages.", e);
         }
+        finally {
+            authUtils.clearSecurityContext();
+        }
     }
 
     @Override

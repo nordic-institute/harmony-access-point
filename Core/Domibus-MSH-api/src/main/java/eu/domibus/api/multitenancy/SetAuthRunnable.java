@@ -23,7 +23,12 @@ public class SetAuthRunnable<T> implements Callable<T> {
 
     @Override
     public T call() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
-        return runnable.call();
+        try {
+            SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+            return runnable.call();
+        }
+        finally { // TODO IB make sure it's not breaking things
+            SecurityContextHolder.clearContext();
+        }
     }
 }

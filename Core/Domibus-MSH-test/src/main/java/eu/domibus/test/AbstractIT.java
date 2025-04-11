@@ -296,7 +296,7 @@ public abstract class AbstractIT {
         setGlobalProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, value + "");
     }
 
-    protected void setAuth() {
+    protected void setAuth() { // TODO IB
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "test_user",
