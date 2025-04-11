@@ -96,6 +96,9 @@ public class JMSPluginImplTest {
     @Injectable
     DomainExtService domainExtService;
 
+    @Injectable
+    AuthenticationExtService authenticationExtService;
+
     @Tested
     JMSPluginImpl backendJMS;
 
