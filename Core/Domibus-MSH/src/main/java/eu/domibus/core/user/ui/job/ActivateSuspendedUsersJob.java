@@ -35,6 +35,7 @@ public class ActivateSuspendedUsersJob extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
+
         LOG.debug("Executing job to unlock suspended accounts at {}", new Date());
 
         userService.reactivateSuspendedUsers();
