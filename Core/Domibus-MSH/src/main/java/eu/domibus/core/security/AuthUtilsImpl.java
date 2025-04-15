@@ -260,7 +260,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return;
         }
 
-        consumer.accept(securityUser); // TODO IB
+        consumer.accept(securityUser);
 
         SecurityContextHolder.clearContext();
         SecurityContextHolder.getContext().setAuthentication(authentication);

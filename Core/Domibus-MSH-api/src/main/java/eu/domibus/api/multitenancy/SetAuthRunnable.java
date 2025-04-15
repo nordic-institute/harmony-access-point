@@ -27,7 +27,7 @@ public class SetAuthRunnable<T> implements Callable<T> {
             SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
             return runnable.call();
         }
-        finally { // TODO IB make sure it's not breaking things
+        finally {
             SecurityContextHolder.clearContext();
         }
     }
