@@ -53,7 +53,6 @@ public class ActivateSuspendedPluginUsersJobTest {
 
         new FullVerifications() {{
             pluginUserService.reactivateSuspendedUsers();
-            authUtils.clearSecurityContext();
         }};
     }
 

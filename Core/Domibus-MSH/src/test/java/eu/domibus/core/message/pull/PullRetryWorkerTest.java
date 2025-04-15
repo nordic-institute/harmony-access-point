@@ -51,7 +51,6 @@ public class PullRetryWorkerTest {
             retryService.bulkExpirePullMessages();
             retryService.resetWaitingForReceiptPullMessages();
             retryService.bulkDeletePullMessages();
-            authUtils.clearSecurityContext();
         }};
     }
 

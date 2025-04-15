@@ -48,7 +48,6 @@ public class ActivateSuspendedUsersJobTest {
 
         new FullVerifications() {{
             userManagementService.reactivateSuspendedUsers();
-            authUtils.clearSecurityContext();
         }};
     }
 
