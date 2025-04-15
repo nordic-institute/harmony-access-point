@@ -53,6 +53,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_DIAGNOSTICS_ENABLED;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -282,26 +283,20 @@ public abstract class PModeProvider {
             action = findActionName(userMessage.getActionValue());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_ACTION_FOUND, action, userMessage.getActionValue());
 
-            //TODO - refactor EDELIVERY-12876
-            Role initiatorRole = senderRole;
-            Role responderRole = receiverRole;
 
-            if (isPullContext(isPull, processingType, userMessage.getMpcValue())) { // in pull, the responder is the From party that sends the UserMessage
+            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpcValue())) {  //TODO - refactor EDELIVERY-12876
+                // in pull, the responder is the From party that sends the UserMessage
                 LOG.debug("Pull context, switching roles.");
-                initiatorRole = receiverRole;
-
-                responderRole = senderRole;
-            }
-            LOG.info("Found roles initiatorRole=[{}], responderRole=[{}]", initiatorRole, responderRole);
-
-            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpcValue())) {
+                Role initiatorRole = receiverRole;
+                Role responderRole = senderRole;
+                LOG.info("Found roles for PULL processing type: initiatorRole=[{}], responderRole=[{}]", initiatorRole, responderRole);
                 mpc = mpcService.extractBaseMpc(userMessage.getMpcValue());
                 LOG.debug("Extracted base mpc [{}] ", mpc);
                 leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
             } else {
                 mpc = userMessage.getMpcValue();
                 LOG.debug("UserMessage mpc [{}] ", mpc);
-                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType, mpc);
+                leg = findLegName(agreementName, senderParty, receiverParty, service, action, senderRole, receiverRole, processingType, mpc);
             }
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
@@ -453,7 +448,7 @@ public abstract class PModeProvider {
 
     public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
 
-    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception;
+    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role senderRole, Role receiverRole, ProcessingType processingType, String mpc) throws EbMS3Exception;
 
     public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc, Role initiatorRole, Role responderRole) throws EbMS3Exception;
 
@@ -626,4 +621,18 @@ public abstract class PModeProvider {
 
     public abstract void logCurrentPMode();
 
+    protected eu.domibus.api.model.ProcessingType getProcessingType(Process process) {
+        if (equalsIgnoreCase(process.getMepBinding().getValue(), MessageExchangePattern.ONE_WAY_PUSH.getUri())) {
+            return eu.domibus.api.model.ProcessingType.PUSH;
+        }
+        if (equalsIgnoreCase(process.getMepBinding().getValue(), MessageExchangePattern.ONE_WAY_PULL.getUri())) {
+            return eu.domibus.api.model.ProcessingType.PULL;
+        }
+        LOG.debug("Could not determine processing type for process [{}] with mep binding [{}]", process.getName(), process.getMepBinding().getValue());
+
+        if (equalsIgnoreCase(process.getMepBinding().getValue(), MessageExchangePattern.TWO_WAY_PUSH_PUSH.getUri())) {
+            return eu.domibus.api.model.ProcessingType.PUSH;
+        }
+        return null;
+    }
 }
