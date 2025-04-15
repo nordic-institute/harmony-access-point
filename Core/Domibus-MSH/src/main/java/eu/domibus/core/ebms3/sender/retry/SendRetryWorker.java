@@ -54,9 +54,6 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
         } catch (Exception e) {
             LOG.error("Error while enqueueing messages.", e);
         }
-        finally {
-            authUtils.clearSecurityContext();
-        }
     }
 
     @Override

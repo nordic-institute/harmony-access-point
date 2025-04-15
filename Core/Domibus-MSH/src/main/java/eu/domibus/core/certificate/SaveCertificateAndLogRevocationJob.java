@@ -45,9 +45,6 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
             LOG.debug("A problem occurred while loading keystore", ex);
             LOG.warn("A problem occurred while loading keystore: [{}]", ex.getMessage());
         }
-        finally {
-            authUtils.clearSecurityContext();
-        }
     }
 
     @Override

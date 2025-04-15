@@ -36,22 +36,17 @@ public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        try {
-            if (!configurationDAO.configurationExists()) {
-                LOG.debug("Could not checked for expired SplitAndJoin messages: PMode is not configured");
-                return;
-            }
-            final boolean hasLegWithSplittingConfiguration = pModeProvider.hasLegWithSplittingConfiguration();
-            if (!hasLegWithSplittingConfiguration) {
-                LOG.trace("Nothing to do: no legs found with splitting configuration");
-                return;
-            }
+        if (!configurationDAO.configurationExists()) {
+            LOG.debug("Could not checked for expired SplitAndJoin messages: PMode is not configured");
+            return;
+        }
+        final boolean hasLegWithSplittingConfiguration = pModeProvider.hasLegWithSplittingConfiguration();
+        if (!hasLegWithSplittingConfiguration) {
+            LOG.trace("Nothing to do: no legs found with splitting configuration");
+            return;
+        }
 
-            splitAndJoinService.handleExpiredGroups();
-        }
-        finally {
-            authUtils.clearSecurityContext();
-        }
+        splitAndJoinService.handleExpiredGroups();
     }
 
     @Override
