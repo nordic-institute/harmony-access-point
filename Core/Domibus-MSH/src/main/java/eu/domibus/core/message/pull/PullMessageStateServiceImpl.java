@@ -85,7 +85,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Override
     @Transactional
-    @MDCKey(cleanOnStart = true, cleanAllCustom = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_CONVERSATION_ID}, cleanOnStart = true)
     public void sendFailed(final UserMessageLog userMessageLog, String messageId) {
         if (userMessageLog == null) {
             LOG.warn("Could not mark message as failed: userMessageLog is null");
