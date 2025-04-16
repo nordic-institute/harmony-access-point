@@ -86,7 +86,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         LOG.debug("Handling reliability");
         UserMessage userMessage = reliabilityDTO.getUserMessage();
         UserMessageLog userMessageLog = reliabilityDTO.getUserMessageLog();
-        final Boolean isTestMessage = userMessage.isTestMessage();
 
         switch (reliabilityDTO.getReliabilityCheck()) {
             case OK:
