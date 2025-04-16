@@ -3,9 +3,7 @@ package eu.domibus.plugin.fs;
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainTaskExtExecutor;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -20,6 +18,7 @@ import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
+import eu.domibus.plugin.fs.worker.FSAuthenticationService;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
@@ -105,11 +104,17 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected final FSSendMessageListenerContainer fsSendMessageListenerContainer;
 
+    protected final FSAuthenticationService fsAuthenticationService;
+
+    protected final DomibusConfigurationExtService domibusConfigurationExtService;
+
     public FSPluginImpl(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
                         FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
                         DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
                         FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper, FSSendMessageListenerContainer fsSendMessageListenerContainer,
-                        DomibusPropertyExtService domibusPropertyExtService) {
+                        DomibusPropertyExtService domibusPropertyExtService,
+                        FSAuthenticationService fsAuthenticationService,
+                        DomibusConfigurationExtService domibusConfigurationExtService) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.fsFilesManager = fsFilesManager;
@@ -123,6 +128,8 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         this.fsFileNameHelper = fsFileNameHelper;
         this.fsSendMessageListenerContainer = fsSendMessageListenerContainer;
         this.domibusPropertyExtService = domibusPropertyExtService;
+        this.fsAuthenticationService = fsAuthenticationService;
+        this.domibusConfigurationExtService = domibusConfigurationExtService;
 
         setRequiredNotifications();
     }
@@ -163,6 +170,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
         String fsPluginDomain = fsDomainService.getFSPluginDomain();
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
+
+        if (domibusConfigurationExtService.isSecuredLoginRequired()) {
+            fsAuthenticationService.authenticateForDomain(fsPluginDomain);
+        }
+
         String messageId = event.getMessageId();
         LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
         FSMessage fsMessage;
@@ -207,8 +219,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 //TODO: replace with a submitLongRunningTaskWithSecurityContext variant(like submit methods have)
                 final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
                 domainTaskExtExecutor.submitLongRunningTask(() -> {
-                    SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
-                    writePayloads(messageId, fsMessage, incomingFolderByMessageId);
+                    try {
+                        SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+                        writePayloads(messageId, fsMessage, incomingFolderByMessageId);
+                    } finally {
+                        SecurityContextHolder.clearContext();
+                    }
                 }, domainDTO);
             } else {
                 writePayloads(messageId, fsMessage, incomingFolderByMessageId);
@@ -219,6 +235,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         } catch (IOException | FSSetUpException ex) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw new FSPluginException("An error occurred persisting downloaded message " + messageId, ex);
+        }
+        finally {
+            SecurityContextHolder.clearContext();
         }
     }
 

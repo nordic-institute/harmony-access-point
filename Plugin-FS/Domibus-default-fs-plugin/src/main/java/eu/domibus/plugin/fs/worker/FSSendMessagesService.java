@@ -4,10 +4,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,6 +21,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,12 +61,6 @@ public class FSSendMessagesService {
     protected FSProcessFileService fsProcessFileService;
 
     @Autowired
-    protected AuthenticationExtService authenticationExtService;
-
-    @Autowired
-    protected DomibusConfigurationExtService domibusConfigurationExtService;
-
-    @Autowired
     protected DomainContextExtService domainContextExtService;
 
     @Autowired
@@ -84,6 +76,8 @@ public class FSSendMessagesService {
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
+    @Autowired
+    protected FSAuthenticationService fsAuthenticationService;
 
     protected Map<String, FileInfo> observedFilesInfo = new ConcurrentHashMap<>();
 
@@ -127,7 +121,7 @@ public class FSSendMessagesService {
 
         LOG.debug("Sending messages for domain [{}]", domain);
 
-        authenticateForDomain(domain);
+        fsAuthenticationService.authenticateForDomain(domain);
 
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -153,6 +147,7 @@ public class FSSendMessagesService {
             }
 
             clearDomainContext();
+            SecurityContextHolder.clearContext();
             LOG.debug("Finished sending messages for domain [{}]", domain);
         }
     }
@@ -160,33 +155,6 @@ public class FSSendMessagesService {
     protected void clearDomainContext() {
         LOG.removeMDC(DomibusLogger.MDC_USER);
         domainContextExtService.clearCurrentDomain();
-    }
-
-    /**
-     * It will check authentication username and password presence
-     *
-     * @param domain
-     */
-    public void authenticateForDomain(String domain) throws AuthenticationExtException {
-
-        if (!domibusConfigurationExtService.isSecuredLoginRequired()) {
-            LOG.trace("Skip authentication for domain [{}]", domain);
-            return;
-        }
-
-        String user = fsPluginProperties.getAuthenticationUser(domain);
-        if (user == null) {
-            LOG.error("Authentication User not defined for domain [{}]", domain);
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication User not defined for domain [" + domain + "]");
-        }
-
-        String password = fsPluginProperties.getAuthenticationPassword(domain);
-        if (password == null) {
-            LOG.error("Authentication Password not defined for domain [{}]", domain);
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "Authentication Password not defined for domain [" + domain + "]");
-        }
-
-        authenticationExtService.basicAuthenticate(user, password);
     }
 
     /**

@@ -6,12 +6,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
+import eu.domibus.plugin.fs.worker.FSAuthenticationService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,11 +37,15 @@ public class FSSendMessageListener implements MessageListener {
 
     protected final FSFilesManager fsFilesManager;
 
+    protected final FSAuthenticationService fsAuthenticationService;
+
 
     public FSSendMessageListener(FSSendMessagesService fsSendMessagesService,
-                                 FSFilesManager fsFilesManager) {
+                                 FSFilesManager fsFilesManager,
+                                 FSAuthenticationService fsAuthenticationService) {
         this.fsSendMessagesService = fsSendMessagesService;
         this.fsFilesManager = fsFilesManager;
+        this.fsAuthenticationService = fsAuthenticationService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200)
@@ -54,7 +60,7 @@ public class FSSendMessageListener implements MessageListener {
         try {
             domain = message.getStringProperty(MessageConstants.DOMAIN);
             fileName = message.getStringProperty(MessageConstants.FILE_NAME);
-            LOG.debug("received message on fsPluginSendQueue for domain={} and fileName={}", domain, fileName);
+            LOG.debug("received message on fsPluginSendQueue for domain=[{}] and fileName=[{}]", domain, fileName);
         } catch (JMSException e) {
             LOG.error("Unable to extract domainCode or fileName from JMS message", e);
             return;
@@ -71,13 +77,16 @@ public class FSSendMessageListener implements MessageListener {
                 fsFilesManager.deleteLockFile(fileObject);
                 return;
             }
-            fsSendMessagesService.authenticateForDomain(domain);
+            fsAuthenticationService.authenticateForDomain(domain);
 
             //process the file
             LOG.debug("now send the file: {}", fileObject);
             fsSendMessagesService.processFileSafely(fileObject, domain);
         } catch (FileSystemException e) {
             LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
+        }
+        finally {
+            SecurityContextHolder.clearContext();
         }
     }
 

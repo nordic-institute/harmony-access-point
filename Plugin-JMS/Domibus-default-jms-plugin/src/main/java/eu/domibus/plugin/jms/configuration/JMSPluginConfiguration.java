@@ -3,9 +3,7 @@ package eu.domibus.plugin.jms.configuration;
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.common.NotificationType;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.JMSExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
@@ -63,11 +61,12 @@ public class JMSPluginConfiguration {
                                               JMSMessageTransformer jmsMessageTransformer,
                                               DomibusPropertyExtService domibusPropertyExtService,
                                               @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver,
-                                              final JmsPluginPropertyManager jmsPluginPropertyManager) {
+                                              final JmsPluginPropertyManager jmsPluginPropertyManager,
+                                              AuthenticationExtService authenticationExtService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(JMSMessageConstants.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
         JMSPluginImpl jmsPlugin = new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate,
-                jmsMessageTransformer, jndiDestinationResolver.orElse(null), jmsPluginPropertyManager);
+                jmsMessageTransformer, jndiDestinationResolver.orElse(null), jmsPluginPropertyManager, authenticationExtService);
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }
