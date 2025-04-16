@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Thomas Dussart
  * @since 4.0
  */
-@DisallowConcurrentExecution //Only one SenderWorker runs at any time
+@DisallowConcurrentExecution //Only one PullRetryWorker runs at any time
 public class PullRetryWorker extends DomibusQuartzJobBean {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PullRetryWorker.class);
