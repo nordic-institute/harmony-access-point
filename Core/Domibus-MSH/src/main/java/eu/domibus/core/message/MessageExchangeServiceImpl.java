@@ -404,11 +404,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
 
     @Override
-    public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId, MSHRole role) {
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(messageId, role);
-        if (rawXmlByMessageId == null) {
-            throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always have a raw message for message " + messageId);
-        }
+    public RawEnvelopeDto findPulledMessageRawXmlByMessageEntityId(final Long messageEntityId) {
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByEntityId(messageEntityId);
         return rawXmlByMessageId;
     }
 
