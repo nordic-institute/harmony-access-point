@@ -113,10 +113,10 @@ public class IncomingPullReceiptHandler {
                     .refToMessageId(messageId)
                     .build());
         }
-         ResponseResult responseResult = null;
+        ResponseResult responseResult = null;
         Throwable throwable = null;
         try {
-            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
@@ -163,7 +163,11 @@ public class IncomingPullReceiptHandler {
     protected SOAPMessage getSoapMessage(String messageId, LegConfiguration legConfiguration, UserMessage userMessage) throws EbMS3Exception {
         SOAPMessage soapMessage;
         if (pullReceiptMatcher.matchReliableReceipt(legConfiguration.getReliability()) && legConfiguration.getReliability().isNonRepudiation()) {
-            RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageId(messageId, userMessage.getMshRole().getRole());
+            RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageEntityId(userMessage.getEntityId());
+            if (rawEnvelopeDto == null) {
+                LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
+                throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
+            }
             try {
                 final String rawXml = rawEnvelopeDto.getRawXmlMessage();
                 soapMessage = soapUtil.createSOAPMessage(rawXml);
