@@ -197,7 +197,7 @@ public class IncomingPullReceiptHandlerTest {
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
 
         new Verifications() {{
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
