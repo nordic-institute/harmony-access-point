@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
-        <cxf.version>3.5.10</cxf.version>
+        <cxf.version>3.5.11</cxf.version>
         <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
