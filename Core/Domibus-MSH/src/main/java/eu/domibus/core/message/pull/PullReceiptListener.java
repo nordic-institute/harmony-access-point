@@ -172,7 +172,7 @@ public class PullReceiptListener implements MessageListener {
             return null;
         }
         if (StringUtils.isBlank(domainCode)) {
-            LOG.error("Domain is empty: could not send message");
+            LOG.error("Domain is empty: could not handle JMS message");
             return null;
         }
         try {
