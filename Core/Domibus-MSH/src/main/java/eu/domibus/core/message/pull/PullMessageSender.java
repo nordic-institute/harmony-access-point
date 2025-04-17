@@ -176,7 +176,7 @@ public class PullMessageSender {
             String sendMessageId = messageId;
             try {
                 LOG.debug("Schedule sending pull receipt for message [{}]", sendMessageId);
-                userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, pModeKey);
+                userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, userMessage.getEntityId(), pModeKey);
             } catch (Exception ex) {
                 LOG.warn("Message[{}] exception while sending receipt asynchronously.", messageId, ex);
             }

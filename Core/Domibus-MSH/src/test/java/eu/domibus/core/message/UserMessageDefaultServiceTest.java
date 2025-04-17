@@ -317,7 +317,7 @@ public class UserMessageDefaultServiceTest {
         final String pModeKey = "pModeKey";
 
 
-        userMessageDefaultService.scheduleSendingPullReceipt(messageId, pModeKey);
+        userMessageDefaultService.scheduleSendingPullReceipt(messageId, 1L, pModeKey);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
@@ -719,7 +719,7 @@ public class UserMessageDefaultServiceTest {
         final String pModeKey = "pModeKey";
         final int retryCount = 3;
 
-        userMessageDefaultService.scheduleSendingPullReceipt(messageId, pModeKey, retryCount);
+        userMessageDefaultService.scheduleSendingPullReceipt(messageId, 1L, pModeKey, retryCount);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
