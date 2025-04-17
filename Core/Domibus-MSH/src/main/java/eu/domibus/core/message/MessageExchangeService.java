@@ -94,10 +94,11 @@ public interface MessageExchangeService {
     void saveRawXml(String rawXml, String messageId, MSHRole mshRole);
 
     /**
-     * Retrieve the unique raw message of UserMessage. Enforce that it is unique.
+     * Retrieve the unique raw message of UserMessage.
+     * Unicity is enforced by the database design (the raw user message envelope table shares a primary key with the user message table).
      *
      * @param messageEntityId the entityId of the message.
-     * @return the raw soap envelop.
+     * @return the raw soap envelope.
      */
     RawEnvelopeDto findPulledMessageRawXmlByMessageEntityId(final Long messageEntityId);
 
