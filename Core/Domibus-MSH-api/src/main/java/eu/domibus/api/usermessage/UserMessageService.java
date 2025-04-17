@@ -139,18 +139,20 @@ public interface UserMessageService {
      * Schedule the sending of the asynchronous Pull Receipt
      *
      * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param messageEntityId the message entity id of the UserMessage
      * @param pmodeKey  the pmode key of the UserMessage
      */
-    void scheduleSendingPullReceipt(String messageId, String pmodeKey);
+    void scheduleSendingPullReceipt(String messageId, final Long messageEntityId, String pmodeKey);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt (counting the retries)
      *
      * @param messageId  MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param messageEntityId the message entity id of the UserMessage
      * @param pmodeKey   the pmode key of the UserMessage
      * @param retryCount the number of current attempts to send the receipt
      */
-    void scheduleSendingPullReceipt(String messageId, String pmodeKey, int retryCount);
+    void scheduleSendingPullReceipt(String messageId, final Long messageEntityId, String pmodeKey, int retryCount);
 
     /**
      * Gets a User Message based on the {@code messageId}

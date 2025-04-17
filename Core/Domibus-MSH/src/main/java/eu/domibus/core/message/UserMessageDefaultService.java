@@ -426,22 +426,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey) {
-        final JmsMessage jmsMessage = JMSMessageBuilder
-                .create()
-                .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
-                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
-                .build();
-        LOG.debug("Sending message to sendPullReceiptQueue");
-        jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
+    public void scheduleSendingPullReceipt(final String messageId, final Long messageEntityId, final String pmodeKey) {
+        scheduleSendingPullReceipt(messageId, messageEntityId, pmodeKey, 0);
     }
 
     @Override
-    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey, final int retryCount) {
+    public void scheduleSendingPullReceipt(final String messageId, final Long messageEntityId, final String pmodeKey, final int retryCount) {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ENTITY_ID, messageEntityId == null ? null : messageEntityId.toString())
                 .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)

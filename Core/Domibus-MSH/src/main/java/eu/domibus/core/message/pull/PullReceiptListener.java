@@ -18,10 +18,12 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -37,6 +39,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.TransformerException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -73,31 +76,28 @@ public class PullReceiptListener implements MessageListener {
     @Autowired
     protected ReceiptDao receiptDao;
 
+    @Autowired
+    private SoapUtil soapUtil;
+
+    @Autowired
+    private NonRepudiationService nonRepudiationService;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @MDCKey(cleanOnStart = true, cleanAllCustom = true)
     @Timer(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     @Counter(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     public void onMessage(final Message message) {
         try {
-            String domainCode = null;
-            try {
-                domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            } catch (final JMSException e) {
-                LOG.error("Error processing JMS message", e);
-            }
-            if (StringUtils.isBlank(domainCode)) {
-                LOG.error("Domain is empty: could not send message");
+            String domainCode = setCurrentDomain(message);
+            if (domainCode == null) {
                 return;
             }
-            try {
-                domainContextProvider.setCurrentDomainWithValidation(domainCode);
-            } catch (DomibusDomainException ex) {
-                LOG.error("Invalid domain: [{}]", domainCode, ex);
-                return;
-            }
+
             final String refToMessageId = message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
+            final Long messageEntityId = findMessageEntityId(message);
+            LOG.info("Sending pull receipt for pulled UserMessage [{}] with message id [{}] on domain [{}].", messageEntityId, refToMessageId, domainCode);
+
             final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
-            LOG.info("Sending pull receipt for pulled UserMessage [{}], domain [{}].", refToMessageId, domainCode);
             LOG.debug("pModekey is [{}]", pModeKey);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             final Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
@@ -119,7 +119,7 @@ public class PullReceiptListener implements MessageListener {
 
             if (receipt == null) {
                 if (retryCount < MAX_RETRY_COUNT) {
-                    userMessageService.scheduleSendingPullReceipt(refToMessageId, pModeKey, retryCount + 1);
+                    userMessageService.scheduleSendingPullReceipt(refToMessageId, messageEntityId, pModeKey, retryCount + 1);
                     LOG.warn("Pull receipt not found, retry count is [{}] -> reschedule sending", retryCount);
                     return;
                 }
@@ -130,12 +130,58 @@ public class PullReceiptListener implements MessageListener {
             final Ebms3SignalMessage ebms3SignalMessage = convert(receipt.getSignalMessage(), receipt);
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(ebms3SignalMessage, legConfiguration);
             pullReceiptSender.sendReceipt(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey, refToMessageId, domainCode);
+
+            try {
+                String rawReceiptXml = soapUtil.getRawXMLMessage(soapMessage);
+                nonRepudiationService.saveSignalMessageRawEnvelope(rawReceiptXml, messageEntityId);
+            } catch (TransformerException e) {
+                LOG.error("Error while getting the raw XML receipt from the SOAPMessage", e);
+            }
+
         } catch (final JMSException | EbMS3Exception e) {
             LOG.error("Error processing JMS message", e);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error processing JMS message", e);
         }
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");
+    }
+
+    private Long findMessageEntityId(Message message) {
+        try {
+            final String messageEntityIdStr = message.getStringProperty(MessageConstants.MESSAGE_ENTITY_ID);
+            Long messageEntityId = StringUtils.isBlank(messageEntityIdStr) ? null : Long.valueOf(messageEntityIdStr);
+            if (messageEntityId != null) {
+                return messageEntityId;
+            }
+
+            final String refToMessageId = message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
+            eu.domibus.api.model.UserMessage userMessage = userMessageService.getByMessageId(refToMessageId, MSHRole.RECEIVING);
+            return userMessage == null ? null : userMessage.getEntityId();
+        } catch (final JMSException e) {
+            LOG.error("Error processing JMS message", e);
+            return null;
+        }
+    }
+
+    protected String setCurrentDomain(final Message message) {
+        final String domainCode;
+        try {
+            domainCode = message.getStringProperty(MessageConstants.DOMAIN);
+        } catch (final JMSException e) {
+            LOG.error("Error processing JMS message", e);
+            return null;
+        }
+        if (StringUtils.isBlank(domainCode)) {
+            LOG.error("Domain is empty: could not handle JMS message");
+            return null;
+        }
+        try {
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
+        } catch (DomibusDomainException ex) {
+            LOG.error("Invalid domain: [{}]", domainCode, ex);
+            return null;
+        }
+        return domainCode;
     }
 
     protected Ebms3SignalMessage convert(SignalMessage signalMessage, ReceiptEntity receiptEntity) {
@@ -152,12 +198,4 @@ public class PullReceiptListener implements MessageListener {
         return result;
     }
 
-    protected String removePrefix(String messageId, String prefix) {
-        String result = messageId;
-        if (messageId.endsWith(prefix)) {
-            result = messageId.substring(0, messageId.length() - prefix.length());
-            LOG.info("Cut prefix from messageId [{}], result is [{}]", messageId, result);
-        }
-        return result;
-    }
 }
