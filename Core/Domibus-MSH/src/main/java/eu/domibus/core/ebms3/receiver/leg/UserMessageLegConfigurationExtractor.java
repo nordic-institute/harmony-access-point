@@ -2,15 +2,19 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
+
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ID;
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ROLE;
 
 /**
  * @author Thomas Dussart
@@ -20,6 +24,8 @@ import org.apache.cxf.binding.soap.SoapMessage;
  */
 
 public class UserMessageLegConfigurationExtractor extends AbstractLegConfigurationExtractor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLegConfigurationExtractor.class);
 
     private PModeProvider pModeProvider;
     private Ebms3Converter ebms3Converter;
@@ -38,6 +44,8 @@ public class UserMessageLegConfigurationExtractor extends AbstractLegConfigurati
         message.put(MSHDispatcher.MESSAGE_TYPE_IN, MessageType.USER_MESSAGE);
         message.getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.SIGNAL_MESSAGE);
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        LOG.putMDC(MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
         final String pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING).getPmodeKey(); // FIXME: This does not work for signalmessages
         setUpMessage(pmodeKey);
         return this.pModeProvider.getLegConfiguration(pmodeKey);
