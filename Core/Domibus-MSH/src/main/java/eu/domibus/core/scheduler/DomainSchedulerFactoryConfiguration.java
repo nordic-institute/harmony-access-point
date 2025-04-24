@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
@@ -38,6 +37,7 @@ import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -767,9 +767,15 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
+        String isClustered = domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED);
+        String misfireThreshold = "60000";
+        if(BooleanUtils.isTrue(Boolean.parseBoolean(isClustered))) {
+            misfireThreshold = "120000";
+        }
+        properties.setProperty("org.quartz.jobStore.misfireThreshold", misfireThreshold);
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED));
+        properties.setProperty("org.quartz.jobStore.isClustered", isClustered);
+        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", "true");
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
@@ -789,6 +795,7 @@ public class DomainSchedulerFactoryConfiguration {
             }
             properties.setProperty("org.quartz.jobStore.tablePrefix", tablePrefix);
         }
+        LOG.debug("Quartz properties [{}]", properties);
 
         scheduler.setQuartzProperties(properties);
         scheduler.setJobFactory(autowiringSpringBeanJobFactory);
