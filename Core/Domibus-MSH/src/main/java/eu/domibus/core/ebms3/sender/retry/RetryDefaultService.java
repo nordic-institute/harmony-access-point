@@ -23,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_RECEIPT_TIMEOUT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
 
@@ -158,7 +160,14 @@ public class RetryDefaultService implements RetryService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void resetWaitingForReceiptPullMessages() {
-        final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt();
+        final int receiptTimeoutInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_TIMEOUT);
+        final Date olderThan = dateUtil.getDateMinutesAgo(receiptTimeoutInMinutes);
+        final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt(olderThan);
+        if (messagesToReset.isEmpty()) {
+            LOG.trace("No messages to reset in waiting for receipt state (older than [{}] minutes)", receiptTimeoutInMinutes);
+            return;
+        }
+        LOG.info("Resetting [{}] messages in waiting for receipt state (older than [{}] minutes)", messagesToReset.size(), receiptTimeoutInMinutes);
         for (MessagingLock messagingLock : messagesToReset) {
             pullMessageService.resetMessageInWaitingForReceiptState(messagingLock.getMessageId());
         }

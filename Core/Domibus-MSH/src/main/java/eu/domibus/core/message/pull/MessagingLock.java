@@ -29,7 +29,7 @@ import static eu.domibus.api.model.MessageState.READY;
         @NamedQuery(name = "MessagingLock.findDeletedMessages",
                 query = "SELECT m from MessagingLock m where messageState = 'DEL'"),
         @NamedQuery(name = "MessagingLock.findReadyToPull", query = "from MessagingLock where messageState = 'READY' and mpc=:MPC and lower(initiator)=lower(:INITIATOR) AND messageType='PULL' and nextAttempt<:CURRENT_TIMESTAMP and staled>:CURRENT_TIMESTAMP order by entityId"),
-        @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<:CURRENT_TIMESTAMP order by entityId")
+        @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<:CURRENT_TIMESTAMP AND modificationTime<:OLDER_THAN order by entityId")
 })
 @NamedNativeQuery(name = "MessagingLock.lockQuerySkipBlocked_Oracle",
         query = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +

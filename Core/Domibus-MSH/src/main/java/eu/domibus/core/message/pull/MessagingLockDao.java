@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +26,6 @@ public interface MessagingLockDao {
 
     List<MessagingLock> findDeletedMessages();
 
-    List<MessagingLock> findWaitingForReceipt();
+    List<MessagingLock> findWaitingForReceipt(Date olderThan);
 
 }

@@ -43,6 +43,8 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     private static final String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
 
+    private static final String OLDER_THAN = "OLDER_THAN";
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
@@ -233,9 +235,10 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     }
 
     @Override
-    public List<MessagingLock> findWaitingForReceipt() {
+    public List<MessagingLock> findWaitingForReceipt(Date olderThan) {
         final TypedQuery<MessagingLock> namedQuery = entityManager.createNamedQuery("MessagingLock.findWaitingForReceipt", MessagingLock.class);
         namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
+        namedQuery.setParameter(OLDER_THAN, olderThan);
         return namedQuery.getResultList();
     }
 
