@@ -70,14 +70,14 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2024 FasterXML.com (http://fasterxml.com), Tatu Saloranta
 
-***com.hazelcast:hazelcast:5.3.6*** 
+***com.hazelcast:hazelcast:5.3.8*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2024 Hazelcast, Inc. (http://www.hazelcast.com/), Hazelcast team
 
-***com.hazelcast:hazelcast-spring:5.3.6*** 
+***com.hazelcast:hazelcast-spring:5.3.8*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
