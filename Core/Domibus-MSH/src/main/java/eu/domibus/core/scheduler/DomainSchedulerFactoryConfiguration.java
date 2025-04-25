@@ -767,17 +767,10 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
-        String isClustered = domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED);
-        String misfireThreshold = "60000";
-        if(BooleanUtils.isTrue(Boolean.parseBoolean(isClustered))) {
-            // In the case of clustered env, 'acquireTriggersWithinLock' = true might slow down the trigger acquisition.
-            // It's only precautionary. Further tests might prove this increase of the value is not needed.
-            misfireThreshold = "120000";
-        }
-        properties.setProperty("org.quartz.jobStore.misfireThreshold", misfireThreshold);
+        properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
-        properties.setProperty("org.quartz.jobStore.isClustered", isClustered);
-        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", "true");
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED));
+        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
