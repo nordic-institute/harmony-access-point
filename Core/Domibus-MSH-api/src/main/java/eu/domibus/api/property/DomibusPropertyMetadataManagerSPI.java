@@ -317,6 +317,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PULL_MULTIPLE_LEGS = "domibus.pull.multiple_legs";
     String DOMIBUS_PULL_FORCE_BY_MPC = "domibus.pull.force_by_mpc";
     String DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR = "domibus.pull.mpc_initiator_separator";
+    String DOMIBUS_PULL_RECEIPT_TIMEOUT = "domibus.pull.receipt.timeout";
     String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
     String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
 
