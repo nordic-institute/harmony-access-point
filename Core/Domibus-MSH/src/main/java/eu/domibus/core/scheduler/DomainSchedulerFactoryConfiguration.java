@@ -767,10 +767,10 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+        properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED));
-        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(domain, DOMIBUS_DEPLOYMENT_CLUSTERED));
+        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
