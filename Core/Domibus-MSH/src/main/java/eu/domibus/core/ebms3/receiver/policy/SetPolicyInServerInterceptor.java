@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -20,6 +21,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -35,8 +37,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
+import static eu.domibus.api.exceptions.DomibusCoreErrorCode.DOM_006;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
 /**
@@ -123,6 +130,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
+            saveRawMessageMessageContext(message);
         } catch (EbMS3Exception ex) {
             headerLoggingInterceptor.handleMessage(PhaseInterceptorChain.getCurrentMessage());
 
@@ -142,6 +150,20 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .cause(e)
                     .mshRole(MSHRole.RECEIVING)
                     .build());
+        }
+    }
+
+    protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
+        final InputStream inputStream = message.getContent(InputStream.class);
+        if (inputStream instanceof ByteArrayInputStream) {
+            LOG.trace("Saving the raw message envelope content (to have the encrypted data section)");
+            String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
+            ((ByteArrayInputStream) inputStream).reset();
+
+            message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
+//            PhaseInterceptorChain.setCurrentMessage()
+        } else {
+            throw new DomibusCoreException(DOM_006, "Could not get the message content since it is not a byteArray stream.");
         }
     }
 

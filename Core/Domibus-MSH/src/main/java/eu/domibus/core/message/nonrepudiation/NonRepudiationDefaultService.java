@@ -15,6 +15,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 /**
  * @author Cosmin Baciu
@@ -78,8 +80,22 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
-        String rawXMLMessage = soapUtil.getRawXMLMessage(request);
+    public UserMessageRaw createReceivedUserMessageRaw(SOAPMessage request) throws TransformerException {
+        String rawXMLMessage = null;
+        if (PhaseInterceptorChain.getCurrentMessage() != null && PhaseInterceptorChain.getCurrentMessage().getExchange() != null) {
+            //For push
+            rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(RAW_MESSAGE_XML);
+        }
+
+        if (StringUtils.isBlank(rawXMLMessage)) {
+            //For pull
+            rawXMLMessage = DomibusSetPolicyInInterceptor.RAW_MESSAGE_XML.get();
+        }
+
+        if (rawXMLMessage == null) {
+            rawXMLMessage = soapUtil.getRawXMLMessage(request);
+        }
+
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setRawXML(rawXMLMessage);
         return rawEnvelopeLog;
