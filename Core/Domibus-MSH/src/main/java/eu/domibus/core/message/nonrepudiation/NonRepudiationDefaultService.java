@@ -10,6 +10,8 @@ import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.ebms3.receiver.policy.SetPolicyInClientInterceptor;
+import eu.domibus.core.ebms3.receiver.policy.SetPolicyInServerInterceptor;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -89,7 +91,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         if (StringUtils.isBlank(rawXMLMessage)) {
             //For pull
-            rawXMLMessage = DomibusSetPolicyInInterceptor.RAW_MESSAGE_XML.get();
+            rawXMLMessage = SetPolicyInClientInterceptor.RAW_MESSAGE_XML.get();
         }
 
         if (rawXMLMessage == null) {
