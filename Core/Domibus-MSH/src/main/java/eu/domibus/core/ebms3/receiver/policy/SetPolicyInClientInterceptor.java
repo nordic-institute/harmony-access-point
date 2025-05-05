@@ -76,6 +76,12 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         }
     }
 
+    /**
+     * The Raw Message Xml cannot be stored in the message like in {@link SetPolicyInServerInterceptor#saveRawMessageMessageContext(SoapMessage)}
+     * Because the message is cleared after the run of the {@link org.apache.cxf.binding.soap.interceptor.SoapInterceptor}
+     *
+     * We store it in {@link SetPolicyInClientInterceptor#RAW_MESSAGE_XML} because it will be read in the same thread.
+     */
     protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
         final InputStream inputStream = message.getContent(InputStream.class);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
