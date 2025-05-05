@@ -92,7 +92,7 @@ public class IncomingPullReceiptHandler {
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
         LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
-        LOG.debug("Handle PULL request receipt [{}]", userMessage);
+        LOG.debug("Handle PULL receipt [{}]", userMessage);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
