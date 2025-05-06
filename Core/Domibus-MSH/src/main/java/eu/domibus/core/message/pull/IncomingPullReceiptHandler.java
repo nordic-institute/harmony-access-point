@@ -2,6 +2,7 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -13,7 +14,6 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -32,6 +32,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_FAILED;
 import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RECEIPT_RECEIVED_SUCCESS;
 
@@ -53,24 +54,25 @@ public class IncomingPullReceiptHandler {
     private final EbMS3MessageBuilder messageBuilder;
     private final ResponseHandler responseHandler;
     private final PModeProvider pModeProvider;
-    protected UserMessageDao userMessageDao;
+    protected final UserMessageDao userMessageDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
-    protected PartInfoDao partInfoDao;
+    protected final PartInfoDao partInfoDao;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
     public IncomingPullReceiptHandler(
             MessageExchangeService messageExchangeService,
             ReliabilityChecker reliabilityChecker,
             ReliabilityMatcher pullReceiptMatcher,
             PullMessageService pullMessageService,
-            UserMessageLogDao userMessageLogDao,
             EbMS3MessageBuilder messageBuilder,
             ResponseHandler responseHandler,
             PModeProvider pModeProvider,
             UserMessageDao userMessageDao,
             MessageUtil messageUtil,
             SoapUtil soapUtil,
-            PartInfoDao partInfoDao) {
+            PartInfoDao partInfoDao,
+            DomibusPropertyProvider domibusPropertyProvider) {
         this.messageExchangeService = messageExchangeService;
         this.reliabilityChecker = reliabilityChecker;
         this.pullReceiptMatcher = pullReceiptMatcher;
@@ -82,6 +84,7 @@ public class IncomingPullReceiptHandler {
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
         this.partInfoDao = partInfoDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     public SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId, final UserMessageLog userMessageLog) {
@@ -92,9 +95,9 @@ public class IncomingPullReceiptHandler {
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
         LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
-        LOG.debug("Handle PULL request receipt [{}]", userMessage);
+        LOG.debug("Handle PULL receipt [{}]", userMessage);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
-            LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
+            LOG.error("[PULL_RECEIPT]:Message:[{}] received a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
                     .message(String.format("No message in waiting for callback state found for receipt referring to :[%s]", messageId))
@@ -138,8 +141,8 @@ public class IncomingPullReceiptHandler {
         } catch (ReliabilityException r) {
             throwable = r;
             LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
-        } catch (Throwable tr){
-           throwable = tr;
+        } catch (Throwable tr) {
+            throwable = tr;
         } finally {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, responseResult, request, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
@@ -165,9 +168,33 @@ public class IncomingPullReceiptHandler {
         if (pullReceiptMatcher.matchReliableReceipt(legConfiguration.getReliability()) && legConfiguration.getReliability().isNonRepudiation()) {
             RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageEntityId(userMessage.getEntityId());
             if (rawEnvelopeDto == null) {
-                LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
-                throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
+                final int retryInMs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY);
+                if (retryInMs <= 0) {
+                    LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. No retry will be attempted." +
+                            "Update the '" + DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY + "' property to configure a retry.",
+                            userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
+                    throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
+                }
+
+                LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. A retry will be attempted after [{}] ms." +
+                        "Update the '" + DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY + "' property to change this value.",
+                        userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId(), retryInMs);
+                try {
+                    Thread.sleep(retryInMs);
+                } catch (InterruptedException e) {
+                    LOG.warn("Thread interrupted while waiting for retry", e);
+                    throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
+                }
+
+                rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageEntityId(userMessage.getEntityId());
+                if (rawEnvelopeDto == null) {
+                    LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
+                    throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
+                }
+
+                LOG.info("User message raw envelope found on second try for [{}] message with id [{}] and message entity id [{}]", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
             }
+
             try {
                 final String rawXml = rawEnvelopeDto.getRawXmlMessage();
                 soapMessage = soapUtil.createSOAPMessage(rawXml);

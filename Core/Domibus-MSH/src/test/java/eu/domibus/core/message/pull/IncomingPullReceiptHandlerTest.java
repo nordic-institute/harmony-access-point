@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -48,6 +49,9 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingPullReceiptHandlerTest {
 
+    @Tested
+    IncomingPullReceiptHandler incomingPullReceiptHandler;
+
     @Injectable
     BackendNotificationService backendNotificationService;
 
@@ -68,9 +72,6 @@ public class IncomingPullReceiptHandlerTest {
 
     @Injectable
     MessageFactory messageFactory;
-
-    @Injectable
-    UserMessageLogDao userMessageLogDao;
 
     @Injectable
     JAXBContext jaxbContext;
@@ -120,9 +121,6 @@ public class IncomingPullReceiptHandlerTest {
     @Injectable
     ReliabilityChecker reliabilityChecker;
 
-    @Tested
-    IncomingPullReceiptHandler incomingPullReceiptHandler;
-
     @Injectable
     ReliabilityMatcher pullReceiptMatcher;
 
@@ -149,6 +147,9 @@ public class IncomingPullReceiptHandlerTest {
 
     @Injectable
     PartInfoDao partInfoDao;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testHandlePullRequestReceiptHappyFlow(@Mocked final SOAPMessage request,
