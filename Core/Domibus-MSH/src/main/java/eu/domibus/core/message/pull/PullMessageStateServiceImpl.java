@@ -115,6 +115,9 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Override
     public void reset(final UserMessageLog userMessageLog, UserMessage userMessage) {
         userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.READY_TO_PULL);
+
+        // Note: UserMessageLog is a Hibernate managed entity retrieved in an upper method which is also marked as transactional.
+        // We don't need to explicitly update it here, it will be automatically updated when the transaction is committed.
     }
 
 
