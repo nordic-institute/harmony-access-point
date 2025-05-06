@@ -442,7 +442,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK, Type.BOOLEAN, Usage.DOMAIN_AND_SUPER, true),
 
             //Start distributed cache properties
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL, Type.NUMERIC),

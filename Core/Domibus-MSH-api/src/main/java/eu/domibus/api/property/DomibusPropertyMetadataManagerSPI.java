@@ -480,6 +480,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_PREFIX + ".mail.subject";
     String DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED = "domibus.earchive.notification.details.enabled";
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
+    String DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD = "domibus.quartz.jobStore.misfireThreshold";
+    String DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK = "domibus.quartz.jobStore.acquireTriggersWithinLock";
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
 
     //Start distributed cache properties
