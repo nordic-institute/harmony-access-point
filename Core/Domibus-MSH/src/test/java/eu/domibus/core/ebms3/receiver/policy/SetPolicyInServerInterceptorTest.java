@@ -93,13 +93,15 @@ public class SetPolicyInServerInterceptorTest {
                               @Injectable HttpServletResponse response,
                               final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
-        new Expectations() {
+        new Expectations(setPolicyInServerInterceptor) {
             {
                 Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
                 LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
                 LegConfiguration legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
                 legConfiguration.getSecurity().getProfile();
                 result = SecurityProfile.RSA;
+
+                setPolicyInServerInterceptor.saveRawMessageMessageContext(message);
             }};
 
         setPolicyInServerInterceptor.handleMessage(message);

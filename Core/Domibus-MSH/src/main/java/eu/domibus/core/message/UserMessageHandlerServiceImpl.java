@@ -435,7 +435,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         UserMessageRaw userMessageRaw = null;
         try {
-            userMessageRaw = nonRepudiationService.createUserMessageRaw(request);
+            userMessageRaw = nonRepudiationService.createReceivedUserMessageRaw(request);
         } catch (TransformerException e) {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
