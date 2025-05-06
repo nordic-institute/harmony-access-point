@@ -97,7 +97,7 @@ public class IncomingPullReceiptHandler {
         LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
         LOG.debug("Handle PULL receipt [{}]", userMessage);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
-            LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
+            LOG.error("[PULL_RECEIPT]:Message:[{}] received a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
                     .message(String.format("No message in waiting for callback state found for receipt referring to :[%s]", messageId))
@@ -170,11 +170,15 @@ public class IncomingPullReceiptHandler {
             if (rawEnvelopeDto == null) {
                 final int retryInMs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY);
                 if (retryInMs <= 0) {
-                    LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. No retry will be attempted", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
+                    LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. No retry will be attempted." +
+                            "Update the '" + DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY + "' property to configure a retry.",
+                            userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId());
                     throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always be a raw message for " + messageId);
                 }
 
-                LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. A retry will be attempted after [{}] ms", userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId(), retryInMs);
+                LOG.warn("User message raw envelope not found for [{}] message with id [{}] and message entity id [{}]. A retry will be attempted after [{}] ms." +
+                        "Update the '" + DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY + "' property to change this value.",
+                        userMessage.getMshRole().getRole(), messageId, userMessage.getEntityId(), retryInMs);
                 try {
                     Thread.sleep(retryInMs);
                 } catch (InterruptedException e) {
