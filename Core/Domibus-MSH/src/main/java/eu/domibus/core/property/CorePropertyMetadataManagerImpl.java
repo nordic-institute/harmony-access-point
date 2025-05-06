@@ -423,6 +423,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_FORCE_BY_MPC, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_TIMEOUT, Type.POSITIVE_INTEGER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY, Type.POSITIVE_INTEGER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_QUEUE_CONCURENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
 

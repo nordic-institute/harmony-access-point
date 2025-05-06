@@ -90,7 +90,7 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public void deleteBackupsIfMoreThan(File originalFile, Integer maxFilesToKeep) throws IOException {
-        if (maxFilesToKeep == 0) {
+        if (maxFilesToKeep <= 0) {
             LOG.debug("Maximum backup history is 0 so exiting");
             return;
         }
