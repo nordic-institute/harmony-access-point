@@ -565,14 +565,14 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2010 - 2024, Johan Haleby
 
-***org.bouncycastle:bcpkix-jdk18on:1.78*** 
+***org.bouncycastle:bcpkix-jdk18on:1.80*** 
 - License: BCL
 - Url: https://www.bouncycastle.org/licence.html
 - File: license/third-party-licenses/BCL.txt
 - Copyright:
   - Copyright (c) 2024, The Legion of the Bouncy Castle Inc.
 
-***org.bouncycastle:bcprov-jdk18on:1.78*** 
+***org.bouncycastle:bcprov-jdk18on:1.80*** 
 - License: BCL
 - Url: https://www.bouncycastle.org/licence.html
 - File: license/third-party-licenses/BCL.txt
