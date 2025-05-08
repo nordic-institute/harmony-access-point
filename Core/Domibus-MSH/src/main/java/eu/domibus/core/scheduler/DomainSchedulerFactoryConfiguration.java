@@ -37,7 +37,6 @@ import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -85,12 +84,12 @@ public class DomainSchedulerFactoryConfiguration {
     // a slightly longer delay of 5 minutes
     private static final Integer JOB_START_LONG_DELAY_IN_MS = 300_000;
 
-    public static final String EARCHIVE_CONTINUOUS_JOB="eArchiveContinuousJob";
-    public static final String EARCHIVE_CLEANUP_JOB="eArchivingCleanupJob";
-    public static final String EARCHIVE_SANITIZER_JOB="eArchiveSanitizerJob";
+    public static final String EARCHIVE_CONTINUOUS_JOB = "eArchiveContinuousJob";
+    public static final String EARCHIVE_CLEANUP_JOB = "eArchivingCleanupJob";
+    public static final String EARCHIVE_SANITIZER_JOB = "eArchiveSanitizerJob";
     public static final String QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
     public static final String QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.oracle.weblogic.WebLogicOracleDelegate";
-    public static final String MESSAGE_RESEND_JOB="messageResendJob";
+    public static final String MESSAGE_RESEND_JOB = "messageResendJob";
 
     @Autowired
     Environment environment;
@@ -582,7 +581,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean eArchiveSanitizerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null ) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -683,7 +682,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean dynamicDiscoveryCertificatesCleanupJobTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null ) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -767,10 +766,15 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED));
+        if (domain == null) {
+            properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+            properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
+        } else {
+            properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+            properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
+        }
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(domain, DOMIBUS_DEPLOYMENT_CLUSTERED));
-        properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
@@ -800,7 +804,7 @@ public class DomainSchedulerFactoryConfiguration {
 
     protected String getQuartzDriverDelegateClass() {
         String result = QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE;
-        if(DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment) && domibusConfigurationService.getDataBaseEngine() == DataBaseEngine.ORACLE) {
+        if (DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment) && domibusConfigurationService.getDataBaseEngine() == DataBaseEngine.ORACLE) {
             result = QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE;
         }
         LOG.info("Using class [{}] for Quartz jdbcjobstore", result);
@@ -814,7 +818,7 @@ public class DomainSchedulerFactoryConfiguration {
      * @return General schema prefix
      */
     protected String getGeneralSchemaPrefix() {
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             throw new UnsupportedOperationException("There is no scheduling tables prefix for a general schema in single tenancy");
         }
         final String generalSchema = dbSchemaUtil.getGeneralSchema();
@@ -831,7 +835,7 @@ public class DomainSchedulerFactoryConfiguration {
      * @return Domain' schema prefix
      */
     protected String getTablePrefix(Domain domain) {
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("There is no scheduling tables prefix for a domain schema in single tenancy");
             return null;
         }
