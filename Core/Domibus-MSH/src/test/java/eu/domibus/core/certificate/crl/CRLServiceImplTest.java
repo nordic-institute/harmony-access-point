@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -93,6 +96,24 @@ public class CRLServiceImplTest {
         certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertTrue(certificateRevoked);
     }
+
+    @Test
+    public void testSupportedCrlDistributionPoints() {
+        final String crlUrl1 = "ftp://domain1.crl";
+        final String crlUrl2 = "http://domain2.crl";
+        final String crlUrl3 = "file:///some/path/domain3.crl";
+        final List<String> crlDistributionPoints = Arrays.asList(crlUrl1, crlUrl2, crlUrl3);
+
+        new Expectations(crlService) {{
+            domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
+            result = "ftp,file";
+        }};
+
+        List<String> supportedCrlDistributionPoints = crlService.getSupportedCrlDistributionPoints(crlDistributionPoints);
+        assertThat(supportedCrlDistributionPoints, contains(crlUrl2));
+        assertThat(supportedCrlDistributionPoints, not(contains(crlUrl1, crlUrl3)));
+    }
+
 
     @Test
     public void testIsCertificateRevokedWithNotSupportedCRLURLs(@Injectable final X509Certificate certificate) {
