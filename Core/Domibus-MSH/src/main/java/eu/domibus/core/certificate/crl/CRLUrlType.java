@@ -13,7 +13,7 @@ public enum CRLUrlType {
     HTTP("http://"),
     HTTPS("https://"),
     FTP("ftp://"),
-    FILE("file:/"),
+    FILE("file://"),
     LDAP("ldap://");
 
     final String prefix;
