@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.RestoreMDCContextRunnable;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -55,32 +56,44 @@ public class UserMessagePersistenceService {
         rawEnvelopeLogDao.create(userMessageRaw);
 
         if(signalMessageResult != null) {
-            final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-            final ReceiptEntity receiptEntity = signalMessageResult.getReceiptEntity();
-            receiptEntity.setSignalMessage(signalMessage);
-            signalMessage.setUserMessage(userMessage);
-
-            LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getSignalMessageId(), signalMessage.getRefToMessageId());
-            // Stores the signal message
-            signalMessageDao.create(signalMessage);
-            //stores the receipt
-            receiptDao.create(receiptEntity);
-
-            MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(MessageStatus.ACKNOWLEDGED);
-            MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
-
-            // Builds the signal message log
-            SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                    .setSignalMessage(signalMessage)
-                    .setMessageStatus(messageStatus)
-                    .setMshRole(role);
-            // Saves an entry of the signal message log
-            SignalMessageLog signalMessageLog = smlBuilder.build();
-            signalMessageLogDao.create(signalMessageLog);
+            saveSignalMessage(signalMessageResult, userMessage);
         }
 
-        notifyBackend.run();
+        // The code executed when notifying the backend might alter the MDC (eg by submitting a new message)
+        // If we use the modified MDC afterwards, it can lead to issues:
+        // - The message entity ID is extracted from the MDC in MSHWebservice::setUserMessageEntityIdOnContext
+        // and stored in the CXF message exchange context, and then used to save the raw xml envelope.
+        // - Log entries may become inconsistent due to the altered MDC.
+        // To prevent these issues, we restore the original MDC context after the backend notification,
+        // ensuring that subsequent operations use the correct, unaltered MDC.
+        new RestoreMDCContextRunnable(notifyBackend).run();
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PERSISTED);
+    }
+
+
+    private void saveSignalMessage(SignalMessageResult signalMessageResult, UserMessage userMessage) {
+        final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
+        final ReceiptEntity receiptEntity = signalMessageResult.getReceiptEntity();
+        receiptEntity.setSignalMessage(signalMessage);
+        signalMessage.setUserMessage(userMessage);
+
+        LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getSignalMessageId(), signalMessage.getRefToMessageId());
+        // Stores the signal message
+        signalMessageDao.create(signalMessage);
+        //stores the receipt
+        receiptDao.create(receiptEntity);
+
+        MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(MessageStatus.ACKNOWLEDGED);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
+
+        // Builds the signal message log
+        SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
+                .setSignalMessage(signalMessage)
+                .setMessageStatus(messageStatus)
+                .setMshRole(role);
+        // Saves an entry of the signal message log
+        SignalMessageLog signalMessageLog = smlBuilder.build();
+        signalMessageLogDao.create(signalMessageLog);
     }
 }
