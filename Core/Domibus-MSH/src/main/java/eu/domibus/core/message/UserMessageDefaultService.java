@@ -636,10 +636,15 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private void notifyMessageDeletedAndClearPayload(UserMessageLog userMessageLog, UserMessage userMessage) {
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
         partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
+
+        clearMDCForMessage();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -647,29 +652,26 @@ public class UserMessageDefaultService implements UserMessageService {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);
 
-        List<Long> ids = userMessageLogs
-                .stream()
-                .map(UserMessageLogDto::getEntityId)
-                .collect(Collectors.toList());
-
         try {
-            ids.forEach(eid -> {
-                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLog.getUserMessage().getMessageId());
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
+            userMessageLogs.forEach(userMessageLogDto -> {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLogDto.getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLogDto.getEntityId()));
+
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(userMessageLogDto.getEntityId());
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
-
         } catch (RuntimeException e) {
             LOG.warn("Error occurred while notifying message status change.", e);
             throw e;
         } finally {
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+            clearMDCForMessage();
         }
 
-        deleteMessagesWithIDs(ids);
+        List<Long> entityIds = userMessageLogs.stream()
+                .map(UserMessageLogDto::getEntityId)
+                .collect(Collectors.toList());
+        deleteMessagesWithIDs(entityIds);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
@@ -785,30 +787,37 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public void clearPayloadData(List<Long> entityIds) {
-        if (CollectionUtils.isEmpty(entityIds)) {
+    public void clearPayloadData(List<UserMessageLogDto> messageInfoList) {
+        if (CollectionUtils.isEmpty(messageInfoList)) {
             return;
         }
         try {
-            entityIds.forEach(partInfoService::clearPayloadData);
-            entityIds.forEach(eid -> {
-                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLog.getUserMessage().getMessageId());
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
+            messageInfoList.forEach(messageInfo -> {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageInfo.getEntityId()));
+
+                partInfoService.clearPayloadData(messageInfo.getEntityId());
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(messageInfo.getEntityId());
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
+            clearMDCForMessage();
 
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+            List<Long> entityIds = messageInfoList.stream()
+                    .map(UserMessageLogDto::getEntityId)
+                    .collect(Collectors.toList());
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
         } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);
             throw e;
         } finally {
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+            clearMDCForMessage();
         }
+    }
+
+    private void clearMDCForMessage() {
+        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
     }
 
     @Override

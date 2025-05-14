@@ -4,6 +4,7 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
@@ -216,5 +217,5 @@ public interface UserMessageService {
 
     eu.domibus.api.model.UserMessage getByMessageId(String messageId);
 
-    void clearPayloadData(List<Long> entityIds);
+    void clearPayloadData(List<UserMessageLogDto> messageInfoList);
 }

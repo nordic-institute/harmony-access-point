@@ -465,7 +465,7 @@ public class UserMessageDefaultServiceTest {
 
         userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
 
-        new FullVerifications() {{
+        new Verifications() {{
             userMessageLog.setDeleted((Date) any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
@@ -499,7 +499,7 @@ public class UserMessageDefaultServiceTest {
 
         userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
 
-        new FullVerifications() {{
+        new Verifications() {{
             partInfoService.clearPayloadData(userMessage.getEntityId());
             times = 1;
 
