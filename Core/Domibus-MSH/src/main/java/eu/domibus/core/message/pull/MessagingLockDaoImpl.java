@@ -8,6 +8,7 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
         try {
             Query q = entityManager.createNamedQuery("MessagingLock.lockQuerySkipBlocked_MySQL", MessagingLock.class);
             q.setParameter(MPC, mpc);
-            q.setParameter(INITIATOR, initiator);
+            q.setParameter(INITIATOR, StringUtils.lowerCase(initiator));
             q.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
             final MessagingLock messagingLock = (MessagingLock) q.getSingleResult();
 
@@ -92,7 +93,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
                 .registerStoredProcedureParameter("P_MPC", String.class, ParameterMode.IN)
                 .setParameter("P_MPC", mpc)
                 .registerStoredProcedureParameter("P_INITIATOR", String.class, ParameterMode.IN)
-                .setParameter("P_INITIATOR", initiator)
+                .setParameter("P_INITIATOR", StringUtils.lowerCase(initiator))
                 .registerStoredProcedureParameter("P_CURRENT_TIMESTAMP", Date.class, ParameterMode.IN)
                 .setParameter("P_CURRENT_TIMESTAMP", dateUtil.getUtcDate())
                 .registerStoredProcedureParameter("P_ROW", Object.class, ParameterMode.REF_CURSOR);
