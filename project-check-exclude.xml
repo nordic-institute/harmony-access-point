@@ -912,8 +912,6 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-messaging@.*$</packageUrl>
         <!-- Domibus does not use disallowedFields in DataBinder -->
         <cve>CVE-2024-38820</cve>
-        <!-- Domibus does not use disallowedFields in DataBinder -->
-        <vulnerabilityName>CVE-2025-22233</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
