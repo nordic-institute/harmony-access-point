@@ -13,7 +13,7 @@ public enum CRLUrlType {
     HTTP("http://"),
     HTTPS("https://"),
     FTP("ftp://"),
-    FILE("file://"),
+    FILE("file:/"),
     LDAP("ldap://");
 
     final String prefix;
@@ -24,6 +24,13 @@ public enum CRLUrlType {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    /**
+     * @return the lower case single word name of the protocol
+     */
+    public String getProtocolName() {
+        return name().toLowerCase();
     }
 
     /**

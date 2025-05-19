@@ -17,6 +17,7 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -102,16 +103,18 @@ public class CRLServiceImplTest {
         final String crlUrl1 = "ftp://domain1.crl";
         final String crlUrl2 = "http://domain2.crl";
         final String crlUrl3 = "file:///some/path/domain3.crl";
-        final List<String> crlDistributionPoints = Arrays.asList(crlUrl1, crlUrl2, crlUrl3);
+        final String crlUrl4 = "file:/some/path/domain4.crl";
+        final String crlUrl5 = "file://some/path/domain5.crl";
+        final List<String> crlDistributionPoints = Arrays.asList(crlUrl1, crlUrl2, crlUrl3, crlUrl4, crlUrl5);
 
         new Expectations(crlService) {{
-            domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            result = "ftp,file";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
+            result = Arrays.asList("ftp", "file");
         }};
 
         List<String> supportedCrlDistributionPoints = crlService.getSupportedCrlDistributionPoints(crlDistributionPoints);
         assertThat(supportedCrlDistributionPoints, contains(crlUrl2));
-        assertThat(supportedCrlDistributionPoints, not(contains(crlUrl1, crlUrl3)));
+        assertThat(supportedCrlDistributionPoints, not(contains(crlUrl1, crlUrl3, crlUrl4, crlUrl5)));
     }
 
 
@@ -139,8 +142,8 @@ public class CRLServiceImplTest {
             crlUtil.getCrlDistributionPoints(certificate);
             result = crlUrlList;
 
-            domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp","http");
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
+            result = Arrays.asList("ftp", "http");
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -188,8 +191,8 @@ public class CRLServiceImplTest {
             crlUtil.getCrlDistributionPoints(certificate);
             result = crlUrlList;
 
-            domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            result = "ftp";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
+            result = Collections.singletonList("ftp");
         }};
 
         crlService.isCertificateRevoked(certificate);
