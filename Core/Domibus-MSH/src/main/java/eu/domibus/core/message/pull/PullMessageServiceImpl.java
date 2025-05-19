@@ -251,7 +251,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         return new MessagingLock(
                 messageId,
-                StringUtils.lowerCase(partyIdentifier),
+                partyIdentifier, // NOTE: the initiator will be converted to lower case when persisted
                 mpc,
                 messageLog.getReceived(),
                 staledDate,

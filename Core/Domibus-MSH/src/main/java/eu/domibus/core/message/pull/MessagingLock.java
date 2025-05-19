@@ -4,6 +4,7 @@ import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageState;
 import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.api.scheduler.Reprogrammable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -28,9 +29,9 @@ import static eu.domibus.api.model.MessageState.READY;
                 query = "SELECT m from MessagingLock m where m.staled<:CURRENT_TIMESTAMP and messageState != 'DEL'"),
         @NamedQuery(name = "MessagingLock.findDeletedMessages",
                 query = "SELECT m from MessagingLock m where messageState = 'DEL'"),
-        @NamedQuery(name = "MessagingLock.findReadyToPull", query = "from MessagingLock where messageState = 'READY' and mpc=:MPC and initiator=:INITIATOR AND messageType='PULL' and nextAttempt<:CURRENT_TIMESTAMP and staled>:CURRENT_TIMESTAMP order by entityId"),
         @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<:CURRENT_TIMESTAMP AND modificationTime<:OLDER_THAN order by entityId")
 })
+// NOTE: the native query for Oracle is not used anymore, we're using the LOCK_MESSAGE_SKIP_BLOCKED stored procedure instead
 @NamedNativeQuery(name = "MessagingLock.lockQuerySkipBlocked_Oracle",
         query = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
                 "FROM TB_MESSAGING_LOCK ml " +
@@ -118,7 +119,7 @@ public class MessagingLock extends AbstractBaseEntity implements Reprogrammable 
         this.received = received;
         this.staled = staled;
         this.messageId = messageId;
-        this.initiator = initiator;
+        this.initiator = StringUtils.lowerCase(initiator); // the initiator persisted in the database is always lower case
         this.mpc = mpc;
         this.messageType = PULL;
         this.messageState = READY;
@@ -208,7 +209,7 @@ public class MessagingLock extends AbstractBaseEntity implements Reprogrammable 
     }
 
     public void setInitiator(String initiator) {
-        this.initiator = initiator;
+        this.initiator = StringUtils.lowerCase(initiator); // the initiator persisted in the database is always lower case
     }
 
     public void setMpc(String mpc) {
