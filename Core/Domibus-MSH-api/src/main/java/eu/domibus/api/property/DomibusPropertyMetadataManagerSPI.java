@@ -323,6 +323,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
 
     String DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER = "domibus.extension.iam.authentication.identifier";
+    String DOMIBUS_EXTENSION_IAM_TRUST_ENABLED = "domibus.extension.iam.trust.enabled";
     String DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER = "domibus.extension.iam.authorization.identifier";
     String DOMIBUS_EXCEPTIONS_REST_ENABLE = "domibus.exceptions.rest.enable";
 

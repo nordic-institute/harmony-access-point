@@ -428,6 +428,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_QUEUE_CONCURENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_TRUST_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
 
