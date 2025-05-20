@@ -4,7 +4,7 @@ Domibus 5.1.8
 - Add quartz properties to help the job management in a clustered environment:
         domibus.quartz.jobStore.misfireThreshold
         domibus.quartz.jobStore.acquireTriggersWithinLock
-- Added new property in Domibus to enable/disable the trust validation extension, set to true by default
+- Added new property in Domibus to enable/disable the trust verification, set to true by default
         domibus.extension.iam.trust.enabled
 Domibus 5.1.7
 - Upgrade CXF to the latest compatible version
