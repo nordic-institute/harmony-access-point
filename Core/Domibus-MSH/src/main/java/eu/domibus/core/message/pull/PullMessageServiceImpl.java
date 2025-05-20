@@ -24,6 +24,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -250,7 +251,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         return new MessagingLock(
                 messageId,
-                partyIdentifier,
+                partyIdentifier, // NOTE: the initiator will be converted to lower case when persisted
                 mpc,
                 messageLog.getReceived(),
                 staledDate,

@@ -21,6 +21,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,7 +33,7 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class PullMessageEbms3ServiceImplTest {
+public class PullMessageServiceImplTest {
 
     @Injectable
     private BackendNotificationService backendNotificationService;
@@ -248,7 +249,7 @@ public class PullMessageEbms3ServiceImplTest {
         new Verifications() {{
             MessagingLock messagingLock = null;
             messagingLockDao.save(messagingLock = withCapture());
-            assertEquals(partyId, messagingLock.getInitiator());
+            assertEquals(StringUtils.lowerCase(partyId), messagingLock.getInitiator());
             assertEquals(mpc, messagingLock.getMpc());
             assertEquals(messageId, messagingLock.getMessageId());
             assertEquals(staledDate, messagingLock.getStaled());

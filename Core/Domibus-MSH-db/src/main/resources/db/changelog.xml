@@ -743,10 +743,9 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_TIMEZONE_OFFSET"/>
         <createIndex indexName="IDX_MESSAGE_LOCK_SEARCH" tableName="TB_MESSAGING_LOCK">
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_STATE"/>
             <column name="INITIATOR"/>
             <column name="MPC"/>
+            <column name="MESSAGE_STATE"/>
             <column name="NEXT_ATTEMPT"/>
         </createIndex>
         <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
@@ -3221,7 +3220,7 @@
                     FROM TB_MESSAGING_LOCK ml
                     WHERE ml.MESSAGE_STATE='READY'
                       AND ml.MPC=p_MPC
-                      AND LOWER(ml.INITIATOR)=LOWER(p_INITIATOR)
+                      AND ml.INITIATOR=p_INITIATOR
                       AND ml.MESSAGE_TYPE='PULL'
                       AND ml.NEXT_ATTEMPT &lt; p_CURRENT_TIMESTAMP
                       AND ml.MESSAGE_STALED &gt; p_CURRENT_TIMESTAMP
