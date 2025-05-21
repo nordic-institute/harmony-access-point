@@ -118,6 +118,8 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
+    @Timer(clazz = RetryDefaultService.class, value = "push_messages_retry")
+    @Counter(clazz = RetryDefaultService.class, value = "push_messages_retry")
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
