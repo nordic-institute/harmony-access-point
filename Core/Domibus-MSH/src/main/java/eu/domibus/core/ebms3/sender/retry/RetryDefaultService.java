@@ -140,6 +140,9 @@ public class RetryDefaultService implements RetryService {
             return result;
         }
         LOG.trace("Found messages to be send [{}]", messageEntityIdsToSend);
+        if (messageEntityIdsToSend.size() > 1000) {
+            LOG.info("Found [{}] messages to resend", messageEntityIdsToSend.size());
+        }
 
         // START - This part should NOT be propagated to 5.2 (TSID is making the filter works correctly)
         for (Long entityId : messageEntityIdsToSend) {
