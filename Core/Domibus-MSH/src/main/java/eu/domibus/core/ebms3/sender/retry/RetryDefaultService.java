@@ -12,6 +12,8 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -116,6 +118,8 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
+    @Timer(clazz = RetryDefaultService.class, value = "push_messages_retry")
+    @Counter(clazz = RetryDefaultService.class, value = "push_messages_retry")
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
@@ -136,6 +140,9 @@ public class RetryDefaultService implements RetryService {
             return result;
         }
         LOG.trace("Found messages to be send [{}]", messageEntityIdsToSend);
+        if (messageEntityIdsToSend.size() > 1000) {
+            LOG.info("Found [{}] messages to resend", messageEntityIdsToSend.size());
+        }
 
         // START - This part should NOT be propagated to 5.2 (TSID is making the filter works correctly)
         for (Long entityId : messageEntityIdsToSend) {
@@ -159,6 +166,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_reset")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_reset")
     public void resetWaitingForReceiptPullMessages() {
         final int receiptTimeoutInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_TIMEOUT);
         final Date olderThan = dateUtil.getDateMinutesAgo(receiptTimeoutInMinutes);
@@ -179,6 +188,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_expire")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_expire")
     public void bulkExpirePullMessages() {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
@@ -192,6 +203,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_delete")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_delete")
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
         LOG.trace("Delete unnecessary locks");
