@@ -12,6 +12,8 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -159,6 +161,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_reset")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_reset")
     public void resetWaitingForReceiptPullMessages() {
         final int receiptTimeoutInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_TIMEOUT);
         final Date olderThan = dateUtil.getDateMinutesAgo(receiptTimeoutInMinutes);
@@ -179,6 +183,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_expire")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_expire")
     public void bulkExpirePullMessages() {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
@@ -192,6 +198,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_delete")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_delete")
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
         LOG.trace("Delete unnecessary locks");
