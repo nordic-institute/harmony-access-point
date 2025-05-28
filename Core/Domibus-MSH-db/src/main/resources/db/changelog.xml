@@ -748,6 +748,12 @@
             <column name="MESSAGE_STATE"/>
             <column name="NEXT_ATTEMPT"/>
         </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOCK_INIT" tableName="TB_MESSAGING_LOCK">
+            <column name="INITIATOR"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOCK_STATE" tableName="TB_MESSAGING_LOCK">
+            <column name="MESSAGE_STATE"/>
+        </createIndex>
         <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
             <column name="MESSAGE_ID"/>
         </createIndex>
