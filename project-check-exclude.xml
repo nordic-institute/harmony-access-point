@@ -109,6 +109,7 @@
         <cve>CVE-2025-31651</cve>
         <cve>CVE-2025-31650</cve>
         <cve>CVE-2024-52316</cve>
+        <vulnerabilityName>CVE-2025-46701</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
