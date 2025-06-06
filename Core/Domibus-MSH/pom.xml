@@ -542,7 +542,6 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.roda-project</groupId>

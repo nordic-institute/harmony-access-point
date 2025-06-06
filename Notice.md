@@ -133,6 +133,13 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2002 - 2024 The Apache Software Foundation (https://www.apache.org/), Henri Yandell, Tim OBrien, Scott Sanders, Rodney Waldhoff, Daniel Rall, Jon S. Stevens, Gary Gregory, David Graham, Julius Davies, Thomas Neidhart, Rob Tompkins
 
+***commons-collections:commons-collections:3.2.2*** 
+- License: Apache-2.0
+- Url: http://www.apache.org/licenses/LICENSE-2.0.txt
+- File: license/third-party-licenses/Apache-2.0.txt
+- Copyright:
+  - Copyright (c) 2001 - 2024 The Apache Software Foundation (http://www.apache.org/), Stephen Colebourne, Morgan Delagrange, Matthew Hawthorne, Geir Magnusson, Craig McClanahan, Phil Steitz, Arun M. Thomas, Rodney Waldhoff, Henri Yandell, James Carman, Robert Burrell Donkin
+
 ***commons-fileupload:commons-fileupload:1.5*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
