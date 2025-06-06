@@ -37,7 +37,7 @@
         <commons-io.version>2.17.0</commons-io.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-beanutils.version>1.11.0</commons-beanutils.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
         <bouncycastle.version>1.80</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
@@ -970,12 +970,6 @@
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
                 <version>${opencsv.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-beanutils</groupId>
-                        <artifactId>commons-beanutils</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- DOM4J -->
@@ -1034,10 +1028,6 @@
                     <exclusion>
                         <groupId>dom4j</groupId>
                         <artifactId>dom4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-beanutils</groupId>
-                        <artifactId>commons-beanutils</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
