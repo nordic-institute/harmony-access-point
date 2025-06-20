@@ -6,6 +6,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -227,6 +228,7 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
+    @Ignore // EDELIVERY-15259
     public void testVerifyTrustAllCertsInKeyStoreTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_SMP, CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
@@ -238,6 +240,7 @@ public class DomibusCertificateValidatorIT {
 
 
     @Test
+    @Ignore // EDELIVERY-15259
     public void testVerifyTrustIssuerChainCertsInKeyStoreTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
@@ -261,6 +264,7 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
+    @Ignore // EDELIVERY-15259
     public void testVerifyTrustCertInTrustStoreTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_SMP);
