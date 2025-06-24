@@ -154,9 +154,12 @@ public class EArchivingJobServiceTest {
     }
 
     @Test
-    public void createEventOnNonFinalMessages() {
+    public void createEventOnNonFinalMessages_activated() {
         String messageId = "someMessageId";
         new Expectations(){{
+            eArchivingEventService.isEventMessageNotFinalActive();
+            result = true;
+
             userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
             result = singletonList(new EArchiveBatchUserMessage(123L, messageId, MessageStatus.NOT_FOUND));
         }};
@@ -166,6 +169,17 @@ public class EArchivingJobServiceTest {
             eArchivingEventService.sendEventMessageNotFinal(messageId, MessageStatus.NOT_FOUND);
             times = 1;
         }};
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages_NotActivated() {
+        new Expectations(){{
+            eArchivingEventService.isEventMessageNotFinalActive();
+            result = false;
+        }};
+        eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);
+
+        new FullVerifications(){};
     }
 
     @Test
