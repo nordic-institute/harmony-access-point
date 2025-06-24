@@ -92,7 +92,7 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("eArchive created with last entity [{}]", lastEntityIdProcessed);
         }
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, maxEntityIdToArchived);
+            eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, newLastEntityIdProcessed);
             eArchivingJobService.createEventOnStartDateContinuousJobStopped(eArchivingJobService.getContinuousStartDate(EArchiveRequestType.CONTINUOUS).getModificationTime());
         }
         if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
