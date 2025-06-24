@@ -140,7 +140,7 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2001 - 2024 The Apache Software Foundation (http://www.apache.org/), Stephen Colebourne, Morgan Delagrange, Matthew Hawthorne, Geir Magnusson, Craig McClanahan, Phil Steitz, Arun M. Thomas, Rodney Waldhoff, Henri Yandell, James Carman, Robert Burrell Donkin
 
-***commons-fileupload:commons-fileupload:1.5*** 
+***commons-fileupload:commons-fileupload:1.6.0*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
