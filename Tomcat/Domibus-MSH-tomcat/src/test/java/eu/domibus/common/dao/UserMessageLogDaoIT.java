@@ -495,7 +495,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findRetryMessages() {
-        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L);
+        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L, 1000 /* maxMessageCount */);
 
         assertEquals(2, retryMessages.size());
     }

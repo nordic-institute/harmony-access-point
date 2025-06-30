@@ -83,13 +83,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.mpcDao = mpcDao;
     }
 
-    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId, final int maxMessageCount) {
         TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
 
         query.setParameter("MIN_ENTITY_ID", minEntityId);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
         query.setParameter("WAITING_FOR_RETRY", messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY));
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        query.setMaxResults(maxMessageCount);
 
         return query.getResultList();
     }
