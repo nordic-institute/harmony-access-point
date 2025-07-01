@@ -100,8 +100,8 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
         try {
             LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
-            if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
+            if (MessageStatus.DELETED == userMessageLog.getMessageStatus()  || MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + userMessageLog.getMessageStatus() + "]");
             }
 
             UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());

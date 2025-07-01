@@ -112,13 +112,13 @@ public class UpdateRetryLoggingService {
      * Set a message as failed if it has expired
      *
      * @param userMessage      The userMessage to be checked for expiration
+     * @param userMessageLog    The userMessageLog to be checked for expiration
      * @param legConfiguration
      * @return true in case the message was set as expired
      */
     @Transactional
-    public boolean failIfExpired(UserMessage userMessage, final @NotNull LegConfiguration legConfiguration) {
+    public boolean failIfExpired(UserMessage userMessage, UserMessageLog userMessageLog, final @NotNull LegConfiguration legConfiguration) {
         final long userMessageEntityId = userMessage.getEntityId();
-        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
 
         boolean expired = isExpired(legConfiguration, userMessageLog);
         if (!expired) {
@@ -132,11 +132,9 @@ public class UpdateRetryLoggingService {
     }
 
     @Transactional
-    public boolean failIfInvalidConfig(UserMessage userMessage, final LegConfiguration legConfiguration) {
+    public boolean failIfInvalidConfig(UserMessage userMessage, UserMessageLog userMessageLog, final LegConfiguration legConfiguration) {
         if (legConfiguration == null) {
-            final long userMessageEntityId = userMessage.getEntityId();
-            UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessageEntityId);
-            LOG.debug("No leg configuration found for message with entity id [{}] (message id [{}])", userMessageEntityId, userMessage.getMessageId());
+            LOG.debug("No leg configuration found for message with entity id [{}] (message id [{}])", userMessage.getEntityId(), userMessage.getMessageId());
             setMessageFailed(userMessage, userMessageLog);
             return true;
         }

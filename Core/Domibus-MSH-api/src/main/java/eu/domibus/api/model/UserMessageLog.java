@@ -22,7 +22,8 @@ import java.util.Date;
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
-                        "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
+                        "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false) " +
+                        "order by userMessageLog.entityId asc"), // ensure consistent ordering when retrying messages (prioritize older messages)
         @NamedQuery(name = "UserMessageLog.getMessageStatusById", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.getMessageStatusByIdAndRole", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID " +
                 "and userMessageLog.mshRole = :MSH_ROLE"),

@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface RetryService {
 
-    void enqueueMessage(long messageEntityId);
+    boolean enqueueMessage(long messageEntityId);
 
     List<Long> getMessagesNotAlreadyScheduled();
 
