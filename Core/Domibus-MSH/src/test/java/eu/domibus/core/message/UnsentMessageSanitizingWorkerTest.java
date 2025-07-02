@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_MAX_COUNT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(JMockit.class)
@@ -70,6 +71,9 @@ public class UnsentMessageSanitizingWorkerTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
             result = 360;
 
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
+            result = 1000;
+
             pModeProvider.getMaxRetryTimeout();
             result = 60;
 
@@ -79,7 +83,7 @@ public class UnsentMessageSanitizingWorkerTest {
             dateUtil.getMaxEntityId(MINUTES.toSeconds(420));
             result = maxEntityId;
 
-            userMessageLogDao.findUnsentMessageIds(delayedDate, maxEntityId);
+            userMessageLogDao.findUnsentMessageIds(delayedDate, maxEntityId, 1000 /* maxMessageCount */);
             result = unsentMessageIds;
 
             userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
@@ -109,7 +113,7 @@ public class UnsentMessageSanitizingWorkerTest {
         new FullVerifications() {{
             dateUtil.getMaxEntityId(anyLong);
             times = 0;
-            userMessageLogDao.findUnsentMessageIds((Date) any, anyLong);
+            userMessageLogDao.findUnsentMessageIds((Date) any, anyLong, anyInt);
             times = 0;
             userMessageService.sendEnqueuedMessage(anyString);
             times = 0;
