@@ -62,6 +62,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_EARCHIVE_RETENTION_CRON, EARCHIVE_CLEANUP_JOB},
             {DOMIBUS_MESSAGES_STUCK_CRON, "stuckMessagesJob"},
             {DOMIBUS_EARCHIVE_STUCK_CRON, "eArchivingStuckJob"},
+            {DOMIBUS_DIAGNOSTICS_CRON, "diagnosticsJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override
