@@ -491,9 +491,6 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
-    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
-    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
-
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";
 
@@ -509,6 +506,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     //End distributed cache properties
 
     String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
+
+    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
+    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
+    String DOMIBUS_MESSAGES_STUCK_MAX_COUNT = "domibus.messages.stuck.maxMessageCount";
     String DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED = "domibus.message.submission.diagnostics.enabled";
 
 }

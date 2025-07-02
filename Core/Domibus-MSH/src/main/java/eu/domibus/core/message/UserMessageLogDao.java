@@ -720,7 +720,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<String> findUnsentMessageIds(Date minutesAgo, long maxEntityId) {
+    public List<String> findUnsentMessageIds(Date minutesAgo, long maxEntityId, int maxMessageCount) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", String.class);
         query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
@@ -729,6 +729,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("SEND_ENQUEUED", sendEnqueuedEntity);
         MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
         query.setParameter("WAITING_FOR_RETRY", retryEntity);
+        query.setMaxResults(maxMessageCount);
 
         return query.getResultList();
     }

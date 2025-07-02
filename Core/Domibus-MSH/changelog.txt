@@ -1,5 +1,5 @@
 Domibus 5.1.9
-- Added new property domibus.msh.retry.maxMessageCount to limit the number of messages that can be retried in a single run of the MSH retry job. This is useful to prevent excessive load on the system when there are many messages in the WAITING_FOR_RETRY status.
+- Added new properties domibus.msh.retry.maxMessageCount and domibus.messages.stuck.maxMessageCount to limit the number of messages that can be retried in a single run. They are useful to prevent excessive load on the system when there are many messages in the WAITING_FOR_RETRY or SEND_ENQUEUED status.
 - Add new properties in Domibus to limit the maximum number of days taken into account for the earchiving jobs
         domibus.earchive.continuous.time_window_limit
         domibus.earchive.sanitizer.time_window_limit

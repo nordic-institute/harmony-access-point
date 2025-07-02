@@ -22,7 +22,6 @@ public class TemporaryPayloadCleanerJob extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        LOG.trace("Executing TemporaryPayloadCleanerJob");
         temporaryPayloadService.cleanTemporaryPayloads(domain);
     }
 }

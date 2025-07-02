@@ -201,7 +201,9 @@ import java.util.Date;
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
                         "and (uml.messageStatus = :SEND_ENQUEUED " +
                         "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
-                        "               and uml.entityId < :MAX_ENTITY_ID "),
+                        "and uml.entityId < :MAX_ENTITY_ID " +
+                        "and uml.acknowledged is null " + // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
+                        "order by uml.entityId asc"), // ensure consistent ordering when retrying messages (prioritize older messages)
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

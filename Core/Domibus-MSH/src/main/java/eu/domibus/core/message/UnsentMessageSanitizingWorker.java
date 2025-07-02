@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_MAX_COUNT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -76,8 +77,9 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             return;
         }
 
+        int maxMessageCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
         long maxEntityId = dateUtil.getMaxEntityId(MINUTES.toSeconds(retryIgnoreMinutes));
-        List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId);
+        List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
 
         if (unsentMessageIds == null || unsentMessageIds.isEmpty()) {
             LOG.debug("No unsent stuck messages found to dispatch");
