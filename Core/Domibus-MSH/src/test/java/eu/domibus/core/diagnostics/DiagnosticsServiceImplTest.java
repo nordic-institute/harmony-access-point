@@ -1,8 +1,9 @@
 package eu.domibus.core.diagnostics;
 
+import eu.domibus.api.jms.JMSDestination;
+import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.core.property.DomibusVersionService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -12,9 +13,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Breaz Ionut
@@ -30,10 +29,10 @@ public class DiagnosticsServiceImplTest {
     private DomibusVersionService domibusVersionService;
 
     @Injectable
-    private ServerInfoService serverInfoService;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private JMSManager jmsManager;
 
     @Test
     public void logDiagnosticInfo_withVersionInfo() {
@@ -55,9 +54,6 @@ public class DiagnosticsServiceImplTest {
 
             domibusVersionService.getVersionNumber();
             result = "5.1.9";
-
-            serverInfoService.getServerName();
-            result = "TestServer";
         }};
 
         // Execute
@@ -75,9 +71,6 @@ public class DiagnosticsServiceImplTest {
             times = 1;
 
             domibusVersionService.getVersionNumber();
-            times = 1;
-
-            serverInfoService.getServerName();
             times = 1;
         }};
     }
@@ -108,9 +101,47 @@ public class DiagnosticsServiceImplTest {
 
             domibusVersionService.getVersionNumber();
             times = 0;
+        }};
+    }
 
-            serverInfoService.getServerName();
-            times = 0;
+    @Test
+    public void logDiagnosticInfo_withJmsQueuesInfo() {
+        // Setup
+        List<String> diagnosticsList = Arrays.asList("jmsQueuesInfo");
+        SortedMap<String, JMSDestination> destinations = new TreeMap<>();
+
+        JMSDestination destination1 = new JMSDestination();
+        destination1.setName("queue1");
+        destinations.put("queue1", destination1);
+
+        JMSDestination destination2 = new JMSDestination();
+        destination2.setName("queue2");
+        destinations.put("queue2", destination2);
+
+        new Expectations() {{
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DomibusPropertyMetadataManagerSPI.DOMIBUS_DIAGNOSTICS_LIST);
+            result = diagnosticsList;
+
+            jmsManager.getDestinations();
+            result = destinations;
+
+            jmsManager.getDestinationSize(destination1);
+            result = 5L;
+
+            jmsManager.getDestinationSize(destination2);
+            result = 10L;
+        }};
+
+        // Execute
+        diagnosticsService.logDiagnosticInfo();
+
+        // Verify
+        new Verifications() {{
+            jmsManager.getDestinations();
+            times = 1;
+
+            jmsManager.getDestinationSize((JMSDestination) any);
+            times = 2;
         }};
     }
 }
