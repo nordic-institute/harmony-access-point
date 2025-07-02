@@ -58,17 +58,17 @@ public class EArchiveBatchDispatcherService {
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
-        LOG.debug("start eArchive batch for domain [{}] and of type [{}]", domain, eArchiveRequestType);
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             LOG.debug("eArchiving is not enabled");
             return;
         }
+        LOG.info("start eArchive batch for domain [{}] and of type [{}]", domain, eArchiveRequestType);
 
-        EArchiveBatchStart continuousStartDate = eArchivingJobService.getContinuousStartDate(eArchiveRequestType);
-        Long lastEntityIdProcessed = continuousStartDate.getLastPkUserMessage();
+        EArchiveBatchStart startDate = eArchivingJobService.getStartDate(eArchiveRequestType);
+        Long lastEntityIdProcessed = startDate.getLastPkUserMessage();
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
-        long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
+        long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType, startDate.getLastPkUserMessage());
         int batchMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int batchPayloadMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD) * 1024 * 1024;
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
@@ -93,7 +93,7 @@ public class EArchiveBatchDispatcherService {
         }
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, newLastEntityIdProcessed);
-            eArchivingJobService.createEventOnStartDateContinuousJobStopped(eArchivingJobService.getContinuousStartDate(EArchiveRequestType.CONTINUOUS).getModificationTime());
+            eArchivingJobService.createEventOnStartDateContinuousJobStopped(eArchivingJobService.getStartDate(EArchiveRequestType.CONTINUOUS).getModificationTime());
         }
         if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
             eArchivingJobService.updateLastEntityIdExported(newLastEntityIdProcessed, eArchiveRequestType);

@@ -5,7 +5,6 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -83,7 +82,7 @@ public class EArchivingJobService {
     }
 
     @Transactional(readOnly = true)
-    public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
+    public EArchiveBatchStart getStartDate(EArchiveRequestType eArchiveRequestType) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
         Hibernate.initialize(byReference);
         return byReference;
@@ -161,12 +160,33 @@ public class EArchivingJobService {
     }
 
     @Transactional(readOnly = true)
-    public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
+    public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType, Long minEntityToArchived) {
+        ZonedDateTime maxDateHour;
+        ZonedDateTime dateHourWithWindowLimit;
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            ZonedDateTime dateHour = dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
-            return dateUtil.getMaxEntityId(dateHour, TimeUnit.HOURS.toSeconds(getSanitizerDelay()));
+            long sanitizerDelay = getSanitizerDelay();
+            maxDateHour = getStartDateContinuous()
+                    .minusHours(sanitizerDelay);
+            Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT);
+            dateHourWithWindowLimit = dateUtil.getDateHour("" + minEntityToArchived)
+                    .plusDays(timeWindowLimit);
+            LOG.debug("[SANITIZER] maxDateHour: [{}] with sanitizer delay (-[{}] hours), dateHourWithWindowLimit: [{}]", maxDateHour,sanitizerDelay, dateHourWithWindowLimit);
+        } else {
+            long roundedRetryTimeOut = rounding60min(getRetryTimeOut());
+            maxDateHour = ZonedDateTime
+                    .now(ZoneOffset.UTC)
+                    .minusMinutes(roundedRetryTimeOut);
+            Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT);
+            dateHourWithWindowLimit = dateUtil.getDateHour("" + minEntityToArchived)
+                    .plusDays(timeWindowLimit);
+            LOG.debug("[CONTINUOUS] maxDateHour: [{}] with retryTimeOut (-[{}] minutes), dateHourWithWindowLimit: [{}]", maxDateHour, roundedRetryTimeOut, dateHourWithWindowLimit);
         }
-        return dateUtil.getMaxEntityId(MINUTES.toSeconds(rounding60min(getRetryTimeOut())));
+        ZonedDateTime dateHour = maxDateHour.isBefore(dateHourWithWindowLimit) ? maxDateHour : dateHourWithWindowLimit;
+        return dateUtil.getMaxEntityId(dateHour, 0);
+    }
+
+    private ZonedDateTime getStartDateContinuous() {
+        return dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
     }
 
     /**
