@@ -101,6 +101,28 @@ public class EArchivingJobServiceTest {
     }
 
     @Test
+    public void testGetMaxEntityIdToArchived_Sanitizer_delay() {
+        EArchiveRequestType type = EArchiveRequestType.SANITIZER;
+        long sanitizerDelay = 5L;
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        long minEntityId = dateUtil.getMinEntityId(now.minusDays(10), 0L);
+
+        ZonedDateTime continuousStartDate = now.minusDays(5);
+        new Expectations() {{
+            eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
+            result = dateUtil.getMinEntityId(continuousStartDate, 0L) + 123;
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT);
+            result = 200;
+            domibusPropertyProvider.getLongProperty(DOMIBUS_EARCHIVE_SANITY_DELAY);
+            result = sanitizerDelay;
+        }};
+
+        long result = eArchivingJobService.getMaxEntityIdToArchived(type, minEntityId);
+        //expected to be 10 days ago - 2 days (time window limit)
+        assertEquals(dateUtil.getMaxEntityId(continuousStartDate.minusHours(sanitizerDelay), 0L), result);
+    }
+
+    @Test
     public void testGetMaxEntityIdToArchived_Continuous_window_limit() {
         EArchiveRequestType type = EArchiveRequestType.CONTINUOUS;
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);

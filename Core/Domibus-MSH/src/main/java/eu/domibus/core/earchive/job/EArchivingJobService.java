@@ -159,6 +159,12 @@ public class EArchivingJobService {
         return eArchiveBatchDao.merge(entity);
     }
 
+    /**
+     * Returns the maximum entity id to be archived based on the eArchiveRequestType and the minimum entity id to be archived.
+     * For continuous archiving, it considers the current time minus the retry timeout.
+     * For sanitizer archiving, it considers the start date minus the sanitizer delay.
+     * The window limit is applied to ensure that the maximum entity id does not exceed a certain time window.
+     */
     @Transactional(readOnly = true)
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType, Long minEntityToArchived) {
         ZonedDateTime maxDateHour;
