@@ -734,4 +734,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
+    public Long countUnsentMessages(Date minutesAgo, long maxEntityId) {
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.countUnsentAndWaitingForRetryMessages", Long.class);
+        query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
+
+        MessageStatusEntity sendEnqueuedEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
+        query.setParameter("SEND_ENQUEUED", sendEnqueuedEntity);
+        MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+        query.setParameter("WAITING_FOR_RETRY", retryEntity);
+
+        return query.getSingleResult();
+    }
+
 }

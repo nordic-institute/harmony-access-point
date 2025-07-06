@@ -205,6 +205,16 @@ import java.util.Date;
                         "and (uml.scheduled is null or uml.scheduled=false) " + // skip messages in the dispatch queue
                         "and uml.acknowledged is null " + // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
                         "order by uml.entityId asc"), // ensure consistent ordering when retrying messages (prioritize older messages)
+        @NamedQuery(name = "UserMessageLog.countUnsentAndWaitingForRetryMessages",
+                query = "select count(um.messageId) " +
+                        "FROM UserMessageLog uml " +
+                        "INNER JOIN uml.userMessage um " +
+                        "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED " +
+                        "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
+                        "and uml.entityId < :MAX_ENTITY_ID " +
+                        "and (uml.scheduled is null or uml.scheduled=false) " + // skip messages in the dispatch queue
+                        "and uml.acknowledged is null"), // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

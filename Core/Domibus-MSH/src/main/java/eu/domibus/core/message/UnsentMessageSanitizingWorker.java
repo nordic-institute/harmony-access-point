@@ -6,6 +6,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
@@ -19,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_MAX_COUNT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGES_STUCK_MAX_COUNT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
@@ -55,6 +58,9 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
     @Autowired
     private PModeProvider pModeProvider;
 
+    @Autowired
+    private EventService eventService;
+
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("UnsentMessageSanitizingWorker to be executed");
@@ -77,8 +83,21 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             return;
         }
 
-        int maxMessageCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
         long maxEntityId = dateUtil.getMaxEntityId(MINUTES.toSeconds(retryIgnoreMinutes));
+        int maxMessageCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
+        if (maxMessageCount == 0) {
+            // no messages will be retried; an alert will be raised instead
+            Long count = userMessageLogDao.countUnsentMessages(minutesAgo, maxEntityId);
+            if (count == 0) {
+                LOG.debug("No stuck unsent messages found before [{}]", minutesAgo);
+                return;
+            }
+
+            LOG.info("Found [{}] unsent stuck messages before [{}]", count, minutesAgo);
+            eventService.enqueueEvent(EventType.OLD_ONGOING_MESSAGES, "" + maxEntityId, new EventProperties(count, minutesAgo));
+            return;
+        }
+
         List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
 
         if (unsentMessageIds == null || unsentMessageIds.isEmpty()) {
@@ -86,7 +105,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             return;
         }
         List<String> skippedMessageIds = new ArrayList<>();
-        LOG.info("Prepare [{}] unsent messages for dispatch", unsentMessageIds.size());
+        LOG.info("Prepare [{}] unsent stuck messages for dispatch", unsentMessageIds.size());
         if (LOG.isDebugEnabled()) {
             LOG.debug("Unsent messages {}", unsentMessageIds);
         }
@@ -99,7 +118,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             }
         }
         if (!isEmpty(skippedMessageIds)) {
-            LOG.info("[{}] messages skipped {}", skippedMessageIds.size(), skippedMessageIds);
+            LOG.info("[{}]/[{}] messages skipped due to them being already unstuck by a different process: {}", skippedMessageIds.size(), unsentMessageIds.size(), skippedMessageIds);
         }
     }
 }
