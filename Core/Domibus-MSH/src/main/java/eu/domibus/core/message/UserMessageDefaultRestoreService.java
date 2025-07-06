@@ -165,7 +165,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
-            userMessageService.sendEnqueuedMessage(messageId);
+            userMessageService.sendEnqueuedMessage(messageId, userMessageLog.getEntityId());
         } else {
             restoreFailedMessage(messageId);
         }

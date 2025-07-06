@@ -238,10 +238,10 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public void sendEnqueuedMessage(String messageId) {
+    public void sendEnqueuedMessage(String messageId, Long messageEntityId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = messageEntityId == null ? userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING) : userMessageLogDao.findByEntityId(messageEntityId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
@@ -263,7 +263,7 @@ public class UserMessageDefaultService implements UserMessageService {
             ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
             if (nextAttempt.isAfter(now)) {
-                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled at [" + nextAttempt + "]");
             }
         }
 

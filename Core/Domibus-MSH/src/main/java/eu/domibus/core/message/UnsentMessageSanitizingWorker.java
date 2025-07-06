@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -98,27 +99,27 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             return;
         }
 
-        List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
+        List<UserMessageLogDto> unsentMessageDtos = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
 
-        if (unsentMessageIds == null || unsentMessageIds.isEmpty()) {
+        if (unsentMessageDtos == null || unsentMessageDtos.isEmpty()) {
             LOG.debug("No unsent stuck messages found to dispatch");
             return;
         }
         List<String> skippedMessageIds = new ArrayList<>();
-        LOG.info("Prepare [{}] unsent stuck messages for dispatch", unsentMessageIds.size());
+        LOG.info("Prepare [{}] unsent stuck messages for dispatch", unsentMessageDtos.size());
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Unsent messages {}", unsentMessageIds);
+            LOG.debug("Unsent messages {}", unsentMessageDtos);
         }
-        for (String unsentMessageId : unsentMessageIds) {
+        for (UserMessageLogDto unsentMessageDto : unsentMessageDtos) {
             try {
-                userMessageService.sendEnqueuedMessage(unsentMessageId);
+                userMessageService.sendEnqueuedMessage(unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId());
             } catch (UserMessageException e) {
-                skippedMessageIds.add(unsentMessageId);
-                LOG.debug("UserMessage [{}] skipped", unsentMessageId, e);
+                skippedMessageIds.add(unsentMessageDto.getMessageId());
+                LOG.debug("UserMessage [{}] with entityId [{}] skipped", unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId(), e);
             }
         }
         if (!isEmpty(skippedMessageIds)) {
-            LOG.info("[{}]/[{}] messages skipped due to them being already unstuck by a different process: {}", skippedMessageIds.size(), unsentMessageIds.size(), skippedMessageIds);
+            LOG.info("[{}]/[{}] messages skipped due to them being already unstuck by a different process: {}", skippedMessageIds.size(), unsentMessageDtos.size(), skippedMessageIds);
         }
     }
 }

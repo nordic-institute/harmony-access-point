@@ -86,14 +86,14 @@ public class UnsentMessageSanitizingWorkerTest {
             userMessageLogDao.findUnsentMessageIds(delayedDate, maxEntityId, 1000 /* maxMessageCount */);
             result = unsentMessageIds;
 
-            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1");
+            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c1", anyLong);
             result = new UserMessageException("TEST");
         }};
 
         unsentMessageSanitizingWorker.sanitize();
 
         new FullVerifications() {{
-            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c2");
+            userMessageService.sendEnqueuedMessage("7b2736d0-69f8-48de-ac7a-d4bd76ac78c2", anyLong);
         }};
     }
 
@@ -115,7 +115,7 @@ public class UnsentMessageSanitizingWorkerTest {
             times = 0;
             userMessageLogDao.findUnsentMessageIds((Date) any, anyLong, anyInt);
             times = 0;
-            userMessageService.sendEnqueuedMessage(anyString);
+            userMessageService.sendEnqueuedMessage(anyString, anyLong);
             times = 0;
         }};
     }
