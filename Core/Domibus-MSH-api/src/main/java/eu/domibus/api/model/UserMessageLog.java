@@ -195,12 +195,12 @@ import java.util.Date;
                         "   uml.messageStatus = :DELETED_STATUS                    " +
                         "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
         @NamedQuery(name = "UserMessageLog.findUnsentAndWaitingForRetryMessages",
-                query = "select new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, eu.domibus.api.model.MSHRole.SENDING) " +
+                query = "select new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, uml.backend) " +
                         "FROM UserMessageLog uml " +
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
-                        "and (uml.messageStatus = :SEND_ENQUEUED " +
-                        "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
+                        "and (uml.restored is null or uml.restored <= :MINUTES_AGO_TIMESTAMP) " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED or uml.messageStatus = :WAITING_FOR_RETRY) " +
                         "and uml.entityId < :MAX_ENTITY_ID " +
                         "and (uml.scheduled is null or uml.scheduled=false) " + // skip messages in the dispatch queue
                         "and uml.acknowledged is null " + // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
@@ -210,8 +210,8 @@ import java.util.Date;
                         "FROM UserMessageLog uml " +
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
-                        "and (uml.messageStatus = :SEND_ENQUEUED " +
-                        "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
+                        "and (uml.restored is null or uml.restored <= :MINUTES_AGO_TIMESTAMP) " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED or uml.messageStatus = :WAITING_FOR_RETRY) " +
                         "and uml.entityId < :MAX_ENTITY_ID " +
                         "and (uml.scheduled is null or uml.scheduled=false) " + // skip messages in the dispatch queue
                         "and uml.acknowledged is null"), // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
