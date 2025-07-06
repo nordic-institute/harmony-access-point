@@ -32,8 +32,8 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * A worker that picks up unsent messages that are still in ${@code SEND_ENQUEUED} and ${@code WAITING_FOR_RETRY} states
- * and tries to dispatch them again. Recent messages are ignored by specifying an interval in minutes that should be
- * ignored when looking up for stuck messages.
+ * and tries to dispatch them again. Recent messages and recently restored messages are ignored by specifying
+ * an interval in minutes that should be ignored when looking up for stuck messages.
  *
  * @author Sebastian-Ion TINCU
  * @since 5.0.7
@@ -100,7 +100,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
                 return;
             }
 
-            LOG.info("Found [{}] unsent stuck messages before [{}]", count, minutesAgo);
+            LOG.info("Found [{}] unsent stuck messages before [{}], threshold id: [{}]", count, minutesAgo, maxEntityId);
             eventService.enqueueEvent(EventType.OLD_ONGOING_MESSAGES, "" + maxEntityId, new EventProperties(count, minutesAgo));
             return;
         }
@@ -108,20 +108,20 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
         List<UserMessageLogDto> unsentMessageDtos = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
 
         if (CollectionUtils.isEmpty(unsentMessageDtos)) {
-            LOG.debug("No unsent stuck messages found to dispatch");
+            LOG.debug("No unsent stuck messages found to dispatch (threshold date: [{}], threshold id: [{}])", minutesAgo, maxEntityId);
             return;
         }
         List<String> skippedMessageIds = new ArrayList<>();
-        LOG.info("Prepare [{}] unsent stuck messages for dispatch", unsentMessageDtos.size());
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Unsent messages {}", unsentMessageDtos);
+        LOG.info("Preparing [{}] unsent stuck messages for dispatch (threshold date: [{}], threshold id: [{}])", unsentMessageDtos.size(), minutesAgo, maxEntityId);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Unsent messages {}", unsentMessageDtos);
         }
         for (UserMessageLogDto unsentMessageDto : unsentMessageDtos) {
             try {
                 userMessageService.sendEnqueuedMessage(unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId());
             } catch (UserMessageException e) {
                 skippedMessageIds.add(unsentMessageDto.getMessageId());
-                LOG.debug("UserMessage [{}] with entityId [{}] skipped", unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId(), e);
+                LOG.trace("UserMessage [{}] with entityId [{}] skipped", unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId(), e);
             }
         }
         if (!isEmpty(skippedMessageIds)) {
