@@ -271,8 +271,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getMaxRetryTimeout() {
-        return getCurrentPModeProvider().getMaxRetryTimeout();
+    public int getMaxRetryTimeout(eu.domibus.api.model.ProcessingType processingType) {
+        return getCurrentPModeProvider().getMaxRetryTimeout(processingType);
     }
 
     @Override

@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -74,7 +75,7 @@ public class UnsentMessageSanitizingWorkerTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
             result = 1000;
 
-            pModeProvider.getMaxRetryTimeout();
+            pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
             result = 60;
 
             dateUtil.getDateMinutesAgo(360);
@@ -102,7 +103,7 @@ public class UnsentMessageSanitizingWorkerTest {
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
 
-            pModeProvider.getMaxRetryTimeout();
+            pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
 
             dateUtil.getDateMinutesAgo(anyInt);
             result = new DomibusDateTimeException("");

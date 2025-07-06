@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -14,6 +15,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -70,9 +72,13 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
 
     protected void sanitize() {
         int ignoreMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES);
-        LOG.debug("Checking for scheduled messages that have been stuck for more than [{}] minutes", ignoreMinutes);
+        LOG.debug("Checking for unsent messages that have been stuck for more than [{}] minutes", ignoreMinutes);
 
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
+        if (maxRetryTimeout < 0) {
+            LOG.debug("There is no retry configured in PMode for PUSH processing type, skip sanitizing attempt");
+            return;
+        }
         int retryIgnoreMinutes = maxRetryTimeout + ignoreMinutes;
         LOG.debug("Checking for retry messages that have been stuck for more than [{}] minutes", retryIgnoreMinutes);
 
@@ -101,7 +107,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
 
         List<UserMessageLogDto> unsentMessageDtos = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId, maxMessageCount);
 
-        if (unsentMessageDtos == null || unsentMessageDtos.isEmpty()) {
+        if (CollectionUtils.isEmpty(unsentMessageDtos)) {
             LOG.debug("No unsent stuck messages found to dispatch");
             return;
         }
