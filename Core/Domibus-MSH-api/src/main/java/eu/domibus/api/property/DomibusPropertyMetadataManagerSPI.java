@@ -448,6 +448,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
+    String DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT = "domibus.earchive.continuous.time_window_limit";
+    String DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT = "domibus.earchive.sanitizer.time_window_limit";
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_SANITY_DELAY = "domibus.earchive.sanitizer.messagesCheck.delay.hours";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";

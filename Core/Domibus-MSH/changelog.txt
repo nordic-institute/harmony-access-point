@@ -1,5 +1,8 @@
 Domibus 5.1.9
 - Added new properties domibus.msh.retry.maxMessageCount and domibus.messages.stuck.maxMessageCount to limit the number of messages that can be retried in a single run. They are useful to prevent excessive load on the system when there are many messages in the WAITING_FOR_RETRY or SEND_ENQUEUED status.
+- Add new properties in Domibus to limit the maximum number of days taken into account for the earchiving jobs
+        domibus.earchive.continuous.time_window_limit
+        domibus.earchive.sanitizer.time_window_limit
 Domibus 5.1.8
 - Add new optional attribute asyncNotification to the leg configuration in the Pmode. If this boolean attribute is set then, if true, it enables asynchronous processing of notifications, or, if false, it makes processing notifications synchronously. When the attribute is set, it overrides the plugin's behavior. If the attribute is not present on the leg, then the plugin's behavior is used as before.
 - Fix issue with PULL error received when sending pull request for an already-known party after sending the test message.
