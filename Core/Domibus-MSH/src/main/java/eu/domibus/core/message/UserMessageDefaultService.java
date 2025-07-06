@@ -249,9 +249,6 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not ["
                     + MessageStatus.SEND_ENQUEUED + "] nor [" + MessageStatus.WAITING_FOR_RETRY + "]");
         }
-        if (BooleanUtils.isTrue(userMessageLog.getScheduled())) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
-        }
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
         Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
