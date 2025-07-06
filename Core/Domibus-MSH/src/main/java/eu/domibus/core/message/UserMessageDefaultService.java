@@ -43,6 +43,7 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
@@ -247,6 +248,9 @@ public class UserMessageDefaultService implements UserMessageService {
         if (!EnumSet.of(MessageStatus.SEND_ENQUEUED, MessageStatus.WAITING_FOR_RETRY).contains(userMessageLog.getMessageStatus())) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not ["
                     + MessageStatus.SEND_ENQUEUED + "] nor [" + MessageStatus.WAITING_FOR_RETRY + "]");
+        }
+        if (BooleanUtils.isTrue(userMessageLog.getScheduled())) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
