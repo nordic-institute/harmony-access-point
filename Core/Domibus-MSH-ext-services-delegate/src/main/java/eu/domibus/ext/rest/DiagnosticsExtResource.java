@@ -11,19 +11,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST resource for Domibus diagnostics
- *
  * @author Breaz Ionut
  * @since 5.1.9
  */
 @RestController
 @RequestMapping(value = "/ext/diagnostics")
 @Tag(name = "diagnostics", description = "Domibus diagnostics service API")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
 public class DiagnosticsExtResource { // TODO IB is this per domain?
     // TODO IB add changes.txt
     // TODO IB add documentation

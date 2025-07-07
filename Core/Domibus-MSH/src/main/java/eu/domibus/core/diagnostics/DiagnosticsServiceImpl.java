@@ -67,7 +67,7 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
             VersionInfoDTO versionInfo = getVersionInfo();
             LOG.info(versionInfo.toString());
         }
-        // TODO IB why this returns -1?
+        // TODO IB why this returns -1? see the JMS monitoring
         // TODO IB are queues, alerts per domain? If not we should implement it globally
         if (diagnosticsList.contains(JMS_QUEUES_INFO)) {
             JmsQueuesInfoDTO jmsQueuesInfo = getJmsQueuesInfo();
