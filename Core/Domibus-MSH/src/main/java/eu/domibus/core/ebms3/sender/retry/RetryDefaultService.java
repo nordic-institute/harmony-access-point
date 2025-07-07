@@ -1,9 +1,6 @@
 package eu.domibus.core.ebms3.sender.retry;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -137,7 +134,7 @@ public class RetryDefaultService implements RetryService {
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
         int retryTimeoutDelay = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MSH_RETRY_TIMEOUT_DELAY);
         LOG.trace("maxRetryTimeout [{}], retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
 
@@ -151,12 +148,12 @@ public class RetryDefaultService implements RetryService {
         LOG.trace("minEntityId [{}], maxEntityId [{}], maxMessageCount [{}]", minEntityId, maxEntityId, maxMessageCount);
         final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId, maxMessageCount);
         if (messageEntityIdsToSend.isEmpty()) {
-            LOG.trace("No message found to be resend");
+            LOG.trace("No message found to be retried between [{}] and [{}]", minEntityId, maxEntityId);
             return result;
         }
-        LOG.trace("Found messages to be send [{}]", messageEntityIdsToSend);
-        if (messageEntityIdsToSend.size() > 1000) {
-            LOG.info("Found [{}] messages to resend", messageEntityIdsToSend.size());
+        LOG.trace("Found messages to be retried [{}]", messageEntityIdsToSend);
+        if (messageEntityIdsToSend.size() > 100) {
+            LOG.info("Found [{}] messages to retry between [{}] and [{}] for a max retry timeout of [{}] min and a delay of [{}] min", messageEntityIdsToSend.size(), minEntityId, maxEntityId, maxRetryTimeout, retryTimeoutDelay);
         }
 
         // START - This part should NOT be propagated to 5.2 (TSID is making the filter works correctly)

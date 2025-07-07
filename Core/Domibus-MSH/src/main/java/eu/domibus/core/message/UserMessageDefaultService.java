@@ -43,6 +43,7 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
@@ -237,10 +238,10 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public void sendEnqueuedMessage(String messageId) {
+    public void sendEnqueuedMessage(String messageId, Long messageEntityId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = messageEntityId == null ? userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING) : userMessageLogDao.findByEntityId(messageEntityId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
@@ -259,7 +260,7 @@ public class UserMessageDefaultService implements UserMessageService {
             ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
             if (nextAttempt.isAfter(now)) {
-                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled at [" + nextAttempt + "]");
             }
         }
 

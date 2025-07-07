@@ -80,7 +80,7 @@ public class MessageResource {
 
     @PutMapping("/failed/restore/selected")
     public void restoreSelectedFailedMessages(@RequestBody List<MessageLogRO> messageLogEntries) throws SchedulerException {
-        LOG.info("Restoring Selected Failed Messages...");
+        LOG.info("Restoring [{}] Selected Failed Messages...", messageLogEntries.size());
         List<String> messageIds = messageLogEntries.stream()
                 .map(messageLogRO -> messageLogRO.getMessageId())
                 .collect(Collectors.toList());
@@ -100,6 +100,10 @@ public class MessageResource {
         filters.put(PROPERTY_MESSAGE_STATUS, MessageStatus.SEND_FAILURE);
 
         int messageCount = (int) messagesLogService.countMessages(request.getMessageType(),filters );
+        if (messageCount == 0) {
+            LOG.debug("No failed messages found to restore");
+            return;
+        }
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
                 messageCount, request.getOrderBy(), request.getAsc(), filters, Collections.emptyList());
 

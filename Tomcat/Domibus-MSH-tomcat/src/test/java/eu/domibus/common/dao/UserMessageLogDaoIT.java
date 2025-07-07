@@ -765,7 +765,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         messageDaoTestUtil.createUserMessageLog("not_found4", dateUtil.getDateMinutesAgo(10), MSHRole.SENDING, SEND_ENQUEUED, finalRecipient, originalSender);
 
 
-        List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(dateUtil.getDateMinutesAgo(10), notFound3.getEntityId(), 1000);
+        List<UserMessageLogDto> unsentMessageDtos = userMessageLogDao.findUnsentMessageIds(dateUtil.getDateMinutesAgo(10), notFound3.getEntityId(), 1000);
+        List<String> unsentMessageIds = unsentMessageDtos.stream().map(UserMessageLogDto::getMessageId).collect(Collectors.toList());
 
         assertEquals(2, unsentMessageIds.size());
         MatcherAssert.assertThat(unsentMessageIds, CoreMatchers.allOf(

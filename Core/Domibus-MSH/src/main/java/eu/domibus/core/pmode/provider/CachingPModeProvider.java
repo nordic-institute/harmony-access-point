@@ -1322,17 +1322,29 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getMaxRetryTimeout() {
-        final LegConfigurationPerMpc legConfigurationPerMpc = getAllLegConfigurations();
-        List<LegConfiguration> legConfigurations = new ArrayList<>();
-        legConfigurationPerMpc.values().stream().forEach(legConfigurations::addAll);
+    public int getMaxRetryTimeout(eu.domibus.api.model.ProcessingType processingType) {
+        final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses().stream()
+                .filter(process -> isPullProcess(process) ?
+                        processingType == eu.domibus.api.model.ProcessingType.PULL :
+                        processingType != eu.domibus.api.model.ProcessingType.PULL)
+                .collect(Collectors.toList());
+
+        final Set<LegConfiguration> legConfigurations = new HashSet<>();
+
+        getAllLegConfigurations().values().stream().forEach(legConfigurationList -> {
+            legConfigurationList.stream().filter(legConfiguration -> {
+                // keep only leg configurations that match the selected processes
+                return processes.stream().anyMatch(process -> process.getLegs().stream()
+                        .anyMatch(leg -> StringUtils.equals(leg.getName(), legConfiguration.getName())));
+            }).forEach(legConfigurations::add);
+        });
 
         int maxRetry = legConfigurations.stream()
                 .map(legConfiguration -> legConfiguration.getReceptionAwareness().getRetryTimeout())
                 .max(Comparator.naturalOrder())
                 .orElse(-1);
 
-        LOG.debug("Got max retryTimeout [{}]", maxRetry);
+        LOG.debug("Got max retryTimeout [{}] for processing type [{}]", maxRetry, processingType);
         return maxRetry;
     }
 

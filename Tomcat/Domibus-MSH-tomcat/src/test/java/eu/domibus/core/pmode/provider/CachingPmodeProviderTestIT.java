@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider;
 
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -152,7 +153,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         // WHEN
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
 
         // THEN
         Assert.assertEquals("Should have returned the default maximum retry timeout in minutes", 12, maxRetryTimeout);
@@ -167,7 +168,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         // WHEN
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
 
         // THEN
         Assert.assertEquals("Should have returned the correct maximum retry timeout in minutes when custom retry awareness set up", 2, maxRetryTimeout);
@@ -182,7 +183,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         // WHEN
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
 
         // THEN
         Assert.assertEquals("Should have returned the default maximum retry timeout in minutes when no custom retry awareness set up", 0, maxRetryTimeout);
