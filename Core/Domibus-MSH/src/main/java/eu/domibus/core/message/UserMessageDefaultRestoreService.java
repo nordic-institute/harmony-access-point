@@ -204,7 +204,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             return;
         }
         if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
-            LOG.debug("Triggering the messageResendJob to restore all failed messages");
+            LOG.info("Triggering the messageResendJob to restore [{}] failed messages", messageIds.size());
             triggerMessageResendJob(messageIds);
             return;
         }
@@ -248,6 +248,11 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Override
     public void findAndRestoreFailedMessages() {
         List<String> messageIds = findAllMessagesToRestore();
+        if (CollectionUtils.isEmpty(messageIds)) {
+            return;
+        }
+
+        LOG.info("Restoring [{}] failed messages", messageIds.size());
         for (String messageId : messageIds) {
             LOG.debug("Found message to restore. Starting the restoring process of message with messageId [{}]", messageId);
             try {

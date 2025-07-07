@@ -113,9 +113,8 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
         }
         List<String> skippedMessageIds = new ArrayList<>();
         LOG.info("Preparing [{}] unsent stuck messages for dispatch (threshold date: [{}], threshold id: [{}])", unsentMessageDtos.size(), minutesAgo, maxEntityId);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Unsent messages {}", unsentMessageDtos);
-        }
+        LOG.trace("Unsent messages {}", unsentMessageDtos);
+
         for (UserMessageLogDto unsentMessageDto : unsentMessageDtos) {
             try {
                 userMessageService.sendEnqueuedMessage(unsentMessageDto.getMessageId(), unsentMessageDto.getEntityId());
