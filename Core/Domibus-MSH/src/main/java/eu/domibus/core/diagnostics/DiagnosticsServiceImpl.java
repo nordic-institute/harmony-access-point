@@ -67,7 +67,7 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
             VersionInfoDTO versionInfo = getVersionInfo();
             LOG.info(versionInfo.toString());
         }
-        // TODO IB why this returns -1?
+        // TODO IB why this returns -1? see the JMS monitoring
         // TODO IB are queues, alerts per domain? If not we should implement it globally
         if (diagnosticsList.contains(JMS_QUEUES_INFO)) {
             JmsQueuesInfoDTO jmsQueuesInfo = getJmsQueuesInfo();
@@ -103,8 +103,8 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
         Map<String, JMSDestination> destinations = jmsManager.getDestinations();
         for (Map.Entry<String, JMSDestination> entry : destinations.entrySet()) {
             JMSDestination destination = entry.getValue();
-            long size = jmsManager.getDestinationSize(destination);
-            dto.addQueue(destination.getName(), size);
+            long numberOfMessages = entry.getValue().getNumberOfMessages();
+            dto.addQueue(destination.getName(), numberOfMessages);
         }
         return dto;
     }
