@@ -128,10 +128,12 @@ public class DiagnosticsServiceImplTest {
 
         JMSDestination destination1 = new JMSDestination();
         destination1.setName("queue1");
+        destination1.setNumberOfMessages(5L);
         destinations.put("queue1", destination1);
 
         JMSDestination destination2 = new JMSDestination();
         destination2.setName("queue2");
+        destination2.setNumberOfMessages(10L);
         destinations.put("queue2", destination2);
 
         new Expectations() {{
@@ -143,12 +145,6 @@ public class DiagnosticsServiceImplTest {
 
             jmsManager.getDestinations();
             result = destinations;
-
-            jmsManager.getDestinationSize(destination1);
-            result = 5L;
-
-            jmsManager.getDestinationSize(destination2);
-            result = 10L;
         }};
 
         // Execute
@@ -158,9 +154,6 @@ public class DiagnosticsServiceImplTest {
         new Verifications() {{
             jmsManager.getDestinations();
             times = 1;
-
-            jmsManager.getDestinationSize((JMSDestination) any);
-            times = 2;
         }};
     }
 

@@ -8,6 +8,7 @@ import eu.domibus.ext.domain.diagnostics.VersionInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      */
     @Operation(summary = "Get version information", description = "Returns version information about the application",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "version")
     public VersionInfoDTO getVersionInfo() {
         LOG.debug("Getting version information");
@@ -52,6 +54,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      */
     @Operation(summary = "Get JMS queues information", description = "Returns information about JMS queues",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "jmsqueues")
     public JmsQueuesInfoDTO getJmsQueuesInfo() {
         LOG.debug("Getting JMS queues information");
@@ -65,6 +68,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      */
     @Operation(summary = "Get alerts counts", description = "Returns counts of alerts by status and type",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "alerts")
     public AlertsCountsDTO getAlertsCounts() {
         LOG.debug("Getting alerts counts");
@@ -78,6 +82,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      */
     @Operation(summary = "Get messages by status counts", description = "Returns counts of messages by status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "messages")
     public MessagesByStatusCountsDTO getMessagesByStatusCounts() {
         LOG.debug("Getting messages by status counts");

@@ -103,8 +103,8 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
         Map<String, JMSDestination> destinations = jmsManager.getDestinations();
         for (Map.Entry<String, JMSDestination> entry : destinations.entrySet()) {
             JMSDestination destination = entry.getValue();
-            long size = jmsManager.getDestinationSize(destination);
-            dto.addQueue(destination.getName(), size);
+            long numberOfMessages = entry.getValue().getNumberOfMessages();
+            dto.addQueue(destination.getName(), numberOfMessages);
         }
         return dto;
     }
