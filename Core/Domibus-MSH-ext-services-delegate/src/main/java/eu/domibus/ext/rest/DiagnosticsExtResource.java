@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.diagnostics.DiagnosticsService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.diagnostics.AlertsCountsDTO;
 import eu.domibus.ext.domain.diagnostics.JmsQueuesInfoDTO;
 import eu.domibus.ext.domain.diagnostics.MessagesByStatusCountsDTO;
@@ -36,6 +37,9 @@ public class DiagnosticsExtResource {
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    private DomibusExtMapper domibusExtMapper;
+
     /**
      * Get version information
      *
@@ -48,7 +52,7 @@ public class DiagnosticsExtResource {
     @GetMapping(path = "version")
     public VersionInfoDTO getVersionInfo() {
         LOG.debug("Getting version information");
-        return diagnosticsService.getVersionInfo();
+        return domibusExtMapper.versionInfoToVersionInfoDTO(diagnosticsService.getVersionInfo());
     }
 
     /**
@@ -63,7 +67,7 @@ public class DiagnosticsExtResource {
     @GetMapping(path = "jmsQueuesInfo")
     public JmsQueuesInfoDTO getJmsQueuesInfo() {
         LOG.debug("Getting JMS queues information");
-        return diagnosticsService.getJmsQueuesInfo();
+        return domibusExtMapper.jmsQueuesInfoToJmsQueuesInfoDTO(diagnosticsService.getJmsQueuesInfo());
     }
 
     /**
@@ -78,7 +82,7 @@ public class DiagnosticsExtResource {
     @GetMapping(path = "alerts")
     public AlertsCountsDTO getAlertsCounts() {
         LOG.debug("Getting alerts counts");
-        return diagnosticsService.getAlertsCounts();
+        return domibusExtMapper.alertsCountsToAlertsCountsDTO(diagnosticsService.getAlertsCounts());
     }
 
     /**
@@ -93,6 +97,6 @@ public class DiagnosticsExtResource {
     @GetMapping(path = "messages")
     public MessagesByStatusCountsDTO getMessagesByStatusCounts() {
         LOG.debug("Getting messages by status counts");
-        return diagnosticsService.getMessagesByStatusCounts();
+        return domibusExtMapper.messagesByStatusCountsToMessagesByStatusCountsDTO(diagnosticsService.getMessagesByStatusCounts());
     }
 }

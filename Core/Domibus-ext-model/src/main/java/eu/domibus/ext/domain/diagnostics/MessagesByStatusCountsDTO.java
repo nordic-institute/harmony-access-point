@@ -27,18 +27,4 @@ public class MessagesByStatusCountsDTO {
     public void addUserMessageCount(String status, long count) {
         this.userMessageCounts.put(status, count);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Messages by Status Counts Information:\n");
-
-        // User message counts by status
-        sb.append("User Messages:\n");
-        for (Map.Entry<String, Long> entry : userMessageCounts.entrySet()) {
-            sb.append("Status ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
-        }
-
-        return sb.toString();
-    }
 }

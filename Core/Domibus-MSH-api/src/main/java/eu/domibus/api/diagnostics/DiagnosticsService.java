@@ -1,10 +1,5 @@
 package eu.domibus.api.diagnostics;
 
-import eu.domibus.ext.domain.diagnostics.AlertsCountsDTO;
-import eu.domibus.ext.domain.diagnostics.JmsQueuesInfoDTO;
-import eu.domibus.ext.domain.diagnostics.MessagesByStatusCountsDTO;
-import eu.domibus.ext.domain.diagnostics.VersionInfoDTO;
-
 /**
  * Interface for DiagnosticsService
  *
@@ -21,28 +16,28 @@ public interface DiagnosticsService {
     /**
      * Get version information
      * 
-     * @return VersionInfoDTO with version information
+     * @return VersionInfo with version information
      */
-    VersionInfoDTO getVersionInfo();
+    VersionInfo getVersionInfo();
 
     /**
      * Get JMS queues information
      * 
-     * @return JmsQueuesInfoDTO with JMS queues information
+     * @return JmsQueuesInfo with JMS queues information
      */
-    JmsQueuesInfoDTO getJmsQueuesInfo();
+    JmsQueuesInfo getJmsQueuesInfo();
 
     /**
      * Get alerts counts
      * 
-     * @return AlertsCountsDTO with alerts counts
+     * @return AlertsCounts with alerts counts
      */
-    AlertsCountsDTO getAlertsCounts();
+    AlertsCounts getAlertsCounts();
 
     /**
      * Get messages by status counts
      * 
-     * @return MessagesByStatusCountsDTO with messages by status counts
+     * @return MessagesByStatusCounts with messages by status counts
      */
-    MessagesByStatusCountsDTO getMessagesByStatusCounts();
+    MessagesByStatusCounts getMessagesByStatusCounts();
 }

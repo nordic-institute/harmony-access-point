@@ -1,5 +1,6 @@
 package eu.domibus.core.diagnostics;
 
+import eu.domibus.api.diagnostics.*;
 import eu.domibus.api.diagnostics.DiagnosticsService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
@@ -8,10 +9,6 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.ext.domain.diagnostics.AlertsCountsDTO;
-import eu.domibus.ext.domain.diagnostics.JmsQueuesInfoDTO;
-import eu.domibus.ext.domain.diagnostics.MessagesByStatusCountsDTO;
-import eu.domibus.ext.domain.diagnostics.VersionInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +65,7 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
         LOG.info("Running Domibus diagnostics for domain [{}]", domainName);
 
         if (diagnosticsList.contains(VERSION_INFO)) {
-            VersionInfoDTO versionInfo = getVersionInfo();
+            VersionInfo versionInfo = getVersionInfo();
             LOG.info(versionInfo.toString());
         }
 
@@ -76,18 +73,18 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
             if (domibusConfigurationService.isMultiTenantAware()) {
                 LOG.info("Diagnostics for JMS queues are not supported in multi-tenant mode, skipping diagnostics for domain [{}]", domainName);
             } else {
-                JmsQueuesInfoDTO jmsQueuesInfo = getJmsQueuesInfo();
+                JmsQueuesInfo jmsQueuesInfo = getJmsQueuesInfo();
                 LOG.info(jmsQueuesInfo.toString());
             }
         }
 
         if (diagnosticsList.contains(ALERTS_COUNTS)) {
-            AlertsCountsDTO alertsCounts = getAlertsCounts();
+            AlertsCounts alertsCounts = getAlertsCounts();
             LOG.info(alertsCounts.toString());
         }
 
         if (diagnosticsList.contains(MESSAGES_BY_STATUS_COUNTS)) {
-            MessagesByStatusCountsDTO messagesByStatusCounts = getMessagesByStatusCounts();
+            MessagesByStatusCounts messagesByStatusCounts = getMessagesByStatusCounts();
             LOG.info(messagesByStatusCounts.toString());
         }
 
@@ -95,8 +92,8 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
     }
 
     @Override
-    public VersionInfoDTO getVersionInfo() {
-        return new VersionInfoDTO(
+    public VersionInfo getVersionInfo() {
+        return new VersionInfo(
                 domibusVersionService.getArtifactName(),
                 domibusVersionService.getArtifactVersion(),
                 domibusVersionService.getBuiltTime(),
@@ -105,8 +102,8 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
     }
 
     @Override
-    public JmsQueuesInfoDTO getJmsQueuesInfo() {
-        JmsQueuesInfoDTO dto = new JmsQueuesInfoDTO();
+    public JmsQueuesInfo getJmsQueuesInfo() {
+        JmsQueuesInfo dto = new JmsQueuesInfo();
         Map<String, JMSDestination> destinations = jmsManager.getDestinations();
         for (Map.Entry<String, JMSDestination> entry : destinations.entrySet()) {
             JMSDestination destination = entry.getValue();
@@ -116,10 +113,9 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
         return dto;
     }
 
-    // TODO IB this might not be efficient
     @Override
-    public AlertsCountsDTO getAlertsCounts() {
-        AlertsCountsDTO dto = new AlertsCountsDTO();
+    public AlertsCounts getAlertsCounts() {
+        AlertsCounts dto = new AlertsCounts();
 
         // Count alerts by status
         eu.domibus.core.alerts.model.common.AlertCriteria criteria = new eu.domibus.core.alerts.model.common.AlertCriteria();
@@ -147,10 +143,9 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
         return dto;
     }
 
-    // TODO IB this might not be efficient
     @Override
-    public MessagesByStatusCountsDTO getMessagesByStatusCounts() {
-        MessagesByStatusCountsDTO dto = new MessagesByStatusCountsDTO();
+    public MessagesByStatusCounts getMessagesByStatusCounts() {
+        MessagesByStatusCounts dto = new MessagesByStatusCounts();
 
         // Count user messages by status
         for (eu.domibus.api.model.MessageStatus status : eu.domibus.api.model.MessageStatus.values()) {

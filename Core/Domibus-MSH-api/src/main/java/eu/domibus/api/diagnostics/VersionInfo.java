@@ -1,21 +1,19 @@
-package eu.domibus.ext.domain.diagnostics;
+package eu.domibus.api.diagnostics;
 
 /**
- * DTO for version information
- *
  * @author Breaz Ionut
  * @since 5.1.9
  */
-public class VersionInfoDTO {
+public class VersionInfo {
     private String artifactName;
     private String artifactVersion;
     private String builtTime;
     private String versionNumber;
 
-    public VersionInfoDTO() {
+    public VersionInfo() {
     }
 
-    public VersionInfoDTO(String artifactName, String artifactVersion, String builtTime, String versionNumber) {
+    public VersionInfo(String artifactName, String artifactVersion, String builtTime, String versionNumber) {
         this.artifactName = artifactName;
         this.artifactVersion = artifactVersion;
         this.builtTime = builtTime;
@@ -54,4 +52,13 @@ public class VersionInfoDTO {
         this.versionNumber = versionNumber;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Artifact Name: ").append(artifactName).append("\n");
+        sb.append("Artifact Version: ").append(artifactVersion).append("\n");
+        sb.append("Build Time: ").append(builtTime).append("\n");
+        sb.append("Version Number: ").append(versionNumber);
+        return sb.toString();
+    }
 }

@@ -1,5 +1,9 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.api.diagnostics.AlertsCounts;
+import eu.domibus.api.diagnostics.JmsQueuesInfo;
+import eu.domibus.api.diagnostics.MessagesByStatusCounts;
+import eu.domibus.api.diagnostics.VersionInfo;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
@@ -12,6 +16,10 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
+import eu.domibus.ext.domain.diagnostics.AlertsCountsDTO;
+import eu.domibus.ext.domain.diagnostics.JmsQueuesInfoDTO;
+import eu.domibus.ext.domain.diagnostics.MessagesByStatusCountsDTO;
+import eu.domibus.ext.domain.diagnostics.VersionInfoDTO;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -84,4 +92,12 @@ public interface DomibusExtMapper {
     KeyStoreContentInfoDTO keyStoreContentInfoToKeyStoreContentInfoDTO(KeyStoreContentInfo content);
 
     KeyStoreContentInfo keyStoreContentInfoDTOToKeyStoreContentInfo(KeyStoreContentInfoDTO contentInfoDTO);
+
+    VersionInfoDTO versionInfoToVersionInfoDTO(VersionInfo versionInfo);
+
+    JmsQueuesInfoDTO jmsQueuesInfoToJmsQueuesInfoDTO(JmsQueuesInfo jmsQueuesInfo);
+
+    AlertsCountsDTO alertsCountsToAlertsCountsDTO(AlertsCounts alertsCounts);
+
+    MessagesByStatusCountsDTO messagesByStatusCountsToMessagesByStatusCountsDTO(MessagesByStatusCounts messagesByStatusCounts);
 }

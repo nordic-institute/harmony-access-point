@@ -10,45 +10,32 @@ import java.util.List;
  * @since 5.1.9
  */
 public class JmsQueuesInfoDTO {
-    private List<QueueInfo> queues;
+    private List<QueueInfoDTO> queues;
 
     public JmsQueuesInfoDTO() {
         this.queues = new ArrayList<>();
     }
 
-    public List<QueueInfo> getQueues() {
+    public List<QueueInfoDTO> getQueues() {
         return queues;
     }
 
-    public void setQueues(List<QueueInfo> queues) {
+    public void setQueues(List<QueueInfoDTO> queues) {
         this.queues = queues;
     }
 
     public void addQueue(String name, long size) {
-        this.queues.add(new QueueInfo(name, size));
+        this.queues.add(new QueueInfoDTO(name, size));
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("JMS Queues Information:\n");
-        for (QueueInfo queue : queues) {
-            sb.append("Queue: ").append(queue.getName()).append(", Size: ").append(queue.getSize()).append("\n");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Inner class to represent information about a single queue
-     */
-    public static class QueueInfo {
+    public static class QueueInfoDTO {
         private String name;
         private long size;
 
-        public QueueInfo() {
+        public QueueInfoDTO() {
         }
 
-        public QueueInfo(String name, long size) {
+        public QueueInfoDTO(String name, long size) {
             this.name = name;
             this.size = size;
         }
