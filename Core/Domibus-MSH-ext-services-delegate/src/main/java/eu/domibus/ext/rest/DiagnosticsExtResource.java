@@ -13,18 +13,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * @author Breaz Ionut
  * @since 5.1.9
  */
-// TODO IB 1 write IT test for this class in Tomcat project
 @RestController
 @RequestMapping(value = "/ext/diagnostics")
 @Tag(name = "diagnostics", description = "Domibus diagnostics service API")
@@ -65,9 +62,6 @@ public class DiagnosticsExtResource {
     @ApiResponse(responseCode = "403", description = "Admin role needed")
     @GetMapping(path = "jmsQueuesInfo")
     public JmsQueuesInfoDTO getJmsQueuesInfo() {
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JMS queue info cannot be seen in multi-tenant mode");
-        }
         LOG.debug("Getting JMS queues information");
         return diagnosticsService.getJmsQueuesInfo();
     }
