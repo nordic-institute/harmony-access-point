@@ -81,6 +81,12 @@ public class UnsentMessageSanitizingWorkerTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGES_STUCK_MAX_COUNT);
             result = 1000;
 
+            domibusPropertyProvider.getIntegerProperty("domibus.msh.retry.timeoutDelay");
+            result = 10;
+
+            dateUtil.getMinEntityId(anyLong);
+            result = 0L;
+
             pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
             result = 60;
 
