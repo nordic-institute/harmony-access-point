@@ -412,6 +412,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
+    String DOMIBUS_DIAGNOSTICS_CRON = "domibus.diagnostics.cron";
+    String DOMIBUS_DIAGNOSTICS_LIST = "domibus.diagnostics.list";
     String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
     String DOMIBUS_SECURITY_PROVIDER_BOUNCY_CASTLE_POSITION = "domibus.security.provider.bouncyCastle.position";
     String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR

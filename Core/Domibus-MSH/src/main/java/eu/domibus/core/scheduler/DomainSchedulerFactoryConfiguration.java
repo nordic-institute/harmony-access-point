@@ -13,6 +13,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.diagnostics.DiagnosticsJob;
 import eu.domibus.core.earchive.job.EArchivingCleanupJob;
 import eu.domibus.core.earchive.job.EArchivingContinuousJob;
 import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
@@ -674,6 +675,28 @@ public class DomainSchedulerFactoryConfiguration {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
         obj.setJobClass(DynamicDiscoveryLookupsJob.class);
         obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean diagnosticsJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(DiagnosticsJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean diagnosticsTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(diagnosticsJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DIAGNOSTICS_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
