@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/ext/diagnostics")
 @Tag(name = "diagnostics", description = "Domibus diagnostics service API")
 public class DiagnosticsExtResource {
-    // TODO IB add changes.txt
-    // TODO IB add documentation
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DiagnosticsExtResource.class);
 
     @Autowired
