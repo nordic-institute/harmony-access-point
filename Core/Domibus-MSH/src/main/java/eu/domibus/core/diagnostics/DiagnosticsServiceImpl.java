@@ -4,6 +4,7 @@ import eu.domibus.api.diagnostics.DiagnosticsService;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -52,6 +53,9 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
     @Autowired
     private DomainContextProvider domainContextProvider;
 
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
+
     public void logDiagnosticInfo() {
         List<String> diagnosticsList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DomibusPropertyMetadataManagerSPI.DOMIBUS_DIAGNOSTICS_LIST);
         String domainName = domainContextProvider.getCurrentDomainSafely().getCode();
@@ -67,11 +71,14 @@ public class DiagnosticsServiceImpl implements DiagnosticsService {
             VersionInfoDTO versionInfo = getVersionInfo();
             LOG.info(versionInfo.toString());
         }
-        // TODO IB why this returns -1? see the JMS monitoring
-        // TODO IB are queues, alerts per domain? If not we should implement it globally
+
         if (diagnosticsList.contains(JMS_QUEUES_INFO)) {
-            JmsQueuesInfoDTO jmsQueuesInfo = getJmsQueuesInfo();
-            LOG.info(jmsQueuesInfo.toString());
+            if (domibusConfigurationService.isMultiTenantAware()) {
+                LOG.info("Diagnostics for JMS queues are not supported in multi-tenant mode, skipping diagnostics for domain [{}]", domainName);
+            } else {
+                JmsQueuesInfoDTO jmsQueuesInfo = getJmsQueuesInfo();
+                LOG.info(jmsQueuesInfo.toString());
+            }
         }
 
         if (diagnosticsList.contains(ALERTS_COUNTS)) {

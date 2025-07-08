@@ -4,6 +4,7 @@ import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -44,6 +45,9 @@ public class DiagnosticsServiceImplTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Test
     public void logDiagnosticInfo_withVersionInfo() {

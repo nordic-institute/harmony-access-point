@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 4.2
  */
 @RestController
-// TODO IB metrics seem to do a similar thing
 @RequestMapping(value = "/ext/metrics")
 @Tag(name = "metrics", description = "Domibus metrics service API")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
