@@ -82,7 +82,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void sendEnqueuedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
-        userMessageService.sendEnqueuedMessage(messageId);
+        userMessageService.sendEnqueuedMessage(messageId, null /* messageEntityId not known at this point */);
     }
 
     @Override

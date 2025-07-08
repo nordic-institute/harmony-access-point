@@ -1,10 +1,7 @@
 package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.generic.DefaultAlertConfigurationChangeListener;
-import eu.domibus.core.alerts.configuration.generic.DefaultConfigurationManager;
-import eu.domibus.core.alerts.configuration.generic.DefaultFrequencyAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.generic.DefaultRepetitiveAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.generic.*;
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertCategory;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -100,7 +97,7 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
 
         if (alertCategory == AlertCategory.DEFAULT) {
             LOG.debug("Create default configuration manager for alert [{}] ", alertType);
-            return applicationContext.getBean(DefaultConfigurationManager.class, alertType);
+            return applicationContext.getBean(DefaultAlertConfigurationManager.class, alertType);
         }
         if (alertCategory == AlertCategory.REPETITIVE) {
             LOG.debug("Create repetitive configuration manager for alert [{}] ", alertType);

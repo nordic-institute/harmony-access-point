@@ -671,6 +671,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   showDetails(selectedRow: any) {
+    if (!selectedRow) return;
     let allColumns = <any[]>this.columnPicker.allColumns;
     const allFields = allColumns.map(col => col.prop);
     let fetchData = allColumns.some(col => !col.isSelected);

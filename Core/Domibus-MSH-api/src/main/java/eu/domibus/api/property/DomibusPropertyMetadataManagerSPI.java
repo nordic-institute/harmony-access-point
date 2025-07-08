@@ -211,11 +211,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
     String DOMIBUS_MSH_RETRY_MAX_MESSAGE_COUNT = "domibus.msh.retry.maxMessageCount";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON = "domibus.ongoingMessagesSanitizing.worker.cron";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_DELAY_HOURS = "domibus.ongoingMessagesSanitizing.worker.delay.hours";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_ACTIVE = "domibus.ongoingMessagesSanitizing.alert.active";
     String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_LEVEL = "domibus.ongoingMessagesSanitizing.alert.level";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT = "domibus.ongoingMessagesSanitizing.alert.email.subject";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY = "domibus.ongoingMessagesSanitizing.alert.email.body";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT = "domibus.ongoingMessagesSanitizing.alert.mail.subject";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY = "domibus.ongoingMessagesSanitizing.alert.mail.body";
     String DOMIBUS_MSH_PULL_CRON = "domibus.msh.pull.cron";
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
@@ -451,6 +450,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
+    String DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT = "domibus.earchive.continuous.time_window_limit";
+    String DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT = "domibus.earchive.sanitizer.time_window_limit";
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_SANITY_DELAY = "domibus.earchive.sanitizer.messagesCheck.delay.hours";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";

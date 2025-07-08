@@ -60,7 +60,7 @@ public interface UserMessageService {
 
     Long getFailedMessageElapsedTime(String messageId);
 
-    void sendEnqueuedMessage(String messageId);
+    void sendEnqueuedMessage(String messageId, Long messageEntityId);
 
     void deleteFailedMessage(String messageId);
 

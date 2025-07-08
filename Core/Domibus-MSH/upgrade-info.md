@@ -14,6 +14,13 @@ Release checklist:
 
 
 # Domibus upgrade information
+## Domibus 5.1.9 (from 5.1.8)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Remove these properties from the properties file(s): domibus.ongoingMessagesSanitizing.worker.delay.hours and domibus.ongoingMessagesSanitizing.worker.cron
+                - Rename properties: 
+                        domibus.ongoingMessagesSanitizing.alert.email.body to domibus.ongoingMessagesSanitizing.alert.mail.body
+                        domibus.ongoingMessagesSanitizing.alert.email.subject to domibus.ongoingMessagesSanitizing.alert.mail.subject
 ## Domibus 5.1.8 (from 5.1.7)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
