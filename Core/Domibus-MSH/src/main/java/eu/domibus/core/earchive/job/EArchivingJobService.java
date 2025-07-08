@@ -25,10 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -174,21 +172,35 @@ public class EArchivingJobService {
             maxDateHour = getStartDateContinuous()
                     .minusHours(sanitizerDelay);
             Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT);
-            dateHourWithWindowLimit = dateUtil.getDateHour("" + minEntityToArchived)
-                    .plusDays(timeWindowLimit);
-            LOG.debug("[SANITIZER] maxDateHour: [{}] with sanitizer delay (-[{}] hours), dateHourWithWindowLimit: [{}]", maxDateHour,sanitizerDelay, dateHourWithWindowLimit);
+            dateHourWithWindowLimit = getWindowLimit(timeWindowLimit, minEntityToArchived);
+            LOG.debug("[SANITIZER] maxDateHour: [{}] with sanitizer delay (-[{}] hours), dateHourWithWindowLimit: [{}]", maxDateHour, sanitizerDelay, dateHourWithWindowLimit);
         } else {
             long roundedRetryTimeOut = rounding60min(getRetryTimeOut());
             maxDateHour = ZonedDateTime
                     .now(ZoneOffset.UTC)
                     .minusMinutes(roundedRetryTimeOut);
             Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT);
-            dateHourWithWindowLimit = dateUtil.getDateHour("" + minEntityToArchived)
-                    .plusDays(timeWindowLimit);
+            dateHourWithWindowLimit = getWindowLimit(timeWindowLimit, minEntityToArchived);
             LOG.debug("[CONTINUOUS] maxDateHour: [{}] with retryTimeOut (-[{}] minutes), dateHourWithWindowLimit: [{}]", maxDateHour, roundedRetryTimeOut, dateHourWithWindowLimit);
         }
-        ZonedDateTime dateHour = maxDateHour.isBefore(dateHourWithWindowLimit) ? maxDateHour : dateHourWithWindowLimit;
+        ZonedDateTime dateHour = getOldestDateTime(dateHourWithWindowLimit, maxDateHour);
         return dateUtil.getMaxEntityId(dateHour, 0);
+    }
+
+    private ZonedDateTime getOldestDateTime(ZonedDateTime dateHourWithWindowLimit, ZonedDateTime maxDateHour) {
+        if (dateHourWithWindowLimit == null) {
+            return maxDateHour;
+        }
+        return (maxDateHour.isBefore(dateHourWithWindowLimit) ? maxDateHour : dateHourWithWindowLimit);
+    }
+
+    private ZonedDateTime getWindowLimit(Integer timeWindowLimit, Long minEntityToArchived) {
+        if (timeWindowLimit == null || timeWindowLimit == 0) {
+            return null; // disabled
+        } else {
+            return dateUtil.getDateHour("" + minEntityToArchived)
+                    .plusDays(timeWindowLimit);
+        }
     }
 
     private ZonedDateTime getStartDateContinuous() {
@@ -288,7 +300,7 @@ public class EArchivingJobService {
     }
 
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
-        if(eArchivingEventService.isEventMessageNotFinalActive()) {
+        if (eArchivingEventService.isEventMessageNotFinalActive()) {
             List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
 
             for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
