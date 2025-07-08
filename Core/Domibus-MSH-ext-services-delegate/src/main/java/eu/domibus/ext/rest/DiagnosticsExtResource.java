@@ -1,6 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.diagnostics.DiagnosticsService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.ext.domain.diagnostics.AlertsCountsDTO;
 import eu.domibus.ext.domain.diagnostics.JmsQueuesInfoDTO;
 import eu.domibus.ext.domain.diagnostics.MessagesByStatusCountsDTO;
@@ -24,8 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/ext/diagnostics")
 @Tag(name = "diagnostics", description = "Domibus diagnostics service API")
-@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-public class DiagnosticsExtResource { // TODO IB is this per domain?
+public class DiagnosticsExtResource {
     // TODO IB add changes.txt
     // TODO IB add documentation
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DiagnosticsExtResource.class);
@@ -33,11 +33,15 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
     @Autowired
     private DiagnosticsService diagnosticsService;
 
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
+
     /**
      * Get version information
      *
      * @return VersionInfoDTO with version information
      */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Get version information", description = "Returns version information about the application",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ApiResponse(responseCode = "403", description = "Admin role needed")
@@ -52,10 +56,11 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      *
      * @return JmsQueuesInfoDTO with JMS queues information
      */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Get JMS queues information", description = "Returns information about JMS queues",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ApiResponse(responseCode = "403", description = "Admin role needed")
-    @GetMapping(path = "jmsqueues")
+    @GetMapping(path = "jmsQueuesInfo")
     public JmsQueuesInfoDTO getJmsQueuesInfo() {
         LOG.debug("Getting JMS queues information");
         return diagnosticsService.getJmsQueuesInfo();
@@ -66,6 +71,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      *
      * @return AlertsCountsDTO with alerts counts
      */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Get alerts counts", description = "Returns counts of alerts by status and type",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ApiResponse(responseCode = "403", description = "Admin role needed")
@@ -80,6 +86,7 @@ public class DiagnosticsExtResource { // TODO IB is this per domain?
      *
      * @return MessagesByStatusCountsDTO with messages by status counts
      */
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Get messages by status counts", description = "Returns counts of messages by status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ApiResponse(responseCode = "403", description = "Admin role needed")
