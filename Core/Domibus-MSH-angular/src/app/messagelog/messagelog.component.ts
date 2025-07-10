@@ -85,6 +85,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   additionalPages: number;
   totalRowsMessage: string;
   estimatedCount: boolean;
+  resendingAll: boolean;
 
   messageIntervals = [
     {value: 30, text: 'Last 30 minutes'},
@@ -487,6 +488,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   async resendAllDialog() {
+    if (this.resendingAll) {
+      this.alertService.error('Resending is already in progress. Please wait for it to finish.');
+      return;
+    }
     const resend = await this.dialogsService.openResendAllDialog();
     if (!resend) {
       return;
@@ -526,6 +531,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendAll() {
+    this.resendingAll = true;
     const filters = this.getFiltersAsObject();
     let url = MessageLogComponent.RESEND_ALL_URL;
     this.http.put(url, filters).subscribe(res => {
@@ -533,14 +539,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
       window.setTimeout(() => {
         this.messageResent.emit();
       }, 500);
+      this.resendingAll = false;
     }, err => {
       this.alertService.exception('The messages could not be resent.', err);
+      this.resendingAll = false;
     });
   }
 
   resendSelected(messageLogEntries: MessageLogEntry[]) {
     let url = MessageLogComponent.RESEND_SELECTED_URL;
-    this.http.put(url, messageLogEntries).subscribe(res => {
+    let messageIds = messageLogEntries.map(entry => ({messageId: entry.messageId, mshRole: entry.mshRole, messageStatus: entry.messageStatus}));
+    this.http.put(url, messageIds).subscribe(res => {
       this.alertService.success('The operation resend messages completed successfully');
       window.setTimeout(() => {
         this.messageResent.emit();
@@ -566,7 +575,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   isResendAllButtonEnabled() {
-    return this.rows.length > 1 && this.isMoreRowsWithSendFailure()
+    return !this.resendingAll && this.rows.length > 1 && this.isMoreRowsWithSendFailure()
       && this.rows.filter(row => this.isRowResendButtonEnabled(row)).length > 1;
   }
 
