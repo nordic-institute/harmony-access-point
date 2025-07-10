@@ -540,7 +540,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   resendSelected(messageLogEntries: MessageLogEntry[]) {
     let url = MessageLogComponent.RESEND_SELECTED_URL;
-    this.http.put(url, messageLogEntries).subscribe(res => {
+    let messageIds = messageLogEntries.map(entry => ({messageId: entry.messageId, mshRole: entry.mshRole, messageStatus: entry.messageStatus}));
+    this.http.put(url, messageIds).subscribe(res => {
       this.alertService.success('The operation resend messages completed successfully');
       window.setTimeout(() => {
         this.messageResent.emit();
