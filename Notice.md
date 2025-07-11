@@ -35,28 +35,28 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2005 - 2024 QOS.ch (http://www.qos.ch), Ceki Gulcu, Joern Huxhorn
 
-***com.fasterxml.jackson.core:jackson-annotations:2.14.2*** 
+***com.fasterxml.jackson.core:jackson-annotations:2.15.4*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2008 - 2024 FasterXML (http://fasterxml.com/), Tatu Saloranta
 
-***com.fasterxml.jackson.core:jackson-databind:2.14.2*** 
+***com.fasterxml.jackson.core:jackson-databind:2.15.4*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2008 - 2024 FasterXML (http://fasterxml.com/), Tatu Saloranta
 
-***com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.14.2*** 
+***com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.4*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2024 FasterXML (http://fasterxml.com/), Tatu Saloranta
 
-***com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2*** 
+***com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.4*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt

@@ -112,6 +112,9 @@
         <vulnerabilityName>CVE-2025-46701</vulnerabilityName>
         <vulnerabilityName>CVE-2025-48988</vulnerabilityName>
         <vulnerabilityName>CVE-2025-49125</vulnerabilityName>
+        <cve>CVE-2024-50379</cve>
+        <cve>CVE-2024-54677</cve>
+        <cve>CVE-2025-49124</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -127,6 +130,12 @@
         <cve>CVE-2025-31651</cve>
         <cve>CVE-2025-31650</cve>
         <cve>CVE-2024-52316</cve>
+        <cve>CVE-2024-50379</cve>
+        <cve>CVE-2024-54677</cve>
+        <cve>CVE-2025-46701</cve>
+        <cve>CVE-2025-48988</cve>
+        <cve>CVE-2025-49124</cve>
+        <cve>CVE-2025-49125</cve>
     </suppress>
     <suppress>
         <!-- jetty-server is not used in production - used in tests -->
