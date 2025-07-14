@@ -8,6 +8,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
@@ -155,17 +156,19 @@ public class PullMessageSender {
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(signalMessage, null);
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
-            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
 
             if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getSignalMessage() != null) {
-                LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
+                LOG.trace("No message for sent pull request [{}] with mpc:[{}]", signalMessage.getMessageInfo() == null ? null : signalMessage.getMessageInfo().getMessageId(), mpcQualifiedName);
+                pullFrequencyHelper.increaseError(mpcName);
                 logError(ebms3Messaging.getSignalMessage());
                 return;
             }
+            pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
 
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
+            LOG.trace("Message [{}] received in response to pull request [{}] with mpc:[{}]", messageId, signalMessage.getMessageInfo() == null ? null : signalMessage.getMessageInfo().getMessageId(), mpcQualifiedName);
 
             partInfos = userMessagePayloadService.handlePayloads(response, ebms3Messaging, null);
             handleResponse(response, userMessage, partInfos);
@@ -173,7 +176,7 @@ public class PullMessageSender {
             String sendMessageId = messageId;
             try {
                 LOG.debug("Schedule sending pull receipt for message [{}]", sendMessageId);
-                userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, pModeKey);
+                userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, userMessage.getEntityId(), pModeKey);
             } catch (Exception ex) {
                 LOG.warn("Message[{}] exception while sending receipt asynchronously.", messageId, ex);
             }
@@ -209,8 +212,9 @@ public class PullMessageSender {
         userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, null, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
-
+                ProcessingType.PULL,
+                userMessage.getPartyInfo().getFromParty(),
+                userMessage.getPartyInfo().getToParty());
     }
 
     private Policy getPolicy(LegConfiguration legConfiguration) throws EbMS3Exception {

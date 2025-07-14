@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.util.ReflectionUtils;
 
 import javax.jms.Topic;
 import javax.persistence.EntityManager;
@@ -46,6 +47,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -764,23 +766,31 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testMatchInitiatorAllowEmpty() {
+    public void testMatchInitiatorAllowEmpty() throws NoSuchFieldException {
         new Expectations() {{
             pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = true;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        Field dynamicInitiatorField = Process.class.getDeclaredField("dynamicInitiator");
+        dynamicInitiatorField.setAccessible(true);
+        ReflectionUtils.setField(dynamicInitiatorField, process, true);
+        
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
         Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
 
     @Test
-    public void testMatchInitiatorNotAllowEmpty() {
+    public void testMatchInitiatorNotAllowEmpty() throws NoSuchFieldException {
         new Expectations() {{
             pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = false;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
+        Field dynamicInitiatorField = Process.class.getDeclaredField("dynamicInitiator");
+        dynamicInitiatorField.setAccessible(true);
+        ReflectionUtils.setField(dynamicInitiatorField, process, true);
+
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
         Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
@@ -1643,11 +1653,16 @@ public class CachingPModeProviderTest {
 
     @Test
     public void checkInitiatorRoleMismatch() {
+        Binding pushBinding = new Binding();
+        pushBinding.setValue(MessageExchangePattern.ONE_WAY_PUSH.getUri());
         new Expectations(cachingPModeProvider) {{
+            process.getMepBinding();
+            result = pushBinding;
+
             process.getInitiatorRole();
             result = role1;
 
-            legFilterCriteria.getInitiatorRole();
+            legFilterCriteria.getSenderRole();
             result = initiatorRole;
 
             cachingPModeProvider.matchRole(role1, initiatorRole);
@@ -1663,11 +1678,16 @@ public class CachingPModeProviderTest {
 
     @Test
     public void checkResponderRoleMismatch() {
+        Binding pushBinding = new Binding();
+        pushBinding.setValue(MessageExchangePattern.ONE_WAY_PUSH.getUri());
         new Expectations(cachingPModeProvider) {{
+            process.getMepBinding();
+            result = pushBinding;
+
             process.getResponderRole();
             result = role1;
 
-            legFilterCriteria.getResponderRole();
+            legFilterCriteria.getReceiverRole();
             result = responderRole;
 
             cachingPModeProvider.matchRole(role1, responderRole);

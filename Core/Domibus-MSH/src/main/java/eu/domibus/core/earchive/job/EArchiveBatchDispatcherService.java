@@ -142,7 +142,7 @@ public class EArchiveBatchDispatcherService {
      */
     public EArchiveBatchEntity reExportBatchAndEnqueue(final String batchId, Domain domain) {
         LOG.debug("Re-Export [{}] the batch and submit it to queue!", batchId);
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.reExportEArchiveBatch(batchId);
+        EArchiveBatchEntity eArchiveBatch =  eArchivingJobService.reExportEArchiveBatch(batchId);
         enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, batchId);
         return eArchiveBatch;

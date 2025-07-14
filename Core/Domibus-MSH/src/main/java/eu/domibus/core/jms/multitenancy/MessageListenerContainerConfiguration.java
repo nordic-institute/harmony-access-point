@@ -4,16 +4,14 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
-import eu.domibus.core.earchive.listener.EArchiveErrorHandler;
 import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.earchive.listener.EArchiveNotificationDlqListener;
 import eu.domibus.core.earchive.listener.EArchiveNotificationListener;
-import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
+import eu.domibus.core.ebms3.sender.MessageErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
 import eu.domibus.core.message.pull.PullReceiptListener;
 import eu.domibus.core.message.retention.RetentionListener;
-import eu.domibus.core.message.splitandjoin.LargeMessageSenderListener;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -103,9 +101,6 @@ public class MessageListenerContainerConfiguration {
     private MessageSenderListener messageSenderListener;
 
     @Autowired
-    private LargeMessageSenderListener largeMessageSenderListener;
-
-    @Autowired
     private SplitAndJoinListener splitAndJoinListener;
 
     @Autowired
@@ -113,10 +108,6 @@ public class MessageListenerContainerConfiguration {
 
     @Autowired
     private EArchiveListener eArchiveListener;
-
-    @Autowired
-    @Qualifier("eArchiveErrorHandler")
-    private EArchiveErrorHandler eArchiveErrorHandler;
 
     @Autowired
     private EArchiveNotificationListener eArchiveNotificationListener;
@@ -146,8 +137,8 @@ public class MessageListenerContainerConfiguration {
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
     @Autowired
-    @Qualifier("messageSenderErrorHandler")
-    protected MessageSenderErrorHandler messageSenderErrorHandler;
+    @Qualifier("messageErrorHandler")
+    protected MessageErrorHandler messageErrorHandler;
 
     @Bean(name = DISPATCH_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -157,7 +148,7 @@ public class MessageListenerContainerConfiguration {
         DefaultMessageListenerContainer defaultMessageListenerContainer = createDefaultMessageListenerContainer(domain, connectionFactory, sendMessageQueue,
                 messageSenderListener, concurrencyPropertyName, selector
         );
-        defaultMessageListenerContainer.setErrorHandler(messageSenderErrorHandler);
+        defaultMessageListenerContainer.setErrorHandler(messageErrorHandler);
         return defaultMessageListenerContainer;
     }
 
@@ -170,9 +161,9 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createSendLargeMessageListenerContainer for domain [{}]", domain);
 
         DefaultMessageListenerContainer defaultMessageListenerContainer = createDefaultMessageListenerContainer(domain, connectionFactory, sendLargeMessageQueue,
-                largeMessageSenderListener, PROPERTY_LARGE_FILES_CONCURRENCY
+                messageSenderListener, PROPERTY_LARGE_FILES_CONCURRENCY
         );
-        defaultMessageListenerContainer.setErrorHandler(messageSenderErrorHandler);
+        defaultMessageListenerContainer.setErrorHandler(messageErrorHandler);
         return defaultMessageListenerContainer;
     }
 
@@ -206,7 +197,7 @@ public class MessageListenerContainerConfiguration {
         DefaultMessageListenerContainer defaultMessageListenerContainer =
                 createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveQueue, eArchiveListener, DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY
                 );
-        defaultMessageListenerContainer.setErrorHandler(eArchiveErrorHandler);
+        defaultMessageListenerContainer.setErrorHandler(messageErrorHandler);
         return defaultMessageListenerContainer;
     }
 

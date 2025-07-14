@@ -10,6 +10,7 @@ import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.core.ebms3.receiver.interceptor.HeaderLoggingInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -51,6 +52,9 @@ public class SetPolicyInServerInterceptorTest {
     Ebms3Converter ebms3Converter;
 
     @Injectable
+    HeaderLoggingInterceptor headerLoggingInterceptor;
+
+    @Injectable
     protected PolicyService policyService;
 
     @Injectable
@@ -89,13 +93,15 @@ public class SetPolicyInServerInterceptorTest {
                               @Injectable HttpServletResponse response,
                               final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
-        new Expectations() {
+        new Expectations(setPolicyInServerInterceptor) {
             {
                 Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
                 LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
                 LegConfiguration legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
                 legConfiguration.getSecurity().getProfile();
                 result = SecurityProfile.RSA;
+
+                setPolicyInServerInterceptor.saveRawMessageMessageContext(message);
             }};
 
         setPolicyInServerInterceptor.handleMessage(message);

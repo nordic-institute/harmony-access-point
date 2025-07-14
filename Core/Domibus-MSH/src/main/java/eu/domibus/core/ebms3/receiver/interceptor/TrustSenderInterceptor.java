@@ -127,7 +127,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
         String senderPartyName;
         String receiverPartyName;
-        if (isPullSignalMessage || isSynchronousSignal) {
+        if (isPullSignalMessage) {
             senderPartyName = getReceiverPartyName(message);
             receiverPartyName = getSenderPartyName(message);
         } else {

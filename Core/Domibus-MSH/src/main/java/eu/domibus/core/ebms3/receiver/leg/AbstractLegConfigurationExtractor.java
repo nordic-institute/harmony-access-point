@@ -1,11 +1,14 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.message.Exchange;
 
 /**
  * @author Thomas Dussart
@@ -29,8 +32,11 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
     public void setUpMessage(final String pmodeKey) {
         //set the messageId in the MDC context
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
-
-        message.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
+        Exchange exchange = message.getExchange();
+        if (exchange == null) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, "Exchange object not found in the SOAP message. Cannot process the SOAP message.", null);
+        }
+        exchange.put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
         //FIXME: Test!!!!
         message.getExchange().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);

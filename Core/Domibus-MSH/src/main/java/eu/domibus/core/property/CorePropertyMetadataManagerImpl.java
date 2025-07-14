@@ -241,6 +241,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, Type.BOOLEAN),
+            new DomibusPropertyMetadata(DOMIBUS_LOGGING_DIAGNOSTIC_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_METADATA_PRINT, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_LOGGING_REMOTE_CERTIFICATES_PRINT, Type.BOOLEAN, Usage.DOMAIN, true),
@@ -272,6 +273,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON, Type.CRON, Usage.DOMAIN, true),
@@ -421,10 +423,13 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_MULTIPLE_LEGS, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_FORCE_BY_MPC, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_TIMEOUT, Type.POSITIVE_INTEGER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY, Type.POSITIVE_INTEGER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_QUEUE_CONCURENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_TRUST_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
 
@@ -440,7 +445,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_RESEND_CRON, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD, Type.NUMERIC, Usage.DOMAIN_AND_SUPER, true),
+            new DomibusPropertyMetadata(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK, Type.BOOLEAN, Usage.DOMAIN_AND_SUPER, true),
 
             //Start distributed cache properties
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL, Type.NUMERIC),

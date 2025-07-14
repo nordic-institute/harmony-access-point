@@ -14,6 +14,19 @@ Release checklist:
 
 
 # Domibus upgrade information
+## Domibus 5.1.8 (from 5.1.7)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Run the appropriate DB upgrade script (mysql-5.1.4-to-5.1.8-upgrade.ddl for MySQL or oracle-5.1.4-to-5.1.8-upgrade.ddl for Oracle)
+## Domibus 5.1.7 (from 5.1.6)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Add the following lines in conf/domibus/logback.xml after the "org.apache.cxf" logger 
+                     <!--  Fix for known issue in CXF library -->
+                     <logger name="org.apache.cxf.io.DelayedCachedOutputStreamCleaner" level="ERROR">
+                                 <appender-ref ref="file"/>
+                     </logger>
+                - No sql updates on the database schemas for both mysql and oracle
 ## Domibus 5.1.6 (from 5.1.5)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"

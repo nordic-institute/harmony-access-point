@@ -158,9 +158,9 @@ public class MessagingLockDaoImplTest {
         final String mpc = "mpc", initiator = "domibus-red";
         new Expectations() {{
             domibusConfigurationService.getDataBaseEngine();
-            result = DataBaseEngine.ORACLE;
+            result = DataBaseEngine.MYSQL;
 
-            entityManager.createNamedQuery("MessagingLock.lockQuerySkipBlocked_Oracle", MessagingLock.class);
+            entityManager.createNamedQuery("MessagingLock.lockQuerySkipBlocked_MySQL", MessagingLock.class);
             result = query;
 
             query.getSingleResult();
@@ -189,9 +189,9 @@ public class MessagingLockDaoImplTest {
         new Expectations() {{
 
             domibusConfigurationService.getDataBaseEngine();
-            result = DataBaseEngine.ORACLE;
+            result = DataBaseEngine.MYSQL;
 
-            entityManager.createNamedQuery("MessagingLock.lockQuerySkipBlocked_Oracle", MessagingLock.class);
+            entityManager.createNamedQuery("MessagingLock.lockQuerySkipBlocked_MySQL", MessagingLock.class);
             result = query;
 
             query.getSingleResult();
@@ -208,6 +208,9 @@ public class MessagingLockDaoImplTest {
 
             messagingLock.getStaled();
             result = date;
+
+            dateUtil.getUtcDate();
+            result = new Date();
 
         }};
     }

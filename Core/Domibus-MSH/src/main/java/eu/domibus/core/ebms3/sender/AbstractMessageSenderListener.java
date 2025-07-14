@@ -6,6 +6,7 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
     protected DateUtilImpl dateUtil;
 
     @Override
+    @MDCKey(cleanOnStart = true, cleanAllCustom = true)
     public void onMessage(final Message message) {
         String messageId = null;
         Long messageEntityId = null;
@@ -80,6 +82,7 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         validateEnqueuedMessageDuration(message, messageId);
       
         getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
       
         sendUserMessage(messageId, messageEntityId, retryCount);

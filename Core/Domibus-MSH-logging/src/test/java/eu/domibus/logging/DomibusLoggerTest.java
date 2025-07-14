@@ -19,17 +19,16 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
 public class DomibusLoggerTest {
 
     @Test
-    public void testMDC() throws Exception {
+    public void testMDC() {
         final DomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class.getName());
         final String key = "key1";
         final String value = "value1";
         domibusLogger.putMDC(key, value);
         assertTrue(domibusLogger.getCopyOfContextMap().containsKey("d_key1"));
-        assertEquals(domibusLogger.getMDC(key), value);
+        assertEquals(value, domibusLogger.getMDC(key));
         domibusLogger.removeMDC(key);
         assertFalse(domibusLogger.getCopyOfContextMap().containsKey("d_key1"));
 
@@ -40,7 +39,7 @@ public class DomibusLoggerTest {
     }
 
     @Test
-    public void testLoggerMethods() throws Exception {
+    public void testLoggerMethods() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.setContext(root.getLoggerContext());
@@ -58,20 +57,31 @@ public class DomibusLoggerTest {
         domibusLogger.businessInfo(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
         domibusLogger.businessWarn(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
         domibusLogger.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
-
+        String addKey = "Added key [d_businessCode] with value [BUS-005] to MDC";
+        String removeKey = "Removed key [d_businessCode] from MDC";
         String domibusMessageLogSuffix = "[BUS-005] Invalid charset [UTF-8] used";
         final String businessMessageLogSuffix = "[BUSINESS - BUS-005] Invalid charset [UTF-8] used";
         List<String> expectedLogs = new ArrayList<>();
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[TRACE] " + domibusMessageLogSuffix);
         expectedLogs.add("[TRACE] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[DEBUG] " + domibusMessageLogSuffix);
         expectedLogs.add("[DEBUG] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[INFO] " + domibusMessageLogSuffix);
         expectedLogs.add("[INFO] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[WARN] " + domibusMessageLogSuffix);
         expectedLogs.add("[WARN] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
+        expectedLogs.add("[TRACE] " + addKey);
         expectedLogs.add("[ERROR] " + domibusMessageLogSuffix);
         expectedLogs.add("[ERROR] " + businessMessageLogSuffix);
+        expectedLogs.add("[TRACE] " + removeKey);
 
         final List<ILoggingEvent> list = listAppender.list;
         assertEqualLogs(list, expectedLogs);

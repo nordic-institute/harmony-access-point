@@ -13,8 +13,10 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -67,6 +69,12 @@ public class PullReceiptListenerTest {
     @Injectable
     private MessageStatusDao messageStatusDao;
 
+    @Injectable
+    SoapUtil soapUtil;
+
+    @Injectable
+    NonRepudiationService nonRepudiationService;
+
     @Test
     public void onMessageTest_retry(@Injectable Message message, @Injectable ReceiptEntity receiptEntity) throws JMSException, EbMS3Exception {
         new Expectations() {{
@@ -96,7 +104,7 @@ public class PullReceiptListenerTest {
                     (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");
             times = 0;
 
-            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 2);
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", anyLong, "pModeKey", 2);
             times = 1;
         }};
     }
@@ -130,7 +138,7 @@ public class PullReceiptListenerTest {
                     (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");
             times = 1;
 
-            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 1);
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", anyLong, "pModeKey", 1);
             times = 0;
         }};
     }
@@ -153,7 +161,7 @@ public class PullReceiptListenerTest {
         pullReceiptListener.onMessage(message);
 
         new Verifications() {{
-            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 1);
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", anyLong, "pModeKey", 1);
             times = 1;
             pullReceiptSender.sendReceipt((SOAPMessage) any, anyString, (Policy) any,
                     (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");

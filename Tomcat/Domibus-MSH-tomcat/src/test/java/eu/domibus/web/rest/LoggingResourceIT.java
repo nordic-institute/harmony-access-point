@@ -3,15 +3,23 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.MultiDomainCryptoServiceIT;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
+import eu.domibus.core.property.PropertyRetrieveManager;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +27,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -27,6 +38,8 @@ import org.springframework.web.util.NestedServletException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -42,12 +55,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 4.2
  */
 public class LoggingResourceIT extends AbstractIT {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResourceIT.class);
 
     @Autowired
     private DomibusCoreMapper coreMapper;
-
-    @Autowired
-    private LoggingService loggingService;
 
     @Autowired
     private LoggingResource loggingResource;
@@ -55,27 +66,28 @@ public class LoggingResourceIT extends AbstractIT {
     @Autowired
     protected AuthUtils authUtils;
 
+    @Autowired
+    protected PropertyRetrieveManager propertyRetrieveManager;
+
+    private LoggingService loggingServiceMock;
+
     private MockMvc mockMvc;
-
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public AuthUtils authUtils() {
-            return Mockito.mock(AuthUtils.class);
-        }
-
-        @Primary
-        @Bean
-        public LoggingService loggingService() {
-            return Mockito.mock(LoggingService.class);
-        }
-
-    }
 
     @Before
     public void setUp() {
+
+        loggingServiceMock = Mockito.mock(LoggingService.class);
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
+
+        loggingResource.setLoggingService(loggingServiceMock);
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "domibus",
+                        "domibus",
+                        Arrays.asList(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()), new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
+
+        LOG.info("Is multi tenancy mode enabled? [{}]", propertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Test(expected = NestedServletException.class)
@@ -87,12 +99,12 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void setLogLevel_ok() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
         loggingLevelRO.setName("eu.domibus");
-        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(true);
+        Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(true);
+
         mockMvc.perform(post("/rest/logging/loglevel")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -101,13 +113,12 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void setLogLevel_nok_custom_name() throws Exception {
         LoggingLevelRO loggingLevelRO = new LoggingLevelRO();
         loggingLevelRO.setLevel("DEBUG");
         loggingLevelRO.setName("custom.package");
 
-        Mockito.when(loggingService.exists(loggingLevelRO.getName())).thenReturn(false);
+        Mockito.when(loggingServiceMock.exists(loggingLevelRO.getName())).thenReturn(false);
 
         mockMvc.perform(post("/rest/logging/loglevel")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +134,6 @@ public class LoggingResourceIT extends AbstractIT {
         loggingLevelRO.setName("eu.domibus");
 
         mockMvc.perform(post("/rest/logging/loglevel")
-                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(loggingLevelRO)))
@@ -132,7 +142,6 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void getLogLevel_ok() throws Exception {
 
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
@@ -157,17 +166,17 @@ public class LoggingResourceIT extends AbstractIT {
         loggingFilterRequestRO.setPage(0);
         loggingFilterRequestRO.setShowClasses(true);
 
-        Mockito.when(loggingService.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
+        Mockito.when(loggingServiceMock.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
 
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel")
-                .param("page", loggingFilterRequestRO.getPage() + "")
-                .param("loggerName", loggingFilterRequestRO.getLoggerName())
-                .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
-                .param("orderBy", loggingFilterRequestRO.getOrderBy())
-                .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
-                .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
-        )
+                        .param("page", loggingFilterRequestRO.getPage() + "")
+                        .param("loggerName", loggingFilterRequestRO.getLoggerName())
+                        .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
+                        .param("orderBy", loggingFilterRequestRO.getOrderBy())
+                        .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
+                        .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.filter.loggerName").value(loggingFilterRequestRO.getLoggerName()))
                 .andExpect(jsonPath("$.filter.showClasses").value(loggingFilterRequestRO.isShowClasses()))

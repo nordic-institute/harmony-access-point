@@ -96,8 +96,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
-        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType, mpc);
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role senderRole, Role receiverRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
+        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, senderRole, receiverRole, processingType, mpc);
     }
 
     @Override
@@ -384,6 +384,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     @Override
     public String getLegConfigurationNameFromPModeKey(String pModeKey) {
         return getCurrentPModeProvider().getLegConfigurationNameFromPModeKey(pModeKey);
+    }
+
+    @Override
+    public boolean hasInitiatorParty(Process process, String partyName) {
+        return getCurrentPModeProvider().hasInitiatorParty(process, partyName);
     }
 
     @Override

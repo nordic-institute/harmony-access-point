@@ -10,10 +10,10 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessagePayloadService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -105,6 +105,7 @@ public class IncomingUserMessageHandlerTest {
 
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
             result = soapResponseMessage;
+
         }};
 
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);

@@ -32,20 +32,27 @@ public class MDCCleanAspect {
         LOG.debug("Preparing to execute method [{}]", targetLocation);
 
         List<String> mdcKeysToClean = null;
+        MDCKey annotation = getAnnotation(method);
         try {
-            MDCKey annotation = getAnnotation(method);
             if (annotation != null) {
                 List<String> keysToClean = Arrays.asList(annotation.value());
                 if (annotation.cleanOnStart()) {
-                    cleanMDCKeys(targetLocation, keysToClean);
+                    if (annotation.cleanAllCustom()) {
+                        LOG.clearCustomKeys();
+                    } else {
+                        cleanMDCKeys(targetLocation, keysToClean);
+                    }
                 }
                 mdcKeysToClean = getMDCKeysToClean(targetLocation, keysToClean);
             }
-
             return joinPoint.proceed();
         } finally {
             LOG.debug("Finished executing method [{}]", targetLocation);
-            cleanMDCKeys(targetLocation, mdcKeysToClean);
+            if (annotation != null && annotation.cleanAllCustom()) {
+                LOG.clearCustomKeys();
+            } else {
+                cleanMDCKeys(targetLocation, mdcKeysToClean);
+            }
         }
     }
 

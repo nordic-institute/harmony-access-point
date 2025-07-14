@@ -11,7 +11,7 @@ import {DomainService} from '../../security/domain.service';
 @Injectable()
 export class UserValidatorService {
 
-  public static readonly USER_NAME_PATTERN = '[a-zA-Z0-9\.@_]*';
+  public static readonly USER_NAME_PATTERN = '[a-zA-Z0-9\.:@_-]*';
   public static readonly USER_NAME_MINLENGTH_MESSAGE = 'You should type at least 4 characters';
   public static readonly USER_NAME_PATTERN_MESSAGE = 'You should not use special characters';
   public static readonly USER_NAME_REQUIRED_MESSAGE = 'You should type an username';

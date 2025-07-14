@@ -1,5 +1,9 @@
 package eu.domibus.core.payload.persistence;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
@@ -12,6 +16,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +25,12 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import java.io.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES;
 
 /**
  * @author Cosmin Baciu
@@ -49,6 +58,12 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     @Autowired
     protected PayloadEncryptionService encryptionService;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected PartInfoService partInfoService;
+
     @Override
     public void storeIncomingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration) throws IOException {
         if (StringUtils.isBlank(partInfo.getFileName())) {
@@ -66,7 +81,10 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     protected void saveIncomingPayloadToDisk(PartInfo partInfo, PayloadFileStorage currentStorage, final Boolean encryptionActive) throws IOException {
         LOG.debug("Saving incoming payload [{}] to file disk", partInfo.getHref());
 
-        final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
+        final String payloadRelativeLocation = createPayloadRelativeLocation();
+
+        final File attachmentStore = new File(currentStorage.getStorageDirectory().getAbsolutePath() + "/" + payloadRelativeLocation);
+        createFolderStructure(attachmentStore);
         partInfo.setFileName(attachmentStore.getAbsolutePath());
         try (final InputStream inputStream = partInfo.getPayloadDatahandler().getInputStream()) {
             final long fileLength = saveIncomingFileToDisk(attachmentStore, inputStream, encryptionActive);
@@ -78,6 +96,21 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
         }
 
         LOG.debug("Finished saving incoming payload [{}] to file disk", partInfo.getHref());
+    }
+
+    private void createFolderStructure(File attachmentStore) {
+        try {
+            FileUtils.forceMkdir(attachmentStore.getParentFile());
+        } catch (IOException e) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not create directory structure for storing payload [" + attachmentStore + "]", e);
+        }
+    }
+
+    protected String createPayloadRelativeLocation() {
+        final String uuid = UUID.randomUUID() + PAYLOAD_EXTENSION;
+        Integer integerProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES);
+        return partInfoService.getPayloadFolder(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(integerProperty)) + uuid;
+
     }
 
     protected long saveIncomingFileToDisk(File file, InputStream is, final Boolean encryptionActive) throws IOException {
@@ -119,7 +152,10 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
             backendNotificationService.notifyPayloadSubmitted(userMessage, originalFileName, partInfo, backendName);
 
-            final File attachmentStore = new File(currentStorage.getStorageDirectory(), UUID.randomUUID().toString() + PAYLOAD_EXTENSION);
+            final String payloadRelativeLocation = createPayloadRelativeLocation();
+
+            final File attachmentStore = new File(currentStorage.getStorageDirectory().getAbsolutePath() + "/" +payloadRelativeLocation);
+            createFolderStructure(attachmentStore);
             partInfo.setFileName(attachmentStore.getAbsolutePath());
 
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);

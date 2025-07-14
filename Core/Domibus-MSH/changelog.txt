@@ -1,3 +1,25 @@
+Domibus 5.1.8
+- Add new optional attribute asyncNotification to the leg configuration in the Pmode. If this boolean attribute is set then, if true, it enables asynchronous processing of notifications, or, if false, it makes processing notifications synchronously. When the attribute is set, it overrides the plugin's behavior. If the attribute is not present on the leg, then the plugin's behavior is used as before.
+- Fix issue with PULL error received when sending pull request for an already-known party after sending the test message.
+- Fix issue with pull locking mechanism on Oracle causing delays under high concurrency.
+- Fix error receiving the pull receipt in a non-separator configuration.
+- Enable throttling when no message to be pulled.
+- Enhance business logs.
+- Fix issue with JMSCorrelationId not set in replyMessages.
+- Fix issue with message status changed notification when delete_message_metadata="true".
+- Fix issue with Oasis SMP 1.0/2.0 documents not parsed with root element with prefix.
+- Ensure that thread Authentication context is cleaned after finishing thread tasks.
+- Conduct OWASP vulnerabilities scan and update libraries.
+- Message payloads on the filesystem are not deleted when partitions are dropped.
+- Improve DSS settings related to HTTP downloads.
+- Add quartz properties to help the job management in a clustered environment:
+        domibus.quartz.jobStore.misfireThreshold
+        domibus.quartz.jobStore.acquireTriggersWithinLock
+- Add new property in Domibus to enable/disable the trust verification, set to true by default
+        domibus.extension.iam.trust.enabled
+Domibus 5.1.7
+- Upgrade CXF to the latest compatible version
+- Fix issue with missing receipt notification.
 Domibus 5.1.6
 - Add support for custom properties in the JMS plugin
 - Improved the information provided in the BUSINESS logs and added more codes.

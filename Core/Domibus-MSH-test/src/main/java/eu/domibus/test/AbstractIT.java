@@ -22,6 +22,7 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -40,6 +41,7 @@ import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -163,7 +165,10 @@ public abstract class AbstractIT {
     DomainService domainService;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    public DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected MessageRetentionDefaultService messageRetentionService;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -219,6 +224,16 @@ public abstract class AbstractIT {
         }
         //set the default domain as the current domain
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+    }
+
+    @After
+    public void cleanupAfterEach() {
+        try {
+            deleteAllMessages();
+            messageRetentionService.deleteAllMessages();
+        } catch (Exception e) {
+            LOG.warn("Cleanup failed after test", e);
+        }
     }
 
     protected static void copyActiveMQFile(File domibusConfigLocation) throws IOException {

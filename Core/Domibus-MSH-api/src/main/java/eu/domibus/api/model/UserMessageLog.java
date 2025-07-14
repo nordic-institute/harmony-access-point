@@ -453,4 +453,13 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     public void setUserMessage(UserMessage userMessage) {
         this.userMessage = userMessage;
     }
+
+    public ProcessingType getProcessingType() {
+        return processingType;
+    }
+
+    public void setProcessingType(ProcessingType processingType) {
+        this.processingType = processingType;
+    }
+
 }

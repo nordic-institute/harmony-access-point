@@ -233,7 +233,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     protected void doDynamicDiscovery(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
-        Collection<eu.domibus.common.model.configuration.Process> candidates = findCandidateProcesses(userMessage, mshRole);
+        Collection<eu.domibus.common.model.configuration.Process> candidates = findDynamicCandidateProcesses(userMessage, mshRole);
 
         if (candidates == null || candidates.isEmpty()) {
             throw EbMS3ExceptionBuilder.getInstance()
@@ -517,7 +517,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         for (final Process candidate : candidates) {
             final Party responderParty = findResponderPartyInProcess(candidate, configurationParty.getName());
             if (responderParty == null) {
-                LOG.info("Adding party [{}] in the process responder parties [{}]", configurationParty.getName(), candidate.getName());
+                LOG.info("Adding party [{}] in the process responder parties of candidate process [{}]", configurationParty.getName(), candidate.getName());
                 candidate.getResponderParties().add(configurationParty);
             }
         }
@@ -537,7 +537,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected Party findResponderPartyInProcess(eu.domibus.common.model.configuration.Process process, String partyName) {
         for (final Party party : process.getResponderParties()) {
             if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
-                LOG.debug("Party [{}] found in process [{}]", partyName, process.getName());
+                LOG.debug("Party [{}] found as responder in process [{}]", partyName, process.getName());
                 return party;
             }
         }
@@ -546,18 +546,19 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     protected synchronized void updateInitiatorPartiesInPmode(Collection<eu.domibus.common.model.configuration.Process> candidates, Party configurationParty) {
-        LOG.debug("updateInitiatorPartiesInPmode with party " + configurationParty.getName());
+        LOG.debug("Update InitiatorParties in Pmode with party [{}] for [{}] candidate processes", configurationParty.getName(), candidates.size());
         for (final Process candidate : candidates) {
             boolean partyFound = false;
             for (final Party party : candidate.getInitiatorParties()) {
                 if (StringUtils.equalsIgnoreCase(configurationParty.getName(), party.getName())) {
                     partyFound = true;
-                    LOG.debug("partyFound in candidate: " + candidate.getName());
+                    LOG.debug("Party [{}] already found as initiator in candidate process [{}]", party.getName(), candidate.getName());
                     break;
                 }
             }
             if (!partyFound) {
                 candidate.getInitiatorParties().add(configurationParty);
+                LOG.info("Party [{}] added as initiator in candidate process [{}]", configurationParty.getName(), candidate.getName());
             }
         }
     }
@@ -646,19 +647,20 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     /*
      * Check all dynamic processes to find candidates for dynamic discovery lookup.
      */
-    protected Collection<eu.domibus.common.model.configuration.Process> findCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
-        LOG.debug("Finding candidate processes.");
+    protected Collection<eu.domibus.common.model.configuration.Process> findDynamicCandidateProcesses(UserMessage userMessage, final MSHRole mshRole) {
+        LOG.debug("Finding dynamic candidate processes for msh role [{}]", mshRole);
         Collection<eu.domibus.common.model.configuration.Process> candidates = new HashSet<>();
         Collection<eu.domibus.common.model.configuration.Process> processes = getDynamicProcesses(mshRole);
+        LOG.debug("[{}] dynamic processes for msh role [{}]", CollectionUtils.size(processes), mshRole);
 
         for (final Process process : processes) {
-            if (matchProcess(process, mshRole)) {
-                LOG.debug("Process matched: [{}] [{}]", process.getName(), mshRole);
+            if (matchDynamicProcess(process, mshRole)) {
+                LOG.debug("Dynamic process matched: [{}] [{}]", process.getName(), mshRole);
                 for (final LegConfiguration legConfiguration : process.getLegs()) {
                     if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), userMessage.getService().getValue()) &&
                             StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), userMessage.getActionValue())) {
-                        LOG.debug("Leg matched, adding process. Leg: " + legConfiguration.getName());
-                        candidates.add(process);
+                        LOG.debug("Leg [{}] of process [{}] matched, adding process.", legConfiguration.getName(), process.getName());
+                        candidates.add(process); // this is a set, so the process is only added once, event if multiple legs happen to match
                     }
                 }
             }
@@ -670,7 +672,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     /*
      * On the receiving, the initiator is unknown, on the sending side the responder is unknown.
      */
-    protected boolean matchProcess(final Process process, MSHRole mshRole) {
+    protected boolean matchDynamicProcess(final Process process, MSHRole mshRole) {
         if (MSHRole.RECEIVING.equals(mshRole)) {
             return process.isDynamicInitiator() || process.getInitiatorParties().contains(this.getConfiguration().getParty());
         } else { // MSHRole.SENDING

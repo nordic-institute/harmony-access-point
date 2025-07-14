@@ -33,6 +33,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper {
             return null;
         }
         JmsMessageDTO jmsMessageDTO = delegate.jmsMessageToJmsMessageDTO(jmsMessage);
+        jmsMessageDTO.setJmsCorrelationId(jmsMessage.getJmsCorrelationId());
         jmsMessageDTO.setProperties(convert(jmsMessage.getProperties()));
         return jmsMessageDTO;
     }
@@ -45,6 +46,7 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper {
         }
 
         JmsMessage jmsMessage = delegate.jmsMessageDTOToJmsMessage(jmsMessageDTO);
+        jmsMessage.setJmsCorrelationId(jmsMessageDTO.getJmsCorrelationId());
         jmsMessage.setProperties(convertDTO(jmsMessageDTO.getProperties()));
         return jmsMessage;
     }

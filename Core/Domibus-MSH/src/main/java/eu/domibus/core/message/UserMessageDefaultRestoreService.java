@@ -7,13 +7,11 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.resend.MessageResendEntity;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.logging.DomibusLogger;
@@ -27,10 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RESTORED_FAILED;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_RESTORED_SUCCESS;
 
 /**
  * This service class is responsible for the restore of failed messages.
@@ -48,9 +48,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private final MessageExchangeService messageExchangeService;
 
-    private final BackendNotificationService backendNotificationService;
-
-    private final UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDefaultService userMessageLogDefaultService;
 
     private final PModeProvider pModeProvider;
 
@@ -72,14 +70,13 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private final PlatformTransactionManager transactionManager;
 
-    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService,
-                                            UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
+    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, UserMessageLogDefaultService userMessageLogDao,
+                                            PModeProvider pModeProvider, PullMessageService pullMessageService,
                                             PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService,
                                             UserMessageDao userMessageDao, AuditService auditService, UserMessageRestoreDao userMessageRestoreDao,
                                             DomibusQuartzStarter domibusQuartzStarter, PlatformTransactionManager transactionManager) {
         this.messageExchangeService = messageExchangeService;
-        this.backendNotificationService = backendNotificationService;
-        this.userMessageLogDao = userMessageLogDao;
+        this.userMessageLogDefaultService = userMessageLogDao;
         this.pModeProvider = pModeProvider;
         this.pullMessageService = pullMessageService;
         this.pModeService = pModeService;
@@ -96,41 +93,50 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
 
         final UserMessageLog userMessageLog = userMessageService.getFailedMessage(messageId);
 
-        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
-        }
-
-        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
-
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(newMessageStatus);
-        final Date currentDate = new Date();
-        userMessageLog.setRestored(currentDate);
-        userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
-
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
-        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
-        userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-        userMessageLogDao.update(userMessageLog);
-
-        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            try {
-                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
-                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
+        try {
+            LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
+            if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
             }
+
+            UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+
+            final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
+            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, newMessageStatus.getMessageStatus());
+
+            final Date currentDate = new Date();
+            userMessageLog.setRestored(currentDate);
+            userMessageLog.setFailed(null);
+            userMessageLog.setNextAttempt(currentDate);
+
+            Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
+            LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
+            userMessageLog.setSendAttemptsMax(newMaxAttempts);
+
+            userMessageLogDefaultService.update(userMessageLog);
+
+            if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
+                userMessageService.scheduleSending(userMessage, userMessageLog);
+                LOG.businessInfo(BUS_MESSAGE_RESTORED_SUCCESS);
+            } else {
+                LOG.businessError(BUS_MESSAGE_RESTORED_FAILED);
+                try {
+                    MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                    String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+                    LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
+                    pullMessageService.addPullMessageLock(userMessage, userMessageLog);
+                } catch (EbMS3Exception ebms3Ex) {
+                    LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
+                }
+            }
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         }
     }
 
@@ -154,7 +160,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = userMessageLogDefaultService.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -171,7 +177,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
 
-        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
+        final List<String> failedMessages = userMessageLogDefaultService.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
         if (CollectionUtils.isEmpty(failedMessages)) {
             return null;
         }

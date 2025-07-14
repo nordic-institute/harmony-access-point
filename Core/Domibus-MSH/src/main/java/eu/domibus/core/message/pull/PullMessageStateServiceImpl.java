@@ -1,21 +1,25 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
+import static eu.domibus.api.model.ProcessingType.PULL;
 
 /**
  * @author Thomas Dussart
@@ -32,7 +36,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Autowired
-    protected UserMessageLogDao userMessageLogDao;
+    protected UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     protected UpdateRetryLoggingService updateRetryLoggingService;
@@ -53,7 +57,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void expirePullMessage(final String messageId) {
         LOG.debug("Message:[{}] expired.", messageId);
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -73,7 +77,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
             return;
         }
         LOG.debug("Setting [{}] message as failed", userMessage.getMessageId());
-        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
     }
 
     /**
@@ -81,6 +85,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Override
     @Transactional
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_CONVERSATION_ID})
     public void sendFailed(final UserMessageLog userMessageLog, String messageId) {
         if (userMessageLog == null) {
             LOG.warn("Could not mark message as failed: userMessageLog is null");
@@ -89,12 +94,18 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
 
         LOG.debug("Setting [{}] message as failed", messageId);
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+
         if (userMessage == null) {
             LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);
             return;
         }
 
-        updateRetryLoggingService.messageFailed(userMessage, userMessageLog);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
+        updateRetryLoggingService.messageFailed(userMessage, userMessageLog, PULL);
     }
 
     /**
@@ -102,12 +113,11 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Transactional
     @Override
-    public void reset(final UserMessageLog userMessageLog, String messageId) {
-        final MessageStatusEntity readyToPull = messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
-        LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", messageId, userMessageLog.getMessageStatus(), readyToPull);
-        userMessageLog.setMessageStatus(readyToPull);
-        userMessageLogDao.update(userMessageLog);
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
+    public void reset(final UserMessageLog userMessageLog, UserMessage userMessage) {
+        userMessageLogService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.READY_TO_PULL);
+
+        // Note: UserMessageLog is a Hibernate managed entity retrieved in an upper method which is also marked as transactional.
+        // We don't need to explicitly update it here, it will be automatically updated when the transaction is committed.
     }
 
 

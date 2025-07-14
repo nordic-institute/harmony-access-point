@@ -4,9 +4,6 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.ebms3.sender.ResponseResult;
-
-import javax.xml.soap.SOAPMessage;
 
 /**
  * Service in charge or handling the states of messages exchanges being pull or push.
@@ -22,12 +19,18 @@ public interface ReliabilityService {
      * Method supposed to be called after pushing or pulling.
      * It will handle the notifications and increase of messages attempts.
      *
-     * @param userMessage                  the processed message id.
-     * @param reliabilityCheckSuccessful the state of the reliability check.
-     * @param responseResult             status result for reliability.
-     * @param legConfiguration           the legconfiguration of this message exchange.
+     * @param reliabilityDTO               holding the following values
+     *        {@link ReliabilityDTO#getUserMessage}                  the processed {@link UserMessage}.
+     *        {@link ReliabilityDTO#getUserMessageLog}               the processed {@link UserMessageLog}.
+     *        {@link ReliabilityDTO#getAttempt}                      the {@link MessageAttempt} performed
+     *        {@link ReliabilityDTO#getLegConfiguration}             the {@link LegConfiguration} of this message exchange.
+     *        {@link ReliabilityDTO#getReliabilityCheck}   the state of the reliability check.
+     *        {@link ReliabilityDTO#getRequestRawXMLMessage}         The raw xml message
+     *        {@link ReliabilityDTO#getResponseResult}               status result for reliability.
+     *        {@link ReliabilityDTO#getResponseSoapMessage}          the Soap Response
+     *        {@link ReliabilityDTO#getThrowable}                    the error if applicable
      */
-    void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+    void handleReliability(ReliabilityDTO reliabilityDTO);
 
     /**
      * Update the connectivity status of a remote party

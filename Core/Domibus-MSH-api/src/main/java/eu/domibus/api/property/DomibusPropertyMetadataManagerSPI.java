@@ -191,6 +191,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_LOGGING_SEND_MESSAGE_ENQUEUED_MAX_MINUTES = "domibus.logging.sendMessage.enqueued.max.minutes";
     String DOMIBUS_LOGGING_EBMS3_ERROR_PRINT = "domibus.logging.ebms3.error.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
+    String DOMIBUS_LOGGING_DIAGNOSTIC_ENABLED = "domibus.logging.diagnostic.enabled";
     String DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE = "domibus.connection.cxf.ssl.offload.enable";
     String DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY = "domibus.dispatcher.splitAndJoin.concurrency";
@@ -208,6 +209,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_POLICIES_CHECK_CRON = "domibus.passwordPolicies.check.cron";//NOSONAR
     String DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON = "domibus.plugin_passwordPolicies.check.cron";//NOSONAR
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON = "domibus.payload.temp.job.retention.cron";
+    String DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES = "domibus.payload.file_system.folder.added_minutes";
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
     String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON = "domibus.ongoingMessagesSanitizing.worker.cron";
@@ -317,10 +319,13 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PULL_MULTIPLE_LEGS = "domibus.pull.multiple_legs";
     String DOMIBUS_PULL_FORCE_BY_MPC = "domibus.pull.force_by_mpc";
     String DOMIBUS_PULL_MPC_INITIATOR_SEPARATOR = "domibus.pull.mpc_initiator_separator";
+    String DOMIBUS_PULL_RECEIPT_TIMEOUT = "domibus.pull.receipt.timeout";
+    String DOMIBUS_PULL_RECEIPT_RELIABILITY_RETRY = "domibus.pull.receipt.reliability.retry";
     String DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY = "domibus.pull.receipt.queue.concurrency";
     String DOMIBUS_PULL_QUEUE_CONCURENCY = "domibus.pull.queue.concurency";
 
     String DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER = "domibus.extension.iam.authentication.identifier";
+    String DOMIBUS_EXTENSION_IAM_TRUST_ENABLED = "domibus.extension.iam.trust.enabled";
     String DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER = "domibus.extension.iam.authorization.identifier";
     String DOMIBUS_EXCEPTIONS_REST_ENABLE = "domibus.exceptions.rest.enable";
 
@@ -479,6 +484,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_EXPORT_FAILED_PREFIX + ".mail.subject";
     String DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED = "domibus.earchive.notification.details.enabled";
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
+    String DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD = "domibus.quartz.jobStore.misfireThreshold";
+    String DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK = "domibus.quartz.jobStore.acquireTriggersWithinLock";
     String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
 
     //Start distributed cache properties
