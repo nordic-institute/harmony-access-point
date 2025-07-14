@@ -831,6 +831,8 @@
         <cve>CVE-2024-38820</cve>
         <!--Domibus does not have a Spring MVC controller method with a @RequestBody byte[] parameter-->
         <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+        <!-- Application does not use affected headers or vulnerable URL construction patterns -->
+        <vulnerabilityName>CVE-2025-41234</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[

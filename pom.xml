@@ -35,16 +35,16 @@
         <httpclient5.version>5.2.3</httpclient5.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
         <commons-io.version>2.17.0</commons-io.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <commons-fileupload.version>1.6.0</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-codec.version>1.16.0</commons-codec.version>
         <bouncycastle.version>1.80</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <jackson.version>2.14.3</jackson.version>
+        <jackson.version>2.15.4</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.14.3</jackson-databind.version>
+        <jackson-databind.version>2.15.4</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.32</freemarker.version>
         <mail.version>1.6.7</mail.version>
@@ -66,7 +66,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.25</dropwizard.metrics.version>
-        <owasp.dependency.check.version>10.0.4</owasp.dependency.check.version>
+        <owasp.dependency.check.version>12.1.3</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
@@ -135,7 +135,7 @@
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <httpcore.version>4.4.16</httpcore.version>
-        <infinispan.version>13.0.18.Final</infinispan.version>
+        <infinispan.version>13.0.22.Final</infinispan.version>
         <ehcache.version>3.10.8</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
