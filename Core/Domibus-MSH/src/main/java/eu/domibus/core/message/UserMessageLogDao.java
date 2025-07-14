@@ -114,7 +114,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
-        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
                 lastUserMessageLogId,
                 maxEntityIdToArchived);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
@@ -124,7 +124,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getNotFinalStates()));
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
-        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> found [{}] messages", res.size());
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> found [{}] messages", res.size());
         addStatus(res);
         return res;
     }
