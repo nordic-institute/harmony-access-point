@@ -108,12 +108,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setMaxResults(batchMaxSize);
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
+        LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> found [{}] messages", res.size());
         addStatus(res);
         return res;
     }
 
     public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
-        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
                 lastUserMessageLogId,
                 maxEntityIdToArchived);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
@@ -123,6 +124,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getNotFinalStates()));
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> found [{}] messages", res.size());
         addStatus(res);
         return res;
     }
@@ -148,8 +150,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     private void addStatus(List<EArchiveBatchUserMessage> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        // preload all MessageStatusEntity objects into a map
+        Map<Long, MessageStatusEntity> statusEntityMap = messageStatusDao.findAll().stream()
+                .collect(Collectors.toMap(MessageStatusEntity::getEntityId, entity -> entity));
+
+        // iterate through the list and set the message status using the preloaded map
         list.forEach(eArchiveBatchUserMessage -> {
-            MessageStatusEntity entity = messageStatusDao.read(eArchiveBatchUserMessage.getMessageStatusId());
+            Long messageStatusId = eArchiveBatchUserMessage.getMessageStatusId();
+            MessageStatusEntity entity = statusEntityMap.get(messageStatusId);
+            if (entity == null) {
+                entity = messageStatusDao.read(messageStatusId);
+                if (entity != null) {
+                    statusEntityMap.put(messageStatusId, entity);
+                }
+            }
             if (entity != null) {
                 eArchiveBatchUserMessage.setMessageStatus(entity.getMessageStatus());
             }
