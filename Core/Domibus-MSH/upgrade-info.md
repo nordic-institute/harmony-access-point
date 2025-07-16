@@ -21,6 +21,7 @@ Release checklist:
                 - Rename properties: 
                         domibus.ongoingMessagesSanitizing.alert.email.body to domibus.ongoingMessagesSanitizing.alert.mail.body
                         domibus.ongoingMessagesSanitizing.alert.email.subject to domibus.ongoingMessagesSanitizing.alert.mail.subject
+                - No sql updates on the database schemas for both MySQL and Oracle
 ## Domibus 5.1.8 (from 5.1.7)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
