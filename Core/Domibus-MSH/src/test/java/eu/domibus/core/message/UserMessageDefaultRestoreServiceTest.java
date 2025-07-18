@@ -274,7 +274,8 @@ public class UserMessageDefaultRestoreServiceTest {
 
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
-            userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture()); //method tested in UserMessageDefaultServiceTest.test_sendEnqueued
+            Long messageEntityIdActual;
+            userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture(), messageEntityIdActual = withCapture()); //method tested in UserMessageDefaultServiceTest.test_sendEnqueued
             Assert.assertEquals(messageId, messageIdActual);
 
             auditService.addMessageResentAudit(messageIdActual = withCapture());

@@ -5,7 +5,6 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -26,10 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -83,7 +80,7 @@ public class EArchivingJobService {
     }
 
     @Transactional(readOnly = true)
-    public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
+    public EArchiveBatchStart getStartDate(EArchiveRequestType eArchiveRequestType) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
         Hibernate.initialize(byReference);
         return byReference;
@@ -160,13 +157,54 @@ public class EArchivingJobService {
         return eArchiveBatchDao.merge(entity);
     }
 
+    /**
+     * Returns the maximum entity id to be archived based on the eArchiveRequestType and the minimum entity id to be archived.
+     * For continuous archiving, it considers the current time minus the retry timeout.
+     * For sanitizer archiving, it considers the start date minus the sanitizer delay.
+     * The window limit is applied to ensure that the maximum entity id does not exceed a certain time window.
+     */
     @Transactional(readOnly = true)
-    public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
+    public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType, Long minEntityToArchived) {
+        ZonedDateTime maxDateHour;
+        ZonedDateTime dateHourWithWindowLimit;
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            ZonedDateTime dateHour = dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
-            return dateUtil.getMaxEntityId(dateHour, TimeUnit.HOURS.toSeconds(getSanitizerDelay()));
+            long sanitizerDelay = getSanitizerDelay();
+            maxDateHour = getStartDateContinuous()
+                    .minusHours(sanitizerDelay);
+            Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT);
+            dateHourWithWindowLimit = getWindowLimit(timeWindowLimit, minEntityToArchived);
+            LOG.debug("[SANITIZER] maxDateHour: [{}] with sanitizer delay (-[{}] hours), dateHourWithWindowLimit: [{}]", maxDateHour, sanitizerDelay, dateHourWithWindowLimit);
+        } else {
+            long roundedRetryTimeOut = rounding60min(getRetryTimeOut());
+            maxDateHour = ZonedDateTime
+                    .now(ZoneOffset.UTC)
+                    .minusMinutes(roundedRetryTimeOut);
+            Integer timeWindowLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT);
+            dateHourWithWindowLimit = getWindowLimit(timeWindowLimit, minEntityToArchived);
+            LOG.debug("[CONTINUOUS] maxDateHour: [{}] with retryTimeOut (-[{}] minutes), dateHourWithWindowLimit: [{}]", maxDateHour, roundedRetryTimeOut, dateHourWithWindowLimit);
         }
-        return dateUtil.getMaxEntityId(MINUTES.toSeconds(rounding60min(getRetryTimeOut())));
+        ZonedDateTime dateHour = getOldestDateTime(dateHourWithWindowLimit, maxDateHour);
+        return dateUtil.getMaxEntityId(dateHour, 0);
+    }
+
+    private ZonedDateTime getOldestDateTime(ZonedDateTime dateHourWithWindowLimit, ZonedDateTime maxDateHour) {
+        if (dateHourWithWindowLimit == null) {
+            return maxDateHour;
+        }
+        return (maxDateHour.isBefore(dateHourWithWindowLimit) ? maxDateHour : dateHourWithWindowLimit);
+    }
+
+    private ZonedDateTime getWindowLimit(Integer timeWindowLimit, Long minEntityToArchived) {
+        if (timeWindowLimit == null || timeWindowLimit == 0) {
+            return null; // disabled
+        } else {
+            return dateUtil.getDateHour("" + minEntityToArchived)
+                    .plusDays(timeWindowLimit);
+        }
+    }
+
+    private ZonedDateTime getStartDateContinuous() {
+        return dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
     }
 
     /**
@@ -262,11 +300,13 @@ public class EArchivingJobService {
     }
 
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
-        List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
+        if (eArchivingEventService.isEventMessageNotFinalActive()) {
+            List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
 
-        for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
-            LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), userMessageDto.getMessageStatus());
-            eArchivingEventService.sendEventMessageNotFinal(userMessageDto.getMessageId(), userMessageDto.getMessageStatus());
+            for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
+                LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), userMessageDto.getMessageStatus());
+                eArchivingEventService.sendEventMessageNotFinal(userMessageDto.getMessageId(), userMessageDto.getMessageStatus());
+            }
         }
     }
 

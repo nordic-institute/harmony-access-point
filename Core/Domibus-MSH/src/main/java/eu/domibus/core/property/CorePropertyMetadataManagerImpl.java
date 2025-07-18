@@ -76,6 +76,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD, Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY, Type.BOOLEAN),
 
+            new DomibusPropertyMetadata(DOMIBUS_DIAGNOSTICS_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DIAGNOSTICS_LIST, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
+
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Type.NUMERIC, Module.MSH, false, Usage.DOMAIN, true, true, false, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
@@ -157,6 +160,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, Type.URI, Usage.GLOBAL_AND_DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY, Type.NUMERIC),
 
+            new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_MAX_MESSAGE_COUNT, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_TIMEOUT_DELAY, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SMLZONE, Type.URI, Usage.DOMAIN, true),
@@ -276,11 +280,10 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_RETRY_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_DELAY_HOURS, Type.NUMERIC, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_LEVEL, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT, Type.CRON, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_LEVEL, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MSH_PULL_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PULL_RETRY_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_CLEANER_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
@@ -298,6 +301,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_EXPORT_EMPTY, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITY_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITY_DELAY, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
@@ -472,6 +477,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_MAX_COUNT, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_PARTY_ID_TYPE_VALIDATION_PATTERN, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PARTY_ID_TYPE_VALIDATION_MESSAGE, Type.STRING, Usage.DOMAIN, true),

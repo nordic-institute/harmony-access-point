@@ -375,7 +375,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     initiatorParty = pModeProvider.findAllParties().stream()
                             .filter(p -> p.getIdentifiers().stream().anyMatch(i -> StringUtils.equalsIgnoreCase(i.getPartyId(), initiatorPartyName))).findFirst().orElse(null);
                     if (initiatorParty != null) {
-                        LOG.warn("Could not find initiator party by name [{}], but found by partyId [{}]", initiatorPartyName);
+                        LOG.warn("Could not find initiator party by name but found by partyId [{}]", initiatorPartyName);
                     }
                 }
                 if (initiatorParty != null) { // initiator party specified in the mpc exists in the pmode

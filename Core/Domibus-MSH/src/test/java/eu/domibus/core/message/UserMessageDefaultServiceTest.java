@@ -550,7 +550,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         //tested method
-        userMessageDefaultService.sendEnqueuedMessage(messageId);
+        userMessageDefaultService.sendEnqueuedMessage(messageId, null);
 
         new FullVerifications() {{
             reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
@@ -594,7 +594,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         //tested method
-        userMessageDefaultService.sendEnqueuedMessage(messageId);
+        userMessageDefaultService.sendEnqueuedMessage(messageId, null);
 
         new FullVerifications() {{
             reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
@@ -629,7 +629,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         //tested method
-        userMessageDefaultService.sendEnqueuedMessage(messageId);
+        userMessageDefaultService.sendEnqueuedMessage(messageId, null);
 
         new FullVerifications() {};
     }

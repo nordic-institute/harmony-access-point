@@ -407,10 +407,6 @@ public class UpdateRetryLoggingServiceTest {
         new Expectations(updateRetryLoggingService) {{
             userMessage.getEntityId();
             result = userMessageEntityId;
-            ;
-
-            userMessageLogDao.findByEntityId(userMessageEntityId);
-            result = userMessageLog;
 
             updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result = true;
@@ -419,7 +415,7 @@ public class UpdateRetryLoggingServiceTest {
         }};
 
         //tested method
-        boolean result = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
+        boolean result = updateRetryLoggingService.failIfExpired(userMessage, userMessageLog, legConfiguration);
         Assert.assertTrue(result);
 
         new FullVerifications(updateRetryLoggingService) {{
@@ -450,15 +446,12 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getMessageId();
             result = "some id";
 
-            userMessageLogDao.findByEntityId(userMessageEntityId);
-            result = userMessageLog;
-
             updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
             result = false;
         }};
 
         //tested method
-        boolean result = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
+        boolean result = updateRetryLoggingService.failIfExpired(userMessage, userMessageLog, legConfiguration);
         Assert.assertFalse(result);
 
         new FullVerifications() {{

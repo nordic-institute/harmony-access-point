@@ -100,8 +100,8 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLog.getEntityId()));
         try {
             LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
-            if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
+            if (MessageStatus.DELETED == userMessageLog.getMessageStatus() || MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + userMessageLog.getMessageStatus() + "]");
             }
 
             UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
@@ -165,7 +165,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
-            userMessageService.sendEnqueuedMessage(messageId);
+            userMessageService.sendEnqueuedMessage(messageId, userMessageLog.getEntityId());
         } else {
             restoreFailedMessage(messageId);
         }
@@ -204,7 +204,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             return;
         }
         if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
-            LOG.debug("Triggering the messageResendJob to restore all failed messages");
+            LOG.info("Triggering the messageResendJob to restore [{}] failed messages", messageIds.size());
             triggerMessageResendJob(messageIds);
             return;
         }
@@ -213,13 +213,23 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     }
 
     protected void triggerMessageResendJob(List<String> messageIds) throws SchedulerException {
+        int failedCount = 0;
         for (String messageId : messageIds) {
-            MessageResendEntity messageResendEntity = new MessageResendEntity();
-            messageResendEntity.setMessageId(messageId);
-            userMessageRestoreDao.create(messageResendEntity);
+            try {
+                MessageResendEntity messageResendEntity = new MessageResendEntity();
+                messageResendEntity.setMessageId(messageId);
+                userMessageRestoreDao.create(messageResendEntity);
+            } catch (Exception ex) {
+                LOG.warn("Could not enqueue message [{}] for resending", messageId, ex);
+                failedCount++;
+            }
         }
         domibusQuartzStarter.triggerMessageResendJob();
-        LOG.debug("Restored all failed messages");
+        if (failedCount > 0) {
+            LOG.info("Failed messages enqueued for restoring. [{}]/[{}] messages could not be enqueued (possibly already enqueued).", failedCount, messageIds.size());
+        } else {
+            LOG.info("All [{}] failed messages were enqueued for restoring successfully.", messageIds.size());
+        }
     }
 
     @Override
@@ -248,6 +258,12 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Override
     public void findAndRestoreFailedMessages() {
         List<String> messageIds = findAllMessagesToRestore();
+        if (CollectionUtils.isEmpty(messageIds)) {
+            return;
+        }
+
+        LOG.info("Found [{}] failed messages to restore", messageIds.size());
+        int failedCount = 0;
         for (String messageId : messageIds) {
             LOG.debug("Found message to restore. Starting the restoring process of message with messageId [{}]", messageId);
             try {
@@ -261,8 +277,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
                 });
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
+                failedCount++;
             }
-            LOG.debug("Restoring process of failed messages completed successfully.");
         }
+        LOG.info("Restoring process of failed messages completed. [{}]/[{}] messages could not be restored", failedCount, messageIds.size());
     }
 }

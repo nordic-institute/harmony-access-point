@@ -604,7 +604,7 @@ public abstract class PModeProvider {
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
 
-    public abstract int getMaxRetryTimeout();
+    public abstract int getMaxRetryTimeout(eu.domibus.api.model.ProcessingType processingType);
 
 
     private void logDiagnosticsData(UserMessage userMessage, MSHRole mshRole) {

@@ -20,7 +20,7 @@ export class MessagelogDetailsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    if (!this.data.fetchData) {
+    if (!this.data.fetchData || !this.message) {
       return;
     }
     let filterParams = new HttpParams({encoder: new CustomURLEncoder()});
@@ -30,7 +30,7 @@ export class MessagelogDetailsComponent implements OnInit {
     filterParams = filterParams.append('applyDefaultFilters', 'false')
     this.data.fields.forEach(field => filterParams = filterParams.append('fields', field));
     const res = <MessageLogResult>await this.http.get<any>(MessageLogComponent.MESSAGE_LOG_URL, {params: filterParams}).toPromise();
-    if (res && res.count == 1) {
+    if (res && res.count == 1 && res.messageLogEntries && res.messageLogEntries.length > 0) {
       this.message = res.messageLogEntries[0];
     }
   }

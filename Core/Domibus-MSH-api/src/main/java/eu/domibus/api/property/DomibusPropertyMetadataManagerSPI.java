@@ -211,12 +211,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON = "domibus.payload.temp.job.retention.cron";
     String DOMIBUS_PAYLOAD_FILE_SYSTEM_FOLDER_ADDED_MINUTES = "domibus.payload.file_system.folder.added_minutes";
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
+    String DOMIBUS_MSH_RETRY_MAX_MESSAGE_COUNT = "domibus.msh.retry.maxMessageCount";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON = "domibus.ongoingMessagesSanitizing.worker.cron";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_DELAY_HOURS = "domibus.ongoingMessagesSanitizing.worker.delay.hours";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_ACTIVE = "domibus.ongoingMessagesSanitizing.alert.active";
     String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_LEVEL = "domibus.ongoingMessagesSanitizing.alert.level";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT = "domibus.ongoingMessagesSanitizing.alert.email.subject";
-    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY = "domibus.ongoingMessagesSanitizing.alert.email.body";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_SUBJECT = "domibus.ongoingMessagesSanitizing.alert.mail.subject";
+    String DOMIBUS_ONGOING_MESSAGES_SANITIZING_ALERT_BODY = "domibus.ongoingMessagesSanitizing.alert.mail.body";
     String DOMIBUS_MSH_PULL_CRON = "domibus.msh.pull.cron";
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
@@ -414,6 +414,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_GC = "domibus.metrics.monitor.gc";
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
+    String DOMIBUS_DIAGNOSTICS_CRON = "domibus.diagnostics.cron";
+    String DOMIBUS_DIAGNOSTICS_LIST = "domibus.diagnostics.list";
     String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
     String DOMIBUS_SECURITY_PROVIDER_BOUNCY_CASTLE_POSITION = "domibus.security.provider.bouncyCastle.position";
     String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR
@@ -450,6 +452,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
+    String DOMIBUS_EARCHIVE_TIME_WINDOW_LIMIT = "domibus.earchive.continuous.time_window_limit";
+    String DOMIBUS_EARCHIVE_SANITIZER_TIME_WINDOW_LIMIT = "domibus.earchive.sanitizer.time_window_limit";
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_SANITY_DELAY = "domibus.earchive.sanitizer.messagesCheck.delay.hours";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
@@ -490,9 +494,6 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
-    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
-    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
-
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";
 
@@ -510,6 +511,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_BC_PROVIDER_ORDER="domibus.security.bc.provider.order";
 
     String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
+
+    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
+    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
+    String DOMIBUS_MESSAGES_STUCK_MAX_COUNT = "domibus.messages.stuck.maxMessageCount";
     String DOMIBUS_MESSAGE_SUBMISSION_DIAGNOSTICS_ENABLED = "domibus.message.submission.diagnostics.enabled";
 
     String DOMIBUS_EXTENSIONS_LOCATION = "domibus.extensions.location";

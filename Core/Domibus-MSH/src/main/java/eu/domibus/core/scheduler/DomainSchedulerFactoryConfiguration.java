@@ -13,6 +13,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.diagnostics.DiagnosticsJob;
 import eu.domibus.core.earchive.job.EArchivingCleanupJob;
 import eu.domibus.core.earchive.job.EArchivingContinuousJob;
 import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
@@ -23,7 +24,6 @@ import eu.domibus.core.message.UnsentMessageSanitizingWorker;
 import eu.domibus.core.message.pull.MessagePullerJob;
 import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.message.resend.MessageResendJob;
-import eu.domibus.core.message.retention.OngoingMessagesSanitizingWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
@@ -164,28 +164,6 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
-        return obj;
-    }
-
-    @Bean
-    public JobDetailFactoryBean ongoingMessagesSanitizingWorkerJob() {
-        JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(OngoingMessagesSanitizingWorker.class);
-        obj.setDurability(true);
-        return obj;
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean ongoingMessagesSanitizingWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null) {
-            return null;
-        }
-
-        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
-        obj.setJobDetail(ongoingMessagesSanitizingWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
@@ -697,6 +675,28 @@ public class DomainSchedulerFactoryConfiguration {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
         obj.setJobClass(DynamicDiscoveryLookupsJob.class);
         obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean diagnosticsJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(DiagnosticsJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean diagnosticsTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(diagnosticsJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DIAGNOSTICS_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
