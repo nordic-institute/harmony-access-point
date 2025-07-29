@@ -1,19 +1,20 @@
 package eu.domibus.common;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.*;
-import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.dictionary.*;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.util.DateUtilImpl;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import joptsimple.internal.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,8 @@ import java.util.List;
 public class MessageDaoTestUtil {
     public static final String MPC = "mpc";
     public static final String DEFAULT_MPC = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
+    public static final String PULL_MPC = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull";
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageDaoTestUtil.class);
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -75,6 +78,9 @@ public class MessageDaoTestUtil {
     PartyIdDao partyIdDao;
 
     @Autowired
+    UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+
+    @Autowired
     MessageAcknowledgementDao messageAcknowledgementDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
@@ -89,7 +95,8 @@ public class MessageDaoTestUtil {
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
     final static String RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
-
+    @Autowired
+    private ReceiptDao receiptDao;
 
     @Transactional
     public SignalMessage createSignalMessageLog(String msgId, Date received) {
@@ -137,6 +144,7 @@ public class MessageDaoTestUtil {
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, String mpc, Date archivedAndExported,
                                                String originalSender, String finalRecipient, boolean fragment) {
+        LOG.info("Create UserMessageLog [{}]", msgId);
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
@@ -151,6 +159,10 @@ public class MessageDaoTestUtil {
         PartyInfo partyInfo = new PartyInfo();
         partyInfo.setFrom(createFrom(INITIATOR_ROLE, "domibus-blue"));
         partyInfo.setTo(createTo(RESPONDER_ROLE, "domibus-red"));
+        if (StringUtils.contains(mpc, "pull")) {
+            partyInfo.setFrom(createFrom(RESPONDER_ROLE, "domibus-blue"));
+            partyInfo.setTo(createTo(INITIATOR_ROLE, "domibus-red"));
+        }
         userMessage.setPartyInfo(partyInfo);
 
         final String serviceValue = isTestMessage ? "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service" : "bdx:noprocess";
@@ -327,9 +339,14 @@ public class MessageDaoTestUtil {
 
     @Transactional
     public void deleteMessages(List<Long> ids) {
+        LOG.info("Delete UserMessage [{}]", ids);
+
+        receiptDao.deleteReceipts(ids);
         userMessageLogDao.deleteMessageLogs(ids);
         signalMessageLogDao.deleteMessageLogs(ids);
         signalMessageDao.deleteMessages(ids);
+        userMessageRawEnvelopeDao.deleteMessages(ids);
+        userMessageDao.deleteMessages(ids);
     }
 
     @Transactional
@@ -356,5 +373,12 @@ public class MessageDaoTestUtil {
                 .setParameter("MESSAGE_ID", messageId)
                 .setParameter("DATE", date)
                 .executeUpdate();
+    }
+
+    @Transactional
+    public UserMessageRaw getUserMessageRaw(long id) {
+        UserMessageRaw byReference = userMessageRawEnvelopeDao.findByReference(id);
+        byReference.getRawXML();
+        return byReference;
     }
 }

@@ -27,11 +27,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import eu.domibus.ext.services.AuthenticationExtService;
 
 import javax.jms.*;
 import java.text.MessageFormat;
 import java.util.List;
-import static eu.domibus.logging.DomibusMessageCode.DUPLICATE_MESSAGEID;
+
+import static eu.domibus.logging.DomibusMessageCode.*;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
@@ -52,6 +54,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     protected final MetricRegistry metricRegistry;
     protected final JndiDestinationResolver jndiDestinationResolver;
     protected final JmsPluginPropertyManager jmsPluginPropertyManager;
+    protected final AuthenticationExtService authenticationExtService;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
@@ -59,7 +62,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
                          JMSMessageTransformer jmsMessageTransformer,
-                         JndiDestinationResolver jndiDestinationResolver, JmsPluginPropertyManager jmsPluginPropertyManager) {
+                         JndiDestinationResolver jndiDestinationResolver,
+                         JmsPluginPropertyManager jmsPluginPropertyManager,
+                         AuthenticationExtService authenticationExtService) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -69,6 +74,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.metricRegistry = metricRegistry;
         this.jndiDestinationResolver = jndiDestinationResolver;
         this.jmsPluginPropertyManager = jmsPluginPropertyManager;
+        this.authenticationExtService = authenticationExtService;
     }
 
     @Override
@@ -91,7 +97,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_CONVERSATION_ID},  cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -106,7 +112,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             }
             final String conversationId = map.getStringProperty(CONVERSATION_ID);
             final String jmsCorrelationID = map.getJMSCorrelationID();
+            LOG.putMDC(JMS_CORRELATION_ID, jmsCorrelationID);
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
+            LOG.putMDC(CONVERSATION_ID, conversationId);
             LOG.businessInfo(DomibusMessageCode.BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE, messageID, conversationId, jmsCorrelationID);
 
             QueueContext queueContext = jmsMessageTransformer.getQueueContext(messageID, map);
@@ -126,6 +134,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             } catch (final MessagingProcessingException e) {
                 if (e instanceof DuplicateMessageException){
                     LOG.businessError(DUPLICATE_MESSAGEID, messageID);
+                } else {
+                    LOG.businessError(BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED, e);
                 }
                 LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
@@ -136,6 +146,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
+            LOG.businessError(BUS_MSG_RECEIVED_FROM_JMS_IN_QUEUE_FAILED, e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
     }
@@ -156,19 +167,37 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Override
     @Timer(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
+    @MDCKey({DomibusLogger.MDC_CONVERSATION_ID})
     public void deliverMessage(final DeliverMessageEvent event) {
+        // an administrative user for delivering a received message to the OUT queue.
+        authenticationExtService.runWithSecurityContext(() -> doDeliverMessage(event),
+                "jms_deliver_user", "jms_deliver_password", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void doDeliverMessage(final DeliverMessageEvent event) {
         checkEnabled();
 
         final String messageId = event.getMessageId();
         final String messageEntityId = event.getMessageEntityId().toString();
         final String conversationId = event.getProps().get(MessageConstants.CONVERSATION_ID);
+        LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, conversationId);
+        final String from = event.getProps().get(MessageConstants.FROM_PARTY_ID);
+        LOG.putMDC(DomibusLogger.MDC_FROM, from);
+        final String to = event.getProps().get(MessageConstants.TO_PARTY_ID);
+        LOG.putMDC(DomibusLogger.MDC_TO, to);
+
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE, messageId, messageEntityId, conversationId);
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
-        QueueContext queueContext = createQueueContext(event);
-        final String queueValue = jmsPluginQueueService.getJMSQueue(queueContext, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
-        LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
+        try {
+            QueueContext queueContext = createQueueContext(event);
+            final String queueValue = jmsPluginQueueService.getJMSQueue(queueContext, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+            LOG.info("Sending message to queue [{}]", queueValue);
+            mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
+        } catch (Exception e) {
+            LOG.businessError(BUS_MSG_DELIVERED_TO_JMS_OUT_QUEUE_FAILED, e);
+            throw e;
+        }
     }
 
     @Override
@@ -212,7 +241,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         final String service = event.getProps().get(MessageConstants.SERVICE);
         final String action = event.getProps().get(MessageConstants.ACTION);
         final String messageId = event.getMessageId();
-        QueueContext queueContext = new QueueContext(messageId, service, action);
+        final String jmsCorrelationId = LOG.getMDC(JMSMessageConstants.JMS_CORRELATION_ID);
+        QueueContext queueContext = new QueueContext(messageId, service, action, jmsCorrelationId);
         return queueContext;
     }
 
@@ -226,6 +256,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
 
         QueueContext queueContext = createQueueContext(event);
+        jmsMessageDTO.setJmsCorrelationId(queueContext.getJmsCorrelationId());
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 

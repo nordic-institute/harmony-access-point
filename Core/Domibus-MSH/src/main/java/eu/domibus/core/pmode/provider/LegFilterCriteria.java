@@ -16,8 +16,8 @@ public class LegFilterCriteria {
     private final String agreementName;
     private final String senderParty;
     private final String receiverParty;
-    private final Role initiatorRole;
-    private final Role responderRole;
+    private final Role senderRole;
+    private final Role receiverRole;
     private final String service;
     private final String action;
     private final ProcessingType processingType;
@@ -26,12 +26,12 @@ public class LegFilterCriteria {
     private Map<Process, String> processMismatchErrors;
     private Map<LegConfiguration, String> legMismatchErrors;
 
-    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, ProcessingType processingType, String mpc) {
+    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role senderRole, Role receiverRole, String service, String action, ProcessingType processingType, String mpc) {
         this.agreementName = agreementName;
         this.senderParty = senderParty;
         this.receiverParty = receiverParty;
-        this.initiatorRole = initiatorRole;
-        this.responderRole = responderRole;
+        this.senderRole = senderRole;
+        this.receiverRole = receiverRole;
         this.service = service;
         this.action = action;
         this.mpc = mpc;
@@ -53,12 +53,12 @@ public class LegFilterCriteria {
         return receiverParty;
     }
 
-    public Role getInitiatorRole() {
-        return initiatorRole;
+    public Role getSenderRole() {
+        return senderRole;
     }
 
-    public Role getResponderRole() {
-        return responderRole;
+    public Role getReceiverRole() {
+        return receiverRole;
     }
 
     public String getService() {

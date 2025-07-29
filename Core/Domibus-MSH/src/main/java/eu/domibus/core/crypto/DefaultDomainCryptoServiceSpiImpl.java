@@ -433,7 +433,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                 .filter(profileConfiguration -> profileConfiguration.getAlias().equalsIgnoreCase(alias))
                 .map(SecurityProfileAliasConfiguration::getPassword)
                 .findAny()
-                .orElseThrow(() -> new DomibusCertificateException("Could not find private key password."));
+                .orElseThrow(() -> new ConfigurationException("Could not find profile for alias " + alias));
     }
 
     @Override

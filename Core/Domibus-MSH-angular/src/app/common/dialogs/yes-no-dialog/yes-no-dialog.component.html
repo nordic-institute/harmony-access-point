@@ -1,6 +1,10 @@
 <div style="width: 500px;text-align: center; margin: 20px;">
   <h1 mat-dialog-title>{{data.title}}</h1>
 
+  <div *ngIf="data?.message" style="margin: 0 20px 40px;">
+    <p>{{data.message}}</p>
+  </div>
+
   <div class="divTable">
     <div class="divTableBody">
 

@@ -96,4 +96,5 @@ public final class JMSMessageConstants {
     public static final String PROCESSING_TYPE = "processingType";
 
     public static final String JMSPLUGIN_DOMAIN_ENABLED = "jmsplugin.domain.enabled";
+    public static final String JMS_CORRELATION_ID = "jmsCorrelationId";
 }

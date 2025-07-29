@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.job.AlertCleanerJob;
@@ -14,6 +13,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.diagnostics.DiagnosticsJob;
 import eu.domibus.core.earchive.job.EArchivingCleanupJob;
 import eu.domibus.core.earchive.job.EArchivingContinuousJob;
 import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
@@ -24,7 +24,6 @@ import eu.domibus.core.message.UnsentMessageSanitizingWorker;
 import eu.domibus.core.message.pull.MessagePullerJob;
 import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.message.resend.MessageResendJob;
-import eu.domibus.core.message.retention.OngoingMessagesSanitizingWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
@@ -85,12 +84,12 @@ public class DomainSchedulerFactoryConfiguration {
     // a slightly longer delay of 5 minutes
     private static final Integer JOB_START_LONG_DELAY_IN_MS = 300_000;
 
-    public static final String EARCHIVE_CONTINUOUS_JOB="eArchiveContinuousJob";
-    public static final String EARCHIVE_CLEANUP_JOB="eArchivingCleanupJob";
-    public static final String EARCHIVE_SANITIZER_JOB="eArchiveSanitizerJob";
+    public static final String EARCHIVE_CONTINUOUS_JOB = "eArchiveContinuousJob";
+    public static final String EARCHIVE_CLEANUP_JOB = "eArchivingCleanupJob";
+    public static final String EARCHIVE_SANITIZER_JOB = "eArchiveSanitizerJob";
     public static final String QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
     public static final String QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.oracle.weblogic.WebLogicOracleDelegate";
-    public static final String MESSAGE_RESEND_JOB="messageResendJob";
+    public static final String MESSAGE_RESEND_JOB = "messageResendJob";
 
     @Autowired
     Environment environment;
@@ -165,28 +164,6 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
-        return obj;
-    }
-
-    @Bean
-    public JobDetailFactoryBean ongoingMessagesSanitizingWorkerJob() {
-        JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(OngoingMessagesSanitizingWorker.class);
-        obj.setDurability(true);
-        return obj;
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean ongoingMessagesSanitizingWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null) {
-            return null;
-        }
-
-        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
-        obj.setJobDetail(ongoingMessagesSanitizingWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
@@ -582,7 +559,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean eArchiveSanitizerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null ) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -683,7 +660,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean dynamicDiscoveryCertificatesCleanupJobTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null ) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -698,6 +675,28 @@ public class DomainSchedulerFactoryConfiguration {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
         obj.setJobClass(DynamicDiscoveryLookupsJob.class);
         obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean diagnosticsJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(DiagnosticsJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean diagnosticsTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(diagnosticsJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_DIAGNOSTICS_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -767,9 +766,15 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
+        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DOMIBUS_DEPLOYMENT_CLUSTERED));
+        if (domain == null) {
+            properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+            properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
+        } else {
+            properties.setProperty("org.quartz.jobStore.misfireThreshold", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_MISFIRED_THRESHOLD));
+            properties.setProperty("org.quartz.jobStore.acquireTriggersWithinLock", domibusPropertyProvider.getProperty(domain, DOMIBUS_QUARTZ_JOB_STORE_ACQUIRE_TRIGGER_WITHIN_LOCK));
+        }
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
-        properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
@@ -789,6 +794,7 @@ public class DomainSchedulerFactoryConfiguration {
             }
             properties.setProperty("org.quartz.jobStore.tablePrefix", tablePrefix);
         }
+        LOG.debug("Quartz properties [{}]", properties);
 
         scheduler.setQuartzProperties(properties);
         scheduler.setJobFactory(autowiringSpringBeanJobFactory);
@@ -798,7 +804,7 @@ public class DomainSchedulerFactoryConfiguration {
 
     protected String getQuartzDriverDelegateClass() {
         String result = QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE;
-        if(DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment) && domibusConfigurationService.getDataBaseEngine() == DataBaseEngine.ORACLE) {
+        if (DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment) && domibusConfigurationService.getDataBaseEngine() == DataBaseEngine.ORACLE) {
             result = QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE;
         }
         LOG.info("Using class [{}] for Quartz jdbcjobstore", result);
@@ -812,7 +818,7 @@ public class DomainSchedulerFactoryConfiguration {
      * @return General schema prefix
      */
     protected String getGeneralSchemaPrefix() {
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             throw new UnsupportedOperationException("There is no scheduling tables prefix for a general schema in single tenancy");
         }
         final String generalSchema = dbSchemaUtil.getGeneralSchema();
@@ -829,7 +835,7 @@ public class DomainSchedulerFactoryConfiguration {
      * @return Domain' schema prefix
      */
     protected String getTablePrefix(Domain domain) {
-        if(domibusConfigurationService.isSingleTenantAware()) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("There is no scheduling tables prefix for a domain schema in single tenancy");
             return null;
         }

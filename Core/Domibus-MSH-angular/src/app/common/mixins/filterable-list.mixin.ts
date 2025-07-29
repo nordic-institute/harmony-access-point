@@ -85,6 +85,14 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return this.loadServerData();
   }
 
+  private setFilterParameters() {
+    if (!this.initialFilter) {
+      this.initialFilter = this.clone(this.filter);
+    }
+    this.onBeforeFilter();
+    this.setActiveFilter();
+  }
+
   public onResetAdvancedSearchParams() {
   }
 
@@ -140,6 +148,11 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     });
 
     return filterParams;
+  }
+
+  getFiltersAsObject(): Object {
+    this.setFilterParameters();
+    return this.activeFilter;
   }
 
   /**

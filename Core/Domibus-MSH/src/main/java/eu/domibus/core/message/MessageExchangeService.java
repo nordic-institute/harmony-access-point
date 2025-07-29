@@ -75,7 +75,7 @@ public interface MessageExchangeService {
     String retrieveReadyToPullUserMessageId(String mpc, Party initiator);
 
     /**
-     * When a pull request comes in, there is very litle information.  From this information we retrieve
+     * When a pull request comes in, there is very little information.  From this information we retrieve
      * the initiator, the responder and the pull process leg configuration from wich we can retrieve security information
      *
      * @param mpcQualifiedName the mpc attribute within the pull request.
@@ -94,13 +94,13 @@ public interface MessageExchangeService {
     void saveRawXml(String rawXml, String messageId, MSHRole mshRole);
 
     /**
-     * Retrieve the unique raw message of UserMessage. Enforce that it is unique.
+     * Retrieve the unique raw message of UserMessage.
+     * Unicity is enforced by the database design (the raw user message envelope table shares a primary key with the user message table).
      *
-     * @param messageId the id of the message.
-     * @param role
-     * @return the raw soap envelop.
+     * @param messageEntityId the entityId of the message.
+     * @return the raw soap envelope.
      */
-    RawEnvelopeDto findPulledMessageRawXmlByMessageId(String messageId, MSHRole role);
+    RawEnvelopeDto findPulledMessageRawXmlByMessageEntityId(final Long messageEntityId);
 
     void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName);
 

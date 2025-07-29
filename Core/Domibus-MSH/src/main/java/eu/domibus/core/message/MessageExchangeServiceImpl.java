@@ -16,6 +16,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -31,6 +32,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -213,10 +215,17 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         if (pause(maxPullRequestNumber)) {
             return;
         }
-        validPullProcesses.forEach(pullProcess ->
-                pullProcess.getLegs().stream().filter(distinctByKey(LegConfiguration::getDefaultMpc)).
-                        forEach(legConfiguration ->
-                                preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
+        validPullProcesses.forEach(pullProcess -> {
+            Set<LegConfiguration> legs = pullProcess.getLegs().stream()
+                    .filter(distinctByKey(LegConfiguration::getDefaultMpc)).collect(Collectors.toSet());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Preparing pull requests for pull process [{}] - [{}] distinct mpcs found: [{}], chosen legs: [{}]",
+                        pullProcess.getName(), legs.size(),
+                        legs.stream().map(LegConfiguration::getDefaultMpc).map(Mpc::getName).collect(Collectors.joining(",")),
+                        legs.stream().map(LegConfiguration::getName).collect(Collectors.joining(",")));
+            }
+            legs.forEach(legConfiguration -> preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration));
+        });
     }
 
     private List<Process> getValidProcesses(List<Process> pullProcesses) {
@@ -240,7 +249,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
             //@thom remove the pullcontext from here.
             PullContext pullContext = new PullContext(pullProcess,
-                    responder,
+                    responder, initiator,
                     mpcQualifiedName);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(pullContext.getAgreement(),
                     responder.getName(),
@@ -323,8 +332,13 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Override
     public PullContext extractProcessOnMpc(final String mpcQualifiedName) {
         try {
+            // identify mpc - it is sent in the pull request (but maybe suffixed with the party identifier):
             String mpc = mpcQualifiedName;
+
+            // identify responder party - it is the gateway party:
             final Party gatewayParty = pModeProvider.getGatewayParty();
+
+            // identify the pull process - it is the process that corresponds to the mpc:
             List<Process> processes = pModeProvider.findPullProcessByMpc(mpc);
             if (CollectionUtils.isEmpty(processes) && mpcService.forcePullOnMpc(mpc)) {
                 LOG.debug("No process corresponds to mpc:[{}]", mpc);
@@ -333,23 +347,65 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             }
             if (LOG.isDebugEnabled()) {
                 for (Process process : processes) {
-                    LOG.debug("Process:[{}] correspond to mpc:[{}]", process.getName(), mpc);
+                    LOG.debug("Process:[{}] corresponds to mpc:[{}]; mpcQualifiedName: [{}}", process.getName(), mpc, mpcQualifiedName);
                 }
             }
+            if (CollectionUtils.isEmpty(processes)) {
+                LOG.warn("Could not find any pull process for mpc:[{}] mpcQualifiedName:[{}]", mpc, mpcQualifiedName);
+            }
             pullProcessValidator.validatePullProcess(processes);
-            return new PullContext(processes.get(0), gatewayParty, mpc);
+
+            // FIXME: this is a possible cause for EDELIVERY-12807 - Ion Perpegel, August 2023
+            if (CollectionUtils.size(processes) > 1) {
+                LOG.warn("[{}] pull processes found for mpc=[{}] : [{}]. The first one will be used.",
+                        processes.size(), mpcQualifiedName, processes.stream().map(p -> p.getName()).collect(Collectors.joining(",")));
+            }
+
+            Process chosenProcess = processes.get(0); // we choose the first one. To be refactored in EDELIVERY-12876
+
+            // identify initiator party - from mpc or from the process:
+            Party initiatorParty = null;
+
+            String initiatorPartyName = extractInitiator(mpcQualifiedName); // eg "CBPull@DE6373283"
+            if (initiatorPartyName != null) {
+                initiatorParty = pModeProvider.findAllParties().stream()
+                        .filter(p -> StringUtils.equalsIgnoreCase(p.getName(), initiatorPartyName)).findFirst().orElse(null);
+                if (initiatorParty == null) {
+                    // try to find the party by partyId
+                    initiatorParty = pModeProvider.findAllParties().stream()
+                            .filter(p -> p.getIdentifiers().stream().anyMatch(i -> StringUtils.equalsIgnoreCase(i.getPartyId(), initiatorPartyName))).findFirst().orElse(null);
+                    if (initiatorParty != null) {
+                        LOG.warn("Could not find initiator party by name but found by partyId [{}]", initiatorPartyName);
+                    }
+                }
+                if (initiatorParty != null) { // initiator party specified in the mpc exists in the pmode
+                    // now check if it is (or can be) an initiator of the chosen process
+                    if (!pModeProvider.hasInitiatorParty(chosenProcess, initiatorParty.getName())) {
+                        LOG.warn("Initiator party [{}] specified in the mpc [{}] is not an initiator of the chosen process [{}].",
+                                initiatorParty.getName(), mpcQualifiedName, chosenProcess.getName());
+                        initiatorParty = null;
+                    }
+                }
+            } else { // initiator party not specified in the mpc
+                if (CollectionUtils.size(chosenProcess.getInitiatorParties()) == 1) {
+                    initiatorParty = chosenProcess.getInitiatorParties().iterator().next();
+                }
+            }
+
+            return new PullContext(chosenProcess, gatewayParty, initiatorParty, mpc);
         } catch (IllegalArgumentException e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "No pmode configuration found");
+        } catch (Exception e) {
+            if (e instanceof PModeException) throw e;
+            else
+                throw new PModeException(DomibusCoreErrorCode.DOM_003, "Could not extract valid pull process on mpc " + mpcQualifiedName);
         }
     }
 
 
     @Override
-    public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId, MSHRole role) {
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(messageId, role);
-        if (rawXmlByMessageId == null) {
-            throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always have a raw message for message " + messageId);
-        }
+    public RawEnvelopeDto findPulledMessageRawXmlByMessageEntityId(final Long messageEntityId) {
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByEntityId(messageEntityId);
         return rawXmlByMessageId;
     }
 

@@ -1,20 +1,18 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.core.converter.PartyCoreMapper;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.collections.map.HashedMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +50,9 @@ public class TestServiceResourceTest {
 
     @Injectable
     PartyCoreMapper partyCoreMapper;
+
+    @Injectable
+    MessageExchangeService messageExchangeService;
 
     @Test
     public void testGetTestParties() {

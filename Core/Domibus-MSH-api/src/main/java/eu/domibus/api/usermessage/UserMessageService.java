@@ -4,6 +4,7 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public interface UserMessageService {
 
     Long getFailedMessageElapsedTime(String messageId);
 
-    void sendEnqueuedMessage(String messageId);
+    void sendEnqueuedMessage(String messageId, Long messageEntityId);
 
     void deleteFailedMessage(String messageId);
 
@@ -139,18 +140,20 @@ public interface UserMessageService {
      * Schedule the sending of the asynchronous Pull Receipt
      *
      * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param messageEntityId the message entity id of the UserMessage
      * @param pmodeKey  the pmode key of the UserMessage
      */
-    void scheduleSendingPullReceipt(String messageId, String pmodeKey);
+    void scheduleSendingPullReceipt(String messageId, final Long messageEntityId, String pmodeKey);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt (counting the retries)
      *
      * @param messageId  MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param messageEntityId the message entity id of the UserMessage
      * @param pmodeKey   the pmode key of the UserMessage
      * @param retryCount the number of current attempts to send the receipt
      */
-    void scheduleSendingPullReceipt(String messageId, String pmodeKey, int retryCount);
+    void scheduleSendingPullReceipt(String messageId, final Long messageEntityId, String pmodeKey, int retryCount);
 
     /**
      * Gets a User Message based on the {@code messageId}
@@ -214,5 +217,5 @@ public interface UserMessageService {
 
     eu.domibus.api.model.UserMessage getByMessageId(String messageId);
 
-    void clearPayloadData(List<Long> entityIds);
+    void clearPayloadData(List<UserMessageLogDto> messageInfoList);
 }

@@ -1,9 +1,11 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.test.AbstractIT;
@@ -46,6 +48,7 @@ public class SaveRawEnvelopeInterceptorTestIT extends AbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         cxfSoapMessage.setContent(SOAPMessage.class, soapMessage);
 
+        cxfSoapMessage.getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.SIGNAL_MESSAGE);
         cxfSoapMessage.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, messageId);
         cxfSoapMessage.getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, userMessageEntityId + "");
 
@@ -67,6 +70,7 @@ public class SaveRawEnvelopeInterceptorTestIT extends AbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         cxfSoapMessage.setContent(SOAPMessage.class, soapMessage);
 
+        cxfSoapMessage.getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.SIGNAL_MESSAGE);
         cxfSoapMessage.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, messageId);
         cxfSoapMessage.getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, signalMessageEntityId + "");
 

@@ -3,7 +3,7 @@ Release checklist:
     Replace the Domibus war
     Replace the default plugin(s) property file(s) and jar(s) into "conf/domibus/plugins/config" respectively into "conf/domibus/plugins/lib"
     Replace the dss extension property files and jar into "conf/domibus/extensions/config" respectively into "conf/domibus/extensions/lib"
-    Run the appropriate DB upgrade script (mysql-5.1.1-to-5.1.2-upgrade.ddl for MySQL or oracle-5.1.1-to-5.1.2-upgrade.ddl for Oracle)
+    Run the appropriate DB upgrade script (eg mysql-5.1.1-to-5.1.2-upgrade.ddl for MySQL or oracle-5.1.1-to-5.1.2-upgrade.ddl for Oracle)
     Upgrade the domibus.properties and logback.xml files present in "conf/domibus" and in case of multitenancy "conf/domibus/domains/domain_name"
     Upgrade the ehcache.xml file present in "conf/domibus/internal"
     Tomcat only: Upgarde the file activemq.xml present in "conf/domibus/internal"
@@ -14,6 +14,27 @@ Release checklist:
 
 
 # Domibus upgrade information
+## Domibus 5.1.9 (from 5.1.8)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Remove these properties from the properties file(s): domibus.ongoingMessagesSanitizing.worker.delay.hours and domibus.ongoingMessagesSanitizing.worker.cron
+                - Rename properties: 
+                        domibus.ongoingMessagesSanitizing.alert.email.body to domibus.ongoingMessagesSanitizing.alert.mail.body
+                        domibus.ongoingMessagesSanitizing.alert.email.subject to domibus.ongoingMessagesSanitizing.alert.mail.subject
+                - Run the appropriate DB upgrade script (mysql-5.1.8-to-5.1.9-upgrade.ddl for MySQL or oracle-5.1.8-to-5.1.9-upgrade.ddl for Oracle)
+## Domibus 5.1.8 (from 5.1.7)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Run the appropriate DB upgrade script (mysql-5.1.4-to-5.1.8-upgrade.ddl for MySQL or oracle-5.1.4-to-5.1.8-upgrade.ddl for Oracle)
+## Domibus 5.1.7 (from 5.1.6)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Add the following lines in conf/domibus/logback.xml after the "org.apache.cxf" logger 
+                     <!--  Fix for known issue in CXF library -->
+                     <logger name="org.apache.cxf.io.DelayedCachedOutputStreamCleaner" level="ERROR">
+                                 <appender-ref ref="file"/>
+                     </logger>
+                - No sql updates on the database schemas for both mysql and oracle
 ## Domibus 5.1.6 (from 5.1.5)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) 
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"

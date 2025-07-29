@@ -45,12 +45,23 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
 
         try {
             final List<Long> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
-
-            LOG.trace("There are [{}] retry messages", messagesNotAlreadyQueued.size());
-
-            for (final Long messageEntityId : messagesNotAlreadyQueued) {
-                retryService.enqueueMessage(messageEntityId);
+            final int count = messagesNotAlreadyQueued.size();
+            if (count == 0) {
+                LOG.debug("No messages to retry found.");
+                return;
             }
+
+            LOG.info("Found [{}] messages to retry", count);
+
+            int enqueuedCount = 0;
+            for (final Long messageEntityId : messagesNotAlreadyQueued) {
+                boolean messageEnqueued = retryService.enqueueMessage(messageEntityId);
+                if (messageEnqueued) {
+                    enqueuedCount++;
+                }
+            }
+
+            LOG.info("[{}]/[{}] messages to retry were enqueued", enqueuedCount, count);
         } catch (Exception e) {
             LOG.error("Error while enqueueing messages.", e);
         }

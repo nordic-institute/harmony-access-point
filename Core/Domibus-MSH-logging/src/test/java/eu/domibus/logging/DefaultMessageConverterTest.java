@@ -3,6 +3,7 @@ package eu.domibus.logging;
 import eu.domibus.logging.api.MessageCode;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,11 +13,14 @@ import static org.junit.Assert.assertEquals;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
 public class DefaultMessageConverterTest {
 
-    @Tested
-    DefaultMessageConverter defaultMessageConverter;
+    private DefaultMessageConverter defaultMessageConverter;
+
+    @Before
+    public void setUp() throws Exception {
+        defaultMessageConverter = new DefaultMessageConverter();
+    }
 
     @Test
     public void testGetMessageWithMarker() throws Exception {

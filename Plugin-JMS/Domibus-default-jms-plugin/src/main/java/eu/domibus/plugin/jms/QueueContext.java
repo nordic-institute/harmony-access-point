@@ -16,10 +16,13 @@ public class QueueContext {
 
     protected String action;
 
-    public QueueContext(String messageId, String service, String action) {
+    protected String jmsCorrelationId;
+
+    public QueueContext(String messageId, String service, String action, String jmsCorrelationId) {
         this.messageId = messageId;
         this.service = service;
         this.action = action;
+        this.jmsCorrelationId = jmsCorrelationId;
     }
 
     public String getMessageId() {
@@ -46,11 +49,20 @@ public class QueueContext {
         this.action = action;
     }
 
+    public String getJmsCorrelationId() {
+        return jmsCorrelationId;
+    }
+
+    public void setJmsCorrelationId(String jmsCorrelationId) {
+        this.jmsCorrelationId= jmsCorrelationId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("service", service)
                 .append("action", action)
+                .append("jmsCorrelationId", jmsCorrelationId)
                 .toString();
     }
 }

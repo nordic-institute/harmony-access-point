@@ -43,7 +43,7 @@ public class PullReceiptSender {
         try {
             acknowledgementResult = mshDispatcher.dispatch(soapMessage, endpoint, policy, legConfiguration, pModeKey);
             LOG.trace("[sendReceipt] Message:[{}] receipt result", messsageId);
-            handleDispatchReceiptResult(acknowledgementResult);
+            handleDispatchReceiptResult(messsageId, acknowledgementResult);
         } catch (EbMS3Exception e) {
             LOG.error("Error dispatching the pull receipt for message:[{}]", messsageId, e);
             throw e;
@@ -52,20 +52,21 @@ public class PullReceiptSender {
         }
     }
 
-    protected void handleDispatchReceiptResult(SOAPMessage acknowledgementResult) throws EbMS3Exception {
+    protected void handleDispatchReceiptResult(String messsageId, SOAPMessage acknowledgementResult) throws EbMS3Exception {
         if (acknowledgementResult == null) {
-            LOG.debug("acknowledgementResult is null, as expected. No errors were reported");
+            // acknowledgementResult is null, as expected
+            LOG.debug("Pull receipt acknowledged for message [{}]. No errors were reported", messsageId);
             return;
         }
         Ebms3Messaging errorMessage = messageUtil.getMessage(acknowledgementResult);
         if (errorMessage == null || errorMessage.getSignalMessage() == null) {
-            LOG.debug("acknowledgementResult is not null, but it does not contain a SignalMessage with the reported errors. ");
+            LOG.debug("Pull receipt for message [{}] acknowledged with a non-null acknowledgementResult, but it does not contain a SignalMessage with the reported errors. ", messsageId);
             return;
         }
         Set<Ebms3Error> ebms3Errors = errorMessage.getSignalMessage().getError();
         if (ebms3Errors != null && !ebms3Errors.isEmpty()) {
             Ebms3Error ebms3Error = ebms3Errors.iterator().next();
-            LOG.error("An error occured when sending receipt:error code:[{}], description:[{}]:[{}]", ebms3Error.getErrorCode(), ebms3Error.getShortDescription(), ebms3Error.getErrorDetail());
+            LOG.error("An error occurred when sending receipt for message id[{}]: error code:[{}], description:[{}]:[{}]", messsageId, ebms3Error.getErrorCode(), ebms3Error.getShortDescription(), ebms3Error.getErrorDetail());
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()))
                     .message(ebms3Error.getErrorDetail())

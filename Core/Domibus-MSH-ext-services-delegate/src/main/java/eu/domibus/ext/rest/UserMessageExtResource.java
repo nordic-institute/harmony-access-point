@@ -8,6 +8,7 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +60,11 @@ public class UserMessageExtResource {
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
                                          @RequestParam(value = "mshRole", required = false) MSHRole mshRole) throws MessageNotFoundException {
         LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, mshRole);
-        return userMessageExtService.getMessage(messageId, mshRole);
+        UserMessageDTO message = userMessageExtService.getMessage(messageId, mshRole);
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, message.getMessageInfo().getMessageId());
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+        return message;
     }
 
     @Operation(summary = "Get user message envelope", description = "Retrieve the user message envelope with the specified message id",

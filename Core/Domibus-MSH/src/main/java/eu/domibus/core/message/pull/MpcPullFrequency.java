@@ -27,6 +27,10 @@ public class MpcPullFrequency {
 
     private AtomicLong executionTime = new AtomicLong(0);
 
+    public AtomicBoolean getFullCapacity() {
+        return fullCapacity;
+    }
+
     private AtomicBoolean fullCapacity = new AtomicBoolean(Boolean.FALSE);
 
     private AtomicBoolean lowCapacity = new AtomicBoolean(Boolean.FALSE);

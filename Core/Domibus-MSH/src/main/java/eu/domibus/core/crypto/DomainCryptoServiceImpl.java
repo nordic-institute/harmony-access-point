@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -125,11 +125,19 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public void verifyTrust(PublicKey publicKey) throws WSSecurityException {
+        if (!isTrustValidationEnabled()) {
+            LOG.debug("Trust verification is disabled, publicKey will not be validated at this stage");
+            return;
+        }
         iamProvider.verifyTrust(publicKey);
     }
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
+        if (!isTrustValidationEnabled()) {
+            LOG.debug("Trust verification is disabled, certificates will not be validated at this stage");
+            return;
+        }
         try {
             iamProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
         } catch (AuthenticationException e) {
@@ -327,6 +335,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
+    }
+
+    protected Boolean isTrustValidationEnabled() {
+        return domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_EXTENSION_IAM_TRUST_ENABLED);
     }
 
     protected String getSpiIdentifier() {

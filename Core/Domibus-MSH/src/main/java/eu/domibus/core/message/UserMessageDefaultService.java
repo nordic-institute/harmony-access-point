@@ -43,6 +43,7 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -240,10 +241,10 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public void sendEnqueuedMessage(String messageId) {
+    public void sendEnqueuedMessage(String messageId, Long messageEntityId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = messageEntityId == null ? userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING) : userMessageLogDao.findByEntityId(messageEntityId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
@@ -262,7 +263,7 @@ public class UserMessageDefaultService implements UserMessageService {
             ZonedDateTime nextAttempt = ZonedDateTime.ofInstant(userMessageLog.getNextAttempt().toInstant(), ZoneOffset.UTC);
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
             if (nextAttempt.isAfter(now)) {
-                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+                throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled at [" + nextAttempt + "]");
             }
         }
 
@@ -429,22 +430,16 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey) {
-        final JmsMessage jmsMessage = JMSMessageBuilder
-                .create()
-                .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
-                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
-                .build();
-        LOG.debug("Sending message to sendPullReceiptQueue");
-        jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
+    public void scheduleSendingPullReceipt(final String messageId, final Long messageEntityId, final String pmodeKey) {
+        scheduleSendingPullReceipt(messageId, messageEntityId, pmodeKey, 0);
     }
 
     @Override
-    public void scheduleSendingPullReceipt(final String messageId, final String pmodeKey, final int retryCount) {
+    public void scheduleSendingPullReceipt(final String messageId, final Long messageEntityId, final String pmodeKey, final int retryCount) {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ENTITY_ID, messageEntityId == null ? null : messageEntityId.toString())
                 .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
@@ -645,10 +640,15 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private void notifyMessageDeletedAndClearPayload(UserMessageLog userMessageLog, UserMessage userMessage) {
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
         partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
+
+        clearMDCForMessage();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -656,12 +656,26 @@ public class UserMessageDefaultService implements UserMessageService {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);
 
-        List<Long> ids = userMessageLogs
-                .stream()
+        try {
+            userMessageLogs.forEach(userMessageLogDto -> {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessageLogDto.getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessageLogDto.getEntityId()));
+
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(userMessageLogDto.getEntityId());
+                backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
+            });
+        } catch (RuntimeException e) {
+            LOG.warn("Error occurred while notifying message status change.", e);
+            throw e;
+        } finally {
+            clearMDCForMessage();
+        }
+
+        List<Long> entityIds = userMessageLogs.stream()
                 .map(UserMessageLogDto::getEntityId)
                 .collect(Collectors.toList());
-
-        deleteMessagesWithIDs(ids);
+        deleteMessagesWithIDs(entityIds);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
@@ -777,21 +791,37 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public void clearPayloadData(List<Long> entityIds) {
-        if (CollectionUtils.isEmpty(entityIds)) {
+    public void clearPayloadData(List<UserMessageLogDto> messageInfoList) {
+        if (CollectionUtils.isEmpty(messageInfoList)) {
             return;
         }
         try {
-            entityIds.forEach(partInfoService::clearPayloadData);
-            entityIds.forEach(eid -> {
-                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(eid);
+            messageInfoList.forEach(messageInfo -> {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageInfo.getEntityId()));
+
+                partInfoService.clearPayloadData(messageInfo.getEntityId());
+                UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(messageInfo.getEntityId());
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
+                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", MessageStatus.DELETED);
             });
+            clearMDCForMessage();
+
+            List<Long> entityIds = messageInfoList.stream()
+                    .map(UserMessageLogDto::getEntityId)
+                    .collect(Collectors.toList());
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
         } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);
             throw e;
+        } finally {
+            clearMDCForMessage();
         }
+    }
+
+    private void clearMDCForMessage() {
+        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
     }
 
     @Override
@@ -889,7 +919,7 @@ public class UserMessageDefaultService implements UserMessageService {
             return messagePayloadNameWithExtension;
         }
 
-        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isNotEmpty(info.getPartProperties())) {
             for (PartProperty property : info.getPartProperties()) {
                 if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
                     LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
@@ -903,7 +933,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected String getPayloadExtension(PartInfo info) {
         String extension = "";
-        if(CollectionUtils.isNotEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isNotEmpty(info.getPartProperties())) {
             extension = info.getPartProperties().stream()
                     .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
                     .map(PartProperty::getValue)
@@ -919,7 +949,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     private boolean isCompressedFile(PartInfo info) {
-        if(CollectionUtils.isEmpty(info.getPartProperties())) {
+        if (CollectionUtils.isEmpty(info.getPartProperties())) {
             LOG.debug("No PartProperties: default -> no compression");
             return false;
         }

@@ -1,8 +1,6 @@
 package eu.domibus.core.ebms3.sender.retry;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -12,9 +10,12 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,9 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MAX_MESSAGE_COUNT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_RECEIPT_TIMEOUT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
 
@@ -70,14 +74,16 @@ public class RetryDefaultService implements RetryService {
      * Tries to enqueue a message to be retried.
      *
      * @param messageEntityId The id_pk to be enqueued for retrial
+     * @return true if the message was successfully enqueued, false otherwise
      */
     @Override
     @Transactional
-    public void enqueueMessage(long messageEntityId) {
+    public boolean enqueueMessage(long messageEntityId) {
         try {
-            doEnqueueMessage(messageEntityId);
+            return doEnqueueMessage(messageEntityId);
         } catch (RuntimeException e) {
             LOG.warn("Could not enqueue message with entityId [{}]", messageEntityId, e);
+            return false;
         }
     }
 
@@ -86,38 +92,49 @@ public class RetryDefaultService implements RetryService {
      *
      * @param messageEntityId The message entity id to be enqueued for retrial
      */
-    protected void doEnqueueMessage(long messageEntityId) {
+    protected boolean doEnqueueMessage(long messageEntityId) {
         LOG.trace("Enqueueing message for retrial with entityId [{}]", messageEntityId);
 
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage.isSourceMessage()) {
             LOG.debug("Source message [{}] not scheduled for retry.", userMessage.getMessageId());
-            return;
+            return false;
         }
         LOG.trace("Enqueueing message for retrial [{}]", userMessage.getMessageId());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(messageEntityId);
+        if (userMessageLog.getMessageStatus() != MessageStatus.WAITING_FOR_RETRY && userMessageLog.getMessageStatus() != MessageStatus.SEND_ENQUEUED) {
+            LOG.debug("Message [{}] not scheduled for retry, current status is [{}]", userMessage.getMessageId(), userMessageLog.getMessageStatus());
+            return false;
+        }
+        if (BooleanUtils.isTrue(userMessageLog.getScheduled())) {
+            LOG.warn("Message [{}] with entity id [{}] is already scheduled, it will not be enqueued again.", userMessage.getMessageId(), messageEntityId);
+            return false;
+        }
 
         final LegConfiguration legConfiguration = updateRetryLoggingService.getLegConfiguration(userMessage);
 
-        boolean invalidConfig = updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+        boolean invalidConfig = updateRetryLoggingService.failIfInvalidConfig(userMessage, userMessageLog, legConfiguration);
         if (invalidConfig) {
             LOG.warn("Message was not enqueued: invalid LegConfiguration for message [{}]", userMessage.getMessageId());
-            return;
+            return false;
         }
 
-        boolean setAsExpired = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
+        boolean setAsExpired = updateRetryLoggingService.failIfExpired(userMessage, userMessageLog, legConfiguration);
         if (setAsExpired) {
             LOG.debug("Message [{}] was marked as expired", userMessage.getMessageId());
-            return;
+            return false;
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(messageEntityId);
         userMessageService.scheduleSending(userMessage, userMessageLog);
+        return true;
     }
 
     @Override
+    @Timer(clazz = RetryDefaultService.class, value = "push_messages_retry")
+    @Counter(clazz = RetryDefaultService.class, value = "push_messages_retry")
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
-        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
         int retryTimeoutDelay = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MSH_RETRY_TIMEOUT_DELAY);
         LOG.trace("maxRetryTimeout [{}], retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
 
@@ -127,13 +144,17 @@ public class RetryDefaultService implements RetryService {
         long minEntityId = dateUtil.getMinEntityId(MINUTES.toSeconds(timeOutMin));
         long maxEntityId = dateUtil.getMaxEntityId(0);
 
-        LOG.trace("minEntityId [{}], maxEntityId [{}]", minEntityId, maxEntityId);
-        final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId);
+        int maxMessageCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MSH_RETRY_MAX_MESSAGE_COUNT);
+        LOG.trace("minEntityId [{}], maxEntityId [{}], maxMessageCount [{}]", minEntityId, maxEntityId, maxMessageCount);
+        final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId, maxMessageCount);
         if (messageEntityIdsToSend.isEmpty()) {
-            LOG.trace("No message found to be resend");
+            LOG.trace("No message found to be retried between [{}] and [{}]", minEntityId, maxEntityId);
             return result;
         }
-        LOG.trace("Found messages to be send [{}]", messageEntityIdsToSend);
+        LOG.trace("Found messages to be retried [{}]", messageEntityIdsToSend);
+        if (messageEntityIdsToSend.size() > 100) {
+            LOG.info("Found [{}] messages to retry between [{}] and [{}] for a max retry timeout of [{}] min and a delay of [{}] min", messageEntityIdsToSend.size(), minEntityId, maxEntityId, maxRetryTimeout, retryTimeoutDelay);
+        }
 
         // START - This part should NOT be propagated to 5.2 (TSID is making the filter works correctly)
         for (Long entityId : messageEntityIdsToSend) {
@@ -157,8 +178,17 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_reset")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_reset")
     public void resetWaitingForReceiptPullMessages() {
-        final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt();
+        final int receiptTimeoutInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PULL_RECEIPT_TIMEOUT);
+        final Date olderThan = dateUtil.getDateMinutesAgo(receiptTimeoutInMinutes);
+        final List<MessagingLock> messagesToReset = messagingLockDao.findWaitingForReceipt(olderThan);
+        if (messagesToReset.isEmpty()) {
+            LOG.trace("No messages to reset in waiting for receipt state (older than [{}] minutes)", receiptTimeoutInMinutes);
+            return;
+        }
+        LOG.info("Resetting [{}] messages in waiting for receipt state (older than [{}] minutes)", messagesToReset.size(), receiptTimeoutInMinutes);
         for (MessagingLock messagingLock : messagesToReset) {
             pullMessageService.resetMessageInWaitingForReceiptState(messagingLock.getMessageId());
         }
@@ -170,6 +200,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_expire")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_expire")
     public void bulkExpirePullMessages() {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
@@ -183,6 +215,8 @@ public class RetryDefaultService implements RetryService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetryDefaultService.class, value = "pull_messages_delete")
+    @Counter(clazz = RetryDefaultService.class, value = "pull_messages_delete")
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
         LOG.trace("Delete unnecessary locks");

@@ -16,6 +16,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.test.common.PKIUtil;
@@ -109,6 +110,9 @@ public class CertificateServiceImplTest {
 
     @Injectable
     SecurityUtilImpl securityUtil;
+
+    @Injectable
+    FieldBlacklistValidator fieldBlacklistValidator;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

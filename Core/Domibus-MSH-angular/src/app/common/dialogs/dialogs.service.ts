@@ -25,6 +25,7 @@ export class DialogsService {
   public openResendAllDialog(): Promise<boolean> {
     return this.openYesNoDialogDialog({
       data: {
+        message: 'Messages that match the filter applied on this page will be resent. Additionally, any new failed messages generated since you opened this page will also be resent.',
         title: 'Do you want to resend all the failed messages?\n Click on "Resend All" to proceed or "Cancel" to abort.',
         yesText: 'Resend All',
         yesIcon: 'send',
