@@ -1,48 +1,78 @@
 package eu.domibus.logging;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.OutputStreamAppender;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.logstash.logback.encoder.LogstashEncoder;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.junit.Assert.*;
 
 public class LogstashEncoderTest {
 
+    private Logger testLogger;
+    private ByteArrayOutputStream outputStream;
+    private OutputStreamAppender<ILoggingEvent> appender;
+    private LogstashEncoder encoder;
+
+    @Before
+    public void setUp() {
+        testLogger = (Logger) LoggerFactory.getLogger("test-logger");
+        testLogger.setLevel(Level.INFO);
+
+        encoder = new LogstashEncoder();
+        encoder.setContext(testLogger.getLoggerContext());
+        encoder.start();
+
+        outputStream = new ByteArrayOutputStream();
+        appender = new OutputStreamAppender<>();
+        appender.setContext(testLogger.getLoggerContext());
+        appender.setEncoder(encoder);
+        appender.setOutputStream(outputStream);
+        appender.start();
+
+        testLogger.addAppender(appender);
+
+        MDC.put("d_user", "user123");
+        MDC.put("d_domain", "domainA");
+    }
+
+    @After
+    public void tearDown() {
+        testLogger.detachAppender(appender);
+        appender.stop();
+        encoder.stop();
+        MDC.clear();
+    }
+
     @Test
-    public void testLogstashEncoder() throws IOException {
-        Logger logger = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
+    public void testLoggingEventCompositeJsonEncoder() throws IOException {
+        String message = "Test log message";
+        testLogger.info(message);
 
-        LogstashEncoder logstashEncoder = new LogstashEncoder();
-        logstashEncoder.setContext(logger.getLoggerContext());
-        logstashEncoder.start();
+        String json = outputStream.toString().trim();
+        assertFalse(json.isEmpty());
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        OutputStreamAppender<ILoggingEvent> outputStreamAppender = new OutputStreamAppender<>();
-        outputStreamAppender.setContext(logger.getLoggerContext());
-        outputStreamAppender.setEncoder(logstashEncoder);
-        outputStreamAppender.setOutputStream(outputStream);
-        outputStreamAppender.start();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> logged = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
 
-        logger.addAppender(outputStreamAppender);
-
-        String testMessage = "Test log message";
-        logger.info(testMessage);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> loggedMessage = objectMapper.readValue(outputStream.toString(), new TypeReference<Map<String, Object>>() {});
-        assertNotNull(loggedMessage.get("@timestamp"));
-        assertEquals(testMessage, loggedMessage.get("message"));
-        assertEquals("INFO", loggedMessage.get("level"));
+        assertNotNull(logged.get("@timestamp"));
+        assertEquals(message, logged.get("message"));
+        assertEquals("INFO", logged.get("level"));
+        assertEquals("test-logger", logged.get("logger_name"));
+        assertEquals("user123", logged.get("d_user"));
+        assertEquals("domainA", logged.get("d_domain"));
     }
 }
