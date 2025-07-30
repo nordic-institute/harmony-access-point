@@ -46,6 +46,10 @@ public class DomainPullFrequencyHelper {
         }
     }
 
+    public MpcPullFrequency getMpcPullFrequency(String mpcName) {
+        return mpcPullFrequencyMap.get(mpcName);
+    }
+
     private synchronized void addMpcName(String mpcName) {
         final Integer requestPerJobCyclePerMpc = getNumberOfPullRequestsPerMpc(mpcName);
         final Integer recoveringTimeInSeconds = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME));

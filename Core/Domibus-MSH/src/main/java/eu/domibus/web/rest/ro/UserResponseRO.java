@@ -21,7 +21,7 @@ public class UserResponseRO {
     // order of the fields is important for CSV generation
 
     @Size(min = 4, max = 255)
-    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
+    @Pattern(regexp = "^[a-zA-Z0-9\\.:@_-]*$")
     private String userName;
 
     private String roles = StringUtils.EMPTY;

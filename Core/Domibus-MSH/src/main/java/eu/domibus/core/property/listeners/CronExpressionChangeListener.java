@@ -50,7 +50,6 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, "temporaryPayloadRetentionJob"},
             {DOMIBUS_MSH_RETRY_CRON, "retryWorkerJob"},
             {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
-            {DOMIBUS_ONGOING_MESSAGES_SANITIZING_WORKER_CRON, "ongoingMessagesSanitizingWorkerJob"},
             {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
@@ -62,6 +61,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_EARCHIVE_RETENTION_CRON, EARCHIVE_CLEANUP_JOB},
             {DOMIBUS_MESSAGES_STUCK_CRON, "stuckMessagesJob"},
             {DOMIBUS_EARCHIVE_STUCK_CRON, "eArchivingStuckJob"},
+            {DOMIBUS_DIAGNOSTICS_CRON, "diagnosticsJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override

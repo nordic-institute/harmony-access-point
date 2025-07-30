@@ -30,6 +30,10 @@ public class PullFrequencyHelper {
         getDomainPullFrequencyHelper().setMpcNames(mpcNames);
     }
 
+    public MpcPullFrequency getMpcPullFrequency(String mpcName) {
+        return getDomainPullFrequencyHelper().getMpcPullFrequency(mpcName);
+    }
+
     public int getTotalPullRequestNumberPerJobCycle() {
         return getDomainPullFrequencyHelper().getTotalPullRequestNumberPerJobCycle();
     }

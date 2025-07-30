@@ -22,7 +22,8 @@ import java.util.Date;
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
-                        "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
+                        "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false) " +
+                        "order by userMessageLog.entityId asc"), // ensure consistent ordering when retrying messages (prioritize older messages)
         @NamedQuery(name = "UserMessageLog.getMessageStatusById", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.getMessageStatusByIdAndRole", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID " +
                 "and userMessageLog.mshRole = :MSH_ROLE"),
@@ -194,13 +195,24 @@ import java.util.Date;
                         "   uml.messageStatus = :DELETED_STATUS                    " +
                         "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
         @NamedQuery(name = "UserMessageLog.findUnsentAndWaitingForRetryMessages",
-                query = "select um.messageId " +
+                query = "select new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, uml.backend) " +
                         "FROM UserMessageLog uml " +
                         "INNER JOIN uml.userMessage um " +
                         "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
-                        "and (uml.messageStatus = :SEND_ENQUEUED " +
-                        "       or uml.messageStatus = :WAITING_FOR_RETRY)" +
-                        "               and uml.entityId < :MAX_ENTITY_ID "),
+                        "and (uml.restored is null or uml.restored <= :MINUTES_AGO_TIMESTAMP) " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED or uml.messageStatus = :WAITING_FOR_RETRY) " +
+                        "and uml.entityId < :MAX_ENTITY_ID " +
+                        "and uml.acknowledged is null " + // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
+                        "order by uml.entityId asc"), // ensure consistent ordering when retrying messages (prioritize older messages)
+        @NamedQuery(name = "UserMessageLog.countUnsentAndWaitingForRetryMessages",
+                query = "select count(um.messageId) " +
+                        "FROM UserMessageLog uml " +
+                        "INNER JOIN uml.userMessage um " +
+                        "where uml.received <= :MINUTES_AGO_TIMESTAMP " +
+                        "and (uml.restored is null or uml.restored <= :MINUTES_AGO_TIMESTAMP) " +
+                        "and (uml.messageStatus = :SEND_ENQUEUED or uml.messageStatus = :WAITING_FOR_RETRY) " +
+                        "and uml.entityId < :MAX_ENTITY_ID " +
+                        "and uml.acknowledged is null"), // this is only a preventive measure, as WFR and SEND_ENQUEUED messages should not normally have the 'acknowledged' timestamp set
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 
@@ -453,4 +465,13 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     public void setUserMessage(UserMessage userMessage) {
         this.userMessage = userMessage;
     }
+
+    public ProcessingType getProcessingType() {
+        return processingType;
+    }
+
+    public void setProcessingType(ProcessingType processingType) {
+        this.processingType = processingType;
+    }
+
 }

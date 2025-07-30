@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -203,5 +204,20 @@ public class OpenApiConfig {
     @Bean
     public TrustedListExtService beanTrustedListExtService() {
         return Mockito.mock(TrustedListExtService.class);
+    }
+
+    @Bean
+    public eu.domibus.api.diagnostics.DiagnosticsService diagnosticsService() {
+        return Mockito.mock(eu.domibus.api.diagnostics.DiagnosticsService.class);
+    }
+
+    @Bean
+    public eu.domibus.api.property.DomibusConfigurationService domibusConfigurationService() {
+        return Mockito.mock(eu.domibus.api.property.DomibusConfigurationService.class);
+    }
+
+    @Bean("domibusExtMapper")
+    public DomibusExtMapper domibusExtMapper() {
+        return Mockito.mock(DomibusExtMapper.class);
     }
 }

@@ -13,7 +13,6 @@ import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
 import eu.domibus.core.ebms3.receiver.interceptor.MessageResponseSentBackendNotifierInterceptor;
 import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
-import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingFeature;
@@ -56,7 +55,6 @@ public class MSHWebserviceConfiguration {
                         HttpHeaderInInterceptor httpHeaderInInterceptor,
                         ClearMDCInterceptor clearMDCInterceptor,
                         SetPolicyOutInterceptorServer setPolicyOutInterceptorServer,
-                        SaveRawPulledMessageInterceptor saveRawPulledMessageInterceptor,
                         SaveRawEnvelopeInterceptor saveRawEnvelopeInterceptor,
                         HttpHeaderOutInterceptor httpHeaderOutInterceptor,
                         @Qualifier("domibusSetCodeValueFaultOutInterceptor") SetCodeValueFaultOutInterceptor setCodeValueFaultOutInterceptor,
@@ -66,7 +64,7 @@ public class MSHWebserviceConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
         endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor,
+        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer,
                 httpHeaderOutInterceptor, saveRawEnvelopeInterceptor, messageResponseSentBackendNotifierInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
         endpoint.setFeatures(Arrays.asList(loggingFeature));

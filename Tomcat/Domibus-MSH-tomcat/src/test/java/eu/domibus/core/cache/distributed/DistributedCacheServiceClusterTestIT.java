@@ -7,6 +7,7 @@ import eu.domibus.api.cache.DomibusCacheException;
 import eu.domibus.api.cache.distributed.DistributedCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +32,14 @@ public class DistributedCacheServiceClusterTestIT extends AbstractIT {
 
     @Before
     public void beforeTest() {
-        distributedCacheService.getDistributedCacheNames().stream().forEach(mapName -> hazelcastInstance.getMap(mapName).destroy());
+        distributedCacheService.getDistributedCacheNames().forEach(mapName ->
+        {
+            try {
+                hazelcastInstance.getMap(mapName).destroy();
+            } catch (Throwable throwable){
+                LOG.error("Could not destroy map:  [{}]", mapName, throwable);
+            }
+        });
     }
 
     @Test

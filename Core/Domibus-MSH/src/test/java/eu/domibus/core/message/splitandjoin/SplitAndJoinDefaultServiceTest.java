@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static eu.domibus.api.model.ProcessingType.PUSH;
 import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
 import static org.junit.Assert.*;
 
@@ -464,7 +465,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
             times = 0;
         }};
     }
@@ -484,7 +485,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
             times = 1;
         }};
     }
@@ -504,7 +505,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
 
         new Verifications() {{
-            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            updateRetryLoggingService.messageFailed(userMessage, messageLog, PUSH);
             times = 0;
 
         }};

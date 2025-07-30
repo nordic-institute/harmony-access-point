@@ -35,8 +35,9 @@ import javax.xml.ws.WebServiceException;
 import java.sql.Timestamp;
 import java.util.List;
 
-import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.ABORT;
-import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.WAITING_FOR_CALLBACK;
+import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.*;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_PULL_REQUEST_RECEIVED_FAILED;
+import static eu.domibus.logging.DomibusMessageCode.BUS_MESSAGE_PULL_REQUEST_RECEIVED_SUCCESS;
 
 /**
  * @author Thomas Dussart
@@ -78,20 +79,17 @@ public class PullRequestHandler {
 
     public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
-            LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.info("Message id [{}] for received pull request [{}] with pull context mpc [{}]", messageId, refToMessageId, pullContext.getMpcQualifiedName());
             return handleRequest(messageId, pullContext);
         } else {
+            LOG.trace("No message for received pull request [{}] with pull context mpc [{}]", refToMessageId, pullContext.getMpcQualifiedName());
             return notifyNoMessage(pullContext, refToMessageId);
         }
     }
 
     SOAPMessage notifyNoMessage(PullContext pullContext, String refToMessageId) {
-        LOG.trace("No message for received pull request with mpc " + pullContext.getMpcQualifiedName());
-        return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
-                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0006)
-                .message("There is no message available for\npulling from this MPC at this moment.")
-                .refToMessageId(refToMessageId)
-                .build());
+        return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance().ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0006).message("There is no message available for\npulling from this MPC at this moment.").refToMessageId(refToMessageId).build());
     }
 
     public SOAPMessage handleRequest(String messageId, PullContext pullContext) {
@@ -102,8 +100,14 @@ public class PullRequestHandler {
         final Timestamp startDate = new Timestamp(System.currentTimeMillis());
         SOAPMessage soapMessage = null;
         UserMessage userMessage = null;
+        Throwable throwable = null;
         try {
             userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+            LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFromParty());
+            LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+            LOG.putMDC(DomibusLogger.MDC_CONVERSATION_ID, userMessage.getConversationId());
+
             LOG.debug("Found mesage [{}] with SENDING role", userMessage);
             leg = pullContext.filterLegOnMpc();
             try {
@@ -127,39 +131,27 @@ public class PullRequestHandler {
                 final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
                 soapMessage = messageBuilder.buildSOAPMessage(userMessage, partInfoList, leg);
                 PhaseInterceptorChain.getCurrentMessage().getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.USER_MESSAGE);
-                if (pullRequestMatcher.matchReliableCallBack(leg.getReliability()) &&
-                        leg.getReliability().isNonRepudiation()) {
+                if (pullRequestMatcher.matchReliableCallBack(leg.getReliability()) && leg.getReliability().isNonRepudiation()) {
                     PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ID, messageId);
-                    PhaseInterceptorChain.getCurrentMessage().getExchange()
-                            .put(DispatchClientDefaultProvider.MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+                    PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
                 }
                 checkResult = WAITING_FOR_CALLBACK;
                 LOG.info("Sending message");
                 return soapMessage;
             } catch (DomibusCertificateException dcEx) {
                 LOG.error(dcEx.getMessage(), dcEx);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
-                        .message(dcEx.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(dcEx)
-                        .mshRole(MSHRole.SENDING)
-                        .build();
+                throw EbMS3ExceptionBuilder.getInstance().ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101).message(dcEx.getMessage()).refToMessageId(messageId).cause(dcEx).mshRole(MSHRole.SENDING).build();
             } catch (ConfigurationException e) {
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
-                        .message("Policy configuration invalid")
-                        .refToMessageId(messageId)
-                        .cause(e)
-                        .mshRole(MSHRole.SENDING)
-                        .build();
+                throw EbMS3ExceptionBuilder.getInstance().ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010).message("Policy configuration invalid").refToMessageId(messageId).cause(e).mshRole(MSHRole.SENDING).build();
             }
 
         } catch (ChainCertificateInvalidException e) {
+            throwable = e;
             checkResult = ABORT;
             LOG.debug("Skipped checking the reliability for message [{}]: message sending has been aborted", messageId);
-            LOG.error("Cannot handle pullrequest for message:[{}], Receivever:[{}] certificate is not valid or it has been revoked ", messageId, pullContext.getInitiator().getName(), e);
+            LOG.error("Cannot handle pullrequest for message:[{}], Receiver:[{}] certificate is not valid or it has been revoked ", messageId, pullContext.getInitiator().getName(), e);
         } catch (EbMS3Exception e) {
+            throwable = e;
             LOG.error("EbMS3 exception occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
@@ -170,6 +162,7 @@ public class PullRequestHandler {
                 throw new WebServiceException(e1);
             }
         } catch (Throwable e) { // NOSONAR: This was done on purpose.
+            throwable = e;
             LOG.error("Error occurred when handling pull request for message with ID [{}]", messageId, e);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
@@ -177,13 +170,19 @@ public class PullRequestHandler {
         } finally {
             LOG.debug("Before updatePullMessageAfterRequest message id[{}] checkResult[{}]", messageId, checkResult);
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, leg, checkResult);
+            if (checkResult != WAITING_FOR_CALLBACK) {
+                LOG.businessError(BUS_MESSAGE_PULL_REQUEST_RECEIVED_FAILED, throwable);
+            } else {
+                LOG.businessInfo(BUS_MESSAGE_PULL_REQUEST_RECEIVED_SUCCESS);
+            }
             if (checkResult != ABORT) {
                 try {
                     final MessageAttempt attempt = MessageAttemptBuilder.create()
                             .setMessageId(messageId)
                             .setAttemptStatus(attemptStatus)
                             .setAttemptError(attemptError)
-                            .setStartDate(startDate).build();
+                            .setStartDate(startDate)
+                            .build();
                     attempt.setUserMessageEntityId(userMessage.getEntityId());
                     messageAttemptService.create(attempt);
                 } catch (Exception e) {

@@ -7,7 +7,6 @@ import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +44,6 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
                 LOG.trace("Using incomingMessagePullRequestHandler");
                 return incomingMessagePullRequestHandler;
             } else if (signalMessage.getReceipt() != null) {
-                final String contentsOfReceipt = signalMessage.getReceipt().getAny().get(0);
-                //ebms3Messaging.getOtherAttributes().size() is used to differentiate between pull mode with no security policy and split and join
-                if (ebms3Messaging.getUserMessage() == null &&
-                        (ebms3Messaging.getOtherAttributes().size() == 0 || !StringUtils.contains(contentsOfReceipt, "UserMessage"))) {
-                    LOG.trace("Using incomingMessagePullReceiptHandler");
-                    return incomingMessagePullReceiptHandler;
-                }
                 LOG.trace("Using incomingUserMessageReceiptHandler");
                 return incomingUserMessageReceiptHandler;
             } else if (CollectionUtils.isNotEmpty(signalMessage.getError())) {

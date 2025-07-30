@@ -47,11 +47,13 @@ import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.PersistenceException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -197,7 +199,13 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, false, testMessage, signalMessageResult);
             return responseMessage;
         } catch (DataIntegrityViolationException e) {
-            LOG.warn("Message is a duplicate", e);
+            LOG.warn("Incoming user message is a duplicate", e);
+        } catch (PersistenceException e) {
+            if (e.getCause() instanceof ConstraintViolationException) {
+                LOG.warn("Incoming user message is a duplicate", e);
+            } else {
+                throw e;
+            }
         }
 
         userMessageContextKeyProvider.setKeyOnTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY, "true");
@@ -435,7 +443,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         UserMessageRaw userMessageRaw = null;
         try {
-            userMessageRaw = nonRepudiationService.createUserMessageRaw(request);
+            userMessageRaw = nonRepudiationService.createReceivedUserMessageRaw(request);
         } catch (TransformerException e) {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)

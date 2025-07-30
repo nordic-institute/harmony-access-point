@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -10,6 +9,7 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +44,9 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected final EventService eventService;
 
-    private final AlertConfigurationService alertConfigurationService;
-
     public UserMessageLogDefaultService(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
                                         BackendNotificationService backendNotificationService, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao,
-                                        NotificationStatusDao notificationStatusDao, EventService eventService,
-                                        AlertConfigurationService alertConfigurationService) {
+                                        NotificationStatusDao notificationStatusDao, EventService eventService) {
         this.userMessageLogDao = userMessageLogDao;
         this.signalMessageLogDao = signalMessageLogDao;
         this.backendNotificationService = backendNotificationService;
@@ -57,7 +54,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         this.mshRoleDao = mshRoleDao;
         this.notificationStatusDao = notificationStatusDao;
         this.eventService = eventService;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     public UserMessageLog findById(Long entityId) {
@@ -69,6 +65,10 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         userMessageLog.setUserMessage(userMessage);
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
         userMessageLog.setMessageStatus(messageStatusEntity);
+
+        if (messageStatusEntity.getMessageStatus() == MessageStatus.READY_TO_PULL) {
+            userMessageLog.setProcessingType(ProcessingType.PULL);
+        }
 
         final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
         userMessageLog.setMshRole(mshRoleEntity);
@@ -89,16 +89,17 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
         userMessageLog.setUserMessage(userMessage);
 
-        if (!userMessage.isTestMessage()) {
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
-        }
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
+
         userMessageLogDao.create(userMessageLog);
         LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_INITIAL, "USER_MESSAGE", messageStatus);
 
         return userMessageLog;
     }
 
-    protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
+    public void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         LOG.debug("Updating message status to [{}]", newStatus);
 
         if (!userMessage.isTestMessage()) {
@@ -186,5 +187,13 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToExported(List<Long> entityIds) {
         userMessageLogDao.updateExported(entityIds);
+    }
+
+    public void update(UserMessageLog userMessageLog) {
+        userMessageLogDao.update(userMessageLog);
+    }
+
+    public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
+        return userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
     }
 }

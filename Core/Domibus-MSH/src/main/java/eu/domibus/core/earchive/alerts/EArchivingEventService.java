@@ -23,13 +23,25 @@ public class EArchivingEventService {
 
     private final EventService eventService;
 
-    public EArchivingEventService(EventService eventService) {
+    private final AlertConfigurationService alertConfigurationService;
+
+    public EArchivingEventService(EventService eventService, AlertConfigurationService alertConfigurationService) {
         this.eventService = eventService;
+        this.alertConfigurationService = alertConfigurationService;
     }
 
     public void sendEventMessageNotFinal(String messageId, MessageStatus messageStatus) {
         eventService.enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL, messageId, new EventProperties(messageId, messageStatus.name()));
         LOG.debug("Creating Alert for message [{}] status [{}]", messageId, messageStatus);
+    }
+
+    public boolean isEventMessageNotFinalActive() {
+        AlertModuleConfiguration alertConfiguration = alertConfigurationService.getConfiguration(AlertType.ARCHIVING_MESSAGES_NON_FINAL);
+        if (!alertConfiguration.isActive()) {
+            LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
+            return false;
+        }
+        return true;
     }
 
     public void sendEventStartDateStopped() {

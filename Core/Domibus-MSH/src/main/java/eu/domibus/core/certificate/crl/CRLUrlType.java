@@ -27,6 +27,13 @@ public enum CRLUrlType {
     }
 
     /**
+     * @return the lower case single word name of the protocol
+     */
+    public String getProtocolName() {
+        return name().toLowerCase();
+    }
+
+    /**
      * Returns true if the given {@code crlURL} starts with the prefix defined
      *
      * @param crlURL url to check

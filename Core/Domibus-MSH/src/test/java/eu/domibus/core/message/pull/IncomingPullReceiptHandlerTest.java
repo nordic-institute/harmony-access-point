@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -48,6 +49,9 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingPullReceiptHandlerTest {
 
+    @Tested
+    IncomingPullReceiptHandler incomingPullReceiptHandler;
+
     @Injectable
     BackendNotificationService backendNotificationService;
 
@@ -68,9 +72,6 @@ public class IncomingPullReceiptHandlerTest {
 
     @Injectable
     MessageFactory messageFactory;
-
-    @Injectable
-    UserMessageLogDao userMessageLogDao;
 
     @Injectable
     JAXBContext jaxbContext;
@@ -120,9 +121,6 @@ public class IncomingPullReceiptHandlerTest {
     @Injectable
     ReliabilityChecker reliabilityChecker;
 
-    @Tested
-    IncomingPullReceiptHandler incomingPullReceiptHandler;
-
     @Injectable
     ReliabilityMatcher pullReceiptMatcher;
 
@@ -150,6 +148,9 @@ public class IncomingPullReceiptHandlerTest {
     @Injectable
     PartInfoDao partInfoDao;
 
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Test
     public void testHandlePullRequestReceiptHappyFlow(@Mocked final SOAPMessage request,
                                                       @Mocked final UserMessage userMessage,
@@ -166,11 +167,8 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new NonStrictExpectations() {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
-
-            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
-            result = userMessageLog;
 
             pullMessageService.getLock(messageId);
             result = messagingLock;
@@ -197,10 +195,10 @@ public class IncomingPullReceiptHandlerTest {
             result = pullRequestResult;
         }};
 
-        incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
+        incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
 
         new Verifications() {{
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
@@ -225,11 +223,8 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
-
-            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
-            result = userMessageLog;
 
             pullMessageService.getLock(messageId);
             result = messagingLock;
@@ -246,7 +241,7 @@ public class IncomingPullReceiptHandlerTest {
             ;
         }};
 
-        incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
+        incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
 
         new Verifications() {{
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, null, request, userMessageLog, legConfiguration, userMessage);
@@ -271,11 +266,8 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
-
-            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
-            result = userMessageLog;
 
             messagingLock.getMessageState();
             result = MessageState.WAITING;
@@ -287,7 +279,7 @@ public class IncomingPullReceiptHandlerTest {
             result = soapMessage;
         }};
 
-        SOAPMessage response = incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
+        SOAPMessage response = incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId, userMessageLog);
         Assert.assertNotNull(response);
 
         new Verifications() {{

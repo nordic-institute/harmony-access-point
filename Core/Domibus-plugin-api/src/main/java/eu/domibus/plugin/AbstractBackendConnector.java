@@ -131,9 +131,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            validateMessageStatus(messageId, true);
+            MessageStatus currentStatus = validateMessageStatus(messageId, true);
             messageRetriever.markMessageAsDownloaded(messageId);
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED);
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, currentStatus, MessageStatus.DOWNLOADED);
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
@@ -163,7 +163,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
     }
 
-    private void validateMessageStatus(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
+    private MessageStatus validateMessageStatus(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         MessageStatus status = messageRetriever.getStatus(messageId, MSHRole.RECEIVING);
         if (MessageStatus.NOT_FOUND == status) {
             LOG.debug("Message with id [{}] was not found", messageId);
@@ -173,6 +173,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.debug("Message with id [{}] was already downloaded", messageId);
             throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
         }
+
+        return status; // return current status
     }
 
     @Override

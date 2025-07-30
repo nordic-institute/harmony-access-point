@@ -123,7 +123,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Default authorization of Pull Request requires one initiator per pull process");
         }
 
-        Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next();
+        Party initiator = pullContext.getProcess().getInitiatorParties().iterator().next(); // There is exactly one initiator at this point
         String initiatorName = initiator.getName();
         SecurityProfile securityProfile = null;
         Set<LegConfiguration> legConfigurations = pullContext.getProcess().getLegs();

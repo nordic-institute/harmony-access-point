@@ -5,11 +5,16 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.spi.payload.DeleteFolderResult;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,5 +100,23 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
     @Override
     public boolean isPayloadsPersistenceFileSystemConfigured() {
         return !isPayloadsPersistenceInDatabaseConfigured();
+    }
+
+    @Override
+    public DeleteFolderResult deleteFolder(String currentDomain, String folderLocation) {
+        DeleteFolderResult deleteFolderResult = new DeleteFolderResult();
+        deleteFolderResult.setTotal(1);//We delete one folder.
+
+        String absolutePayloadLocation = new File(getCurrentStorage().getStorageDirectory(), folderLocation).getAbsolutePath();
+        LOG.info("Delete folder [{}]", absolutePayloadLocation);
+        try {
+            FileUtils.deleteDirectory(new File(absolutePayloadLocation));
+            deleteFolderResult.setResult(DeleteFolderResult.Result.OK);
+        } catch (IOException e) {
+            LOG.error("Folder could not be deleted [{}]", absolutePayloadLocation, e);
+            deleteFolderResult.setResult(DeleteFolderResult.Result.ERROR);
+            deleteFolderResult.addFailed(Arrays.asList(String.format("Folder could not be deleted [%s] [%s] for domain [%s]", absolutePayloadLocation, e.getMessage(), currentDomain)));
+        }
+        return deleteFolderResult;
     }
 }

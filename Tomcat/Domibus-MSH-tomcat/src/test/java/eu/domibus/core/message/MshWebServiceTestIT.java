@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.test.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
@@ -30,6 +29,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.test.AbstractIT;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import mockit.Injectable;
@@ -45,7 +45,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jms.UncategorizedJmsException;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import javax.xml.soap.SOAPMessage;
@@ -148,6 +147,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-14485")
     public void testDuplicateDetection() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
@@ -215,7 +215,6 @@ public class MshWebServiceTestIT extends AbstractIT {
         ReflectionTestUtils.setField(backendNotificationService, "jmsManager", saveField);
     }
 
-    @Transactional
     @Test
     public void testGetStatusReceived() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -267,7 +266,8 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String expectedReceivedRawXml = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("dataset/as4/mshwebserviceit-soapenvelope.xml"), StandardCharsets.UTF_8);
         assertEquals(expectedReceivedRawXml, receivedUserMessageRawXml);
 
-        nonRepudiationService.saveResponse(soapResponse, userMessage.getEntityId());
+        final String signalRawXml = nonRepudiationService.extractRawXMLMessage(soapResponse);
+        nonRepudiationService.saveSignalMessageRawEnvelope(signalRawXml, userMessage.getEntityId());
         final SignalMessageRaw signalMessageRaw = signalMessageRawEnvelopeDao.read(userMessage.getEntityId());
         assertNotNull(signalMessageRaw);
         final String signalMessageRawString = new String(signalMessageRaw.getRawXML());

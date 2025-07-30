@@ -34,7 +34,7 @@ export class ConnectionsMonitorService {
     let parties = await this.http.get<any[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
 
     if (!parties || !parties.length) {
-      const error = 'Could not find testable parties. Self-party could not be an initiator of the test process.';
+      const error = 'Could not find testable parties. Please check the Pmode. Could it be that you are missing a leg configuration with AS4 test service and action?';
       this.alertService.error(error);
     }
 

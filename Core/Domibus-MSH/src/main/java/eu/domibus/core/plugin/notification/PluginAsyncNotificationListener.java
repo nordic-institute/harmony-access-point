@@ -52,7 +52,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
         this.objectMapper = objectMapper;
     }
 
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_CONVERSATION_ID}, cleanOnStart = true)
     @Timer(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     public void onMessage(final Message message) {
@@ -97,6 +97,10 @@ public class PluginAsyncNotificationListener implements MessageListener {
         } catch (Exception ex) { //NOSONAR To catch every exceptions thrown by all plugins.
             LOG.error("Error occurred during the plugin notification process of the message", ex);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error occurred during the plugin notification process of the message", ex.getCause());
+        } finally {
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ROLE);
         }
     }
 

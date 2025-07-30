@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -109,12 +110,12 @@ public class MessageUtilTest {
     }
 
     @Test
-    public void getMessagingWithDom_soapException() throws EbMS3Exception {
+    public void getMessagingWithDom_soapException() throws EbMS3Exception, SOAPException {
 
         try {
             messageUtil.getMessagingWithDom((Node) null);
             fail();
-        } catch (SOAPException e) {
+        } catch (MessagingNodeNotFoundException e) {
             // nothing to check
         }
     }

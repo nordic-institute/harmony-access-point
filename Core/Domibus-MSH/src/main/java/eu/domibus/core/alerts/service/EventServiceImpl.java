@@ -106,12 +106,12 @@ public class EventServiceImpl implements EventService {
         AlertType alertType = EventType.MSG_STATUS_CHANGED.geDefaultAlertType();
         MessagingModuleConfiguration configuration = (MessagingModuleConfiguration) alertConfigurationService.getConfiguration(alertType);
         if (!configuration.isActive()) {
-            LOG.info("Messaging alerts module is not enabled, no alert will be created.");
+            LOG.debug("Messaging alerts module is not enabled, no alert will be created.");
             return;
         }
 
         if (!configuration.shouldMonitorMessageStatus(newStatus)) {
-            LOG.info("[{}] status is not monitored, no alert will be created.", newStatus);
+            LOG.debug("[{}] status is not monitored, no alert will be created.", newStatus);
             return;
         }
 

@@ -5,7 +5,6 @@ import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.*;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.ReplyPattern;
@@ -13,15 +12,12 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
@@ -64,51 +60,39 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
 
-    protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
     protected final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
     private final SignalMessageDao signalMessageDao;
-    protected final MessageGroupDao messageGroupDao;
     private final UserMessageDao userMessageDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
     protected XMLUtil xmlUtil;
     protected Ebms3Converter ebms3Converter;
     protected MshRoleDao mshRoleDao;
-    protected MessageStatusDao messageStatusDao;
     protected ReceiptDao receiptDao;
 
-    public AS4ReceiptServiceImpl(UserMessageHandlerService userMessageHandlerService,
-                                 TimestampDateFormatter timestampDateFormatter,
-                                 UserMessageService userMessageService,
+    public AS4ReceiptServiceImpl(TimestampDateFormatter timestampDateFormatter,
                                  MessageIdGenerator messageIdGenerator,
                                  UserMessageRawEnvelopeDao rawEnvelopeLogDao,
                                  SignalMessageDao signalMessageDao,
-                                 MessageGroupDao messageGroupDao,
                                  UserMessageDao userMessageDao,
                                  MessageUtil messageUtil,
                                  SoapUtil soapUtil,
                                  XMLUtil xmlUtil,
                                  Ebms3Converter ebms3Converter,
                                  MshRoleDao mshRoleDao,
-                                 MessageStatusDao messageStatusDao,
                                  ReceiptDao receiptDao) {
-        this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
         this.signalMessageDao = signalMessageDao;
-        this.messageGroupDao = messageGroupDao;
         this.userMessageDao = userMessageDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
         this.xmlUtil = xmlUtil;
         this.ebms3Converter = ebms3Converter;
         this.mshRoleDao = mshRoleDao;
-        this.messageStatusDao = messageStatusDao;
         this.receiptDao = receiptDao;
     }
 

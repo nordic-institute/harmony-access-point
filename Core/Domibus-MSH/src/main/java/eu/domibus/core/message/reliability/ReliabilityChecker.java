@@ -107,10 +107,24 @@ public class ReliabilityChecker {
 
         if (matcher.matchReliableReceipt(reliability)) {
             LOG.debug("Checking reliability for outgoing message");
+            if(responseResult.getResponseMessaging() == null ||
+                    responseResult.getResponseMessaging().getSignalMessage() == null ||
+                    responseResult.getResponseMessaging().getSignalMessage().getReceipt() == null) {
+
+                LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_RECEIPT_INVALID_EMPTY, messageId);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0301)
+                        .message("Receipt is missing")
+                        .refToMessageId(messageId)
+                        .mshRole(MSHRole.SENDING)
+                        .signalMessageId(messageId)
+                        .build();
+            }
+
             final Ebms3Messaging ebms3Messaging = responseResult.getResponseMessaging();
             final Ebms3SignalMessage ebms3SignalMessage = ebms3Messaging.getSignalMessage();
 
-            //ReceiptionAwareness or NRR found but not expected? report if configuration=true //TODO: make configurable in domibus.properties
+            //ReceptionAwareness or NRR found but not expected? report if configuration=true //TODO: make configurable in domibus.properties
 
             //SignalMessage with Receipt expected
             messageId = getMessageId(ebms3SignalMessage);
@@ -213,7 +227,7 @@ public class ReliabilityChecker {
             } else {
                 LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_RECEIPT_INVALID_EMPTY, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0301)
                         .message("There is no content inside the receipt element received by the responding gateway")
                         .refToMessageId(messageId)
                         .mshRole(MSHRole.SENDING)

@@ -1,8 +1,10 @@
 package eu.domibus.api.payload;
 
+import eu.domibus.api.model.DatabasePartition;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -32,4 +34,10 @@ public interface PartInfoService {
     boolean scheduleSourceMessagePayloads(List<PartInfo> partInfos);
 
     void loadBinaryData(PartInfo partInfo);
+
+    void deleteAllPayloadFromFileSystem(List<DatabasePartition> toDeletePartitionNames);
+
+    String getPayloadFolder(long entityId);
+
+    String getPayloadFolder(ZonedDateTime currentDate);
 }

@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
 import eu.domibus.core.converter.PartyCoreMapper;
+import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.api.ebms3.Ebms3Constants;
@@ -46,6 +47,9 @@ public class TestServiceResource {
     @Autowired
     PartyCoreMapper partyCoreMapper;
 
+    @Autowired
+    private MessageExchangeService messageExchangeService;
+
     @RequestMapping(value = "sender", method = RequestMethod.GET)
     public PartyResponseRo getSenderParty() {
         return partyCoreMapper.partyToPartyResponseRo(partyService.getGatewayParty());
@@ -78,5 +82,11 @@ public class TestServiceResource {
     @RequestMapping(value = "errors", method = RequestMethod.GET)
     public TestErrorsInfoRO getErrorsDetails(String userMessageId) {
         return testService.getErrorsDetails(userMessageId);
+    }
+
+    @RequestMapping(value = "pullrequest", method = RequestMethod.POST)
+    public void newPullRequest() {
+        LOG.info("Initiating pull (on demand)");
+        messageExchangeService.initiatePullRequest();
     }
 }

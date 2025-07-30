@@ -1,14 +1,11 @@
 package eu.domibus.core.message.reliability;
 
-import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.soap.SOAPMessage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,19 +82,19 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckResult, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+    public void handleReliability(ReliabilityDTO reliabilityDTO) {
         LOG.debug("Handling reliability");
+        UserMessage userMessage = reliabilityDTO.getUserMessage();
+        UserMessageLog userMessageLog = reliabilityDTO.getUserMessageLog();
 
-        final Boolean isTestMessage = userMessage.isTestMessage();
-
-        switch (reliabilityCheckResult) {
+        switch (reliabilityDTO.getReliabilityCheck()) {
             case OK:
-                if(StringUtils.isNotBlank(requestRawXMLMessage)) {
-                    nonRepudiationService.saveRawEnvelope(requestRawXMLMessage, userMessage);
+                if(StringUtils.isNotBlank(reliabilityDTO.getRequestRawXMLMessage())) {
+                    nonRepudiationService.saveUserMessageRawEnvelope(reliabilityDTO.getRequestRawXMLMessage(), userMessage.getEntityId());
                 }
-                responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
+                responseHandler.saveResponse(reliabilityDTO.getResponseSoapMessage(), userMessage,reliabilityDTO.getResponseResult().getResponseMessaging());
 
-                ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();
+                ResponseHandler.ResponseStatus responseStatus = reliabilityDTO.getResponseResult().getResponseStatus();
                 switch (responseStatus) {
                     case OK:
                         userMessageLogService.setMessageAsAcknowledged(userMessage, userMessageLog);
@@ -122,10 +118,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 userMessageLogDao.update(userMessageLog);
                 break;
             case WAITING_FOR_CALLBACK:
-                updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(userMessage, legConfiguration);
+                updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(userMessage, reliabilityDTO.getLegConfiguration(), reliabilityDTO.getThrowable());
                 break;
             case SEND_FAIL:
-                updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, legConfiguration, attempt);
+                updateRetryLoggingService.updatePushedMessageRetryLogging(userMessage, reliabilityDTO.getLegConfiguration(), reliabilityDTO.getAttempt(), reliabilityDTO.getThrowable());
                 break;
             case ABORT:
                 updateRetryLoggingService.messageFailedAndDeleteRawEnvelope(userMessage, userMessageLog);
