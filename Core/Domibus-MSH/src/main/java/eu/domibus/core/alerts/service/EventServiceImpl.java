@@ -267,7 +267,7 @@ public class EventServiceImpl implements EventService {
         }
 
         enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
-                new EventProperties(messageId, role.name(), messageStatus.name(), fromParty, toParty));
+                new EventProperties(messageId, role.name(), messageStatus.name(), newStatus.name(), fromParty, toParty));
     }
 
     private void enqueueEvent(Event event) {
