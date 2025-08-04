@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
 import eu.domibus.core.alerts.configuration.generic.RepetitiveAlertConfiguration;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
@@ -340,6 +341,42 @@ public class EventServiceImplTest {
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
             times = 1;
             Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
+        }};
+    }
+
+    @Test
+    public void enqueueMonitoringEvent(@Injectable ConnectionMonitoringModuleConfiguration configuration) {
+        String messageId = "messageId";
+        MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+        MSHRole mshRole = MSHRole.SENDING;
+        String fromParty = "partyA";
+        String toParty = "partyB";
+
+        new Expectations() {{
+            alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
+            result = configuration;
+
+            configuration.isActive();
+            result = true;
+
+            configuration.shouldGenerateAlert(newStatus, toParty);
+            result = true;
+        }};
+
+        eventService.enqueueMonitoringEvent(messageId, mshRole, oldStatus, newStatus, fromParty, toParty);
+
+        new Verifications() {{
+            Event event;
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CONNECTION_MONITORING_FAILED.getQueueSelector());
+            times = 1;
+
+            Assert.assertEquals(messageId, event.getProperties().get(MESSAGE_ID.name()).getValue());
+            Assert.assertEquals(mshRole.name(), event.getProperties().get(ROLE.name()).getValue());
+            Assert.assertEquals(oldStatus.name(), event.getProperties().get(OLD_STATUS.name()).getValue());
+            Assert.assertEquals(newStatus.name(), event.getProperties().get(NEW_STATUS.name()).getValue());
+            Assert.assertEquals(fromParty, event.getProperties().get(FROM_PARTY.name()).getValue());
+            Assert.assertEquals(toParty, event.getProperties().get(TO_PARTY.name()).getValue());
         }};
     }
 
