@@ -481,6 +481,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_PARTY_ID_TYPE_VALIDATION_PATTERN, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PARTY_ID_TYPE_VALIDATION_MESSAGE, Type.STRING, Usage.DOMAIN, true),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING_USE_STANDARD_FORMAT, Type.BOOLEAN),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
