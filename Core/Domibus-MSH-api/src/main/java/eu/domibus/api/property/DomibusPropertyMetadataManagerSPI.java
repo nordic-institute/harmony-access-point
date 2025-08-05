@@ -524,4 +524,6 @@ public interface DomibusPropertyMetadataManagerSPI {
      *  (notably Azure Files SMB shares) do not allow this. Default is true.
      */
     String DOMIBUS_BACKUP_PRESERVE_FILE_DATE="domibus.backup.preserveFileDate";
+
+    String DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING_USE_STANDARD_FORMAT = "domibus.datetime.pattern.onreceiving.useStandardFormat";
 }
