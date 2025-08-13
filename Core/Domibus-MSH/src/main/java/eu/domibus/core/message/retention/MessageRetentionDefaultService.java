@@ -205,10 +205,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
         final int deleted = messagesToClean.size();
         LOG.debug("Attempting to delete the payloads of [{}] messages", deleted);
-        List<Long> entityIds = messagesToClean.stream()
-                .map(UserMessageLogDto::getEntityId)
-                .collect(Collectors.toList());
-        userMessageDefaultService.clearPayloadData(entityIds);
+
+        userMessageDefaultService.clearPayloadData(messagesToClean);
         backendNotificationService.notifyMessageDeleted(messagesToClean);
         LOG.debug("Deleted the payloads of [{}] messages ", deleted);
     }

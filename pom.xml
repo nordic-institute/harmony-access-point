@@ -6,7 +6,7 @@
 
     <groupId>org.niis</groupId>
     <artifactId>harmony</artifactId>
-    <version>2.5.0</version>
+    <version>2.6.0</version>
     <packaging>pom</packaging>
     <name>Harmony MSH</name>
     <modules>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
-        <cxf.version>3.5.9</cxf.version>
+        <cxf.version>3.5.11</cxf.version>
         <wss4j-ws-security.version>2.4.3</wss4j-ws-security.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
@@ -27,24 +27,25 @@
         <io.swagger.core.v3.version>2.2.20</io.swagger.core.v3.version>
         <swagger-ui.version>4.15.5</swagger-ui.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
-        <activemq.version>5.16.7</activemq.version>
+        <activemq.version>5.16.8</activemq.version>
         <aspectj.version>1.9.21</aspectj.version>
         <slf4j.version>2.0.11</slf4j.version>
-        <logback.version>1.3.14</logback.version>
+        <logback.version>1.3.15</logback.version>
+        <logstash-logback-encoder>7.4</logstash-logback-encoder>
         <httpclient.version>4.5.14</httpclient.version>
         <httpclient5.version>5.2.3</httpclient5.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <commons-io.version>2.14.0</commons-io.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-io.version>2.17.0</commons-io.version>
+        <commons-fileupload.version>1.6.0</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-codec.version>1.16.0</commons-codec.version>
-        <bouncycastle.version>1.78</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <jackson.version>2.14.3</jackson.version>
+        <jackson.version>2.15.4</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.14.3</jackson-databind.version>
+        <jackson-databind.version>2.15.4</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.32</freemarker.version>
         <mail.version>1.6.7</mail.version>
@@ -53,7 +54,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <tika.version>2.7.0</tika.version>
         <peppol.version>2.4.0</peppol.version>
-        <dynamic.discovery.client.version>2.3</dynamic.discovery.client.version>
+        <dynamic.discovery.client.version>2.4</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <jaxws-rt.version>2.3.6</jaxws-rt.version>
@@ -66,8 +67,8 @@
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.25</dropwizard.metrics.version>
-        <owasp.dependency.check.version>10.0.4</owasp.dependency.check.version>
-        <maven-dependency-plugin.version>3.6.0</maven-dependency-plugin.version>
+        <owasp.dependency.check.version>12.1.3</owasp.dependency.check.version>
+        <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
@@ -135,13 +136,13 @@
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <httpcore.version>4.4.16</httpcore.version>
-        <infinispan.version>13.0.18.Final</infinispan.version>
+        <infinispan.version>13.0.22.Final</infinispan.version>
         <ehcache.version>3.10.8</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-net.version>3.9.0</commons-net.version>
         <jcifs.version>1.3.17</jcifs.version>
-        <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <commons-vfs2.version>2.10.0</commons-vfs2.version>
         <commons-lang.version>2.6</commons-lang.version>
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <jakarta.activation-api.version>2.1.1</jakarta.activation-api.version>
@@ -155,7 +156,7 @@
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version>
-        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
+        <license-maven-plugin.version>2.4.0</license-maven-plugin.version>
 
         <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
         <commons-compress.version>1.26.1</commons-compress.version>
@@ -163,7 +164,7 @@
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <hazelcast.version>5.3.6</hazelcast.version>
+        <hazelcast.version>5.3.8</hazelcast.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -172,7 +173,7 @@
         <maven-core.version>3.1.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
-        <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
+        <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-resources-plugin.version>3.0.0</maven-resources-plugin.version>
         <owasp.nvd-api-key></owasp.nvd-api-key>
@@ -355,6 +356,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder}</version>
             </dependency>
             <!-- End SLF4J + Logback -->
 
@@ -590,6 +596,7 @@
                 <artifactId>infinispan-hibernate-cache-v53</artifactId>
                 <version>${infinispan.version}</version>
             </dependency>
+
             <!-- End Hibernate -->
 
             <!-- validation apis -->
@@ -855,6 +862,16 @@
                         <groupId>joda-time</groupId>
                         <artifactId>joda-time</artifactId>
                     </exclusion>
+                    <!-- wss4j 2.4.x uses the geronimo javamail in the
+                        AttachmentUtils.canonizeMimeHeaders(outputStream, getAttachment().getHeaders());
+                        for preparing the mime headers for the signature. This is not needed in our case
+                        and it is causing a conflict with the javamail version used in other the project.
+                        NOTE: Remove this exclusion when wss4j is upgraded to 3.x+
+                     -->
+                    <exclusion>
+                        <groupId>org.apache.geronimo.javamail</groupId>
+                        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -1002,6 +1019,12 @@
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
                 <version>${opencsv.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- DOM4J -->
@@ -1060,6 +1083,10 @@
                     <exclusion>
                         <groupId>dom4j</groupId>
                         <artifactId>dom4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1388,7 +1415,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.10.1</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -1421,6 +1448,21 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                    <!-- TODO: remove when license-maven plugin is updated and uses a higher version of velocity-tools( > 2.0),
+                    which does not bring the vulnerable struts-core 1.3.8 transitive dependency -->
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.velocity</groupId>
+                            <artifactId>velocity-tools</artifactId>
+                            <version>2.0</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>org.apache.struts</groupId>
+                                    <artifactId>struts-core</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1622,125 +1664,263 @@
             </build>
         </profile>
         <profile>
-            <id>dependency-license-check</id>
+            <id>licenses-process</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>license-maven-plugin</artifactId>
+                        <version>${license-maven-plugin.version}</version>
+                        <inherited>false</inherited>
+                        <!-- TODO: remove when license-maven plugin is updated and uses a higher version of velocity-tools( > 2.0),
+                        which does not bring the vulnerable struts-core 1.3.8 transitive dependency -->
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.velocity</groupId>
+                                <artifactId>velocity-tools</artifactId>
+                                <version>2.0</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>org.apache.struts</groupId>
+                                        <artifactId>struts-core</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>download-licenses</id>
+                                <phase>process-resources</phase>
                                 <goals>
+                                    <goal>update-project-license</goal>
                                     <goal>aggregate-download-licenses</goal>
                                     <goal>aggregate-add-third-party</goal>
                                 </goals>
                             </execution>
                         </executions>
                         <configuration>
+                            <licenseName>eupl-1.2</licenseName>
+                            <licenseResolver>${project.baseUri}license</licenseResolver>
+                            <organizationName>European Commission</organizationName>
+                            <inceptionYear>2024</inceptionYear>
+
+                            <extendedInfo>true</extendedInfo>
+                            <cleanLicensesOutputDirectory>false</cleanLicensesOutputDirectory>
+                            <removeOrphanLicenseFiles>true</removeOrphanLicenseFiles>
+                            <excludedGroups>^(org.niis.*)|(eu.domibus.*)|(eu.europa.ec.digit.commons.*)|(com.smartbear.*)
+                            </excludedGroups>
+                            <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
+                            <excludedScopes>system,test,provided,runtime</excludedScopes>
+                            <includeTransitiveDependencies>false</includeTransitiveDependencies>
+                            <sortArtifactByName>true</sortArtifactByName>
+                            <overrideUrl>${project.baseUri}license/override-THIRD-PARTY.properties</overrideUrl>
                             <licenseMerges>
-                                <licenseMerge>Apache License, Version 2.0
+                                <licenseMerge>
+                                    MPL-1.1
+                                    |MPL 1.1
+                                </licenseMerge>
+                                <licenseMerge>
+                                    MPL-2.0
+                                    |MPL 2.0
+                                </licenseMerge>
+                                <licenseMerge>Apache-2.0
+                                    |Apache License, Version 2.0
                                     |Apache Software Licenses
                                     |Apache Software License - Version 2.0
                                     |Apache License 2.0
                                     |Apache 2.0
-                                    |Apache-2.0
-                                    |Similar to Apache License but with the acknowledgment clause removed
-                                    |Apache License|The Apache Software License, Version 2.0
-                                    |Apache Public License 2.0|Apache 2|Apache License, version 2.0
+                                    |Apache License
+                                    |The Apache Software License, Version 2.0
+                                    |Apache Public License 2.0
+                                    |Apache 2
                                     |The Apache License, Version 2.0
                                 </licenseMerge>
                                 <!--  Common Public License Version 1.0|CPL was replaced by Eclipse Public License -->
-                                <licenseMerge>Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)
+                                <licenseMerge>EPL-1.0
+                                    |EPL 1.0
+                                    |Eclipse Public License v1.0
                                     |Eclipse Public License 1.0 (EPL-1.0)
                                     |Eclipse Public License, Version 1.0
-                                    |EPL 2.0
-                                    |Eclipse Distribution License v. 1.0
                                     |Eclipse Public License (EPL) v1.0
                                     |Eclipse Public License - v 1.0
-                                    |Eclipse Public License - v 2.0
-                                    |Eclipse Distribution License - v 1.0
                                     |Eclipse Public License 1.0
-                                    |EDL 1.0
-                                    |Common Public License Version 1.0
-                                    |CPL
-                                    |MPL 2.0 or EPL 1.0
                                 </licenseMerge>
-                                <licenseMerge>The MIT License|MIT License</licenseMerge>
-                                <!-- jaxen  - jaxen:jaxen:1.1.4 from the page is noted BSD license -->
-                                <licenseMerge>BSD license (all versions)
-                                    |http://jaxen.codehaus.org/license.html
-                                    |BSD-2-Clause|The BSD 3-Clause License
-                                    |BSD
-                                    |The New BSD License
-                                    |BSD License
-                                    |The BSD License
-                                    |BSD 3-clause New License
-                                    |BSD Licence 3
-                                    |3-Clause BSD License
-                                    |BSD-Style License
-                                    |BSD-3-Clause
-                                    |New BSD License
+                                <licenseMerge>EDL-1.0
+                                    |Eclipse Distribution License - v 1.0
+                                    |Eclipse Distribution License v. 1.0
                                 </licenseMerge>
-                                <licenseMerge>Dual license consisting of the CDDL v1.1 and GPL v2
-                                    |CDDL+GPLv2
+                                <licenseMerge>EPL-2.0
+                                    |EPL 2.0
+                                    |Eclipse Public License - v 2.0
+                                    |Eclipse Public License v2.0
+                                </licenseMerge>
+                                <licenseMerge>BCL
+                                    |Bouncy Castle Licence
+                                </licenseMerge>
+                                <licenseMerge>MIT
+                                    |The MIT License
+                                    |MIT License
+                                </licenseMerge>
+                                <licenseMerge>CDDL+GPLv2
+                                    |CDDL 1.1
+                                </licenseMerge>
+                                <licenseMerge>CDDL+GPLv2-with-classpath-exception
                                     |CDDL + GPLv2 with classpath exception
                                     |CDDL/GPLv2+CE
-                                    |CDDL+GPL License
+                                    |GPL2 w/ CPE
                                 </licenseMerge>
-                                <licenseMerge>Common Development and Distribution License (CDDL) (all versions)
+                                <licenseMerge>CDDL-1.0
                                     |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
                                     |Common Development and Distribution License (CDDL) v1.0
-                                    |Common Development and Distribution License (CDDL)
-                                    |Common Development and Distribution License
-                                    |Common Development and Distribution
-                                    |CDDL 1.1|
                                 </licenseMerge>
-                                <!-- https://hibernate.org/community/license/ - hibernate label it as GNU Library General Public License v2.1 == GNU Lesser General Public License version 2.1  -->
-                                <licenseMerge>GNU Lesser General Public License
+                                <licenseMerge>LGPL-2.1+
+                                    |GNU Lesser General Public License
                                     |GNU Lesser General Public License, version 2.1
                                     |GNU Library General Public License v2.1 or later
                                     |LGPL-2.1
-                                    |LGPL
+                                    |LGPL 2.1
                                 </licenseMerge>
                             </licenseMerges>
+
                             <failOnMissing>true</failOnMissing>
                             <failOnBlacklist>true</failOnBlacklist>
-                            <!-- 'No Copyright' used by 1 dependencies:
-                                -bagit-java (gov.loc:bagit:4.12.2 - https://github.com/LibraryOfCongress/bagit-java -->
                             <includedLicenses>
-                                Apache License, Version 2.0|
-                                Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)|
-                                The MIT License|
-                                BSD license (all versions)|
-                                European Union Public Licence (EUPL v.1.1)|
-                                Dual license consisting of the CDDL v1.1 and GPL v2|
-                                Common Development and Distribution License (CDDL) (all versions)|
-                                GNU Lesser General Public License|
-                                Bouncy Castle Licence|
-                                Mozilla Public License Version 2.0|
-                                No Copyright|
-                                EPL 1.0|
-                                MPL 2.0|
+                                Apache-2.0|
+                                EPL-1.0|
+                                EDL-1.0|
+                                EPL-2.0|
+                                MIT|
+                                CDDL-1.0|
+                                CDDL+GPLv2|
+                                CDDL+GPLv2-with-classpath-exception|
+                                LGPL-2.1+|
+                                MPL-1.1|
+                                MPL-2.0|
+                                LGPL-3.0|
+                                Plexus|
+                                BCL|
+                                WTFPL|
                             </includedLicenses>
-                            <!-- license validation scope  -->
-                            <excludedGroups>^(org,niis.*)|(eu.domibus.*)|(eu.europa.ec.digit.commons.*)</excludedGroups>
-                            <!--
-                            dom4j:dom4j:1.6.1 -  BSD licence
-                            javax.servlet:servlet-api:2.4  - CDDL
-                            javax.xml.soap:saaj-api:1.3.1 - CDDL
-                            org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
-                            -->
+                            <useMissingFile>false</useMissingFile>
+                            <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
+                            <!--                            dynamic-discovery-client is ignored because of the SNAPSHOT version TODO 27/11/2024 5.2 : revert for release -->
                             <excludedArtifacts>
-                                servlet-api|dom4j|saaj-api|commons-ip2|jsr311-api|aopalliance|json|reactive-streams
+                                dynamic-discovery-client|spring-test|h2|wiremock|mockito|junit-jupiter-api|domibus-msh-test-common
                             </excludedArtifacts>
-                            <excludedScopes>system,test,provided,runtime</excludedScopes>
+                            <excludedLicenses>
+                                <excludedLicense>Unknown license</excludedLicense>
+                            </excludedLicenses>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>xml-maven-plugin</artifactId>
+                        <version>1.1.0</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>transform</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <catalogHandling>local</catalogHandling>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>target/generated-resources/</dir>
+                                    <includes>
+                                        <include>licenses.xml</include>
+                                    </includes>
+                                    <stylesheet>license/config/license.xsl</stylesheet>
+                                    <outputDir>./</outputDir>
+
+
+                                    <fileMappers>
+                                        <fileMapper
+                                                implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                                            <pattern>licenses.xml</pattern>
+                                            <replacement>Notice.md</replacement>
+                                        </fileMapper>
+                                    </fileMappers>
+                                    <parameters>
+                                        <parameter>
+                                            <!-- This is external stylesheet parameter set in pom.xml plugin configuration
+                                            to include the licenses in the notice file. The value of this parameter is a
+                                            comma separated list of licenses as exampled: Apache-2.0,MIT.
+                                            Make sure to include the license files in the license/third-party-licenses/${license}.txt
+                                            -->
+                                            <name>IncludeLicenses</name>
+                                            <value>
+                                                Apache-2.0,BCL,CDDL+GPLv2,CDDL+GPLv2-with-classpath-exception,CDDL-1.0,EDL-1.0,EPL-1.0,EPL-2.0,GPL-2.0-or-later,LGPL-2.1+,LGPL-3.0,MIT,MPL-1.1,MPL-2.0,Plexus,WTFPL
+                                            </value>
+                                        </parameter>
+                                    </parameters>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                        <dependencies>
+                            <!-- Enable XSLT 2.0 with this dependency -->
+                            <dependency>
+                                <groupId>net.sf.saxon</groupId>
+                                <artifactId>Saxon-HE</artifactId>
+                                <version>12.4</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>print-file</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="Printing file THIRD-PARTY.txt generated:"/>
+                                        <exec executable="cat" osfamily="unix" failonerror="false">
+                                            <arg value="${project.build.directory}/generated-sources/license/THIRD-PARTY.txt"/>
+                                        </exec>
+                                        <exec executable="cmd" osfamily="windows" failonerror="false">
+                                            <arg value="/c"/>
+                                            <arg value="type"/>
+                                            <arg value="${project.build.directory}\generated-sources\license\THIRD-PARTY.txt"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compare-files</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="check THIRD-PARTY.txt changes"/>
+                                        <echo message="${project.basedir}/THIRD-PARTY.txt"/>
+                                        <echo message="${project.build.directory}/generated-sources/license/THIRD-PARTY.txt"/>
+                                        <fail message="Changes.">
+                                            <condition>
+                                                <not>
+                                                    <filesmatch file1="${project.basedir}/THIRD-PARTY.txt"
+                                                                file2="${project.basedir}/target/generated-sources/license/THIRD-PARTY.txt"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                 </plugins>
             </build>
         </profile>
-
         <!-- this will check only dependency convergence from maven-enforcer-plugin -->
         <profile>
             <id>enforceDependency</id>

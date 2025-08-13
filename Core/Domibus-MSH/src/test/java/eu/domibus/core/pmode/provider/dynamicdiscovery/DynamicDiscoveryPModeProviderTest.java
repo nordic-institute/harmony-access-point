@@ -28,6 +28,7 @@ import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -155,7 +156,8 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(DomainContextProvider.class),
                 Mockito.spy(SecurityUtilImpl.class),
                 Mockito.spy(AlertConfigurationService.class),
-                Mockito.spy(AuditService.class));
+                Mockito.spy(AuditService.class),
+                Mockito.mock(FieldBlacklistValidator.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

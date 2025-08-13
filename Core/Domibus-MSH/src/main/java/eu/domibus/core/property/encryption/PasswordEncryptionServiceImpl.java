@@ -9,7 +9,6 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.EncryptionUtil;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
@@ -18,8 +17,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -59,9 +58,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
-
-    @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
 
     @Autowired
@@ -70,20 +66,17 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected BackupService backupService;
 
-    // we need Lazy here to avoid circular dependency
-    // passwordEncryptionExtService->passwordEncryptionContextFactory->domibusPropertyEncryptionNotifier->FSPluginPropertyEncryptionListener
     @Autowired
-    @Lazy
-    protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
-
-    @Autowired
-    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
+    protected ObjectProvider<PasswordEncryptionContextFactory> passwordEncryptionContextFactory;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
     protected PasswordDecryptionHelper passwordDecryptionHelper;
+
+    @Autowired
+    protected ObjectProvider<DomibusPropertyEncryptionNotifier> passwordEncryptionContextFactoryProvider;
 
     @Override
     public boolean isValueEncrypted(String propertyValue) {
@@ -96,7 +89,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         //operate on global context, without a current domain
         domainContextProvider.clearCurrentDomain();
-        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(null);
+        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getObject().getPasswordEncryptionContext(null);
         encryptPasswords(passwordEncryptionContext);
 
         if (domibusConfigurationService.isMultiTenantAware()) {
@@ -104,7 +97,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             encryptPasswords(domains);
         }
 
-        domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
+        passwordEncryptionContextFactoryProvider.getObject().signalEncryptPasswords();
 
         LOG.debug("Finished encrypting passwords");
     }
@@ -127,7 +120,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     private void encryptPasswords(Domain domain) {
         domainContextProvider.setCurrentDomain(domain);
-        final PasswordEncryptionContext passwordEncryptionContextDomain = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+        final PasswordEncryptionContext passwordEncryptionContextDomain = passwordEncryptionContextFactory.getObject().getPasswordEncryptionContext(domain);
         encryptPasswords(passwordEncryptionContextDomain);
         domainContextProvider.clearCurrentDomain();
     }
@@ -188,7 +181,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
 
-        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getObject().getPasswordEncryptionContext(domain);
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
         if (isNotTrue(encryptionActive)) {

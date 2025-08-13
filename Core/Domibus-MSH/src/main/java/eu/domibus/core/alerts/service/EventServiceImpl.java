@@ -106,12 +106,12 @@ public class EventServiceImpl implements EventService {
         AlertType alertType = EventType.MSG_STATUS_CHANGED.geDefaultAlertType();
         MessagingModuleConfiguration configuration = (MessagingModuleConfiguration) alertConfigurationService.getConfiguration(alertType);
         if (!configuration.isActive()) {
-            LOG.info("Messaging alerts module is not enabled, no alert will be created.");
+            LOG.debug("Messaging alerts module is not enabled, no alert will be created.");
             return;
         }
 
         if (!configuration.shouldMonitorMessageStatus(newStatus)) {
-            LOG.info("[{}] status is not monitored, no alert will be created.", newStatus);
+            LOG.debug("[{}] status is not monitored, no alert will be created.", newStatus);
             return;
         }
 
@@ -267,7 +267,7 @@ public class EventServiceImpl implements EventService {
         }
 
         enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty,
-                new EventProperties(messageId, role.name(), messageStatus.name(), fromParty, toParty));
+                new EventProperties(messageId, role.name(), messageStatus.name(), newStatus.name(), fromParty, toParty));
     }
 
     private void enqueueEvent(Event event) {

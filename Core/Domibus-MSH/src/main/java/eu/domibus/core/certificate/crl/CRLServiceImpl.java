@@ -136,13 +136,11 @@ public class CRLServiceImpl implements CRLService {
         if (supportedCrlProtocols == null) {
             synchronized (supportedCrlProtocolsLock) {
                 if (supportedCrlProtocols == null) {
-                    List<String> list = Arrays.stream(CRLUrlType.values()).map(c -> c.getPrefix()).collect(Collectors.toList());
-                    final String excludedProtocolsList = domibusPropertyProvider.getProperty(CRL_EXCLUDED_PROTOCOLS);
-                    if (!StringUtils.isEmpty(excludedProtocolsList)) {
-                        List<String> excluded = Arrays.stream(excludedProtocolsList.split(",")).map(p -> p.trim() + "://").collect(Collectors.toList());
-                        list.removeAll(excluded);
-                    }
-                    supportedCrlProtocols = list;
+                    final List<String> excludedProtocolsList = domibusPropertyProvider.getCommaSeparatedPropertyValues(CRL_EXCLUDED_PROTOCOLS);
+                    supportedCrlProtocols = Arrays.stream(CRLUrlType.values())
+                            .map(CRLUrlType::getProtocolName)
+                            .filter(protocol -> !excludedProtocolsList.contains(protocol))
+                            .collect(Collectors.toList());
                 }
             }
         }

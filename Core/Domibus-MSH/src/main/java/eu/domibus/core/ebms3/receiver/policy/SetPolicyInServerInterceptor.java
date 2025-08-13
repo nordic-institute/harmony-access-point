@@ -1,27 +1,31 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
+import eu.domibus.core.ebms3.receiver.interceptor.HeaderLoggingInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -33,8 +37,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
+import static eu.domibus.api.exceptions.DomibusCoreErrorCode.DOM_006;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
 /**
@@ -53,16 +62,22 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final Ebms3Converter ebms3Converter;
 
+    private final HeaderLoggingInterceptor headerLoggingInterceptor;
+
     protected final UserMessageErrorCreator userMessageErrorCreator;
 
     private final SecurityProfileService securityProfileService;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
-                                        TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator, SecurityProfileService securityProfileService) {
+                                        TestMessageValidator testMessageValidator,
+                                        Ebms3Converter ebms3Converter,
+                                        HeaderLoggingInterceptor headerLoggingInterceptor,
+                                        UserMessageErrorCreator userMessageErrorCreator,
+                                        SecurityProfileService securityProfileService) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
+        this.headerLoggingInterceptor = headerLoggingInterceptor;
         this.userMessageErrorCreator = userMessageErrorCreator;
         this.securityProfileService = securityProfileService;
     }
@@ -115,12 +130,17 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
+            saveRawMessageMessageContext(message);
         } catch (EbMS3Exception ex) {
+            headerLoggingInterceptor.handleMessage(PhaseInterceptorChain.getCurrentMessage());
+
             setBindingOperation(message);
             LOG.debug("", ex); // Those errors are expected (no PMode found, therefore DEBUG)
             logIncomingMessagingException(message, ex);
             throw new Fault(ex);
         } catch (IOException | JAXBException e) {
+            headerLoggingInterceptor.handleMessage(PhaseInterceptorChain.getCurrentMessage());
+
             setBindingOperation(message);
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_NOT_FOUND, e, policyName); // Those errors are not expected
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
@@ -130,6 +150,20 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .cause(e)
                     .mshRole(MSHRole.RECEIVING)
                     .build());
+        }
+    }
+
+    protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
+        final InputStream inputStream = message.getContent(InputStream.class);
+        if (inputStream instanceof ByteArrayInputStream) {
+            LOG.trace("Saving the raw message envelope content (to have the encrypted data section)");
+            String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
+            ((ByteArrayInputStream) inputStream).reset();
+
+            message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
+//            PhaseInterceptorChain.setCurrentMessage()
+        } else {
+            throw new DomibusCoreException(DOM_006, "Could not get the message content since it is not a byteArray stream.");
         }
     }
 

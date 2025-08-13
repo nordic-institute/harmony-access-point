@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.5.0</version>
+        <version>2.6.0</version>
     </parent>
 
     <artifactId>harmony-MSH-tomcat-distribution</artifactId>
@@ -107,4 +107,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>license-generate-notice</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <configuration>
+                            <licenseResolver>${project.baseUri}../../license</licenseResolver>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

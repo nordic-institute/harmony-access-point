@@ -42,6 +42,9 @@ public class JmsMessageCreator implements MessageCreator {
         if (internalJmsMessage.getType() != null) {
             result.setJMSType(internalJmsMessage.getType());
         }
+        if (internalJmsMessage.getJmsCorrelationId() != null) {
+            result.setJMSCorrelationID(internalJmsMessage.getJmsCorrelationId());
+        }
         Map<String, String> customProperties = internalJmsMessage.getCustomProperties();
         if (!customProperties.isEmpty()) {
             for (String pName : customProperties.keySet()) {
@@ -58,6 +61,9 @@ public class JmsMessageCreator implements MessageCreator {
         result.setText(internalJmsMessage.getContent());
         if (internalJmsMessage.getType() != null) {
             result.setJMSType(internalJmsMessage.getType());
+        }
+        if (internalJmsMessage.getJmsCorrelationId() != null) {
+            result.setJMSCorrelationID(internalJmsMessage.getJmsCorrelationId());
         }
         Map<String, String> customProperties = internalJmsMessage.getCustomProperties();
         if (!customProperties.isEmpty()) {

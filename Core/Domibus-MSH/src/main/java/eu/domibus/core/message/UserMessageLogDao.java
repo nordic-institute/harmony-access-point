@@ -83,13 +83,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.mpcDao = mpcDao;
     }
 
-    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId, final int maxMessageCount) {
         TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
 
         query.setParameter("MIN_ENTITY_ID", minEntityId);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
         query.setParameter("WAITING_FOR_RETRY", messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY));
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        query.setMaxResults(maxMessageCount);
 
         return query.getResultList();
     }
@@ -107,12 +108,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setMaxResults(batchMaxSize);
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
+        LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> found [{}] messages", res.size());
         addStatus(res);
         return res;
     }
 
     public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
-        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
                 lastUserMessageLogId,
                 maxEntityIdToArchived);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
@@ -122,6 +124,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("STATUSES", messageStatusDao.getEntitiesOf(MessageStatus.getNotFinalStates()));
 
         List<EArchiveBatchUserMessage> res = query.getResultList();
+        LOG.debug("UserMessageLog.findMessagesNotFinalAsc -> found [{}] messages", res.size());
         addStatus(res);
         return res;
     }
@@ -147,8 +150,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     private void addStatus(List<EArchiveBatchUserMessage> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        // preload all MessageStatusEntity objects into a map
+        Map<Long, MessageStatusEntity> statusEntityMap = messageStatusDao.findAll().stream()
+                .collect(Collectors.toMap(MessageStatusEntity::getEntityId, entity -> entity));
+
+        // iterate through the list and set the message status using the preloaded map
         list.forEach(eArchiveBatchUserMessage -> {
-            MessageStatusEntity entity = messageStatusDao.read(eArchiveBatchUserMessage.getMessageStatusId());
+            Long messageStatusId = eArchiveBatchUserMessage.getMessageStatusId();
+            MessageStatusEntity entity = statusEntityMap.get(messageStatusId);
+            if (entity == null) {
+                entity = messageStatusDao.read(messageStatusId);
+                if (entity != null) {
+                    statusEntityMap.put(messageStatusId, entity);
+                }
+            }
             if (entity != null) {
                 eArchiveBatchUserMessage.setMessageStatus(entity.getMessageStatus());
             }
@@ -719,8 +738,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<String> findUnsentMessageIds(Date minutesAgo, long maxEntityId) {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", String.class);
+    public List<UserMessageLogDto> findUnsentMessageIds(Date minutesAgo, long maxEntityId, int maxMessageCount) {
+        TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery("UserMessageLog.findUnsentAndWaitingForRetryMessages", UserMessageLogDto.class);
+        query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
+
+        MessageStatusEntity sendEnqueuedEntity = messageStatusDao.findByValue(MessageStatus.SEND_ENQUEUED);
+        query.setParameter("SEND_ENQUEUED", sendEnqueuedEntity);
+        MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
+        query.setParameter("WAITING_FOR_RETRY", retryEntity);
+        query.setMaxResults(maxMessageCount);
+
+        return query.getResultList();
+    }
+
+    public Long countUnsentMessages(Date minutesAgo, long maxEntityId) {
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.countUnsentAndWaitingForRetryMessages", Long.class);
         query.setParameter("MINUTES_AGO_TIMESTAMP", minutesAgo);
         query.setParameter("MAX_ENTITY_ID", maxEntityId);
 
@@ -729,7 +762,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         MessageStatusEntity retryEntity = messageStatusDao.findByValue(MessageStatus.WAITING_FOR_RETRY);
         query.setParameter("WAITING_FOR_RETRY", retryEntity);
 
-        return query.getResultList();
+        return query.getSingleResult();
     }
 
 }

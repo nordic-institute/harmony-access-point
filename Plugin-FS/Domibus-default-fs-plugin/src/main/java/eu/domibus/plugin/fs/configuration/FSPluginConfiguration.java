@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.configuration;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -11,6 +12,7 @@ import eu.domibus.plugin.fs.ebms3.ObjectFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.fs.worker.FSDomainService;
+import eu.domibus.plugin.fs.worker.FSAuthenticationService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
@@ -46,9 +48,11 @@ public class FSPluginConfiguration {
                                        FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
                                        DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
                                        FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper,
-                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService) {
+                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService,
+                                       FSAuthenticationService fsAuthenticationService,
+                                       DomibusConfigurationExtService domibusConfigurationExtService) {
         FSPluginImpl fsPlugin = new FSPluginImpl(defaultTransformer, fsFilesManager, fsPluginProperties, fsSendMessagesService, fsProcessFileService, domainTaskExtExecutor,
-                fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService);
+                fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService, fsAuthenticationService, domibusConfigurationExtService);
         return fsPlugin;
     }
 

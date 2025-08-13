@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.ProcessingType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -111,9 +112,9 @@ public class RetryDefaultServiceTest {
         List<Long> retryMessageIds = Arrays.asList(123L, 456L, 789L);
 
         new Expectations(retryService) {{
-            pModeProvider.getMaxRetryTimeout();
+            pModeProvider.getMaxRetryTimeout(ProcessingType.PUSH);
             result = 12;
-            userMessageLogDao.findRetryMessages(anyLong, anyLong);
+            userMessageLogDao.findRetryMessages(anyLong, anyLong, anyInt);
             result = new ArrayList<>(retryMessageIds);
 
             userMessageLogDao.findByEntityId(123L);
@@ -155,18 +156,26 @@ public class RetryDefaultServiceTest {
             userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
+            userMessageLogDao.findByEntityIdSafely(messageEntityId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY;
+
             updateRetryLoggingService.getLegConfiguration(userMessage);
             result = legConfiguration;
 
-            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, userMessageLog, legConfiguration);
             result = false;
 
-            updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
+            updateRetryLoggingService.failIfExpired(userMessage, userMessageLog, legConfiguration);
             result = true;
 
             userMessage.isSourceMessage();
             result = false;
 
+            userMessageLog.getScheduled();
+            result = Boolean.FALSE;
         }};
 
         retryService.doEnqueueMessage(messageEntityId);
@@ -191,13 +200,19 @@ public class RetryDefaultServiceTest {
             userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
+            userMessageLogDao.findByEntityIdSafely(messageEntityId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY;
+
             updateRetryLoggingService.getLegConfiguration(userMessage);
             result = legConfiguration;
 
-            updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
+            updateRetryLoggingService.failIfInvalidConfig(userMessage, userMessageLog, legConfiguration);
             result = false;
 
-            updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
+            updateRetryLoggingService.failIfExpired(userMessage, userMessageLog, legConfiguration);
             result = false;
 
             userMessageLogDao.findByEntityIdSafely(messageEntityId);
@@ -205,6 +220,9 @@ public class RetryDefaultServiceTest {
 
             userMessage.isSourceMessage();
             result = false;
+
+            userMessageLog.getScheduled();
+            result = Boolean.FALSE;
         }};
 
         retryService.doEnqueueMessage(messageEntityId);

@@ -263,7 +263,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     public QueueContext getQueueContext(final String messageId, final MapMessage messageIn) throws JMSException {
         String service = getService(messageIn);
         String action = getAction(messageIn);
-        return new QueueContext(messageId, service, action);
+        String jmsCorrelationId = messageIn.getJMSCorrelationID();
+        return new QueueContext(messageId, service, action, jmsCorrelationId);
     }
 
     protected String getService(final MapMessage messageIn) throws JMSException {
@@ -311,6 +312,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             return ProcessingType.PUSH;
         }
         try {
+            LOG.debug("Processing Type specified explicitly: [{}]", processingTypeProperty);
             return ProcessingType.valueOf(processingTypeProperty);
         } catch (IllegalArgumentException e) {
             throw new DefaultJmsPluginException("Value for processingType property:[" + processingTypeProperty + "] is incorrect. Should be PUSH or PULL.", e);

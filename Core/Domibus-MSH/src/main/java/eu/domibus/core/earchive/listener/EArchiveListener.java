@@ -48,19 +48,23 @@ public class EArchiveListener implements MessageListener {
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
+    private final EArchiveErrorHandler eArchiveErrorHandler;
+
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchiveBatchUtils eArchiveBatchUtils,
             EArchivingDefaultService eArchivingDefaultService,
             JmsUtil jmsUtil,
-            DomibusPropertyProvider domibusPropertyProvider) {
+            DomibusPropertyProvider domibusPropertyProvider,
+            EArchiveErrorHandler eArchiveErrorHandler) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.eArchiveErrorHandler = eArchiveErrorHandler;
     }
 
     @Override
@@ -108,8 +112,8 @@ public class EArchiveListener implements MessageListener {
                 // make sure to add also the processing of new message type
                 throw new IllegalArgumentException("Invalid JMS message type [" + batchMessageType + "] for the eArchive processing of the batchId [" + batchId + "]!");
             }
-        } catch (Exception ex) {
-            throw new EArchiveException(batchId, entityId, batchStatus, ex);
+        } catch (Throwable ex) {
+            eArchiveErrorHandler.handleError(new EArchiveException(batchId, entityId, batchStatus, ex));
         }
     }
 

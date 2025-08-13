@@ -70,36 +70,39 @@ public class UserMessageDaoTestIT extends AbstractIT {
         userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();
-        partyIdDao.create(senderPartyId);
-        userMessage.getPartyInfo().getFrom().setFromPartyId(senderPartyId);
+        PartyId persistedSenderPartyId = partyIdDao.findOrCreateParty(senderPartyId.getValue(), senderPartyId.getType());
+        userMessage.getPartyInfo().getFrom().setFromPartyId(persistedSenderPartyId);
 
         final PartyRole senderPartyRole = messageTestUtility.createSenderPartyRole();
-        partyRoleDao.create(senderPartyRole);
-        userMessage.getPartyInfo().getFrom().setFromRole(senderPartyRole);
+        PartyRole persistedSender   = partyRoleDao.findOrCreateRole(senderPartyRole.getValue());
+        userMessage.getPartyInfo().getFrom().setFromRole(persistedSender);
 
         final PartyId receiverPartyId = messageTestUtility.createReceiverPartyId();
-        partyIdDao.create(receiverPartyId);
-        userMessage.getPartyInfo().getTo().setToPartyId(receiverPartyId);
+        PartyId persistedReceiverPartyId = partyIdDao.findOrCreateParty(receiverPartyId.getValue(), receiverPartyId.getType());
+        userMessage.getPartyInfo().getTo().setToPartyId(persistedReceiverPartyId);
 
         final PartyRole receiverPartyRole = messageTestUtility.createReceiverPartyRole();
-        partyRoleDao.create(receiverPartyRole);
-        userMessage.getPartyInfo().getTo().setToRole(receiverPartyRole);
+        PartyRole persistedReceiver = partyRoleDao.findOrCreateRole(receiverPartyRole.getValue());
+        userMessage.getPartyInfo().getTo().setToRole(persistedReceiver);
 
         final ActionEntity actionEntity = messageTestUtility.createActionEntity();
-        actionDao.create(actionEntity);
-        userMessage.setAction(actionEntity);
+        ActionEntity persistedAction = actionDao.findOrCreateAction(actionEntity.getValue());
+        userMessage.setAction(persistedAction);
 
         final ServiceEntity serviceEntity = messageTestUtility.createServiceEntity();
-        serviceDao.create(serviceEntity);
-        userMessage.setService(serviceEntity);
+        ServiceEntity persistedService = serviceDao.findOrCreateService(serviceEntity.getValue(), serviceEntity.getType());
+        userMessage.setService(persistedService);
 
         final AgreementRefEntity agreementRefEntity = messageTestUtility.createAgreementRefEntity();
-        agreementDao.create(agreementRefEntity);
-        userMessage.setAgreementRef(agreementRefEntity);
+        AgreementRefEntity persistedAgreementRef = agreementDao.findOrCreateAgreement(agreementRefEntity.getValue(), agreementRefEntity.getType());
+        userMessage.setAgreementRef(persistedAgreementRef);
 
         final MpcEntity mpcEntity = messageTestUtility.createMpcEntity();
-        mpcDao.create(mpcEntity);
-        userMessage.setMpc(mpcEntity);
+        MpcEntity persistedMpc = mpcDao.findOrCreateMpc(mpcEntity.getValue());
+        userMessage.setMpc(persistedMpc);
+
+        MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        userMessage.setMshRole(sendingRole);
 
         userMessageDao.create(userMessage);
 

@@ -1,7 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageRaw;
 
 import javax.xml.soap.SOAPMessage;
@@ -17,13 +16,13 @@ import java.util.Map;
 
 public interface NonRepudiationService {
 
-    void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage);
+    void saveUserMessageRawEnvelope(String rawXMLMessage, Long messageEntityId);
 
-    UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException;
+    void saveSignalMessageRawEnvelope(String rawXMLMessage, Long messageEntityId);
 
-    void saveRequest(SOAPMessage request, UserMessage userMessage);
+    UserMessageRaw createReceivedUserMessageRaw(SOAPMessage request) throws TransformerException;
 
-    void saveResponse(SOAPMessage response, Long userMessageEntityId);
+    String extractRawXMLMessage(SOAPMessage message);
 
     /**
      * Retrieves the user message envelope xml

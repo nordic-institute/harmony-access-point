@@ -3,7 +3,6 @@ package eu.domibus.core.message.receive.handler;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.core.ebms3.receiver.handler.*;
-import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -37,12 +36,8 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
     @Autowired
     IncomingMessageHandlerDefaultFactory incomingMessageHandlerDefaultFactory;
 
-
     @Autowired
     protected IncomingUserMessageReceiptHandler incomingUserMessageReceiptHandler;
-
-    @Autowired
-    protected IncomingPullReceiptHandler incomingMessagePullReceiptHandler;
 
     @Test
     public void testIncomingSplitAndJoinSourceMessageReceiptMessageHandler() throws Exception {
@@ -63,7 +58,7 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingMessagePullReceiptHandler, messageHandler);
+        Assert.assertEquals(incomingUserMessageReceiptHandler, messageHandler);
     }
 
     @Test
