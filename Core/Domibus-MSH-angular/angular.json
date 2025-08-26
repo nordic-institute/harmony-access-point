@@ -22,7 +22,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "src/theme.scss"
+              "src/theme-harmony.scss"
             ],
             "scripts": [],
             "vendorChunk": true,
@@ -98,7 +98,7 @@
             "scripts": [],
             "styles": [
               "src/styles.css",
-              "src/theme.scss"
+              "src/theme-harmony.scss"
             ],
             "assets": [
               "src/assets",
