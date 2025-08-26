@@ -20,7 +20,7 @@ mat-sidenav.menu-expanded {
 }
 
 mat-sidenav.menu-collapsed {
-  width: 55px;
+  width: 50px;
 }
 
 html, body, material-app, .my-content {
@@ -53,10 +53,6 @@ html, body, material-app, .my-content {
   padding-left: 0;
 }
 
-mat-sidenav-container mat-expansion-panel-header button {
-  margin-bottom: 0;
-}
-
 .menu-collapsed .mat-expansion-panel-header {
   padding-right: 0px;
   margin-right: -10px;
@@ -64,6 +60,23 @@ mat-sidenav-container mat-expansion-panel-header button {
 
 .menu-collapsed.mat-sidenav {
   min-width: 1vw !important;
+}
+
+.menu-expanded #topLogo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 18px;
+  padding-bottom: 20px;
+  padding-left: 15px;
+}
+
+.menu-collapsed #topLogo {
+  display: block;
+  padding-top: 30px;
+  padding-bottom: 12px;
+  padding-left: 0;
+  height: 70px;
 }
 
 #collapse_id, #expand_id {
