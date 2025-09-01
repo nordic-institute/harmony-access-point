@@ -5,9 +5,9 @@
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy-config.js --serve-path /domibus",
-    "build": "ng build --base-href /domibus/",
-    "prod": "ng build --configuration production --output-path=./src/main/resources/META-INF/resources",
+    "start": "ng serve --proxy-config proxy-config.js --serve-path /",
+    "build": "ng build --base-href /",
+    "prod": "ng build --configuration production --output-path=./src/main/resources/META-INF/resources --base-href /",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

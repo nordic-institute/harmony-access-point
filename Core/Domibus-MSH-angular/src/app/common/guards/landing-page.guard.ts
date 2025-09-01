@@ -29,7 +29,7 @@ export class LandingPageGuard {
 
     const useMessagesPage = await this.propertiesService.useMessageLogLandingPage();
     if (useMessagesPage) {
-      return true;
+      return this.router.parseUrl('/messagelog');
     }
 
     if (this.securityService.isCurrentUserAdmin()) {

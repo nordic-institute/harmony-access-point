@@ -6,21 +6,21 @@
       <img src="assets/images/Logomark.svg" *ngIf="!fullMenu"/>
     </div>
 
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagelog']" id="messages_id" *ngIf="isUser()">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagelog']" routerLinkActive="active" id="messages_id" *ngIf="isUser()">
       <mat-icon mat-tooltip="Messages">message</mat-icon>
       <span>Messages</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()"
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" routerLinkActive="active" *ngIf="isAdmin()"
             id="messagefilter_id">
       <mat-icon mat-tooltip="Message Filter">filter_list
       </mat-icon>
       <span>Message Filter</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/errorlog']" id="errorlog_id" *ngIf="isUser()">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/errorlog']" routerLinkActive="active" id="errorlog_id" *ngIf="isUser()">
       <mat-icon mat-tooltip="Error Log">sms_failed</mat-icon>
       <span>Error Log</span>
     </button>
-    <mat-expansion-panel *ngIf="isAdmin()">
+    <mat-expansion-panel *ngIf="isAdmin()" [class.active]="pmodeRla?.isActive">
       <mat-expansion-panel-header>
         <button mat-raised-button class="sideNavButton" id="pmode_id">
           <mat-icon mat-tooltip="PMode">description</mat-icon>
@@ -28,27 +28,27 @@
         </button>
       </mat-expansion-panel-header>
 
-      <div class="sideNavSubmenu">
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
+      <div class="sideNavSubmenu" routerLinkActive="submenu-active" #pmodeRla="routerLinkActive">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" routerLinkActive="active" id="current_pmode_id">
           <mat-icon mat-tooltip="Current PMode">receipt</mat-icon>
           <span>Current</span>
         </button>
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" routerLinkActive="active" id="pmode_archive_id">
           <mat-icon mat-tooltip="PMode Archive">history</mat-icon>
           <span>Archive</span>
         </button>
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" routerLinkActive="active" id="pmode_party_id">
           <mat-icon mat-tooltip="Party management">device_hub</mat-icon>
           <span>Parties</span>
         </button>
       </div>
     </mat-expansion-panel>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/jms']" *ngIf="isAdmin()" id="jmsmonitoring_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/jms']" routerLinkActive="active" *ngIf="isAdmin()" id="jmsmonitoring_id">
       <mat-icon mat-tooltip="JMS Monitoring">computer</mat-icon>
       <span>JMS Monitoring</span>
     </button>
 
-    <mat-expansion-panel *ngIf="isAdmin()">
+    <mat-expansion-panel *ngIf="isAdmin()" [class.active]="certificateRla?.isActive">
       <mat-expansion-panel-header>
         <button mat-raised-button class="sideNavButton" id="truststores_id">
           <mat-icon mat-tooltip="Certificates">vpn_key</mat-icon>
@@ -56,16 +56,16 @@
         </button>
       </mat-expansion-panel-header>
 
-      <div class="sideNavSubmenu">
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/keystore']" *ngIf="isAdmin()" id="keystore_id">
+      <div class="sideNavSubmenu" routerLinkActive="submenu-active" #certificateRla="routerLinkActive">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/keystore']" routerLinkActive="active" *ngIf="isAdmin()" id="keystore_id">
           <mat-icon mat-tooltip="Keystore">vpn_key</mat-icon>
           <span>Keystore</span>
         </button>
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" routerLinkActive="active" *ngIf="isAdmin()" id="truststore_id">
           <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
           <span>Truststore</span>
         </button>
-        <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" *ngIf="isAdmin()" id="tls_truststore_id">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" routerLinkActive="active" *ngIf="isAdmin()" id="tls_truststore_id">
           <mat-icon mat-tooltip="TLS Truststore">https</mat-icon>
           <span>TLS</span>
         </button>
@@ -73,46 +73,52 @@
     </mat-expansion-panel>
 
 
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']"
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']" routerLinkActive="active"
             *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
       <mat-icon mat-tooltip="Users">people</mat-icon>
       <span>Users</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()"
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" routerLinkActive="active" *ngIf="isAdmin()"
             id="plugin_user_id">
       <mat-icon mat-tooltip="Plugin Users">people_outline</mat-icon>
       <span>Plugin Users</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/audit']" *ngIf="isAdmin()" id="audit_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/audit']" routerLinkActive="active" *ngIf="isAdmin()" id="audit_id">
       <mat-icon mat-tooltip="Audit">update</mat-icon>
       <span>Audit</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/alerts']" *ngIf="isAdmin()" id="alerts_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/alerts']" routerLinkActive="active" *ngIf="isAdmin()" id="alerts_id">
       <mat-icon mat-tooltip="Alerts">add_alert</mat-icon>
       <span>Alerts</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" *ngIf="isAdmin()"
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" routerLinkActive="active" *ngIf="isAdmin()"
             id="connectionmonitoring_id">
       <mat-icon mat-tooltip="Connection Monitoring">import_export</mat-icon>
       <span *ngIf="fullMenu">Connection Monitoring</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdminMultiAware()" id="logging_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" routerLinkActive="active" *ngIf="isAdminMultiAware()" id="logging_id">
       <mat-icon mat-tooltip="Logging">list_alt</mat-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" routerLinkActive="active" *ngIf="isAdmin()" id="properties_id">
       <mat-icon mat-tooltip="View or Set Harmony AP Properties">settings</mat-icon>
       <span>Properties</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/domains']" *ngIf="isSuperAdmin()" id="domains_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/domains']" routerLinkActive="active" *ngIf="isSuperAdmin()" id="domains_id">
       <mat-icon mat-tooltip="Add or Delete Domains">dns</mat-icon>
       <span>Domains</span>
     </button>
-
-    <div class="bottom-link" *ngIf="fullMenu">
-      <a target="_blank"
-         href="https://edelivery.digital/ap-licence-info">Licence info</a>
-    </div>
+    <a
+      mat-raised-button
+      class="sideNavButton"
+      href="https://edelivery.digital/ap-licence-info"
+      target="_blank"
+      rel="noopener"
+    >
+      <mat-icon matTooltip="View licence info">business</mat-icon>
+      <span>Licence info</span>
+      <mat-icon iconPositionEnd class="open-external-icon">open_in_new</mat-icon>
+    </a>
 
     <div class="collapse-button">
       <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
@@ -181,8 +187,8 @@
       </div>
     </div>
 
-    <div id="routerHolder" style="height: calc(100% - 40px);">
-      <div style="margin:15px;height: 100%;">
+    <div id="routerHolder" style="height: calc(100% - 30px);">
+      <div style="margin:20px;height: 100%;">
         <router-outlet class="full-height"></router-outlet>
       </div>
     </div>
