@@ -1,6 +1,10 @@
 ---
 excludes:
   paths:
+    - pattern: ".mvn/wrapper/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "This is a build tool."
+
     - pattern: "Plugin-FS/**"
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
@@ -8,6 +12,10 @@ excludes:
     - pattern: "Plugin-JMS/**"
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
+
+    - pattern: "Plugin-WS/Domibus-default-ws-plugin-backend-ws-test/**"
+      reason: "TEST_OF"
+      comment: "This directory contains tests."
 
     - pattern: "Weblogic/**"
       reason: "OPTIONAL_COMPONENT_OF"
@@ -17,41 +25,45 @@ excludes:
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
 
-    - pattern: "Core/Domibus-MSH-swagger/**"
-      reason: "OPTIONAL_COMPONENT_OF"
-      comment: "Not included in distributed build artifacts."
+    - pattern: "license/**"
+      reason: "OTHER"
+      comment: "This directory includes 3rd party license files."
+
+    - pattern: "third-party/**"
+      reason: "DOCUMENTATION_OF"
+      comment: "The directory contains third party license notices. The package itself does not contain the files referenced in the license notice."
 
     - pattern: "Core/Domibus-MSH-distribution/**"
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
 
-    - pattern: "Domibus-DSS/domibus-dss-test/**"
-      reason: "TEST_OF"
-      comment: "This directory contains tests."
-
-    - pattern: "Core/Domibus-MSH-selenium-ui-tests/**"
-      reason: "TEST_OF"
-      comment: "This directory contains tests."
-
     - pattern: "Core/Domibus-MSH-soapui-tests/**"
       reason: "TEST_OF"
       comment: "This directory contains tests."
+
+    - pattern: "Core/Domibus-MSH-swagger/**"
+      reason: "OPTIONAL_COMPONENT_OF"
+      comment: "Not included in distributed build artifacts."
 
     - pattern: "Core/Domibus-MSH-test/**"
       reason: "TEST_OF"
       comment: "This directory contains tests."
 
-    - pattern: "Plugin-WS/Domibus-default-ws-plugin-backend-ws-test/**"
+    - pattern: "Core/Domibus-MSH-test-common/**"
       reason: "TEST_OF"
       comment: "This directory contains tests."
 
-    - pattern: "third-party/mysql-connector-licensing"
-      reason: "DOCUMENTATION_OF"
-      comment: "The file is a third party license notice. The package itself does not contain the files referenced in the license notice."
+    - pattern: "**/src/test/**"
+      reason: "TEST_OF"
+      comment: "This directory contains unit tests."
 
     - pattern: ".ort.yml"
       reason: "DOCUMENTATION_OF"
       comment: "The file is a oss review toolkit configuration file."
+
+    - pattern: "THIRD-PARTY.txt"
+      reason: "OTHER"
+      comment: "This file includes a list of 3rd party libraries."
 
   scopes:
     - pattern: "checkstyle"
