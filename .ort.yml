@@ -61,9 +61,21 @@ excludes:
       reason: "DOCUMENTATION_OF"
       comment: "The file is a oss review toolkit configuration file."
 
+    - pattern: "Notice.md"
+      reason: "OTHER"
+      comment: "This file includes a list of 3rd party libraries."
+
     - pattern: "THIRD-PARTY.txt"
       reason: "OTHER"
       comment: "This file includes a list of 3rd party libraries."
+
+    - pattern: "mvnw"
+      reason: "BUILD_TOOL_OF"
+      comment: "This is a build tool."
+
+    - pattern: "mvnw.cmd"
+      reason: "BUILD_TOOL_OF"
+      comment: "This is a build tool."
 
   scopes:
     - pattern: "checkstyle"
@@ -154,6 +166,36 @@ resolutions:
     - message: "copyleft-strong license GPL-2.0-or-later in Maven:antlr:antlr:2.7.7."
       reason: "LICENSE_ACQUIRED_EXCEPTION"
       comment: "The file is deemed to be separate and distinct from the other parts of the package and therefore seen as mere aggregation. The license obligations of GPL-2.0-or-later do not cover the whole."
+    - message: "copyleft-LGPL license LGPL-3.0-only in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-file-level license CDDL-1.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-file-level license EPL-2.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-file-level license MPL-1.1 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-file-level license MPL-2.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-file-level license CDDL-1.1 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-module-level license EPL-1.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-module-level license GPL-2.0-only WITH Classpath-exception-2.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "copyleft-strong license GPL-2.0-or-later WITH Classpath-exception-2.0 in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
+    - message: "Unhandled license LicenseRef-scancode-un-cefact-2016 in Maven:org.niis.dynamic-discovery:dynamic-discovery-client:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "The license LicenseRef-scancode-un-cefact-2016 license allows redistribution if the copyright notice and license text are included in all copies and derivative works. The condition is satisfied."
 
 curations:
   license_findings:
