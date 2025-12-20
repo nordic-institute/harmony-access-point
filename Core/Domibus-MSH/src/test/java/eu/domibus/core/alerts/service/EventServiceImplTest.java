@@ -38,7 +38,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.Date;
 
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
