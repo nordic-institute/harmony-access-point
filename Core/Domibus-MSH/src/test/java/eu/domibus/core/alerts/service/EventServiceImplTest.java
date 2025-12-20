@@ -38,6 +38,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Date;
 
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
@@ -345,23 +346,21 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void enqueueMonitoringEvent(@Injectable ConnectionMonitoringModuleConfiguration configuration) {
+    public void enqueueMonitoringEvent() {
         String messageId = "messageId";
         MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
-        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+        MessageStatus newStatus = MessageStatus.SEND_FAILURE;
         MSHRole mshRole = MSHRole.SENDING;
         String fromParty = "partyA";
         String toParty = "partyB";
 
+        ConnectionMonitoringModuleConfiguration configuration = new ConnectionMonitoringModuleConfiguration();
+        configuration.setEnabledParties(Arrays.asList(fromParty + ">" + toParty));
+        configuration.setActive(true);
+
         new Expectations() {{
             alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
             result = configuration;
-
-            configuration.isActive();
-            result = true;
-
-            configuration.shouldGenerateAlert(newStatus, fromParty, toParty);
-            result = true;
         }};
 
         eventService.enqueueMonitoringEvent(messageId, mshRole, oldStatus, newStatus, fromParty, toParty);
