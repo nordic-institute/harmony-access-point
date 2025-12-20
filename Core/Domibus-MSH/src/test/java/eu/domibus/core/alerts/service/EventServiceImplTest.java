@@ -346,21 +346,23 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void enqueueMonitoringEvent() {
+    public void enqueueMonitoringEvent(@Injectable ConnectionMonitoringModuleConfiguration configuration) {
         String messageId = "messageId";
         MessageStatus oldStatus = MessageStatus.SEND_ENQUEUED;
-        MessageStatus newStatus = MessageStatus.SEND_FAILURE;
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
         MSHRole mshRole = MSHRole.SENDING;
         String fromParty = "partyA";
         String toParty = "partyB";
 
-        ConnectionMonitoringModuleConfiguration configuration = new ConnectionMonitoringModuleConfiguration();
-        configuration.setEnabledParties(Arrays.asList(fromParty + ">" + toParty));
-        configuration.setActive(true);
-
         new Expectations() {{
             alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
             result = configuration;
+
+            configuration.isActive();
+            result = true;
+
+            configuration.shouldGenerateAlert(newStatus, fromParty, toParty);
+            result = true;
         }};
 
         eventService.enqueueMonitoringEvent(messageId, mshRole, oldStatus, newStatus, fromParty, toParty);
