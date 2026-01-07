@@ -2835,6 +2835,11 @@ class Domibus{
 
     static void  checkIfAnySmokeTestsFailed(testRunner, testCase, log) {
         debugLog("  ====  Calling \"checkIfAnySmokeTestsFailed\".", log)
+        def selectedTestCase = testCase.testSuite.project.getPropertyValue("soapui.testCase")
+        if (selectedTestCase != null && !selectedTestCase.trim().isEmpty()) {
+            debugLog("Skipping smoke test fast-fail due to selected test case: " + selectedTestCase, log)
+            return
+        }
         if (testCase.testSuite.getPropertyValue("TestSuiteSmokeTestsResult") == "FAILED") {
             debugLog("One of smoke tests failed. Now would cancel execution of all other test cases in current test suite.", log)
             testRunner.cancel( "One of smoke tests failed. Aborting whole test suite run." )
