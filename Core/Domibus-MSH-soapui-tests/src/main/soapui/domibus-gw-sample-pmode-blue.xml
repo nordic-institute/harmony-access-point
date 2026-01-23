@@ -27,22 +27,22 @@
 			<partyIdTypes>
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
-			<party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
+			<party name="red_gw" endpoint="http://__REDHOST__:8080/services/msh" allowChunking="false">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
+			<party name="blue_gw" endpoint="http://__BLUEHOST__:8080/services/msh" allowChunking="false">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="white_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
+			<party name="white_gw" endpoint="http://localhost:8180/services/msh" allowChunking="false">
 				<identifier partyId="domibus-white" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="black_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
+			<party name="black_gw" endpoint="http://localhost:8280/services/msh" allowChunking="false">
 				<identifier partyId="domibus-black" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="green_gw" endpoint="http://localhost:8280/domibus/services/msh" allowChunking="false">
+			<party name="green_gw" endpoint="http://localhost:8380/services/msh" allowChunking="false">
 				<identifier partyId="domibus-green" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="yellow_gw" endpoint="http://localhost:8989/domibus/services/msh" allowChunking="false">
+			<party name="yellow_gw" endpoint="http://localhost:8480/services/msh" allowChunking="false">
 				<identifier partyId="domibus-yellow" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -305,7 +305,7 @@
 				<leg name="backendToNodeAckBundleTxResponse"/>
 			</legs>
 		</process>
-		<process name="tc13Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc13Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -316,7 +316,7 @@
 				<leg name="pullTestcase13tc13Action"/>
 			</legs>
 		</process>
-		<process name="tc15Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc15Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -327,7 +327,7 @@
 				<leg name="pullTestcase15tc15Action"/>
 			</legs>
 		</process>
-		<process name="tc16Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc16Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -338,7 +338,7 @@
 				<leg name="pullTestcase16tc16Action"/>
 			</legs>
 		</process>
-		<process name="tc17Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc17Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -349,7 +349,7 @@
 				<leg name="pullTestcase17tc17Action"/>
 			</legs>
 		</process>
-		<process name="tc18Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc18Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
 			</initiatorParties>
@@ -390,7 +390,7 @@
 				<leg name="pushTestcase21tc21Action"/>
 			</legs>
 		</process>
-		<process name="tc22Process" agreement="agreementDummy" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc22Process" agreement="agreementDummy" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -414,7 +414,7 @@
 				<leg name="pushTestcase27tc27Action"/>
 			</legs>
 		</process>
-		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultResponderRole" responderRole="defaultInitiatorRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
 			</initiatorParties>
@@ -427,4 +427,3 @@
 		</process>
 	</businessProcesses>
 </db:configuration>
-
