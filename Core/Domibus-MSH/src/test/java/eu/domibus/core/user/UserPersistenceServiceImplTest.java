@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
@@ -26,7 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.*;
 
@@ -402,10 +407,61 @@ public class UserPersistenceServiceImplTest {
         new VerificationsInOrder() {{
             securityPolicyManager.changePassword(userEntity, newPassword);
             times = 1;
+            userSessionsService.invalidateSessions(userEntity);
+            times = 1;
             userDao.update(userEntity);
             times = 1;
         }};
 
+    }
+
+    @Test
+    public void changePasswordWithCurrentSessionKeepsCurrentSessionActive() {
+        String userName = "user1";
+        String currentPassword = "currentPassword";
+        String newPassword = "newPassword";
+        String currentSessionId = "current-session-id";
+
+        final User userEntity = new User() {{
+            setActive(false);
+            setSuspensionDate(new Date());
+            setAttemptCount(5);
+            setPassword("persisted-hash");
+        }};
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(new MockHttpSession(null, currentSessionId));
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        try {
+            new Expectations() {{
+                userDao.loadUserByUsername(userName);
+                result = userEntity;
+
+                bCryptEncoder.matches(currentPassword, userEntity.getPassword());
+                result = true;
+            }};
+
+            userPersistenceService.changePassword(userName, currentPassword, newPassword);
+        } finally {
+            RequestContextHolder.resetRequestAttributes();
+        }
+
+        new VerificationsInOrder() {{
+            securityPolicyManager.changePassword(userEntity, newPassword);
+            times = 1;
+
+            userSessionsService.invalidateSessions(userEntity, currentSessionId);
+            times = 1;
+
+            userDao.update(userEntity);
+            times = 1;
+        }};
+
+        new Verifications() {{
+            userSessionsService.invalidateSessions((UserBase) any);
+            times = 0;
+        }};
     }
 
     @Test

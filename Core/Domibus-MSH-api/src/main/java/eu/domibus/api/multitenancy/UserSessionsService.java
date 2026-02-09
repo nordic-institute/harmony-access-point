@@ -9,6 +9,8 @@ import eu.domibus.api.user.UserBase;
 public interface UserSessionsService {
     void invalidateSessions(UserBase user);
 
+    void invalidateSessions(UserBase user, String excludedSessionId);
+
     void invalidateSessions(String userName);
 
     void invalidateSessions(Domain domain);
