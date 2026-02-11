@@ -1,8 +1,9 @@
 import {UserResponseRO} from './user';
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 
@@ -15,13 +16,15 @@ export class UserService {
               private domainService: DomainService) {
   }
 
-  getUsers(): Promise<UserResponseRO[]> {
-    return this.http.get<UserResponseRO[]>('rest/user/users').toPromise();
+  getUsers(criteria?: UserSearchCriteria): Promise<UserResponseRO[]> {
+    return this.http.get<UserResponseRO[]>('rest/user/users', {params: this.buildSearchParams(criteria)}).toPromise();
   }
 
   getUserNames(): Observable<string[]> {
-    return this.http.get<UserResponseRO[]>('rest/user/users')
-      .map((users: UserResponseRO[]) => users.map(u => u.userName))
+    const criteria = new UserSearchCriteria();
+    criteria.deleted_notSet = true;
+    return this.http.get<UserResponseRO[]>('rest/user/users', {params: this.buildSearchParams(criteria)})
+      .pipe(map((users: UserResponseRO[]) => users.map(u => u.userName)));
   }
 
   getUserRoles(): Observable<string[]> {
@@ -52,6 +55,32 @@ export class UserService {
     }
   }
 
+  private buildSearchParams(criteria: UserSearchCriteria): HttpParams {
+    const {
+      authRole,
+      userName,
+      pageStart,
+      pageSize
+    } = criteria;
+
+    let params = new HttpParams()
+        .set('pageStart', String(pageStart))
+        .set('pageSize', String(pageSize));
+
+    const deleted = criteria.deleted_notSet ? 'all' : (criteria.deleted === true).toString();
+    params = params.set('deleted', deleted);
+
+    if (authRole) {
+      params = params.set('authRole', authRole);
+    }
+
+    if (userName) {
+      params = params.set('userName', userName);
+    }
+
+    return params;
+  }
+
 }
 
 export class UserSearchCriteria {
@@ -59,6 +88,7 @@ export class UserSearchCriteria {
   userName: string;
   deleted: boolean = false;
   deleted_notSet: boolean = false;
+  pageStart: number = 0;
+  pageSize: number = -1;
   i: number = 0;
 }
-

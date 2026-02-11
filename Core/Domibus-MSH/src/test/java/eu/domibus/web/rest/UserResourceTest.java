@@ -101,7 +101,7 @@ public class UserResourceTest {
         domainsList.add(domain);
 
         new Expectations() {{
-            userManagementService.findUsers();
+            userManagementService.findUsersWithFilters(null, null, null, 0, 10);
             result = userList;
 
             domain.getCode();
@@ -115,13 +115,65 @@ public class UserResourceTest {
         }};
 
         // When
-        List<UserResponseRO> userResponseROS = userResource.getUsers();
+        List<UserResponseRO> userResponseROS = userResource.getUsers(new UserFilterRequestRO());
         userResource.updateUsers(userResponseROS);
 
         // Then
         Assert.assertNotNull(userResponseROS);
         UserResponseRO userResponseRO = getUserResponseRO();
         Assert.assertEquals(userResponseRO, userResponseROS.get(0));
+    }
+
+    @Test
+    public void testGetUsersDelegatesFiltersAndPagination() {
+        UserFilterRequestRO request = new UserFilterRequestRO();
+        request.setAuthRole(AuthRole.ROLE_ADMIN);
+        request.setUserName("admin");
+        request.setDeleted("all");
+        request.setPageStart(2);
+        request.setPageSize(25);
+
+        final List<User> userList = new ArrayList<>();
+        final List<UserResponseRO> userResponseROList = new ArrayList<>();
+
+        new Expectations() {{
+            userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "all", 2, 25);
+            result = userList;
+
+            authCoreMapper.userListToUserResponseROList(userList);
+            result = userResponseROList;
+        }};
+
+        List<UserResponseRO> userResponseROS = userResource.getUsers(request);
+
+        Assert.assertNotNull(userResponseROS);
+        Assert.assertEquals(0, userResponseROS.size());
+    }
+
+    @Test
+    public void testGetUsersNormalizesPaginationValues() {
+        UserFilterRequestRO request = new UserFilterRequestRO();
+        request.setDeleted("all");
+        request.setPageStart(-3);
+        request.setPageSize(0);
+
+        final List<User> userList = new ArrayList<>();
+        final List<UserResponseRO> userResponseROList = new ArrayList<>();
+
+        new Expectations() {{
+            userManagementService.findUsersWithFilters(null, null, "all", 0, Integer.MAX_VALUE);
+            result = userList;
+
+            authCoreMapper.userListToUserResponseROList(userList);
+            result = userResponseROList;
+        }};
+
+        List<UserResponseRO> userResponseROS = userResource.getUsers(request);
+
+        Assert.assertEquals(0, request.getPageStart());
+        Assert.assertEquals(Integer.MAX_VALUE, request.getPageSize());
+        Assert.assertNotNull(userResponseROS);
+        Assert.assertEquals(0, userResponseROS.size());
     }
 
     @Test
