@@ -16,7 +16,7 @@ export class UserService {
               private domainService: DomainService) {
   }
 
-  getUsers(criteria?: UserSearchCriteria): Promise<UserResponseRO[]> {
+  getUsers(criteria: UserSearchCriteria): Promise<UserResponseRO[]> {
     return this.http.get<UserResponseRO[]>('rest/user/users', {params: this.buildSearchParams(criteria)}).toPromise();
   }
 
