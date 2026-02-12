@@ -183,8 +183,9 @@ public class AuthenticationResource {
      */
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
+    public void changePassword(@RequestBody @Valid ChangePasswordRO param, HttpServletRequest request, HttpServletResponse response) {
         authenticationService.changePassword(param.getCurrentPassword(), param.getNewPassword());
+        sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
     }
 
     private UserRO createUserRO(DomibusUserDetails principal, String username) {
