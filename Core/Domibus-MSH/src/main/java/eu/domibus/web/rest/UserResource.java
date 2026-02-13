@@ -96,10 +96,23 @@ public class UserResource extends BaseResource {
      * {@inheritDoc}
      */
     @GetMapping(value = {"/users"})
-    public List<UserResponseRO> getUsers() {
+    public List<UserResponseRO> getUsers(UserFilterRequestRO request) {
         LOG.debug("Retrieving users");
 
-        List<User> users = getUserService().findUsers();
+        if (request.getPageStart() < 0) {
+            request.setPageStart(0);
+        }
+
+        if (request.getPageSize() <= 0) {
+            request.setPageSize(Integer.MAX_VALUE);
+        }
+
+        List<User> users = getUserService().findUsersWithFilters(
+                request.getAuthRole(),
+                request.getUserName(),
+                request.getDeleted(),
+                request.getPageStart(),
+                request.getPageSize());
 
         return prepareResponse(users);
     }
