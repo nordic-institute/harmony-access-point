@@ -1,6 +1,5 @@
 package eu.domibus.core.spring;
 
-import com.google.common.collect.Sets;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.plugin.PluginException;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -15,7 +14,6 @@ import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.spring.DomibusWebConfiguration;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.core.annotation.Order;
@@ -42,6 +40,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -138,26 +137,22 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
     }
 
     protected PluginClassLoader createPluginClassLoader(String domibusExtensionsLocation) {
-        String normalizedLocation = Paths.get(domibusExtensionsLocation).normalize().toString();
-        String pluginsLocation = normalizedLocation + PLUGINS_LOCATION;
-        String extensionsLocation = normalizedLocation + EXTENSIONS_LOCATION;
+        Set<File> pluginsDirectories = new LinkedHashSet<>();
 
-        LOG.info("Using plugins location [{}]", pluginsLocation);
-
-        Set<File> pluginsDirectories = Sets.newHashSet(new File(pluginsLocation));
-        if (StringUtils.isNotEmpty(extensionsLocation)) {
-            LOG.info("Using extension location [{}]", extensionsLocation);
-            pluginsDirectories.add(new File(extensionsLocation));
+        for (String location : domibusExtensionsLocation.split(",")) {
+            String normalized = Paths.get(location.trim()).normalize().toString();
+            LOG.info("Using plugins location [{}]", normalized + PLUGINS_LOCATION);
+            pluginsDirectories.add(new File(normalized + PLUGINS_LOCATION));
+            String ext = normalized + EXTENSIONS_LOCATION;
+            LOG.info("Using extension location [{}]", ext);
+            pluginsDirectories.add(new File(ext));
         }
 
-        PluginClassLoader pluginClassLoader = null;
         try {
-            pluginClassLoader =
-                    new PluginClassLoader(pluginsDirectories, Thread.currentThread().getContextClassLoader());
+            return new PluginClassLoader(pluginsDirectories, Thread.currentThread().getContextClassLoader());
         } catch (MalformedURLException e) {
             throw new PluginException(DomibusCoreErrorCode.DOM_001, "Malformed URL Exception", e);
         }
-        return pluginClassLoader;
     }
 
     protected void configureLogging(String domibusConfigLocation) {
