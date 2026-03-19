@@ -78,6 +78,8 @@
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <maven-source-plugin.version>2.3</maven-source-plugin.version>
+        <!-- Added in order to fix CVE-2026-27727, please remove after the quartz library is updated and does not bring the vulnerable transitive demendency to mchange-commons-java versions < 0.4.0 -->
+        <mchange-commons-java.version>0.4.0</mchange-commons-java.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -1067,6 +1069,13 @@
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>${javax.ws.rs-api.version}</version>
+            </dependency>
+
+            <!-- Added in order to fix CVE-2026-27727, please remove after the quartz library is updated and does not bring the vulnerable transitive demendency to mchange-commons-java versions < 0.4.0 -->
+            <dependency>
+                <groupId>com.mchange</groupId>
+                <artifactId>mchange-commons-java</artifactId>
+                <version>${mchange-commons-java.version}</version>
             </dependency>
 
             <!-- Maven Enforcer -->
