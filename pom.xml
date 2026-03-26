@@ -1610,7 +1610,7 @@
                             <!-- Disable checking npm dev dependencies -->
                             <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
                             <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
-                            <suppressionFile>project-check-exclude.xml</suppressionFile>
+                            <suppressionFile>${suppressionFile}</suppressionFile>
                         </configuration>
                         <executions>
                             <execution>
