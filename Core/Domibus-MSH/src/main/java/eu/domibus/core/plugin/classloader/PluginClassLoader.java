@@ -1,6 +1,5 @@
 package eu.domibus.core.plugin.classloader;
 
-import com.google.common.collect.Lists;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
@@ -10,10 +9,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by Cosmin Baciu on 6/15/2016.
@@ -22,41 +21,47 @@ public class PluginClassLoader extends URLClassLoader {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginClassLoader.class);
 
-    protected Set<File> files;
+    protected Collection<File> files;
 
-    public PluginClassLoader(Set<File> files, ClassLoader parent) throws MalformedURLException {
+    public PluginClassLoader(Collection<File> files, ClassLoader parent) throws MalformedURLException {
         super(discoverPlugins(files), parent);
         this.files = files;
     }
 
     /**
      * Group the plugins and extension directories to extract the jar files url.
-     * @param directories set of extension/plugins directories.
+     * Directories listed first have higher priority: if a JAR with the same filename
+     * exists in an earlier directory, later duplicates are skipped.
+     * @param directories ordered collection of extension/plugins directories.
      * @return the urls of the jar files.
      * @throws MalformedURLException
      */
-    protected static URL[] discoverPlugins(Set<File> directories) throws MalformedURLException {
+    protected static URL[] discoverPlugins(Collection<File> directories) throws MalformedURLException {
+        Set<String> seenFilenames = new HashSet<>();
+        List<URI> jarUris = new ArrayList<>();
 
-        final List<URI> jarUris = directories.stream().
-                map(directory -> {
-                    LOG.debug("Extracting plugin and extension jar files from directory:[{}]",directory);
-                    return directory.listFiles((dir, name) -> name.endsWith(".jar"));
-                }).
-                filter(Objects::nonNull).
-                map(Lists::newArrayList).
-                flatMap(ArrayList::stream).
-                map(File::toURI).
-                collect(Collectors.toList());
+        for (File directory : directories) {
+            LOG.debug("Extracting plugin and extension jar files from directory:[{}]", directory);
+            File[] jars = directory.listFiles((dir, name) -> name.endsWith(".jar"));
+            if (jars == null) continue;
+            for (File jar : jars) {
+                if (seenFilenames.add(jar.getName())) {
+                    jarUris.add(jar.toURI());
+                    LOG.info("Adding the following plugin/extension to the classpath:[{}]", jar.toURI().toURL());
+                } else {
+                    LOG.info("Skipping duplicate plugin/extension (already loaded from higher-priority directory):[{}]", jar);
+                }
+            }
+        }
 
-        final URL[] urls = new URL[jarUris.size()];
+        URL[] urls = new URL[jarUris.size()];
         for (int i = 0; i < jarUris.size(); i++) {
             urls[i] = jarUris.get(i).toURL();
-            LOG.info("Adding the following plugin/extension to the classpath:[{}] ", urls[i]);
         }
         return urls;
     }
 
-    public Set<File> getFiles() {
+    public Collection<File> getFiles() {
         return files;
     }
 }

@@ -9,16 +9,17 @@ import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.common.jaxb.JAXBUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
-import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBContext;
@@ -50,7 +51,8 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
-    public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
+    private static final String PLACEHOLDER_PREFIX = "${";
+    private static final String PLACEHOLDER_SUFFIX = "}";
 
     private static final String TLS_CACHE = "tlsCache";
 
@@ -62,9 +64,14 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     private final DomibusLocalCacheService domibusLocalCacheService;
 
-    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService, DomibusLocalCacheService domibusLocalCacheService) {
+    private final Environment environment;
+
+    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService,
+                                DomibusLocalCacheService domibusLocalCacheService,
+                                Environment environment) {
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusLocalCacheService = domibusLocalCacheService;
+        this.environment = environment;
     }
 
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = TLS_CACHE, key = "#domainCode")
@@ -111,8 +118,44 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private String getFileContent(Optional<Path> path) throws IOException {
         byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);
-        config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
-        return config;
+        return resolvePlaceholders(config, path.orElse(null));
+    }
+
+    protected String resolvePlaceholders(String config, Path sourcePath) {
+        if (config == null) {
+            return null;
+        }
+        String pathInfo = sourcePath != null ? sourcePath.toString() : CLIENT_AUTHENTICATION_XML;
+        StringBuilder result = new StringBuilder(config.length());
+        int i = 0;
+        while (i < config.length()) {
+            int start = config.indexOf(PLACEHOLDER_PREFIX, i);
+            if (start < 0) {
+                result.append(config, i, config.length());
+                break;
+            }
+            result.append(config, i, start);
+            int end = config.indexOf(PLACEHOLDER_SUFFIX, start + PLACEHOLDER_PREFIX.length());
+            if (end < 0) {
+                throw new IllegalStateException("Unclosed placeholder in [" + pathInfo + "]");
+            }
+
+            String placeholder = config.substring(start + PLACEHOLDER_PREFIX.length(), end);
+            int sep = placeholder.indexOf(':');
+            String name = sep >= 0 ? placeholder.substring(0, sep) : placeholder;
+            String defaultValue = sep >= 0 ? placeholder.substring(sep + 1) : null;
+
+            String value = environment.getProperty(name);
+            if (value != null) {
+                result.append(StringEscapeUtils.escapeXml10(value));
+            } else if (defaultValue != null) {
+                result.append(StringEscapeUtils.escapeXml10(defaultValue));
+            } else {
+                throw new IllegalStateException("Unresolved placeholder '" + name + "' in [" + pathInfo + "]");
+            }
+            i = end + 1;
+        }
+        return result.toString();
     }
 
     /**

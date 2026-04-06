@@ -187,6 +187,22 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
+    public void createPluginClassLoaderCommaSeparated() {
+        String locations = "/usr/local/lib/harmony-ap,/usr/share/harmony-ap";
+
+        PluginClassLoader pluginClassLoader = domibusApplicationInitializer.createPluginClassLoader(locations);
+
+        Collection<File> files = pluginClassLoader.getFiles();
+        List<File> fileList = new ArrayList<>(files);
+
+        Assert.assertEquals(4, fileList.size());
+        Assert.assertEquals(new File("/usr/local/lib/harmony-ap/plugins/lib"), fileList.get(0));
+        Assert.assertEquals(new File("/usr/local/lib/harmony-ap/extensions/lib"), fileList.get(1));
+        Assert.assertEquals(new File("/usr/share/harmony-ap/plugins/lib"), fileList.get(2));
+        Assert.assertEquals(new File("/usr/share/harmony-ap/extensions/lib"), fileList.get(3));
+    }
+
+    @Test
     public void configureLogging(@Mocked LogbackLoggingConfigurator logbackLoggingConfigurator) {
         String domibusConfigLocation = "/home/domibus";
 
