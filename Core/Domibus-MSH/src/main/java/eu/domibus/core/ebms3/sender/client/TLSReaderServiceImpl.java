@@ -21,7 +21,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.PropertyPlaceholderHelper;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -52,8 +51,8 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
-    private static final PropertyPlaceholderHelper PLACEHOLDER_HELPER =
-            new PropertyPlaceholderHelper("${", "}");
+    private static final String PLACEHOLDER_PREFIX = "${";
+    private static final String PLACEHOLDER_SUFFIX = "}";
 
     private static final String TLS_CACHE = "tlsCache";
 
@@ -127,20 +126,36 @@ public class TLSReaderServiceImpl implements TLSReaderService {
             return null;
         }
         String pathInfo = sourcePath != null ? sourcePath.toString() : CLIENT_AUTHENTICATION_XML;
-        return PLACEHOLDER_HELPER.replacePlaceholders(config, placeholder -> {
+        StringBuilder result = new StringBuilder(config.length());
+        int i = 0;
+        while (i < config.length()) {
+            int start = config.indexOf(PLACEHOLDER_PREFIX, i);
+            if (start < 0) {
+                result.append(config, i, config.length());
+                break;
+            }
+            result.append(config, i, start);
+            int end = config.indexOf(PLACEHOLDER_SUFFIX, start + PLACEHOLDER_PREFIX.length());
+            if (end < 0) {
+                throw new IllegalStateException("Unclosed placeholder in [" + pathInfo + "]");
+            }
+
+            String placeholder = config.substring(start + PLACEHOLDER_PREFIX.length(), end);
             int sep = placeholder.indexOf(':');
             String name = sep >= 0 ? placeholder.substring(0, sep) : placeholder;
             String defaultValue = sep >= 0 ? placeholder.substring(sep + 1) : null;
 
             String value = environment.getProperty(name);
             if (value != null) {
-                return StringEscapeUtils.escapeXml10(value);
+                result.append(StringEscapeUtils.escapeXml10(value));
+            } else if (defaultValue != null) {
+                result.append(StringEscapeUtils.escapeXml10(defaultValue));
+            } else {
+                throw new IllegalStateException("Unresolved placeholder '" + name + "' in [" + pathInfo + "]");
             }
-            if (defaultValue != null) {
-                return StringEscapeUtils.escapeXml10(defaultValue);
-            }
-            throw new IllegalStateException("Unresolved placeholder '" + name + "' in [" + pathInfo + "]");
-        });
+            i = end + 1;
+        }
+        return result.toString();
     }
 
     /**

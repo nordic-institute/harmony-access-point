@@ -202,6 +202,28 @@ public class TLSReaderTest {
     }
 
     @Test
+    public void resolvePlaceholders_passwordContainingPlaceholderSyntax() {
+        givenProperty("TLS_KEYSTORE_PASSWORD", "pa${foo}ss");
+        String config = "<keyStore password=\"${TLS_KEYSTORE_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<keyStore password=\"pa${foo}ss\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_unclosedPlaceholderThrows() {
+        String config = "<root value=\"${UNCLOSED\"/>";
+
+        try {
+            tlsReader.resolvePlaceholders(config, null);
+            Assert.fail("Expected IllegalStateException for unclosed placeholder");
+        } catch (IllegalStateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Unclosed placeholder"));
+        }
+    }
+
+    @Test
     public void resolvePlaceholders_resolvesDotNotationProperties() {
         givenProperty("domibus.config.location", "/etc/harmony-ap");
         String config = "<root path=\"${domibus.config.location}/certs\"/>";
