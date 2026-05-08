@@ -163,6 +163,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .and().xssProtection().xssProtectionEnabled(true)
                 .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:")
                 .and()
+                //Workaround for cve-2026-22732, to be removed when updating Spring Security to a non vulnerable version >= 6.5.9
                 .addObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
                     @Override
                     public HeaderWriterFilter postProcess(HeaderWriterFilter filter) {
