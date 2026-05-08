@@ -7,6 +7,7 @@ import eu.domibus.web.filter.SetDomainFilter;
 import eu.domibus.web.header.ServerHeaderWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -154,10 +156,22 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/message/failed/restore/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
                 .and()
-                .exceptionHandling().and()
-                .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions()
+                .exceptionHandling();
+
+        httpSecurity.headers()
+                .addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions()
                 .and().xssProtection().xssProtectionEnabled(true)
-                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:").and().and()
+                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src * 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; font-src 'self' data:")
+                .and()
+                .addObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
+                    @Override
+                    public HeaderWriterFilter postProcess(HeaderWriterFilter filter) {
+                        filter.setShouldWriteHeadersEagerly(true);
+                        return filter;
+                    }
+                });
+
+        httpSecurity
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()
                 .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class)
