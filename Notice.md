@@ -348,35 +348,35 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2024, Tadaya Tsuyukubo
 
-***org.apache.activemq:activemq-broker:5.19.6*** 
+***org.apache.activemq:activemq-broker:5.16.8*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2005 - 2024 The Apache Software Foundation (https://www.apache.org/)
 
-***org.apache.activemq:activemq-client:5.19.6*** 
+***org.apache.activemq:activemq-client:5.16.8*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2005 - 2024 The Apache Software Foundation (https://www.apache.org/)
 
-***org.apache.activemq:activemq-jaas:5.19.6*** 
+***org.apache.activemq:activemq-jaas:5.16.8*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2005 - 2024 The Apache Software Foundation (https://www.apache.org/)
 
-***org.apache.activemq:activemq-kahadb-store:5.19.6*** 
+***org.apache.activemq:activemq-kahadb-store:5.16.8*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2005 - 2024 The Apache Software Foundation (https://www.apache.org/)
 
-***org.apache.activemq:activemq-spring:5.19.6*** 
+***org.apache.activemq:activemq-spring:5.16.8*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt

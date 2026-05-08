@@ -1,10 +1,10 @@
 
 Lists of 114 third-party dependencies.
-     (Apache-2.0) ActiveMQ :: Broker (org.apache.activemq:activemq-broker:5.19.6 - http://activemq.apache.org/activemq-broker)
-     (Apache-2.0) ActiveMQ :: Client (org.apache.activemq:activemq-client:5.19.6 - http://activemq.apache.org/activemq-client)
-     (Apache-2.0) ActiveMQ :: JAAS (org.apache.activemq:activemq-jaas:5.19.6 - http://activemq.apache.org/activemq-jaas)
-     (Apache-2.0) ActiveMQ :: KahaDB Store (org.apache.activemq:activemq-kahadb-store:5.19.6 - http://activemq.apache.org/activemq-kahadb-store)
-     (Apache-2.0) ActiveMQ :: Spring (org.apache.activemq:activemq-spring:5.19.6 - http://activemq.apache.org/activemq-spring)
+     (Apache-2.0) ActiveMQ :: Broker (org.apache.activemq:activemq-broker:5.16.8 - http://activemq.apache.org/activemq-broker)
+     (Apache-2.0) ActiveMQ :: Client (org.apache.activemq:activemq-client:5.16.8 - http://activemq.apache.org/activemq-client)
+     (Apache-2.0) ActiveMQ :: JAAS (org.apache.activemq:activemq-jaas:5.16.8 - http://activemq.apache.org/activemq-jaas)
+     (Apache-2.0) ActiveMQ :: KahaDB Store (org.apache.activemq:activemq-kahadb-store:5.16.8 - http://activemq.apache.org/activemq-kahadb-store)
+     (Apache-2.0) ActiveMQ :: Spring (org.apache.activemq:activemq-spring:5.16.8 - http://activemq.apache.org/activemq-spring)
      (Apache-2.0) Apache Commons Codec (commons-codec:commons-codec:1.15 - https://commons.apache.org/proper/commons-codec/)
      (Apache-2.0) Apache Commons Collections (commons-collections:commons-collections:3.2.2 - http://commons.apache.org/collections/)
      (Apache-2.0) Apache Commons Collections (org.apache.commons:commons-collections4:4.4 - https://commons.apache.org/proper/commons-collections/)
