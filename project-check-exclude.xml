@@ -1298,4 +1298,101 @@
         <!-- Domibus Admin Console is not internationalized -->
         <vulnerabilityName>GHSA-prjf-86w9-mfqv</vulnerabilityName>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: hibernate-core-5.6.15.Final.jar
+   False positive: https://github.com/dependency-check/DependencyCheck/issues/8238
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-core@.*$</packageUrl>
+        <cve>CVE-2026-0603</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: c3p0-0.9.5.4.jar
+   Mitigation in place:
+     - mchange-commons-java is pinned to 0.4.0 via <dependencyManagement> (closes the JNDI
+       Reference attack vector).
+     - Domibus uses HikariCP for JDBC connection pooling, c3p0 is on the classpath as a
+       transitive of quartz only.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.mchange/c3p0@.*$</packageUrl>
+        <cve>CVE-2026-27830</cve>
+        <vulnerabilityName>GHSA-5476-xc4j-rqcv</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: activemq-broker-5.16.8.jar / activemq-jaas-5.16.8.jar
+   Fixes landed in ActiveMQ 5.19.4 / 5.19.6 which require Java 11.
+   5.16.8 is the last 5.16.x release on the Java 8 baseline.
+   Domibus embeds ActiveMQ for the internal JMS queue with a localhost transport
+   connector (activeMQ.transportConnector.uri default tcp://${activeMQ.broker.host}:61616);
+   the broker is not exposed to external networks by default. Operators that enable
+   ActiveMQ's Jolokia / web-console (CVE-2026-34197) must restrict its network
+   exposure.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-(broker|client|jaas|kahadb-store|spring)@.*$</packageUrl>
+        <cve>CVE-2026-34197</cve>
+        <cve>CVE-2026-40466</cve>
+        <cve>CVE-2026-41044</cve>
+        <cve>CVE-2026-39304</cve>
+        <cve>CVE-2026-41043</cve>
+        <cve>CVE-2026-33227</cve>
+        <vulnerabilityName>GHSA-5568-6qcg-g7fx</vulnerabilityName>
+        <vulnerabilityName>GHSA-h2h4-5m64-m273</vulnerabilityName>
+    </suppress>
+
+    <!-- ============================================================================
+         Spring Framework 5.3.x / Spring Security 5.8.x. EOL on Java 8 baseline.
+         Fixes are available only in Spring Framework 6.x (Java 17) and Spring
+         Security 6.x / 7.x (Java 17). The 5.3.x / 5.8.x open-source lines
+         stopped at 5.3.39 / 5.8.16.
+
+         Per-CVE exposure:
+           CVE-2026-22748 (NimbusJwtDecoder JWT validation): NOT EXPOSED.
+                 Domibus does not use NimbusJwtDecoder / OAuth2 resource server.
+           CVE-2026-22747 (X.509 user impersonation): NOT EXPOSED.
+                 Domibus does not use Spring's X509AuthenticationFilter. Client
+                 certificate auth is handled by CustomAuthenticationProvider with
+                 X509CertificateAuthentication / BlueCoatClientCertificateAuthentication
+                 (eu.domibus.core.security), which do not invoke the
+                 subjectPrincipalRegex parsing path described in the advisory.
+           CVE-2026-22746 (DaoAuthenticationProvider timing attack): REDUCED EXPOSURE.
+                 The admin console uses DaoAuthenticationProvider with
+                 BCryptPasswordEncoder (constant-time comparison); the console is
+                 an internal admin interface, not exposed to public networks.
+           CVE-2026-22732 (HTTP security headers under default-config edges): REDUCED EXPOSURE.
+                 Headers are emitted by the custom ServerHeaderWriter wired in
+                 AbstractWebSecurityConfigurerAdapter, with explicit HSTS, CSP and
+                 frameOptions, not the framework defaults.
+           CVE-2026-22740 / -22737 / -22745 / -22741 / -22735 (Spring Framework family): NOT EXPOSED.
+                 Domibus does not use Spring WebFlux nor functional web routing.
+         To be re-evaluated against Spring 6.x fixes when the Java baseline is raised.
+         ============================================================================ -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-core-5.3.39.jar / spring-web-5.3.39.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-(core|web|webmvc|messaging|context|context\-support|expression|beans|aop|tx|orm|jdbc|jms|test|jcl)@.*$</packageUrl>
+        <cve>CVE-2026-22740</cve>
+        <cve>CVE-2026-22737</cve>
+        <cve>CVE-2026-22745</cve>
+        <cve>CVE-2026-22741</cve>
+        <cve>CVE-2026-22735</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-core-5.8.16.jar / spring-security-web-5.8.16.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config|crypto)@.*$</packageUrl>
+        <cve>CVE-2026-22732</cve>
+        <cve>CVE-2026-22747</cve>
+        <cve>CVE-2026-22748</cve>
+        <cve>CVE-2026-22746</cve>
+        <vulnerabilityName>GHSA-mf92-479x-3373</vulnerabilityName>
+    </suppress>
+
 </suppressions>
