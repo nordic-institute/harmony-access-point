@@ -1,3 +1,5 @@
+Domibus 5.1.10
+- Applied security patches to address known vulnerabilities
 Domibus 5.1.9
 - Added new properties domibus.msh.retry.maxMessageCount and domibus.messages.stuck.maxMessageCount to limit the number of messages that can be retried in a single run. They are useful to prevent excessive load on the system when there are many messages in the WAITING_FOR_RETRY or SEND_ENQUEUED status.
 - Merged the deprecated ongoing messages sanitizer with the newer unsent messages sanitizer job

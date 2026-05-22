@@ -115,6 +115,18 @@
         <cve>CVE-2024-50379</cve>
         <cve>CVE-2024-54677</cve>
         <cve>CVE-2025-49124</cve>
+        <cve>CVE-2024-56337</cve>
+        <cve>CVE-2025-52434</cve>
+        <cve>CVE-2025-52520</cve>
+        <cve>CVE-2025-53506</cve>
+        <cve>CVE-2025-48989</cve>
+        <cve>CVE-2025-55668</cve>
+        <cve>CVE-2025-55754</cve>
+        <cve>CVE-2025-55752</cve>
+        <cve>CVE-2025-61795</cve>
+        <cve>CVE-2025-66614</cve>
+        <cve>CVE-2026-24734</cve>
+        <cve>CVE-2026-24733</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -136,6 +148,18 @@
         <cve>CVE-2025-48988</cve>
         <cve>CVE-2025-49124</cve>
         <cve>CVE-2025-49125</cve>
+        <cve>CVE-2024-56337</cve>
+        <cve>CVE-2025-52434</cve>
+        <cve>CVE-2025-52520</cve>
+        <cve>CVE-2025-53506</cve>
+        <cve>CVE-2025-48989</cve>
+        <cve>CVE-2025-55668</cve>
+        <cve>CVE-2025-55754</cve>
+        <cve>CVE-2025-55752</cve>
+        <cve>CVE-2025-61795</cve>
+        <cve>CVE-2025-66614</cve>
+        <cve>CVE-2026-24734</cve>
+        <cve>CVE-2026-24733</cve>
     </suppress>
     <suppress>
         <!-- jetty-server is not used in production - used in tests -->
@@ -360,18 +384,6 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-core-5.3.20.jar
-   ]]></notes>
-        <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-
     <suppress>
         <notes><![CDATA[
    file name: spring-aop-5.3.20.jar
@@ -416,6 +428,8 @@
         <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
         <!-- Domibus does not use org.springframework.http.ContentDisposition -->
         <vulnerabilityName>CVE-2025-41234</vulnerabilityName>
+        <!-- Feaature used in Domibus only in testing environment -->
+        <vulnerabilityName>CVE-2025-41249</vulnerabilityName>
     </suppress>
 
     <suppress>
@@ -538,13 +552,13 @@
     </suppress>
 
     <!-- Used in dss test module -->
-   <suppress>
-       <notes><![CDATA[
+    <suppress>
+        <notes><![CDATA[
   file name: jakarta.activation-api-2.1.1.jar
   ]]></notes>
-       <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
-       <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-   </suppress>
+        <packageUrl regex="true">^pkg:maven/jakarta\.activation/jakarta\.activation\-api@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
@@ -662,11 +676,21 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: cxf-rt-bindings-soap-3.4.10.jar
+   file name: @angular/platform-server:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fplatform-server@.*$</packageUrl>
+        <!--The srr functionality is not used in Domibus-->
+        <vulnerabilityName>GHSA-68x2-mx4q-78m7</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-bindings-soap-3.x.x.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
         <!-- According to AS4 profile, Domibus must use https, the bug reproduces on http. More, Domibus uses Soap 1.2, the vulnerabilities is reported on Apache SOAP version 2.2 and later versions. -->
         <cve>CVE-2022-40705</cve>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -717,14 +741,6 @@
         <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
         <!-- params are received only from the admin user, no unchecked params are passed in-->
         <cve>CVE-2023-39017</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: groovy-backports-compat23-2.4.4.jar
-   Only used in soapui-tests
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.codehaus\.groovy/groovy\-backports\-compat23@.*$</packageUrl>
-        <cve>CVE-2016-6814</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -813,6 +829,7 @@
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-http@.*$</packageUrl>
         <!--This is a dependency brought by wiremock and is used only in testing environment-->
         <vulnerabilityName>CVE-2024-6763</vulnerabilityName>
+        <cve>CVE-2024-9823</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -834,11 +851,17 @@
     <!--disallowedFields in DataBinder - to be removed when Spring is updated-->
     <suppress>
         <notes><![CDATA[
-   file name: spring-core-5.3.39.jar
+   file name: spring-core-5.3.xx.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
+        <!-- see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low) -->
+        <cve>CVE-2016-1000027</cve>
         <!-- Domibus does not use disallowedFields in DataBinder -->
         <cve>CVE-2024-38820</cve>
+        <!-- Domibus is not deployed on non compliant Servlet containers(supported ones are Tomcat, Wildfly,Weblogic) -->
+        <vulnerabilityName>CVE-2025-41242</vulnerabilityName>
+        <!--Functionality used only in testing environment-->
+        <vulnerabilityName>CVE-2025-41249</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -947,4 +970,332 @@
         <cve>CVE-2024-38820</cve>
     </suppress>
     <!--end - disallowedFields in DataBinder - to be removed when Spring is updated-->
+
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-lang-2.x.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-lang/commons\-lang@.*$</packageUrl>
+        <!-- ClassUtils.getClass(...) is used only in ClassUtilImpl which is used in the testing environment -->
+        <vulnerabilityName>CVE-2025-48924</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-lang3-3.x.x.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-lang3@.*$</packageUrl>
+        <!-- ClassUtils.getClass(...) is used only in ClassUtilImpl which is used in the testing environment -->
+        <vulnerabilityName>CVE-2025-48924</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: activemq-jaas-5.16.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-jaas@.*$</packageUrl>
+        <!-- affects only when using the ActiveMQ broker without mutula TLS. Although the default configuration of the ActiveMQ broker in Domibus
+         does not use mutual TLS, in production environments it is usually configured with TLS and therefore the probability of the vulnerability affecting is low -->
+        <cve>CVE-2025-27533</cve>
+        <!--Domibus is configured to use OpenWire transport protocol not MQTT for ActiveMQ-->
+        <cve>CVE-2025-66168</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: activemq-broker-5.16.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
+        <!-- affects only when using the ActiveMQ broker without mutula TLS. Although the default configuration of the ActiveMQ broker in Domibus
+         does not use mutual TLS, in production environments it is usually configured with TLS and therefore the probability of the vulnerability affecting is low -->
+        <cve>CVE-2025-27533</cve>
+        <!--Domibus is configured to use OpenWire transport protocol not MQTT for ActiveMQ-->
+        <cve>CVE-2025-66168</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: activemq-client-5.16.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-client@.*$</packageUrl>
+        <!-- affects only when using the ActiveMQ broker without mutula TLS. Although the default configuration of the ActiveMQ broker in Domibus
+         does not use mutual TLS, in production environments it is usually configured with TLS and therefore the probability of the vulnerability affecting is low -->
+        <cve>CVE-2025-27533</cve>
+        <!--Domibus is configured to use OpenWire transport protocol not MQTT for ActiveMQ-->
+        <cve>CVE-2025-66168</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: activemq-kahadb-store-5.16.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-kahadb\-store@.*$</packageUrl>
+        <!-- affects only when using the ActiveMQ broker without mutula TLS. Although the default configuration of the ActiveMQ broker in Domibus
+         does not use mutual TLS, in production environments it is usually configured with TLS and therefore the probability of the vulnerability affecting is low -->
+        <cve>CVE-2025-27533</cve>
+        <!--Domibus is configured to use OpenWire transport protocol not MQTT for ActiveMQ-->
+        <cve>CVE-2025-66168</cve>
+    </suppress>
+
+    <!-- CXF start - remove when CXF is updated to at least 3.6.8-->
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-core-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-core@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-wsdl-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-wsdl@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-ws-addr-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-ws-addr@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-security-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-security@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-ws-policy-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-ws-policy@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-ws-security-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-ws-security@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-bindings-xml-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-bindings-xml@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-security-saml-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-security-saml@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-frontend-jaxws-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-frontend-jaxws@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-frontend-jaxws-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-frontend-jaxws@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-frontend-simple-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-frontend-simple@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-transports-http-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-transports-http@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-databinding-jaxb-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-databinding-jaxb@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-features-logging-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-features-logging@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-features-metrics-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-features-metrics@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-transports-local-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-rt-transports-local@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-spring-boot-autoconfigure-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-spring-boot-autoconfigure@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-spring-boot-starter-jaxws-3.5.11.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-spring-boot-starter-jaxws@.*$</packageUrl>
+        <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
+        <cve>CVE-2025-48913</cve>
+    </suppress>
+
+    <!-- CXF end - remove when CXF is updated to at least 3.6.8-->
+
+    <suppress>
+        <notes><![CDATA[
+   file name: tika-core-2.7.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tika/tika-core@.*$</packageUrl>
+        <!-- Domibus does not use the tika-parser-pdf-module -->
+        <cve>CVE-2025-54988</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: brace-expansion:1.1.11
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/brace-expansion@.*$</packageUrl>
+        <!-- Exploitation complexity is high, vulnearability is rating is low -->
+        <vulnerabilityName>CVE-2025-5889</vulnerabilityName>
+        <vulnerabilityName>GHSA-v6h2-p8h4-qcjw</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: log4j-api-2.17.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.logging\.log4j/log4j-api@.*$</packageUrl>
+        <!-- Used in testing environment -->
+        <cve>CVE-2025-68161</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/compiler:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcompiler@.*$</packageUrl>
+        <!-- Domibus does not use SVG Script Attributes -->
+        <vulnerabilityName>GHSA-jrmj-c5cx-3cw6</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/compiler:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcompiler@.*$</packageUrl>
+        <!-- Domibus does not use SVG Animation, SVG URL and MathML Attributes -->
+        <vulnerabilityName>GHSA-v4hv-rgfq-gp49</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/core:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
+        <!-- Domibus does not use SVG Script Attributes -->
+        <vulnerabilityName>GHSA-jrmj-c5cx-3cw6</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/common:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcommon@.*$</packageUrl>
+        <!-- Domibus does not use a protocol-relative URLs -->
+        <vulnerabilityName>GHSA-58c5-g7wp-6w37</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tika-core-2.7.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tika/tika-core@.*$</packageUrl>
+        <!-- Domibus uses tika just for MIME type detection, not document parsing and the vulnerability manifests in the pdf parsing modules -->
+        <cve>CVE-2025-66516</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: lodash:4.17.21
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/lodash@.*$</packageUrl>
+        <!-- Vulnerabilities are server-side related when running on a nodejs server, but Domibus uses a Java server -->
+        <vulnerabilityName>GHSA-xxjr-mmjv-4gpg</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tar:6.2.1
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/tar@.*$</packageUrl>
+        <!-- Vulnerabilities are server-side related when running on a nodejs server, but Domibus uses a Java server -->
+        <vulnerabilityName>GHSA-r6q2-hw4h-h46w</vulnerabilityName>
+        <vulnerabilityName>GHSA-8qq5-rm4j-mr97</vulnerabilityName>
+        <vulnerabilityName>GHSA-34x7-hfp2-rc4v</vulnerabilityName>
+        <vulnerabilityName>GHSA-83g3-92jg-28cx</vulnerabilityName>
+        <vulnerabilityName>GHSA-qffp-2rhf-9h96</vulnerabilityName>
+        <vulnerabilityName>GHSA-9ppj-qmqm-q256</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: minimatch:3.0.5
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/minimatch@.*$</packageUrl>
+        <!-- Vulnerabilities are server-side related when running on a nodejs server, but Domibus uses a Java server -->
+        <vulnerabilityName>GHSA-3ppc-4f35-3m26</vulnerabilityName>
+        <vulnerabilityName>GHSA-23c5-xmqv-rm74</vulnerabilityName>
+        <vulnerabilityName>GHSA-7r86-cg39-jmmj</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eu.domibus:domibus-msh-angular:5.1.9-SNAPSHOT
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/eu\.domibus/domibus-msh-angular@.*$</packageUrl>
+        <!-- Domibus does not use SVG Animation, SVG URL and MathML Attributes -->
+        <cve>CVE-2025-66412</cve>
+        <!-- Domibus does not use SVG Script Attributes -->
+        <cve>CVE-2026-22610</cve>
+        <!-- Domibus Admin Console is not internationalized -->
+        <cve>CVE-2026-27970</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: @angular/core:16.2.12
+   ]]></notes>
+        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
+        <!-- Domibus Admin Console is not internationalized -->
+        <vulnerabilityName>GHSA-prjf-86w9-mfqv</vulnerabilityName>
+    </suppress>
 </suppressions>
