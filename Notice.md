@@ -397,7 +397,7 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2001 - 2024 The Apache Software Foundation (https://www.apache.org/), Daniel Rall, Jason van Zyl, Martin Poeschl, dIon Gillard, Henning P. Schmiedehausen, Eric Pugh, Brian E. Dunbar, Emmanuel Bourg, Oliver Heger, Jörg Schaible, Ralph Goers, Gary Gregory, Claude Warren, Rob Tompkins
 
-***org.apache.commons:commons-lang3:3.14.0*** 
+***org.apache.commons:commons-lang3:3.17.0*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
