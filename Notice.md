@@ -390,14 +390,14 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2001 - 2024 The Apache Software Foundation (https://www.apache.org/), Matt Benson, James Carman, Stephen Colebourne, Robert Burrell Donkin, Morgan Delagrange, Gary Gregory, Matthew Hawthorne, Dipanjan Laha, Geir Magnusson, Luc Maisonobe, Craig McClanahan, Thomas Neidhart, Adrian Nistor, Arun M. Thomas, Rodney Waldhoff, Henri Yandell, Rob Tompkins
 
-***org.apache.commons:commons-configuration2:2.10.1*** 
+***org.apache.commons:commons-configuration2:2.15.1*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2001 - 2024 The Apache Software Foundation (https://www.apache.org/), Daniel Rall, Jason van Zyl, Martin Poeschl, dIon Gillard, Henning P. Schmiedehausen, Eric Pugh, Brian E. Dunbar, Emmanuel Bourg, Oliver Heger, Jörg Schaible, Ralph Goers, Gary Gregory, Claude Warren, Rob Tompkins
 
-***org.apache.commons:commons-lang3:3.14.0*** 
+***org.apache.commons:commons-lang3:3.17.0*** 
 - License: Apache-2.0
 - Url: https://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
@@ -530,14 +530,14 @@ This product includes dynamically linked software developed by third parties whi
 - Copyright:
   - Copyright (c) 2007 - 2024 The Apache Software Foundation (http://www.apache.org), Rida Benjelloun, Mark Harwood, Ken Krugler, Chris A. Mattmann, Michael McCandless, Dave Meikle, Sami Siren, Nick Burch, Maxim Valyanskiy, Oleg Tikhonov, Ray Gauss II, Tyler Palsulich, Tim Allison, Konstantin Gribov, Tilman Hausherr, Jukka Zitting, Julien Nioche, Keith Bennett, Niall Pemberton
 
-***org.apache.tomcat.embed:tomcat-embed-core:9.0.91*** 
+***org.apache.tomcat.embed:tomcat-embed-core:9.0.118*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
 - Copyright:
   - Copyright (c) 2024
 
-***org.apache.tomcat.embed:tomcat-embed-websocket:9.0.91*** 
+***org.apache.tomcat.embed:tomcat-embed-websocket:9.0.118*** 
 - License: Apache-2.0
 - Url: http://www.apache.org/licenses/LICENSE-2.0.txt
 - File: license/third-party-licenses/Apache-2.0.txt
