@@ -11,7 +11,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>wildfly</artifactId>
-        <version>5.1.10.2</version>
+        <version>5.1.10.3-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-msh-jms-wildfly-artemis</artifactId>
     <packaging>jar</packaging>
