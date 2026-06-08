@@ -261,7 +261,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueMonitoringEvent(String messageId, MSHRole role, MessageStatus messageStatus, MessageStatus newStatus, String fromParty, String toParty) {
         final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) alertConfigurationService.getConfiguration(AlertType.CONNECTION_MONITORING_FAILED);
-        if (!connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
+        if (!connMonitorConfig.shouldGenerateAlert(newStatus, fromParty, toParty)) {
             LOG.debug("According to configuration, no event will be enqueued for status [{}] and party [{}]", newStatus, toParty);
             return;
         }

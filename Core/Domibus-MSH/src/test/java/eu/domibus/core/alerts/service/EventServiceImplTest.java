@@ -360,7 +360,7 @@ public class EventServiceImplTest {
             configuration.isActive();
             result = true;
 
-            configuration.shouldGenerateAlert(newStatus, toParty);
+            configuration.shouldGenerateAlert(newStatus, fromParty, toParty);
             result = true;
         }};
 

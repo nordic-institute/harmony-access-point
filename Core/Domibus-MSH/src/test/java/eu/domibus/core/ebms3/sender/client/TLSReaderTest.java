@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.env.Environment;
 
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -37,6 +38,9 @@ public class TLSReaderTest {
     @Injectable
     DomibusLocalCacheService domibusLocalCacheService;
 
+    @Injectable
+    Environment environment;
+
     @Tested
     private TLSReaderServiceImpl tlsReader;
 
@@ -48,15 +52,12 @@ public class TLSReaderTest {
 
     @Before
     public void setUp() {
-        new Expectations() {{
-            domibusConfigurationService.getConfigLocation();
-            result = CONFIG_LOCATION;
-        }};
         givenPathsMocks();
     }
 
     @Test
     public void returnsTheClientAuthenticationFromTheDomainSpecificPathIfPresent() {
+        givenConfigLocation();
         givenDomainCode("TAXUD");
         givenDomainSpecificPathFound();
 
@@ -67,6 +68,7 @@ public class TLSReaderTest {
 
     @Test
     public void returnsTheClientAuthenticationFromTheDefaultPathIfPresentWhenTheDomainSpecificPathDoesNotExist() {
+        givenConfigLocation();
         givenDomainCode("TAXUD");
         givenDomainSpecificPathNotFound();
         givenDefaultPathFound();
@@ -78,6 +80,7 @@ public class TLSReaderTest {
 
     @Test
     public void returnsNoClientAuthenticationWhenTheDefaultPathAndTheDomainSpecificPathDoNotExist() {
+        givenConfigLocation();
         givenDomainCode("TAXUD");
         givenDomainSpecificPathNotFound();
         givenDefaultPathNotFound();
@@ -89,6 +92,7 @@ public class TLSReaderTest {
 
     @Test
     public void stripsTheDomainCodeForWhitespacesBeforeLookingUpTheClientAuthenticationFromTheDomainSpecificPath() {
+        givenConfigLocation();
         givenDomainCode("   TAXUD\t ");
         givenDomainSpecificPathFound();
         new MockUp<Paths>() {
@@ -104,6 +108,155 @@ public class TLSReaderTest {
         whenRetrievingTheClientAuthenticationPath();
     }
 
+    @Test
+    public void resolvePlaceholders_replacesSinglePlaceholder() {
+        givenProperty("SECURITY_KEYSTORE_PASSWORD", "secret");
+        String config = "<keyStore password=\"${SECURITY_KEYSTORE_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<keyStore password=\"secret\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_replacesMultiplePlaceholders() {
+        givenProperty("DB_USER", "dbu");
+        givenProperty("DB_PASSWORD", "dbp");
+        String config = "<root a=\"${DB_USER}\" b=\"${DB_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root a=\"dbu\" b=\"dbp\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_failsWhenPlaceholderIsMissing() {
+        String config = "<keyStore password=\"${TLS_KEYSTORE_PASSWORD}\"/>";
+
+        try {
+            tlsReader.resolvePlaceholders(config, null);
+            Assert.fail("Expected IllegalStateException when placeholder is missing");
+        } catch (IllegalStateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("TLS_KEYSTORE_PASSWORD"));
+            Assert.assertTrue(ex.getMessage().contains("clientauthentication.xml"));
+        }
+    }
+
+    @Test
+    public void resolvePlaceholders_usesDefaultWhenPropertyIsMissing() {
+        String config = "<root secureSocketProtocol=\"${TLS_SOCKET_PROTOCOL:TLSv1.2}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root secureSocketProtocol=\"TLSv1.2\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_propertyOverridesDefault() {
+        givenProperty("TLS_SOCKET_PROTOCOL", "TLSv1.3");
+        String config = "<root secureSocketProtocol=\"${TLS_SOCKET_PROTOCOL:TLSv1.2}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root secureSocketProtocol=\"TLSv1.3\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_emptyDefaultIsValid() {
+        String config = "<root zone=\"${SML_ZONE:}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root zone=\"\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_mixedDefaultAndRequired() {
+        String config = "<root type=\"${TLS_STORE_TYPE:PKCS12}\" password=\"${TLS_KEYSTORE_PASSWORD}\"/>";
+
+        try {
+            tlsReader.resolvePlaceholders(config, null);
+            Assert.fail("Expected IllegalStateException for missing required placeholder");
+        } catch (IllegalStateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("TLS_KEYSTORE_PASSWORD"));
+        }
+    }
+
+    @Test
+    public void resolvePlaceholders_defaultWithXmlSpecialChars() {
+        String config = "<root value=\"${MY_VAR:a&b}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root value=\"a&amp;b\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_escapesXmlSpecialCharacters() {
+        givenProperty("SECURITY_KEYSTORE_PASSWORD", "pa&<\\\">'");
+        String config = "<keyStore password=\"${SECURITY_KEYSTORE_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<keyStore password=\"pa&amp;&lt;\\&quot;&gt;&apos;\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_passwordContainingPlaceholderSyntax() {
+        givenProperty("TLS_KEYSTORE_PASSWORD", "pa${foo}ss");
+        String config = "<keyStore password=\"${TLS_KEYSTORE_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<keyStore password=\"pa${foo}ss\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_unclosedPlaceholderThrows() {
+        String config = "<root value=\"${UNCLOSED\"/>";
+
+        try {
+            tlsReader.resolvePlaceholders(config, null);
+            Assert.fail("Expected IllegalStateException for unclosed placeholder");
+        } catch (IllegalStateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Unclosed placeholder"));
+        }
+    }
+
+    @Test
+    public void resolvePlaceholders_resolvesDotNotationProperties() {
+        givenProperty("domibus.config.location", "/etc/harmony-ap");
+        String config = "<root path=\"${domibus.config.location}/certs\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<root path=\"/etc/harmony-ap/certs\"/>", result);
+    }
+
+    @Test
+    public void resolvePlaceholders_mixesDotNotationAndEnvVars() {
+        givenProperty("domibus.config.location", "/etc/harmony-ap");
+        givenProperty("TLS_KEYSTORE_PASSWORD", "secret");
+        String config = "<keyStore file=\"${domibus.config.location}/tls.p12\" password=\"${TLS_KEYSTORE_PASSWORD}\"/>";
+
+        String result = tlsReader.resolvePlaceholders(config, null);
+
+        Assert.assertEquals("<keyStore file=\"/etc/harmony-ap/tls.p12\" password=\"secret\"/>", result);
+    }
+
+    private void givenConfigLocation() {
+        new Expectations() {{
+            domibusConfigurationService.getConfigLocation();
+            result = CONFIG_LOCATION;
+        }};
+    }
+
+    private void givenProperty(String name, String value) {
+        new Expectations() {{
+            environment.getProperty(name);
+            result = value;
+        }};
+    }
 
     private void givenDomainCode(String domainCode) {
         this.domainCode = domainCode;

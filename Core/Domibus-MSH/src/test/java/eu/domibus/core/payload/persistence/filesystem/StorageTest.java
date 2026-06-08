@@ -84,6 +84,6 @@ public class StorageTest {
 
     private String getLinuxFileSystemIncorrectPath(String path) {
         //Select a non existent linux file system path to mock an incorrect path
-        return "/wrongpath/" + path;
+        return "/proc/1/fd/0/invalid/" + path;
     }
 }

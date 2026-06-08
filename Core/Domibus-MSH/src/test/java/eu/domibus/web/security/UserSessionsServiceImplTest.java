@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -55,6 +56,42 @@ public class UserSessionsServiceImplTest {
 
         new Verifications() {{
             sinfo.expireNow();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void invalidateUserSessionsKeepingCurrentSession(@Injectable User user) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        String userName = "userName";
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl(userName, "password", authorities);
+        String currentSessionId = "current-session-id";
+
+        SessionInformation currentSession = new SessionInformation(domibusUserDetails, currentSessionId, new Date());
+        SessionInformation otherSession = new SessionInformation(domibusUserDetails, "other-session-id", new Date());
+
+        try {
+            new Expectations(currentSession, otherSession) {{
+                user.getUserName();
+                result = userName;
+
+                sessionRegistry.getAllPrincipals();
+                result = Arrays.asList(domibusUserDetails);
+
+                sessionRegistry.getAllSessions(domibusUserDetails, false);
+                result = Arrays.asList(currentSession, otherSession);
+            }};
+        } finally {
+            RequestContextHolder.resetRequestAttributes();
+        }
+
+        userSessionsService.invalidateSessions(user, currentSessionId);
+
+        new Verifications() {{
+            currentSession.expireNow();
+            times = 0;
+
+            otherSession.expireNow();
             times = 1;
         }};
     }

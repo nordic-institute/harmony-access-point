@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>core</artifactId>
-        <version>2.6.0</version>
+        <version>2.7.0-SNAPSHOT</version>
     </parent>
     <artifactId>harmony-msh-soapui-tests</artifactId>
     <packaging>jar</packaging>
@@ -25,6 +25,7 @@
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
         <soapui.scripting.library>${soapui.root.folder}/scripting</soapui.scripting.library>
         <soapui.ext.libraries>${project.build.directory}/soapui/ext</soapui.ext.libraries>
+        <soapui.testCase></soapui.testCase>
 
         <sonar.jacoco.reportPath>../target/jacoco-ut.exec</sonar.jacoco.reportPath>
         <!-- jacoco agent remote addresses and ports -->
@@ -138,6 +139,7 @@
                             <junitReport>true</junitReport>
                             <printReport>true</printReport>
                             <testSuite>WS-Auto-for-Bamboo</testSuite>
+                            <testCase>${soapui.testCase}</testCase>
                             <projectFile>${soapui.root.folder}/AS4-domibus-WS-soapui-project.xml</projectFile>
                             <projectProperties>
                                 <value>localUrl=${localUrl}</value>
@@ -150,6 +152,7 @@
                                 <value>multitenancyModeC3=0</value>
                                 <value>updateReport=false</value>
                                 <value>thirdGateway=false</value>
+                                <value>soapui.testCase=${soapui.testCase}</value>
                                 <value>pdfAttachment=${soapui.root.folder}/resources/fileSmall.pdf</value>
                                 <value>defaultPModesPath=${soapui.root.folder}/resources/PModesandKeystoresDefault
                                 </value>

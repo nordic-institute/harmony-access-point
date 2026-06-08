@@ -21,10 +21,10 @@ public class ConnectionMonitoringModuleConfiguration extends FrequencyAlertConfi
         super(AlertType.CONNECTION_MONITORING_FAILED);
     }
 
-    public boolean shouldGenerateAlert(MessageStatus messageStatus, String toParty) {
+    public boolean shouldGenerateAlert(MessageStatus messageStatus, String fromParty, String toParty) {
         return isActive()
                 && MessageStatus.getUnsuccessfulStates().contains(messageStatus)
-                && (enabledParties.stream().anyMatch(party -> StringUtils.equalsAnyIgnoreCase(party, toParty, ALL_PARTIES)));
+                && (enabledParties.stream().anyMatch(party -> StringUtils.equalsAnyIgnoreCase(party, fromParty + ">" + toParty, ALL_PARTIES)));
     }
 
     public void setEnabledParties(List<String> enabledParties) {

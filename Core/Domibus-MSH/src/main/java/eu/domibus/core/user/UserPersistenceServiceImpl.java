@@ -24,7 +24,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -198,10 +201,30 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void changePassword(User user, String newPassword) {
         securityPolicyManager.changePassword(user, newPassword);
+        invalidateUserSessionsKeepingCurrent(user);
     }
 
     protected void reGenerateDefaultPassword(User user, String newPassword) {
         securityPolicyManager.reGenerateDefaultPassword(user, newPassword);
+        invalidateUserSessionsKeepingCurrent(user);
+    }
+
+    protected void invalidateUserSessionsKeepingCurrent(User user) {
+        String currentSessionId = getCurrentSessionId();
+        if (StringUtils.isBlank(currentSessionId)) {
+            userSessionsService.invalidateSessions(user);
+            return;
+        }
+        userSessionsService.invalidateSessions(user, currentSessionId);
+    }
+
+    protected String getCurrentSessionId() {
+        if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes)) {
+            return null;
+        }
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession currentSession = requestAttributes.getRequest().getSession(false);
+        return currentSession != null ? currentSession.getId() : null;
     }
 
     protected void insertNewUsers(Collection<eu.domibus.api.user.User> newUsers) {

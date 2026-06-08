@@ -170,10 +170,11 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async getUsers(): Promise<any> {
-    return this.userService.getUsers()
-      .then(async allUsers => {
-        this.allUsers = allUsers;
-        let users = allUsers.filter(this.applyFilter(this.activeFilter));
+    const userSearchCriteria = this.buildUserSearchCriteria();
+
+    return this.userService.getUsers(userSearchCriteria)
+      .then(async users => {
+        this.allUsers = users;
 
         await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
 
@@ -187,20 +188,15 @@ export class UserComponent extends mix(BaseListComponent)
       });
   }
 
-  private applyFilter(filter: UserSearchCriteria) {
-    return (user) => {
-      let crit1 = true, crit2 = true, crit3 = true;
-      if (filter.userName) {
-        crit1 = user.userName === filter.userName;
-      }
-      if (!filter.deleted_notSet) {
-        crit2 = user.deleted === filter.deleted;
-      }
-      if (filter.authRole) {
-        crit3 = user.roles === filter.authRole;
-      }
-      return crit1 && crit2 && crit3;
-    }
+  private buildUserSearchCriteria(): UserSearchCriteria {
+    const { authRole, userName, deleted, deleted_notSet } = this.activeFilter || {};
+
+    return Object.assign(new UserSearchCriteria(), {
+      authRole: authRole || undefined,
+      userName: userName || undefined,
+      deleted: deleted === true,
+      deleted_notSet: deleted_notSet === true
+    });
   }
 
   private async setDomain(users: UserResponseRO[]) {

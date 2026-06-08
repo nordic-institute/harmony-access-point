@@ -48,6 +48,15 @@ public class UserSessionsServiceImpl implements UserSessionsService, DomainsAwar
     }
 
     @Override
+    public void invalidateSessions(UserBase user, String excludedSessionId) {
+        String userName = user.getUserName();
+
+        doInvalidateSessions(userName, excludedSessionId);
+
+        notifyClusterNodes(userName);
+    }
+
+    @Override
     public void invalidateSessions(String userName) {
         doInvalidateSessions(userName);
     }
@@ -63,19 +72,31 @@ public class UserSessionsServiceImpl implements UserSessionsService, DomainsAwar
     }
 
     protected void doInvalidateSessions(String userName) {
+        doInvalidateSessions(userName, null);
+    }
+
+    protected void doInvalidateSessions(String userName, String excludedSessionId) {
         LOG.debug("Invalidate sessions called for user [{}]", userName);
         List<DomibusUserDetails> usersWithName = sessionRegistry.getAllPrincipals().stream()
                 .map(p -> ((DomibusUserDetails) p))
                 .filter(u -> u.getUsername().equals(userName))
                 .collect(Collectors.toList());
-        invalidateSessionOfUsers(usersWithName);
+        invalidateSessionOfUsers(usersWithName, excludedSessionId);
     }
 
     private void invalidateSessionOfUsers(List<DomibusUserDetails> principals) {
+        invalidateSessionOfUsers(principals, null);
+    }
+
+    private void invalidateSessionOfUsers(List<DomibusUserDetails> principals, String excludedSessionId) {
         principals.forEach(principal -> {
             LOG.info("Found principal [{}] in session registry", principal.getUsername());
             List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
             sessions.forEach(session -> {
+                if (excludedSessionId != null && excludedSessionId.equals(session.getSessionId())) {
+                    LOG.debug("Skip expiring current session [{}] for user [{}]", session.getSessionId(), principal.getUsername());
+                    return;
+                }
                 LOG.info("Expire session [{}] for user [{}]", session, principal.getUsername());
                 session.expireNow();
             });

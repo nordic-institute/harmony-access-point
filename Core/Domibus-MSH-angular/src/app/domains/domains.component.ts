@@ -15,7 +15,7 @@ import {ComponentName} from '../common/component-name-decorator';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
-import { UserService } from 'app/user/support/user.service';
+import {UserSearchCriteria, UserService} from 'app/user/support/user.service';
 import { SecurityService } from 'app/security/security.service';
 import {DomibusInfoService} from "../common/appinfo/domibusinfo.service";
 
@@ -104,7 +104,11 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
           // as the notion of 'preferred domain' is not the same in this case
         } else {
           let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
-          let users = await this.userService.getUsers();
+
+          const criteria = new UserSearchCriteria();
+          criteria.userName = currentUserName;
+
+          let users = await this.userService.getUsers(criteria);
           let currentUser = users.find(u => u.userName == currentUserName);
           if (currentUser.domain == domain.code) {
             throw `Cannot disable the domain of the current user`;
