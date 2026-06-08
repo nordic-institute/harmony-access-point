@@ -193,9 +193,15 @@ resolutions:
     - message: "copyleft-strong license GPL-2.0-or-later WITH Classpath-exception-2.0 in Maven:org.niis:harmony:.*"
       reason: "LICENSE_ACQUIRED_EXCEPTION"
       comment: "License notice file."
+    - message: "copyleft-module-level license GPL-2.0-only WITH Linux-syscall-note in Maven:org.niis:harmony:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "License notice file."
     - message: "Unhandled license LicenseRef-scancode-un-cefact-2016 in Maven:org.niis.dynamic-discovery:dynamic-discovery-client:.*"
       reason: "LICENSE_ACQUIRED_EXCEPTION"
       comment: "The license LicenseRef-scancode-un-cefact-2016 license allows redistribution if the copyright notice and license text are included in all copies and derivative works. The condition is satisfied."
+    - message: "commercial license LicenseRef-scancode-proprietary-license in Maven:com.sun.xml.ws:policy:.*"
+      reason: "LICENSE_ACQUIRED_EXCEPTION"
+      comment: "The declared license is actually BSD-3-Clause."
 
 curations:
   license_findings:
