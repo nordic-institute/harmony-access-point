@@ -207,7 +207,7 @@ resolutions:
       comment: "The declared license is actually BSD-3-Clause."
     - message: ".*license LicenseRef-scancode-sun-prop-non-commercial in Maven:antlr:antlr:2.*"
       reason: "LICENSE_ACQUIRED_EXCEPTION"
-      comment: "The license LicenseRef-scancode-sun-prop-non-commercial allows use, copying, modification, and redistribution of the software and its documentation for non-commercial purposes, provided that the copyright notice is included in all copies. The condition is satisfied."
+      comment: "The files meant by the license LicenseRef-scancode-sun-prop-non-commercial are not used and therefore the license requirements are not violated."
 
 curations:
   license_findings:
