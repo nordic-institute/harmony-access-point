@@ -28,7 +28,7 @@ Lists of 114 third-party dependencies.
      (Apache-2.0) Apache HttpClient (org.apache.httpcomponents:httpclient:4.5.14 - http://hc.apache.org/httpcomponents-client-ga)
      (Apache-2.0) Apache HttpClient (org.apache.httpcomponents.client5:httpclient5:5.2.1 - https://hc.apache.org/httpcomponents-client-5.0.x/5.2.1/httpclient5/)
      (Apache-2.0) Apache HttpCore (org.apache.httpcomponents:httpcore:4.4.16 - http://hc.apache.org/httpcomponents-core-ga)
-     (Apache-2.0) Apache Tika core (org.apache.tika:tika-core:2.7.0 - https://tika.apache.org/)
+     (Apache-2.0) Apache Tika core (org.apache.tika:tika-core:3.3.1 - https://tika.apache.org/)
      (Apache-2.0) Apache XBean :: Spring (org.apache.xbean:xbean-spring:4.22 - http://geronimo.apache.org/maven/xbean/4.22/xbean-spring)
      (EPL-2.0) AspectJ Runtime (org.aspectj:aspectjrt:1.9.9.1 - https://www.eclipse.org/aspectj/)
      (EPL-2.0) AspectJ Weaver (org.aspectj:aspectjweaver:1.9.9.1 - https://www.eclipse.org/aspectj/)
