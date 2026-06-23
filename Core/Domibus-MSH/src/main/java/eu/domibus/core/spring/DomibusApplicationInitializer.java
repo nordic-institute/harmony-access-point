@@ -55,9 +55,6 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        System.setProperty("javax.xml.accessExternalDTD", "");
-        System.setProperty("javax.xml.accessExternalSchema", "");
-
         String domibusConfigLocation = new DomibusConfigLocationProvider().getDomibusConfigLocation(servletContext);
         String normalizedDomibusConfigLocation = Paths.get(domibusConfigLocation).normalize().toString();
         LOG.debug("Configured property [{}] with value [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, normalizedDomibusConfigLocation);
