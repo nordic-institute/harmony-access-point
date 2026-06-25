@@ -27,7 +27,7 @@ import java.util.Set;
  * <p>
  * Methods
  * {@link DomibusContextLoaderListener#shutdownPluginClassLoader}
- * {@link DomibusContextLoaderListener#shutdownLogger}
+ * {@link ShutdownUtils#shutdownLogger}
  * are NOT tested separately because it's hard to partially mocked local method
  * AND super method {@link ContextLoaderListener#contextDestroyed}
  */
@@ -61,12 +61,18 @@ public class DomibusContextLoaderListenerTest {
 
             LoggerFactory.getILoggerFactory();
             result = loggerContext;
+
+            loggerContext.getObject("SHUTDOWN_HOOK");
+            result = null;
         }};
 
         domibusContextLoaderListener.contextDestroyed(servletContextEvent);
 
         Assert.assertTrue(pluginClassLoader.isCloseBeingCalled());
         new FullVerificationsInOrder() {{
+            domibusLogger.info("DomibusContextLoaderListener contextDestroyed");
+            times = 1;
+
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
             times = 1;
@@ -79,6 +85,8 @@ public class DomibusContextLoaderListenerTest {
 
             domibusLogger.info("Stop ch.qos.logback.classic.LoggerContext");
             times = 1;
+
+            loggerContext.getObject("SHUTDOWN_HOOK");
 
             loggerContext.stop();
             times = 1;
@@ -117,12 +125,17 @@ public class DomibusContextLoaderListenerTest {
             LoggerFactory.getILoggerFactory();
             result = loggerContext;
 
+            loggerContext.getObject("SHUTDOWN_HOOK");
+            result = null;
         }};
 
         domibusContextLoaderListener.contextDestroyed(servletContextEvent);
 
         Assert.assertTrue(pluginClassLoader.isCloseBeingCalled());
         new FullVerificationsInOrder() {{
+            domibusLogger.info("DomibusContextLoaderListener contextDestroyed");
+            times = 1;
+
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
             times = 1;
@@ -138,6 +151,8 @@ public class DomibusContextLoaderListenerTest {
 
             domibusLogger.info("Stop ch.qos.logback.classic.LoggerContext");
             times = 1;
+
+            loggerContext.getObject("SHUTDOWN_HOOK");
 
             loggerContext.stop();
             times = 1;
