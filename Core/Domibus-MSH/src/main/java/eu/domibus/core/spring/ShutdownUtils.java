@@ -8,11 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
-/**
- * @author Ionut Breaz
- * @since 5.1.5
- */
-
 public class ShutdownUtils {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ShutdownUtils.class);
 
@@ -36,17 +31,7 @@ public class ShutdownUtils {
             LOG.warn(WarningUtil.warnOutput("Domibus is stopping."));
             LOG.info("Stop ch.qos.logback.classic.LoggerContext");
             LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-            Thread shutdownHook = (Thread) loggerContext.getObject("SHUTDOWN_HOOK");
-            if (shutdownHook != null) {
-                LOG.info("Explicitly running the logback shutdown hook [{}]", shutdownHook.getClass().getName());
-                // Use run() instead of start() to execute synchronously in the current thread
-                shutdownHook.run();
-            } else {
-                // Safe to call stop() directly as a fallback; it performs the same cleanup as the shutdown hook
-                loggerContext.stop();
-            }
-
+            loggerContext.stop();
         } catch (Exception ex) {
             // logger is stopping, so we cannot use it to log the exception
             ex.printStackTrace();
