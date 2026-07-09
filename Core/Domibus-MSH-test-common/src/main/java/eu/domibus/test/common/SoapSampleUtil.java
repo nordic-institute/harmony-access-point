@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pmode.PModeConstants;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.net.util.Base64;
+import java.util.Base64;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.ExchangeImpl;
@@ -53,7 +53,7 @@ public class SoapSampleUtil {
 
         AttachmentPart attachment = message.createAttachmentPart();
 
-        byte[] decodeBase64 = Base64.decodeBase64("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=".getBytes());
+        byte[] decodeBase64 = Base64.getDecoder().decode("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=");
         DataHandler dataHandler;
         if (compression) {
             dataHandler = new DataHandler(new ByteArrayDataSource(compress(decodeBase64), "text/xml"));
