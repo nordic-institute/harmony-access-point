@@ -1783,11 +1783,13 @@
                                 <licenseMerge>EDL-1.0
                                     |Eclipse Distribution License - v 1.0
                                     |Eclipse Distribution License v. 1.0
+                                    |EDL 1.0
                                 </licenseMerge>
                                 <licenseMerge>EPL-2.0
                                     |EPL 2.0
                                     |Eclipse Public License - v 2.0
                                     |Eclipse Public License v2.0
+                                    |Eclipse Public License v. 2.0
                                 </licenseMerge>
                                 <licenseMerge>BCL
                                     |Bouncy Castle Licence
@@ -1803,6 +1805,7 @@
                                     |CDDL + GPLv2 with classpath exception
                                     |CDDL/GPLv2+CE
                                     |GPL2 w/ CPE
+                                    |GNU General Public License, version 2 with the GNU Classpath Exception
                                 </licenseMerge>
                                 <licenseMerge>CDDL-1.0
                                     |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
