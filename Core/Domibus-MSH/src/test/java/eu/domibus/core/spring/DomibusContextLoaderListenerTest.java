@@ -67,6 +67,9 @@ public class DomibusContextLoaderListenerTest {
 
         Assert.assertTrue(pluginClassLoader.isCloseBeingCalled());
         new FullVerificationsInOrder() {{
+            domibusLogger.info("DomibusContextLoaderListener contextDestroyed");
+            times = 1;
+
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
             times = 1;
@@ -123,6 +126,9 @@ public class DomibusContextLoaderListenerTest {
 
         Assert.assertTrue(pluginClassLoader.isCloseBeingCalled());
         new FullVerificationsInOrder() {{
+            domibusLogger.info("DomibusContextLoaderListener contextDestroyed");
+            times = 1;
+
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
             times = 1;
