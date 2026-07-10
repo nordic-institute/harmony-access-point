@@ -600,6 +600,15 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: jackson-databind-2.18.9.jar
+   False positive from OSS Index CPE matching. CVE-2026-54518 (aka GHSA-rcqc-6cw3-h962) only affects jackson-databind 2.21.0-2.21.3 (fixed in 2.21.4). Domibus is on the 2.18.x line, outside the affected range
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@2\.18\..*$</packageUrl>
+        <cve>CVE-2026-54518</cve>
+        <vulnerabilityName>GHSA-rcqc-6cw3-h962</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: woodstox-core-6.4.0.jar (shaded: com.sun.xml.bind.jaxb:isorelax:20090621)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
@@ -1036,11 +1045,28 @@
     <!-- CXF start - remove when CXF is updated to at least 3.6.8-->
     <suppress>
         <notes><![CDATA[
-   file name: cxf-core-3.5.11.jar
+   file name: cxf-*-3.5.11.jar (Apache CXF library). These CVEs carry cpe:/a:apache:cxf and surface on several CXF jars, e.g. cxf-core and cxf-rt-wsdl
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-core@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf-.*@.*$</packageUrl>
         <!-- Domibus does not configure CXF to use a JMS broker, using instead HTTP as a transport layer  -->
         <cve>CVE-2025-48913</cve>
+        <!-- Only JAX-WS and SOAP modules are used. The OAuth2, JOSE, XKMS, WS-Transfer and JCA modules are absent and the JMS transport is fixed to HTTP -->
+        <cve>CVE-2026-44930</cve>
+        <cve>CVE-2026-50628</cve>
+        <cve>CVE-2026-50627</cve>
+        <cve>CVE-2026-50632</cve>
+        <cve>CVE-2026-50633</cve>
+        <cve>CVE-2026-44417</cve>
+        <cve>CVE-2026-50631</cve>
+        <cve>CVE-2026-50630</cve>
+        <cve>CVE-2026-50634</cve>
+        <cve>CVE-2026-44618</cve>
+        <cve>CVE-2026-50629</cve>
+        <cve>CVE-2026-50623</cve>
+        <!-- CVE-2026-49875 (XXE). DomibusContextLoaderListener sets javax.xml.accessExternalDTD and accessExternalSchema to empty at JVM level before requests are served, which also hardens CXF's internal parser (see EDELIVERY-16973) -->
+        <cve>CVE-2026-49875</cve>
+        <!-- CVE-2026-50645 (attachment DoS). CXF 3.5.11 already enforces attachment-max-count=50 and attachment-max-header-size=300 by default. The advisory affects the 4.x line -->
+        <cve>CVE-2026-50645</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -1340,6 +1366,22 @@
         <cve>CVE-2026-39304</cve>
         <cve>CVE-2026-41043</cve>
         <cve>CVE-2026-33227</cve>
+        <!-- No web console, Jolokia, STOMP, LDAP JAAS or network connectors. The broker requires authentication, so the remaining OpenWire CVEs need an authenticated session on the internal broker -->
+        <cve>CVE-2026-45505</cve>
+        <cve>CVE-2026-42588</cve>
+        <cve>CVE-2026-49157</cve>
+        <cve>CVE-2026-49877</cve>
+        <cve>CVE-2026-42253</cve>
+        <cve>CVE-2026-52760</cve>
+        <cve>CVE-2026-49432</cve>
+        <cve>CVE-2026-53916</cve>
+        <cve>CVE-2026-49434</cve>
+        <cve>CVE-2026-49270</cve>
+        <cve>CVE-2026-53917</cve>
+        <cve>CVE-2026-54475</cve>
+        <cve>CVE-2026-46605</cve>
+        <!-- CVE-2026-50734 (pre-auth OpenWire DoS). The connector binds to activeMQ.broker.host=localhost by default (tcp://localhost:61616), not reachable from external networks. Operators who expose it must restrict access or set wireFormat.maxFrameSize -->
+        <cve>CVE-2026-50734</cve>
         <vulnerabilityName>GHSA-5568-6qcg-g7fx</vulnerabilityName>
         <vulnerabilityName>GHSA-h2h4-5m64-m273</vulnerabilityName>
     </suppress>
@@ -1381,6 +1423,23 @@
         <cve>CVE-2026-22745</cve>
         <cve>CVE-2026-22741</cve>
         <cve>CVE-2026-22735</cve>
+        <!-- Servlet MVC only (no WebFlux), no spring-websocket, no user-supplied SpEL, Angular UI (no JSP form tags or JavaScriptUtils). AntPathMatcher patterns are developer-defined and the "/**" mapping is a static-resource handler with an explicit view for "/" -->
+        <cve>CVE-2026-41838</cve>
+        <cve>CVE-2026-41848</cve>
+        <cve>CVE-2026-41849</cve>
+        <cve>CVE-2026-41850</cve>
+        <cve>CVE-2026-41851</cve>
+        <cve>CVE-2026-41852</cve>
+        <cve>CVE-2026-41840</cve>
+        <cve>CVE-2026-41847</cve>
+        <cve>CVE-2026-41839</cve>
+        <cve>CVE-2026-41844</cve>
+        <cve>CVE-2026-41845</cve>
+        <cve>CVE-2026-41846</cve>
+        <!-- CVE-2026-41855 (JMS Jackson deserialization). Domibus JMS is a trusted environment (embedded ActiveMQ on localhost, authentication required, internal-only queues). Per the Spring advisory a trusted JMS environment needs no mitigation -->
+        <cve>CVE-2026-41855</cve>
+        <!-- CVE-2026-41842 (static-resource DoS). Requires versioned-resources support (VersionResourceResolver). Domibus registers a plain addResourceHandler("/**").addResourceLocations("/") with no resource chain or version resolver -->
+        <cve>CVE-2026-41842</cve>
     </suppress>
 
     <suppress>
@@ -1392,7 +1451,34 @@
         <cve>CVE-2026-22747</cve>
         <cve>CVE-2026-22748</cve>
         <cve>CVE-2026-22746</cve>
+        <!-- No spring-security-saml2-service-provider on the classpath. Client-certificate auth uses Domibus' own X509CertificateServiceImpl and BlueCoat, not Spring's SubjectDnX509PrincipalExtractor. CookieRequestCache is not used. -->
+        <cve>CVE-2026-47838</cve>
+        <cve>CVE-2026-40988</cve>
+        <cve>CVE-2026-41706</cve>
+        <cve>CVE-2026-41003</cve>
+        <cve>CVE-2026-41694</cve>
         <vulnerabilityName>GHSA-mf92-479x-3373</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: logback-core-1.3.16.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback-core@.*$</packageUrl>
+        <!-- Janino is not on the classpath (CVE-2026-13006 requires it). Config-file ACE requires write access to logback.xml (local admin only). SimpleSocketServer and SimpleSSLSocketServer are not used. -->
+        <cve>CVE-2026-13006</cve>
+        <cve>CVE-2026-9828</cve>
+        <cve>CVE-2026-1225</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: httpcore-4.4.16.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <!-- False positive. CVE-2026-54399 and CVE-2026-54428 target HttpComponents Core 5.x (5.4.2 and earlier, already updated to httpcore5 5.4.3). The 4.x line is a separate codebase, matched only by CPE version comparison, and is used client-side only. -->
+        <cve>CVE-2026-54399</cve>
+        <cve>CVE-2026-54428</cve>
     </suppress>
 
 </suppressions>
