@@ -120,6 +120,8 @@ public class XMLUtilImpl implements XMLUtil {
         } catch (TransformerConfigurationException e) {
             throw new DomibusXMLException("Error initializing TransformerFactory", e);
         }
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, StringUtils.EMPTY);
         return transformerFactory;
     }
 

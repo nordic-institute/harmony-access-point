@@ -6,7 +6,7 @@
 
     <groupId>org.niis</groupId>
     <artifactId>harmony</artifactId>
-    <version>2.6.1</version>
+    <version>2.6.2</version>
     <packaging>pom</packaging>
     <name>Harmony MSH</name>
     <modules>
@@ -33,7 +33,9 @@
         <logback.version>1.3.16</logback.version>
         <logstash-logback-encoder>7.4</logstash-logback-encoder>
         <httpclient.version>4.5.14</httpclient.version>
-        <httpclient5.version>5.2.3</httpclient5.version>
+        <httpclient5.version>5.6.2</httpclient5.version>
+        <!-- httpcore5 is pulled transitively by httpclient5. Pinned to 5.4.3 to fix CVE-2026-54399 and CVE-2026-54428 (affect 5.4.2 and earlier) -->
+        <httpcore5.version>5.4.3</httpcore5.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-io.version>2.17.0</commons-io.version>
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
@@ -43,9 +45,9 @@
         <bouncycastle.version>1.84</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <jackson.version>2.15.4</jackson.version>
+        <jackson.version>2.18.9</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.15.4</jackson-databind.version>
+        <jackson-databind.version>2.18.9</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.32</freemarker.version>
         <mail.version>1.6.8</mail.version>
@@ -67,20 +69,22 @@
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.25</dropwizard.metrics.version>
-        <owasp.dependency.check.version>12.1.9</owasp.dependency.check.version>
+        <owasp.dependency.check.version>12.2.2</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <tomcat-embed.version>9.0.118</tomcat-embed.version>
+        <tomcat-embed.version>9.0.120</tomcat-embed.version>
         <json-smart.version>2.4.11</json-smart.version>
         <xbean-spring.version>4.23</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-        <!-- Added in order to fix CVE-2026-27727, please remove after the quartz library is updated and does not bring the vulnerable transitive demendency to mchange-commons-java versions < 0.4.0 -->
-        <mchange-commons-java.version>0.4.0</mchange-commons-java.version>
+        <!-- Pinned to override the vulnerable versions pulled transitively by quartz. 0.6.1 fixes CVE-2026-55153 (fixed in 0.6.0) and matches the version c3p0 0.14.1 declares. Remove once quartz stops bringing vulnerable c3p0 or mchange-commons-java -->
+        <mchange-commons-java.version>0.6.1</mchange-commons-java.version>
+        <!-- Pinned to override the vulnerable c3p0 0.9.5.4 pulled transitively by quartz. 0.14.1 fixes CVE-2026-55223 and pulls mchange-commons-java 0.6.1 -->
+        <c3p0.version>0.14.1</c3p0.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -162,7 +166,7 @@
 
         <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
         <commons-compress.version>1.26.1</commons-compress.version>
-        <commons-configuration2.version>2.10.1</commons-configuration2.version>
+        <commons-configuration2.version>2.15.1</commons-configuration2.version>
         <httpmime.version>4.5.14</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
         <xml-apis.version>1.4.01</xml-apis.version>
@@ -405,6 +409,17 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- httpcore5 and httpcore5-h2 pulled transitively by httpclient5. Pinned to 5.4.3 to fix CVE-2026-54399 and CVE-2026-54428 (both affect 5.4.2 and earlier). -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
 
 
             <dependency>
@@ -435,6 +450,11 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcutil-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
@@ -1120,11 +1140,17 @@
                 <version>${javax.ws.rs-api.version}</version>
             </dependency>
 
-            <!-- Added in order to fix CVE-2026-27727, please remove after the quartz library is updated and does not bring the vulnerable transitive demendency to mchange-commons-java versions < 0.4.0 -->
+            <!-- Pinned to override the vulnerable versions pulled transitively by quartz. 0.6.1 fixes CVE-2026-55153. Remove once quartz stops bringing vulnerable mchange-commons-java -->
             <dependency>
                 <groupId>com.mchange</groupId>
                 <artifactId>mchange-commons-java</artifactId>
                 <version>${mchange-commons-java.version}</version>
+            </dependency>
+            <!-- Pinned to override the vulnerable c3p0 0.9.5.4 pulled transitively by quartz. 0.14.1 fixes CVE-2026-55223 -->
+            <dependency>
+                <groupId>com.mchange</groupId>
+                <artifactId>c3p0</artifactId>
+                <version>${c3p0.version}</version>
             </dependency>
 
             <!-- Maven Enforcer -->
@@ -1757,11 +1783,13 @@
                                 <licenseMerge>EDL-1.0
                                     |Eclipse Distribution License - v 1.0
                                     |Eclipse Distribution License v. 1.0
+                                    |EDL 1.0
                                 </licenseMerge>
                                 <licenseMerge>EPL-2.0
                                     |EPL 2.0
                                     |Eclipse Public License - v 2.0
                                     |Eclipse Public License v2.0
+                                    |Eclipse Public License v. 2.0
                                 </licenseMerge>
                                 <licenseMerge>BCL
                                     |Bouncy Castle Licence
@@ -1777,6 +1805,7 @@
                                     |CDDL + GPLv2 with classpath exception
                                     |CDDL/GPLv2+CE
                                     |GPL2 w/ CPE
+                                    |GNU General Public License, version 2 with the GNU Classpath Exception
                                 </licenseMerge>
                                 <licenseMerge>CDDL-1.0
                                     |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
