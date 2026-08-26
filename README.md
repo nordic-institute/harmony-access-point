@@ -16,6 +16,8 @@ Harmony eDelivery Access by [NIIS](https://niis.org) is a free and actively main
 
 Harmony Access Point is based on upon the [Domibus](https://ec.europa.eu/digital-building-blocks//code/projects/EDELIVERY/repos/domibus/) open source project by the [European Commission](https://ec.europa.eu/). 
 
+Harmony Access Point operators can register their Harmony instance with NIIS. More information about Harmony Product Registration is available on the [Harmony website](https://edelivery.digital/product-registration).
+
 ## Documentation
 
 The official Harmony documentation is available in a separate repository that can be found [here](https://github.com/nordic-institute/harmony-common/).
