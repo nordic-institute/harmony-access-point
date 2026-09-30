@@ -5,10 +5,6 @@ excludes:
       reason: "BUILD_TOOL_OF"
       comment: "This is a build tool."
 
-    - pattern: "3RD-PARTY-NOTICES.txt"
-      reason: "OTHER"
-      comment: "File including 3rd party license notices."
-
     - pattern: "Plugin-FS/**"
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
