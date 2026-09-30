@@ -5,6 +5,10 @@ excludes:
       reason: "BUILD_TOOL_OF"
       comment: "This is a build tool."
 
+    - pattern: "3RD-PARTY-NOTICES.txt"
+      reason: "DOCUMENTATION_OF"
+      comment: "File including 3rd party license notices."
+
     - pattern: "Plugin-FS/**"
       reason: "OPTIONAL_COMPONENT_OF"
       comment: "Not included in distributed build artifacts."
@@ -208,13 +212,35 @@ resolutions:
     - message: ".*license LicenseRef-scancode-sun-prop-non-commercial in Maven:antlr:antlr:2.*"
       reason: "LICENSE_ACQUIRED_EXCEPTION"
       comment: "The files meant by the license LicenseRef-scancode-sun-prop-non-commercial are not used and therefore the license requirements are not violated."
-
+    - message: "free-restricted license LicenseRef-scancode-un-cefact-2016 in Maven:org.niis.dynamic-discovery:dynamic-discovery-client:.*"
+      reason: "NOT_MODIFIED_EXCEPTION"
+      comment: "UN/CEFACT specification licence on a third-party schema module that
+        dynamic-discovery-client ships verbatim: xsd/bdx-smp-2.0/common/
+        CCTS_CCT_SchemaModule-2.0.xsd (sha256 432f48d7..., 100% match, lines 23-45).
+        The licence grants perpetual, irrevocable permission to copy and redistribute in
+        whole or in part without restriction; its only condition is that the document is
+        not modified and the copyright notice and permission paragraph are retained. The
+        file is redistributed unmodified with its notice intact, so the condition is met.
+        Same file and same decision as in the dynamic-discovery-client repository, where
+        it is resolved against the project rather than the package."
+      
 curations:
   license_findings:
     - path: "Core/Domibus-MSH/src/main/resources/config/infinispan/domibus-infinispan-default.xml"
       concluded_license: "LGPL-2.1-or-later"
       reason: "INCORRECT"
       comment: "Corrected scanner finding."
+  packages:
+    - id: "Maven:org.roda-project:commons-ip2:2.0.0-alpha2"
+      curations:
+        comment: "The published pom has no <licenses> block and the artifact ships no
+          LICENSE file, so ORT records no declared licence and ScanCode's only findings
+          are a 12.9%-score LPL-1.02 match on the file-header boilerplate plus CC0-1.0 on
+          three files. Upstream tag v2.0.0-alpha2 (aad71f5f) carries the verbatim LGPL-3.0
+          text as LICENSE (sha256 97628afe...), README.md states 'LGPLv3', and all 119
+          source headers point to that file. No 'or later' grant is given, so LGPL-3.0-only."
+        concluded_license: "LGPL-3.0-only"
+        homepage_url: "https://github.com/keeps/commons-ip"
 
 license_choices:
   repository_license_choices:
