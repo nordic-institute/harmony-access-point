@@ -208,7 +208,18 @@ resolutions:
     - message: ".*license LicenseRef-scancode-sun-prop-non-commercial in Maven:antlr:antlr:2.*"
       reason: "LICENSE_ACQUIRED_EXCEPTION"
       comment: "The files meant by the license LicenseRef-scancode-sun-prop-non-commercial are not used and therefore the license requirements are not violated."
-
+    - message: "free-restricted license LicenseRef-scancode-un-cefact-2016 in Maven:org.niis.dynamic-discovery:dynamic-discovery-client:.*"
+      reason: "NOT_MODIFIED_EXCEPTION"
+      comment: "UN/CEFACT specification licence on a third-party schema module that
+        dynamic-discovery-client ships verbatim: xsd/bdx-smp-2.0/common/
+        CCTS_CCT_SchemaModule-2.0.xsd (sha256 432f48d7..., 100% match, lines 23-45).
+        The licence grants perpetual, irrevocable permission to copy and redistribute in
+        whole or in part without restriction; its only condition is that the document is
+        not modified and the copyright notice and permission paragraph are retained. The
+        file is redistributed unmodified with its notice intact, so the condition is met.
+        Same file and same decision as in the dynamic-discovery-client repository, where
+        it is resolved against the project rather than the package."
+      
 curations:
   license_findings:
     - path: "Core/Domibus-MSH/src/main/resources/config/infinispan/domibus-infinispan-default.xml"
