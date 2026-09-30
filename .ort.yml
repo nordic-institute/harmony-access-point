@@ -226,6 +226,17 @@ curations:
       concluded_license: "LGPL-2.1-or-later"
       reason: "INCORRECT"
       comment: "Corrected scanner finding."
+  packages:
+    - id: "Maven:org.roda-project:commons-ip2:2.0.0-alpha2"
+      curations:
+        comment: "The published pom has no <licenses> block and the artifact ships no
+          LICENSE file, so ORT records no declared licence and ScanCode's only findings
+          are a 12.9%-score LPL-1.02 match on the file-header boilerplate plus CC0-1.0 on
+          three files. Upstream tag v2.0.0-alpha2 (aad71f5f) carries the verbatim LGPL-3.0
+          text as LICENSE (sha256 97628afe...), README.md states 'LGPLv3', and all 119
+          source headers point to that file. No 'or later' grant is given, so LGPL-3.0-only."
+        concluded_license: "LGPL-3.0-only"
+        homepage_url: "https://github.com/keeps/commons-ip"
 
 license_choices:
   repository_license_choices:
